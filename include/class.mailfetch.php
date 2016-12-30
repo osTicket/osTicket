@@ -308,7 +308,7 @@ class MailFetcher {
             // Seems like we have a problem with a UTF-8 binary encoded sender
             // Lets decode on our own what we need
             $fullSender = $this->mime_decode($sender->mailbox); // This is normally "Name Surname" <mailname (everything left of the @)
-            $sender->personal = substr($fullSender, 1, strpos($fullSender, '""')-1);
+            $sender->personal = substr($fullSender, 1, strpos($fullSender, '"')-1);
             $sender->mailbox = substr($fullSender, strpos($fullSender, '<')+1);
         }
         //Just what we need...
