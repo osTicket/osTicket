@@ -303,6 +303,14 @@ class MailFetcher {
         Signal::send('mail.decoded', $this, $info);
 
         $sender=$headerinfo->from[0];
+        // Did the sender get correctly parsed?
+        if (isset($headerinfo->from[1]) && 'UNEXPECTED_DATA_AFTER_ADDRESS' === $headerinfo->from[1]->mailbox && '.SYNTAX-ERROR.' === $headerinfo->from[1]->host) {
+            // Seems like we have a problem with a UTF-8 binary encoded sender
+            // Lets decode on our own what we need
+            $fullSender = $this->mime_decode($sender->mailbox); // This is normally "Name Surname" <mailname (everything left of the @)
+            $sender->personal = substr($fullSender, 1, strpos($fullSender, '""')-1);
+            $sender->mailbox = substr($fullSender, strpos($fullSender, '<')+1);
+        }
         //Just what we need...
         $header=array('name'  => $this->mime_decode(@$sender->personal),
                       'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
