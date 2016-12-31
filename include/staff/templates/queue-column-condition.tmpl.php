@@ -3,13 +3,13 @@
 //
 // $field - field for the condition (Ticket / Last Update)
 // $condition - <QueueColumnCondition> instance for this condition
-// $column - <QueueColumn> to which the condition belongs
+// $object_id - ID# of the object to which the condition belongs
 // $id - temporary ID number for the condition
 // $field_name - search path / name for the field
 ?>
 <div class="condition">
   <input name="conditions[]" value="<?php echo $id; ?>" type="hidden" />
-  <input name="condition_column[]" value="<?php echo $column->getId(); ?>"
+  <input name="condition_column[]" value="<?php echo $object_id; ?>"
     type="hidden" />
   <input name="condition_field[]" value="<?php echo $field_name; ?>" type="hidden" />
   <div class="pull-right">
@@ -17,7 +17,7 @@
       return false;
       "><i class="icon-trash"></i></a>
   </div>
-  <?php echo $label ?: $field->getLabel(); ?>
+  <div><strong><?php echo $label ?: $field->getLabel(); ?></div></strong>
   <div class="advanced-search">
 <?php
 $parts = CustomQueue::getSearchField(array($label, $field), $field_name);
