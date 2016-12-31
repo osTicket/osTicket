@@ -198,25 +198,6 @@ class SearchAjaxAPI extends AjaxController {
         )));
     }
 
-    function deleteSearch($id) {
-        global $thisstaff;
-
-        if (!$thisstaff) {
-            Http::response(403, 'Agent login is required');
-        }
-        elseif (!($search = SavedSearch::lookup($id))) {
-            Http::response(404, 'No such saved search');
-        }
-        elseif (!$search->delete()) {
-            Http::response(500, 'Unable to delete search');
-        }
-
-        Http::response(200, $this->encode(array(
-            'id' => $search->id,
-            'success' => true,
-        )));
-    }
-
     function editColumn($column_id) {
         global $thisstaff;
 
@@ -260,6 +241,28 @@ class SearchAjaxAPI extends AjaxController {
         }
 
         include STAFFINC_DIR . 'templates/queue-sorting-edit.tmpl.php';
+    }
+
+    function deleteQueue($id) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        if ($id && (!($queue = CustomQueue::lookup($id)))) {
+            Http::response(404, 'No such queue');
+        }
+        if (!$queue || !$queue->checkAccess($thisstaff)) {
+            Http::response(404, 'No such queue');
+        }
+        if ($_POST) {
+            if (!$queue->delete()) {
+                Http::response(500, 'Unable to delete queue');
+            }
+            Http::response(201, 'Have a nice day');
+        }
+
+        include STAFFINC_DIR . 'templates/queue-delete-confirm.tmpl.php';
     }
 
     function previewQueue($id=false) {
