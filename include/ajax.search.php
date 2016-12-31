@@ -291,8 +291,13 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
-        elseif (!isset($_GET['field']) || !isset($_GET['id']) || !isset($_GET['colid'])) {
-            Http::response(400, '`field`, `id`, and `colid` parameters required');
+        elseif (!isset($_GET['field']) || !isset($_GET['id'])
+            || !isset($_GET['object_id'])
+        ) {
+            Http::response(400, '`field`, `id`, and `object_id` parameters required');
+        }
+        elseif (!is_numeric($_GET['object_id'])) {
+            Http::response(400, '`object_id` should be an integer');
         }
         $fields = SavedSearch::getSearchableFields('Ticket');
         if (!isset($fields[$_GET['field']])) {
@@ -304,7 +309,7 @@ class SearchAjaxAPI extends AjaxController {
         // Ensure `name` is preserved
         $field_name = $_GET['field'];
         $id = $_GET['id'];
-        $column = new QueueColumn(array('id' => $_GET['colid']));
+        $object_id = $_GET['object_id'];
         $condition = new QueueColumnCondition();
         include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
     }
