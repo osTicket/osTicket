@@ -2159,15 +2159,13 @@ class DatetimeField extends FormField {
             $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
             $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
-                "{$name}__lt" => $now,
-                "{$name}__gte" => $now->minus($interval),
+                "{$name}__range" => array($now->minus($interval), $now),
             ));
         case 'ndays':
             $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
             $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
-                "{$name}__gt" => $now,
-                "{$name}__gte" => $now->plus($interval),
+                "{$name}__range" => array($now, $now->plus($interval)),
             ));
         // Distant past and future ranges
         case 'distpast':
