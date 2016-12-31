@@ -190,11 +190,15 @@ if ($thisstaff->isAdmin()) { ?>
                         </li>
 <?php }
 if (
-    ($thisstaff->isAdmin() && $queue->parent_id)
-    || $queue->isPrivate()
-) { ?>
+    $queue->id > 0
+    && (
+        ($thisstaff->isAdmin() && $queue->parent_id)
+        || $queue->isPrivate()
+)) { ?>
                         <li class="danger">
-                            <a class="no-pjax" href="#"><i
+                            <a class="no-pjax confirm-action" href="#"
+                                data-dialog="ajax.php/queue/<?php
+                                echo $queue->id; ?>/delete"><i
                             class="icon-fixed-width icon-trash"></i>
                             <?php echo __('Delete'); ?></a>
                         </li>
