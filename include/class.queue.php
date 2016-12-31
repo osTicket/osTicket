@@ -63,6 +63,7 @@ class CustomQueue extends VerySimpleModel {
     const FLAG_INHERIT_EVERYTHING = 0x78; // Maskf or all INHERIT flags
 
     var $criteria;
+    var $_conditions;
 
     static function queues() {
         return parent::objects()->filter(array(
@@ -108,13 +109,19 @@ class CustomQueue extends VerySimpleModel {
             $this->criteria = is_string($this->config)
                 ? JsonDataParser::decode($this->config)
                 : $this->config;
-            // Auto-upgrade criteria to new format
-            if ($old) {
+            // Auto-upgrade v1.10 saved-search criteria to new format
+            // But support new style with `conditions` support
+            if ($old && is_array($this->criteria)
+                && !isset($this->criteria['conditions'])
+            ) {
                 // TODO: Upgrade old ORM path names
                 $this->criteria = $this->isolateCriteria($this->criteria);
             }
         }
         $criteria = $this->criteria ?: array();
+        // Support new style with `conditions` support
+        if (isset($criteria['criteria']))
+            $criteria = $criteria['criteria'];
         if ($include_parent && $this->parent_id && $this->parent) {
             $criteria = array_merge($this->parent->getCriteria(true),
                 $criteria);
@@ -477,6 +484,22 @@ class CustomQueue extends VerySimpleModel {
             $items[] = array(':keywords', null, $kw);
         }
         return $items;
+    }
+
+    function getConditions() {
+        if (!isset($this->_conditions)) {
+            $this->getCriteria();
+            $conds = array();
+            if (is_array($this->criteria)
+                && isset($this->criteria['conditions'])
+            ) {
+                $conds = $this->criteria['conditions'];
+            }
+            foreach ($conds as $C)
+                if ($T = QueueColumnCondition::fromJson($C))
+                    $this->_conditions[] = $T;
+        }
+        return $this->_conditions;
     }
 
     function getColumns($use_template=false) {
@@ -920,15 +943,23 @@ class CustomQueue extends VerySimpleModel {
             }
         }
 
+        list($this->_conditions, $conditions)
+            = QueueColumn::getConditionsFromPost($vars, $this->id, $this->getRoot());
+
         // TODO: Move this to SavedSearch::update() and adjust
         //       AjaxSearch::_saveSearch()
         $form = $form ?: $this->getForm($vars);
-        if (!$vars || !$form->isValid()) {
+        if (!$vars) {
+            $errors['criteria'] = __('No criteria specified');
+        }
+        elseif (!$form->isValid()) {
             $errors['criteria'] = __('Validation errors exist on criteria');
         }
         else {
-            $this->config = JsonDataEncoder::encode(
-                $this->isolateCriteria($form->getClean()));
+            $this->config = JsonDataEncoder::encode([
+                'criteria' => $this->isolateCriteria($form->getClean()),
+                'conditions' => $conditions,
+            ]);
         }
 
         return 0 === count($errors);
@@ -1436,8 +1467,7 @@ class QueueColumnCondition {
     }
 
     function render($row, $text, &$styles=array()) {
-        $annotation = $this->getAnnotationName();
-        if ($V = $row[$annotation]) {
+        if ($V = $row[$this->getAnnotationName()]) {
             foreach ($this->getProperties() as $css=>$value) {
                 $field = QueueColumnConditionProperty::getField($css);
                 $field->value = $value;
@@ -1817,7 +1847,7 @@ extends VerySimpleModel {
         return $this->_annotations;
     }
 
-    function getConditions() {
+    function getConditions($include_queue=true) {
         if (!isset($this->_conditions)) {
             $this->_conditions = array();
             if ($this->conditions
@@ -1826,6 +1856,12 @@ extends VerySimpleModel {
                 foreach ($conds as $C)
                     if ($T = QueueColumnCondition::fromJson($C))
                         $this->_conditions[] = $T;
+            }
+            // Support row-spanning conditions
+            if ($include_queue && ($q = $this->getQueue())
+                && ($q_conds = $q->getConditions())
+            ) {
+                $this->_conditions = array_merge($this->_conditions, $q_conds);
             }
         }
         return $this->_conditions;
@@ -1863,51 +1899,62 @@ extends VerySimpleModel {
         // Do the conditions
         $this->_conditions = $conditions = array();
         if (isset($vars['conditions'])) {
-            foreach (@$vars['conditions'] as $i=>$id) {
-                if ($vars['condition_column'][$i] != $this->id)
-                    // Not a condition for this column
-                    continue;
-                // Determine the criteria
-                $name = $vars['condition_field'][$i];
-                $fields = CustomQueue::getSearchableFields($root);
-                if (!isset($fields[$name]))
-                    // No such field exists for this queue root type
-                    continue;
-                $parts = CustomQueue::getSearchField($fields[$name], $name);
-                $search_form = new SimpleForm($parts, $vars, array('id' => $id));
-                $search_form->getField("{$name}+search")->value = true;
-                $crit = $search_form->getClean();
-                // Check the box to enable searching on the field
-                $crit["{$name}+search"] = true;
-
-                // Isolate only the critical parts of the criteria
-                $crit = QueueColumnCondition::isolateCriteria($crit);
-
-                // Determine the properties
-                $props = array();
-                foreach ($vars['properties'] as $i=>$cid) {
-                    if ($cid != $id)
-                        // Not a property for this condition
-                        continue;
-
-                    // Determine the property configuration
-                    $prop = $vars['property_name'][$i];
-                    if (!($F = QueueColumnConditionProperty::getField($prop))) {
-                        // Not a valid property
-                        continue;
-                    }
-                    $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
-                    $props[$prop] = $prop_form->getField($prop)->getClean();
-                }
-                $json = array('crit' => $crit, 'prop' => $props);
-                $this->_conditions[] = QueueColumnCondition::fromJson($json);
-                $conditions[] = $json;
-            }
+            list($this->_conditions, $conditions)
+                = self::getConditionsFromPost($vars, $this->id, $root);
         }
 
         // Store as JSON array
         $this->annotations = JsonDataEncoder::encode($annotations);
         $this->conditions = JsonDataEncoder::encode($conditions);
+    }
+
+    static function getConditionsFromPost(array $vars, $myid, $root='Ticket') {
+        $condition_objects = $conditions = array();
+
+        if (!isset($vars['conditions']))
+            return array($condition_objects, $conditions);
+
+        foreach (@$vars['conditions'] as $i=>$id) {
+            if ($vars['condition_column'][$i] != $myid)
+                // Not a condition for this column
+                continue;
+            // Determine the criteria
+            $name = $vars['condition_field'][$i];
+            $fields = CustomQueue::getSearchableFields($root);
+            if (!isset($fields[$name]))
+                // No such field exists for this queue root type
+                continue;
+            $parts = CustomQueue::getSearchField($fields[$name], $name);
+            $search_form = new SimpleForm($parts, $vars, array('id' => $id));
+            $search_form->getField("{$name}+search")->value = true;
+            $crit = $search_form->getClean();
+            // Check the box to enable searching on the field
+            $crit["{$name}+search"] = true;
+
+            // Isolate only the critical parts of the criteria
+            $crit = QueueColumnCondition::isolateCriteria($crit);
+
+            // Determine the properties
+            $props = array();
+            foreach ($vars['properties'] as $i=>$cid) {
+                if ($cid != $id)
+                    // Not a property for this condition
+                    continue;
+
+                // Determine the property configuration
+                $prop = $vars['property_name'][$i];
+                if (!($F = QueueColumnConditionProperty::getField($prop))) {
+                    // Not a valid property
+                    continue;
+                }
+                $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
+                $props[$prop] = $prop_form->getField($prop)->getClean();
+            }
+            $json = array('crit' => $crit, 'prop' => $props);
+            $condition_objects[] = QueueColumnCondition::fromJson($json);
+            $conditions[] = $json;
+        }
+        return array($condition_objects, $conditions);
     }
 }
 
