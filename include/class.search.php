@@ -832,7 +832,29 @@ class AssigneeChoiceField extends ChoiceField {
     }
 }
 
+/**
+ * Simple trait which changes the SQL for "has a value" and "does not have a
+ * value" to check for zero or non-zero. Useful for not nullable fields.
+ */
+trait ZeroMeansUnset {
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        // osTicket commonly uses `0` to represent an unset state, so
+        // the set and unset checks need to check for both not null and
+        // nonzero
+        case 'nset':
+            return new Q([$name => 0]);
+        case 'set':
+            return Q::not([$name => 0]);
+        }
+        return parent::getSearchQ($method, $value, $name);
+    }
+}
+
 class AgentSelectionField extends ChoiceField {
+    use ZeroMeansUnset;
+
     function getChoices($verbose=false) {
         return Staff::getStaffMembers();
     }
@@ -858,6 +880,8 @@ class AgentSelectionField extends ChoiceField {
 }
 
 class TeamSelectionField extends ChoiceField {
+    use ZeroMeansUnset;
+
     function getChoices($verbose=false) {
         return Team::getTeams();
     }
