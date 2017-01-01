@@ -2219,6 +2219,66 @@ class DatetimeField extends FormField {
         }
         return parent::describeSearch($method, $value, $name);
     }
+
+    function supportsQuickFilter() {
+        return true;
+    }
+
+    function getQuickFilterChoices() {
+        return array(
+            'h' => __('Today'),
+            'm' => __('Tomorrow'),
+            'g' => __('Yesterday'),
+            'l7' => __('Last 7 days'),
+            'l30' => __('Last 30 days'),
+            'n7' => __('Next 7 days'),
+            'n30' => __('Next 30 days'),
+            /* Ugh. These boundaries are so difficult in SQL
+            'w' =>  __('This Week'),
+            'm' =>  __('This Month'),
+            'lw' => __('Last Week'),
+            'lm' => __('Last Month'),
+            'nw' => __('Next Week'),
+            'nm' => __('Next Month'),
+            */
+        );
+    }
+
+    function applyQuickFilter($query, $qf_value, $name=false) {
+        $name = $name ?: $this->get('name');
+        $now = SqlFunction::NOW();
+        $midnight = Misc::dbtime(time() - (time() % 86400));
+        switch ($qf_value) {
+        case 'l7':
+            return $query->filter([
+                "{$name}__range" => array($now->minus(SqlInterval::DAY(7)), $now),
+            ]);
+        case 'l30':
+            return $query->filter([
+                "{$name}__range" => array($now->minus(SqlInterval::DAY(30)), $now),
+            ]);
+        case 'n7':
+            return $query->filter([
+                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(7))),
+            ]);
+        case 'n30':
+            return $query->filter([
+                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(30))),
+            ]);
+        case 'g':
+            $midnight -= 86400;
+             // Fall through to the today case
+        case 'm':
+            if ($qf_value === 'm') $midnight += 86400;
+             // Fall through to the today case
+        case 'h':
+            $midnight = DateTime::createFromFormat('U', $midnight);
+            return $query->filter([
+                "{$name}__range" => array($midnight,
+                    SqlExpression::plus($midnight, SqlInterval::DAY(1))),
+            ]);
+        }
+    }
 }
 
 /**
