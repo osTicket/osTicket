@@ -9,9 +9,11 @@ foreach (array_keys($info) as $F) {
 }
 $has_errors = !!$form->errors();
 $inbody = false;
+$already_listed = [];
 $first_field = true;
 foreach ($form->getFields() as $name=>$field) {
     @list($name, $sub) = explode('+', $field->get('name'), 2);
+    $already_listed[$name] = 1;
     if ($sub === 'search') {
         if (!$first_field) {
             echo '</div></div>';
@@ -76,6 +78,9 @@ if (!$first_field)
 <?php
 if (is_array($matches)) {
 foreach ($matches as $path => $F) {
+    # Skip fields already listed above the drop-down
+    if (isset($already_listed[$path]))
+        continue;
     list($label, $field) = $F; ?>
     <option value="<?php echo $path; ?>" <?php
         if (isset($state[$path])) echo 'disabled="disabled"';
