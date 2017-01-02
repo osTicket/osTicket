@@ -383,16 +383,19 @@ implements TemplateVariable {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
+            $vars += $entry->getFilterData();
+
+            // Add in special `name` and `email` fields
             if ($entry->getDynamicForm()->get('type') != 'U')
                 continue;
-            $vars += $entry->getFilterData();
-            // Add in special `name` and `email` fields
+
             foreach (array('name', 'email') as $name) {
                 if ($f = $entry->getField($name))
                     $vars['field.'.$f->get('id')] =
                         $name == 'name' ? $this->getName() : $this->getEmail();
             }
         }
+
         return $vars;
     }
 

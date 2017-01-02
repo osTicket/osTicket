@@ -269,13 +269,16 @@ implements TemplateVariable {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
+            $vars += $entry->getFilterData();
+
+            // Add special `name` field in Org form
             if ($entry->getDynamicForm()->get('type') != 'O')
                 continue;
-            $vars += $entry->getFilterData();
-            // Add special `name` field
-            $f = $entry->getField('name');
-            $vars['field.'.$f->get('id')] = $this->getName();
+
+            if ($f = $entry->getField('name'))
+                $vars['field.'.$f->get('id')] = $this->getName();
         }
+
         return $vars;
     }
 
