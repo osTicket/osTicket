@@ -5,7 +5,7 @@
 
 .action-dropdown, .noclick-dropdown {
   position: absolute;
-  z-index: 9999998;
+  z-index: 8;
   display: none;
   margin-top: 8px;
 }

@@ -734,6 +734,7 @@ class DynamicFormField extends VerySimpleModel {
     function addToQuery($query, $name=false) {
         return $query->values($name ?: $this->get('name'));
     }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form
@@ -827,6 +828,7 @@ class DynamicFormEntry extends VerySimpleModel {
     function getFormId() {
         return $this->form_id;
     }
+
     function getAnswers() {
         return $this->answers;
     }

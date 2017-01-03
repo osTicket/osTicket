@@ -76,13 +76,12 @@ if (!$ticket) {
         $key = substr(md5($_GET['query']), -10);
         if ($_GET['search-type'] == 'typeahead') {
             // Use a faster index
-			$criteria = ['user__emails__address', 'equal', $_GET['query']];
-			
+            $criteria = ['user__emails__address', 'equal', $_GET['query']];
         }
         else {
             $criteria = [':keywords', null, $_GET['query']];
         }
-		$_SESSION['advsearch'][$key] = [$criteria];
+        $_SESSION['advsearch'][$key] = [$criteria];
         $queue_id = "adhoc,{$key}";
     }
 

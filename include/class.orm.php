@@ -727,6 +727,21 @@ class VerySimpleModel {
     function getDbFields() {
         return $this->ht;
     }
+
+    /**
+     * Create a new clone of this model. The primary key will be unset and the
+     * object will be set as __new__. The __clone() magic method is reserved
+     * by the buildModel() system, because it clone's a single instance when
+     * hydrating objects from the database.
+     */
+    function copy() {
+        // Drop the PK and set as unsaved
+        $dup = clone $this;
+        foreach ($dup::getMeta('pk') as $f)
+            $dup->__unset($f);
+        $dup->__new__ = true;
+        return $dup;
+    }
 }
 
 /**
@@ -814,7 +829,7 @@ trait WriteableAnnotatedModelTrait {
     }
 
     function __isset($what) {
-        if ($this->__overlay__->__isset($what))
+        if (isset($this->__overlay__) && $this->__overlay__->__isset($what))
             return true;
         return parent::__isset($what);
     }
@@ -1362,6 +1377,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     function total() {
         if (isset($this->total))
             return $this->total;
+
         // Optimize the query with the CALC_FOUND_ROWS if
         // - the compiler supports it
         // - the iterator hasn't yet been built, that is, the query for this
@@ -1663,13 +1679,6 @@ implements ArrayAccess {
         }
     }
 
-    function reset() {
-        $this->eoi = false;
-        $this->cache = array();
-        // XXX: Should the inner be recreated to refetch?
-        $this->inner->rewind();
-    }
-
     function asArray() {
         $this->fillTo(PHP_INT_MAX);
         return $this->getCache();
@@ -1677,6 +1686,13 @@ implements ArrayAccess {
 
     function getCache() {
         return $this->storage;
+    }
+
+    function reset() {
+        $this->eoi = false;
+        $this->storage = array();
+        // XXX: Should the inner be recreated to refetch?
+        $this->inner->rewind();
     }
 
     function getIterator() {

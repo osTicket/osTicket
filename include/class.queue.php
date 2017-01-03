@@ -60,7 +60,10 @@ class CustomQueue extends VerySimpleModel {
     const FLAG_INHERIT_SORTING =  0x0020; // Inherit advanced sorting from parent
     const FLAG_INHERIT_DEF_SORT = 0x0040; // Inherit default selected sort
 
+    const FLAG_INHERIT_EVERYTHING = 0x78; // Maskf or all INHERIT flags
+
     var $criteria;
+    var $_conditions;
 
     static function queues() {
         return parent::objects()->filter(array(
@@ -106,13 +109,21 @@ class CustomQueue extends VerySimpleModel {
             $this->criteria = is_string($this->config)
                 ? JsonDataParser::decode($this->config)
                 : $this->config;
-            // Auto-upgrade criteria to new format
-            if ($old) {
+            // Auto-upgrade v1.10 saved-search criteria to new format
+            // But support new style with `conditions` support
+            if ($old && is_array($this->criteria)
+                && !isset($this->criteria['conditions'])
+            ) {
+
                 // TODO: Upgrade old ORM path names
                 $this->criteria = $this->isolateCriteria($this->criteria);
             }
         }
         $criteria = $this->criteria ?: array();
+
+        // Support new style with `conditions` support
+        if (isset($criteria['criteria']))
+            $criteria = $criteria['criteria'];
         if ($include_parent && $this->parent_id && $this->parent) {
             $criteria = array_merge($this->parent->getCriteria(true),
                 $criteria);
@@ -477,6 +488,22 @@ class CustomQueue extends VerySimpleModel {
         return $items;
     }
 
+    function getConditions() {
+        if (!isset($this->_conditions)) {
+            $this->getCriteria();
+            $conds = array();
+            if (is_array($this->criteria)
+                && isset($this->criteria['conditions'])
+            ) {
+                $conds = $this->criteria['conditions'];
+            }
+            foreach ($conds as $C)
+                if ($T = QueueColumnCondition::fromJson($C))
+                    $this->_conditions[] = $T;
+        }
+        return $this->_conditions;
+    }
+
     function getColumns($use_template=false) {
         if ($this->columns_id
             && ($q = CustomQueue::lookup($this->columns_id))
@@ -508,13 +535,8 @@ class CustomQueue extends VerySimpleModel {
                 "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
                 "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
             )),
-			QueueColumn::placeholder(array(
-                "heading" => "Plant",
-                "primary" => 'user__org__name',
-                "width" => 100,
-            )),
             QueueColumn::placeholder(array(
-                "heading" => "Opened",
+                "heading" => "Created",
                 "primary" => 'created',
                 "width" => 100,
             )),
@@ -531,23 +553,13 @@ class CustomQueue extends VerySimpleModel {
                 "primary" => 'user__name',
                 "width" => 150,
             )),
-			QueueColumn::placeholder(array(
-                "heading" => "Help Topic",
-                "primary" => 'topic_id',
-                "width" => 100,
-            )),
-			QueueColumn::placeholder(array(
-                "heading" => "Status",
-                "primary" => 'status__name',
-                "width" => 100,
-            )),
             QueueColumn::placeholder(array(
                 "heading" => "Priority",
                 "primary" => 'cdata__priority',
                 "width" => 120,
             )),
             QueueColumn::placeholder(array(
-                "heading" => "Assigned To",
+                "heading" => "Assignee",
                 "primary" => 'assignee',
                 "width" => 100,
             )),
@@ -718,7 +730,6 @@ class CustomQueue extends VerySimpleModel {
                         $qs = $qs->filter($q);
             }
         }
-
 
         return $qs;
     }
@@ -936,15 +947,24 @@ class CustomQueue extends VerySimpleModel {
             }
         }
 
+
+        list($this->_conditions, $conditions)
+            = QueueColumn::getConditionsFromPost($vars, $this->id, $this->getRoot());
+
         // TODO: Move this to SavedSearch::update() and adjust
         //       AjaxSearch::_saveSearch()
         $form = $form ?: $this->getForm($vars);
-        if (!$vars || !$form->isValid()) {
+        if (!$vars) {
+            $errors['criteria'] = __('No criteria specified');
+        }
+        elseif (!$form->isValid()) {
             $errors['criteria'] = __('Validation errors exist on criteria');
         }
         else {
-            $this->config = JsonDataEncoder::encode(
-                $this->isolateCriteria($form->getClean()));
+            $this->config = JsonDataEncoder::encode([
+                'criteria' => $this->isolateCriteria($form->getClean()),
+                'conditions' => $conditions,
+            ]);
         }
 
         return 0 === count($errors);
@@ -1263,10 +1283,10 @@ extends QueueColumnAnnotation {
 
         return $query
             ->annotate(array(
-                '_locked' => new SqlExpr(array(new Q(array(
+                '_locked' => new SqlExpr(new Q(array(
                     'lock__expire__gt' => SqlFunction::NOW(),
                     Q::not(array('lock__staff_id' => $thisstaff->getId())),
-                ))))
+                )))
             ));
     }
 
@@ -1277,6 +1297,65 @@ extends QueueColumnAnnotation {
 
     function isVisible($row) {
         return $row['_locked'];
+    }
+}
+
+class AssigneeAvatarDecoration
+extends QueueColumnAnnotation {
+    static $icon = "user";
+    static $desc = /* @trans */ 'Assignee Avatar';
+
+    function annotate($query) {
+        return $query->values('staff_id', 'team_id');
+    }
+
+    function getDecoration($row, $text) {
+        if ($row['staff_id'] && ($staff = Staff::lookup($row['staff_id'])))
+            return sprintf('<span class="avatar">%s</span>',
+                $staff->getAvatar(16));
+        elseif ($row['team_id'] && ($team = Team::lookup($row['team_id']))) {
+            $avatars = [];
+            foreach ($team->getMembers() as $T)
+                $avatars[] = $T->getAvatar(16);
+            return sprintf('<span class="avatar group %s">%s</span>',
+                count($avatars), implode('', $avatars));
+        }
+    }
+
+    function isVisible($row) {
+        return $row['staff_id'] + $row['team_id'] > 0;
+    }
+
+    function getWidth($row) {
+        if (!$this->isVisible($row))
+            return 0;
+
+        // If assigned to a team with no members, return 0 width
+        $width = 10;
+        if ($row['team_id'] && ($team = Team::lookup($row['team_id'])))
+            $width += (count($team->getMembers()) - 1) * 10;
+
+        return $width ? $width + 10 : $width;
+    }
+}
+
+class UserAvatarDecoration
+extends QueueColumnAnnotation {
+    static $icon = "user";
+    static $desc = /* @trans */ 'User Avatar';
+
+    function annotate($query) {
+        return $query->values('user_id');
+    }
+
+    function getDecoration($row, $text) {
+        if ($row['user_id'] && ($user = User::lookup($row['user_id'])))
+            return sprintf('<span class="avatar">%s</span>',
+                $user->getAvatar(16));
+    }
+
+    function isVisible($row) {
+        return $row['user_id'] > 0;
     }
 }
 
@@ -1393,8 +1472,8 @@ class QueueColumnCondition {
     }
 
     function render($row, $text, &$styles=array()) {
-        $annotation = $this->getAnnotationName();
-        if ($V = $row[$annotation]) {
+
+        if ($V = $row[$this->getAnnotationName()]) {
             foreach ($this->getProperties() as $css=>$value) {
                 $field = QueueColumnConditionProperty::getField($css);
                 $field->value = $value;
@@ -1566,8 +1645,9 @@ extends VerySimpleModel {
     }
 
     function getFilter() {
-         if ($this->filter)
-             return QueueColumnFilter::getInstance($this->filter);
+         if ($this->filter
+                && ($F = QueueColumnFilter::getInstance($this->filter)))
+            return $F;
      }
 
     function getName() {
@@ -1773,7 +1853,7 @@ extends VerySimpleModel {
         return $this->_annotations;
     }
 
-    function getConditions() {
+    function getConditions($include_queue=true) {
         if (!isset($this->_conditions)) {
             $this->_conditions = array();
             if ($this->conditions
@@ -1782,6 +1862,13 @@ extends VerySimpleModel {
                 foreach ($conds as $C)
                     if ($T = QueueColumnCondition::fromJson($C))
                         $this->_conditions[] = $T;
+            }
+
+            // Support row-spanning conditions
+            if ($include_queue && ($q = $this->getQueue())
+                && ($q_conds = $q->getConditions())
+            ) {
+                $this->_conditions = array_merge($this->_conditions, $q_conds);
             }
         }
         return $this->_conditions;
@@ -1819,51 +1906,62 @@ extends VerySimpleModel {
         // Do the conditions
         $this->_conditions = $conditions = array();
         if (isset($vars['conditions'])) {
-            foreach (@$vars['conditions'] as $i=>$id) {
-                if ($vars['condition_column'][$i] != $this->id)
-                    // Not a condition for this column
-                    continue;
-                // Determine the criteria
-                $name = $vars['condition_field'][$i];
-                $fields = CustomQueue::getSearchableFields($root);
-                if (!isset($fields[$name]))
-                    // No such field exists for this queue root type
-                    continue;
-                $parts = CustomQueue::getSearchField($fields[$name], $name);
-                $search_form = new SimpleForm($parts, $vars, array('id' => $id));
-                $search_form->getField("{$name}+search")->value = true;
-                $crit = $search_form->getClean();
-                // Check the box to enable searching on the field
-                $crit["{$name}+search"] = true;
-
-                // Isolate only the critical parts of the criteria
-                $crit = QueueColumnCondition::isolateCriteria($crit);
-
-                // Determine the properties
-                $props = array();
-                foreach ($vars['properties'] as $i=>$cid) {
-                    if ($cid != $id)
-                        // Not a property for this condition
-                        continue;
-
-                    // Determine the property configuration
-                    $prop = $vars['property_name'][$i];
-                    if (!($F = QueueColumnConditionProperty::getField($prop))) {
-                        // Not a valid property
-                        continue;
-                    }
-                    $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
-                    $props[$prop] = $prop_form->getField($prop)->getClean();
-                }
-                $json = array('crit' => $crit, 'prop' => $props);
-                $this->_conditions[] = QueueColumnCondition::fromJson($json);
-                $conditions[] = $json;
-            }
+            list($this->_conditions, $conditions)
+                = self::getConditionsFromPost($vars, $this->id, $root);
         }
 
         // Store as JSON array
         $this->annotations = JsonDataEncoder::encode($annotations);
         $this->conditions = JsonDataEncoder::encode($conditions);
+    }
+
+    static function getConditionsFromPost(array $vars, $myid, $root='Ticket') {
+        $condition_objects = $conditions = array();
+
+        if (!isset($vars['conditions']))
+            return array($condition_objects, $conditions);
+
+        foreach (@$vars['conditions'] as $i=>$id) {
+            if ($vars['condition_column'][$i] != $myid)
+                // Not a condition for this column
+                continue;
+            // Determine the criteria
+            $name = $vars['condition_field'][$i];
+            $fields = CustomQueue::getSearchableFields($root);
+            if (!isset($fields[$name]))
+                // No such field exists for this queue root type
+                continue;
+            $parts = CustomQueue::getSearchField($fields[$name], $name);
+            $search_form = new SimpleForm($parts, $vars, array('id' => $id));
+            $search_form->getField("{$name}+search")->value = true;
+            $crit = $search_form->getClean();
+            // Check the box to enable searching on the field
+            $crit["{$name}+search"] = true;
+
+            // Isolate only the critical parts of the criteria
+            $crit = QueueColumnCondition::isolateCriteria($crit);
+
+            // Determine the properties
+            $props = array();
+            foreach ($vars['properties'] as $i=>$cid) {
+                if ($cid != $id)
+                    // Not a property for this condition
+                    continue;
+
+                // Determine the property configuration
+                $prop = $vars['property_name'][$i];
+                if (!($F = QueueColumnConditionProperty::getField($prop))) {
+                    // Not a valid property
+                    continue;
+                }
+                $prop_form = new SimpleForm(array($F), $vars, array('id' => $cid));
+                $props[$prop] = $prop_form->getField($prop)->getClean();
+            }
+            $json = array('crit' => $crit, 'prop' => $props);
+            $condition_objects[] = QueueColumnCondition::fromJson($json);
+            $conditions[] = $json;
+        }
+        return array($condition_objects, $conditions);
     }
 }
 
@@ -2113,8 +2211,9 @@ abstract class QueueColumnFilter {
 
     static function getInstance($id) {
         if (isset(static::$registry[$id])) {
-            list(, $class) = static::$registry[$id];
-            return new $class();
+            list(, $class) = @static::$registry[$id];
+            if ($class && class_exists($class))
+                return new $class();
         }
     }
 
@@ -2137,7 +2236,6 @@ extends QueueColumnFilter {
         static $fields = array(
             'link:ticket'   => 'ticket_id',
             'link:ticketP'  => 'ticket_id',
-			'link:ticketTP'  => 'ticket_id',
             'link:user'     => 'user_id',
             'link:org'      => 'user__org_id',
         );

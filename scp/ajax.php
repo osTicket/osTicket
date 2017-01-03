@@ -267,7 +267,8 @@ $dispatcher = patterns('',
         url_get('^addColumn$', 'addColumn'),
         url_get('^condition/add$', 'addCondition'),
         url_get('^condition/addProperty$', 'addConditionProperty'),
-        url_get('^counts$', 'collectQueueCounts')
+        url_get('^counts$', 'collectQueueCounts'),
+        url('^(?P<id>\d+)/delete$', 'deleteQueue')
     ))
 );
 
