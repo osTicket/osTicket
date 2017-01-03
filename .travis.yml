@@ -9,4 +9,4 @@ before_install:
   - docker build -t ost/test .
   - docker run -d -p 127.0.0.1:80:4567 ost/test /bin/sh -c "echo awesomo"
   - docker ps -a
-  - docker run carlad/sinatra /bin/sh -c "echo dasboot"
+  - docker run ost/test /bin/sh -c "echo dasboot"
