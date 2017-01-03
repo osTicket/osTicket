@@ -219,8 +219,7 @@ if($ticket->isOverdue())
                 ?>
               </ul>
 			</div>
-                
-           </div>
+          </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>

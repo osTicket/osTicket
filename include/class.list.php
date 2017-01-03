@@ -1279,7 +1279,7 @@ implements CustomListItem, TemplateVariable, Searchable {
             'state' => new TicketStateChoiceField(array(
                 'label' => __('State'),
             )),
-            'name' => new TextBoxField(array(
+            'name' => new TicketStatusChoiceField(array(
                 'label' => __('Status Name'),
             )),
         );

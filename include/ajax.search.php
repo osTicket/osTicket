@@ -171,7 +171,9 @@ class SearchAjaxAPI extends AjaxController {
         if (!$search->update($_POST, $errors)
             || !$search->save()
         ) {
-            return $this->_tryAgain($search, $form, $errors);
+
+            $this->_tryAgain($search, $form, $errors);
+            return false;
         }
 
         if (false === $this->_setupSearch($search, $form)) {
@@ -194,25 +196,6 @@ class SearchAjaxAPI extends AjaxController {
 
         Http::response(200, $this->encode(array(
             'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
-        )));
-    }
-
-    function deleteSearch($id) {
-        global $thisstaff;
-
-        if (!$thisstaff) {
-            Http::response(403, 'Agent login is required');
-        }
-        elseif (!($search = SavedSearch::lookup($id))) {
-            Http::response(404, 'No such saved search');
-        }
-        elseif (!$search->delete()) {
-            Http::response(500, 'Unable to delete search');
-        }
-
-        Http::response(200, $this->encode(array(
-            'id' => $search->id,
-            'success' => true,
         )));
     }
 
@@ -261,6 +244,28 @@ class SearchAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/queue-sorting-edit.tmpl.php';
     }
 
+    function deleteQueue($id) {
+        global $thisstaff;
+
+        if (!$thisstaff) {
+            Http::response(403, 'Agent login is required');
+        }
+        if ($id && (!($queue = CustomQueue::lookup($id)))) {
+            Http::response(404, 'No such queue');
+        }
+        if (!$queue || !$queue->checkAccess($thisstaff)) {
+            Http::response(404, 'No such queue');
+        }
+        if ($_POST) {
+            if (!$queue->delete()) {
+                Http::response(500, 'Unable to delete queue');
+            }
+            Http::response(201, 'Have a nice day');
+        }
+
+        include STAFFINC_DIR . 'templates/queue-delete-confirm.tmpl.php';
+    }
+
     function previewQueue($id=false) {
         global $thisstaff;
 
@@ -290,8 +295,13 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
-        elseif (!isset($_GET['field']) || !isset($_GET['id']) || !isset($_GET['colid'])) {
-            Http::response(400, '`field`, `id`, and `colid` parameters required');
+        elseif (!isset($_GET['field']) || !isset($_GET['id'])
+            || !isset($_GET['object_id'])
+        ) {
+            Http::response(400, '`field`, `id`, and `object_id` parameters required');
+        }
+        elseif (!is_numeric($_GET['object_id'])) {
+            Http::response(400, '`object_id` should be an integer');
         }
         $fields = SavedSearch::getSearchableFields('Ticket');
         if (!isset($fields[$_GET['field']])) {
@@ -303,7 +313,7 @@ class SearchAjaxAPI extends AjaxController {
         // Ensure `name` is preserved
         $field_name = $_GET['field'];
         $id = $_GET['id'];
-        $column = new QueueColumn(array('id' => $_GET['colid']));
+        $object_id = $_GET['object_id'];
         $condition = new QueueColumnCondition();
         include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
     }

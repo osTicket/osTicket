@@ -117,12 +117,13 @@ foreach (Internationalization::sortKeyedList($annotations) as $class=>$desc) {
   ?></div>
   <div class="conditions">
 <?php
-if ($column->getConditions()) {
+if ($column->getConditions(false)) {
   $fields = CustomQueue::getSearchableFields($root);
   foreach ($column->getConditions() as $i=>$condition) {
      $id = QueueColumnCondition::getUid();
      list($label, $field) = $condition->getField();
      $field_name = $condition->getFieldName();
+     $object_id = $column->getId();
      include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
   }
 } ?>
@@ -147,7 +148,7 @@ if ($column->getConditions()) {
               selected = $this.find(':selected');
           $.ajax({
             url: 'ajax.php/queue/condition/add',
-            data: { field: selected.val(), colid: colid, id: nextid },
+            data: { field: selected.val(), object_id: colid, id: nextid },
             dataType: 'html',
             success: function(html) {
               $(html).insertBefore(container);

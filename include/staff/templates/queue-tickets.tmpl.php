@@ -98,7 +98,6 @@ $tickets = $pageNav->paginateSimple($tickets);
 $count = $tickets->total();
 $pageNav->setTotal($count);
 $pageNav->setURL('tickets.php', $args);
-
 ?>
 
 <!-- SEARCH FORM START -->
@@ -128,7 +127,7 @@ return false;">
       </button>
     </div>
     <a href="#" onclick="javascript:
-        $.dialog('ajax.php/tickets/search', 201); "
+        $.dialog('ajax.php/tickets/search', 201);"
         >[<?php echo __('advanced'); ?>]</a>
         <i class="help-tip icon-question-sign" href="#advanced"></i>
     </form>
@@ -182,12 +181,31 @@ else {
                         </li>
 <?php
 }
+
+if ($thisstaff->isAdmin()) { ?>
+                        <li>
+                            <a class="no-pjax"
+                            href="queues.php?a=sub&amp;id=<?php echo $queue->id; ?>"><i
+                            class="icon-fixed-width icon-level-down"></i>
+                            <?php echo __('Add Sub Queue'); ?></a>
+                        </li>
+                        <li>
+                            <a class="no-pjax"
+                            href="queues.php?a=clone&amp;id=<?php echo $queue->id; ?>"><i
+                            class="icon-fixed-width icon-copy"></i>
+                            <?php echo __('Clone'); ?></a>
+                        </li>
+<?php }
 if (
-    ($thisstaff->isAdmin() && $queue->parent_id)
-    || $queue->isPrivate()
-) { ?>
+    $queue->id > 0
+    && (
+        ($thisstaff->isAdmin() && $queue->parent_id)
+        || $queue->isPrivate()
+)) { ?>
                         <li class="danger">
-                            <a class="no-pjax" href="#"><i
+                            <a class="no-pjax confirm-action" href="#"
+                                data-dialog="ajax.php/queue/<?php
+                                echo $queue->id; ?>/delete"><i
                             class="icon-fixed-width icon-trash"></i>
                             <?php echo __('Delete'); ?></a>
                         </li>
@@ -220,7 +238,6 @@ if (
 $canManageTickets = $thisstaff->canManageTickets();
 if ($canManageTickets) { ?>
         <th style="width:12px"></th>
-
 <?php
 }
 
@@ -242,7 +259,6 @@ foreach ($columns as $C) {
   </thead>
   <tbody>
 <?php
-
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
