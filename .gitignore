@@ -1,3 +1,4 @@
+.gitignore
 .htaccess
 php53.cgi
 include/ost-config.php
@@ -9,8 +10,8 @@ setup/cli/modules/importer
 Vagrantfile
 
 # Docker 
-.Dockerfile
-docker-compose.yml
+/Dockerfile
+/docker-compose.yml
 
 # Staging directory used for packaging script
 stage

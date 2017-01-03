@@ -35,6 +35,8 @@ function db_connect($host, $user, $passwd, $options = array()) {
                 $options['ssl']['cert'],
                 $options['ssl']['ca'],
                 null, null);
+    elseif(!$passwd && OST_IS_DEVELOPER_MODE !== true)
+        return NULL;
 
     $port = ini_get("mysqli.default_port");
     $socket = ini_get("mysqli.default_socket");
