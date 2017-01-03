@@ -1,6 +1,6 @@
 /**
  * @version v1.12
- * @signature 00000000000000000000000000000000
+ * @signature 277de0a6c3fc7062214428e43989cf1e
  * @title Add task templates and groups
  */
 
@@ -19,7 +19,7 @@ INSERT INTO `%TABLE_PREFIX%event`
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task_set`;
 CREATE TABLE `%TABLE_PREFIX%task_set` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `template_group_id` int(10) unsigned NOT NULL,
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `depends` int(10) unsigned NOT NULL DEFAULT '0',
@@ -38,26 +38,26 @@ CREATE TABLE `%TABLE_PREFIX%task_template` (
   `staff_id` int(10) unsigned NOT NULL DEFAULT '0',
   `team_id` int(10) unsigned NOT NULL DEFAULT '0',
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `duedate` varchar(20) CHARACTER SET ascii DEFAULT NULL COMMENT 'eg. `ticket+2d`',
-  `depends` text NULL CHARACTER SET ascii,
-  `data` TEXT NULL COMMENT 'Data for task form',
+  `duedate` varchar(20) collate ascii_bin DEFAULT NULL COMMENT 'eg. `ticket+2d`',
+  `depends` text collate ascii_bin NULL,
+  `data` TEXT NULL,
   `sort` int(10) unsigned NOT NULL DEFAULT '0',
   `notes` text DEFAULT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `task_group_id` (`task_group_id`)
+  KEY `group_id` (`group_id`)
 ) DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `%TABLE_PREFIX%task_template_forms`;
-CREATE TABLE `%TABLE_PREFIX%task_template_forms` (
+DROP TABLE IF EXISTS `%TABLE_PREFIX%task_template_form`;
+CREATE TABLE `%TABLE_PREFIX%task_template_form` (
   `template_id` int(10) unsigned NOT NULL,
   `form_id` int(10) unsigned NOT NULL,
   `sort` int(10) unsigned DEFAULT NULL,
   `data` text,
   `extra` text,
-  PRIMARY KEY (`task_id`,`form_id`)
-) DEFAULT CHARSET=utf8
+  PRIMARY KEY (`template_id`,`form_id`)
+) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task_template_group`;
 CREATE TABLE `%TABLE_PREFIX%task_template_group` (
@@ -70,9 +70,9 @@ CREATE TABLE `%TABLE_PREFIX%task_template_group` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8
+) DEFAULT CHARSET=utf8;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '00000000000000000000000000000000'
+    SET `value` = '859f0f41b2084fa443cd6caaf1ecc161'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';

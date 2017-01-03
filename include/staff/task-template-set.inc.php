@@ -35,7 +35,7 @@ $qs += array('group_id' => $set->getId());
           <li>
             <a data-dialog="ajax.php/tasks/template/group/<?php echo $set->getId(); ?>" href="#">
               <i class="icon-cogs icon-fixed-width"></i>
-              <?php echo __('Edit Set Info'); ?>
+              <?php echo __('Edit Group Info'); ?>
             </a>
           </li>
           <li>

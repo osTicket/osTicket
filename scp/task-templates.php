@@ -34,7 +34,7 @@ if ($_POST) {
             Messages::warning(__('Unable to update associated forms'));
         }
         else {
-            Messages::success(__('Task templated created successfully'));
+            Messages::success(__('Task template created successfully'));
         }
         break;
 
