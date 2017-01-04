@@ -9,7 +9,7 @@ before_install:
   - docker build -t ost/test .
 #  - docker run -d -p 127.0.0.1:80:4567 ost/test /bin/sh -c "echo awesomo"
 #  - docker ps -a
-  - docker run ost/test /bin/sh -c "echo theboat; exit 1"
 
 script:
+  - docker run ost/test /bin/sh -c "echo theboat; exit 1"
   - echo "Allo, allo!"
