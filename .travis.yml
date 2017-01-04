@@ -10,4 +10,4 @@ before_install:
 
 script:
   - docker run ost/test
-  - echo "'Allo, 'Allo!"
+  - echo J0FsbG8sICdBbGxvIQo= | base64 --decode
