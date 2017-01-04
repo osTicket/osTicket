@@ -1,15 +1,11 @@
 sudo: required
 
-language: php
-
 services:
   - docker
 
 before_install:
   - docker build -t ost/test .
-#  - docker run -d -p 127.0.0.1:80:4567 ost/test /bin/sh -c "echo awesomo"
-#  - docker ps -a
 
 script:
-  - docker run ost/test /bin/sh -c "echo theboat; exit 1"
+  - docker run ost/test
   - echo "Allo, allo!"
