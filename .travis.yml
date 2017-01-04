@@ -5,9 +5,9 @@ language: python
 services:
   - docker
 
-#before_install:
-#  - docker build -t ost/test .
+before_install:
+  - docker build -t ost/test setup/test/Dockerfile-5.6
 
 script:
-#  - docker run ost/test
-  - echo "Allo, allo!"
+  - docker run ost/test
+  - echo "'Allo, 'Allo!"
