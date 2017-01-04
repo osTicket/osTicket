@@ -1,6 +1,6 @@
 sudo: required
 
-language: php
+language: c
 
 services:
   - docker
@@ -10,3 +10,6 @@ before_install:
   - docker run -d -p 127.0.0.1:80:4567 ost/test /bin/sh -c "echo awesomo"
   - docker ps -a
   - docker run ost/test /bin/sh -c "echo theboat"
+
+script:
+  - echo "Allo, allo!"
