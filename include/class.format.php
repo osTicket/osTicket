@@ -302,12 +302,13 @@ class Format {
         // Remove HEAD and STYLE sections
         $html = preg_replace(
             array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
+                  ':<head/>:',                  # lonely <head/> sections
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
             ),
-            array('', '', '', '', '<html'),
+            array('', '', '', '', '', '<html'),
             $html);
 
         // HtmLawed specific config only
