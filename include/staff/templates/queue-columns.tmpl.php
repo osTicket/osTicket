@@ -1,12 +1,13 @@
 <div style="overflow-y: auto; height:auto; max-height: 350px;">
 <table class="table">
 <?php
+$hidden_cols = $queue->inheritColumns() || count($queue->columns) === 0;
 if ($queue->parent) { ?>
   <tbody>
     <tr>
       <td colspan="3">
         <input type="checkbox" name="inherit-columns" <?php
-          if ($queue->inheritColumns()) echo 'checked="checked"'; ?>
+          if ($hidden_cols) echo 'checked="checked"'; ?>
           onchange="javascript:$(this).closest('table').find('.if-not-inherited').toggle(!$(this).prop('checked'));" />
         <?php echo __('Inherit columns from the parent queue'); ?>
         <br /><br />

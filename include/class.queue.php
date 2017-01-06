@@ -118,12 +118,13 @@ class CustomQueue extends VerySimpleModel {
 
     function getCriteria($include_parent=false) {
         if (!isset($this->criteria)) {
-            $old = @$this->config[0] === '{';
             $this->criteria = is_string($this->config)
                 ? JsonDataParser::decode($this->config)
                 : $this->config;
+            // XXX: Drop this block in v1.12
             // Auto-upgrade v1.10 saved-search criteria to new format
             // But support new style with `conditions` support
+            $old = @$this->config[0] === '{';
             if ($old && is_array($this->criteria)
                 && !isset($this->criteria['conditions'])
             ) {
@@ -641,7 +642,10 @@ class CustomQueue extends VerySimpleModel {
             && $this->hasFlag(self::FLAG_INHERIT_COLUMNS)
             && $this->parent
         ) {
-            return $this->parent->getColumns();
+            $columns = $this->parent->getColumns();
+            foreach ($columns as $c)
+                $c->setQueue($this);
+            return $columns;
         }
         elseif (count($this->columns)) {
             return $this->columns;
@@ -1214,9 +1218,10 @@ class CustomQueue extends VerySimpleModel {
             $errors['criteria'] = __('Validation errors exist on criteria');
         }
         else {
+            $this->criteria = static::isolateCriteria($form->getClean(),
+                $this->getRoot());
             $this->config = JsonDataEncoder::encode([
-                'criteria' => self::isolateCriteria($form->getClean(),
-                    $this->getRoot()),
+                'criteria' => $this->criteria,
                 'conditions' => $conditions,
             ]);
             // Clear currently set criteria.and conditions.
@@ -1684,7 +1689,8 @@ class QueueColumnCondition {
 
     // Add the annotation to a QuerySet
     function annotate($query) {
-        $Q = $this->getSearchQ($query);
+        if (!($Q = $this->getSearchQ($query)))
+            return $query;
 
         // Add an annotation to the query
         return $query->annotate(array(
@@ -1929,6 +1935,7 @@ extends VerySimpleModel {
 
     var $_annotations;
     var $_conditions;
+    var $_queue;            // Apparent queue if being inherited
 
     function getId() {
         return $this->id;
@@ -1947,7 +1954,15 @@ extends VerySimpleModel {
     // These getters fetch data from the annotated overlay from the
     // queue_column table
     function getQueue() {
-        return $this->queue;
+        return $this->_queue ?: $this->queue;
+    }
+    /**
+     * If a column is inherited into a child queue and there are conditions
+     * added to that queue, then the column will need to be linked at
+     * run-time to the child queue rather than the parent.
+     */
+    function setQueue(CustomQueue $queue) {
+        $this->_queue = $queue;
     }
 
     function getWidth() {
@@ -1993,7 +2008,7 @@ extends VerySimpleModel {
         $text = $this->renderBasicValue($row);
 
         // Filter
-        if ($filter = $this->getFilter()) {
+        if ($text && ($filter = $this->getFilter())) {
             $text = $filter->filter($text, $row) ?: $text;
         }
 
