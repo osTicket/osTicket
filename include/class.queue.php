@@ -1697,7 +1697,7 @@ extends VerySimpleModel {
         $text = $this->renderBasicValue($row);
 
         // Filter
-        if ($filter = $this->getFilter()) {
+        if ($text && ($filter = $this->getFilter())) {
             $text = $filter->filter($text, $row) ?: $text;
         }
 
