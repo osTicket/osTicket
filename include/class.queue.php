@@ -956,8 +956,9 @@ class CustomQueue extends VerySimpleModel {
             $errors['criteria'] = __('Validation errors exist on criteria');
         }
         else {
+            $this->criteria = $this->isolateCriteria($form->getClean());
             $this->config = JsonDataEncoder::encode([
-                'criteria' => $this->isolateCriteria($form->getClean()),
+                'criteria' => $this->criteria,
                 'conditions' => $conditions,
             ]);
         }
@@ -1388,7 +1389,8 @@ class QueueColumnCondition {
 
     // Add the annotation to a QuerySet
     function annotate($query) {
-        $Q = $this->getSearchQ($query);
+        if (!($Q = $this->getSearchQ($query)))
+            return $query;
 
         // Add an annotation to the query
         return $query->annotate(array(

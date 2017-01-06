@@ -122,6 +122,8 @@ if ($column->getConditions(false)) {
   foreach ($column->getConditions() as $i=>$condition) {
      $id = QueueColumnCondition::getUid();
      list($label, $field) = $condition->getField();
+     if (!$label || !$field)
+        continue;
      $field_name = $condition->getFieldName();
      $object_id = $column->getId();
      include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
