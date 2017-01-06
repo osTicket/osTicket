@@ -18,11 +18,13 @@
       <!-- Start Dropdown and child queues -->
       <?php foreach ($searches->findAll(array(
             'staff_id' => $thisstaff->getId(),
+            'parent_id' => 0,
             Q::not(array(
                 'flags__hasbit' => CustomQueue::FLAG_PUBLIC
             ))
       )) as $q) {
-        include 'queue-subnavigation.tmpl.php';
+        if ($q->checkAccess($thisstaff))
+            include 'queue-subnavigation.tmpl.php';
       } ?>
      <?php
      if (isset($_SESSION['advsearch'])) { ?>

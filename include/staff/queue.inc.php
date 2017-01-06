@@ -346,6 +346,8 @@ if ($queue->getConditions()) {
   foreach ($queue->getConditions() as $i=>$condition) {
      $id = QueueColumnCondition::getUid();
      list($label, $field) = $condition->getField();
+     if (!$field || !$label)
+        continue;
      $field_name = $condition->getFieldName();
      $object_id = $queue->id;
      include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
