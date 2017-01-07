@@ -49,7 +49,7 @@ if($_POST) {
                     $field->addError(__('Field variable name is not unique'), 'name');
                 // Subject (Issue Summary) must always have data
                 if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
-                    if (($f = $field->getField(false)->getImpl()) && !$f->hasData())
+                    if (($f = $field->getField(false)) && !$f->hasData())
                         $field->addError(__('The issue summary must be a field that supports user input, such as short answer'),
                             'type');
                 }
@@ -106,7 +106,10 @@ if($_POST) {
         for ($i=0; isset($_POST["sort-new-$i"]); $i++) {
             if (!$_POST["label-new-$i"])
                 continue;
-            $field = DynamicFormField::create(array(
+            list(,$class) = DynamicFormField::getFieldType($_POST["type-new-$i"]);
+            if (!$class || !is_subclass_of($class, 'DynamicFormField'))
+                continue;
+            $field = $class::create(array(
                 'sort'=>$_POST["sort-new-$i"] ? $_POST["sort-new-$i"] : ++$max_sort,
                 'label'=>$_POST["label-new-$i"],
                 'type'=>$_POST["type-new-$i"],
@@ -122,7 +125,7 @@ if($_POST) {
                     $names[] = $N;
             }
             else
-                $errors["new-$i"] = $field->errors();
+                $errors["new-$i"] = $field->getValidationErrors();
         }
         if (!$errors) {
             $form->save(true);

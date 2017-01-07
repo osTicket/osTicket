@@ -3098,7 +3098,7 @@ implements RestrictedAccess, Threadable {
             foreach ($form->getFields() as $field) {
                 $fname = $field->get('name');
                 if ($fname && isset($vars[$fname]) && !$field->value)
-                    $field->value = $field->parse($vars[$fname]);
+                    $field->setValue($field->parse($vars[$fname]));
             }
         }
 

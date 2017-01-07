@@ -522,7 +522,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         foreach (DynamicList::objects() as $list) {
             $selections['list-'.$list->id] =
                 array($list->getPluralName(),
-                    SelectionField, $list->get('id'));
+                    DynamicSelectionField, $list->get('id'));
         }
         return $selections;
     }
@@ -596,7 +596,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return self::importCsv($stream, $extra);
     }
 }
-FormField::addFieldTypes(/* @trans */ 'Custom Lists', array('DynamicList', 'getSelections'));
+DynamicFormField::addFieldTypes(/* @trans */ 'Custom Lists', array('DynamicList', 'getSelections'));
 
 /**
  * Represents a single item in a dynamic list
@@ -731,9 +731,9 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
                 foreach ($fields as $f) {
                     $name = $f->get('id');
                     if (isset($config[$name]))
-                        $f->value = $f->to_php($config[$name]);
+                        $f->setValue($f->to_php($config[$name]));
                     else if ($f->get('default'))
-                        $f->value = $f->get('default');
+                        $f->setValue($f->get('default'));
                 }
             }
         }
@@ -1296,9 +1296,9 @@ implements CustomListItem, TemplateVariable {
                 foreach ($fields as $f) {
                     $val = $config[$f->get('id')] ?: $config[$f->get('name')];
                     if (isset($val))
-                        $f->value = $f->to_php($val);
+                        $f->setValue($f->to_php($val));
                     elseif ($f->get('default'))
-                        $f->value = $f->get('default');
+                        $f->setValue($f->get('default'));
                 }
             }
 

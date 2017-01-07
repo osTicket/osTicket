@@ -134,7 +134,6 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $fi = $f->getImpl();
         $ferrors = $f->errors(); ?>
         <tr>
             <td><i class="icon-sort"></i></td>
@@ -145,8 +144,8 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
             <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
-                if (!$fi->isChangeable() || !$f->isChangeable()) echo 'disabled="disabled"'; ?>>
-                <?php foreach (FormField::allTypes() as $group=>$types) {
+                if (!$f->isChangeable()) echo 'disabled="disabled"'; ?>>
+                <?php foreach (DynamicFormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
@@ -194,7 +193,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td><input type="text" size="32" name="prop-label-new-<?php echo $i; ?>"
                 value="<?php echo $info["prop-label-new-$i"]; ?>"/></td>
             <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
-                <?php foreach (FormField::allTypes() as $group=>$types) {
+                <?php foreach (DynamicFormField::allTypes() as $group=>$types) {
                     ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>
