@@ -3657,19 +3657,13 @@ class VisibilityConstraint {
     }
 }
 
-class AssignmentForm extends Form {
-
+class AssignmentForm extends AbstractForm {
     static $id = 'assign';
     var $_assignee = null;
-    var $_assignees = null;
+    var $_assignees;
 
-
-    function getFields() {
-
-        if ($this->fields)
-            return $this->fields;
-
-        $fields = array(
+    function buildFields() {
+        return array(
             'assignee' => new AssigneeField(array(
                     'id'=>1,
                     'label' => __('Assignee'),
@@ -3696,26 +3690,9 @@ class AssignmentForm extends Form {
                     )
                 ),
             );
-
-
-        if (isset($this->_assignees))
-            $fields['assignee']->setChoices($this->_assignees);
-
-
-        $this->setFields($fields);
-
-        return $this->fields;
-    }
-
-    function getField($name) {
-
-        if (($fields = $this->getFields())
-                && isset($fields[$name]))
-            return $fields[$name];
     }
 
     function isValid($include=false) {
-
         if (!parent::isValid($include) || !($f=$this->getField('assignee')))
             return false;
 
@@ -3737,24 +3714,9 @@ class AssignmentForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
-
-        switch(strtolower($options['template'])) {
-        case 'simple':
-            $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
-            break;
-        default:
-            throw new Exception(sprintf(__('%s: Unknown template style %s'),
-                        'FormUtils', $options['template']));
-        }
-
-        $form = $this;
-        include $inc;
-    }
-
     function setAssignees($assignees) {
         $this->_assignees = $assignees;
-        $this->_fields = array();
+        $this->getField('assignee')->setChoices($assignees);
     }
 
     function getAssignees() {
@@ -3762,7 +3724,6 @@ class AssignmentForm extends Form {
     }
 
     function getAssignee() {
-
         if (!isset($this->_assignee))
             $this->_assignee = $this->getField('assignee')->getClean();
 
@@ -3775,20 +3736,8 @@ class AssignmentForm extends Form {
 }
 
 class ClaimForm extends AssignmentForm {
-
-    var $_fields;
-
-    function setFields($fields) {
-        $this->_fields = $fields;
-        parent::setFields($fields);
-    }
-
-    function getFields() {
-
-        if ($this->_fields)
-            return $this->_fields;
-
-        $fields = parent::getFields();
+    function buildFields() {
+        $fields = parent::buildFields();
 
         // Disable && hide assignee field selection
         if (isset($fields['assignee'])) {
@@ -3804,29 +3753,16 @@ class ClaimForm extends AssignmentForm {
                     __('Optional reason for the claim'));
         }
 
-
-        $this->setFields($fields);
-
-        return $this->fields;
+        return $fields;
     }
-
 }
 
-class TransferForm extends Form {
-
+class TransferForm extends AbstractForm {
     static $id = 'transfer';
     var $_dept = null;
 
-    function __construct($source=null, $options=array()) {
-        parent::__construct($source, $options);
-    }
-
-    function getFields() {
-
-        if ($this->fields)
-            return $this->fields;
-
-        $fields = array(
+    function buildFields() {
+        return array(
             'dept' => new DepartmentField(array(
                     'id'=>1,
                     'label' => __('Department'),
@@ -3848,10 +3784,6 @@ class TransferForm extends Form {
                     )
                 ),
             );
-
-        $this->setFields($fields);
-
-        return $this->fields;
     }
 
     function isValid($include=false) {
@@ -3867,24 +3799,7 @@ class TransferForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
-
-        switch(strtolower($options['template'])) {
-        case 'simple':
-            $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
-            break;
-        default:
-            throw new Exception(sprintf(__('%s: Unknown template style %s'),
-                        get_class(), $options['template']));
-        }
-
-        $form = $this;
-        include $inc;
-
-    }
-
     function getDept() {
-
         if (!isset($this->_dept)) {
             if (($id = $this->getField('dept')->getClean()))
                 $this->_dept = Dept::lookup($id);

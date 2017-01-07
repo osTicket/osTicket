@@ -39,8 +39,7 @@ $action = $info[':action'] ?: ('#');
         <tbody>
             <tr><td colspan=2>
              <?php
-             $options = array('template' => 'simple', 'form_id' => 'transfer');
-             $form->render($options);
+             echo $form->asTable();
              ?>
             </td> </tr>
         </tbody>
