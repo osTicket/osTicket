@@ -957,6 +957,9 @@ class FormField {
         if (!isset($this->value) && isset($this->parent)) {
             $this->value = $this->parent->getValue();
         }
+        if (!isset($this->value)) {
+            $this->value = $this->get('default');
+        }
         return $this->value;
     }
 
@@ -1089,9 +1092,7 @@ class FormField {
             if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
                     if ($config && isset($config[$name]))
-                        $f->value = $config[$name];
-                    elseif ($f->get('default'))
-                        $f->value = $f->get('default');
+                        $f->setValue($config[$name]);
                 }
             }
         }
@@ -2564,7 +2565,9 @@ class Widget {
      * in the data. Then return the value from the data source.
      */
     function fetchValue() {
-        $data = $this->field->getSource();
+        if (!($data = $this->field->getSource()))
+            return null;
+
         // Search for HTML form name first
         if (isset($data[$this->name]))
             return $data[$this->name];
@@ -2572,6 +2575,7 @@ class Widget {
             return $data[$this->field->get('name')];
         elseif (isset($data[$this->field->get('id')]))
             return $data[$this->field->get('id')];
+
         return null;
     }
 
@@ -2652,12 +2656,10 @@ class TextboxWidget extends Widget {
 
 
 class TextboxSelectionWidget extends TextboxWidget {
-    //TODO: Support multi-input e.g comma separated inputs
-    function render($options=array(), $extraConfig=array()) {
-        if ($this->getValue() && is_array($this->getValue()))
-            $this->value = current($this->value);
-
-        parent::render($options);
+    function getValue() {
+        $value = parent::getValue();
+        if ($value && is_array($value))
+            return current($value);
     }
 
     function fetchValue() {
@@ -2694,6 +2696,7 @@ class TextareaWidget extends Widget {
         $config = $this->field->getConfiguration();
         $class = $cols = $rows = $maxlength = "";
         $attrs = array();
+        $value = $this->getValue();
         if (isset($config['rows']))
             $rows = "rows=\"{$config['rows']}\"";
         if (isset($config['cols']))
@@ -2704,7 +2707,7 @@ class TextareaWidget extends Widget {
             $class = array('richtext', 'no-bar');
             $class[] = @$config['size'] ?: 'small';
             $class = sprintf('class="%s"', implode(' ', $class));
-            $this->value = Format::viewableImages($this->value);
+            $value = Format::viewableImages($value);
         }
         if (isset($config['context']))
             $attrs['data-root-context'] = '"'.$config['context'].'"';
@@ -2715,7 +2718,7 @@ class TextareaWidget extends Widget {
                 .' placeholder="'.$config['placeholder'].'"'; ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
-                echo Format::htmlchars($this->getValue());
+                echo Format::htmlchars($value);
             ?></textarea>
         </span>
         <?php
@@ -2724,7 +2727,6 @@ class TextareaWidget extends Widget {
     function fetchValue() {
         $value = parent::fetchValue();
         if (isset($value)) {
-            $value = $this->value;
             $config = $this->field->getConfiguration();
             // Trim empty spaces based on text input type.
             // Preserve original input if not empty.
@@ -2741,7 +2743,7 @@ class TextareaWidget extends Widget {
 class PhoneNumberWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        list($phone, $ext) = explode("X", $this->value);
+        list($phone, $ext) = explode("X", $this->getValue());
         ?>
         <input id="<?php echo $this->id; ?>" type="tel" name="<?php echo $this->name; ?>" value="<?php
         echo Format::htmlchars($phone); ?>"/><?php
@@ -2938,8 +2940,6 @@ class BoxChoicesWidget extends Widget {
       static $uid = 1;
 
       $value = $this->getValue();
-      if (!isset($value))
-          $this->value = $this->field->get('default');
       $config = $this->field->getConfiguration();
       $type = $config['multiple'] ? 'checkbox' : 'radio';
 
@@ -2959,7 +2959,7 @@ class BoxChoicesWidget extends Widget {
             for="<?php echo $id; ?>">
         <input id="<?php echo $id; ?>" type="<?php echo $type; ?>"
             name="<?php echo $this->name; ?>[]" <?php
-            if ($this->value[$k]) echo 'checked="checked"'; ?> value="<?php
+            if ($value[$k]) echo 'checked="checked"'; ?> value="<?php
             echo Format::htmlchars($k); ?>"/>
         <?php
         if ($v) {
@@ -2981,7 +2981,7 @@ class BoxChoicesWidget extends Widget {
                 return array();
             return $this->collectValues($data[$this->name], $this->field->getChoices());
         }
-        return parent::getValue();
+        return parent::fetchValue();
     }
 
     function collectValues($data, $choices) {
@@ -3086,8 +3086,6 @@ class CheckboxWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
         $value = $this->getValue();
-        if (!isset($value))
-            $this->value = $this->field->get('default');
         $classes = array('checkbox');
         if (isset($config['classes']))
             $classes = array_merge($classes, (array) $config['classes']);
@@ -3095,7 +3093,7 @@ class CheckboxWidget extends Widget {
         <label class="<?php echo implode(' ', $classes); ?>">
         <input id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
-            if ($this->value) echo 'checked="checked"'; ?> value="<?php
+            if ($value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
         <?php
         if ($config['desc']) {
@@ -3127,12 +3125,12 @@ class DatetimePickerWidget extends Widget {
 
         $config = $this->field->getConfiguration();
         $timezone = $this->field->getTimezone();
-        if ($this->getValue()) {
-            if (is_int($this->value))
+        if ($value = $this->getValue()) {
+            if (is_int($value))
                 // Assuming UTC timezone.
-                $datetime = DateTime::createFromFormat('U', $this->value);
+                $datetime = DateTime::createFromFormat('U', $value);
             else {
-                $datetime = Format::parseDateTime($this->value);
+                $datetime = Format::parseDateTime($value);
             }
 
             if ($config['time']) {
@@ -3140,7 +3138,7 @@ class DatetimePickerWidget extends Widget {
                 $datetime->setTimezone($timezone);
             }
 
-            $this->value = Format::date($datetime->getTimestamp(), false,
+            $value = Format::date($datetime->getTimestamp(), false,
                     false, $timezone ? $timezone->getName() : 'UTC');
         } else {
             $datetime = new DateTime('now');
@@ -3149,11 +3147,11 @@ class DatetimePickerWidget extends Widget {
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
             id="<?php echo $this->id; ?>" style="display:inline-block;width:auto"
-            value="<?php echo Format::htmlchars($this->value ?: ''); ?>" size="12"
+            value="<?php echo Format::htmlchars($value ?: ''); ?>" size="12"
             autocomplete="off" class="dp" />
         <script type="text/javascript">
             $(function() {
-                $('input[name="<?php echo $this->name; ?>"]').datepicker({
+                $('input[name="<?php echo $name; ?>"]').datepicker({
                     <?php
                     if ($dt=$this->field->getMinDateTime())
                         echo sprintf("minDate: new Date(%s),\n", $dt->format('U')*1000);
@@ -3269,7 +3267,6 @@ class ThreadEntryWidget extends Widget {
     function fetchValue() {
         $value = parent::fetchValue();
         if (isset($value)) {
-            $value = $this->value;
             $config = $this->field->getConfiguration();
             // Trim spaces based on text input type.
             // Preserve original input if not empty.
@@ -3564,11 +3561,9 @@ class VisibilityConstraint {
      * Determines if the field was visible when the form was submitted
      */
     function isVisible($field) {
-
         // Assume initial visibility if constraint is not provided.
         if (!$this->constraint->constraints)
             return $this->initial == self::VISIBLE;
-
 
         return $this->compileQPhp($this->constraint, $field);
     }
@@ -3594,7 +3589,7 @@ class VisibilityConstraint {
             else {
                 @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
-                $wval = $field->getClean();
+                $wval = $field->getValue();
                 switch ($op) {
                 case 'eq':
                 case null:
