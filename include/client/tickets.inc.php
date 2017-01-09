@@ -47,7 +47,7 @@ if($sort && $sortOptions[$sort])
     $order_by =$sortOptions[$sort];
 
 $order_by=$order_by ?: $sortOptions['date'];
-if ($_REQUEST['order'] && ($_REQUEST['order'] == 'ASC' || $orderWays[strtoupper($_REQUEST['order'])]))
+if ($_REQUEST['order'] && ($_REQUEST['order'] === 'ASC' || $orderWays[strtoupper($_REQUEST['order'])]))
     $order = $orderWays[strtoupper($_REQUEST['order'])];
 else
     $order = $orderWays['DESC'];
