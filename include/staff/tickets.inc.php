@@ -102,7 +102,7 @@ case 'assigned':
     $results_type=__('My Tickets');
     $tickets->filter(Q::any(array(
         'staff_id'=>$thisstaff->getId(),
-        Q::all(array('staff_id' => 0, 'team_id__gt' => 0)),
+        Q::all(array('staff_id' => 0, 'team_id__in' => array_filter($thisstaff->getTeams()))),
     )));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
