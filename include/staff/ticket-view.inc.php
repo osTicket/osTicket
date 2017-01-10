@@ -47,7 +47,7 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 ?>
 <div>
-    <div class="sticky bar">
+    <div class=" thread sticky bar">
 	<div class="thread_content_top">
        <div class="thread_content">
         <div class="pull-right flush-right">
