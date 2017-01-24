@@ -2066,16 +2066,20 @@ class DatetimeField extends FormField {
                 "{$name}__lte" => $value['right'],
             ));
         case 'ndaysago':
-            $now = Misc::gmtime();
+            $now = date("Y-m-d H:i:s");
             return new Q(array(
                 "{$name}__lt" => $now,
                 "{$name}__gte" => SqlExpression::minus($now, SqlInterval::DAY($value['until'])),
             ));
         case 'ndays':
-            $now = Misc::gmtime();
+            $searchdate = new DateTime();
+            $now = $searchdate->format("Y-m-d");
+            $searchdate->add(new DateInterval('P' . $value['until'] . 'D'));
+            $ndays = $searchdate->format("Y-m-d") . ' 23:59:59';
+
             return new Q(array(
-                "{$name}__gt" => $now,
-                "{$name}__lte" => SqlExpression::plus($now, SqlInterval::DAY($value['until'])),
+                "{$name}__gte" => $now,
+                "{$name}__lte" => $ndays,
             ));
         default:
             return parent::getSearchQ($method, $value, $name);
