@@ -2512,7 +2512,7 @@ class MySqlCompiler extends SqlCompiler {
 
     function __range($a, $b) {
         // XXX: Crash if $b is not array of two items
-        return sprintf("%s BETWEEN '%s' AND '%s'", $a, $b[0], $b[1]);
+        return sprintf('%s BETWEEN \'%s\' AND \'%s\'', $a, $b[0], $b[1]);
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {
