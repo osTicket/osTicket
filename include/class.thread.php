@@ -256,7 +256,10 @@ class Thread extends VerySimpleModel {
     }
 
     function getEntry($id) {
-        return ThreadEntry::lookup($id, $this->getId());
+        $pk = static::$meta['pk'];
+        $criteria = array($pk[0] => $id, 'thread_id' => $this->getId());
+
+        return ThreadEntry::lookup($criteria);
     }
 
     function getEvents() {
