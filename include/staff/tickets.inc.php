@@ -145,7 +145,7 @@ case 'search':
             $__tickets = $ost->searcher->find($q, $tickets);
             if (!count($__tickets) && preg_match('`\w$`u', $q)) {
                 // Do wildcard search if no hits
-                $__tickets = $ost->searcher->find($q.'*', $tickets);
+                $__tickets = $ost->searcher->find('+'.$q.'*', $tickets);
             }
             $tickets = $__tickets;
             $has_relevance = true;
