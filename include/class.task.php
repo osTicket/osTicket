@@ -881,7 +881,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         global $cfg, $thisstaff;
 
         $vars['staffId'] = 0;
-        $vars['poster'] = 'SYSTEM';
+        $vars['poster'] = __('SYSTEM');
         if ($poster && is_object($poster)) {
             $vars['staffId'] = $poster->getId();
             $vars['poster'] = $poster->getName();
