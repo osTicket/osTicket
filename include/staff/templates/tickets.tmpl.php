@@ -85,7 +85,7 @@ TicketForm::ensureDynamicDataView();
     if ($total) {
         echo '<strong>'.$pageNav->showing().'</strong>';
     } else {
-        echo sprintf(__('%s does not have any tickets'), $user? 'User' : 'Organization');
+        echo sprintf(__('%s does not have any tickets'), $user? __('User') : __('Organization'));
     }
    ?>
 </div>
