@@ -103,7 +103,7 @@ $info = $team->getInfo();
             </td>
             <td>
                 <input type="checkbox" name="noalerts" value="1" <?php echo !$team->alertsEnabled()?'checked="checked"':''; ?> >
-                <?php echo __('<strong>Disable</strong> for this Team'); ?>
+                <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this team')); ?>
                 <i class="help-tip icon-question-sign" href="#assignment_alert"></i>
             </td>
         </tr>
@@ -135,7 +135,7 @@ foreach ($members as $m)
             <td colspan="2">
                 <?php echo __('Team Members'); ?>
                 <div><small>
-                <?php echo __('Agents who are members of this team'); ?>
+                <?php echo sprintf(__('Agents who are members of %s'), __('this team')); ?>
                 <i class="help-tip icon-question-sign" href="#members"></i>
                 </small></div>
             </td>

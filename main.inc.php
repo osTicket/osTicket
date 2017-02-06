@@ -31,7 +31,7 @@ Bootstrap::connect();
 $_SERVER['REMOTE_ADDR'] = osTicket::get_client_ip();
 
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
-Bootstrap::croak(__('Unable to load config info from DB. Get tech support.'));
+Bootstrap::croak(__('Unable to load config info from DB.').' '.__('Get technical help!'));
 
 //Init
 $session = $ost->getSession();

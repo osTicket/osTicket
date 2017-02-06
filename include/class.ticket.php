@@ -3526,7 +3526,7 @@ implements RestrictedAccess, Threadable {
             && ($role = $thisstaff->getRole($vars['deptId']))
             && !$role->hasPerm(TicketModel::PERM_CREATE)
         ) {
-            $errors['err'] = __('You do not have permission to create a ticket in this department');
+            $errors['err'] = sprintf(__('You do not have permission to create a ticket in %s'), __('this department'));
             return false;
         }
 

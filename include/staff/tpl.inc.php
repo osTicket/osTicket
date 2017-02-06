@@ -105,8 +105,8 @@ $invalid = array();
 if ($template instanceof EmailTemplate) {
     if ($invalid = $template->getInvalidVariableUsage()) {
     $invalid = array_unique($invalid); ?>
-    <div class="warning-banner"><?php echo
-        __('Some variables may not be a valid for this context. Please check for spelling errors and correct usage for this template.') ?>
+    <div class="warning-banner"><?php echo sprintf(
+        __('Some variables may not be a valid for this context. Please check for spelling errors and correct usage for %s.'), __('this template')); ?>
     <br/>
     <code><?php echo implode(', ', $invalid); ?></code>
 </div>
