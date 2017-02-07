@@ -516,11 +516,12 @@ class Format {
             return '';
 
         if ($fromDb)
-            $timestamp = Misc::db2gmtime($timestamp);
+            $timestamp = new DateTime($timestamp);
 
         if (class_exists('IntlDateFormatter')) {
             $locale = Internationalization::getCurrentLocale($user);
             $key = "{$locale}:{$dayType}:{$timeType}:{$timezone}:{$format}";
+
             if (!isset($cache[$key])) {
                 // Setting up the IntlDateFormatter is pretty expensive, so
                 // cache it since there aren't many variations of the
