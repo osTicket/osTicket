@@ -4,7 +4,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 ?>
 <h2><?php echo __('Ticket Settings and Options');?></h2>
-<form action="settings.php?t=tickets" method="post" id="save">
+<form action="settings.php?t=tickets" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
 

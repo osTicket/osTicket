@@ -1004,13 +1004,15 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         case 'phone':
         case 'phone_number':
             return $this->getPhoneNumber();
-            break;
+        case 'ticket_link':
+            if ($ticket = $this->ticket) {
+                return sprintf('%s/scp/tickets.php?id=%d#tasks',
+                    $cfg->getBaseUrl(), $ticket->getId());
+            }
         case 'staff_link':
             return sprintf('%s/scp/tasks.php?id=%d', $cfg->getBaseUrl(), $this->getId());
-            break;
         case 'create_date':
             return new FormattedDate($this->getCreateDate());
-            break;
          case 'due_date':
             if ($due = $this->getEstDueDate())
                 return new FormattedDate($due);
@@ -1061,6 +1063,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'thread' => array(
                 'class' => 'TaskThread', 'desc' => __('Task Thread'),
             ),
+            'staff_link' => __('Link to view the task'),
+            'ticket_link' => __('Link to view the task inside the ticket'),
             'last_update' => array(
                 'class' => 'FormattedDate', 'desc' => __('Time of last update'),
             ),
@@ -1281,7 +1285,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($vars['internal_formdata']['dept_id'])
             $task->dept_id = $vars['internal_formdata']['dept_id'];
         if ($vars['internal_formdata']['duedate'])
-            $task->duedate = $vars['internal_formdata']['duedate'];
+	    $task->duedate = date('Y-m-d G:i', Misc::dbtime($vars['internal_formdata']['duedate']));
 
         if (!$task->save(true))
             return false;
@@ -1453,7 +1457,7 @@ class TaskForm extends DynamicForm {
     static $cdata = array(
             'table' => TASK_CDATA_TABLE,
             'object_id' => 'task_id',
-            'object_type' => 'A',
+            'object_type' => ObjectModel::OBJECT_TYPE_TASK,
         );
 
     static function objects() {
@@ -1516,7 +1520,7 @@ extends AbstractForm {
                     'configuration' => array(
                         'min' => Misc::gmtime(),
                         'time' => true,
-                        'gmt' => true,
+                        'gmt' => false,
                         'future' => true,
                         ),
                     )),
@@ -1541,8 +1545,7 @@ class TaskThread extends ObjectThread {
         $vars['threadId'] = $this->getId();
         $vars['message'] = $vars['description'];
         unset($vars['description']);
-
-        return MessageThreadEntry::create($vars, $errors);
+        return MessageThreadEntry::add($vars, $errors);
     }
 
     static function create($task=false) {

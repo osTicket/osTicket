@@ -35,7 +35,7 @@ else {
 }
 ?>
 
-<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
+<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" autocomplete="off">
   <?php csrf_token(); ?>
   <input type="hidden" name="do" value="<?php echo $action; ?>">
   <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -518,6 +518,7 @@ $('#join_team').find('button').on('click', function() {
 
 <?php
 foreach ($staff->dept_access as $dept_access) {
+  if (!$dept_access->dept_id) continue;
   echo sprintf('addAccess(%d, %s, %d, %d, %s);', $dept_access->dept_id,
     JsonDataEncoder::encode($dept_access->dept->getName()),
     $dept_access->role_id,
