@@ -516,7 +516,7 @@ class Format {
             return '';
 
         if ($fromDb)
-            $timestamp = new DateTime($timestamp, new DateTimeZone(db_timezone()));
+            $timestamp = new DateTime($timestamp, new DateTimeZone(ini_get('date.timezone')));
 
         if (class_exists('IntlDateFormatter')) {
             $locale = Internationalization::getCurrentLocale($user);
