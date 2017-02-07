@@ -56,7 +56,9 @@ if($_POST && $_POST['s']) {
                 //TODO: Go to subscribe step.
                 $_SESSION['ost_installer']['s']='done';
             } elseif(!($errors=$installer->getErrors()) || !$errors['err']) {
-                $errors['err']=__('Error installing osTicket - correct the errors below and try again.');
+                $errors['err'] = sprintf('%s %s',
+                    __('Error installing osTicket.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'subscribe':
@@ -65,7 +67,7 @@ if($_POST && $_POST['s']) {
 
             if(!$_POST['email'])
                 $errors['email'] = __('Required');
-            elseif(!Validator::is_email($_POST['email']))
+            elseif(!Validator::is_valid_email($_POST['email']))
                 $errors['email'] = __('Invalid');
 
             if(!$_POST['alerts'] && !$_POST['news'])

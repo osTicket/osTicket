@@ -28,10 +28,13 @@
     this.sorter = this.options.sorter || this.sorter
     this.highlighter = this.options.highlighter || this.highlighter
     this.$menu = $(this.options.menu).appendTo('body')
+    if (this.options.scroll)
+      this.$menu.addClass('scroll');
     this.source = this.options.source
     this.onselect = this.options.onselect
     this.strings = true
     this.shown = false
+    this.deferred = null
     this.listen()
   }
 
@@ -39,7 +42,7 @@
 
     constructor: Typeahead
 
-  , select: function () {
+  , select: function (e) {
       var val = JSON.parse(this.$menu.find('.active').attr('data-value'))
         , text
 
@@ -49,7 +52,8 @@
       this.$element.val(text)
 
       if (typeof this.onselect == "function")
-          this.onselect(val)
+          if (false === this.onselect(val, e))
+              return;
 
       return this.hide()
     }
@@ -75,6 +79,11 @@
       return this
     }
 
+  , fetch: function() {
+      var value = this.source(this, this.query)
+      if (value) this.process(value)
+    }
+
   , lookup: function (event) {
       var that = this
         , items
@@ -84,8 +93,9 @@
       this.query = this.$element.val();
       /*Check if we have a match on the current source?? */
       if (typeof this.source == "function") {
-        value = this.source(this, this.query)
-        if (value) this.process(value)
+        if (!this.options.delay) return this.fetch()
+        if (this.deferred) clearTimeout(this.deferred)
+        this.deferred = setTimeout(this.fetch.bind(this), this.options.delay)
       } else {
         this.process(this.source)
       }
@@ -101,15 +111,15 @@
 
       this.query = this.$element.val()
 
-      if (!this.query) {
+      if (this.query.length < this.options.minLength) {
         return this.shown ? this.hide() : this
       }
-      
+
       items = $.grep(results, function (item) {
         if (!that.strings)
           item = item[that.options.property]
 
-        if (that.matcher(item)) 
+        if (that.matcher(item))
             return item
       })
 
@@ -146,15 +156,17 @@
     }
 
   , highlighter: function (item) {
-      return item.replace(new RegExp('(' + this.query + ')', 'ig'), function ($1, match) {
-        return '<strong>' + match + '</strong>'
-      })
+      if (!this.query)
+          return item;
+      var exp = this.query.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&").replace(' ', '|')
+      return item.replace(new RegExp(exp, 'ig'), '<strong>$&</strong>')
     }
 
   , render: function (items) {
       var that = this
 
       items = $(items).map(function (i, item) {
+        var orig = item;
         i = $(that.options.item).attr('data-value', JSON.stringify(item))
         if (!that.strings) {
             if(item[that.options.render])
@@ -162,7 +174,7 @@
             else
                 item = item[that.options.property];
         }
-        i.find('a').html(that.highlighter(item))
+        i.find('a').html(that.highlighter(item, orig))
         return i[0]
       })
 
@@ -170,6 +182,16 @@
       this.$menu.html(items)
       return this
     }
+
+  , adjustScroll: function(next) {
+      var top = this.$menu.scrollTop(),
+        bottom = top + this.$menu.height(),
+        pos = next.position();
+      if (pos.top < 0)
+        this.$menu.scrollTop(top + pos.top - 10);
+      else if (next.height() + top + pos.top > bottom)
+        this.$menu.scrollTop(top + pos.top - this.$menu.height() + next.height() + 10);
+  }
 
   , next: function (event) {
       var active = this.$menu.find('.active').removeClass('active')
@@ -180,6 +202,10 @@
       }
 
       next.addClass('active')
+
+      if (this.options.scroll) {
+        this.adjustScroll(next);
+      }
     }
 
   , prev: function (event) {
@@ -191,6 +217,10 @@
       }
 
       prev.addClass('active')
+
+      if (this.options.scroll) {
+        this.adjustScroll(prev);
+      }
     }
 
   , listen: function () {
@@ -199,13 +229,22 @@
         .on('keypress', $.proxy(this.keypress, this))
         .on('keyup',    $.proxy(this.keyup, this))
 
-      if ($.browser.webkit || $.browser.msie) {
+      if (this.eventSupported('keydown')) {
         this.$element.on('keydown', $.proxy(this.keypress, this))
       }
 
       this.$menu
         .on('click', $.proxy(this.click, this))
         .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
+    }
+
+  , eventSupported: function(eventName) {
+      var isSupported = eventName in this.$element
+      if (!isSupported) {
+        this.$element.setAttribute(eventName, 'return;')
+        isSupported = typeof this.$element[eventName] === 'function'
+      }
+      return isSupported
     }
 
   , keyup: function (e) {
@@ -220,7 +259,7 @@
         case 9: // tab
         case 13: // enter
           if (!this.shown) return
-          this.select()
+          this.select(e)
           break
 
         case 27: // escape
@@ -266,12 +305,16 @@
   , click: function (e) {
       e.stopPropagation()
       e.preventDefault()
-      this.select()
+      this.select(e)
     }
 
   , mouseenter: function (e) {
       this.$menu.find('.active').removeClass('active')
       $(e.currentTarget).addClass('active')
+    }
+
+  , visible: function() {
+      return this.shown;
     }
 
   }
@@ -298,6 +341,9 @@
   , onselect: null
   , property: 'value'
   , render: 'info'
+  , minLength: 1
+  , scroll: false
+  , delay: 200
   }
 
   $.fn.typeahead.Constructor = Typeahead

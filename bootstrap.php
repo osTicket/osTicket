@@ -43,20 +43,17 @@ class Bootstrap {
                 ini_set('date.timezone', 'America/New_York');
             }
         }
+        date_default_timezone_set('UTC');
 
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';
     }
 
     function https() {
-       return
-            (isset($_SERVER['HTTPS'])
-                && strtolower($_SERVER['HTTPS']) == 'on')
-            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+       return osTicket::is_https();
     }
 
-    function defineTables($prefix) {
+    static function defineTables($prefix) {
         #Tables being used sytem wide
         define('SYSLOG_TABLE',$prefix.'syslog');
         define('SESSION_TABLE',$prefix.'session');
@@ -68,34 +65,45 @@ class Bootstrap {
         define('FILE_CHUNK_TABLE',$prefix.'file_chunk');
 
         define('ATTACHMENT_TABLE',$prefix.'attachment');
+
         define('USER_TABLE',$prefix.'user');
+        define('USER_CDATA_TABLE', $prefix.'user__cdata');
         define('USER_EMAIL_TABLE',$prefix.'user_email');
         define('USER_ACCOUNT_TABLE',$prefix.'user_account');
 
         define('ORGANIZATION_TABLE', $prefix.'organization');
+        define('ORGANIZATION_CDATA_TABLE', $prefix.'organization__cdata');
+
         define('NOTE_TABLE', $prefix.'note');
 
         define('STAFF_TABLE',$prefix.'staff');
         define('TEAM_TABLE',$prefix.'team');
         define('TEAM_MEMBER_TABLE',$prefix.'team_member');
         define('DEPT_TABLE',$prefix.'department');
-        define('GROUP_TABLE',$prefix.'groups');
-        define('GROUP_DEPT_TABLE', $prefix.'group_dept_access');
+        define('STAFF_DEPT_TABLE', $prefix.'staff_dept_access');
+        define('ROLE_TABLE', $prefix.'role');
 
         define('FAQ_TABLE',$prefix.'faq');
         define('FAQ_TOPIC_TABLE',$prefix.'faq_topic');
         define('FAQ_CATEGORY_TABLE',$prefix.'faq_category');
 
         define('DRAFT_TABLE',$prefix.'draft');
+
+        define('THREAD_TABLE', $prefix.'thread');
+        define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
+        define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
+
+        define('LOCK_TABLE',$prefix.'lock');
+
         define('TICKET_TABLE',$prefix.'ticket');
-        define('TICKET_THREAD_TABLE',$prefix.'ticket_thread');
-        define('TICKET_ATTACHMENT_TABLE',$prefix.'ticket_attachment');
-        define('TICKET_LOCK_TABLE',$prefix.'ticket_lock');
-        define('TICKET_EVENT_TABLE',$prefix.'ticket_event');
-        define('TICKET_EMAIL_INFO_TABLE',$prefix.'ticket_email_info');
-        define('TICKET_COLLABORATOR_TABLE', $prefix.'ticket_collaborator');
+        define('TICKET_CDATA_TABLE', $prefix.'ticket__cdata');
+        define('THREAD_EVENT_TABLE',$prefix.'thread_event');
+        define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+
+        define('TASK_TABLE', $prefix.'task');
+        define('TASK_CDATA_TABLE', $prefix.'task__cdata');
 
         define('PRIORITY_TABLE',TICKET_PRIORITY_TABLE);
 
@@ -110,6 +118,7 @@ class Bootstrap {
         define('FORM_ANSWER_TABLE',$prefix.'form_entry_values');
 
         define('TOPIC_TABLE',$prefix.'help_topic');
+        define('TOPIC_FORM_TABLE',$prefix.'help_topic_form');
         define('SLA_TABLE', $prefix.'sla');
 
         define('EMAIL_TABLE',$prefix.'email');
@@ -118,9 +127,12 @@ class Bootstrap {
 
         define('FILTER_TABLE', $prefix.'filter');
         define('FILTER_RULE_TABLE', $prefix.'filter_rule');
+        define('FILTER_ACTION_TABLE', $prefix.'filter_action');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
         define('SEQUENCE_TABLE', $prefix.'sequence');
+        define('TRANSLATION_TABLE', $prefix.'translation');
+        define('QUEUE_TABLE', $prefix.'queue');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
@@ -180,15 +192,14 @@ class Bootstrap {
     function loadCode() {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
-        require(INCLUDE_DIR.'class.signal.php');
+        require_once INCLUDE_DIR.'class.translation.php';
+        require_once(INCLUDE_DIR.'class.signal.php');
+        require(INCLUDE_DIR.'class.model.php');
         require(INCLUDE_DIR.'class.user.php');
         require(INCLUDE_DIR.'class.auth.php');
         require(INCLUDE_DIR.'class.pagenate.php'); //Pagenate helper!
         require(INCLUDE_DIR.'class.log.php');
         require(INCLUDE_DIR.'class.crypto.php');
-        require(INCLUDE_DIR.'class.timezone.php');
-        require_once(INCLUDE_DIR.'class.signal.php');
-        require(INCLUDE_DIR.'class.nav.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
         require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
@@ -199,6 +210,9 @@ class Bootstrap {
     }
 
     function i18n_prep() {
+        ini_set('default_charset', 'utf-8');
+        ini_set('output_encoding', 'utf-8');
+
         // MPDF requires mbstring functions
         if (!extension_loaded('mbstring')) {
             if (function_exists('iconv')) {
@@ -295,12 +309,14 @@ define('SETUP_DIR',ROOT_DIR.'setup/');
 
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
+define('CLI_DIR', INCLUDE_DIR.'cli/');
 
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
 define('THIS_VERSION','1.8-git'); //Shown on admin panel
 define('GIT_VERSION','$git');
+define('MAJOR_VERSION', '1.10');
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))
@@ -315,6 +331,7 @@ ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR)
 require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
 require(INCLUDE_DIR.'class.http.php');
+require(INCLUDE_DIR.'class.validator.php');
 
 // Determine the path in the URI used as the base of the osTicket
 // installation
@@ -326,12 +343,7 @@ Bootstrap::init();
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());
 
-define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
-define('DEFAULT_PRIORITY_ID',1);
+define('DEFAULT_MAX_FILE_UPLOADS', ini_get('max_file_uploads') ?: 5);
+define('DEFAULT_PRIORITY_ID', 1);
 
-#Global override
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-    // Take the left-most item for X-Forwarded-For
-    $_SERVER['REMOTE_ADDR'] = trim(array_pop(
-        explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])));
 ?>

@@ -7,7 +7,8 @@
 #
 ---
 notes: |
-
+    Sent to agents when a ticket is transfered to a department to which
+    they are a member.
 subject: |
     Ticket #%{ticket.number} transfer - %{ticket.dept.name}
 body: |

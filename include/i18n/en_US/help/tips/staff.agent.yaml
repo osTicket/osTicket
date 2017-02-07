@@ -13,14 +13,6 @@
 # must match the HTML #ids put into the page template.
 #
 ---
-add_new_agent:
-    title: Add New Agent
-    content: >
-
-agent_staff_information:
-    title: Agent (Staff) Information
-    content: >
-
 username:
     title: Username
     content: >
@@ -81,11 +73,26 @@ assigned_group:
 primary_department:
     title: Primary Department
     content: >
-        Choose the primary <span class="doc-desc-title">department</span> to which this Agent belongs.
+        Choose the primary <span class="doc-desc-title">department</span> to
+        which this Agent belongs and an effective <span class="doc-desc-title">Role</span>.
 
     links:
       - title: Manage Departments
         href: /scp/departments.php
+
+primary_role:
+    title: Primary Role
+    content: >
+        Choose the primary <span class="doc-desc-title">role</span> to which this agent belongs.
+
+primary_role_on_assign:
+    title: Use Primary Role For Assignments
+    content: >
+        Enable this to fallback to the <span class="doc-desc-title">primary
+        role</span>  when this agent is assigned tickets and tasks outside
+        of the <span class="doc-desc-title">primary department</span> and
+        <span class="doc-desc-title">extended access</span> departments.
+        Otherwise the agent will have view only access.
 
 daylight_saving:
     title: Daylight Saving

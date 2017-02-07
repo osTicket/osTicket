@@ -21,18 +21,16 @@ $settingOptions=array(
         array(__('System Settings'), 'settings.system'),
     'tickets' =>
         array(__('Ticket Settings and Options'), 'settings.ticket'),
-    'emails' =>
-        array(__('Email Settings'), 'settings.email'),
+    'tasks' =>
+        array(__('Task Settings and Options'), 'settings.tasks'),
+    'agents' =>
+        array(__('Agent Settings and Options'), 'settings.agents'),
+    'users' =>
+        array(__('User Settings and Options'), 'settings.users'),
     'pages' =>
         array(__('Site Pages'), 'settings.pages'),
-    'access' =>
-        array(__('Access Control'), 'settings.access'),
     'kb' =>
         array(__('Knowledgebase Settings'), 'settings.kb'),
-    'autoresp' =>
-        array(__('Autoresponder Settings'), 'settings.autoresponder'),
-    'alerts' =>
-        array(__('Alerts and Notices Settings'), 'settings.alerts'),
 );
 //Handle a POST.
 $target=($_REQUEST['t'] && $settingOptions[$_REQUEST['t']])?$_REQUEST['t']:'system';
@@ -42,9 +40,11 @@ if (isset($settingOptions[$target]))
 
 if($page && $_POST && !$errors) {
     if($cfg && $cfg->updateSettings($_POST,$errors)) {
-        $msg=sprintf(__('Successfully updated %s'), Format::htmlchars($page[0]));
+        $msg=sprintf(__('Successfully updated %s.'), Format::htmlchars($page[0]));
     } elseif(!$errors['err']) {
-        $errors['err']=__('Unable to update settings - correct errors below and try again');
+        $errors['err'] = sprintf('%s %s',
+            __('Unable to update settings.'),
+            __('Correct any errors below and try again.'));
     }
 }
 

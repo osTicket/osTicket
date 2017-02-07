@@ -5,18 +5,11 @@ if (!$info['title'])
     $info['title'] = sprintf(__('Register: %s'), Format::htmlchars($user->getName()));
 
 if (!$_POST) {
-
     $info['sendemail'] = true; // send email confirmation.
-
-    if (!isset($info['timezone_id']))
-        $info['timezone_id'] = $cfg->getDefaultTimezoneId();
-
-    if (!isset($info['dst']))
-        $info['dst'] = $cfg->observeDaylightSaving();
 }
 
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <div class="clear"></div>
 <hr/>
@@ -137,28 +130,11 @@ echo sprintf(__(
             </tr>
                 <td><?php echo __('Time Zone'); ?>:</td>
                 <td>
-                    <select name="timezone_id" id="timezone_id">
-                        <?php
-                        $sql='SELECT id, offset, timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-                        if(($res=db_query($sql)) && db_num_rows($res)){
-                            while(list($id, $offset, $tz) = db_fetch_row($res)) {
-                                $sel=($info['timezone_id']==$id) ? 'selected="selected"' : '';
-                                echo sprintf('<option value="%d" %s>GMT %s - %s</option>',
-                                        $id, $sel, $offset, $tz);
-                            }
-                        }
-                        ?>
-                    </select>
-                    &nbsp;<span class="error"><?php echo $errors['timezone_id']; ?></span>
-                </td>
-            </tr>
-            <tr>
-                <td width="180">
-                   <?php echo __('Daylight Saving'); ?>:
-                </td>
-                <td>
-                    <input type="checkbox" name="dst" value="1" <?php echo $info['dst'] ? 'checked="checked"' : ''; ?>>
-                    <?php echo __('Observe daylight saving'); ?>
+                    <?php
+                    $TZ_NAME = 'timezone';
+                    $TZ_TIMEZONE = $info['timezone'];
+                    include STAFFINC_DIR.'templates/timezone.tmpl.php'; ?>
+                    <div class="error"><?php echo $errors['timezone']; ?></div>
                 </td>
             </tr>
         </tbody>

@@ -7,7 +7,8 @@
 # title:    Bold section title of the form
 # instructions: Title deck, detailed instructions on entering form data
 # notes:    Notes for the form, shown under the fields
-# deletable: True if the form can be removed from the system
+# flags:
+#   0x0001  If the form can be removed from the system
 # fields:   List of fields for the form
 #   type:       Field type (short name) (eg. 'text', 'memo', 'phone', ...)
 #   label:      Field label shown to the user
@@ -15,10 +16,16 @@
 #               useful for page and email templates, where %{ ticket.<name> }
 #               will be used to retrieve the data from the field.
 #   hint:       Help text shown with the field
-#   edit_mask:  Mask out edits to the field (1=>delete, 2=>change name,
-#                   4=>privacy setting, 8=>requirement setting)
-#   private:    True if the field should be hidden from the client
-#   required:   True if entry for the field is required
+#   flags:      Bit mask for settings & options
+#     # From class DynamicFormField
+#     const FLAG_MASK_CHANGE      = 0x0010;     # Type cannot change
+#     const FLAG_MASK_DELETE      = 0x0020;     # Cannot be deleted
+#     const FLAG_MASK_EDIT        = 0x0040;     # Data cannot be edited
+#     const FLAG_MASK_DISABLE     = 0x0080;     # Field cannot be disabled
+#     const FLAG_MASK_REQUIRE     = 0x10000;    # Requirement cannot be changed
+#     const FLAG_MASK_VIEW        = 0x20000;    # View settings cannot be changed
+#     const FLAG_MASK_NAME        = 0x40000;    # Name cannot be changed
+#
 #   configuration: Field-specific configuration
 #     size:     (text) width of the field
 #     length:   (text) maximum size of the data in the field
@@ -29,14 +36,13 @@
 - id: 1
   type: U # notrans
   title: Contact Information
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: email # notrans
       label: Email Address
-      required: true
       sort: 1
-      edit_mask: 15
+      flags: 0x777A3
       configuration:
         size: 40
         length: 64
@@ -44,23 +50,21 @@
     - type: text # notrans
       name: name # notrans
       label: Full Name
-      required: true
       sort: 2
-      edit_mask: 15
+      flags: 0x777A3
       configuration:
         size: 40
         length: 64
     - type: phone # notrans
       name: phone # notrans
       label: Phone Number
-      required: false
       sort: 3
+      flags: 0x3301
     - type: memo # notrans
       name: notes
       label: Internal Notes
-      required: false
-      private: true
       sort: 4
+      flags: 0x3001
       configuration:
         rows: 4
         cols: 40
@@ -72,15 +76,14 @@
       This form will be attached to every ticket, regardless of its source.
       You can add any fields to this form and they will be available to all
       tickets, and will be searchable with advanced search and filterable.
-  deletable: false
+  flags: 0
   fields:
     - id: 20
       type: text # notrans
       name: subject # notrans
       label: Issue Summary
-      required: true
-      edit_mask: 15
       sort: 1
+      flags: 0x77721
       configuration:
         size: 40
         length: 50
@@ -89,28 +92,24 @@
       name: message # notrans
       label: Issue Details
       hint: Details on the reason(s) for opening the ticket.
-      required: true
-      edit_mask: 15
       sort: 2
+      flags: 0x75523
     - id: 22
       type: priority # notrans
       name: priority # notrans
       label: Priority Level
-      required: false
-      private: true
-      edit_mask: 3
+      flags: 0x430B1
       sort: 3
 - type: C # notrans
   title: Company Information
   instructions: Details available in email templates
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: name # notrans
       label: Company Name
-      required: true
       sort: 1
-      edit_mask: 3
+      flags: 0x471A1
       configuration:
         size: 40
         length: 64
@@ -118,21 +117,22 @@
       name: website # notrans
       label: Website
       sort: 2
+      flags: 0x3101
       configuration:
         size: 40
         length: 64
     - type: phone # notrans
       name: phone # notrans
       label: Phone Number
-      required: false
       sort: 3
+      flags: 0x3101
       configuration:
         ext: false
     - type: memo # notrans
       name: address
       label: Address
-      required: false
       sort: 4
+      flags: 0x3101
       configuration:
         rows: 2
         cols: 40
@@ -141,22 +141,21 @@
 - type: O # notrans
   title: Organization Information
   instructions: Details on user organization
-  deletable: false
+  flags: 0
   fields:
     - type: text # notrans
       name: name # notrans
       label: Name
-      required: true
       sort: 1
-      edit_mask: 15
+      flags: 0x777A3
       configuration:
         size: 40
         length: 64
     - type: memo
       name: address
       label: Address
-      required: false
       sort: 2
+      flags: 0x3301
       configuration:
         rows: 2
         cols: 40
@@ -165,21 +164,42 @@
     - type: phone
       name: phone
       label: Phone
-      required: false
       sort: 3
+      flags: 0x3301
     - type: text
       name: website
       label: Website
-      required: false
       sort: 4
+      flags: 0x3301
       configuration:
         size: 40
         length: 0
     - type: memo # notrans
       name: notes
       label: Internal Notes
-      required: false
       sort: 5
+      flags: 0x3001
       configuration:
         rows: 4
         cols: 40
+- type: A # notrans
+  title: Task Details
+  instructions: Please Describe The Issue
+  notes: |
+      This form is used to create a task.
+  flags: 0
+  fields:
+    - type: text # notrans
+      name: title # notrans
+      flags: 0x470A1
+      sort: 1
+      label: Title
+      configuration:
+        size: 40
+        length: 50
+    - type: thread # notrans
+      name: description # notrans
+      flags: 0x450F3
+      sort: 2
+      label: Description
+      hint: Details on the reason(s) for creating the task.
