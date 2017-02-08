@@ -115,7 +115,14 @@ function db_version() {
 }
 
 function db_timezone() {
-    return db_get_variable('system_time_zone', 'global');
+	$php_tz = ini_get('date.timezone');
+	$php_abbr = new DateTime('now', new DateTimeZone($php_tz));
+	$php_abbr = $php_abbr->format('T');
+	$sql_tz = db_get_variable('system_time_zone', 'global');
+	if ($php_abbr === $sql_tz)
+		return $php_tz;
+
+	return false;
 }
 
 function db_get_variable($variable, $type='session') {
