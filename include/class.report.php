@@ -189,7 +189,7 @@ class OverviewReport {
         case 'dept':
             $headers = array(__('Department'));
             $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
-            $pk = 'dept_id';
+            $pk = 'dept__id';
             $stats = $stats
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
                 ->values('dept__id', 'dept__name');
