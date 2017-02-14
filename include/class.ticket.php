@@ -3674,5 +3674,50 @@ implements RestrictedAccess, Threadable {
 
         require STAFFINC_DIR.'templates/tickets-actions.tmpl.php';
     }
+
+    static function autoChangeStatus()
+    {
+        $errors = array();
+
+        $sql = "
+                SELECT 
+                    tickets.ticket_id,
+                    tickets.new_status,
+                    status.name,
+                    tickets.status_timer
+                
+                FROM (
+                    select
+                      T1.ticket_id,
+                      T1.status_id,
+                      substring_index(substring_index(T2.properties, '\"autochangestatustimer\":\"', -1), '\"', 1) status_timer,
+                      substring_index(substring_index(T2.properties, '\"autochangestatusvalue\":', -1), ',', 1) new_status,
+                      T1.lastupdate
+                    from " . TICKET_TABLE . " T1
+                    inner join " . TICKET_STATUS_TABLE . " T2 on (
+                      T2.id = T1.status_id and 
+                      T2.state = 'open' and 
+                      lcase(T2.properties) like '%\"autochangestatus\":true%'
+                    )        
+                ) tickets
+                
+                INNER JOIN " . TICKET_STATUS_TABLE . " status ON status.id = tickets.new_status
+                
+                WHERE TIME_TO_SEC(TIMEDIFF(NOW(),tickets.lastupdate)) >= tickets.status_timer*3600
+        ";
+
+        if (($res=db_query($sql)) && db_num_rows($res)) {
+            while (list($id, $new_status, $description, $timer)=db_fetch_row($res)) {
+                if ($ticket=Ticket::lookup($id)) {
+                    $plural = ($timer > 1) ? 'hours' : 'hour';
+
+                    $comment  = 'Ticket marked as "' . $description . '" by the SYSTEM ';
+                    $comment .= 'after ' . $timer . ' ' . $plural . ' of no activity.';
+
+                    $ticket->setStatus($new_status, $comment, $errors, false);
+                }
+            }
+        }
+    }
 }
 ?>

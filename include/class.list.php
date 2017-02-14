@@ -980,14 +980,68 @@ class TicketStatusList extends CustomListHandler {
     }
 
     function getExtraConfigOptions($source=null) {
-        $status_choices = array( 0 => __('System Default'));
+        $auto_change_choices = array();
+        $reopen_status_choices = array( 0 => __('System Default'));
+
+        // Get all statuses for auto-change list,
+        // and filter "open" statuses for reopen status list
         if (($statuses=TicketStatusList::getStatuses(
-                        array( 'enabled' => true, 'states' =>
-                            array('open')))))
-            foreach ($statuses as $s)
-                $status_choices[$s->getId()] = $s->getName();
+                        array('enabled' => true))))
+            foreach ($statuses as $s) {
+                $auto_change_choices[$s->getId()] = $s->getName();
+                if ($s->getState() == 'open') {
+                    $reopen_status_choices[$s->getId()] = $s->getName();
+                }
+            }
 
         return array(
+            'autochangestatus' => new BooleanField(array(
+                'label' =>__('Auto-Changing'),
+                'editable' => true,
+                'default' => isset($source['autochangestatus'])
+                    ?  $source['autochangestatus']: false,
+                'id' => 'autochangestatus',
+                'name' => 'autochangestatus',
+                'configuration' => array(
+                    'desc'=>__('Allow the status of ticket to be changed after a defined time.'),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('state__eq'=>'open')),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'autochangestatusvalue' => new ChoiceField(array(
+                'label' => __('New Ticket Status'),
+                'editable' => true,
+                'required' => true,
+                'default' => isset($source['autochangestatusvalue'])
+                    ? $source['autochangestatusvalue'] : 0,
+                'id' => 'autochangestatusvalue',
+                'name' => 'autochangestatusvalue',
+                'choices' => $auto_change_choices,
+                'configuration' => array(
+                    'widget' => 'dropdown',
+                    'multiselect' =>false
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('autochangestatus__eq'=> true)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'autochangestatustimer' => new TextboxField(array(
+                'label' => __('Time Limit (hours)'),
+                'editable' => true,
+                'required' => true,
+                'default' => isset($source['autochangestatustimer'])
+                    ? $source['autochangestatustimer'] : 72,
+                'id' => 'autochangestatustimer',
+                'name' => 'autochangestatustimer',
+                'validator' => 'number',
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('autochangestatus__eq' => true)),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
             'allowreopen' => new BooleanField(array(
                 'label' =>__('Allow Reopen'),
                 'editable' => true,
@@ -1011,7 +1065,7 @@ class TicketStatusList extends CustomListHandler {
                     ? $source['reopenstatus'] : 0,
                 'id' => 'reopenstatus',
                 'name' => 'reopenstatus',
-                'choices' => $status_choices,
+                'choices' => $reopen_status_choices,
                 'configuration' => array(
                     'widget' => 'dropdown',
                     'multiselect' =>false
