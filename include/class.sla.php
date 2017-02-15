@@ -282,7 +282,7 @@ implements TemplateVariable {
         if ( $timeleft === 0) {
             return $markerdt;
         } else {
-            $result = new DateTime('1990-12-17 10:13:06');
+            $result = new DateTime('1970-01-01 00:00:00');
             return $result;
         }
     }
