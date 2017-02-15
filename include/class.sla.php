@@ -258,7 +258,7 @@ implements TemplateVariable {
         }
 
         // Day 2 to N-1
-        while ( $timeleft >= 0 && $markerdt->getTimestamp()-$fromdt->getTimestamp() < 90*24*60*60 ) {
+        while ( $timeleft > 0 && $markerdt->getTimestamp()-$fromdt->getTimestamp() < 90*24*60*60 ) {
             $markerdt->add(new DateInterval('P1D'));
             $dayDow = intval( $markerdt->format('N'));
             $dayDow = $dayDow === 7 ? 0 : $dayDow;
