@@ -40,6 +40,10 @@ implements TemplateVariable {
         return $this->grace_period;
     }
 
+    function getBusinessHoursId() {
+        return $this->business_hours_id;
+    }
+
     function getInfo() {
         $base = $this->ht;
         $base['isactive'] = $this->flags & self::FLAG_ACTIVE;
@@ -123,6 +127,7 @@ implements TemplateVariable {
         $this->name = $vars['name'];
         $this->grace_period = $vars['grace_period'];
         $this->notes = Format::sanitize($vars['notes']);
+        $this->business_hours_id = $vars['business_hours_id'];
         $this->flags =
               ($vars['isactive'] ? self::FLAG_ACTIVE : 0)
             | (isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0)
@@ -168,9 +173,122 @@ implements TemplateVariable {
         return $num;
     }
 
+    // Handles human times of day and converts them to decimal,
+    // rounded to 2 decimal places, handles military time
+    // Ex: timeOfDayToDec("9:59 AM ") === 9.98
+    static function timeOfDayToDec($tod) {
+      $tod = strtolower(trim($tod));
+      $m = strrpos($tod,'p') > 0 ? 12 : 0;
+      $hm = explode(':',$tod);
+      $result = intval($hm[0])+$m+(round(intval($hm[1])/60,2));
+      return $result;
+    }
+
+    function getParsedBusinessHours() {
+        $bh = BusinessHours::lookup($this->getBusinessHoursId());
+        $strings = $bh->getUnixMtF();
+        $parsed = [];
+        for($i=0; $i < 7; $i++) {
+            $shifts = explode(',',$strings[$i]); // "5-11,13-17" to ["5-11","13-17"]
+            $parsedShift = [];
+            foreach($shifts as $shift) {
+                $sne = explode('-', $shift); // start and end
+                if(count($sne) !== 2) { // some days you don't work
+                    continue;
+                }
+                $parsedShift[] = self::timeOfDayToDec($sne[0]);
+                $parsedShift[] = self::timeOfDayToDec($sne[1]);
+            }
+            $parsed[] = $parsedShift;
+        }
+        return $parsed;
+    }
+
+    /**
+    * @param DateTime   $fromdt  The start date to calculate the due date from.
+    */
+    function calcSLAWithBusinessHours( $fromdt) {
+        // 8:30a-12:00pm, 1:00pm-5:00pm
+        /*$parsed_mtf = [8.5,12.0,13,17];
+        $parsedSchedule = [
+                    [], // 0 = sunday
+                    $parsed_mtf, // 1 = monday
+                    $parsed_mtf, // 2 = tuesday
+                    $parsed_mtf, // 3 = wednesday
+                    $parsed_mtf, // 4 = thursday
+                    $parsed_mtf, // 5 = friday
+                    [], // 6 = saturday
+        ];*/
+        $parsedSchedule = $this->getParsedBusinessHours();
+        $sla_gracetime = $this->getGracePeriod();
+
+        $fromDayDow = intval( $fromdt->format('N') );
+        $fromDayDow = $fromDayDow === 7 ? 0 : $fromDayDow; // Make Sunday = 0
+        $fromTime = floatval( $fromdt->format('G') ) + floatval( $fromdt->format('i') ) / 60; // 13:30:59 = 13.5
+
+        $timeleft = $sla_gracetime;
+        $markerdt = clone $fromdt;
+
+        // Day one
+        $calculatedFromTime = null;
+        for( $i=0; $i<count($parsedSchedule[$fromDayDow]); $i++) { // find calculatedFromTime
+            $time = $parsedSchedule[$fromDayDow][$i]; // rounding should be the same as fromTime
+
+            if ( ($i & 1) === 0 || $time < $fromTime  ) { // we don't care about start times (even) or end times before fromdt's time
+                continue;
+            }
+
+            if( is_null($calculatedFromTime) ) { // this is odd, thus a closing time bracket
+                $bracketStart = $parsedSchedule[$fromDayDow][$i-1];
+                $calculatedFromTime = $fromTime > $bracketStart ? $fromTime : $bracketStart;
+                $timeleft -= $time - $calculatedFromTime;
+            } else { // odd means end
+                $bracketStart = $parsedSchedule[$fromDayDow][$i-1];
+                $timeleft -= $time - $bracketStart;
+            }
+
+            if( $timeleft < 0) { // we've over shot, on day one
+                $duetime = $time + $timeleft; // this is a substraction
+                $duehour = floor($duetime);
+                $dueminute = floor(($duetime-$duehour) * 60);
+                $markerdt->setTime($duehour,$dueminute);
+                $timeleft = 0;
+                break;
+            }
+        }
+
+        // Day 2 to N-1
+        while ( $timeleft >= 0 && $markerdt->getTimestamp()-$fromdt->getTimestamp() < 90*24*60*60 ) {
+            $markerdt->add(new DateInterval('P1D'));
+            $dayDow = intval( $markerdt->format('N'));
+            $dayDow = $dayDow === 7 ? 0 : $dayDow;
+            for( $i=0; $i<count($parsedSchedule[$dayDow]); $i++) {
+                $time = $parsedSchedule[$dayDow][$i];
+                if ( $i & 1) { // odd means end
+                    $bracketStart = $parsedSchedule[$dayDow][$i-1];
+                    $timeleft -= $time - $bracketStart;
+                }
+                if( $timeleft < 0) { // we've over shot, on day one
+                    $duetime = $time + $timeleft; // this is a substraction
+                    $duehour = floor($duetime);
+                    $dueminute = floor(($duetime-$duehour) * 60);
+                    $markerdt->setTime($duehour,$dueminute);
+                    $timeleft = 0;
+                    break;
+                }
+            }
+        }
+
+        if ( $timeleft === 0) {
+            return $markerdt;
+        } else {
+            $result = new DateTime('1990-12-17 10:13:06');
+            return $result;
+        }
+    }
+
     /** static functions **/
     static function getSLAs($criteria=array()) {
-
        $slas = self::objects()
            ->order_by('name')
            ->values_flat('id', 'name', 'flags', 'grace_period');
@@ -186,6 +304,41 @@ implements TemplateVariable {
         }
 
         return $entries;
+    }
+
+    static function updateEstDueDate ($ticket) {
+        //$thread = $ticket->getThread();
+        $slaDeadline = SLA::calcEstDueDate($ticket);
+        if( is_null($slaDeadline) || $ticket->getEstDueDate() == $slaDeadline) { //Minute granularity
+            return;
+        }
+
+        $slaid = $ticket->getSLAId();
+        $ticket->setEstDueDate($slaDeadline);
+        //$ticket->save();
+        $sla = SLA::lookup($slaid);
+
+        // Update the config information
+        $_config = new Config('sla.'.$ticket->getId());
+        $_config->updateAll(array(
+                    'time_elapsed' => 7
+                )
+        );
+
+    }
+
+    static function calcEstDueDate($ticket) {
+        $slaid = $ticket->getSLAId();
+        if ( ! $slaid)
+            return NULL;
+        $sla = SLA::lookup($slaid);
+        $fromdt = new DateTime($ticket->getCreateDate());
+        $bhid = $sla->getBusinessHoursId();
+        if ( $bhid !== null && $bhid > 0 ) {
+            return $sla->calcSLAWithBusinessHours($fromdt)->format('Y-m-d H:i:s');
+        } else {
+            return '2015-12-24 04:00:00';
+        }
     }
 
     static function getSLAName($id) {
@@ -214,4 +367,12 @@ implements TemplateVariable {
         return $sla;
     }
 }
+
+// Update the sla effective due date
+Signal::connect('model.updated',
+    array('SLA', 'updateEstDueDate'),
+    'Ticket');
+Signal::connect('model.created',
+    array('SLA', 'updateEstDueDate'),
+    'Ticket');
 ?>

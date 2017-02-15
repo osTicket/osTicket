@@ -488,8 +488,14 @@ implements RestrictedAccess, Threadable {
         return $this->duedate;
     }
 
+    // TODO: this should be part of SLA Class
     function getSLADueDate() {
         if ($sla = $this->getSLA()) {
+            $bhid = $sla->getBusinessHoursId();
+            if ( $bhid !== null && $bhid > 0 ) {
+                return SLA::calcEstDueDate($this);
+            }
+
             $dt = new DateTime($this->getCreateDate());
 
             return $dt
@@ -498,18 +504,22 @@ implements RestrictedAccess, Threadable {
         }
     }
 
-    function updateEstDueDate() {
-        $this->est_duedate = $this->getEstDueDate();
+    function setEstDueDate( $datestr ) {
+        $this->est_duedate = $datestr;
         $this->save();
     }
 
+    /* Will get the due date, prioritizing the manual due date.
+     * Handles Business hours etc, as that's updated via signals.
+    */
     function getEstDueDate() {
-        // Real due date
+        // Real manually set due date
         if ($duedate = $this->getDueDate()) {
             return $duedate;
         }
-        // return sla due date (If ANY)
-        return $this->getSLADueDate();
+
+        // return precalculated due date.
+        return $this->est_duedate;
     }
 
     function getCloseDate() {
@@ -2829,7 +2839,7 @@ implements RestrictedAccess, Threadable {
         if (!$this->save())
             return false;
 
-	$vars['note'] = ThreadEntryBody::clean($vars['note']);
+        $vars['note'] = ThreadEntryBody::clean($vars['note']);
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
@@ -2860,7 +2870,6 @@ implements RestrictedAccess, Threadable {
 
         // Update estimated due date in database
         $estimatedDueDate = $this->getEstDueDate();
-        $this->updateEstDueDate();
 
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
@@ -2904,9 +2913,9 @@ implements RestrictedAccess, Threadable {
     static function isTicketNumberUnique($number) {
         $num = static::objects()
             ->filter(array('number' => $number))
-	    ->count();
+            ->count();
 
-	return ($num === 0);
+        return ($num === 0);
     }
 
     /* Quick staff's tickets stats */
@@ -3464,9 +3473,6 @@ implements RestrictedAccess, Threadable {
             }
         }
 
-        // Update the estimated due date in the database
-        $ticket->updateEstDueDate();
-
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
@@ -3649,13 +3655,22 @@ implements RestrictedAccess, Threadable {
 
         $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
             .' INNER JOIN '.TICKET_STATUS_TABLE.' status
-                ON (status.id=T1.status_id AND status.state="open") '
-            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '
-            .' WHERE isoverdue=0 '
-            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
-            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
-            .' OR (duedate is NOT NULL AND duedate<NOW()) '
-            .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
+                ON (status.id=T1.status_id AND status.state="open") ' // allow reshuffleling of ticket states
+            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '  // only check on enabled sla plans
+            .' WHERE isoverdue=0 ' // if we've already set it overdue, skip it
+            // if business hours less than 24/7, follow my logic.
+            // proposal, use estimated due date and update when events may change model
+            // events that may change the model:
+            // - ticket reopened
+            // - ticket reply submitted
+            // - sla grace period changed
+            // Once made strong enough, my logic could over ride the rest of this logic
+            //.' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) ' // fresh and overdue
+            //.' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) ' // used, go by reopened date
+            .' AND ('
+            .   '(duedate is NULL AND TIME_TO_SEC(TIMEDIFF(est_duedate,NOW()))<=0) ' // used, go by reopened date.
+            .   'OR (duedate is NOT NULL AND duedate<NOW()) ' // duedate set manually and already passed
+            .') ORDER BY T1.created LIMIT 50'; //Age up to 50 tickets at a time
 
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {

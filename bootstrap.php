@@ -100,6 +100,7 @@ class Bootstrap {
         define('THREAD_EVENT_TABLE',$prefix.'thread_event');
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
+        define('BUSINESS_HOURS_TABLE', $prefix.'business_hours');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
 
         define('TASK_TABLE', $prefix.'task');

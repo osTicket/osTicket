@@ -32,7 +32,7 @@ class Signal {
      *
      * Signal::connect('user.auth', 'function');
      *
-     * The subscribed function should receive a two arguments and will have
+     * The subscribed function should receive two arguments and will have
      * this signature:
      *
      * function callback($object, $data);
@@ -53,8 +53,7 @@ class Signal {
      * signal handler. The function will receive the signal data and should
      * return true if the signal handler should be called.
      */
-    static function connect($signal, $callable, $object=null,
-            $check=null) {
+    static function connect($signal, $callable, $object=null, $check=null) {
         if (!isset(self::$subscribers[$signal])) self::$subscribers[$signal] = array();
         // XXX: Ensure $object if set is a class
         if ($object && !is_string($object))

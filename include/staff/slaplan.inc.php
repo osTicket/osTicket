@@ -9,7 +9,7 @@ if($sla && $_REQUEST['a']!='add'){
     $info['id']=$sla->getId();
     $trans['name'] = $sla->getTranslateTag('name');
     $qs += array('id' => $sla->getId());
-}else {
+} else {
     $title=__('Add New SLA Plan' /* SLA is abbreviation for Service Level Agreement */);
     $action='add';
     $submit_text=__('Add Plan');
@@ -89,6 +89,43 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <em><?php echo __('(Override global setting)'); ?></em>
             </td>
         </tr>
+
+        <tr>
+          <td>
+                <?= __('Business Hours' . ':'); ?>
+          </td>
+          <td>
+              <span>
+              <select name="business_hours_id">
+                  <option value="">&mdash; <?php echo __('System Default (24/7)'); ?> &mdash;</option>
+                  <?php
+                  foreach (BusinessHoursList::getStatuses() as $status) {
+                      $name = $status->getName();
+                      if (!($isenabled = $status->isEnabled()))
+                          $name.=' '.__('(disabled)');
+
+                      echo sprintf('<option value="%d" %s %s>%s</option>',
+                              $status->getId(),
+                              ( !empty($sla) && $sla->getBusinessHoursId() === $status->getId())
+                               ? 'selected="selected"' : '',
+                               $isenabled ? '' : 'disabled="disabled"',
+                               $name
+                              );
+                  }
+                  ?>
+              </select>
+              &nbsp;
+              <span class="error"><?php echo $errors['status_id']; ?></span>
+              <i class="help-tip icon-question-sign" href="#status"></i>
+              </span>
+              <button class="action-button pull-right" onclick="javascript:
+              window.location.href = 'lists.php';
+              return false;
+              "><i class="icon-gear"></i> Manage</button>
+            </td>
+        </tr>
+    </tbody>
+    <tbody>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __("Be liberal, they're internal");?>

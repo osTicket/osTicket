@@ -62,6 +62,8 @@ class Internationalization {
             'organization.yaml' =>  'Organization::__create',
             // Ticket
             'ticket_status.yaml' => 'TicketStatus::__create',
+            // Business Hours
+            'business_hours.yaml' => 'BusinessHours::__create',
             // Role
             'role.yaml' =>          'Role::__create',
             'file.yaml' =>          'AttachmentFile::__create',

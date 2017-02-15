@@ -85,6 +85,7 @@ CREATE TABLE `%TABLE_PREFIX%sla` (
   `flags` int(10) unsigned NOT NULL default 3,
   `grace_period` int(10) unsigned NOT NULL default '0',
   `name` varchar(64) NOT NULL default '',
+  `dows` BIT(7) NOT NULL default b'1111111',
   `notes` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,

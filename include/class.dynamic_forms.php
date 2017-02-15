@@ -19,6 +19,7 @@
 require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
 require_once(INCLUDE_DIR . 'class.list.php');
+require_once(INCLUDE_DIR . 'class.business_hours.php');
 require_once(INCLUDE_DIR . 'class.filter.php');
 require_once(INCLUDE_DIR . 'class.signal.php');
 

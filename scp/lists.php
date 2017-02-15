@@ -1,6 +1,7 @@
 <?php
 require('admin.inc.php');
-require_once(INCLUDE_DIR.'class.list.php');
+require_once(INCLUDE_DIR . 'class.list.php');
+require_once(INCLUDE_DIR . 'class.business_hours.php');
 
 
 $list=null;

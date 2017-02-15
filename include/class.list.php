@@ -1469,4 +1469,5 @@ implements CustomListItem, TemplateVariable {
         include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
     }
 }
+
 ?>

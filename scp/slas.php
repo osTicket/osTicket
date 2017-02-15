@@ -2,7 +2,9 @@
 /*********************************************************************
     slas.php
 
+    Front Controller for
     SLA - Service Level Agreements
+    
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket

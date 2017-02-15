@@ -2363,7 +2363,6 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     );
 });
 
-
 class TicketStateField extends ChoiceField {
 
     static $_states = array(
