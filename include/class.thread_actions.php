@@ -123,7 +123,7 @@ JS
         $old = $this->entry;
         $new = ThreadEntryBody::fromFormattedText($_POST['body'], $old->format);
 
-        if ($new->getClean() == $old->body)
+        if ($new->getClean() == $old->getBody())
             // No update was performed
             return $old;
 
