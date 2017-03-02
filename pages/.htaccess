@@ -6,6 +6,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.*/pages)
 
-RewriteRule ^(.*)$ %1/index.php/$1 [L]
+RewriteRule ^(.*)$ %1/index.php [L,E=PATH_INFO:$1]
 
 </IfModule>
