@@ -261,121 +261,7 @@ if ($_POST)
             }
         ?>
         </tbody>
-        <tbody>
-        <?php
-        //is the user allowed to post replies??
-        if ($thisstaff->getRole()->hasPerm(Ticket::PERM_REPLY)) { ?>
-        <tr id="open_ticket_response">
-            <th colspan="2">
-                <em><strong><?php echo __('Response');?></strong>: <?php echo __('Optional response to the above issue.');?></em>
-            </th>
-        </tr>
-        <tr ><td style="padding-left:16px;padding-top: 10px">
-           
-            <?php
-            if(($cannedResponses=Canned::getCannedResponses())) {
-                ?>
-                
-                    <strong><?php echo __('Response');?>:</strong>
-				</td><td style="padding-top: 10px;">
-                    <select id="cannedResp" name="cannedResp">
-                        <option value="0" selected="selected">&mdash; <?php echo __('Select a canned response');?> &mdash;</option>
-                        <?php
-                        foreach($cannedResponses as $id =>$title) {
-                            echo sprintf('<option value="%d">%s</option>',$id,$title);
-                        }
-                        ?>
-                    </select>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <label class="checkbox inline"><input type='checkbox' value='1' name="append" id="append" checked="checked"><?php echo __('Append');?></label>
-            </td> </tr> <tr>
-		<td></td><td style="padding-right:16px;">
-            <?php
-            }
-                $signature = '';
-                if ($thisstaff->getDefaultSignatureType() == 'mine')
-                    $signature = $thisstaff->getSignature(); ?>
-                <textarea
-                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                        ?> draft draft-delete" data-signature="<?php
-                        echo Format::htmlchars(Format::viewableImages($signature)); ?>"
-                    data-signature-field="signature" data-dept-field="deptId"
-                    placeholder="<?php echo __('Initial response for the ticket'); ?>"
-                    name="response" id="response" cols="21" rows="8"
-                    style="width:80%;" <?php
-					list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
-					echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
-                ?></textarea>
-                    <div class="attachments">
-					<?php
-					print $response_form->getField('attachments')->render();
-?>
-                    </div>
-				</td>
-				<tr>
-                <td style="min-width:120px;padding-left:16px"><?php echo __('Signature');?>:</td>
-                <td>
-                    <?php
-                    $info['signature']=$info['signature']?$info['signature']:$thisstaff->getDefaultSignatureType();
-                    ?>
-                    <label><input type="radio" name="signature" value="none" checked="checked"> <?php echo __('None');?></label>
-                    <?php
-                    if($thisstaff->getSignature()) { ?>
-                        <label><input type="radio" name="signature" value="mine"
-                            <?php echo ($info['signature']=='mine')?'checked="checked"':''; ?>> <?php echo __('My signature');?></label>
-                    <?php
-                    } ?>
-                    <label><input type="radio" name="signature" value="dept"
-                        <?php echo ($info['signature']=='dept')?'checked="checked"':''; ?>> <?php echo sprintf(__('Department Signature (%s)'), __('if set')); ?></label>
-                </td>
-             </tr>
-            <tr>
-                <td style="min-width:120px;padding-left:16px" ><strong><?php echo __('Ticket Status');?>:</strong></td>
-                <td>
-                    <select name="statusId">
-                    <?php
-                    $statusId = $info['statusId'] ?: $cfg->getDefaultTicketStatusId();
-                    $states = array('open');
-                    if ($thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
-                        $states = array_merge($states, array('closed'));
-                    foreach (TicketStatusList::getStatuses(
-                                array('states' => $states)) as $s) {
-                        if (!$s->isEnabled()) continue;
-                        $selected = ($statusId == $s->getId());
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $s->getId(),
-                                $selected
-                                 ? 'selected="selected"' : '',
-                                __($s->getName()));
-                    }
-                    ?>
-                    </select>
-                </td>
-            </tr>
-        </tr>
-        <?php
-        } //end canPostReply
-        ?>
-        <tr id="open_ticket_note">
-            <th colspan="2">
-                <em><strong><?php echo __('Note');?>: <?php echo __('Optional note to the above issue.');?></strong>
-                <font class="error">&nbsp;<?php echo $errors['note']; ?></font></em>
-            </th>
-        </tr>
-        <tr>
-            <td style="padding-left: 16px;vertical-align: top;padding-top: 10px;"><strong><?php echo __('Internal Note');?>:</strong></td>
-			<td  style="padding-top: 10px;padding-right:16px;">
-                <textarea
-                    class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                        ?> draft draft-delete"
-                    placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
-                    name="note" cols="21" rows="6" style="width:80%;" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
-    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
-                ?></textarea>
-            </td>
-        </tr>
-    </tbody>
+       
 </table>
 <p style="text-align:center;">
     <input type="submit" name="submit" class="save pending" value="<?php echo _P('action-button', 'Submit');?>">
@@ -384,7 +270,7 @@ if ($_POST)
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor && redactor.opts.draftDelete)
-                redactor.deleteDraft();
+                redactor.draft.deleteDraft();
         });
         window.location.href='tickets.php';
     ">
