@@ -186,48 +186,48 @@ class OverviewReport {
             ));
 
         switch ($group) {
-        case 'dept':
-            $headers = array(__('Department'));
-            $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
-            $pk = 'dept_id';
-            $stats = $stats
-                ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                ->values('dept__id', 'dept__name');
-            $times = $times
-                ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                ->values('dept__id');
-            break;
-        case 'topic':
-            $headers = array(__('Help Topic'));
-            $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
-            $pk = 'topic_id';
-            $stats = $stats
-                ->values('topic_id', 'topic__topic')
-                ->filter(array('topic_id__gt' => 0));
-            $times = $times
-                ->values('topic_id')
-                ->filter(array('topic_id__gt' => 0));
-            break;
-        case 'staff':
-            $headers = array(__('Agent'));
-            $header = function($row) { return new AgentsName(array(
-                'first' => $row['staff__firstname'], 'last' => $row['staff__lastname'])); };
-            $pk = 'staff_id';
-            $stats = $stats->values('staff_id', 'staff__firstname', 'staff__lastname');
-            $times = $times->values('staff_id');
-            $depts = $thisstaff->getManagedDepartments();
-            if ($thisstaff->hasPerm(ReportModel::PERM_AGENTS))
-                $depts = array_merge($depts, $thisstaff->getDepts());
-            $Q = Q::any(array(
-                'staff_id' => $thisstaff->getId(),
-            ));
-            if ($depts)
-                $Q->add(array('dept_id__in' => $depts));
-            $stats = $stats->filter(array('staff_id__gt'=>0))->filter($Q);
-            $times = $times->filter(array('staff_id__gt'=>0))->filter($Q);
-            break;
-        default:
-            # XXX: Die if $group not in $groups
+            case 'dept':
+                $headers = array(__('Department'));
+                $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
+                $pk = 'dept_id';
+                $stats = $stats
+                    ->filter(array('dept_id__in' => $thisstaff->getDepts()))
+                    ->values('dept__id', 'dept__name');
+                $times = $times
+                    ->filter(array('dept_id__in' => $thisstaff->getDepts()))
+                    ->values('dept__id');
+                break;
+            case 'topic':
+                $headers = array(__('Help Topic'));
+                $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
+                $pk = 'topic_id';
+                $stats = $stats
+                    ->values('topic_id', 'topic__topic')
+                    ->filter(array('topic_id__gt' => 0));
+                $times = $times
+                    ->values('topic_id')
+                    ->filter(array('topic_id__gt' => 0));
+                break;
+            case 'staff':
+                $headers = array(__('Agent'));
+                $header = function($row) { return new AgentsName(array(
+                    'first' => $row['staff__firstname'], 'last' => $row['staff__lastname'])); };
+                $pk = 'staff_id';
+                $stats = $stats->values('staff_id', 'staff__firstname', 'staff__lastname');
+                $times = $times->values('staff_id');
+                $depts = $thisstaff->getManagedDepartments();
+                if ($thisstaff->hasPerm(ReportModel::PERM_AGENTS))
+                    $depts = array_merge($depts, $thisstaff->getDepts());
+                $Q = Q::any(array(
+                    'staff_id' => $thisstaff->getId(),
+                ));
+                if ($depts)
+                    $Q->add(array('dept_id__in' => $depts));
+                $stats = $stats->filter(array('staff_id__gt'=>0))->filter($Q);
+                $times = $times->filter(array('staff_id__gt'=>0))->filter($Q);
+                break;
+            default:
+                # XXX: Die if $group not in $groups
         }
 
         $timings = array();
