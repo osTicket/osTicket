@@ -192,10 +192,10 @@ class OverviewReport {
                 $pk = 'dept_id';
                 $stats = $stats
                     ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                    ->values('dept__id', 'dept__name');
+                    ->values('dept_id', 'dept__name');
                 $times = $times
                     ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                    ->values('dept__id');
+                    ->values('dept_id');
                 break;
             case 'topic':
                 $headers = array(__('Help Topic'));
@@ -227,7 +227,11 @@ class OverviewReport {
                 $times = $times->filter(array('staff_id__gt'=>0))->filter($Q);
                 break;
             default:
-                # XXX: Die if $group not in $groups
+                // Return empty data if invalid group was given.
+                return array(
+                    "columns" => array(),
+                    "data" => array()
+                );
         }
 
         $timings = array();
