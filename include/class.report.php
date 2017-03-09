@@ -238,14 +238,32 @@ class OverviewReport {
         $rows = array();
         foreach ($stats as $R) {
             $T = $timings[$R[$pk]];
-            $rows[] = array($header($R), $R['Opened'], $R['Assigned'],
-                $R['Overdue'], $R['Closed'], $R['Reopened'],
+            $rows[] = array(
+                $header($R),
+                $R['Opened'],
+                $R['Assigned'],
+                $R['Overdue'],
+                $R['Closed'],
+                $R['Reopened'],
                 number_format($T['ServiceTime'], 1),
-                number_format($T['ResponseTime'], 1));
+                number_format($T['ResponseTime'], 1),
+            );
         }
-        return array("columns" => array_merge($headers,
-                        array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
-                              __('Service Time'),__('Response Time'))),
-                     "data" => $rows);
+
+        return array(
+            "columns" => array_merge(
+                $headers,
+                array(
+                    __('Opened'),
+                    __('Assigned'),
+                    __('Overdue'),
+                    __('Closed'),
+                    __('Reopened'),
+                    __('Service Time'),
+                    __('Response Time'),
+                )
+            ),
+            "data" => $rows,
+        );
     }
 }
