@@ -188,7 +188,7 @@ class OverviewReport {
         switch ($group) {
             case 'dept':
                 $headers = array(__('Department'));
-                $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
+                $header_value = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
                 $pk = 'dept_id';
                 $stats = $stats
                     ->filter(array('dept_id__in' => $thisstaff->getDepts()))
@@ -199,7 +199,7 @@ class OverviewReport {
                 break;
             case 'topic':
                 $headers = array(__('Help Topic'));
-                $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
+                $header_value = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
                 $pk = 'topic_id';
                 $stats = $stats
                     ->values('topic_id', 'topic__topic')
@@ -210,7 +210,7 @@ class OverviewReport {
                 break;
             case 'staff':
                 $headers = array(__('Agent'));
-                $header = function($row) { return new AgentsName(array(
+                $header_value = function($row) { return new AgentsName(array(
                     'first' => $row['staff__firstname'], 'last' => $row['staff__lastname'])); };
                 $pk = 'staff_id';
                 $stats = $stats->values('staff_id', 'staff__firstname', 'staff__lastname');
@@ -234,23 +234,25 @@ class OverviewReport {
                 );
         }
 
+        // Sort the timings into an array keyed by the primary key (department / topic / staff id)
         $timings = array();
-        foreach ($times as $T) {
-            $timings[$T[$pk]] = $T;
+        foreach ($times as $time_row) {
+            $timings[$time_row[$pk]] = $time_row;
         }
+        unset($times);
 
         $rows = array();
-        foreach ($stats as $R) {
-            $T = $timings[$R[$pk]];
+        foreach ($stats as $stats_row) {
+            $times = $timings[$stats_row[$pk]];
             $rows[] = array(
-                $header($R),
-                $R['Opened'],
-                $R['Assigned'],
-                $R['Overdue'],
-                $R['Closed'],
-                $R['Reopened'],
-                number_format($T['ServiceTime'], 1),
-                number_format($T['ResponseTime'], 1),
+                $header_value($stats_row), // Name column ("Department" / "Team" etc)
+                $stats_row['Opened'],
+                $stats_row['Assigned'],
+                $stats_row['Overdue'],
+                $stats_row['Closed'],
+                $stats_row['Reopened'],
+                number_format($times['ServiceTime'], 1),
+                number_format($times['ResponseTime'], 1),
             );
         }
 
