@@ -165,6 +165,7 @@ class DbTimezone {
     function get_from_database() {
         // Attempt to fetch timezone direct from the database
         $TZ = db_timezone();
+        $utc_offset_seconds = db_timezone_offset();
 
         // Translate ambiguous 'GMT' timezone
         if ($TZ === 'GMT') {
@@ -176,7 +177,7 @@ class DbTimezone {
         // Forbid timezone abbreviations like 'CDT'
         elseif ($TZ !== 'UTC' && strpos($TZ, '/') === false) {
             // Attempt to lookup based on the abbreviation
-            if (!($TZ = timezone_name_from_abbr($TZ)))
+            if (!($TZ = timezone_name_from_abbr($TZ, $utc_offset_seconds)))
                 // Abbreviation doesn't point to anything valid
                 return false;
         }
