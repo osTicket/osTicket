@@ -112,7 +112,13 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $action = "#list/{$list->getId()}/item/{$item->getId()}/update";
         $item_form = $list->getListItemBasicForm($item->ht, $item);
 
-        include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+        if (get_class($item) === 'BusinessHours') {
+          include(STAFFINC_DIR . 'templates/list-schedule-properties.tmpl.php');
+        } else {
+          include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+          $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.my_profile" />',
+              "$('#content').data('tipNamespace', 'dashboard.my_profile');");
+        }
     }
 
     function getListItems($list_id) {

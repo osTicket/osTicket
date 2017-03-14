@@ -201,13 +201,15 @@ implements TemplateVariable {
             }
             $parsed[] = $parsedShift;
         }
+        $parsed[] = $bh->getVar("timezone");
         return $parsed;
     }
 
     /**
     * @param DateTime   $fromdt  The start date to calculate the due date from.
     */
-    function calcSLAWithBusinessHours( $fromdt) {
+    function calcSLAWithBusinessHours( $rawdt) {
+        global $cfg;
         // 8:30a-12:00pm, 1:00pm-5:00pm
         /*$parsed_mtf = [8.5,12.0,13,17];
         $parsedSchedule = [
@@ -219,8 +221,23 @@ implements TemplateVariable {
                     $parsed_mtf, // 5 = friday
                     [], // 6 = saturday
         ];*/
+
         $parsedSchedule = $this->getParsedBusinessHours();
         $sla_gracetime = $this->getGracePeriod();
+
+        $fromdt = new DateTime();
+        $fromdt->setTimestamp($rawdt->getTimestamp());
+        if ( ! empty($parsedSchedule[7]) ) { // fromdt timezone adjustment
+            $sched_tz = new DateTimeZone($parsedSchedule[7]);
+            $sched_offset = $sched_tz->getOffset($fromdt);
+
+            $tz = new DateTimeZone($cfg->getTimezone());
+            $now_dt = new DateTime("now", $tz);
+            $system_offset = $tz->getOffset($fromdt);
+
+            $offset_diff = $system_offset-$sched_offset;
+            $fromdt->setTimestamp($fromdt->getTimestamp()+$offset_diff);
+        }
 
         $fromDayDow = intval( $fromdt->format('N') );
         $fromDayDow = $fromDayDow === 7 ? 0 : $fromDayDow; // Make Sunday = 0

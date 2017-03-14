@@ -18,6 +18,11 @@ custom_lists:
     content: >
         Your <span class="doc-desc-title">custom lists</span> will permit you to create dropdown boxes with predefined options from which a Client can select in your <span class="doc-desc-title">Custom Forms</span>. If you would like to use this <span class="doc-desc-title">custom list</span> as a <span class="doc-desc-title">target</span> in a <span class="doc-desc-title">Ticket Filter</span>, be sure to add this list to your <span class="doc-desc-title">Ticket Details</span> form.
 
+schedule_hours:
+    title: Schedule Hours
+    content: >
+        Example: 9-5pm
+
 name:
     title: Name
     content: >

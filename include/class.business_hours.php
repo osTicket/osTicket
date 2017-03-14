@@ -241,6 +241,9 @@ class BusinessHoursList extends CustomListHandler {
         // welcome on the screen
         $prop_fields = array();
         foreach ($this->getConfigurationForm()->getFields() as $f) {
+            if ($f->get('name') === 'sunday')
+                continue;
+
             if (in_array($f->get('type'), array('state', 'text', 'datetime', 'phone')))
                 $prop_fields[] = $f;
             elseif (strpos($f->get('type'), 'list-') === 0)
@@ -249,7 +252,7 @@ class BusinessHoursList extends CustomListHandler {
                 $prop_fields[] = $f;
 
             // 4 property columns max
-            if (count($prop_fields) == 4)
+            if (count($prop_fields) == 5)
                 break;
         }
         return $prop_fields;
