@@ -237,7 +237,7 @@ implements TemplateVariable {
             $system_offset = $tz->getOffset($fromdt);
 
             $offset_diff = $system_offset-$sched_offset;
-            $fromdt->setTimestamp($fromdt->getTimestamp()+$offset_diff);
+            $fromdt->setTimestamp($fromdt->getTimestamp()-$offset_diff);
         }
 
         $fromDayDow = intval( $fromdt->format('N') );
