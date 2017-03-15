@@ -302,7 +302,7 @@ implements TemplateVariable {
             if ( $is_timezoned ) {
                 $markerdt->setTimestamp($markerdt->getTimestamp()-$offset_diff); // revert timezone back to system offset
                 return $markerdt;
-            } else
+            } else {
                 return $markerdt;
             }
         } else {
