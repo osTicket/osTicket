@@ -113,10 +113,10 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $item_form = $list->getListItemBasicForm($item->ht, $item);
 
         if (get_class($item) === 'BusinessHours') {
-          include(STAFFINC_DIR . 'templates/list-schedule-properties.tmpl.php');
+            include(STAFFINC_DIR . 'templates/list-schedule-properties.tmpl.php');
         } else {
-          include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
-          $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.my_profile" />',
+            include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+            $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.my_profile" />',
               "$('#content').data('tipNamespace', 'dashboard.my_profile');");
         }
     }
@@ -273,8 +273,11 @@ class DynamicFormsAjaxAPI extends AjaxController {
                     __('Value already in use'));
             }
         }
-
-        include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+        if (get_class($item) === 'BusinessHours') {
+            include(STAFFINC_DIR . 'templates/list-schedule-properties.tmpl.php');
+        } else {
+            include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
+        }
     }
 
     function importListItems($list_id) {

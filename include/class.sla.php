@@ -227,7 +227,8 @@ implements TemplateVariable {
 
         $fromdt = new DateTime();
         $fromdt->setTimestamp($rawdt->getTimestamp());
-        if ( ! empty($parsedSchedule[7]) ) { // fromdt timezone adjustment
+        $is_timezoned = ! empty($parsedSchedule[7]); // the Schedule has it's own timezone, ignore system one
+        if ( $is_timezoned ) { // fromdt timezone adjustment
             $sched_tz = new DateTimeZone($parsedSchedule[7]);
             $sched_offset = $sched_tz->getOffset($fromdt);
 
@@ -296,8 +297,14 @@ implements TemplateVariable {
             }
         }
 
+
         if ( $timeleft === 0) {
-            return $markerdt;
+            if ( $is_timezoned ) {
+                $markerdt->setTimestamp($markerdt->getTimestamp()-$offset_diff); // revert timezone back to system offset
+                return $markerdt;
+            } else
+                return $markerdt;
+            }
         } else {
             $result = new DateTime('1970-01-01 00:00:00');
             return $result;
