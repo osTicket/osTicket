@@ -273,7 +273,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
                     __('Value already in use'));
             }
         }
-        if (get_class($item) === 'BusinessHours') {
+        if (get_class($list) === 'BusinessHoursList') {
             include(STAFFINC_DIR . 'templates/list-schedule-properties.tmpl.php');
         } else {
             include(STAFFINC_DIR . 'templates/list-item-properties.tmpl.php');
