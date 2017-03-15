@@ -237,7 +237,7 @@ implements TemplateVariable {
             $system_offset = $tz->getOffset($fromdt);
 
             $offset_diff = $system_offset-$sched_offset;
-            $fromdt->setTimestamp($fromdt->getTimestamp()-$offset_diff);
+            $fromdt->setTimestamp($fromdt->getTimestamp()+$offset_diff); // system time to schedule time
         }
 
         $fromDayDow = intval( $fromdt->format('N') );
@@ -300,7 +300,7 @@ implements TemplateVariable {
 
         if ( $timeleft === 0) {
             if ( $is_timezoned ) {
-                $markerdt->setTimestamp($markerdt->getTimestamp()-$offset_diff); // revert timezone back to system offset
+                $markerdt->setTimestamp($markerdt->getTimestamp()+$offset_diff); // revert timezone back to system offset
                 return $markerdt;
             } else {
                 return $markerdt;
