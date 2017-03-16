@@ -207,9 +207,9 @@ implements TemplateVariable {
 
     /**
     * @param DateTime   $fromdt  The start date to calculate the due date from.
+    * BUG: We assume that the scehdule timezone will always be to the east of the system time.
     */
-    function calcSLAWithBusinessHours( $rawdt) {
-        global $cfg;
+    function calcSLAWithBusinessHours( $created_dt ) {
         // 8:30a-12:00pm, 1:00pm-5:00pm
         /*$parsed_mtf = [8.5,12.0,13,17];
         $parsedSchedule = [
@@ -225,86 +225,61 @@ implements TemplateVariable {
         $parsedSchedule = $this->getParsedBusinessHours();
         $sla_gracetime = $this->getGracePeriod();
 
-        $fromdt = new DateTime();
-        $fromdt->setTimestamp($rawdt->getTimestamp());
+        $fromdt = clone $created_dt;
         $is_timezoned = ! empty($parsedSchedule[7]); // the Schedule has it's own timezone, ignore system one
         if ( $is_timezoned ) { // fromdt timezone adjustment
             $sched_tz = new DateTimeZone($parsedSchedule[7]);
-            $sched_offset = $sched_tz->getOffset($fromdt);
-
-            $tz = new DateTimeZone($cfg->getTimezone());
-            $now_dt = new DateTime("now", $tz);
-            $system_offset = $tz->getOffset($fromdt);
-
-            $offset_diff = $system_offset-$sched_offset;
-            $fromdt->setTimestamp($fromdt->getTimestamp()+$offset_diff); // system time to schedule time
+            $created_tz = $created_dt->getTimezone();
+            $fromdt->setTimezone($sched_tz);
         }
 
-        $fromDayDow = intval( $fromdt->format('N') );
-        $fromDayDow = $fromDayDow === 7 ? 0 : $fromDayDow; // Make Sunday = 0
+        $dayDow = intval( $fromdt->format('N') );
+        $dayDow = $dayDow === 7 ? 0 : $dayDow; // Make Sunday = 0
         $fromTime = floatval( $fromdt->format('G') ) + floatval( $fromdt->format('i') ) / 60; // 13:30:59 = 13.5
 
         $timeleft = $sla_gracetime;
         $markerdt = clone $fromdt;
 
         // Day one
-        $calculatedFromTime = null;
-        for( $i=0; $i<count($parsedSchedule[$fromDayDow]); $i++) { // find calculatedFromTime
-            $time = $parsedSchedule[$fromDayDow][$i]; // rounding should be the same as fromTime
-
+        for( $i=0; $i<count($parsedSchedule[$dayDow]) && $timeleft > 0; $i++) { // find calculatedFromTime
+            $time = $parsedSchedule[$dayDow][$i]; // rounding should be the same as fromTime
             if ( ($i & 1) === 0 || $time < $fromTime  ) { // we don't care about start times (even) or end times before fromdt's time
                 continue;
             }
 
-            if( is_null($calculatedFromTime) ) { // this is odd, thus a closing time bracket
-                $bracketStart = $parsedSchedule[$fromDayDow][$i-1];
-                $calculatedFromTime = $fromTime > $bracketStart ? $fromTime : $bracketStart;
-                $timeleft -= $time - $calculatedFromTime;
-            } else { // odd means end
-                $bracketStart = $parsedSchedule[$fromDayDow][$i-1];
-                $timeleft -= $time - $bracketStart;
-            }
-
-            if( $timeleft < 0) { // we've over shot, on day one
-                $duetime = $time + $timeleft; // this is a substraction
-                $duehour = floor($duetime);
-                $dueminute = floor(($duetime-$duehour) * 60);
-                $markerdt->setTime($duehour,$dueminute);
-                $timeleft = 0;
-                break;
-            }
+            $bracketStart = $parsedSchedule[$dayDow][$i-1];// $i-1 is a schedule start
+            $bracketStart = $fromTime > $bracketStart ? $fromTime : $bracketStart; // only checked day one
+            $timeleft -= $time - $bracketStart;
         }
 
         // Day 2 to N-1
-        while ( $timeleft > 0 && $markerdt->getTimestamp()-$fromdt->getTimestamp() < 90*24*60*60 ) {
+        while ( $timeleft > 0 && $markerdt->getTimestamp() - $fromdt->getTimestamp() < 90*24*60*60 ) {
             $markerdt->add(new DateInterval('P1D'));
             $dayDow = intval( $markerdt->format('N'));
             $dayDow = $dayDow === 7 ? 0 : $dayDow;
-            for( $i=0; $i<count($parsedSchedule[$dayDow]); $i++) {
+            for( $i=0; $i<count($parsedSchedule[$dayDow]) && $timeleft > 0; $i++) {
                 $time = $parsedSchedule[$dayDow][$i];
                 if ( $i & 1) { // odd means end
                     $bracketStart = $parsedSchedule[$dayDow][$i-1];
                     $timeleft -= $time - $bracketStart;
                 }
-                if( $timeleft < 0) { // we've over shot, on day one
-                    $duetime = $time + $timeleft; // this is a substraction
-                    $duehour = floor($duetime);
-                    $dueminute = floor(($duetime-$duehour) * 60);
-                    $markerdt->setTime($duehour,$dueminute);
-                    $timeleft = 0;
-                    break;
-                }
             }
+        }
+
+        if( $timeleft <= 0) {
+            $duetime = $time + $timeleft; // this is a substraction
+            $duehour = floor($duetime);
+            $dueminute = floor(($duetime-$duehour) * 60); // add due second support?
+            $markerdt->setTime($duehour,$dueminute);
+            $timeleft = 0;
         }
 
 
         if ( $timeleft === 0) {
             if ( $is_timezoned ) {
-                $markerdt->setTimestamp($markerdt->getTimestamp()+$offset_diff); // revert timezone back to system offset
-                return $markerdt;
-            } else {
-                return $markerdt;
+                $markerdt->setTimezone($created_tz); // revert timezone back to system offset
             }
+            return $markerdt;
         } else {
             $result = new DateTime('1970-01-01 00:00:00');
             return $result;
@@ -352,14 +327,16 @@ implements TemplateVariable {
     }
 
     static function calcEstDueDate($ticket) {
+      global $cfg;
         $slaid = $ticket->getSLAId();
         if ( ! $slaid)
             return NULL;
         $sla = SLA::lookup($slaid);
-        $fromdt = new DateTime($ticket->getCreateDate());
+        $tz=new DateTimeZone($cfg->getTimezone());
+        $created_dt = new DateTime($ticket->getCreateDate(), $tz);
         $bhid = $sla->getBusinessHoursId();
         if ( $bhid !== null && $bhid > 0 ) {
-            return $sla->calcSLAWithBusinessHours($fromdt)->format('Y-m-d H:i:s');
+            return $sla->calcSLAWithBusinessHours($created_dt)->format('Y-m-d H:i:s');
         } else {
             return '2015-12-24 04:00:00';
         }
