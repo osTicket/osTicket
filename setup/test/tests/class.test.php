@@ -65,10 +65,11 @@ class Test {
     }
 
     function assert($expr, $message) {
-        if ($expr)
+        if ($expr) {
             $this->pass();
-        else
+        } else {
             $this->fail('', '', $message);
+        }
     }
 
     function assertEqual($a, $b, $message=false) {
