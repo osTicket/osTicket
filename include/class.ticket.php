@@ -822,7 +822,6 @@ implements RestrictedAccess, Threadable {
                         'flags__hasbit' => TaskModel::ISOPEN)));
     }
 
-
     function getThreadId() {
         if ($this->thread)
             return $this->thread->id;
@@ -3260,9 +3259,7 @@ implements RestrictedAccess, Threadable {
                 $errors['topicId'] = 'Invalid help topic selected';
             }
         }
-
-
-
+		
         // Any errors above are fatal.
         if ($errors)
             return 0;
@@ -3703,19 +3700,22 @@ implements RestrictedAccess, Threadable {
 			
 			// skip if selected master by accident
 			if ( $tid == $this->getId() ) {
-				unset($tids[$key]);
 				continue;
 			}
 			
 			$temp = Ticket::lookup($tid);
-			if ( !$temp || !$temp->canBeChild() ) {
-				Messages::error( sprintf( __('Ticket %s cannot be a child.'), $tid ) );
-				return false;
+			if ( !$temp ) {
+				continue;
+			}
+			
+			if ( !$temp->canBeChild() ) {
+				Messages::warning( sprintf( __('Ticket #%s cannot be a child.'), $temp->getNumber() ) );
+				continue;
 			}
 			
 			if ( !$temp->isCloseable() ) {
-				Messages::error( sprintf( __('Ticket %s cannot be closed.'), $temp->getNumber() ) );
-				return false;
+				Messages::warning( sprintf( __('Ticket #%s cannot be closed.'), $temp->getNumber() ) );
+				continue;
 			}
 			
 			$tickets[] = $temp;
@@ -3733,15 +3733,20 @@ implements RestrictedAccess, Threadable {
 				$temp->setStatus(TicketStatus::lookup(3));
 			}
 			
+			/*$this->addCollaborator($temp->getUser(), $info, $error, false);
+			if ($collabs = $temp->getThread()->getActiveCollaborators()) {
+				foreach ($collabs as $c)
+					$this->addCollaborator($c, $info, $error, true);
+			}*/
+			
 			$sql='INSERT INTO '.TICKET_RELATION_TABLE.' (`id`, `agent_id`, `master_id`, `ticket_id`, `date_merged`)
 				VALUES( NULL, '.$thisstaff->getId().', '.$this->getId().', '.$temp->getId().', NOW() )';
-			
-			//echo $sql;
 			
 			db_query($sql);
 			
 			$temp->setChild(true);
 			
+			$this->logEvent('merged', array('child' => $temp->getSubject(), 'id' => $temp->getId()));
 		}
 		
 		$this->setMaster(true);
@@ -3752,8 +3757,7 @@ implements RestrictedAccess, Threadable {
 	
 	public function disconnectMerged($tid) {
 		
-		global $thisstaff;
-		
+		// Double check, it should come only from master view
 		if ( !$this->isMaster() ) {
 			Messages::error( __('Ticket selected for master is not one.') );
 			return false;
@@ -3766,13 +3770,10 @@ implements RestrictedAccess, Threadable {
 		
 		$ticket = Ticket::lookup($tid);
 		if ( !$ticket || !$ticket->isChild() ) {
-			Messages::error( sprintf( __('Ticket %s is not a child.'), $tid ) );
 			return false;
 		}
 			
 		$sql='DELETE FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId() . ' AND ticket_id = ' . $tid;
-		
-		//echo $sql;
 		
 		db_query($sql);
 		
@@ -3782,7 +3783,97 @@ implements RestrictedAccess, Threadable {
 			$this->setMaster(false);
 		}
 		
+		$this->logEvent('split', array('child' => $ticket->getSubject(), 'id' => $tid));
+		
 		return true;
+		
+	}
+	
+	public function duplicate() {
+		
+		$othid = $this->getThreadId();
+		
+		$vars = array(
+			'uid' => $this->getUser()->getId(),
+			'alertuser' => '',
+			'source' => $this->getSource(),
+			'topicId' => $this->getTopicId(),
+			'deptId' => $this->getDeptId(),
+			'slaId' => $this->getSLAId(),
+			'duedate' => explode(' ', $this->getDueDate())[0],
+			'time' => explode(' ', $this->getDueDate())[1],
+			'assignId' => $this->getAssigneeId(),
+			'cannedResp' => '0',
+			'append' => '1',
+			'response' => '',
+			'statusId' => $this->getStatusId(),
+			'signature' => 'none',
+			'note' => ''
+		);
+
+        $form = TicketForm::getNewInstance();
+        $form->setSource($vars);
+		
+		if ($vars['topicId']) {
+			if ($__topic=Topic::lookup($vars['topicId'])) {
+				foreach ($__topic->getForms() as $idx=>$__F) {
+					$disabled = array();
+					foreach ($__F->getFields() as $field) {
+						//var_dump($field);
+						if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+							$disabled[] = $field->get('id');
+					}
+					// Special handling for the ticket form — disable fields
+					// requested to be disabled as per the help topic.
+					if ($__F->get('type') == 'T') {
+						foreach ($form->getFields() as $field) {
+							if (false !== array_search($field->get('id'), $disabled))
+								$field->disable();
+						}
+						$form->sort = $idx;
+						$__F = $form;
+					}
+					// Track fields currently disabled
+					$__F->extra = JsonDataEncoder::encode(array(
+						'disable' => $disabled
+					));
+				}
+			}
+		}
+		
+		foreach ($form->getFields() as $field) {
+			if ($field->isEnabled() && $field->isRequired()) {
+				$value = $field->get('type') == 'text' ? $this->getFieldValue( $field->getId() ) : '';
+				$vars[$field->getWidget()->name] = empty($value) ? 'Not found' : $value;
+			}
+		}
+		
+		//var_dump($vars);
+		
+		$errors = array();
+		$ticket = self::create($vars, $errors, 'staff', false, false);
+		
+		if ( !empty($errors) ) {
+			foreach( $errors as $err ) {
+				if ( is_array($err) ) {
+					foreach( $err as $errr ) {
+						Messages::error( $errr );
+					}
+				} else {
+					Messages::error( $err );
+				}
+			}
+			return false;
+		}
+		
+		$thid = $ticket->getThreadId();
+		
+		$sql="INSERT INTO `".THREAD_ENTRY_TABLE."` (`id`, `pid`, `thread_id`, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated`) 
+				SELECT NULL, `pid`, $thid, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated` FROM `".THREAD_ENTRY_TABLE."` WHERE `thread_id` = $othid";
+		
+		db_query($sql);
+		
+		return $ticket;
 		
 	}
 	
@@ -3791,8 +3882,6 @@ implements RestrictedAccess, Threadable {
 		if ( !isset($this->master) ) {
 			
 			$sql='SELECT ticket_id FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
-			
-			//echo $sql;
 			
 			if($res=db_query($sql)) {
 				$this->setMaster(db_num_rows($res));
@@ -3823,8 +3912,6 @@ implements RestrictedAccess, Threadable {
 		if ( !isset($this->child) ) {
 			
 			$sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
-			
-			//echo $sql;
 			
 			if($res=db_query($sql)) {
 				$nr = db_num_rows($res);
@@ -3898,6 +3985,20 @@ implements RestrictedAccess, Threadable {
         }
 		
 		return false;
+		
+	}
+
+	public function getFieldValue($fieldID) {
+		
+		$sql='SELECT a.value FROM '.FORM_ANSWER_TABLE.' a INNER JOIN '.FORM_ENTRY_TABLE.' b ON a.entry_id = b.id WHERE a.field_id = '.$fieldID.' AND b.object_type = \'T\' AND b.object_id = ' . $this->getId();
+		
+		$val = '';
+		if($res=db_query($sql)) {
+			if ( db_num_rows($res) ) {
+				list($val) = db_fetch_row($res);
+			}
+		}
+		return $val;
 		
 	}
 }
