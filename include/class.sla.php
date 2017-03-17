@@ -196,8 +196,9 @@ implements TemplateVariable {
                 if(count($sne) !== 2) { // some days you don't work
                     continue;
                 }
-                $parsedShift[] = self::timeOfDayToDec($sne[0]);
-                $parsedShift[] = self::timeOfDayToDec($sne[1]);
+                $parsedShift[] = $start = self::timeOfDayToDec($sne[0]);
+                $end = self::timeOfDayToDec($sne[1]);
+                $parsedShift[] = $end <= $start ? $end +24 : $end;
             }
             $parsed[] = $parsedShift;
         }
@@ -283,7 +284,7 @@ implements TemplateVariable {
             }
             return $markerdt;
         } else {
-            $result = new DateTime('1970-01-01 00:00:00');
+            $result = new DateTime('1970-01-01 00:00:00'); // The dreaded unix time of doom
             return $result;
         }
     }
