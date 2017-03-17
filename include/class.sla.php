@@ -269,8 +269,10 @@ implements TemplateVariable {
         if( $timeleft <= 0) {
             $duetime = $time + $timeleft; // this is a substraction
             $duehour = floor($duetime);
-            $dueminute = floor(($duetime-$duehour) * 60); // add due second support?
-            $markerdt->setTime($duehour,$dueminute);
+            $dueatom = round(($duetime-$duehour) * 3600); // tested on the 59m59s case
+            $dueminute = floor($dueatom / 60);
+            $duesecond = $dueatom % 60; // timeleft cannot have leap seconds because it comes from the schedule
+            $markerdt->setTime($duehour,$dueminute, $duesecond);
             $timeleft = 0;
         }
 
