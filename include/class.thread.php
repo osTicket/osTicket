@@ -1537,6 +1537,8 @@ class ThreadEvent extends VerySimpleModel {
     const STATUS    = 'status';
     const TRANSFERRED = 'transferred';
     const VIEWED    = 'viewed';
+	const MERGED    = 'merged';
+	const SPLIT    = 'split';
 
     const MODE_STAFF = 1;
     const MODE_CLIENT = 2;
@@ -1569,6 +1571,8 @@ class ThreadEvent extends VerySimpleModel {
             'closed'    => 'thumbs-up-alt',
             'reopened'  => 'rotate-right',
             'resent'    => 'reply-all icon-flip-horizontal',
+			'merged'    => 'chevron-sign-right',
+			'split'    => 'chevron-sign-right',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -2007,6 +2011,24 @@ class TransferEvent extends ThreadEvent {
 
 class ViewEvent extends ThreadEvent {
     static $state = 'viewed';
+}
+
+class MergedEvent extends ThreadEvent {
+    static $icon = 'share-alt';
+    static $state = 'merged';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('<b>{somebody}</b> merged this ticket with <a href="/scp/tickets.php?id={data.id}"><b>{data.child}</b></a> {timestamp}'));
+    }
+}
+
+class SplitEvent extends ThreadEvent {
+    static $icon = 'share-alt';
+    static $state = 'split';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('<b>{somebody}</b> split this ticket from <a href="/scp/tickets.php?id={data.id}"><b>{data.child}</b></a> {timestamp}'));
+    }
 }
 
 class ThreadEntryBody /* extends SplString */ {
