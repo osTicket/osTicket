@@ -2,12 +2,12 @@
 # docker build -t osti .
 
 # Mac
-# docker run -p 3380:80 -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock -it --rm --name my-running-php-ost my-php-ost bash
+# docker run -p 3380:80 -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock -it --rm --name my-running-php-ost ost/test bash
 
 # Linux
-# docker run -p 3380:80 -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock -it --rm --name my-running-php-ost my-php-ost bash
+# docker run -p 3380:80 -v $(pwd):/var/www/html -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock -it --rm --name my-running-php-ost ost/test bash
 # sans bash, no kill
-# docker run -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock my-php-ost
+# docker run -v /var/lib/mysql/mysql.sock:/var/lib/mysql/mysql.sock ost/test
 
 # Xdebug NOTE
 # You'll have to listen on the remote address IP address which is typically the
@@ -45,6 +45,7 @@ COPY . /var/www/html/
 
 WORKDIR /var/www/html/
 
+# For individual tests add the classname as the last parameter
 CMD php -f setup/test/run-tests.php
 
 # private only
