@@ -545,6 +545,16 @@ class FormField {
         $this->ht[$field] = $value;
     }
 
+    function getOption($name) {
+        return $this->options[$name];
+    }
+    function setOption($name, $value) {
+        $this->options[$name] = $value;
+    }
+    function getOptions() {
+        return $this->options;
+    }
+
     function getId() {
         return $this->ht['id'];
     }
@@ -2774,8 +2784,8 @@ class ChoicesWidget extends Widget {
         $mode = null;
         if (isset($options['mode']))
             $mode = $options['mode'];
-        elseif (isset($this->field->options['render_mode']))
-            $mode = $this->field->options['render_mode'];
+        elseif ($this->field->getOption('render_mode'))
+            $mode = $this->field->getOption('render_mode');
 
         if ($mode == 'view') {
             if (!($val = (string) $this->field))

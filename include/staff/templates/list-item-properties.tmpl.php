@@ -28,16 +28,14 @@
 
 <div class="tab_content" id="value">
 <?php
-    $form = $item_form;
-    include 'dynamic-form-simple.tmpl.php';
+    echo $item_form->asTable(false);
 ?>
 </div>
 
 <div class="tab_content hidden" id="item-properties">
 <?php
     if ($hasProperties) {
-        $form = $properties_form;
-        include 'dynamic-form-simple.tmpl.php';
+        echo $properties_form->asTable(false);
     }
 ?>
 </div>

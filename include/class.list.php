@@ -725,17 +725,8 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     function getConfigurationForm($source=null) {
         if (!$this->_form) {
             $config = $this->getConfiguration();
-            $this->_form = $this->list->getForm()->getForm($source);
-            if (!$source && $config) {
-                $fields = $this->_form->getFields();
-                foreach ($fields as $f) {
-                    $name = $f->get('id');
-                    if (isset($config[$name]))
-                        $f->setValue($f->to_php($config[$name]));
-                    else if ($f->get('default'))
-                        $f->setValue($f->get('default'));
-                }
-            }
+            $this->_form = $this->list->getForm()->getForm($source ?:
+                $config);
         }
 
         return $this->_form;
@@ -761,7 +752,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     function getFilterData() {
         $data = array();
         foreach ($this->getConfigurationForm()->getFields() as $F) {
-            $data['.'.$F->get('id')] = $F->toString($F->value);
+            $data['.'.$F->get('id')] = $F->toString($F->getValue());
         }
         $data['.abb'] = (string) $this->get('extra');
         return $data;
@@ -1044,7 +1035,7 @@ class TicketStatusList extends CustomListHandler {
         }
 
         // Enable selection and display of private states
-        $form->getField('state')->options['private_too'] = true;
+        $form->getField('state')->setOption('private_too', true);
 
         return $form;
     }
@@ -1290,24 +1281,16 @@ implements CustomListItem, TemplateVariable {
             // Forcefully retain state for internal statuses
             if ($source && $this->isInternal())
                 $source['state'] = $this->getState();
-            $this->_form = $this->getList()->getConfigurationForm($source);
-            if (!$source && $config) {
-                $fields = $this->_form->getFields();
-                foreach ($fields as $f) {
-                    $val = $config[$f->get('id')] ?: $config[$f->get('name')];
-                    if (isset($val))
-                        $f->setValue($f->to_php($val));
-                    elseif ($f->get('default'))
-                        $f->setValue($f->get('default'));
-                }
-            }
+            $this->_form = $this->getList()->getConfigurationForm($source ?:
+                $config);
 
             if ($this->isInternal()
                     && ($f=$this->_form->getField('state'))) {
                 $f->ht['required'] = $f->ht['editable'] = false;
-                $f->options['render_mode'] = 'view';
+                $f->setOption('render_mode', 'view');
             }
-
+            // XXX: Why?
+            $this->_form->getClean();
         }
 
         return $this->_form;
