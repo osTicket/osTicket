@@ -505,6 +505,9 @@ implements RestrictedAccess, Threadable {
     }
 
     function setEstDueDate( $datestr ) {
+        if ( $this->est_duedate === $datestr ) {
+            return;
+        }
         $this->est_duedate = $datestr;
         $this->save();
     }
