@@ -56,3 +56,5 @@ ALTER TABLE `ost_ticket_relation`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+ALTER TABLE `ost_thread_event` CHANGE `state` `state` ENUM('created','closed','reopened','assigned','transferred','overdue','edited','viewed','error','collab','resent','merged','split') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
