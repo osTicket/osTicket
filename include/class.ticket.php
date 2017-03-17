@@ -3728,7 +3728,7 @@ implements RestrictedAccess, Threadable {
 			return false;
 		}
 		
-		foreach( $tickets as $temp ) {
+		foreach($tickets as $temp ) {
 			if ( !$temp->isClosed() ) {
 				$temp->setStatus(TicketStatus::lookup(3));
 			}
@@ -3758,10 +3758,10 @@ implements RestrictedAccess, Threadable {
 	public function disconnectMerged($tid) {
 		
 		// Double check, it should come only from master view
-		if ( !$this->isMaster() ) {
+		/*if ( !$this->isMaster() ) {
 			Messages::error( __('Ticket selected for master is not one.') );
 			return false;
-		}
+		}*/
 			
 		// skip if selected master by accident
 		if ( $tid == $this->getId() ) {
@@ -3787,6 +3787,26 @@ implements RestrictedAccess, Threadable {
 		
 		return true;
 		
+	}
+	
+	public function massSplit($tids) {
+		global $thisstaff;
+		
+		foreach( $tids as $key => $tid ) {
+			if(!($temp = Ticket::lookup($tid))){
+				continue;
+			}
+			if ($temp->isMaster()) {
+				foreach($temp->getChildren() as $ticket)
+					$temp->disconnectMerged($ticket->getId());
+			} else if($temp->isChild()){
+				$temp->getMaster()->disconnectMerged($tid);
+			} else {
+				Messages::warning( sprintf( __('Ticket #%s is not merged.'), $temp->getNumber()));
+			}
+		}
+		
+		return true;
 	}
 	
 	public function duplicate() {

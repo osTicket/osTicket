@@ -1571,7 +1571,7 @@ class ThreadEvent extends VerySimpleModel {
             'closed'    => 'thumbs-up-alt',
             'reopened'  => 'rotate-right',
             'resent'    => 'reply-all icon-flip-horizontal',
-			'merged'    => 'chevron-sign-right',
+			'merged'    => 'code-fork',
 			'split'    => 'chevron-sign-right',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
@@ -2014,7 +2014,7 @@ class ViewEvent extends ThreadEvent {
 }
 
 class MergedEvent extends ThreadEvent {
-    static $icon = 'share-alt';
+    static $icon = 'code-fork';
     static $state = 'merged';
 
     function getDescription($mode=self::MODE_STAFF) {
