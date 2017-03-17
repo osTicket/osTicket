@@ -204,20 +204,47 @@ if($ticket->isOverdue())
                 ?>
               </ul>
             </div>
-                <?php
-                if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-                <a href="#post-reply" class="post-response action-button"
-                data-placement="bottom" data-toggle="tooltip"
-                title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
-                <?php
-                } ?>
-                <a href="#post-note" id="post-note" class="post-response action-button"
-                data-placement="bottom" data-toggle="tooltip"
-                title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
-                <?php // Status change options
-                echo TicketStatus::status_options();
-                ?>
-           </div>
+			<?php
+			// Merge input
+			if ( $ticket->isMaster() ) {
+				echo '<span style="font-weight: 700; line-height: 26px;">MASTER</span>';
+			} else if ( $ticket->isChild() ) {
+				echo '<span style="font-weight: 700; line-height: 26px;">CHILD</span>';
+			} else if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)) :?>
+			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;" id="merge-form">
+				<?php csrf_token(); ?>
+				<input type="hidden" name="a" value="merge">
+				<div class="attached input" data-toggle="tooltip" data-placement="bottom" title=" <?php echo __('Merge'); ?>" style="height: 26px;">
+				  <input type="text" name="masterid"
+					size="10" placeholder="Master ID">
+				  <button type="submit" class="attached button"><i class="icon-code-fork"></i>
+				  </button>
+				</div>
+			</form>
+			<?php endif; ?>
+			<?php // Duplicate button ?>
+			<?php if ( $thisstaff->hasPerm(Ticket::PERM_EDIT, false) && $thisstaff->hasPerm(Ticket::PERM_CREATE, false) ): ?>
+			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block; vertical-align: bottom;" id="duplicate-form">
+				<?php csrf_token(); ?>
+				<input type="hidden" name="a" value="duplicate">
+				<button type="submit" class="action-button" data-placement="bottom" data-toggle="tooltip" title=" <?php echo __('Duplicate'); ?>"><i class="icon-paste"></i>
+				</button>
+			</form>
+			<?php endif; ?>
+			<?php
+			if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+			<a href="#post-reply" class="post-response action-button"
+			data-placement="bottom" data-toggle="tooltip"
+			title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
+			<?php
+			} ?>
+			<a href="#post-note" id="post-note" class="post-response action-button"
+			data-placement="bottom" data-toggle="tooltip"
+			title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
+			<?php // Status change options
+			echo TicketStatus::status_options();
+			?>
+        </div>
         <div class="flush-left">
              <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
              title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
@@ -491,6 +518,11 @@ $tcount = $ticket->getThreadEntries($types)->count();
         if ($ticket->getNumTasks())
             echo sprintf('&nbsp;(<span id="ticket-tasks-count">%d</span>)', $ticket->getNumTasks());
         ?></a></li>
+	<?php if ( $ticket->isChild() || $ticket->isMaster() ): ?>
+		<li>
+			<a id="ticket-thread-tab" href="#relations"><?php echo __('Relations'); ?></a>
+		</li>
+	<?php endif; ?>
 </ul>
 
 <div id="ticket_tabs_container">
@@ -525,18 +557,16 @@ if ($errors['err'] && isset($_POST['a'])) {
     <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <li class="active <?php
-            echo isset($errors['reply']) ? 'error' : ''; ?>"><a
+        <li class="active <?php echo isset($errors['reply']) ? 'error' : ''; ?>"><a
             href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
-        <li><a href="#note" <?php
-            echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
+        <li><a href="#note" <?php echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-    <form id="reply" class="tab_content spellcheck exclusive save"
+    <form id="reply" class="tab_content spellcheck exclusive"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?id=<?php
@@ -733,7 +763,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </form>
     <?php
     } ?>
-    <form id="note" class="hidden tab_content spellcheck exclusive save"
+    <form id="note" class="hidden tab_content spellcheck exclusive"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?id=<?php echo $ticket->getId(); ?>#note"
@@ -820,6 +850,96 @@ if ($errors['err'] && isset($_POST['a'])) {
    </form>
  </div>
  </div>
+ <?php if ( $ticket->isChild() || $ticket->isMaster() ): ?>
+ <div id="relations" class="tab_content">
+	<?php if ( $ticket->isMaster() ): ?>
+		<h3> Child tickets </h3>
+		<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+			<thead>
+				<tr>
+					<th width="7.4%"><?php echo __('Number'); ?></th>
+					<th width="14.6%"><?php echo __('Date Merged'); ?></th>
+					<th width="29.8%"><?php echo __('Subject'); ?></th>
+					<th width="18.1%"><?php echo __('From'); ?></th>
+					<th width="16%"><?php echo __('Closed By'); ?></th>
+					<?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
+						<th width="2%">
+						</th>
+					<?php endif; ?>
+				</tr>
+			 </thead>
+			 <tbody>
+				<?php
+				$children = $ticket->getChildren();
+				foreach ($children as $T) {
+					?>
+					<tr id="<?php echo $T->getId(); ?>">
+						<td nowrap>
+						  <a class="Icon <?php echo strtolower($T->getSource()); ?>Ticket preview"
+							title="Preview Ticket"
+							href="tickets.php?id=<?php echo $T->getId(); ?>"
+							data-preview="#tickets/<?php echo $T->getId(); ?>/preview"
+							><?php echo $T->getNumber(); ?></a></td>
+						<td align="center" nowrap><?php echo Format::datetime($T->getDateMerged()) ?: $date_fallback; ?></td>
+						<td><div style="max-width: 279px; max-height: 1.2em"
+							class="link truncate"
+							href="tickets.php?id=<?php echo $T->getId(); ?>"><?php echo $T->getSubject(); ?></div>
+						</td>
+						<td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getDeptName()); ?></span></div></td>
+						<td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getStaff()->getName()); ?></span></div></td>
+						<?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
+							<td nowrap>
+								<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;">
+									<?php csrf_token(); ?>
+									<input type="hidden" name="a" value="merge_delete">
+									<input type="hidden" name="tid" value="<?= $T->getId() ?>">
+									<div data-toggle="tooltip" title=" <?php echo __('Disconnect Merge'); ?>" style="height: 26px;">
+										<button type="submit" class="action-button">
+											<i class="icon-trash"></i>
+										</button>
+									</div>
+								</form>
+							</td>
+						<?php endif; ?>
+					</tr>
+					<?php } //end of foreach ?>
+			</tbody>
+		</table>
+	<?php else: ?>
+		<?php $master = $ticket->getMaster(); ?>
+		<h3>Master ticket: </h3>
+            <table border="0" cellspacing="" cellpadding="4" width="100%">
+                <tbody>
+				<tr>
+                    <th width="100">Number:</th>
+                    <td><a class="Icon <?php echo strtolower($master->getSource()); ?>Ticket preview"
+							title="Preview Ticket"
+							href="tickets.php?id=<?php echo $master->getId(); ?>"
+							data-preview="#tickets/<?php echo $master->getId(); ?>/preview"
+							><?php echo $master->getNumber(); ?></a>
+					</td>
+                </tr>
+                <tr>
+                    <th>Priority:</th>
+                    <td><?php echo $master->getPriority(); ?></td>
+                </tr>
+                <tr>
+                    <th>Department:</th>
+                    <td><?php echo $master->getDeptName(); ?></td>
+                </tr>
+				<tr>
+                    <th>Subject:</th>
+                    <td><?php echo $master->getSubject(); ?></td>
+                </tr>
+                <tr>
+                    <th>Merge Date:</th>
+                    <td><?php echo $ticket->getDateMerged(); ?></td>
+                </tr>
+				</tbody>
+			</table>
+	<?php endif; ?>
+ </div>
+<?php endif; ?>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
@@ -945,6 +1065,8 @@ $(function() {
     $('a.post-response').click(function (e) {
         var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
         if ($r.length) {
+			
+			console.log('SCROOOOL');
             // Make sure ticket thread tab is visiable.
             var $t = $('ul#ticket_tabs > li > a#ticket-thread-tab');
             if ($t.length && !$t.hasClass('active'))

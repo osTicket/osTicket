@@ -29,8 +29,8 @@ class Bootstrap {
         error_reporting($error_reporting); //Respect whatever is set in php.ini (sysadmin knows better??)
 
         #Don't display errors
-        ini_set('display_errors', 1);
-        ini_set('display_startup_errors', 1);
+        ini_set('display_errors', '0'); // Set by installer
+        ini_set('display_startup_errors', '0'); // Set by installer
 
         //Default timezone
         if (!ini_get('date.timezone')) {
@@ -101,6 +101,7 @@ class Bootstrap {
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+        define('TICKET_RELATION_TABLE',$prefix.'ticket_relation');
 
         define('TASK_TABLE', $prefix.'task');
         define('TASK_CDATA_TABLE', $prefix.'task__cdata');
@@ -303,7 +304,7 @@ $here = ($h = realpath($here)) ? $h : $here;
 define('ROOT_DIR',str_replace('\\', '/', $here.'/'));
 unset($here); unset($h);
 
-define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
+define('INCLUDE_DIR', ROOT_DIR . 'include/'); // Set by installer
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
 
@@ -314,8 +315,8 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('THIS_VERSION','1.8-git'); //Shown on admin panel
-define('GIT_VERSION','$git');
+define('THIS_VERSION', 'v1.10'); // Set by installer
+define('GIT_VERSION', '901e5ea'); // Set by installer
 define('MAJOR_VERSION', '1.10');
 //Path separator
 if(!defined('PATH_SEPARATOR')){

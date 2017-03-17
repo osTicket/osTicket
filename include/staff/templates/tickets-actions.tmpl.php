@@ -1,6 +1,22 @@
 <?php
 // Tickets mass actions based on logged in agent
 
+// Mass merge
+if ($agent->hasPerm(Ticket::PERM_MERGE, false)) {?>
+<form action="tickets.php" method="post" style="display: inline-block;" id="merge-form">
+	<?php csrf_token(); ?>
+    <input type="hidden" name="a" value="merge">
+    <input type="hidden" name="tids_merge" value="">
+	<div class="attached input" data-toggle="tooltip" title=" <?php echo __('Merge'); ?>" style="height: 26px;">
+	  <input type="text" name="masterid"
+		size="10" placeholder="Master ID">
+	  <button type="submit" class="attached button"><i class="icon-code-fork"></i>
+	  </button>
+	</div>
+</form>
+<?php
+}
+
 // Status change
 if ($agent->canManageTickets())
     echo TicketStatus::status_options();
@@ -78,5 +94,17 @@ $(function() {
         }
         return false;
     });
+	$('form#merge-form').submit(function(e) {
+        var $form = $('form#tickets');
+        var count = checkbox_checker($form, 1);
+        if (count) {
+			var tids = $('.ckb:checked', $form).map(function() {
+				return this.value;
+			}).get();
+            $(this).find("input[name='tids_merge']").val(tids);
+			return true;
+        }
+        e.preventDefault();
+	});
 });
 </script>
