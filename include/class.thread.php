@@ -1537,8 +1537,8 @@ class ThreadEvent extends VerySimpleModel {
     const STATUS    = 'status';
     const TRANSFERRED = 'transferred';
     const VIEWED    = 'viewed';
-	const MERGED    = 'merged';
-	const SPLIT    = 'split';
+    const MERGED    = 'merged';
+    const SPLIT    = 'split';
 
     const MODE_STAFF = 1;
     const MODE_CLIENT = 2;

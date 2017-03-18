@@ -90,6 +90,6 @@ foreach (Attachment::objects()->filter(array(
         // Trigger thread processing.
         if ($.thread)
             $.thread.onLoad(container,
-                    {autoScroll: false<?php //echo $sort == 'id' ? 'true' : 'false'; ?>});
+                    {autoScroll: <?php echo $sort == 'id' ? 'true' : 'false'; ?>});
     });
 </script>

@@ -29,8 +29,8 @@ class Bootstrap {
         error_reporting($error_reporting); //Respect whatever is set in php.ini (sysadmin knows better??)
 
         #Don't display errors
-        ini_set('display_errors', '0'); // Set by installer
-        ini_set('display_startup_errors', '0'); // Set by installer
+        ini_set('display_errors', 1); // Set by installer
+        ini_set('display_startup_errors', 1); // Set by installer
 
         //Default timezone
         if (!ini_get('date.timezone')) {

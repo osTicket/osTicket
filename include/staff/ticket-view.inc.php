@@ -1065,8 +1065,6 @@ $(function() {
     $('a.post-response').click(function (e) {
         var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
         if ($r.length) {
-			
-			console.log('SCROOOOL');
             // Make sure ticket thread tab is visiable.
             var $t = $('ul#ticket_tabs > li > a#ticket-thread-tab');
             if ($t.length && !$t.hasClass('active'))

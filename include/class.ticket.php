@@ -268,9 +268,9 @@ implements RestrictedAccess, Threadable {
     var $active_collaborators;
     var $recipients;
     var $lastrespondent;
-	var $master; // bool
-	var $child; // bool
-	var $dateMerged; // date when merged, only applies to child
+    var $master; // bool
+    var $child; // bool
+    var $dateMerged; // date when merged, only applies to child
 
     function __onload() {
         $this->loadDynamicData();
@@ -3742,8 +3742,6 @@ implements RestrictedAccess, Threadable {
 			$sql='INSERT INTO '.TICKET_RELATION_TABLE.' (`id`, `agent_id`, `master_id`, `ticket_id`, `date_merged`)
 				VALUES( NULL, '.$thisstaff->getId().', '.$this->getId().', '.$temp->getId().', NOW() )';
 			
-			//echo $sql;
-			
 			db_query($sql);
 			
 			$temp->setChild(true);
@@ -3776,8 +3774,6 @@ implements RestrictedAccess, Threadable {
 		}
 			
 		$sql='DELETE FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId() . ' AND ticket_id = ' . $tid;
-		
-		//echo $sql;
 		
 		db_query($sql);
 		
@@ -3842,7 +3838,6 @@ implements RestrictedAccess, Threadable {
 				foreach ($__topic->getForms() as $idx=>$__F) {
 					$disabled = array();
 					foreach ($__F->getFields() as $field) {
-						//var_dump($field);
 						if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
 							$disabled[] = $field->get('id');
 					}
@@ -3871,8 +3866,6 @@ implements RestrictedAccess, Threadable {
 			}
 		}
 		
-		//var_dump($vars);
-		
 		$errors = array();
 		$ticket = self::create($vars, $errors, 'staff', false, false);
 		
@@ -3894,8 +3887,6 @@ implements RestrictedAccess, Threadable {
 		$sql="INSERT INTO `".THREAD_ENTRY_TABLE."` (`id`, `pid`, `thread_id`, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated`) 
 				SELECT NULL, `pid`, $thid, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated` FROM `".THREAD_ENTRY_TABLE."` WHERE `thread_id` = $othid";
 		
-		//echo $sql;
-		
 		db_query($sql);
 		
 		return $ticket;
@@ -3907,8 +3898,6 @@ implements RestrictedAccess, Threadable {
 		if ( !isset($this->master) ) {
 			
 			$sql='SELECT ticket_id FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
-			
-			//echo $sql;
 			
 			if($res=db_query($sql)) {
 				$this->setMaster(db_num_rows($res));
@@ -3930,8 +3919,6 @@ implements RestrictedAccess, Threadable {
 		}
 		
 		return true;
-		//return !$this->isOpen();
-
 	}
 	
 	public function isChild() {
@@ -3939,8 +3926,6 @@ implements RestrictedAccess, Threadable {
 		if ( !isset($this->child) ) {
 			
 			$sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
-			
-			//echo $sql;
 			
 			if($res=db_query($sql)) {
 				$nr = db_num_rows($res);
@@ -3977,51 +3962,45 @@ implements RestrictedAccess, Threadable {
 	}
 	
 	public function getChildren() {
-		
 		if ( !$this->isMaster() )
 			return array();
-		
+
 		$sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
 
 		$ret = array();
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id, $tmpdate)=db_fetch_row($res)) {
-                if ($temp=Ticket::lookup($id)) {
+		if(($res=db_query($sql)) && db_num_rows($res)) {
+			while(list($id, $tmpdate)=db_fetch_row($res)) {
+				if ($temp=Ticket::lookup($id)) {
 					$temp->setDateMerged( $tmpdate );
 					$temp->setChild(true);
-                    $ret[] = $temp;
+					$ret[] = $temp;
 				}
-            }
-        }
-		
+			}
+		}
+
 		return $ret;
-		
 	}
 	
 	public function getMaster() {
-		
 		if ( !$this->isChild() )
 			return array();
-		
+
 		$sql='SELECT master_id FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
 
-        if(($res=db_query($sql)) && db_num_rows($res)) {
-            list($id)=db_fetch_row($res);
+		if(($res=db_query($sql)) && db_num_rows($res)) {
+			list($id)=db_fetch_row($res);
 			if ($temp=Ticket::lookup($id)) {
 				$temp->setMaster(true);
 				return $temp;
 			}
-        }
-		
+		}
+
 		return false;
-		
 	}
 
 	public function getFieldValue($fieldID) {
 		
 		$sql='SELECT a.value FROM '.FORM_ANSWER_TABLE.' a INNER JOIN '.FORM_ENTRY_TABLE.' b ON a.entry_id = b.id WHERE a.field_id = '.$fieldID.' AND b.object_type = \'T\' AND b.object_id = ' . $this->getId();
-		
-		//echo $sql;
 		
 		$val = '';
 		if($res=db_query($sql)) {
