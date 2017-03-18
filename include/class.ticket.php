@@ -3733,6 +3733,12 @@ implements RestrictedAccess, Threadable {
 				$temp->setStatus(TicketStatus::lookup(3));
 			}
 			
+			$this->addCollaborator($temp->getUser(), array(), $error, true);
+			if ($collabs = $temp->getThread()->getParticipants()) {
+				foreach ($collabs as $c)
+					$this->addCollaborator($c->getUser(), array(), $error, true);
+			}
+			
 			$sql='INSERT INTO '.TICKET_RELATION_TABLE.' (`id`, `agent_id`, `master_id`, `ticket_id`, `date_merged`)
 				VALUES( NULL, '.$thisstaff->getId().', '.$this->getId().', '.$temp->getId().', NOW() )';
 			
