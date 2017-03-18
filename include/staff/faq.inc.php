@@ -63,7 +63,7 @@ $qstr = Http::build_query($qs);
         <option value="<?php echo $C->getId(); ?>" <?php
             if ($C->getId() == $info['category_id']) echo 'selected="selected"';
             ?>><?php echo sprintf('%s (%s)',
-                $C->getName(),
+                Category::getNameById($C->getId()),
                 $C->isPublic() ? __('Public') : __('Private')
             ); ?></option>
 <?php } ?>
