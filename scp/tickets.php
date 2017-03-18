@@ -16,9 +16,9 @@
 
 require('staff.inc.php');
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_DEPRECATED);
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_DEPRECATED);
 
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
@@ -342,7 +342,7 @@ if($_POST && !$errors):
 				$vars = $_POST;
 				$ticketTemp=Ticket::lookup((int)$vars['tid']);
 				if (!$ticketTemp || !$ticketTemp->isChild()) {
-					$errors['err'] = __('No ticket to dicsonnect');
+					$errors['err'] = __('No ticket to disconnect');
 				} else {
 					if ( !$ticket->disconnectMerged((int)$vars['tid']) ) {
 						$errors['err']=sprintf('%s %s',
@@ -351,6 +351,24 @@ if($_POST && !$errors):
 					} else {
 						Messages::success(__('Ticket disconnected successfully'));
 					}
+				}
+			}
+			break;
+		case 'duplicate':
+			if (!$thisstaff ||
+					!$thisstaff->hasPerm(TicketModel::PERM_EDIT, false) ||
+					!$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
+				 $errors['err'] = sprintf('%s %s',
+						 sprintf(__('You do not have permission %s'),
+							 __('to duplicate tickets')),
+						 __('Contact admin for such access'));
+			} else {
+				if ( !$newTicket = $ticket->duplicate() ) {
+					$errors['err']=sprintf('%s %s',
+						__('Unable to duplicate ticket.'),
+						__('Correct any errors below and try again.'));
+				} else {
+					Messages::success(sprintf( __('Ticket #%s duplicated into #%s successfully'), $ticket->getNumber(), $newTicket->getNumber() ));
 				}
 			}
 			break;

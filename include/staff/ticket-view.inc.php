@@ -205,20 +205,30 @@ if($ticket->isOverdue())
               </ul>
             </div>
 			<?php
+			// Merge input
 			if ( $ticket->isMaster() ) {
 				echo '<span style="font-weight: 700; line-height: 26px;">MASTER</span>';
 			} else if ( $ticket->isChild() ) {
 				echo '<span style="font-weight: 700; line-height: 26px;">CHILD</span>';
 			} else if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)) :?>
-			<form action="tickets.php?id=<?= $ticket->getId() ?>"" method="post" style="display: inline-block;" id="merge-form">
+			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;" id="merge-form">
 				<?php csrf_token(); ?>
 				<input type="hidden" name="a" value="merge">
-				<div class="attached input" data-toggle="tooltip" title=" <?php echo __('Merge'); ?>" style="height: 26px;">
+				<div class="attached input" data-toggle="tooltip" data-placement="bottom" title=" <?php echo __('Merge'); ?>" style="height: 26px;">
 				  <input type="text" name="masterid"
 					size="10" placeholder="Master ID">
 				  <button type="submit" class="attached button"><i class="icon-code-fork"></i>
 				  </button>
 				</div>
+			</form>
+			<?php endif; ?>
+			<?php // Duplicate button ?>
+			<?php if ( $thisstaff->hasPerm(Ticket::PERM_EDIT, false) && $thisstaff->hasPerm(Ticket::PERM_CREATE, false) ): ?>
+			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block; vertical-align: bottom;" id="duplicate-form">
+				<?php csrf_token(); ?>
+				<input type="hidden" name="a" value="duplicate">
+				<button type="submit" class="action-button" data-placement="bottom" data-toggle="tooltip" title=" <?php echo __('Duplicate'); ?>"><i class="icon-paste"></i>
+				</button>
 			</form>
 			<?php endif; ?>
 			<?php
@@ -1055,6 +1065,8 @@ $(function() {
     $('a.post-response').click(function (e) {
         var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
         if ($r.length) {
+			
+			console.log('SCROOOOL');
             // Make sure ticket thread tab is visiable.
             var $t = $('ul#ticket_tabs > li > a#ticket-thread-tab');
             if ($t.length && !$t.hasClass('active'))
