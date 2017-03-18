@@ -16,9 +16,9 @@
 
 require('staff.inc.php');
 
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
-//error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_DEPRECATED);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING ^ E_DEPRECATED);
 
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
@@ -319,7 +319,7 @@ if($_POST && !$errors):
 						 __('Contact admin for such access'));
 			} else {
 				$vars = $_POST;
-				$master = Ticket::lookupByNumber($vars['masterid']);
+				$master=Ticket::lookupByNumber($vars['masterid']);
 				if (!$master) {
 					$errors['err'] = __('No master ticket');
 				} elseif ( !$master->merge(array($ticket->getId())) ) {
@@ -342,7 +342,7 @@ if($_POST && !$errors):
 				$vars = $_POST;
 				$ticketTemp=Ticket::lookup((int)$vars['tid']);
 				if (!$ticketTemp || !$ticketTemp->isChild()) {
-					$errors['err'] = __('No ticket to disconnect');
+					$errors['err'] = __('No ticket to dicsonnect');
 				} else {
 					if ( !$ticket->disconnectMerged((int)$vars['tid']) ) {
 						$errors['err']=sprintf('%s %s',
@@ -351,24 +351,6 @@ if($_POST && !$errors):
 					} else {
 						Messages::success(__('Ticket disconnected successfully'));
 					}
-				}
-			}
-			break;
-		case 'duplicate':
-			if (!$thisstaff ||
-					!$thisstaff->hasPerm(TicketModel::PERM_EDIT, false) ||
-					!$thisstaff->hasPerm(TicketModel::PERM_CREATE, false)) {
-				 $errors['err'] = sprintf('%s %s',
-						 sprintf(__('You do not have permission %s'),
-							 __('to duplicate tickets')),
-						 __('Contact admin for such access'));
-			} else {
-				if ( !$newTicket = $ticket->duplicate() ) {
-					$errors['err']=sprintf('%s %s',
-						__('Unable to duplicate ticket.'),
-						__('Correct any errors below and try again.'));
-				} else {
-					Messages::success(sprintf( __('Ticket #%s duplicated into #%s successfully'), $ticket->getNumber(), $newTicket->getNumber() ));
 				}
 			}
 			break;
@@ -428,25 +410,6 @@ if($_POST && !$errors):
                             __('Correct any errors below and try again.'));
 					} else {
 						Messages::success(__('Tickets merged successfully'));
-					}
-                }
-                break;
-			case 'split':
-                if (!$thisstaff ||
-                        !$thisstaff->hasPerm(TicketModel::PERM_MERGE, false)) {
-                     $errors['err'] = sprintf('%s %s',
-                             sprintf(__('You do not have permission %s'),
-                                 __('to merge tickets')),
-                             __('Contact admin for such access'));
-                } else {
-                    $vars = $_POST;
-					$vars['tids_split'] = explode(',', $vars['tids_split']);
-					if (!(Ticket::massSplit($vars['tids_split']))) {
-						$errors['err']=sprintf('%s %s',
-                            __('Unable to split some of the tickets.'),
-                            __('Correct any errors below and try again.'));
-					} else {
-						Messages::success(__('Tickets split successfully'));
 					}
                 }
                 break;

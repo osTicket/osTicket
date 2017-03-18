@@ -14,14 +14,6 @@ if ($agent->hasPerm(Ticket::PERM_MERGE, false)) {?>
 	  </button>
 	</div>
 </form>
-
-<form action="tickets.php" method="post" style="display: inline-block;" id="split-form">
-	<?php csrf_token(); ?>
-    <input type="hidden" name="a" value="split">
-	<input type="hidden" name="tids_split" value="">
-</form>
-<button type="submit" form="split-form" class="button"><i class="icon-code-fork"></i>
-</button>
 <?php
 }
 
@@ -110,18 +102,6 @@ $(function() {
 				return this.value;
 			}).get();
             $(this).find("input[name='tids_merge']").val(tids);
-			return true;
-        }
-        e.preventDefault();
-	});
-	$('form#split-form').submit(function(e) {
-        var $form = $('form#tickets');
-        var count = checkbox_checker($form, 1);
-        if (count) {
-			var tids = $('.ckb:checked', $form).map(function() {
-				return this.value;
-			}).get();
-            $(this).find("input[name='tids_split']").val(tids);
 			return true;
         }
         e.preventDefault();
