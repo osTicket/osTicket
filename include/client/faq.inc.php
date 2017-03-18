@@ -7,10 +7,11 @@ $category=$faq->getCategory();
 <div class="row">
 <div class="span8">
 
-<h1><?php echo __('Frequently Asked Questions');?></h1>
-<div id="breadcrumbs">
+<h1><?php echo __('Frequently Asked Question');?></h1>
+<div id="breadcrumbs" style="padding-top:2px;">
     <a href="index.php"><?php echo __('All Categories');?></a>
-    &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
+    &raquo; <a href="faq.php?cid=<?php echo $category->getId(); ?>"><?php
+    echo $category->getFullName(); ?></a>
 </div>
 
 <div class="faq-content">
