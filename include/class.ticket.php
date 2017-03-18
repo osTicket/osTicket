@@ -3742,6 +3742,7 @@ implements RestrictedAccess, Threadable {
 			
 			$temp->setChild(true);
 			
+			$this->logEvent('merged', array('child' => $temp->getSubject(), 'id' => $temp->getId()));
 		}
 		
 		$this->setMaster(true);
@@ -3779,6 +3780,8 @@ implements RestrictedAccess, Threadable {
 		if ( !$this->getChildren() ) {
 			$this->setMaster(false);
 		}
+		
+		$this->logEvent('split', array('child' => $ticket->getSubject(), 'id' => $tid));
 		
 		return true;
 		
