@@ -431,6 +431,25 @@ if($_POST && !$errors):
 					}
                 }
                 break;
+            case 'split':
+                if (!$thisstaff ||
+                    !$thisstaff->hasPerm(TicketModel::PERM_MERGE, false)) {
+                    $errors['err'] = sprintf('%s %s',
+                    sprintf(__('You do not have permission %s'),
+                    __('to merge tickets')),
+                    __('Contact admin for such access'));
+                } else {
+                    $vars = $_POST;
+                    $vars['tids_split'] = explode(',', $vars['tids_split']);
+                    if (!(Ticket::massSplit($vars['tids_split']))) {
+                        $errors['err']=sprintf('%s %s',
+                        __('Unable to split some of the tickets.'),
+                        __('Correct any errors below and try again.'));
+                    } else {
+                        Messages::success(__('Tickets split successfully'));
+                    }
+                }
+                break;
         }
     }
     if(!$errors)
