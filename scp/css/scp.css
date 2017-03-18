@@ -1522,7 +1522,7 @@ h2 > i.help-tip {
   overflow:hidden;
   margin:0;
   background-image:url(../images/kb_large_folder.png), url(../images/kb_category_bg.png);
-  background-position:0 50%, bottom left;
+  background-position:0% 0%, top left;
   background-repeat:no-repeat, repeat-x;
   border-bottom:1px solid #ddd;
 }
