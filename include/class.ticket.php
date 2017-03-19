@@ -822,6 +822,7 @@ implements RestrictedAccess, Threadable {
                         'flags__hasbit' => TaskModel::ISOPEN)));
     }
 
+
     function getThreadId() {
         if ($this->thread)
             return $this->thread->id;
@@ -1181,9 +1182,10 @@ implements RestrictedAccess, Threadable {
 
         if ($status && is_numeric($status))
             $status = TicketStatus::lookup($status);
-		
+
+
         if (!$status || !$status instanceof TicketStatus)
-			return false;
+            return false;
 
         // Double check permissions (when changing status)
         if ($role && $this->getStatusId()) {
@@ -3259,7 +3261,9 @@ implements RestrictedAccess, Threadable {
                 $errors['topicId'] = 'Invalid help topic selected';
             }
         }
-		
+
+
+
         // Any errors above are fatal.
         if ($errors)
             return 0;
