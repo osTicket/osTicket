@@ -1183,7 +1183,6 @@ implements RestrictedAccess, Threadable {
         if ($status && is_numeric($status))
             $status = TicketStatus::lookup($status);
 
-
         if (!$status || !$status instanceof TicketStatus)
             return false;
 
