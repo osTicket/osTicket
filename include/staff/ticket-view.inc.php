@@ -884,7 +884,7 @@ if ($errors['err'] && isset($_POST['a'])) {
  </div>
  </div>
  <?php if ( $ticket->isChild() || $ticket->isMaster() ): ?>
- <div id="relations" class="tab_content">
+ <div id="relations" class="tab_content" style="display:none">
 	<?php if ( $ticket->isMaster() ): ?>
 		<h3> Child tickets </h3>
 		<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
