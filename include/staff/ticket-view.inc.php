@@ -590,16 +590,18 @@ if ($errors['err'] && isset($_POST['a'])) {
     <ul class="tabs" id="response-tabs">
         <?php
         if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-        <li class="active <?php echo isset($errors['reply']) ? 'error' : ''; ?>"><a
+        <li class="active <?php
+            echo isset($errors['reply']) ? 'error' : ''; ?>"><a
             href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
-        <li><a href="#note" <?php echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
+       <li><a href="#note" <?php
+            echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
     if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-    <form id="reply" class="tab_content spellcheck exclusive"
+    <form id="reply" class="tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?id=<?php
@@ -796,7 +798,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     </form>
     <?php
     } ?>
-    <form id="note" class="hidden tab_content spellcheck exclusive"
+    <form id="note" class="hidden tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
         action="tickets.php?id=<?php echo $ticket->getId(); ?>#note"
