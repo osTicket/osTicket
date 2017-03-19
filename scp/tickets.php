@@ -314,7 +314,7 @@ if($_POST && !$errors):
 						 __('Contact admin for such access'));
 			} else {
 				$vars = $_POST;
-				$master=Ticket::lookupByNumber($vars['masterid']);
+				$master=Ticket::lookup($vars['masterid']);
 				if (!$master) {
 					$errors['err'] = __('No master ticket');
 				} elseif ( !$master->merge(array($ticket->getId())) ) {
@@ -414,7 +414,7 @@ if($_POST && !$errors):
                 } else {
                     $vars = $_POST;
 					$vars['tids_merge'] = explode(',', $vars['tids_merge']);
-                    $master=Ticket::lookupByNumber($vars['masterid']);
+                    $master=Ticket::lookup($vars['masterid']);
 					if (!$master) {
 						$errors['err'] = __('No such ticket');
 					} elseif ( !$master->merge($vars['tids_merge']) ) {
