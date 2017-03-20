@@ -595,7 +595,7 @@ if ($errors['err'] && isset($_POST['a'])) {
             href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
         } ?>
-       <li><a href="#note" <?php
+        <li><a href="#note" <?php
             echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
