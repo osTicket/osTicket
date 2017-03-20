@@ -47,6 +47,7 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 ?>
 <div>
+<div id="threaddata">
     <div class=" thread sticky bar">
 	<div class="thread_content_top">
        <div class="thread_content">
@@ -238,7 +239,7 @@ if($ticket->isOverdue())
         echo $subject_field->display($ticket->getSubject()); ?>
     </h3>
 </div>
-<div id="threaddata">
+
 
 <?php If  (!$topic) { ?>
             <div class="help-topic-error"><?php echo "Please set the Help Topic."; ?></div>

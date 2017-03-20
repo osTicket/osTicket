@@ -952,7 +952,6 @@ div#ticket_thread.tab_content div#msg_warning{
 /*********************/
 
 
-
 a.test  { background-image:url(../images/icons/open.gif) }
 
 a.Ticket { background:url(../images/icons/open_tickets.gif) }
@@ -1314,6 +1313,12 @@ a.print {
 	
 }
 
+form#save.ticket_open_content {
+
+box-shadow: 0 10px 60px #787878 !important;;    
+    
+}
+
 form#save.ticket_open_content>table.ticket_open>tbody#dynamic-form>tr#open_ticket_dynamicformdata>td>div#requiredfield select{
 	background-color: #ffffcc !important;
 }
@@ -1409,6 +1414,15 @@ div.section-break h3 {
     padding: 0;
 }
 
+.permissions-error {
+    color: #FFF;
+    background-color: #f00;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
 .form_table th h4 {
     margin: -0.3em -0.3em;
     color:#fff;
@@ -1491,10 +1505,10 @@ h3 {
     margin-left: auto;
     margin-right: auto;
     border-radius: 5px 5px 0 0;
-	border-left: 1px solid #999;
-	border-right: 1px solid #999;
-	border-radius: 5px 5px 0 0;
+	/*border-left: 1px solid #999;
+	border-right: 1px solid #999;*/
 }
+
 .thread_content{
 	background: #fff;
     margin-left: auto;
@@ -1502,11 +1516,10 @@ h3 {
     padding-left: 20px;
     padding-top: 10px;
 	padding-right: 20px;
-    width: 960px;
+    /*width: 960px;*/
 	border-radius: 5px 5px 0 0;
-    border-top: 1px solid #999;
-    border-right: 1px solid #999;
-	
+    /*border-top: 1px solid #999;
+    border-right: 1px solid #999;*/
 }
 
 .ticket_open_title{
@@ -1763,16 +1776,14 @@ table.ticket_info.custom-data>thead>tr>th{
 .tixTitle {
     margin-left: auto;
     margin-right: auto;
-    width: 990px;
     background: #fff;
-    border: 1px solid #999;
-    padding-top: 8px;
     padding-left: 10px;
-	padding-bottom: 5px;
+	padding-bottom: 10px;
+    
 	
 }
 .tixTitle h3 {
-   color:#444;
+   color: #184E81;
    padding:0;
    margin:0;
    font-size:1.4em;
@@ -1780,7 +1791,7 @@ table.ticket_info.custom-data>thead>tr>th{
 }
 
 .has_bottom_border {
-    border-bottom:1px solid #ddd;
+    border-bottom:1px solid #bbb;
 }
 
 table.ticket_info>tbody>tr>td>table#dynamic>tbody>tr>th {
@@ -1850,10 +1861,14 @@ h2 .reload {
 #threaddata{
 	margin-left: auto;
 	margin-right: auto;
-	width: 1000px;
+	width: 1001px;
 	background: #fff;
-	border: 1px solid #999;
-    border-radius: 0 0 5px 5px;
+    box-shadow: 0 10px 60px #787878;
+    border-radius: 5px 5px 0 0;
+	/*border-left: 1px solid #999;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;*/
+    border-radius: 5px 5px 5px 5px;
 }
 
 .thread-entry {
@@ -4183,4 +4198,3 @@ img.avatar + img.avatar {
  * Fixes a rendering issue on Safari
  */
 .select2-search__field{-webkit-appearance: textfield;}
-
