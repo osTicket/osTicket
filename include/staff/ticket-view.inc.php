@@ -1122,7 +1122,7 @@ $(function() {
 	
 	$(document).ready(function() {
 	  $("#masterid").select2({
-		  placeholder: "Select a ticket"
+		  placeholder: "<?php echo __('Select a ticket'); ?>"
 	  });
 	});
 	$('#masterid').val('');
