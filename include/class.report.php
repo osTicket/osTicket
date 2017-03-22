@@ -144,9 +144,6 @@ class OverviewReport {
 
         list($start, $stop) = $this->getDateRange();
         $times = Ticket::objects()
-            ->filter(array(
-                'thread__created__range' => array($start, $stop),
-            ))
             ->constrain(array(
                 'thread__entries' => array(
                     'thread__entries__type' => 'R'
