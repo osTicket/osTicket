@@ -153,7 +153,7 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
                 <li>
                     <h4><a class="truncate" style="max-width:600px" href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></h4>
                     %s ',
-                $C->getId(),$C->getLocalName(),$C->faq_count,
+                $C->getId(),$C->getLocalName(),$C->getNumFAQs(),
                 $C->getVisibilityDescription(),
                 Format::safe_html($C->getLocalDescriptionWithImages())
                 );
