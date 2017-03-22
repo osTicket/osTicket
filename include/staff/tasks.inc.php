@@ -33,7 +33,11 @@ $sort_options = array(
 $queue_columns = array(
         'number' => array(
             'width' => '8%',
-            'heading' => __('Number'),
+            'heading' => __('Task'),
+            ),
+        'parent' => array(
+            'width' => '8%',
+            'heading' => __('Parent Ticket'),
             ),
         'date' => array(
             'width' => '20%',
@@ -309,7 +313,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:5px;">
+<div id="threaddata" class=style="margin-bottom:20px; padding-top:5px;">
 <div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">

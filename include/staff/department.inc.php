@@ -227,7 +227,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <label>
                 <input type="checkbox" name="ticket_auto_response" value="0" <?php echo !$info['ticket_auto_response']?'checked="checked"':''; ?> >
 
-                <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this department')); ?>
                 </label>
                 <i class="help-tip icon-question-sign" href="#new_ticket"></i>
             </td>
@@ -239,7 +239,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             <td>
                 <label>
                 <input type="checkbox" name="message_auto_response" value="0" <?php echo !$info['message_auto_response']?'checked="checked"':''; ?> >
-                <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this department')); ?>
                 </label>
                 <i class="help-tip icon-question-sign" href="#new_message"></i>
             </td>
@@ -322,7 +322,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             <td colspan="2">
                 <?php echo __('Department Members'); ?>
                 <div><small>
-                <?php echo __('Agents who are primary members of this department'); ?>
+                <?php echo sprintf(__('Agents who are primary members of %s'), __('this department')); ?>
                 </small></div>
             </td>
         </tr>
@@ -339,7 +339,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         <tr class="header" id="extended-access-members">
             <td colspan="2">
                 <div><small>
-                <?php echo __('Agents who have extended access to this department'); ?>
+                <?php echo sprintf(__('Agents who have extended access to %s'), __('this department')); ?>
                 </small></div>
             </td>
         </tr>

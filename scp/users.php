@@ -62,7 +62,7 @@ if ($_POST) {
             elseif ($user->getAccount()->sendConfirmEmail())
                 $msg = sprintf(__('Account activation email sent to %s'),$user->getEmail());
             else
-                $errors['err'] = __('Unable to send account activation email - try again!');
+                $errors['err'] = sprintf('%s - %s', __('Unable to send account activation email'), __('Please try again!'));
             break;
         case 'pwreset':
             if (!$user || !$user->getAccount())
@@ -70,7 +70,7 @@ if ($_POST) {
             elseif ($user->getAccount()->sendResetEmail())
                 $msg = sprintf(__('Account password reset email sent to %s'),$user->getEmail());
             else
-                $errors['err'] = __('Unable to send account password reset email - try again!');
+                $errors['err'] = sprintf('%s - %s', __('Unable to send account password reset email'), __('Please try again!'));
             break;
         case 'mass_process':
             if (!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
@@ -126,7 +126,7 @@ if ($_POST) {
 
                 case 'setorg':
                     if (!($org = Organization::lookup($_POST['org_id'])))
-                        $errors['err'] = __('Unknown action - get technical help.');
+                        $errors['err'] = sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                     foreach ($users as $U) {
                         if ($U->setOrganization($org))
                             $count++;
@@ -134,7 +134,7 @@ if ($_POST) {
                     break;
 
                 default:
-                    $errors['err']=__('Unknown action - get technical help.');
+                    $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
                 if (!$errors['err'] && !$count) {
                     $errors['err'] = __('Unable to manage any of the selected end users');
@@ -167,7 +167,8 @@ if ($_POST) {
     if (!($query=$_SESSION[':Q:users']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveUsers($query, __("users")."-$ts.csv", 'csv'))
-        $errors['err'] = __('Internal error: Unable to dump query results');
+        $errors['err'] = __('Unable to dump query results.')
+            .' '.__('Internal error occurred');
 }
 
 $page = 'users.inc.php';
@@ -184,7 +185,8 @@ if ($user ) {
             $filename = sprintf('%s-tickets-%s.csv',
                     $user->getName(), strftime('%Y%m%d'));
             if (!Export::saveTickets($query, $filename, 'csv'))
-                $errors['err'] = __('Internal error: Unable to dump query results');
+                $errors['err'] = __('Unable to dump query results.')
+                    .' '.__('Internal error occurred');
         }
         break;
     }

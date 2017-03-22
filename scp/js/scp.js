@@ -93,7 +93,7 @@ var scp_prep = function() {
         else
             formObj = $(this).closest('form');
         if($('.dialog#confirm-action p#'+name+'-confirm').length === 0) {
-            alert('Unknown action '+name+' - get technical help.');
+            alert('Unknown action '+name+' - Get technical help!');
         } else if(checkbox_checker(formObj, 1)) {
             var action = name;
             $('.dialog#confirm-action').undelegate('.confirm');

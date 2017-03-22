@@ -176,8 +176,13 @@ class SearchAjaxAPI extends AjaxController {
             return false;
         }
 
-        if (false === $this->_setupSearch($search, $form)) {
-            return false;
+        $search->config = JsonDataEncoder::encode($form->getState());
+        if (isset($_POST['name']))
+            $search->title = $_POST['name'];
+        elseif ($search->__new__)
+            Http::response(400, 'A name is required');
+        if (!$search->save()) {
+            Http::response(500, 'Unable to update search. Internal error occurred');
         }
 
         return true;

@@ -1500,7 +1500,7 @@ h3 {
 
 .thread_content_top{
 	padding-bottom: 8px;
-    background: white;
+    /*background: white;*/
     max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
@@ -1510,7 +1510,7 @@ h3 {
 }
 
 .thread_content{
-	background: #fff;
+	/*background: #fff;*/
     margin-left: auto;
     margin-right: auto;
     padding-left: 20px;
@@ -1870,6 +1870,23 @@ h2 .reload {
     border-bottom: 1px solid #999;*/
     border-radius: 5px 5px 5px 5px;
 }
+
+#task_content{
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-right: 20px;
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 1001px;
+	background: #fff;
+    box-shadow: 0 10px 60px #787878;
+    border-radius: 5px 5px 0 0;
+	/*border-left: 1px solid #999;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;*/
+    border-radius: 5px 5px 5px 5px;
+}
+
 
 .thread-entry {
     z-index: 0;
