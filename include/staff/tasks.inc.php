@@ -313,7 +313,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 </div>
 <!-- SEARCH FORM END -->
 <div class="clear"></div>
-<div id="threaddata" class=style="margin-bottom:20px; padding-top:5px;">
+<div class=style="margin-bottom:20px; padding-top:5px;">
 <div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">
