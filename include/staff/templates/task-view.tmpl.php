@@ -290,7 +290,7 @@ if ($task->isOverdue())
     </div>
    </div>
 </div>
-
+<div class="task_content">
 <div class="clear tixTitle has_bottom_border">
     <h3>
     <?php

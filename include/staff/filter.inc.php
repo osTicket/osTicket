@@ -227,7 +227,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <th colspan="2">
                         <em><strong><?php echo __('Filter Actions');?></strong>:
                         <div><?php
-                            echo __('Can be overwridden by other filters depending on processing order.');
+                            echo __('Can be overridden by other filters depending on processing order.');
                         ?><br/><?php
                             echo __('Actions are executed in the order declared below');
                             ?></div></em>

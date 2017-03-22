@@ -23,7 +23,8 @@ if($_POST) {
                     $inc = 'pwreset.sent.php';
                 }
                 else
-                    $banner = __('Unable to send reset email. Internal error');
+                    $banner = __('Unable to send reset email.')
+                        .' '.__('Internal error occurred');
             }
             else
                 $banner = sprintf(__('Unable to verify username %s'),
