@@ -51,6 +51,9 @@ class OverviewReport {
         return Format::date(Misc::dbtime($this->start), false, $format);
     }
 
+    function getEnd() {
+        return $this->end;
+    }
 
     function getDateRange() {
         global $cfg;

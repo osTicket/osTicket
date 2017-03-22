@@ -27,19 +27,19 @@ $plots = $report->getPlotData();
             <label>
                 <?php echo __( 'period');?>:
                 <select name="period">
-                    <option value="now" selected="selected">
+                    <option value="now" <?php echo ($report->getEnd() === 'now' ? 'selected="selected"' : ''); ?>>
                         <?php echo __( 'Up to today');?>
                     </option>
-                    <option value="+7 days">
+                    <option value="+7 days" <?php echo ($report->getEnd() === '+7 days' ? 'selected="selected"' : ''); ?>>
                         <?php echo __( 'One Week');?>
                     </option>
-                    <option value="+14 days">
+                    <option value="+14 days" <?php echo ($report->getEnd() === '+14 days' ? 'selected="selected"' : ''); ?>>
                         <?php echo __( 'Two Weeks');?>
                     </option>
-                    <option value="+1 month">
+                    <option value="+1 month" <?php echo ($report->getEnd() === '+1 month' ? 'selected="selected"' : ''); ?>>
                         <?php echo __( 'One Month');?>
                     </option>
-                    <option value="+3 months">
+                    <option value="+3 months" <?php echo ($report->getEnd() === '+3 months' ? 'selected="selected"' : ''); ?>>
                         <?php echo __( 'One Quarter');?>
                     </option>
                 </select>
