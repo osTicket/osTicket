@@ -46,7 +46,14 @@ class Category extends VerySimpleModel {
     function getFullName() {
         return self::getNameById($this->category_id) ?: $this->getLocalName();
     }
-    function getNumFAQs() { return  $this->faqs->count(); }
+    function getNumFAQs($primary=false) {
+        $count = $this->faqs->count();
+        if (!$primary && $this->children)
+            foreach ($this->children as $c)
+                $count += $c->faqs->count();
+
+        return $count;
+    }
     function getDescription() { return $this->description; }
     function getDescriptionWithImages() { return Format::viewableImages($this->description); }
     function getNotes() { return $this->notes; }
@@ -134,9 +141,17 @@ class Category extends VerySimpleModel {
                             'ispublic'=>Category::VISIBILITY_PRIVATE,
                             'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
                             )))
-                ->annotate(array(
-                            'faq_count'=>SqlAggregate::COUNT('faqs')))
+                ->annotate(array('faq_count' => SqlAggregate::COUNT(
+                                SqlCase::N()
+                                ->when(array(
+                                        'faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
+                                ->otherwise(null)
+                )))
                 ->filter(array('faq_count__gt'=>0));
+        } else {
+            $categories
+                ->annotate(array(
+                            'faq_count'=>SqlAggregate::COUNT('faqs')));
         }
 
         return $categories;

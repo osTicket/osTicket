@@ -16,6 +16,12 @@
                         ->when(array(
                                 'faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
                         ->otherwise(null)
+        )))
+        ->annotate(array('children_faq_count' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                        ->when(array(
+                                'children__faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
+                        ->otherwise(null)
         )));
 
        // ->filter(array('faq_count__gt' => 0));
@@ -30,12 +36,13 @@
                                 'category_id' => $p->getId()))))
                 continue;
 
+            $count = $C->faq_count + $C->children_faq_count;
             ?>
             <li><i></i>
             <div style="margin-left:45px">
             <h4><?php echo sprintf('<a href="faq.php?cid=%d">%s %s</a>',
                 $C->getId(), Format::htmlchars($C->getFullName()),
-                $C->faq_count ? "({$C->faq_count})": ''
+                $count ? "({$count})": ''
                 ); ?></h4>
             <div class="faded" style="margin:10px 0">
                 <?php echo Format::safe_html($C->getLocalDescriptionWithImages()); ?>
@@ -48,7 +55,7 @@
                             <a href="faq.php?cid=%d">%s (%d)</a></div>',
                             $c->getId(),
                             $c->getLocalName(),
-                            $c->getNumFAQs()
+                            $c->faq_count
                             );
                 }
                 echo '</div>';
