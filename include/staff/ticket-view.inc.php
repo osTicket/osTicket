@@ -225,22 +225,20 @@ if($ticket->isOverdue())
 						  $mysqli->set_charset('utf8');
 						}
 						if ($data = $mysqli->query("SELECT t2.`ticket_id`, CONCAT(t2.`number`, ' | ', t3.`subject`) AS 'row' FROM 
-		(SELECT `id` FROM `" . TICKET_STATUS_TABLE . "` WHERE `state` = 'open') t1
-		LEFT JOIN
 		(SELECT `ticket_id`, `number`, `status_id`, `dept_id`, `staff_id` FROM `" . TICKET_TABLE . "` WHERE `ticket_id` != " . $ticket->getId() . ") t2
+		LEFT JOIN
+		(SELECT `id`, `state` FROM `" . TICKET_STATUS_TABLE . "` WHERE `state` = 'open') t1
 		ON t1.`id` = t2.`status_id`
 		LEFT JOIN
 		(SELECT `ticket_id`, `subject` FROM `" . TICKET_CDATA_TABLE . "`) t3
 		ON t2.`ticket_id` = t3.`ticket_id`
-		LEFT JOIN
-		(SELECT `staff_id`, `dept_id`, `assigned_only` FROM `" . STAFF_TABLE . "` WHERE `staff_id` IN (" . $thisstaff->getId() . ", 0)) t4
-		ON t2.`staff_id` = t4.`staff_id`
-		LEFT JOIN
-		(SELECT `staff_id`, `dept_id` FROM `" . STAFF_DEPT_TABLE . "`) t5
-		ON t2.`staff_id` = t5.`staff_id`
-		WHERE t2.`staff_id` = 0 OR t2.`dept_id` IN (t4.`dept_id`, t5.`dept_id`)")) {
+		WHERE t1.`state` IS NOT NULL")) {
 							while($row = mysqli_fetch_array($data)) {
-								echo "<option value='" . $row['ticket_id'] . "'>" . $row['row'] . "</option>";
+								if(($temp = Ticket::lookup($row['ticket_id']))){
+									if($temp->checkStaffPerm($thisstaff)){
+										echo "<option value='" . $row['ticket_id'] . "'>" . $row['row'] . "</option>";
+									}
+								}
 							}
 						}
 						flush();
