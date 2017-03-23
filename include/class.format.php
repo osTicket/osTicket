@@ -514,13 +514,21 @@ class Format {
 
         if (!$timestamp)
             return '';
+	
+	// We need this codepiece to make sure we have our timestamp in 'Y-m-d H:i:s' format, as sometimes it is given to this function as unixtime
+	//TODO fix that!
+	if (is_numeric($timestamp)) {
+		$tmp = new DateTime();
+		$timestamp = $tmp->setTimestamp($timestamp)->format('Y-m-d H:i:s');
+	}
 
         if ($fromDb)
-            $timestamp = Misc::db2gmtime($timestamp);
+            $timestamp = new DateTime($timestamp, new DateTimeZone(ini_get('date.timezone')));
 
         if (class_exists('IntlDateFormatter')) {
             $locale = Internationalization::getCurrentLocale($user);
             $key = "{$locale}:{$dayType}:{$timeType}:{$timezone}:{$format}";
+
             if (!isset($cache[$key])) {
                 // Setting up the IntlDateFormatter is pretty expensive, so
                 // cache it since there aren't many variations of the
