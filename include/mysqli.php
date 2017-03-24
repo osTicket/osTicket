@@ -118,6 +118,20 @@ function db_timezone() {
     return db_get_variable('system_time_zone', 'global');
 }
 
+/**
+ * Returns the database server's offset from UTC in seconds.
+ *
+ * @return int|null
+ */
+function db_timezone_offset() {
+    $res = db_query('SELECT TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP, NOW());');
+    if ($row = db_fetch_row($res)) {
+        return (int)$row[0];
+    }
+
+    return null;
+}
+
 function db_get_variable($variable, $type='session') {
     $sql =sprintf('SELECT @@%s.%s', $type, $variable);
     return db_result(db_query($sql));
