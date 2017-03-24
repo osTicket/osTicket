@@ -314,7 +314,7 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('THIS_VERSION','1.8-git'); //Shown on admin panel
+define('THIS_VERSION','1.10-git'); //Shown on admin panel
 define('GIT_VERSION','$git');
 define('MAJOR_VERSION', '1.10');
 //Path separator
