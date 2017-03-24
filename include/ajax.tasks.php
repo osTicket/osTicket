@@ -689,7 +689,7 @@ class TasksAjaxAPI extends AjaxController {
                 $errors['err'] = $info['error'] = $m;
             else
                 $info['warn'] = sprintf(__('Are you sure you want to change status of %s?'),
-                        sprintf(__('this task'));
+                        __('this task'));
             break;
         default:
             Http::response(404, __('Unknown status'));
