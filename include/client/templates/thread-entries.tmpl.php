@@ -1,4 +1,9 @@
 <?php
+function cmp( $a, $b ) { 
+  if(  $a->getCreateDate() ==  $b->getCreateDate() ){ return 0 ; } 
+  return ($a->getCreateDate() < $b->getCreateDate()) ? -1 : 1;
+}
+
 $events = $events
     ->filter(array('state__in' => array('created', 'closed', 'reopened', 'edited', 'collab')))
     ->order_by('id');
@@ -34,6 +39,9 @@ if (count($entries)) {
 			}
 		}
 	}
+	
+	$buckets[$rel] = call_user_func_array('array_merge', $buckets);
+	usort($buckets[$rel], "cmp");
 
     // Go back through the entries and render them on the page
     $i = 0;
