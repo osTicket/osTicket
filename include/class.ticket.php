@@ -306,7 +306,8 @@ implements RestrictedAccess, Threadable {
     }
 
     function isReopenable() {
-        return $this->getStatus()->isReopenable();
+	global $cfg;
+        return $this->getStatus()->isReopenable() && !($this->isChild() && $cfg->getMergePermalock());
     }
 
     function isClosed() {
@@ -3689,7 +3690,7 @@ implements RestrictedAccess, Threadable {
 	// merge this as master with any given ids
 	
 	public function merge( $tids ) {
-
+		global $cfg;
 		global $thisstaff;
 		
 		if ( !$this->canBeMaster() ) {
@@ -3732,14 +3733,14 @@ implements RestrictedAccess, Threadable {
 		}
 		
 		foreach($tickets as $temp) {
-			if ( !$temp->isClosed() ) {
-				$temp->setStatus(TicketStatus::lookup(3));
-			}
+			$temp->setStatus(TicketStatus::lookup($cfg->getDefaultChildStatus()));
 			
-			$this->addCollaborator($temp->getUser(), array(), $error, true);
-			if ($collabs = $temp->getThread()->getParticipants()) {
-				foreach ($collabs as $c)
-					$this->addCollaborator($c->getUser(), array(), $error, true);
+			if($cfg->getBringOwners()){
+				$this->addCollaborator($temp->getUser(), array(), $error, true);
+				if ($collabs = $temp->getThread()->getParticipants()) {
+					foreach ($collabs as $c)
+						$this->addCollaborator($c->getUser(), array(), $error, true);
+				}
 			}
 			
 			$sql='INSERT INTO '.TICKET_RELATION_TABLE.' (`id`, `agent_id`, `master_id`, `ticket_id`, `date_merged`)
