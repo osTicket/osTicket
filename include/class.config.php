@@ -1240,6 +1240,7 @@ class OsticketConfig extends Config {
 
         $this->updateAutoresponderSettings($vars, $errors);
         $this->updateAlertsSettings($vars, $errors);
+		$this->updateMergingSettings($vars, $errors);
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1484,6 +1485,23 @@ class OsticketConfig extends Config {
             'message_autoresponder_collabs'=>isset($vars['message_autoresponder_collabs']) ? 1 : 0,
             'ticket_notice_active'=>isset($vars['ticket_notice_active']) ? 1 : 0,
             'overlimit_notice_active'=>isset($vars['overlimit_notice_active']) ? 1 : 0,
+        ));
+    }
+	
+	function updateMergingSettings($vars, &$errors) {
+		$f=array();
+        $f['merging_child_status'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+
+
+        if($errors) return false;
+
+        return $this->updateAll(array(
+			'merging_bring_owners'=>isset($vars['merging_bring_owners']) ? 1 : 0,
+			'merging_combine_thread_staff'=>isset($vars['merging_combine_thread_staff']) ? 1 : 0,
+			'merging_combine_thread_client'=>isset($vars['merging_combine_thread_client']) ? 1 : 0,
+			'merging_redirect'=>isset($vars['merging_redirect']) ? 1 : 0,
+			'merging_child_status'=>$vars['merging_child_status'],
+            'merging_permalock'=>isset($vars['merging_permalock']) ? 1 : 0,
         ));
     }
 
