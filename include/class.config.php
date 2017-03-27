@@ -766,7 +766,29 @@ class OsticketConfig extends Config {
         return $s->next($this->getDefaultTicketNumberFormat(),
             array('Ticket', 'isTicketNumberUnique'));
     }
-
+	function getBringOwners() {
+        return ($this->get('merging_bring_owners'));
+    }
+	
+	function getCombineStaffThread() {
+        return ($this->get('merging_combine_thread_staff'));
+    }
+	
+	function getCombineClientThread() {
+        return ($this->get('merging_combine_thread_client'));
+    }
+	
+	function getRedirectChild() {
+        return ($this->get('merging_redirect'));
+    }
+	
+	function getDefaultChildStatus() {
+        return $this->get('merging_child_status');
+    }
+	
+	function getMergePermalock() {
+        return ($this->get('merging_permalock'));
+    }
     // Task sequence
     function getDefaultTaskSequence() {
         if ($this->get('task_sequence_id'))
