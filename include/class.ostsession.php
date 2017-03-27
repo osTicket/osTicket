@@ -186,6 +186,7 @@ extends SessionBackend {
         }
         catch (DoesNotExist $e) {
             $this->data = new SessionData(['session_id' => $id]);
+            $this->data->session_data = "";
         }
         catch (OrmException $e) {
             return false;
