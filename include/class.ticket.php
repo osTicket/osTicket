@@ -2707,7 +2707,8 @@ implements RestrictedAccess, Threadable {
     function delete($comments='') {
         global $ost, $thisstaff;
 
-	Ticket::massSplit(array($this->getId()));
+	if($this-isMaster() || $this->isChild())
+		Ticket::massSplit(array($this->getId()));
         //delete just orphaned ticket thread & associated attachments.
         // Fetch thread prior to removing ticket entry
         $t = $this->getThread();
