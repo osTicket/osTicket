@@ -254,7 +254,7 @@ if($ticket->isOverdue())
 			</form>
 			<?php endif; ?>
 			<?php // Duplicate button ?>
-			<?php if ( $thisstaff->hasPerm(Ticket::PERM_EDIT, false) && $thisstaff->hasPerm(Ticket::PERM_CREATE, false) ): ?>
+			<?php if ( $cfg->getMergeDuplicateButton() && $thisstaff->hasPerm(Ticket::PERM_EDIT, false) && $thisstaff->hasPerm(Ticket::PERM_CREATE, false) ): ?>
 			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block; vertical-align: bottom;" id="duplicate-form">
 				<?php csrf_token(); ?>
 				<input type="hidden" name="a" value="duplicate">
