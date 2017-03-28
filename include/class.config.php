@@ -1523,7 +1523,8 @@ class OsticketConfig extends Config {
 			'merging_combine_thread_client'=>isset($vars['merging_combine_thread_client']) ? 1 : 0,
 			'merging_redirect'=>isset($vars['merging_redirect']) ? 1 : 0,
 			'merging_child_status'=>$vars['merging_child_status'],
-            'merging_permalock'=>isset($vars['merging_permalock']) ? 1 : 0,
+			'merging_permalock'=>isset($vars['merging_permalock']) ? 1 : 0,
+			'merging_duplicate_button'=>isset($vars['merging_duplicate_button']) ? 1 : 0,
         ));
     }
 
