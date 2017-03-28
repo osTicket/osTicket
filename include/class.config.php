@@ -789,6 +789,9 @@ class OsticketConfig extends Config {
 	function getMergePermalock() {
         return ($this->get('merging_permalock'));
     }
+	function getMergeDuplicateButton() {
+        return ($this->get('merging_duplicate_button'));
+    }
     // Task sequence
     function getDefaultTaskSequence() {
         if ($this->get('task_sequence_id'))
