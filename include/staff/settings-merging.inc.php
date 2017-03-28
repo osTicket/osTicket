@@ -84,5 +84,14 @@ echo $config['merging_permalock'] ? 'checked="checked"' : ''; ?>/>
                 <i class="help-tip icon-question-sign" href="#merging_permalock"></i>
             </td>
         </tr>
+	<tr>
+            <td width="160"><?php echo __('Duplicate button'); ?>:</td>
+            <td>
+                <input type="checkbox" name="merging_duplicate_button" <?php
+echo $config['merging_duplicate_button'] ? 'checked="checked"' : ''; ?>/>
+                <?php echo __('Available'); ?>&nbsp;
+                <i class="help-tip icon-question-sign" href="#merging_duplicate_button"></i>
+            </td>
+        </tr>
     </tbody>
 </table>
