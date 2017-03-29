@@ -55,7 +55,6 @@ foreach (Attachment::objects()->filter(array(
 			}
 		}
 		
-		$buckets[$rel] = call_user_func_array('array_merge', $buckets);
 		usort($buckets[$rel], "cmpCreateDate");
 
         // Go back through the entries and render them on the page
