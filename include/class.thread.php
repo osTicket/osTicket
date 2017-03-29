@@ -2018,7 +2018,8 @@ class MergedEvent extends ThreadEvent {
     static $state = 'merged';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('<b>{somebody}</b> merged this ticket with <a href="/scp/tickets.php?id={data.id}"><b>{data.child}</b></a> {timestamp}'));
+        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+                '<a href="/scp/tickets.php?id=', '">', '</a>');
     }
 }
 
@@ -2027,7 +2028,8 @@ class SplitEvent extends ThreadEvent {
     static $state = 'split';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('<b>{somebody}</b> split this ticket from <a href="/scp/tickets.php?id={data.id}"><b>{data.child}</b></a> {timestamp}'));
+        return sprintf($this->template(__('<b>{somebody}</b> split this ticket from %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+                '<a href="/scp/tickets.php?id=', '">', '</a>');
     }
 }
 
