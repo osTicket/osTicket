@@ -1,7 +1,7 @@
 <?php
 function cmp( $a, $b ) { 
-  if(  $a->getCreateDate() ==  $b->getCreateDate() ){ return 0 ; } 
-  return ($a->getCreateDate() < $b->getCreateDate()) ? -1 : 1;
+  if(  strtotime($a->getCreateDate()) ==  strtotime($b->getCreateDate()) ){ return 0 ; } 
+  return (strtotime($a->getCreateDate()) < strtotime($b->getCreateDate())) ? -1 : 1;
 }
 
 $events = $events
