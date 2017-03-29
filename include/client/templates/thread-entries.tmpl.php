@@ -40,7 +40,6 @@ if (count($entries)) {
 		}
 	}
 	
-	$buckets[$rel] = call_user_func_array('array_merge', $buckets);
 	usort($buckets[$rel], "cmp");
 
     // Go back through the entries and render them on the page
