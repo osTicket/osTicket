@@ -214,6 +214,13 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+	'merging_bring_owners' => 1,
+	'merging_combine_thread_staff' => 1,
+	'merging_combine_thread_client' => 0,
+	'merging_redirect' => 1,
+	'merging_child_status' => 3,
+	'merging_permalock' => 0,
+	'merging_duplicate_button' => 0,
     );
 
     function __construct($section=null) {
