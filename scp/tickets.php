@@ -337,14 +337,14 @@ if($_POST && !$errors):
 				$vars = $_POST;
 				$ticketTemp=Ticket::lookup((int)$vars['tid']);
 				if (!$ticketTemp || !$ticketTemp->isChild()) {
-					$errors['err'] = __('No ticket to disconnect');
+					$errors['err'] = __('No ticket to split');
 				} else {
 					if ( !$ticket->disconnectMerged((int)$vars['tid']) ) {
 						$errors['err']=sprintf('%s %s',
-							__('Unable to disconnect ticket.'),
+							__('Unable to split ticket.'),
 							__('Correct any errors below and try again.'));
 					} else {
-						Messages::success(__('Ticket disconnected successfully'));
+						Messages::success(__('Ticket split successfully'));
 					}
 				}
 			}
