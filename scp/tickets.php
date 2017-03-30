@@ -339,7 +339,7 @@ if($_POST && !$errors):
 				if (!$ticketTemp || !$ticketTemp->isChild()) {
 					$errors['err'] = __('No ticket to split');
 				} else {
-					if ( !$ticket->disconnectMerged((int)$vars['tid']) ) {
+					if ( !$ticket->split((int)$vars['tid']) ) {
 						$errors['err']=sprintf('%s %s',
 							__('Unable to split ticket.'),
 							__('Correct any errors below and try again.'));
