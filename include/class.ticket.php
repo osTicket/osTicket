@@ -3761,7 +3761,7 @@ implements RestrictedAccess, Threadable {
 		
 	}
 	
-	public function disconnectMerged($tid) {
+	public function split($tid) {
 		
 		// Double check, it should come only from master view
 		/*if ( !$this->isMaster() ) {
@@ -3803,9 +3803,9 @@ implements RestrictedAccess, Threadable {
  			}
  			if ($temp->isMaster()) {
  				foreach($temp->getChildren() as $ticket)
- 					$temp->disconnectMerged($ticket->getId());
+ 					$temp->split($ticket->getId());
  			} else if($temp->isChild()){
- 				$temp->getMaster()->disconnectMerged($tid);
+ 				$temp->getMaster()->split($tid);
  			} else {
  				Messages::warning( sprintf( __('Ticket #%s is not merged.'), $temp->getNumber()));
  			}
