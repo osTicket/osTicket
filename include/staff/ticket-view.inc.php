@@ -926,7 +926,7 @@ if ($errors['err'] && isset($_POST['a'])) {
 									<?php csrf_token(); ?>
 									<input type="hidden" name="a" value="merge_delete">
 									<input type="hidden" name="tid" value="<?= $T->getId() ?>">
-									<div data-toggle="tooltip" title=" <?php echo __('Disconnect Merge'); ?>" style="height: 26px;">
+									<div data-toggle="tooltip" title=" <?php echo __('Split'); ?>" style="height: 26px;">
 										<button type="submit" class="action-button">
 											<i class="icon-trash"></i>
 										</button>
