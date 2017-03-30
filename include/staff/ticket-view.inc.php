@@ -60,11 +60,11 @@ if($ticket->isOverdue())
             if ($thisstaff->hasPerm(Email::PERM_BANLIST)
                     || $role->hasPerm(TicketModel::PERM_EDIT)
                     || ($dept && $dept->isManager($thisstaff))) { ?>
-            <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-more" data-toggle="tooltip" title="<?php echo __('More');?>">
-                <i class="icon-caret-down pull-right"></i>
-                <span ><i class="icon-cog"></i></span>
-            </span>
-            <?php
+                <span class="action-button pull-right" data-placement="bottom" data-dropdown="#action-dropdown-more" data-toggle="tooltip" title="<?php echo __('More');?>">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i></span>
+                </span>
+                <?php
             }
 
             if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
@@ -76,21 +76,21 @@ if($ticket->isOverdue())
                 <a id="ticket-print" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print"><i class="icon-print"></i></a>
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
-              <ul>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
-                 class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
-                 class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
-              </ul>
+                <ul>
+                    <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
+                    class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
+                    <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
+                    class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
+                </ul>
             </div>
             <?php
             // Transfer
             if ($role->hasPerm(TicketModel::PERM_TRANSFER)) {?>
-            <span class="action-button pull-right">
-            <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
-                data-redirect="tickets.php"
-                href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
-            </span>
+                <span class="action-button pull-right">
+                    <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
+                </span>
             <?php
             } ?>
 
@@ -109,7 +109,7 @@ if($ticket->isOverdue())
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign"><i class="icon-user"></i></a>
             </span>
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
-              <ul>
+                <ul>
                 <?php
                 // Agent can claim team assigned ticket
                 if (!$ticket->getStaff()
@@ -122,27 +122,27 @@ if($ticket->isOverdue())
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
                 <?php
                 } ?>
-                 <li><a class="no-pjax ticket-action"
+                    <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
                     class="icon-user"></i> <?php echo __('Agent'); ?></a>
-                 <li><a class="no-pjax ticket-action"
+                    <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/teams"><i
                     class="icon-group"></i> <?php echo __('Team'); ?></a>
-              </ul>
+                </ul>
             </div>
             <?php
             } ?>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
-              <ul>
-                <?php
-                 if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
-                    <li><a class="change-user" href="#tickets/<?php
-                    echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
-                    echo __('Change Owner'); ?></a></li>
-                <?php
-                 }
+                <ul>
+                    <?php
+                    if ($role->hasPerm(TicketModel::PERM_EDIT)) { ?>
+                        <li><a class="change-user" href="#tickets/<?php
+                        echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
+                        echo __('Change Owner'); ?></a></li>
+                        <?php
+                    }
 
                  if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
@@ -179,13 +179,13 @@ if($ticket->isOverdue())
                 } ?>
 
 <?php           if ($thisstaff->hasPerm(Email::PERM_BANLIST)) {
-                     if(!$emailBanned) {?>
+                    if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
                             href="#banemail"><i class="icon-ban-circle"></i> <?php echo sprintf(
                                 Format::htmlchars(__('Ban Email <%s>')),
                                 $ticket->getEmail()); ?></a></li>
                 <?php
-                     } elseif($unbannable) { ?>
+                    } elseif($unbannable) { ?>
                         <li><a  class="confirm-action" id="ticket-banemail"
                             href="#unbanemail"><i class="icon-undo"></i> <?php echo sprintf(
                                 Format::htmlchars(__('Unban Email <%s>')),
@@ -193,93 +193,91 @@ if($ticket->isOverdue())
                     <?php
                      }
                   }
-                  if ($role->hasPerm(TicketModel::PERM_DELETE)) {
-                     ?>
+                if ($role->hasPerm(TicketModel::PERM_DELETE)) {
+                    ?>
                     <li class="danger"><a class="ticket-action" href="#tickets/<?php
                     echo $ticket->getId(); ?>/status/delete"
                     data-redirect="tickets.php"><i class="icon-trash"></i> <?php
                     echo __('Delete Ticket'); ?></a></li>
                 <?php
-                 }
+                }
                 ?>
-              </ul>
+                </ul>
             </div>
-			<?php
-			// Merge input
-			if ( $ticket->isMaster() ) {
-				echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('MASTER'));
-			} else if ( $ticket->isChild() ) {
-				echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('CHILD'));
-			} else if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)) :?>
-			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;" id="merge-form">
-				<?php csrf_token(); ?>
-				<input type="hidden" name="a" value="merge">
-				<div class="attached input" data-toggle="tooltip" data-placement="bottom" title=" <?php echo __('Merge'); ?>" style="height: 26px;">
-				  <select id="masterid" name="masterid" style="width: 250px" class="js-example-basic-single">
-				  <?php
-						$mysqli = new MySQLi(DBHOST,DBUSER,DBPASS,DBNAME);
-						if($mysqli->connect_error) {
-						  echo 'Database connection failed...' . 'Error: ' . $mysqli->connect_errno . ' ' . $mysqli->connect_error;
-						  exit;
-						} else {
-						  $mysqli->set_charset('utf8');
-						}
-						if ($data = $mysqli->query("SELECT t2.`ticket_id`, CONCAT(t2.`number`, ' | ', t3.`subject`) AS 'row' FROM 
-		(SELECT `ticket_id`, `number`, `status_id`, `dept_id`, `staff_id` FROM `" . TICKET_TABLE . "` WHERE `ticket_id` != " . $ticket->getId() . ") t2
-		LEFT JOIN
-		(SELECT `id`, `state` FROM `" . TICKET_STATUS_TABLE . "` WHERE `state` = 'open') t1
-		ON t1.`id` = t2.`status_id`
-		LEFT JOIN
-		(SELECT `ticket_id`, `subject` FROM `" . TICKET_CDATA_TABLE . "`) t3
-		ON t2.`ticket_id` = t3.`ticket_id`
-		WHERE t1.`state` IS NOT NULL")) {
-							while($row = mysqli_fetch_array($data)) {
-								if(($temp = Ticket::lookup($row['ticket_id']))){
-									if($temp->checkStaffPerm($thisstaff)){
-										echo "<option value='" . $row['ticket_id'] . "'>" . $row['row'] . "</option>";
-									}
-								}
-							}
-						}
-						flush();
-						 
-						$mysqli->close();
-					?>
-				</select>
-				  <!--<input type="text" name="masterid"
-					size="10" placeholder="Master ID">-->
-				  <button type="submit" class="attached button"><i class="icon-code-fork"></i>
-				  </button>
-				</div>
-			</form>
-			<?php endif; ?>
-			<?php // Duplicate button ?>
-			<?php if ( $cfg->getMergeDuplicateButton() && $thisstaff->hasPerm(Ticket::PERM_EDIT, false) && $thisstaff->hasPerm(Ticket::PERM_CREATE, false) ): ?>
-			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block; vertical-align: bottom;" id="duplicate-form">
-				<?php csrf_token(); ?>
-				<input type="hidden" name="a" value="duplicate">
-				<button type="submit" class="action-button" data-placement="bottom" data-toggle="tooltip" title=" <?php echo __('Duplicate'); ?>"><i class="icon-paste"></i>
-				</button>
-			</form>
-			<?php endif; ?>
-			<?php
-			if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
-			<a href="#post-reply" class="post-response action-button"
-			data-placement="bottom" data-toggle="tooltip"
-			title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
-			<?php
-			} ?>
-			<a href="#post-note" id="post-note" class="post-response action-button"
-			data-placement="bottom" data-toggle="tooltip"
-			title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
-			<?php // Status change options
-			echo TicketStatus::status_options();
-			?>
+            <?php
+            // Merge input
+            if ( $ticket->isMaster() ) {
+                echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('MASTER'));
+            } else if ( $ticket->isChild() ) {
+                echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('CHILD'));
+            } else if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)) :?>
+            <form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;" id="merge-form">
+                <?php csrf_token(); ?>
+                <input type="hidden" name="a" value="merge">
+                <div class="attached input" data-toggle="tooltip" data-placement="bottom" title=" <?php echo __('Merge'); ?>" style="height: 26px;text-align:left">
+                    <select id="masterid" name="masterid" style="width: 250px" class="js-example-basic-single">
+                    <?php
+                        $mysqli = new MySQLi(DBHOST,DBUSER,DBPASS,DBNAME);
+                        if($mysqli->connect_error) {
+                            echo 'Database connection failed...' . 'Error: ' . $mysqli->connect_errno . ' ' . $mysqli->connect_error;
+                            exit;
+                        } else {
+                            $mysqli->set_charset('utf8');
+                        }
+                        if ($data = $mysqli->query("SELECT t2.`ticket_id`, CONCAT(t2.`number`, ' | ', t3.`subject`) AS 'row' FROM 
+                            (SELECT `ticket_id`, `number`, `status_id`, `dept_id`, `staff_id` FROM `" . TICKET_TABLE . "` WHERE `ticket_id` != " . $ticket->getId() . ") t2
+                            LEFT JOIN
+                            (SELECT `id`, `state` FROM `" . TICKET_STATUS_TABLE . "` WHERE `state` = 'open') t1
+                            ON t1.`id` = t2.`status_id`
+                            LEFT JOIN
+                            (SELECT `ticket_id`, `subject` FROM `" . TICKET_CDATA_TABLE . "`) t3
+                            ON t2.`ticket_id` = t3.`ticket_id`
+                            WHERE t1.`state` IS NOT NULL")) {
+                            while($row = mysqli_fetch_array($data)) {
+                                if(($temp = Ticket::lookup($row['ticket_id']))){
+                                    if($temp->checkStaffPerm($thisstaff)){
+                                        echo "<option value='" . $row['ticket_id'] . "'>" . $row['row'] . "</option>";
+                                    }
+                                }
+                            }
+                        }
+                        flush();
+                         
+                        $mysqli->close();
+                    ?>
+                </select>
+                <button type="submit" class="attached button"><i class="icon-code-fork"></i>
+                </button>
+                </div>
+            </form>
+            <?php endif; ?>
+            <?php // Duplicate button ?>
+            <?php if ( $cfg->getDuplicateButton() && $thisstaff->hasPerm(Ticket::PERM_EDIT, false) && $thisstaff->hasPerm(Ticket::PERM_CREATE, false) ): ?>
+            <form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block; vertical-align: bottom;" id="duplicate-form">
+                <?php csrf_token(); ?>
+                <input type="hidden" name="a" value="duplicate">
+                <button type="submit" class="action-button" data-placement="bottom" data-toggle="tooltip" title=" <?php echo __('Duplicate'); ?>"><i class="icon-paste"></i>
+                </button>
+            </form>
+            <?php endif; ?>
+            <?php
+            if ($role->hasPerm(TicketModel::PERM_REPLY)) { ?>
+                <a href="#post-reply" class="post-response action-button"
+                data-placement="bottom" data-toggle="tooltip"
+                title="<?php echo __('Post Reply'); ?>"><i class="icon-mail-reply"></i></a>
+                <?php
+            } ?>
+            <a href="#post-note" id="post-note" class="post-response action-button"
+            data-placement="bottom" data-toggle="tooltip"
+            title="<?php echo __('Post Internal Note'); ?>"><i class="icon-file-text"></i></a>
+            <?php // Status change options
+            echo TicketStatus::status_options();
+            ?>
         </div>
         <div class="flush-left">
-             <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
-             title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
-             <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a>
+            <h2><a href="tickets.php?id=<?php echo $ticket->getId(); ?>"
+            title="<?php echo __('Reload'); ?>"><i class="icon-refresh"></i>
+            <?php echo sprintf(__('Ticket #%s'), $ticket->getNumber()); ?></a>
             </h2>
         </div>
     </div>
@@ -549,11 +547,11 @@ $tcount = $ticket->getThreadEntries($types)->count();
         if ($ticket->getNumTasks())
             echo sprintf('&nbsp;(<span id="ticket-tasks-count">%d</span>)', $ticket->getNumTasks());
         ?></a></li>
-	<?php if ( $ticket->isChild() || $ticket->isMaster() ): ?>
-		<li>
-			<a id="ticket-thread-tab" href="#relations"><?php echo __('Relations'); ?></a>
-		</li>
-	<?php endif; ?>
+    <?php if ( $ticket->isChild() || $ticket->isMaster() ): ?>
+        <li>
+            <a id="ticket-thread-tab" href="#relations"><?php echo __('Relations'); ?></a>
+        </li>
+    <?php endif; ?>
 </ul>
 
 <div id="ticket_tabs_container">
@@ -885,72 +883,72 @@ if ($errors['err'] && isset($_POST['a'])) {
  </div>
  <?php if ( $ticket->isChild() || $ticket->isMaster() ): ?>
  <div id="relations" class="tab_content" style="display:none">
-	<?php if ( $ticket->isMaster() ): ?>
-		<h3> Child tickets </h3>
-		<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
-			<thead>
-				<tr>
-					<th width="7.4%"><?php echo __('Number'); ?></th>
-					<th width="14.6%"><?php echo __('Date Merged'); ?></th>
-					<th width="29.8%"><?php echo __('Subject'); ?></th>
-					<th width="18.1%"><?php echo __('From'); ?></th>
-					<th width="16%"><?php echo __('Closed By'); ?></th>
-					<?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
-						<th width="2%">
-						</th>
-					<?php endif; ?>
-				</tr>
-			 </thead>
-			 <tbody>
-				<?php
-				$children = $ticket->getChildren();
-				foreach ($children as $T) {
-					?>
-					<tr id="<?php echo $T->getId(); ?>">
-						<td nowrap>
-						  <a class="Icon <?php echo strtolower($T->getSource()); ?>Ticket preview"
-							title="Preview Ticket"
-							href="tickets.php?id=<?php echo $T->getId(); ?>"
-							data-preview="#tickets/<?php echo $T->getId(); ?>/preview"
-							><?php echo $T->getNumber(); ?></a></td>
-						<td align="center" nowrap><?php echo Format::datetime($T->getDateMerged()) ?: $date_fallback; ?></td>
-						<td><div style="max-width: 279px; max-height: 1.2em"
-							class="link truncate"
-							href="tickets.php?id=<?php echo $T->getId(); ?>"><?php echo $T->getSubject(); ?></div>
-						</td>
-						<td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getDeptName()); ?></span></div></td>
-						<td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getStaff()->getName()); ?></span></div></td>
-						<?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
-							<td nowrap>
-								<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;">
-									<?php csrf_token(); ?>
-									<input type="hidden" name="a" value="merge_delete">
-									<input type="hidden" name="tid" value="<?= $T->getId() ?>">
-									<div data-toggle="tooltip" title=" <?php echo __('Split'); ?>" style="height: 26px;">
-										<button type="submit" class="action-button">
-											<i class="icon-trash"></i>
-										</button>
-									</div>
-								</form>
-							</td>
-						<?php endif; ?>
-					</tr>
-					<?php } //end of foreach ?>
-			</tbody>
-		</table>
-	<?php else: ?>
-		<?php $master = $ticket->getMaster(); ?>
-		<h3>Master ticket: </h3>
+    <?php if ( $ticket->isMaster() ): ?>
+        <h3> Child tickets </h3>
+        <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+            <thead>
+                <tr>
+                    <th width="7.4%"><?php echo __('Number'); ?></th>
+                    <th width="14.6%"><?php echo __('Date Merged'); ?></th>
+                    <th width="29.8%"><?php echo __('Subject'); ?></th>
+                    <th width="18.1%"><?php echo __('From'); ?></th>
+                    <th width="16%"><?php echo __('Closed By'); ?></th>
+                    <?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
+                        <th width="2%">
+                        </th>
+                    <?php endif; ?>
+                </tr>
+             </thead>
+             <tbody>
+                <?php
+                $children = $ticket->getChildren();
+                foreach ($children as $T) {
+                    ?>
+                    <tr id="<?php echo $T->getId(); ?>">
+                        <td nowrap>
+                            <a class="Icon <?php echo strtolower($T->getSource()); ?>Ticket preview"
+                            title="Preview Ticket"
+                            href="tickets.php?id=<?php echo $T->getId(); ?>"
+                            data-preview="#tickets/<?php echo $T->getId(); ?>/preview"
+                            ><?php echo $T->getNumber(); ?></a></td>
+                        <td align="center" nowrap><?php echo Format::datetime($T->getDateMerged()) ?: $date_fallback; ?></td>
+                        <td><div style="max-width: 279px; max-height: 1.2em"
+                            class="link truncate"
+                            href="tickets.php?id=<?php echo $T->getId(); ?>"><?php echo $T->getSubject(); ?></div>
+                        </td>
+                        <td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getDeptName()); ?></span></div></td>
+                        <td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getStaff()->getName()); ?></span></div></td>
+                        <?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
+                            <td nowrap>
+                                <form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;">
+                                    <?php csrf_token(); ?>
+                                    <input type="hidden" name="a" value="split">
+                                    <input type="hidden" name="tid" value="<?= $T->getId() ?>">
+                                    <div data-toggle="tooltip" title=" <?php echo __('Split'); ?>" style="height: 26px;">
+                                        <button type="submit" class="action-button">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        <?php endif; ?>
+                    </tr>
+                    <?php } //end of foreach ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <?php $master = $ticket->getMaster(); ?>
+        <h3>Master ticket: </h3>
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tbody>
-				<tr>
+                <tr>
                     <th width="100">Number:</th>
                     <td><a class="Icon <?php echo strtolower($master->getSource()); ?>Ticket preview"
-							title="Preview Ticket"
-							href="tickets.php?id=<?php echo $master->getId(); ?>"
-							data-preview="#tickets/<?php echo $master->getId(); ?>/preview"
-							><?php echo $master->getNumber(); ?></a>
-					</td>
+                            title="Preview Ticket"
+                            href="tickets.php?id=<?php echo $master->getId(); ?>"
+                            data-preview="#tickets/<?php echo $master->getId(); ?>/preview"
+                            ><?php echo $master->getNumber(); ?></a>
+                    </td>
                 </tr>
                 <tr>
                     <th>Priority:</th>
@@ -960,7 +958,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <th>Department:</th>
                     <td><?php echo $master->getDeptName(); ?></td>
                 </tr>
-				<tr>
+                <tr>
                     <th>Subject:</th>
                     <td><?php echo $master->getSubject(); ?></td>
                 </tr>
@@ -968,10 +966,10 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <th>Merge Date:</th>
                     <td><?php echo $ticket->getDateMerged(); ?></td>
                 </tr>
-				</tbody>
-			</table>
-	<?php endif; ?>
- </div>
+                </tbody>
+            </table>
+    <?php endif; ?>
+    </div>
 <?php endif; ?>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
@@ -994,9 +992,9 @@ if ($errors['err'] && isset($_POST['a'])) {
             <select id="psize" name="psize">
                 <option value="">&mdash; <?php echo __('Select Print Paper Size');?> &mdash;</option>
                 <?php
-                  $psize =$_SESSION['PAPER_SIZE']?$_SESSION['PAPER_SIZE']:$thisstaff->getDefaultPaperSize();
-                  foreach(Export::$paper_sizes as $v) {
-                      echo sprintf('<option value="%s" %s>%s</option>',
+                    $psize =$_SESSION['PAPER_SIZE']?$_SESSION['PAPER_SIZE']:$thisstaff->getDefaultPaperSize();
+                    foreach(Export::$paper_sizes as $v) {
+                        echo sprintf('<option value="%s" %s>%s</option>',
                                 $v,($psize==$v)?'selected="selected"':'', __($v));
                   }
                 ?>
@@ -1117,13 +1115,13 @@ $(function() {
 
         return false;
     });
-	
-	$(document).ready(function() {
-	  $("#masterid").select2({
-		  placeholder: "<?php echo __('Select a ticket'); ?>"
-	  });
-	});
-	$('#masterid').val('');
+    
+    $(document).ready(function() {
+        $("#masterid").select2({
+            placeholder: "<?php echo __('Select a ticket'); ?>"
+        });
+    });
+    $('#masterid').val('');
 
 });
 </script>

@@ -138,7 +138,7 @@ class TicketModel extends VerySimpleModel {
                 /* @trans */ 'Delete',
                 'desc'  =>
                 /* @trans */ 'Ability to delete tickets'),
-			self::PERM_MERGE => array(
+            self::PERM_MERGE => array(
                 'title' =>
                 /* @trans */ 'Merge',
                 'desc'  =>
@@ -306,8 +306,8 @@ implements RestrictedAccess, Threadable {
     }
 
     function isReopenable() {
-	global $cfg;
-        return $this->getStatus()->isReopenable() && !($this->isChild() && $cfg->getMergePermalock());
+    global $cfg;
+        return $this->getStatus()->isReopenable() && !($this->isChild() && $cfg->getPermalockChildTicket());
     }
 
     function isClosed() {
@@ -2707,8 +2707,8 @@ implements RestrictedAccess, Threadable {
     function delete($comments='') {
         global $ost, $thisstaff;
 
-	if($this-isMaster() || $this->isChild())
-		Ticket::massSplit(array($this->getId()));
+    if($this->isMaster() || $this->isChild())
+        Ticket::massSplit(array($this->getId()));
         //delete just orphaned ticket thread & associated attachments.
         // Fetch thread prior to removing ticket entry
         $t = $this->getThread();
@@ -2841,7 +2841,7 @@ implements RestrictedAccess, Threadable {
         if (!$this->save())
             return false;
 
-	$vars['note'] = ThreadEntryBody::clean($vars['note']);
+    $vars['note'] = ThreadEntryBody::clean($vars['note']);
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
@@ -2916,9 +2916,9 @@ implements RestrictedAccess, Threadable {
     static function isTicketNumberUnique($number) {
         $num = static::objects()
             ->filter(array('number' => $number))
-	    ->count();
+        ->count();
 
-	return ($num === 0);
+    return ($num === 0);
     }
 
     /* Quick staff's tickets stats */
@@ -3686,336 +3686,330 @@ implements RestrictedAccess, Threadable {
 
         require STAFFINC_DIR.'templates/tickets-actions.tmpl.php';
     }
-	
-	// for merge
-	// messy but it works, don't judge me
-	// merge this as master with any given ids
-	
-	public function merge( $tids ) {
-		global $cfg;
-		global $thisstaff;
-		
-		if ( !$this->canBeMaster() ) {
-			Messages::error( __('Ticket selected for master cannot be one.') );
-			return false;
-		}
-		
-		$tickets = array();
-		
-		foreach( $tids as $key => $tid ) {
-			
-			// skip if selected master by accident
-			if ( $tid == $this->getId() ) {
-				continue;
-			}
-			
-			$temp = Ticket::lookup($tid);
-			if ( !$temp ) {
-				continue;
-			}
-			
-			if ( !$temp->canBeChild() ) {
-				Messages::warning( sprintf( __('Ticket #%s cannot be a child.'), $temp->getNumber() ) );
-				continue;
-			}
-			
-			if ( !$temp->isCloseable() ) {
-				Messages::warning( sprintf( __('Ticket #%s cannot be closed.'), $temp->getNumber() ) );
-				continue;
-			}
-			
-			$tickets[] = $temp;
-			
-		}
-		unset($temp);
-		
-		if ( empty( $tickets ) ) {
-			Messages::error( __('Select at least one viable ticket') );
-			return false;
-		}
-		
-		foreach($tickets as $temp) {
-			$temp->setStatus(TicketStatus::lookup($cfg->getDefaultChildStatus()));
-			
-			if($cfg->getBringOwners()){
-				$this->addCollaborator($temp->getUser(), array(), $error, true);
-				if ($collabs = $temp->getThread()->getParticipants()) {
-					foreach ($collabs as $c)
-						$this->addCollaborator($c->getUser(), array(), $error, true);
-				}
-			}
-			
-			$sql='INSERT INTO '.TICKET_RELATION_TABLE.' (`id`, `agent_id`, `master_id`, `ticket_id`, `date_merged`)
-				VALUES( NULL, '.$thisstaff->getId().', '.$this->getId().', '.$temp->getId().', NOW() )';
-			
-			db_query($sql);
-			
-			$temp->setChild(true);
-			
-			$this->logEvent('merged', array('child' => $temp->getSubject(), 'id' => $temp->getId()));
-		}
-		
-		$this->setMaster(true);
-		
-		return true;
-		
-	}
-	
-	public function split($tid) {
-		
-		// Double check, it should come only from master view
-		/*if ( !$this->isMaster() ) {
-			Messages::error( __('Ticket selected for master is not one.') );
-			return false;
-		}*/
-			
-		// skip if selected master by accident
-		if ( $tid == $this->getId() ) {
-			return false;
-		}
-		
-		$ticket = Ticket::lookup($tid);
-		if ( !$ticket || !$ticket->isChild() ) {
-			return false;
-		}
-			
-		$sql='DELETE FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId() . ' AND ticket_id = ' . $tid;
-		
-		db_query($sql);
-		
-		$ticket->setChild(false);
-		
-		if ( !$this->getChildren() ) {
-			$this->setMaster(false);
-		}
-		
-		$this->logEvent('split', array('child' => $ticket->getSubject(), 'id' => $tid));
-		
-		return true;
-		
-	}
-	public function massSplit($tids) {
- 		global $thisstaff;
- 		
- 		foreach( $tids as $key => $tid ) {
- 			if(!($temp = Ticket::lookup($tid))){
- 				continue;
- 			}
- 			if ($temp->isMaster()) {
- 				foreach($temp->getChildren() as $ticket)
- 					$temp->split($ticket->getId());
- 			} else if($temp->isChild()){
- 				$temp->getMaster()->split($tid);
- 			} else {
- 				Messages::warning( sprintf( __('Ticket #%s is not merged.'), $temp->getNumber()));
- 			}
- 		}
- 		
- 		return true;
- 	}
-	
-	public function duplicate() {
-		
-		$othid = $this->getThreadId();
-		
-		$vars = array(
-			'uid' => $this->getUser()->getId(),
-			'alertuser' => '',
-			'source' => $this->getSource(),
-			'topicId' => $this->getTopicId(),
-			'deptId' => $this->getDeptId(),
-			'slaId' => $this->getSLAId(),
-			'duedate' => explode(' ', $this->getDueDate())[0],
-			'time' => explode(' ', $this->getDueDate())[1],
-			'assignId' => $this->getAssigneeId(),
-			'cannedResp' => '0',
-			'append' => '1',
-			'response' => '',
-			'statusId' => $this->getStatusId(),
-			'signature' => 'none',
-			'note' => ''
-		);
+
+    // for merge
+    // messy but it works, don't judge me
+    // merge this as master with any given ids
+
+    public function merge( $tids ) {
+        global $cfg;
+        global $thisstaff;
+
+        if ( !$this->canBeMaster() ) {
+            Messages::error( __('Ticket selected for master cannot be one.') );
+            return false;
+        }
+
+        $tickets = array();
+
+        foreach( $tids as $key => $tid ) {
+
+            // skip if selected master by accident
+            if ( $tid == $this->getId() ) {
+                continue;
+            }
+
+            $temp = Ticket::lookup($tid);
+            if ( !$temp ) {
+                continue;
+            }
+
+            if ( !$temp->canBeChild() ) {
+                Messages::warning( sprintf( __('Ticket #%s cannot be a child.'), $temp->getNumber() ) );
+                continue;
+            }
+
+            if ( !$temp->isCloseable() ) {
+                Messages::warning( sprintf( __('Ticket #%s cannot be closed.'), $temp->getNumber() ) );
+                continue;
+            }
+
+            $tickets[] = $temp;
+
+        }
+        unset($temp);
+
+        if ( empty( $tickets ) ) {
+            Messages::error( __('Select at least one viable ticket') );
+            return false;
+        }
+
+        foreach($tickets as $temp) {
+            $temp->setStatus(TicketStatus::lookup($cfg->getDefaultStatusChild()));
+
+            if($cfg->getCopyRecipients()){
+                $this->addCollaborator($temp->getUser(), array(), $error, true);
+                if ($collabs = $temp->getThread()->getParticipants()) {
+                    foreach ($collabs as $c)
+                        $this->addCollaborator($c->getUser(), array(), $error, true);
+                }
+            }
+
+            $sql='INSERT INTO '.TICKET_RELATION_TABLE.' (`id`, `agent_id`, `master_id`, `ticket_id`, `date_merged`)
+                VALUES( NULL, '.$thisstaff->getId().', '.$this->getId().', '.$temp->getId().', NOW() )';
+            
+            db_query($sql);
+
+            $temp->setChild(true);
+
+            $this->logEvent('merged', array('child' => $temp->getSubject(), 'id' => $temp->getId()));
+        }
+
+        $this->setMaster(true);
+
+        return true;
+
+    }
+    
+    public function split($tid) {
+            
+        // skip if selected master by accident
+        if ( $tid == $this->getId() ) {
+            return false;
+        }
+        
+        $ticket = Ticket::lookup($tid);
+        if ( !$ticket || !$ticket->isChild() ) {
+            return false;
+        }
+            
+        $sql='DELETE FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId() . ' AND ticket_id = ' . $tid;
+        
+        db_query($sql);
+        
+        $ticket->setChild(false);
+        
+        if ( !$this->getChildren() ) {
+            $this->setMaster(false);
+        }
+        
+        $this->logEvent('split', array('child' => $ticket->getSubject(), 'id' => $tid));
+        
+        return true;
+        
+    }
+    public function massSplit($tids) {
+         global $thisstaff;
+         
+         foreach( $tids as $key => $tid ) {
+             if(!($temp = Ticket::lookup($tid))){
+                 continue;
+             }
+             if ($temp->isMaster()) {
+                 foreach($temp->getChildren() as $ticket)
+                     $temp->split($ticket->getId());
+             } else if($temp->isChild()){
+                 $temp->getMaster()->split($tid);
+             } else {
+                 Messages::warning( sprintf( __('Ticket #%s is not merged.'), $temp->getNumber()));
+             }
+         }
+         
+         return true;
+     }
+    
+    public function duplicate() {
+        
+        $othid = $this->getThreadId();
+        
+        $vars = array(
+            'uid' => $this->getUser()->getId(),
+            'alertuser' => '',
+            'source' => $this->getSource(),
+            'topicId' => $this->getTopicId(),
+            'deptId' => $this->getDeptId(),
+            'slaId' => $this->getSLAId(),
+            'duedate' => explode(' ', $this->getDueDate())[0],
+            'time' => explode(' ', $this->getDueDate())[1],
+            'assignId' => $this->getAssigneeId(),
+            'cannedResp' => '0',
+            'append' => '1',
+            'response' => '',
+            'statusId' => $this->getStatusId(),
+            'signature' => 'none',
+            'note' => ''
+        );
 
         $form = TicketForm::getNewInstance();
         $form->setSource($vars);
-		
-		if ($vars['topicId']) {
-			if ($__topic=Topic::lookup($vars['topicId'])) {
-				foreach ($__topic->getForms() as $idx=>$__F) {
-					$disabled = array();
-					foreach ($__F->getFields() as $field) {
-						if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
-							$disabled[] = $field->get('id');
-					}
-					// Special handling for the ticket form — disable fields
-					// requested to be disabled as per the help topic.
-					if ($__F->get('type') == 'T') {
-						foreach ($form->getFields() as $field) {
-							if (false !== array_search($field->get('id'), $disabled))
-								$field->disable();
-						}
-						$form->sort = $idx;
-						$__F = $form;
-					}
-					// Track fields currently disabled
-					$__F->extra = JsonDataEncoder::encode(array(
-						'disable' => $disabled
-					));
-				}
-			}
-		}
-		
-		foreach ($form->getFields() as $field) {
-			if ($field->isEnabled() && $field->isRequired()) {
-				$value = $field->get('type') == 'text' ? $this->getFieldValue( $field->getId() ) : '';
-				$vars[$field->getWidget()->name] = empty($value) ? 'Not found' : $value;
-			}
-		}
-		
-		$errors = array();
-		$ticket = self::create($vars, $errors, 'staff', false, false);
-		
-		if ( !empty($errors) ) {
-			foreach( $errors as $err ) {
-				if ( is_array($err) ) {
-					foreach( $err as $errr ) {
-						Messages::error( $errr );
-					}
-				} else {
-					Messages::error( $err );
-				}
-			}
-			return false;
-		}
-		
-		$thid = $ticket->getThreadId();
-		
-		$sql="INSERT INTO `".THREAD_ENTRY_TABLE."` (`id`, `pid`, `thread_id`, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated`) 
-				SELECT NULL, `pid`, $thid, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated` FROM `".THREAD_ENTRY_TABLE."` WHERE `thread_id` = $othid";
-		
-		db_query($sql);
-		
-		return $ticket;
-		
-	}
-	
-	public function isMaster() {
-		
-		if ( !isset($this->master) ) {
-			
-			$sql='SELECT ticket_id FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
-			
-			if($res=db_query($sql)) {
-				$this->setMaster(db_num_rows($res));
-			}
-			
-		}
-		return $this->master;
-		
-	}
-	
-	public function canBeMaster() {
-	
-		if ( $this->isMaster() ) {
-			return true;
-		}	
+        
+        if ($vars['topicId']) {
+            if ($__topic=Topic::lookup($vars['topicId'])) {
+                foreach ($__topic->getForms() as $idx=>$__F) {
+                    $disabled = array();
+                    foreach ($__F->getFields() as $field) {
+                        if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                            $disabled[] = $field->get('id');
+                    }
+                    // Special handling for the ticket form — disable fields
+                    // requested to be disabled as per the help topic.
+                    if ($__F->get('type') == 'T') {
+                        foreach ($form->getFields() as $field) {
+                            if (false !== array_search($field->get('id'), $disabled))
+                                $field->disable();
+                        }
+                        $form->sort = $idx;
+                        $__F = $form;
+                    }
+                    // Track fields currently disabled
+                    $__F->extra = JsonDataEncoder::encode(array(
+                        'disable' => $disabled
+                    ));
+                }
+            }
+        }
+        
+        foreach ($form->getFields() as $field) {
+            if ($field->isEnabled() && $field->isRequired()) {
+                $value = $field->get('type') == 'text' ? $this->getFieldValue( $field->getId() ) : '';
+                $vars[$field->getWidget()->name] = empty($value) ? 'Not found' : $value;
+            }
+        }
+        
+        $errors = array();
+        $ticket = self::create($vars, $errors, 'staff', false, false);
+        
+        if ( !empty($errors) ) {
+            foreach( $errors as $err ) {
+                if ( is_array($err) ) {
+                    foreach( $err as $errr ) {
+                        Messages::error( $errr );
+                    }
+                } else {
+                    Messages::error( $err );
+                }
+            }
+            return false;
+        }
+        
+        $thid = $ticket->getThreadId();
+        
+        $sql="INSERT INTO `".THREAD_ENTRY_TABLE."` (`id`, `pid`, `thread_id`, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated`) 
+                SELECT NULL, `pid`, $thid, `staff_id`, `user_id`, `type`, `flags`, `poster`, `editor`, `editor_type`, `source`, `title`, `body`, `format`, `ip_address`, `created`, `updated` FROM `".THREAD_ENTRY_TABLE."` WHERE `thread_id` = $othid";
+        
+        db_query($sql);
+        
+        return $ticket;
+        
+    }
+    
+    public function isMaster() {
+        
+        if ( !isset($this->master) ) {
+            
+            $sql='SELECT ticket_id FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
+            
+            if($res=db_query($sql)) {
+                $this->setMaster(db_num_rows($res));
+            }
+            
+        }
+        return $this->master;
+        
+    }
+    
+    public function canBeMaster() {
+    
+        if ( $this->isMaster() ) {
+            return true;
+        }    
 
-		if ( $this->isChild() ) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	public function isChild() {
-		
-		if ( !isset($this->child) ) {
-			
-			$sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
-			
-			if($res=db_query($sql)) {
-				$nr = db_num_rows($res);
-				$this->setChild($nr);
-				if ( $nr ) {
-					list($tid, $datem) = db_fetch_row($res);
-					$this->setDateMerged($datem);
-				}
-			}
-			
-		}
-		return $this->child;
-		
-	}
-	
-	public function canBeChild() {
-		return !$this->isMaster() && !$this->isChild();
-	}
-	
-	public function setMaster($var) {
-		$this->master = (boolean)$var;
-	}
-	
-	public function setChild($var) {
-		$this->child = (boolean)$var;
-	}
-	
-	public function getDateMerged() {
-		return ( !$this->isChild() || !isset($this->dateMerged) ) ? false : $this->dateMerged;
-	}
-	
-	public function setDateMerged($date) {
-		$this->dateMerged = $date;
-	}
-	
-	public function getChildren() {
-		if ( !$this->isMaster() )
-			return array();
+        if ( $this->isChild() ) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public function isChild() {
+        
+        if ( !isset($this->child) ) {
+            
+            $sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
+            
+            if($res=db_query($sql)) {
+                $nr = db_num_rows($res);
+                $this->setChild($nr);
+                if ( $nr ) {
+                    list($tid, $datem) = db_fetch_row($res);
+                    $this->setDateMerged($datem);
+                }
+            }
+            
+        }
+        return $this->child;
+        
+    }
+    
+    public function canBeChild() {
+        return !$this->isMaster() && !$this->isChild();
+    }
+    
+    public function setMaster($var) {
+        $this->master = (boolean)$var;
+    }
+    
+    public function setChild($var) {
+        $this->child = (boolean)$var;
+    }
+    
+    public function getDateMerged() {
+        return ( !$this->isChild() || !isset($this->dateMerged) ) ? false : $this->dateMerged;
+    }
+    
+    public function setDateMerged($date) {
+        $this->dateMerged = $date;
+    }
+    
+    public function getChildren() {
+        if ( !$this->isMaster() )
+            return array();
 
-		$sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
+        $sql='SELECT ticket_id, date_merged FROM '.TICKET_RELATION_TABLE.' WHERE master_id = ' . $this->getId();
 
-		$ret = array();
-		if(($res=db_query($sql)) && db_num_rows($res)) {
-			while(list($id, $tmpdate)=db_fetch_row($res)) {
-				if ($temp=Ticket::lookup($id)) {
-					$temp->setDateMerged( $tmpdate );
-					$temp->setChild(true);
-					$ret[] = $temp;
-				}
-			}
-		}
+        $ret = array();
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            while(list($id, $tmpdate)=db_fetch_row($res)) {
+                if ($temp=Ticket::lookup($id)) {
+                    $temp->setDateMerged( $tmpdate );
+                    $temp->setChild(true);
+                    $ret[] = $temp;
+                }
+            }
+        }
 
-		return $ret;
-	}
-	
-	public function getMaster() {
-		if ( !$this->isChild() )
-			return array();
+        return $ret;
+    }
+    
+    public function getMaster() {
+        if ( !$this->isChild() )
+            return array();
 
-		$sql='SELECT master_id FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
+        $sql='SELECT master_id FROM '.TICKET_RELATION_TABLE.' WHERE ticket_id = ' . $this->getId();
 
-		if(($res=db_query($sql)) && db_num_rows($res)) {
-			list($id)=db_fetch_row($res);
-			if ($temp=Ticket::lookup($id)) {
-				$temp->setMaster(true);
-				return $temp;
-			}
-		}
+        if(($res=db_query($sql)) && db_num_rows($res)) {
+            list($id)=db_fetch_row($res);
+            if ($temp=Ticket::lookup($id)) {
+                $temp->setMaster(true);
+                return $temp;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public function getFieldValue($fieldID) {
-		
-		$sql='SELECT a.value FROM '.FORM_ANSWER_TABLE.' a INNER JOIN '.FORM_ENTRY_TABLE.' b ON a.entry_id = b.id WHERE a.field_id = '.$fieldID.' AND b.object_type = \'T\' AND b.object_id = ' . $this->getId();
-		
-		$val = '';
-		if($res=db_query($sql)) {
-			if ( db_num_rows($res) ) {
-				list($val) = db_fetch_row($res);
-			}
-		}
-		return $val;
-		
-	}
+    public function getFieldValue($fieldID) {
+        
+        $sql='SELECT a.value FROM '.FORM_ANSWER_TABLE.' a INNER JOIN '.FORM_ENTRY_TABLE.' b ON a.entry_id = b.id WHERE a.field_id = '.$fieldID.' AND b.object_type = \'T\' AND b.object_id = ' . $this->getId();
+        
+        $val = '';
+        if($res=db_query($sql)) {
+            if ( db_num_rows($res) ) {
+                list($val) = db_fetch_row($res);
+            }
+        }
+        return $val;
+        
+    }
 }
 ?>

@@ -10,8 +10,8 @@ $cmp = function ($a, $b) use ($sort) {
 };
 
 function cmpCreateDate( $a, $b ) { 
-  if(  strtotime($a->getCreateDate()) ==  strtotime($b->getCreateDate()) ){ return 0 ; } 
-  return (strtotime($a->getCreateDate()) < strtotime($b->getCreateDate())) ? -1 : 1;
+    if(  strtotime($a->getCreateDate()) ==  strtotime($b->getCreateDate()) ){ return 0 ; } 
+    return (strtotime($a->getCreateDate()) < strtotime($b->getCreateDate())) ? -1 : 1;
 }
 
 $events = $events->order_by($sort);
@@ -43,19 +43,19 @@ foreach (Attachment::objects()->filter(array(
         }
         
         global $cfg;
-		if($cfg->getCombineStaffThread() && $this->getObject()->isMaster()){
-			foreach($this->getObject()->getChildren() as $temp){
-				foreach ($temp->getThread()->getEntries() as $i=>$E) {
-					// First item _always_ shows up
-					if ($i != 0)
-						// Set relative time resolution to 12 hours
-						$rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
-					$buckets[$rel][] = $E;
-				}
-			}
-		}
-		
-		usort($buckets[$rel], "cmpCreateDate");
+        if($cfg->getCombineThreadStaff() && $this->getObject()->isMaster()){
+            foreach($this->getObject()->getChildren() as $temp){
+                foreach ($temp->getThread()->getEntries() as $i=>$E) {
+                    // First item _always_ shows up
+                    if ($i != 0)
+                        // Set relative time resolution to 12 hours
+                        $rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
+                    $buckets[$rel][] = $E;
+                }
+            }
+        }
+        
+        usort($buckets[$rel], "cmpCreateDate");
 
         // Go back through the entries and render them on the page
         foreach ($buckets as $rel=>$entries) {

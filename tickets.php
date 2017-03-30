@@ -30,9 +30,9 @@ if($_REQUEST['id']) {
     } elseif(!$ticket->checkUserAccess($thisclient)) {
         $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
         $ticket=null;
-    } elseif($ticket->isChild() && $cfg->getRedirectChild()){
-		Http::redirect('tickets.php?id=' . $ticket->getMaster()->getId());
-	}
+    } elseif($ticket->isChild() && $cfg->getRedirectChildTicket()){
+        Http::redirect('tickets.php?id=' . $ticket->getMaster()->getId());
+    }
 }
 
 if (!$ticket && $thisclient->isGuest())

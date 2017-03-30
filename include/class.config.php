@@ -214,13 +214,13 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
-	'merging_bring_owners' => 1,
-	'merging_combine_thread_staff' => 1,
-	'merging_combine_thread_client' => 0,
-	'merging_redirect' => 1,
-	'merging_child_status' => 3,
-	'merging_permalock' => 0,
-	'merging_duplicate_button' => 0,
+        'copy_recipients' => 1,
+        'combine_thread_staff' => 1,
+        'combine_thread_client' => 0,
+        'redirect_child_ticket' => 1,
+        'default_status_child' => 3,
+        'permalock_child_ticket' => 0,
+        'duplicate_button' => 0,
     );
 
     function __construct($section=null) {
@@ -773,32 +773,35 @@ class OsticketConfig extends Config {
         return $s->next($this->getDefaultTicketNumberFormat(),
             array('Ticket', 'isTicketNumberUnique'));
     }
-	function getBringOwners() {
-        return ($this->get('merging_bring_owners'));
+
+    function getCopyRecipients() {
+        return ($this->get('copy_recipients'));
     }
-	
-	function getCombineStaffThread() {
-        return ($this->get('merging_combine_thread_staff'));
+
+    function getCombineThreadStaff() {
+        return ($this->get('combine_thread_staff'));
     }
-	
-	function getCombineClientThread() {
-        return ($this->get('merging_combine_thread_client'));
+
+    function getCombineThreadClient() {
+        return ($this->get('combine_thread_client'));
     }
-	
-	function getRedirectChild() {
-        return ($this->get('merging_redirect'));
+
+    function getRedirectChildTicket() {
+        return ($this->get('redirect_child_ticket'));
     }
-	
-	function getDefaultChildStatus() {
-        return $this->get('merging_child_status');
+
+    function getDefaultStatusChild() {
+        return $this->get('default_status_child');
     }
-	
-	function getMergePermalock() {
-        return ($this->get('merging_permalock'));
+
+    function getPermalockChildTicket() {
+        return ($this->get('permalock_child_ticket'));
     }
-	function getMergeDuplicateButton() {
-        return ($this->get('merging_duplicate_button'));
+
+    function getDuplicateButton() {
+        return ($this->get('duplicate_button'));
     }
+
     // Task sequence
     function getDefaultTaskSequence() {
         if ($this->get('task_sequence_id'))
@@ -1272,7 +1275,7 @@ class OsticketConfig extends Config {
 
         $this->updateAutoresponderSettings($vars, $errors);
         $this->updateAlertsSettings($vars, $errors);
-		$this->updateMergingSettings($vars, $errors);
+        $this->updateMergeSettings($vars, $errors);
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1520,21 +1523,21 @@ class OsticketConfig extends Config {
         ));
     }
 	
-	function updateMergingSettings($vars, &$errors) {
-		$f=array();
+    function updateMergeSettings($vars, &$errors) {
+        $f=array();
         $f['merging_child_status'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
 
 
         if($errors) return false;
 
         return $this->updateAll(array(
-			'merging_bring_owners'=>isset($vars['merging_bring_owners']) ? 1 : 0,
-			'merging_combine_thread_staff'=>isset($vars['merging_combine_thread_staff']) ? 1 : 0,
-			'merging_combine_thread_client'=>isset($vars['merging_combine_thread_client']) ? 1 : 0,
-			'merging_redirect'=>isset($vars['merging_redirect']) ? 1 : 0,
-			'merging_child_status'=>$vars['merging_child_status'],
-			'merging_permalock'=>isset($vars['merging_permalock']) ? 1 : 0,
-			'merging_duplicate_button'=>isset($vars['merging_duplicate_button']) ? 1 : 0,
+            'copy_recipients'=>isset($vars['copy_recipients']) ? 1 : 0,
+            'combine_thread_staff'=>isset($vars['combine_thread_staff']) ? 1 : 0,
+            'combine_thread_client'=>isset($vars['combine_thread_client']) ? 1 : 0,
+            'redirect_child_ticket'=>isset($vars['redirect_child_ticket']) ? 1 : 0,
+            'default_status_child'=>$vars['default_status_child'],
+            'permalock_child_ticket'=>isset($vars['permalock_child_ticket']) ? 1 : 0,
+            'duplicate_button'=>isset($vars['duplicate_button']) ? 1 : 0,
         ));
     }
 
