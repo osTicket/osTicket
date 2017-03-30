@@ -207,9 +207,9 @@ if($ticket->isOverdue())
 			<?php
 			// Merge input
 			if ( $ticket->isMaster() ) {
-				echo '<span style="font-weight: 700; line-height: 26px;">MASTER</span>';
+				echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('MASTER'));
 			} else if ( $ticket->isChild() ) {
-				echo '<span style="font-weight: 700; line-height: 26px;">CHILD</span>';
+				echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('CHILD'));
 			} else if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)) :?>
 			<form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;" id="merge-form">
 				<?php csrf_token(); ?>
