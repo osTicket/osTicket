@@ -13,7 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require('staff.inc.php');
+require_once 'staff.inc.php';
 //Make sure config is loaded and the staff is set and of admin type
 if(!$ost or !$thisstaff or !$thisstaff->isAdmin()){
     header('Location: index.php');

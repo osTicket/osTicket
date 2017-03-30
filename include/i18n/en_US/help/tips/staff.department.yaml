@@ -47,7 +47,7 @@ sla:
         Service Level Agreement for tickets routed to this Department.
     links:
       - title: Manage SLA Plans
-        href: /scp/slaplans.php
+        href: /scp/slas.php
 
 manager:
     title: Department Manager
@@ -72,10 +72,18 @@ group_membership:
 sandboxing:
     title: Ticket Assignment Restrictions
     content: >
-        Enable this to restrict ticket assignement to only include members
-        of this Department. Department access can be extended to
-        Groups, if <span class="doc-desc-title">Group Membership</span> is
-        also enabled.
+        Enable this to restrict ticket assignment to include only members
+        of this Department. Department membership can be extended to Groups,
+        if <span class="doc-desc-title">Alerts &amp; Notices
+        Recipients</span> includes groups members.
+
+disable_auto_claim:
+    title: Disable Auto Claim
+    content: >
+        Check this to <strong>disable</strong> auto-claim on response/reply for
+        this department.
+        <br><br>
+        Agents can still manually claim unassigned tickets
 
 auto_response_settings:
     title: Autoresponder Settings

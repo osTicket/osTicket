@@ -20,24 +20,30 @@ require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 $msg='';
 $staff=Staff::lookup($thisstaff->getId());
 if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the form.
- $errors['err']=__('Internal Error. Action Denied');
+ $errors['err']=__('Action Denied.')
+        .' '.__('Internal error occurred');
 } elseif(!$errors && $_POST) { //Handle post
 
     if(!$staff)
         $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
     elseif($staff->updateProfile($_POST,$errors)){
         $msg=__('Profile updated successfully');
-        $thisstaff->reload();
-        $staff->reload();
-        $_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
-        $_SESSION['TZ_DST']=$thisstaff->observeDaylight();
     }elseif(!$errors['err'])
-        $errors['err']=__('Profile update error. Try correcting the errors below and try again!');
+        $errors['err'] = sprintf('%s %s',
+            __('Profile update error.'),
+            __('Correct any errors below and try again.'));
 }
 
 //Forced password Change.
 if($thisstaff->forcePasswdChange() && !$errors['err'])
-    $errors['err']=sprintf(__('<b>Hi %s</b> - You must change your password to continue!'),$thisstaff->getFirstName());
+    $errors['err'] = str_replace(
+        '<a>',
+        sprintf('<a data-dialog="ajax.php/staff/%d/change-password" href="#">', $thisstaff->getId()),
+        sprintf(
+            __('<b>Hi %s</b> - You must <a>change your password to continue</a>!'),
+            $thisstaff->getFirstName()
+        )
+    );
 elseif($thisstaff->onVacation() && !$warn)
     $warn=sprintf(__("<b>Welcome back %s</b>! You are listed as 'on vacation' Please let your manager know that you are back."),$thisstaff->getFirstName());
 

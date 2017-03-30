@@ -36,6 +36,7 @@ request content.
                      following fields (_please refer to the format-specific examples below_):
     *   __name__:     *required* name of the file to be attached. Multiple files
                       with the same name are allowable
+    *   __data__:     *required* contents of the file to be attached. 
     *   __type__:     Mime type of the file. Default is `text/plain`
     *   __encoding__: Set to `base64` if content is base64 encoded
 

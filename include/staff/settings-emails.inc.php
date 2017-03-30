@@ -2,15 +2,14 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 ?>
 <h2><?php echo __('Email Settings and Options');?></h2>
-<form action="settings.php?t=emails" method="post" id="save">
+<form action="emailsettings.php" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="emails" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo __('Email Settings');?></h4>
-                <em><?php echo __('Note that some of the global settings can be overwridden at department/email level.');?></em>
+                <em><?php echo __('Note that some of the global settings can be overridden at department/email level.');?></em>
             </th>
         </tr>
     </thead>
@@ -82,6 +81,15 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#admins_email_address"></i>
             </td>
         </tr>
+        <tr>
+            <td width="180" class="required"><?php echo __("Verify Email Addresses");?>:</td>
+            <td>
+                <input type="checkbox" name="verify_email_addrs" <?php
+                    if ($config['verify_email_addrs']) echo 'checked="checked"'; ?>>
+                <?php echo __('Verify email address domain'); ?>
+                <i class="help-tip icon-question-sign" href="#verify_email_addrs"></i>
+            </td>
+        </tr>
         <tr><th colspan=2><em><strong><?php echo __('Incoming Emails'); ?>:</strong>&nbsp;
             </em></th>
         <tr>
@@ -133,7 +141,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <?php echo __('Automatically add collaborators from email fields'); ?>&nbsp;
             <i class="help-tip icon-question-sign" href="#accept_email_collaborators"></i>
         </tr>
-        <tr><th colspan=2><em><strong><?php echo __('Outgoing Emails');?></strong>: <?php echo __('Default email only applies to outgoing emails without SMTP setting.');?></em></th></tr>
+        <tr><th colspan=2><em><strong><?php echo __('Outgoing Email');?></strong>: <?php echo __('Default email only applies to outgoing emails without SMTP setting.');?></em></th></tr>
         <tr><td width="180"><?php echo __('Default MTA'); ?>:</td>
             <td>
                 <select name="default_smtp_id">
@@ -163,7 +171,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
+<p style="text-align:center;">
     <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>

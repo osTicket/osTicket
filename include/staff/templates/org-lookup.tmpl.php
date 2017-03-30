@@ -9,7 +9,7 @@ if ($info['search'] === false)
 
 ?>
 <div id="the-lookup-form">
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo $msg_info; ?></p></div>
@@ -17,7 +17,8 @@ if ($info['search'] === false)
 if ($info['search'] !== false) { ?>
 <div style="margin-bottom:10px;">
     <input type="text" class="search-input" style="width:100%;"
-    placeholder="Search by name" id="org-search" autocorrect="off" autocomplete="off"/>
+    placeholder="Search by name" id="org-search"
+    autofocus autocorrect="off" autocomplete="off"/>
 </div>
 <?php
 }
@@ -41,7 +42,7 @@ if ($info['error']) {
     <table style="margin-top: 1em;">
 <?php foreach ($org->getDynamicData() as $entry) { ?>
     <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getForm()->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>

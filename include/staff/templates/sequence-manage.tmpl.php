@@ -1,4 +1,4 @@
-<h3><i class="icon-wrench"></i> <?php echo __('Manage Sequences'); ?></i></h3>
+<h3 class="drag-handle"><i class="icon-wrench"></i> <?php echo __('Manage Sequences'); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo __(
 'Sequences are used to generate sequential numbers. Various sequences can be
@@ -20,7 +20,7 @@ foreach ($sequences as $e) {
         <i class="icon-sort-by-order"></i>
         <div style="display:inline-block" class="name"> <?php echo $e->getName(); ?> </div>
         <div class="manage-buttons pull-right">
-            <span class="faded">next</span>
+            <span class="faded"><?php echo __('next'); ?></span>
             <span class="current"><?php echo $e->current(); ?></span>
         </div>
         <div class="button-group">
@@ -136,7 +136,7 @@ $(function() {
   $(document).on('click.seq', '#sequences .save a', save);
   $(document).on('click.seq', '#sequences .delete a', remove);
   $('.close, input:submit').click(function() {
-      $(document).die('click.seq');
+      $(document).off('click.seq');
   });
 });
 </script>

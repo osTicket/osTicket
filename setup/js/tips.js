@@ -18,7 +18,7 @@ jQuery(function($) {
     .each(function(i, e) {
         e.rel = 'tip-' + i;
     })
-    .live('mouseover click', function(e) {
+    .on('mouseover click', function(e) {
         e.preventDefault();
 
         var elem = $(this),
@@ -51,7 +51,7 @@ jQuery(function($) {
                 }
             }, 500);
 
-        elem.live('mouseout', function() {
+        elem.on('mouseout', function() {
             clearTimeout(tip_timer);
         });
 

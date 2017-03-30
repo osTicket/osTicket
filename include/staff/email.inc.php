@@ -2,7 +2,7 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = array();
 if($email && $_REQUEST['a']!='add'){
-    $title=__('Update Email');
+    $title=__('Update Email Address');
     $action='update';
     $submit_text=__('Save Changes');
     $info=$email->getInfo();
@@ -18,7 +18,7 @@ if($email && $_REQUEST['a']!='add'){
 
     $qs += array('id' => $email->getId());
 }else {
-    $title=__('Add New Email');
+    $title=__('Add New Email Address');
     $action='create';
     $submit_text=__('Submit');
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
@@ -34,8 +34,12 @@ if($email && $_REQUEST['a']!='add'){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<h2><?php echo __('Email Address');?></h2>
-<form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<h2><?php echo $title; ?>
+    <?php if (isset($info['email'])) { ?><small>
+    — <?php echo $info['email']; ?></small>
+    <?php } ?>
+</h2>
+<form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -44,7 +48,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><strong><?php echo __('Email Information and Settings');?></strong></em>
             </th>
         </tr>
@@ -55,7 +58,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Email Address');?>
             </td>
             <td>
-                <input type="text" size="35" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="35" name="email" value="<?php echo $info['email']; ?>"
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>
@@ -83,12 +87,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			    <option value="0" selected="selected">&mdash; <?php
                 echo __('System Default'); ?> &mdash;</option>
 			    <?php
-			    $sql='SELECT dept_id, dept_name FROM '.DEPT_TABLE.' dept ORDER by dept_name';
-			    if(($res=db_query($sql)) && db_num_rows($res)){
-				while(list($id,$name)=db_fetch_row($res)){
-				    $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
-				    echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-				}
+                if (($depts=Dept::getDepartments())) {
+                    foreach ($depts as $id => $name) {
+				        $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
+				        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+				    }
 			    }
 			    ?>
 			</select>
@@ -149,7 +152,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <label><input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                <?php echo __('<strong>Disable</strong> for this Email Address'); ?>
+                <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this email')); ?>
                 </label>
                 <i class="help-tip icon-question-sign" href="#auto_response"></i>
             </td>
@@ -218,7 +221,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td>
 		<span>
 			<select name="mail_proto">
-                <option value=''>&mdash; <?php __('Select protocol'); ?> &mdash;</option>
+                <option value=''>&mdash; <?php echo __('Select protocol'); ?> &mdash;</option>
 <?php
     foreach (MailFetcher::getSupportedProtos() as $proto=>$desc) { ?>
                 <option value="<?php echo $proto; ?>" <?php
@@ -246,7 +249,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 		<span>
 			<input type="text" name="mail_fetchmax" size=4 value="<?php echo
             $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>">
-            <?php echo __('emails'); ?>
 			<i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
 			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
 		</span>
@@ -311,14 +313,14 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><?php echo __('Header Spoofing'); ?></td>
             <td>
                 <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                <?php echo __('Allow for this Email Address'); ?></label>
+                <?php echo sprintf(__('Allow for %s'), __('this email')); ?></label>
                 <i class="help-tip icon-question-sign" href="#header_spoofing"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Internal Notes');?></strong>: <?php
-                echo __("be liberal, they're internal.");?> &nbsp;<span class="error">&nbsp;<?php echo $errors['notes']; ?></span></em>
+                echo __("Be liberal, they're internal");?> &nbsp;<span class="error">&nbsp;<?php echo $errors['notes']; ?></span></em>
             </th>
         </tr>
         <tr>

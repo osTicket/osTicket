@@ -31,6 +31,20 @@ else
     $inc = 'login.inc.php';
 
 $suggest_pwreset = false;
+
+// Check the CSRF token, and ensure that future requests will have to use a
+// different CSRF token. This will help ward off both parallel and serial
+// brute force attacks, because new tokens will have to be requested for
+// each attempt.
+if ($_POST) {
+    // Check CSRF token
+    if (!$ost->checkCSRFToken())
+        Http::response(400, __('Valid CSRF Token Required'));
+
+    // Rotate the CSRF token (original cannot be reused)
+    $ost->getCSRF()->rotate();
+}
+
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
         $errors['err'] = __('Valid username or email address is required');
@@ -56,7 +70,7 @@ if ($_POST && isset($_POST['luser'])) {
                 ?: 'tickets.php');
         }
     } elseif(!$errors['err']) {
-        $errors['err'] = __('Invalid username or password - try again!');
+        $errors['err'] = sprintf('%s - %s', __('Invalid username or password'), __('Please try again!'));
     }
     $suggest_pwreset = true;
 }
@@ -71,14 +85,17 @@ elseif ($_POST && isset($_POST['lticket'])) {
         if (!$cfg->isClientEmailVerificationRequired())
             Http::redirect('tickets.php');
 
+        // This will succeed as it is checked in the authentication backend
+        $ticket = Ticket::lookupByNumber($_POST['lticket'], $_POST['lemail']);
+
         // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)
-        $user->sendAccessLink();
+        $ticket->sendAccessLink($user);
         $msg = sprintf(__("%s - access link sent to your email!"),
             Format::htmlchars($user->getName()->getFirst()));
         $_POST = null;
     } elseif(!$errors['err']) {
-        $errors['err'] = __('Invalid email or ticket number - try again!');
+        $errors['err'] = sprintf('%s - %s', __('Invalid email or ticket number'), __('Please try again!'));
     }
 }
 elseif (isset($_GET['do'])) {
@@ -110,7 +127,8 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
         }
     }
     elseif ($user instanceof AuthenticatedUser) {
-        Http::redirect('tickets.php');
+        Http::redirect($_SESSION['_client']['auth']['dest']
+                ?: 'tickets.php');
     }
 }
 
@@ -118,6 +136,10 @@ if (!$nav) {
     $nav = new UserNav();
     $nav->setActiveNav('status');
 }
+
+// Browsers shouldn't suggest saving that username/password
+Http::response(422);
+
 require CLIENTINC_DIR.'header.inc.php';
 require CLIENTINC_DIR.$inc;
 require CLIENTINC_DIR.'footer.inc.php';

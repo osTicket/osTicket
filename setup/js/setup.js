@@ -1,5 +1,5 @@
 jQuery(function($) {
-            
+
     $("#overlay").css({
         opacity : 0.3,
         top     : 0,
@@ -12,10 +12,18 @@ jQuery(function($) {
         top  : ($(window).height() / 3),
         left : ($(window).width() / 2 - 160)
         });
-        
+
     $('form#install').submit(function(e) {
         $('input[type=submit]', this).attr('disabled', 'disabled');
         $('#overlay, #loading').show();
         return true;
         });
+
+    var recheck = setInterval(function() {
+        if (window.jstz !== undefined) {
+            clearInterval(recheck);
+            var zone = jstz.determine();
+            $('#timezone').val(zone.name());
+        }
+    }, 200);
 });
