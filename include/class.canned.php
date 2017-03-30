@@ -21,6 +21,10 @@ extends VerySimpleModel {
         'table' => CANNED_TABLE,
         'pk' => array('canned_id'),
         'joins' => array(
+            'dept' => array(
+                'constraint' => array('dept_id' => 'Dept.id'),
+                'null' => true,
+            ),
             'attachments' => array(
                 'constraint' => array(
                     "'C'" => 'Attachment.type',
@@ -260,7 +264,7 @@ extends VerySimpleModel {
 
         $id = isset($this->canned_id) ? $this->canned_id : null;
         if ($id && $id != $vars['id'])
-            $errors['err']=__('Internal error. Try again');
+            $errors['err']=sprintf('%s - %s', __('Internal error occurred'), __('Please try again!'));
 
         if (!$vars['title'])
             $errors['title'] = __('Title required');

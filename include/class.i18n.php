@@ -140,6 +140,7 @@ class Internationalization {
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
                 && ($canned = $tpl->getData())) {
             foreach ($canned as $c) {
+                $c['isenabled'] = 1;
                 if (!($premade = Canned::create($c)) || !$premade->save())
                     continue;
                 if (isset($c['attachments'])) {

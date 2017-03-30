@@ -123,7 +123,7 @@ class OrgsAjaxAPI extends AjaxController {
             if ($org->delete())
                  Http::response(204, 'Organization deleted successfully');
             else
-                $info['error'] = 'Unable to delete organization - try again!';
+                $info['error'] = sprintf('%s - %s', __('Unable to delete organization'), __('Please try again!'));
         }
 
         include(STAFFINC_DIR . 'templates/org-delete.tmpl.php');
@@ -158,13 +158,13 @@ class OrgsAjaxAPI extends AjaxController {
                 $form = UserForm::getUserForm()->getForm($_POST);
                 $can_create = $thisstaff->hasPerm(User::PERM_CREATE);
                 if (!($user = User::fromForm($form, $can_create)))
-                    $info['error'] = __('Error adding user - try again!');
+                    $info['error'] = sprintf('%s - %s', __('Error adding user'), __('Please try again!'));
             }
 
             if (!$info['error'] && $user && $user->setOrganization($org))
                 Http::response(201, $user->to_json());
             elseif (!$info['error'])
-                $info['error'] = __('Unable to add user to the organization - try again');
+                $info['error'] = sprintf('%s - %s', __('Unable to add user to the organization'), __('Please try again!'));
 
         } elseif ($remote && $userId) {
             list($bk, $userId) = explode(':', $userId, 2);
@@ -232,7 +232,7 @@ class OrgsAjaxAPI extends AjaxController {
             if (($org = Organization::fromForm($form)))
                 Http::response(201, $org->to_json());
 
-            $info = array('error' =>__('Error adding organization - try again!'));
+            $info = array('error' =>sprintf('%s - %s', __('Error adding organization'), __('Please try again!')));
         }
 
         $info['title'] = __('Add New Organization');

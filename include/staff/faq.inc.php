@@ -41,7 +41,7 @@ if($faq){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $qstr = Http::build_query($qs);
 ?>
-<form action="faq.php?<?php echo $qstr; ?>" method="post" id="save" enctype="multipart/form-data">
+<form action="faq.php?<?php echo $qstr; ?>" method="post" class="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -77,7 +77,7 @@ if ($topics = Topic::getAllHelpTopics()) {
 ?>
     <div style="padding-top:9px">
         <strong><?php echo __('Help Topics');?></strong>:
-        <div class="faded"><?php echo __('Check all help topics related to this FAQ.');?></div>
+        <div class="faded"><?php echo sprintf(__('Check all help topics related to %s.'), __('this FAQ article'));?></div>
     </div>
     <select multiple="multiple" name="topics[]" class="multiselect"
         data-placeholder="<?php echo __('Help Topics'); ?>"

@@ -254,7 +254,7 @@ class Page extends VerySimpleModel {
         }
 
         if (isset($this->id) && $this->getId() != $vars['id'])
-            $errors['err'] = __('Internal error. Try again');
+            $errors['err'] = sprintf('%s - %s', __('Internal error occurred'), __('Please try again!'));
 
         if(!$vars['type'])
             $errors['type'] = __('Type is required');
@@ -319,7 +319,7 @@ class Page extends VerySimpleModel {
                 return false;
         }
         // New translations (?)
-        foreach ($vars['trans'] as $lang=>$parts) {
+        foreach ($vars['trans'] ?: array() as $lang=>$parts) {
             $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
             if (!array_filter($content))
                 continue;

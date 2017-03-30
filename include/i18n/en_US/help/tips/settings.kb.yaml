@@ -29,7 +29,7 @@ knowledge_base_status:
         href: /scp/kb.php
 
 restrict_kb:
-    title: Resctrict Access to the Knowledge Base
+    title: Restrict Access to the Knowledge Base
     content: >
         Enable this setting to prevent unregistered users from accessing
         your knowledge base articles on the client interface.

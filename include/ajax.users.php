@@ -193,7 +193,7 @@ class UsersAjaxAPI extends AjaxController {
             if ($errors['err'])
                 $info['error'] = $errors['err'];
             else
-                $info['error'] = __('Unable to register user - try again!');
+                $info['error'] = sprintf('%s - %s', __('Unable to register user'), __('Please try again!'));
         }
 
         include(STAFFINC_DIR . 'templates/user-register.tmpl.php');
@@ -258,7 +258,7 @@ class UsersAjaxAPI extends AjaxController {
             if (!$info['error'] && $user->delete())
                  Http::response(204, 'User deleted successfully');
             elseif (!$info['error'])
-                $info['error'] = __('Unable to delete user - try again!');
+                $info['error'] = sprintf('%s - %s', __('Unable to delete user'), __('Please try again!'));
         }
 
         include(STAFFINC_DIR . 'templates/user-delete.tmpl.php');
@@ -295,7 +295,7 @@ class UsersAjaxAPI extends AjaxController {
             if (($user = User::fromForm($form)))
                 Http::response(201, $user->to_json());
 
-            $info['error'] = __('Error adding user - try again!');
+            $info['error'] = sprintf('%s - %s', __('Error adding user'), __('Please try again!'));
         }
 
         return self::_lookupform($form, $info);

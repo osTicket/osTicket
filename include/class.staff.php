@@ -969,7 +969,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $vars['lastname']=Format::striptags($vars['lastname']);
 
         if (isset($this->staff_id) && $this->getId() != $vars['id'])
-            $errors['err']=__('Internal Error');
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['firstname'])
             $errors['firstname']=__('First name required');
@@ -1096,9 +1096,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             if (!$role_id || !Role::lookup($role_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid role');
             if (!$dept_id || !Dept::lookup($dept_id))
-                $errors['dept_access'][$dept_id] = __('Select a valid departent');
+                $errors['dept_access'][$dept_id] = __('Select a valid department');
             if ($dept_id == $this->getDeptId())
-                $errors['dept_access'][$dept_id] = __('Agent already has access to this department');
+                $errors['dept_access'][$dept_id] = sprintf(__('Agent already has access to %s'), __('this department'));
             $da = $this->dept_access->findFirst(array('dept_id' => $dept_id));
             if (!isset($da)) {
                 $da = new StaffDeptAccess(array(

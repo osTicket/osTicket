@@ -764,7 +764,7 @@ class TicketsAjaxAPI extends AjaxController {
 
             // Assume success
             if ($i==$count) {
-                $msg = sprintf(__('Successfully %s %s.'),
+                $msg = sprintf(__('Successfully %1$s %2$s.' /* Tokens are <actioned> <x selected ticket(s)> */ ),
                         $actions[$action]['verbed'],
                         sprintf('%1$d %2$s',
                             $count,
@@ -1024,7 +1024,7 @@ class TicketsAjaxAPI extends AjaxController {
             if (!$i) {
                 $errors['err'] = $errors['err']
                     ?: sprintf(__('Unable to change status for %s'),
-                        _N('the selected ticket', 'any of the selected tickets', $count));
+                        _N('selected ticket', 'selected tickets', $count));
             }
             else {
                 // Assume success
@@ -1222,7 +1222,7 @@ class TicketsAjaxAPI extends AjaxController {
                     Http::response(201, $task->getId());
             }
 
-            $info['error'] = __('Error adding task - try again!');
+            $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
         }
 
         $info['action'] = sprintf('#tickets/%d/add-task', $ticket->getId());

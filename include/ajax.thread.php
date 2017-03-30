@@ -123,7 +123,7 @@ class ThreadAjaxAPI extends AjaxController {
         if($errors && $errors['err']) {
             $info +=array('error' => $errors['err']);
         } else {
-            $info +=array('error' =>__('Unable to add collaborator. Internal error'));
+            $info +=array('error' =>__('Unable to add collaborator.').' '.__('Internal error occurred'));
         }
 
         return self::_addcollaborator($thread, $user, $form, $info);

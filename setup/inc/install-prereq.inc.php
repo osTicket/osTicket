@@ -9,7 +9,7 @@ if(!defined('SETUPINC')) die('Kwaheri!');
              <p><?php echo __('We are delighted you have chosen osTicket for your customer support ticketing system!');?></p>
             <p><?php echo __("The installer will guide you every step of the way in the installation process. You're minutes away from your awesome customer support system!");?></p>
             </div>
-            <h2><?php echo __('Prerequisites');?></h3>
+            <h3><?php echo __('Prerequisites');?>:</h3>
             <p><?php echo __("Before we begin, we'll check your server configuration to make sure you meet the minimum requirements to run the latest version of osTicket.");?></p>
             <h3><?php echo __('Required');?>: <font color="red"><?php echo $errors['prereq']; ?></font></h3>
             <?php echo __('These items are necessary in order to install and use osTicket.');?>

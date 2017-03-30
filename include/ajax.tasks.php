@@ -90,7 +90,7 @@ class TasksAjaxAPI extends AjaxController {
                     Http::response(201, $task->getId());
             }
 
-            $info['error'] = __('Error adding task - try again!');
+            $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
         }
 
         include STAFFINC_DIR . 'templates/task.tmpl.php';
@@ -336,20 +336,18 @@ class TasksAjaxAPI extends AjaxController {
                 $info[':title'] = sprintf('Reopen %s',
                          _N('selected task', 'selected tasks', $count));
 
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('REOPEN %s'),
+                $info['warn'] = sprintf(__('Are you sure you want to REOPEN %s?'),
                              _N('selected task', 'selected tasks', $count)
-                             ));
+                             );
                 break;
             case 'closed':
                 $perm = Task::PERM_CLOSE;
                 $info[':title'] = sprintf('Close %s',
                          _N('selected task', 'selected tasks', $count));
 
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('CLOSE %s'),
+                $info['warn'] = sprintf(__('Are you sure you want to CLOSE %s?'),
                              _N('selected task', 'selected tasks', $count)
-                             ));
+                             );
                 break;
             default:
                 Http::response(404, __('Unknown action'));
@@ -424,7 +422,7 @@ class TasksAjaxAPI extends AjaxController {
 
             // Assume success
             if ($i==$count) {
-                $msg = sprintf(__('Successfully %s %s.'),
+                $msg = sprintf(__('Successfully %1$s %2$s.' /* Tokens are <actioned> <x selected task(s)> */),
                         $actions[$action]['verbed'],
                         sprintf('%1$d %2$s',
                             $count,
@@ -531,7 +529,7 @@ class TasksAjaxAPI extends AjaxController {
                     $target ? "/$target" : ''),
                 );
         if ($task->isAssigned()) {
-            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
+            $info['notice'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
                     __('Task'),
                     $task->getAssigned());
         }
@@ -690,8 +688,8 @@ class TasksAjaxAPI extends AjaxController {
             if (($m=$task->isCloseable()) !== true)
                 $errors['err'] = $info['error'] = $m;
             else
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('change status of %s'), __('this task')));
+                $info['warn'] = sprintf(__('Are you sure you want to change status of %s?'),
+                        __('this task'));
             break;
         default:
             Http::response(404, __('Unknown status'));
