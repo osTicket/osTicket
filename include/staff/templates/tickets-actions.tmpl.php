@@ -10,33 +10,30 @@ if ($agent->hasPerm(Ticket::PERM_MERGE, false)) {?>
     <div class="attached input" data-toggle="tooltip" title=" <?php echo __('Merge'); ?>" style="height: 26px;text-align:left">
         <select id="masterid" name="masterid" style="width: 250px" class="js-example-basic-single">
             <?php
-                $mysqli = new MySQLi(DBHOST,DBUSER,DBPASS,DBNAME);
-                if($mysqli->connect_error) {
-                  echo 'Database connection failed...' . 'Error: ' . $mysqli->connect_errno . ' ' . $mysqli->connect_error;
-                  exit;
-                } else {
-                  $mysqli->set_charset('utf8');
-                }
-                if ($data = $mysqli->query("SELECT t2.`ticket_id`, CONCAT(t2.`number`, ' | ', t3.`subject`) AS 'row' FROM 
-                    (SELECT `ticket_id`, `number`, `status_id`, `dept_id`, `staff_id` FROM `" . TICKET_TABLE . "`) t2
-                    LEFT JOIN
-                    (SELECT `id`, `state` FROM `" . TICKET_STATUS_TABLE . "` WHERE `state` = 'open') t1
-                    ON t1.`id` = t2.`status_id`
-                    LEFT JOIN
-                    (SELECT `ticket_id`, `subject` FROM `" . TICKET_CDATA_TABLE . "`) t3
-                    ON t2.`ticket_id` = t3.`ticket_id`
-                    WHERE t1.`state` IS NOT NULL")) {
-                    while($row = mysqli_fetch_array($data)) {
-                        if(($temp = Ticket::lookup($row['ticket_id']))){
-                            if($temp->checkStaffPerm($agent)){
-                                echo "<option value='" . $row['ticket_id'] . "'>" . $row['row'] . "</option>";
-                            }
-                        }
-                    }
-                }
-                flush();
-                 
-                $mysqli->close();
+                $tickets = TicketModel::objects();
+                
+                // -- Open and assigned to me
+                $assigned = Q::any(array(
+                    'staff_id' => $agent->getId(),
+                ));
+                // -- Open and assigned to a team of mine
+                if ($teams = array_filter($agent->getTeams()))
+                    $assigned->add(array('team_id__in' => $teams));
+
+                $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
+
+                // -- Routed to a department of mine
+                if (!$agent->showAssignedOnly() && ($depts=$agent->getDepts()))
+                    $visibility->add(array('dept_id__in' => $depts));
+
+                $tickets->filter(Q::any($visibility));
+                
+                $tickets->filter(array('status__state'=>'open'));
+
+                $tickets->values('ticket_id', 'number', 'cdata__subject');
+                
+                foreach ($tickets as $T)
+                    echo "<option value='" . $T['ticket_id'] . "'>" . $T['number'] . " | " . $T['cdata__subject'] . "</option>";
             ?>
         </select>
         <button type="submit" class="attached button"><i class="icon-code-fork"></i>
