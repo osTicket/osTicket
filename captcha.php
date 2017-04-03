@@ -5,7 +5,7 @@
     Simply returns captcha image.
     
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
+    Copyright (c)  2006-2014 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
