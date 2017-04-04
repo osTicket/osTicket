@@ -3543,7 +3543,7 @@ class DatetimePickerWidget extends Widget {
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(true); ?>')
+                    dateFormat: $.translate_format(<?php echo json_encode($cfg->getDateFormat(true)); ?>)
                 });
             });
         </script>
