@@ -529,6 +529,7 @@ class FormField {
             'memo' => array(    /* @trans */ 'Long Answer', 'TextareaField'),
             'thread' => array(  /* @trans */ 'Thread Entry', 'ThreadEntryField', false),
             'datetime' => array(/* @trans */ 'Date and Time', 'DatetimeField'),
+            'timezone' => array(/* @trans */ 'Timezone', 'TimezoneField'),
             'phone' => array(   /* @trans */ 'Phone Number', 'PhoneField'),
             'bool' => array(    /* @trans */ 'Checkbox', 'BooleanField'),
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
@@ -2177,6 +2178,44 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
 });
 
 
+class TimezoneField extends ChoiceField {
+    static $widget = 'TimezoneWidget';
+
+    function hasIdValue() {
+        return false;
+    }
+
+    function getChoices($verbose=false) {
+        global $cfg;
+
+        $choices = array();
+        foreach (DateTimeZone::listIdentifiers() as $zone)
+            $choices[$zone] =  str_replace('/',' / ',$zone);
+
+        return $choices;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'autodetect' => new BooleanField(array(
+                'id'=>1, 'label'=>__('Auto Detect'), 'required'=>false, 'default'=>true,
+                'configuration'=>array(
+                    'desc'=>__('Add Auto Detect Button'))
+            )),
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+
+
 class DepartmentField extends ChoiceField {
     function getWidget($widgetClass=false) {
         $widget = parent::getWidget($widgetClass);
@@ -3460,6 +3499,47 @@ class TabbedBoxChoicesWidget extends BoxChoicesWidget {
 <?php       } ?>
             </div>
 <?php   }
+    }
+}
+
+/**
+* TimezoneWidget extends ChoicesWidget to add auto-detect and select2 search
+* options
+*
+**/
+class TimezoneWidget extends ChoicesWidget {
+
+    function render($options=array()) {
+        parent::render($options);
+        $config = $this->field->getConfiguration();
+        if (@$config['autodetect']) {
+        ?>
+        <button type="button" class="action-button" onclick="javascript:
+            $('head').append($('<script>').attr('src', '<?php
+            echo ROOT_PATH; ?>js/jstz.min.js'));
+            var recheck = setInterval(function() {
+                if (window.jstz !== undefined) {
+                    clearInterval(recheck);
+                    var zone = jstz.determine();
+                    $('#<?php echo $this->id; ?>').val(zone.name()).trigger('change');
+
+                }
+            }, 100);
+            return false;"
+            style="vertical-align:middle">
+            <i class="icon-map-marker"></i> <?php echo __('Auto Detect'); ?>
+        </button>
+        <?php
+        } ?>
+        <script type="text/javascript">
+            $(function() {
+                $('#<?php echo $this->id; ?>').select2({
+                    allowClear: true,
+                    width: '300px'
+                });
+            });
+        </script>
+      <?php
     }
 }
 
