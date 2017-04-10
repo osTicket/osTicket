@@ -165,7 +165,9 @@ JS
         }
 
         // Move the attachments to the new entry
-        $old->attachments->update(array(
+        $old->attachments->filter(array(
+            'inline' => false,
+        ))->update(array(
             'object_id' => $entry->id
         ));
 
