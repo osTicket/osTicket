@@ -6,6 +6,8 @@ $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
 if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
+if ($entry->getType()=='R' && ($cfg->hideStaffName() || !$entry->getStaffId()))
+    $name = $cfg->getTitle();
 ?>
 
 <div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
