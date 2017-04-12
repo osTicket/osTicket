@@ -512,7 +512,7 @@ if($ticket->isOverdue())
 		</td>
 	</tr>
 	</table>
-	<table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" style="border-top:1px solid #dddddd;">
+	<table id="formbuttons" class="ticket_info" cellspacing="0" cellpadding="0" width="100%" style="border-top:1px solid #dddddd;">
 	<tr>
 		<td align="center" colspan="2">
 		
@@ -1062,6 +1062,7 @@ $(function() {
                     }
                 }
              $('#cc').combotree('setText', parentStr + node.text);
+             $("#formbuttons").show();
                 
             }
         }); 
@@ -1084,6 +1085,18 @@ $(function() {
       
     });
 });
+
+// Hide form buttons By Default
+$("#formbuttons").hide();
+
+$("input, select").change(function(){
+$("#formbuttons").show();
+});
+
+$("form").keyup(function(){
+$("#formbuttons").show();
+});
+
 
 
 </script>
