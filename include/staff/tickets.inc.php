@@ -548,7 +548,7 @@ return false;">
                     data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                     ><?php echo $tid; ?></a></td>
                 <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
-                <td><div style="max-width: <?php
+                <td><a style="max-width: <?php
                     $base = 279;
                     // Make room for the paperclip and some extra
                     if ($T['attachment_count']) $base -= 18;
@@ -559,7 +559,7 @@ return false;">
                     echo $base; ?>px; max-height: 1.2em"
                     class="<?php if ($flag) { ?>Icon <?php echo $flag; ?>Ticket <?php } ?>link truncate"
                     <?php if ($flag) { ?> title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
-                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
+                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
 <?php               if ($T['attachment_count'])
                         echo '<i class="small icon-paperclip icon-flip-horizontal" data-toggle="tooltip" title="'
                             .$T['attachment_count'].'"></i>';
