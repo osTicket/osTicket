@@ -1773,6 +1773,17 @@ class DatetimeField extends FormField {
         return Format::parseDateTime($value ?: $this->value);
     }
 
+    // Get effective timezone for the field
+    function getTimeZone() {
+        global $cfg;
+
+        $config = $this->getConfiguration();
+        $timezone = new DateTimeZone($config['timezone'] ?:
+                $cfg->getTimezone());
+
+        return $timezone;
+    }
+
     function getMinDateTime() {
 
         if (!isset($this->min)) {
@@ -1817,6 +1828,12 @@ class DatetimeField extends FormField {
         $config = $this->getConfiguration();
         if ($config['gmt'])
             return $this->format((int) $datetime->format('U'));
+
+        // Force timezone if field has one.
+        if ($config['timezone']) {
+            $timezone = new DateTimezone($config['timezone']);
+            $datetime->setTimezone($timezone);
+        }
 
         $value = $this->format($datetime->format('U'),
                 $datetime->getTimezone()->getName());
@@ -1883,18 +1900,28 @@ class DatetimeField extends FormField {
                 'id'=>1, 'label'=>__('Time'), 'required'=>false, 'default'=>false,
                 'configuration'=>array(
                     'desc'=>__('Show time selection with date picker')))),
+            'timezone' => new TimezoneField(array(
+                'id'=>2, 'label'=>__('Timezone'), 'required'=>false,
+                'hint'=>__('Timezone of the date time selection'),
+                'configuration' => array('autodetect'=>false,
+                    'prompt' => __("User's timezone")),
+               'visibility' => new VisibilityConstraint(
+                    new Q(array('time__eq'=> true)),
+                    VisibilityConstraint::HIDDEN
+                ),
+                )),
             'gmt' => new BooleanField(array(
-                'id'=>2, 'label'=>__('Timezone Aware'), 'required'=>false,
+                'id'=>3, 'label'=>__('Timezone Aware'), 'required'=>false,
                 'configuration'=>array(
                     'desc'=>__("Show date/time relative to user's timezone")))),
             'min' => new DatetimeField(array(
-                'id'=>3, 'label'=>__('Earliest'), 'required'=>false,
+                'id'=>4, 'label'=>__('Earliest'), 'required'=>false,
                 'hint'=>__('Earliest date selectable'))),
             'max' => new DatetimeField(array(
-                'id'=>4, 'label'=>__('Latest'), 'required'=>false,
+                'id'=>5, 'label'=>__('Latest'), 'required'=>false,
                 'default'=>null, 'hint'=>__('Latest date selectable'))),
             'future' => new BooleanField(array(
-                'id'=>5, 'label'=>__('Allow Future Dates'), 'required'=>false,
+                'id'=>6, 'label'=>__('Allow Future Dates'), 'required'=>false,
                 'default'=>true, 'configuration'=>array(
                     'desc'=>__('Allow entries into the future' /* Used in the date field */)),
             )),
@@ -3683,13 +3710,14 @@ class CheckboxWidget extends Widget {
 }
 
 class DatetimePickerWidget extends Widget {
+
     function render($options=array()) {
         global $cfg;
 
         $config = $this->field->getConfiguration();
+        $timezone = $this->field->getTimezone();
         if ($this->value) {
 
-            $timezone = null;
             if (is_int($this->value))
                 // Assuming UTC timezone.
                 $datetime = DateTime::createFromFormat('U', $this->value);
@@ -3699,14 +3727,12 @@ class DatetimePickerWidget extends Widget {
 
             if ($config['time']) {
                 // Convert to user's timezone for update.
-                $timezone = new DateTimeZone($cfg->getTimezone());
                 $datetime->setTimezone($timezone);
             }
 
             $this->value = Format::date($datetime->getTimestamp(), false,
                     false, $timezone ? $timezone->getName() : 'UTC');
         } else {
-            $timezone = new DateTimeZone($cfg->getTimezone());
             $datetime = new DateTime('now');
             $datetime->setTimezone($timezone);
         }
@@ -3741,7 +3767,10 @@ class DatetimePickerWidget extends Widget {
             // TODO: Add time picker -- requires time picker or selection with
             //       Misc::timeDropdown
             echo '&nbsp;' . Misc::timeDropdown($hr, $min, $this->name . ':time');
-            echo sprintf('&nbsp;<span class="faded">(%s)</span>',
+            echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                        data-placement="top" data-toggle="tooltip"
+                        title="%s">%s</a>)</span>',
+                    $datetime->getTimezone()->getName(),
                     $datetime->format('T'));
         }
     }
@@ -3756,13 +3785,13 @@ class DatetimePickerWidget extends Widget {
 
         if ($value = parent::getValue()) {
             // Effective timezone for the selection
-            $tz = new DateTimeZone($cfg->getTimezone());
+            $timezone = $this->field->getTimezone();
             // See if we have time
             $data = $this->field->getSource();
             if ($value && isset($data[$this->name . ':time']))
                 $value .=' '.$data[$this->name . ':time'];
 
-            $dt = new DateTime($value, $tz);
+            $dt = new DateTime($value, $timezone);
             $value = $dt->format('Y-m-d H:i:s T');
         }
 
