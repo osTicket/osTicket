@@ -41,10 +41,13 @@ $ost->setPageTitle(sprintf(__('%s - Bill / Invoice'),$org->getName()));
 //Ticket information
 // --Generate SQL
 $tickets = Ticket::objects()
+// previous code
+//'created__range' => array($_REQUEST['startdate'], $_REQUEST['enddate']),
+//New code contributed by @damiangraber
     ->filter([
         'user__org_id' => $org->getId(),
         'status__state' => 'closed',
-        'created__range' => array($_REQUEST['startdate'], $_REQUEST['enddate']),
+        'created__range' => array( "'" . $_REQUEST['startdate'] ."'" , "'" . $_REQUEST['enddate'] . "'" ),
     ])
     ->values('staff_id', 'isoverdue', 'ticket_id', 'number',
         'cdata__subject', 'user__default_email__address', 'source',
