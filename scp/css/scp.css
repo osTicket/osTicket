@@ -149,6 +149,14 @@ html > body > div#popup.dialog.draggable.ui-draggable.size-normal > div.body > p
     background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;  
 }
 
+html > body > div#container > div#pjax-container > div#content > div.success-banner{
+    margin-left: -10px;
+    margin-right: -10px;
+    margin-bottom: 15px; 
+}
+div.body > div#the-lookup-form > div#the-lookup-form > p#msg_warning {
+    border-top: 1px solid #f26522;
+}
 
 #msg_error,
 .error-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
