@@ -110,25 +110,45 @@ a time.relative {
 
 #msg_notice,
 .success-banner,
-.notice-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #0a0; background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
+.notice-banner {
+    margin-left: auto; 
+    margin-right: auto; 
+    padding: 5px 10px 5px 36px; 
+    margin-bottom: 10px; 
+    border-top: 1px solid #0a0;
+    border-bottom: 1px solid #0a0;
+    background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0; 
+}
 
+html > body > div#container > div#pjax-container > div#content > div#msg_notice {
+    margin-left: -11px;
+    margin-right: -11px;
+    padding: 5px 10px 5px 36px;
+    margin-bottom: 15px;
+    border: 1px solid #0a0;
+    background: url(../images/icons/ok.png) 10px 50% no-repeat #e0ffe0;
+}
 #msg_warning,
 .warning-banner { 
 margin-left: auto; 
 margin-right: auto; 
 padding: 5px 10px 5px 36px; 
 margin-bottom: 10px; 
-border: 1px solid #f26522; 
+border-top: 1px solid #f26522;
+border-bottom: 1px solid #f26522;
 background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
-border-radius: 5px;
-}
-div#msg_warning {
-    border-radius: 5px;
+
 }
 
-div#ticket_thread.tab_content div#msg_warning{
-    width: 910px; 
+html > body > div#popup.dialog.draggable.ui-draggable.size-normal > div.body > p#msg_warning {
+    margin-left: 8px;
+    margin-right: 8px;
+    padding: 5px 10px 5px 36px; 
+    margin-bottom: 10px; 
+    border: 1px solid #f26522;
+    background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;  
 }
+
 
 #msg_error,
 .error-banner { margin: 0; padding: 5px 10px 5px 36px; margin-bottom: 10px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
@@ -2297,19 +2317,46 @@ ul#thread-preview.tabs>li {
     background-repeat:no-repeat;
 }
 
-#response_options > form {
+
+div#ticket_thread.tab_content > div#updatearea > div#response_options.sticky.bar.stop.actions > form {
     padding-left:20px; 
-	padding-right: 20px;
-	padding-bottom: 5px;
-	padding-top: 20px;
+  	padding-right: 20px;
+  	padding-bottom: 5px;
+ 	padding-top: 20px;
     background:#f9f9f9;
     border:0px solid #aaa;
     border-top:none;
-	margin-left: auto;
-	margin-right: auto;
-	border-radius: 0 0 5px 5px;
+ 	margin-left: auto;
+ 	margin-right: auto;
+  	border-radius: 0 0 5px 5px;
+  }
+  
+div#ticket_tabs_container > div#ticket_thread.tab_content > div#saveneeded{
+      display: none;
+  }
+
+div#threaddata > div#detailschanged{
+   display: none;
 }
 
+div#threaddata > div#detailschanged span {
+    display: block;
+    padding: 5px 10px 5px 36px;
+    margin-top: -1px;
+    margin-bottom: -16px;
+    border-top: 1px solid #f26522;
+    border-bottom: 1px solid #f26522;
+    background: url(../images/icons/alert.png) 10px 50% no-repeat #fff0f0;
+}
+
+div#ticket_tabs_container > div#ticket_thread.tab_content > div#saveneeded span{
+    display: block;
+    padding: 5px 10px 5px 36px;
+    margin-bottom: 10px;
+    border-top: 1px solid #f26522;
+    border-bottom: 1px solid #f26522;
+    background: url(../images/icons/alert.png) 10px 50% no-repeat #fff0f0;
+}
 #response_options > form > table {
     table-layout: fixed;
 }

@@ -62,6 +62,14 @@ if($ticket->isOverdue())
 				<a href="#" data-stop="top" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Scroll Top'); ?>">
 				<i class="icon-chevron-up"></i></a>
 			</span> 
+            <span class="action-button pull-right" id="cancelbutton">
+				<a href="" onclick="window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Cancel');?>" >
+				<i class="icon-remove"></i></a>
+			</span> 
+            <span class="action-button pull-right" id="savebutton">
+				<a href="#" onclick="document.getElementById('save').submit();" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Save'); ?>">
+				<i class="icon-save"></i></a>
+			</span> 
             <?php If  ($topic) { ?>
 				<span class="action-button pull-right">
 					<a href="#post-note" id="post-note" class="post-response" data-placement="bottom" data-toggle="tooltip"title="<?php echo __('Post Internal Note'); ?>">
@@ -240,10 +248,13 @@ if($ticket->isOverdue())
         echo $subject_field->display($ticket->getSubject()); ?>
     </h3>
 </div>
-
+<div id="detailschanged">
+   <span> Changes made please click the save <i class="icon-save"></i> or cancel <i class="icon-remove"></i> button on the ribbon.</span>
+   <div>	&nbsp;</div>
+</div>
 
 <?php If  (!$topic) { ?>
-            <div class="help-topic-error"><?php echo "Please set the Help Topic."; ?></div>
+            <div id="help-topic-error" class="help-topic-error"><?php echo "Please set the Help Topic."; ?></div>
             <?php
             }?>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="100%" border="0">
@@ -512,18 +523,8 @@ if($ticket->isOverdue())
 		</td>
 	</tr>
 	</table>
-	<table id="formbuttons" class="ticket_info" cellspacing="0" cellpadding="0" width="100%" style="border-top:1px solid #dddddd;">
-	<tr>
-		<td align="center" colspan="2">
-		
-			<input type="submit" name="submit" value="<?php echo __('Save');?>">
-			<input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>"'>
-		</td>
-	</tr>
-</table>
+	
 </form>
-
 
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
@@ -566,7 +567,11 @@ if ($errors['err'] && isset($_POST['a'])) {
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php
 } ?>
-
+<div id="saveneeded">
+   <span> Changes made please click the save <i class="icon-save"></i> or cancel <i class="icon-remove"></i> button on the ribbon.</span>
+   <div>	&nbsp;</div>
+</div> 
+<div id="updatearea">
 <div class="sticky bar stop actions" id="response_options">
 
 <?php
@@ -780,7 +785,7 @@ if ($errors['err'] && isset($_POST['a'])) {
         </table>
         <p  style="text-align:center;">
             <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
-            <input class="" type="reset" value="<?php echo __('Reset');?>">
+           
         </p>
     </form><?php } ?>
     <?php
@@ -920,7 +925,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                 <input type="submit" value="<?php echo __('Print');?>">
             </span>
          </p>
-    </form>
+    </form></div>
     <div class="clear"></div>
 </div>
 <div style="display:none;" class="dialog" id="confirm-action">
@@ -1047,6 +1052,7 @@ $(function() {
          $('#cc').combotree({ 
             onChange : function(){
                 
+
                 var c = $('#cc');
                 var t = c.combotree('tree');  // get tree object
                 var node = t.tree('getSelected');
@@ -1060,9 +1066,11 @@ $(function() {
                     for(var i = 0; i < parents.length; i++){
                         parentStr += parents[i].text + " / ";
                     }
+                
+                
                 }
              $('#cc').combotree('setText', parentStr + node.text);
-             $("#formbuttons").show();
+            
                 
             }
         }); 
@@ -1084,19 +1092,63 @@ $(function() {
         }
       
     });
+     $('#cc').combotree({ 
+        onSelect: function (r) { 
+        
+            $("#savebutton").css("backgroundColor", "rgba(76, 175, 80, 0.5);");
+            $("#cancelbutton").css("backgroundColor", "rgb(246, 193, 193)");
+            $("#updatearea").css("display", "none");
+            $("#detailschanged").css("display", "inherit");
+            $("#saveneeded").css("display", "inherit"); 
+            $("#help-topic-error").css("display", "none");               
+        } 
+
+    });
 });
 
 // Hide form buttons By Default
-$("#formbuttons").hide();
-
-$("input, select").change(function(){
-$("#formbuttons").show();
+$('#save').find('input, select, text').change(function(){
+    $("#savebutton").css("backgroundColor", "rgba(76, 175, 80, 0.5);");
+    $("#cancelbutton").css("backgroundColor", "rgb(246, 193, 193)");
+    $("#updatearea").css("display", "none");
+    $("#detailschanged").css("display", "inherit");
+    $("#saveneeded").css("display", "inherit");
+    
 });
 
-$("form").keyup(function(){
-$("#formbuttons").show();
+$("#save").keyup(function(e){
+    var charCode = e.which || e.keyCode; 
+    if (!(charCode === 9)){
+        $("#savebutton").css("backgroundColor", "rgba(76, 175, 80, 0.5);");
+        $("#cancelbutton").css("backgroundColor", "rgb(246, 193, 193)");
+        $("#updatearea").css("display", "none");
+        $("#detailschanged").css("display", "inherit");
+        $("#saveneeded").css("display", "inherit");
+    }
 });
 
+$('#reply').find('input, select').change(function(){
+$("#savebutton").css("pointer-events", "none");
+});
 
+$('#reply').keyup(function(e){
+    var charCode = e.which || e.keyCode; 
+    if (!(charCode === 9)){
+     $("#savebutton").css("pointer-events", "none");
+     
+    }
+});   
+
+$('#note').find('input, select').change(function(){
+$("#savebutton").css("pointer-events", "none");
+});
+ 
+$('#note').keyup(function(e){
+    var charCode = e.which || e.keyCode; 
+    if (!(charCode === 9)){
+     $("#savebutton").css("pointer-events", "none");
+     
+    }
+});       
 
 </script>
