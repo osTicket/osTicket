@@ -43,7 +43,7 @@ foreach (Attachment::objects()->filter(array(
         }
         
         global $cfg;
-        if($cfg->getCombineThreadStaff() && $this->getObject()->isMaster()){
+        if($cfg->getCombineThreadStaff() && $this->getObjectType() == ObjectModel::OBJECT_TYPE_TICKET && $this->getObject()->isMaster()){
             foreach($this->getObject()->getChildren() as $temp){
                 foreach ($temp->getThread()->getEntries() as $i=>$E) {
                     // First item _always_ shows up
