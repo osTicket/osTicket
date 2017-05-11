@@ -1,35 +1,26 @@
 <?php
-      
-$dqueues = CustomQueue::objects()
-        ->filter(Q::any(array(
-            'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
-            'staff_id' => $thisstaff->getId(),
-        )));
-
-    if ($ids && is_array($ids))
-        $dqueues->filter(array('id__in' => $ids));
-
-    $query = Ticket::objects();
+     
+$OpenTickets = array(); 
+$orgs = Organization::objects();
    
-    foreach ($dqueues as $dqueue) {
-        $Q = $dqueue->getBasicQuery();
-        if (count($Q->extra) || $Q->isWindowed()) {
-            // XXX: This doesn't work
-            $query->annotate(array(
-                'Z'.$dqueue->title => $Q->values_flat()
-                    ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ));
-        }
-        else {
-            $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
-            $query->aggregate(array(
-                $dqueue->getDashboardName()=> SqlAggregate::COUNT($expr)
-            ));
-        }
-    }    
-    
+   $orgs->values('id','name');
+   foreach ($orgs as $org) {
+     //echo $org['id'];  
+   
 
-$Counts = $query->values()->one();
+    $OpenTicket = Ticket::objects()
+        ->filter(array('user__org_id' => $org['id']))
+        ->filter(array('status_id__ne' => '3')) //closed
+        ->filter(array('status_id__ne' => '3')) //closed
+        ->filter(array('status_id__ne' => '12')) //autoclosed
+        ->filter(array('topic_id__ne' => '12')) //open issue
+        ->filter(array('topic_id__ne' => '14')) //suggestion
+        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
+ 
+        foreach ($OpenTicket as $orgOpenTicket) { 
+            $OpenTickets[$org['name']] = $orgOpenTicket["count"];
+        }
+}        
                 
 ?>
 
@@ -63,6 +54,7 @@ $Counts = $query->values()->one();
 
 <div id="dashboard" style="display:none">
 <h3>IT Dashboard</h3>
+
         <table width="100%" style="font-size: smaller" cellpadding="1">
            
             <tr style="font-weight: bold; text-align: center;">
@@ -79,23 +71,23 @@ $Counts = $query->values()->one();
                 <td></td>
             </tr>
             <tr style="text-align: center;">
-                <td><?php echo $Counts["Tickets.Open Tickets.CAN"]-$Counts["Tickets.Open Tickets.CAN.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.IND"]-$Counts["Tickets.Open Tickets.IND.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.MEX"]-$Counts["Tickets.Open Tickets.MEX.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.OH"]-$Counts["Tickets.Open Tickets.OH.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.NTC"]-$Counts["Tickets.Open Tickets.NTC.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.TNN1"]-$Counts["Tickets.Open Tickets.TNN1.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.TNN2"]-$Counts["Tickets.Open Tickets.TNN2.Hold"]; ?></td>
-                <td><?php echo $Counts["Tickets.Open Tickets.TNS"]-$Counts["Tickets.Open Tickets.TNS.Hold"]; ?></td>
-                <td style="color: red; font-weight: bold;"><?php echo $Counts["Tickets.Open Tickets.CAN"]-$Counts["Tickets.Open Tickets.CAN.Hold"]+
-                               $Counts["Tickets.Open Tickets.IND"]-$Counts["Tickets.Open Tickets.IND.Hold"]+
-                               $Counts["Tickets.Open Tickets.MEX"]-$Counts["Tickets.Open Tickets.MEX.Hold"]+
-                               $Counts["Tickets.Open Tickets.OH"]-$Counts["Tickets.Open Tickets.OH.Hold"]+
-                               $Counts["Tickets.Open Tickets.NTC"]-$Counts["Tickets.Open Tickets.NTC.Hold"]+
-                               $Counts["Tickets.Open Tickets.TNN1"]-$Counts["Tickets.Open Tickets.TNN1.Hold"]+
-                               $Counts["Tickets.Open Tickets.TNN2"]-$Counts["Tickets.Open Tickets.TNN2.Hold"]+
-                               $Counts["Tickets.Open Tickets.TNS"]-$Counts["Tickets.Open Tickets.TNS.Hold"]?></td>
-                        <td></td>
+                <td><?php echo $OpenTickets["CAN"] ?></td>
+                <td><?php echo $OpenTickets["IND"]; ?></td>
+                <td><?php echo $OpenTickets["MEX"]; ?></td>
+                <td><?php echo $OpenTickets["OH"]; ?></td>
+                <td><?php echo $OpenTickets["NTC"]; ?></td>
+                <td><?php echo $OpenTickets["TNN1"]; ?></td>
+                <td><?php echo $OpenTickets["TNN2"]; ?></td>
+                <td><?php echo $OpenTickets["TNS"]; ?></td>
+                <td><?php echo $OpenTickets["CAN"]+
+                               $OpenTickets["IND"]+
+                               $OpenTickets["MEX"]+
+                               $OpenTickets["OH"]+
+                               $OpenTickets["NTC"]+
+                               $OpenTickets["TNN1"]+
+                               $OpenTickets["TNN2"]+
+                               $OpenTickets["TNS"];?></td>
+                 <td></td>
             </tr>
         </table>
 </div>
