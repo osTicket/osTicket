@@ -1114,6 +1114,12 @@ a.Icon:hover {
 .Icon.form-add { background:url(../images/icons/icon-form-add.png) 0 0 no-repeat; background-size: 16px 16px; }
 .Icon.list-add { background:url(../images/icons/icon-list-add.png) 0 0 no-repeat; background-size: 16px 16px; }
 
+#dashboard{
+    margin-bottom: 13px;
+    margin-top: -7px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
 
 #content {
     clear:both;
