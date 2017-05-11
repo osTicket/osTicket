@@ -556,6 +556,9 @@ class DynamicFormField extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
+            'answers' => array(
+                'reverse' => 'DynamicFormEntryAnswer.field',
+            ),
         ),
     );
 
@@ -864,6 +867,8 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function delete() {
+        $values = $this->answers->count();
+
         // Don't really delete form fields with data as that will screw up the data
         // model. Instead, just drop the association with the form which
         // will give the appearance of deletion. Not deleting means that
@@ -878,7 +883,7 @@ class DynamicFormField extends VerySimpleModel {
         $impl->db_cleanup(true);
 
         // Short-circuit deletion if the field has data.
-        if ($impl->hasData())
+        if ($impl->hasData() && $values)
             return $this->save();
 
         // Delete the field for realz
