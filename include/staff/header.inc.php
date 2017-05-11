@@ -48,6 +48,7 @@ if ($lang) {
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.easyui.min.js"></script>
     <link type="text/css" rel="stylesheet" href="./css/translatable.css"/>
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/accordian.css" media="all">
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";

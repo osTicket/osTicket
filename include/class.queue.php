@@ -790,6 +790,13 @@ class CustomQueue extends VerySimpleModel {
         return $base;
     }
 
+    function getDashboardName() {
+        $base = $this->getName();
+        if ($this->parent)
+            $base = sprintf("%s.%s", $this->parent->getDashboardName(), $base);
+        return $base;
+    }
+    
     function isAQueue() {
         return $this->hasFlag(self::FLAG_QUEUE);
     }

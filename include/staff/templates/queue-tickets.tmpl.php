@@ -98,8 +98,9 @@ $tickets = $pageNav->paginateSimple($tickets);
 $count = $tickets->total();
 $pageNav->setTotal($count);
 $pageNav->setURL('tickets.php', $args);
-?>
 
+require(STAFFINC_DIR.'dashboard.inc.php');
+?>
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
   <div class="pull-right" style="height:25px">
