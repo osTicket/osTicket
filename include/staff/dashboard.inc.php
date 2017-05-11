@@ -10,7 +10,7 @@ $orgs = Organization::objects();
 
     $OpenTicket = Ticket::objects()
         ->filter(array('user__org_id' => $org['id']))
-        ->filter(array('status_id__ne' => '3')) //closed
+        ->filter(array('status_id__ne' => '8')) //hold
         ->filter(array('status_id__ne' => '3')) //closed
         ->filter(array('status_id__ne' => '12')) //autoclosed
         ->filter(array('topic_id__ne' => '12')) //open issue
@@ -55,7 +55,7 @@ $orgs = Organization::objects();
 <div id="dashboard" style="display:none">
 <h3>IT Dashboard</h3>
 
-        <table width="100%" style="font-size: smaller" cellpadding="1">
+        <table width="100%" style="font-size: smaller" cellspacing="0">
            
             <tr style="font-weight: bold; text-align: center;">
             <td rowspan="2" width="75px"><span style="color: red; font-weight: bold;">Backlog</span></td> 
@@ -70,16 +70,16 @@ $orgs = Organization::objects();
                 <td width="30px">TOTAL</td>
                 <td></td>
             </tr>
-            <tr style="text-align: center;">
-                <td><?php echo $OpenTickets["CAN"] ?></td>
-                <td><?php echo $OpenTickets["IND"]; ?></td>
-                <td><?php echo $OpenTickets["MEX"]; ?></td>
-                <td><?php echo $OpenTickets["OH"]; ?></td>
-                <td><?php echo $OpenTickets["NTC"]; ?></td>
-                <td><?php echo $OpenTickets["TNN1"]; ?></td>
-                <td><?php echo $OpenTickets["TNN2"]; ?></td>
-                <td><?php echo $OpenTickets["TNS"]; ?></td>
-                <td><?php echo $OpenTickets["CAN"]+
+            <tr style="text-align: center;font-weight: bold;">
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["CAN"] ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["IND"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["MEX"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["OH"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["NTC"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["TNN1"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["TNN2"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse;"><?php echo $OpenTickets["TNS"]; ?></td>
+                <td style="border: 1px solid black; border-collapse:collapse; background: #8b4513; color: #fff;"><?php echo $OpenTickets["CAN"]+
                                $OpenTickets["IND"]+
                                $OpenTickets["MEX"]+
                                $OpenTickets["OH"]+
