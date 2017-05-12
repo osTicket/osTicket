@@ -373,6 +373,22 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         return $this->departments;
     }
 
+    function getDepartmentNames() {
+            // Departments the staff is "allowed" to access...
+            // based on the group they belong to + user's primary dept + user's managed depts.
+            $sql='SELECT DISTINCT d.name FROM '.STAFF_TABLE.' s '
+                .' LEFT JOIN '.STAFF_DEPT_TABLE.' g ON (s.staff_id=g.staff_id) '
+                .' INNER JOIN '.DEPT_TABLE.' d ON (LOCATE(CONCAT("/", s.dept_id, "/"), d.path) OR d.manager_id=s.staff_id OR LOCATE(CONCAT("/", g.dept_id, "/"), d.path)) '
+                .' WHERE s.staff_id='.db_input($this->getId());
+                // var_dump('depsql is ' , $sql);
+            $depts = array();
+            if (($res=db_query($sql)) && db_num_rows($res)) {
+                while(list($id)=db_fetch_row($res))
+                    $depts[] = $id;
+            }
+        return $depts;
+    }
+
     function getDepts() {
         return $this->getDepartments();
     }
@@ -390,6 +406,46 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     function getDept() {
         return $this->dept;
+    }
+
+    //retrieve roles for departments an agent has access to
+    //ordered by department name and formatted for csv export 
+    function getExportRoles()
+    {
+      $sql='SELECT DISTINCT d.id FROM '.STAFF_TABLE.' s '
+          .' LEFT JOIN '.STAFF_DEPT_TABLE.' g ON (s.staff_id=g.staff_id) '
+          .' INNER JOIN '.DEPT_TABLE.' d ON (LOCATE(CONCAT("/", s.dept_id, "/"), d.path) OR d.manager_id=s.staff_id OR LOCATE(CONCAT("/", g.dept_id, "/"), d.path)) '
+          .' WHERE s.staff_id='.db_input($this->getId()).' '
+          .' ORDER BY d.name';
+
+      //get department id's of depts the agent has access to
+      $dept_ids = array();
+      if (($res=db_query($sql)) && db_num_rows($res)) {
+          while(list($id)=db_fetch_row($res))
+              $dept_ids[] = $id;
+      }
+
+      $depts = Dept::getDepartments();
+      $roles = array();
+      foreach ($depts as $id => $dept)
+      {
+          //compare the staff's departments to all depts
+          //if they do not have access, do not retrieve the role
+          if(!in_array($id, $dept_ids))
+          {
+            array_push($roles, '');
+          }
+          //if they do have access to the dept,
+          //find their role
+          else
+          {
+            $department = Dept::lookup($id);
+            $role = $this::getRole($department);
+            array_push($roles, $role);
+          }
+      }
+
+      return $roles;
     }
 
     function setDepartmentId($dept_id, $eavesdrop=false) {

@@ -168,6 +168,14 @@ if($_POST){
             break;
     }
 }
+//agent csv export
+elseif (!$staff && $_REQUEST['a'] == 'export') {
+    require_once(INCLUDE_DIR.'class.export.php');
+    $ts = strftime('%Y%m%d');
+    if (!Export::saveStaff(__('staff')."-$ts.csv", 'csv'))
+        $errors['err'] = __('Unable to export results.')
+            .' '.__('Internal error occurred');
+}
 
 $page='staffmembers.inc.php';
 $tip_namespace = 'staff.agent';

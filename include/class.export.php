@@ -33,6 +33,33 @@ class Export {
         return $exp->dump();
     }
 
+    static function dumpAgents($headers, $rows) {
+      if (!$output)
+           $output = fopen('php://output', 'w');
+
+      // Detect delimeter from the current locale settings. For locales
+      // which use comma (,) as the decimal separator, the semicolon (;)
+      // should be used as the field separator
+      $delimiter = ',';
+      if (class_exists('NumberFormatter')) {
+          $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
+              NumberFormatter::DECIMAL);
+          $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+          if ($s == ',')
+              $delimiter = ';';
+      }
+
+      // Output a UTF-8 BOM (byte order mark)
+      fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+      fputcsv($output, $headers, $delimiter);
+      foreach ($rows as $row)
+      {
+        fputs($output, implode($row, $delimiter)."\n");
+      }
+
+      fclose($output);
+    }
+
     # XXX: Think about facilitated exporting. For instance, we might have a
     #      TicketExporter, which will know how to formulate or lookup a
     #      format query (SQL), and cooperate with the output process to add
@@ -257,6 +284,43 @@ class Export {
 
         return false;
     }
+
+ static function saveStaff($filename, $how='csv') {
+    //get deparment headers
+    $departments = Dept::objects();
+    foreach ($departments as $d)
+    {
+      $names[] = $d->name;
+    }
+    //sort departments headers
+    sort($names);
+
+    //get the rows for the csv
+    $staff = Staff::objects();
+    foreach ($staff as $s)
+    {
+      $staff_row[] = array($s->firstname . ' ' . $s->lastname, $s->username, $s->isactive ? 'Active' : 'Locked', implode(',',$s->getExportRoles()));
+    }
+
+     //set the rows and headers
+     $headers = array('Name', 'Username', 'Status');
+     $headers = array_merge($headers, $names);
+     $rows = $staff_row;
+
+     //perform the export
+     ob_start();
+     echo Export::dumpAgents($headers, $rows);
+
+     //get file contents
+     $file_content = ob_get_contents();
+      ob_end_clean();
+
+      //if file has contents, download it
+      if ($file_content)
+          Http::download($filename, "text/$how", $file_content);
+
+      return false;
+ }
 
 }
 

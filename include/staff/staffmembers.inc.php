@@ -138,6 +138,12 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                             </a>
                         </li>
                         <li>
+                            <a class="no-pjax" href="staff.php?a=export">
+                                <i class="icon-download-alt icon-fixed-width"></i>
+                                <?php echo __( 'Export Agents'); ?>
+                            </a>
+                        </li>
+                        <li>
                             <a class="dialog-first" data-action="department" href="#staff/change-department">
                                 <i class="icon-truck icon-fixed-width"></i>
                                 <?php echo __( 'Change Department'); ?>
