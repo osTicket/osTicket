@@ -531,6 +531,7 @@ class FormField {
             'datetime' => array(/* @trans */ 'Date and Time', 'DatetimeField'),
             'phone' => array(   /* @trans */ 'Phone Number', 'PhoneField'),
             'bool' => array(    /* @trans */ 'Checkbox', 'BooleanField'),
+            'radio' => array( /* @trans */ 'Radiobuttons', 'RadioField'),
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
             'files' => array(   /* @trans */ 'File Upload', 'FileUploadField'),
             'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
