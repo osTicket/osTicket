@@ -388,6 +388,11 @@ implements TemplateVariable {
                 ->filter(array('dept_id' => $id))
                 ->update(array('dept_id' => $cfg->getDefaultDeptId()));
 
+            // Move tasks
+            Task::objects()
+                ->filter(array('dept_id' => $id))
+                ->update(array('dept_id' => $cfg->getDefaultDeptId()));
+
             //Move Dept members: This should never happen..since delete should be issued only to empty Depts...but check it anyways
             Staff::objects()
                 ->filter(array('dept_id' => $id))
