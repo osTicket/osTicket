@@ -156,7 +156,7 @@ class Export {
                 'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
-            array('modify' => function(&$record, $keys) use ($fields) {
+            array('modify' => function(&$record, $keys, $obj) use ($fields) {
                 foreach ($fields as $k=>$f) {
                     if (($i = array_search($k, $keys)) !== false) {
                         $record[$i] = $f->export($f->to_php($record[$i]));
@@ -201,7 +201,7 @@ class Export {
                     '::getEmail' =>          __('Email'),
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -240,7 +240,7 @@ class Export {
                     'name'  =>  'Name',
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -295,26 +295,32 @@ class ResultSetExporter {
         $this->_res->next();
 
         $record = array();
-
         foreach ($this->keys as $field) {
             list($field, $func) = explode('::', $field);
             $path = explode('.', $field);
+
             $current = $object;
             // Evaluate dotted ORM path
             if ($field) {
                 foreach ($path as $P) {
-                    $current = $current->{$P};
+                    if (isset($current->{$P}))
+                        $current = $current->{$P};
+                    else  {
+                        $current = $P;
+                        break;
+                    }
                 }
             }
             // Evalutate :: function call on target current
             if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
+
             $record[] = (string) $current;
         }
 
         if (isset($this->options['modify']) && is_callable($this->options['modify']))
-            $record = $this->options['modify']($record, $this->keys);
+            $record = $this->options['modify']($record, $this->keys, $object);
 
         return $record;
     }
