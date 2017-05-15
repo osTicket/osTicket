@@ -171,8 +171,11 @@ if($_POST){
 
 $page='staffmembers.inc.php';
 $tip_namespace = 'staff.agent';
-if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+if ($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='staff.inc.php';
+} elseif ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'export')) {
+    if (!Staff::export())
+        $errors['err'] = sprintf(__('Unable to export %s.'), __('Agents'));
 }
 
 $nav->setTabActive('staff');
