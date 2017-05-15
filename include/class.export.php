@@ -363,6 +363,7 @@ class CsvResultsExporter extends ResultSetExporter {
         if (isset($this->options['delimiter']))
             return $this->options['delimiter'];
 
+<<<<<<< HEAD
         // Detect delimeter from the current locale settings. For locales
         // which use comma (,) as the decimal separator, the semicolon (;)
         // should be used as the field separator
@@ -374,6 +375,9 @@ class CsvResultsExporter extends ResultSetExporter {
             if ($s == ',')
                 $delimiter = ';';
         }
+=======
+        $delimiter = Internationalization::getCSVDelimiter();
+>>>>>>> Move CSV delimiter detection to i18n
 
         return $delimiter;
     }
