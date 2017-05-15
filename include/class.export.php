@@ -258,6 +258,32 @@ class Export {
         return false;
     }
 
+    static function  agents($agents, $filename='', $how='csv') {
+
+        // Filename or stream to export agents to
+        $filename = $filename ?: sprintf('Agents-%s.csv',
+                strftime('%Y%m%d'));
+        Http::download($filename, "text/$how");
+        $depts = Dept::getDepartments();
+        echo self::dumpQuery($agents, array(
+                    '::getName'  =>  'Name',
+                    '::getUsername' => 'Username',
+                    '::getStatus' => 'Status',
+                    ) + $depts,
+                $how,
+                array('modify' => function(&$record, $keys, $obj) use ($depts) {
+                    $roles = $obj->getRoles();
+                    foreach ($depts as $k => $v) {
+                        if (is_numeric($k) && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $roles[$k] ?: '';
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        exit;
+
+    }
 }
 
 class ResultSetExporter {
