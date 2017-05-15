@@ -401,6 +401,30 @@ class Internationalization {
         return $locale;
     }
 
+    static function getCSVDelimiter($locale='') {
+
+        if (!$locale)  // Prefer browser settings
+            $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+
+        // Detect delimeter from the current locale settings. For locales
+        // which use comma (,) as the decimal separator, the semicolon (;)
+        // should be used as the field separator
+        $delimiter = ',';
+        if (class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create($locale ?: self::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+            if ($s == ',')
+                $delimiter = ';';
+        } else {
+            $info = localeconv();
+            if ($info && $info['decimal_point'] == ',')
+                $delimiter = ';';
+
+        }
+
+        return $delimiter;
+    }
 
     //  getIntDateFormatter($options)
     //
