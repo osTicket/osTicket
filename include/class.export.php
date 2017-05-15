@@ -370,6 +370,7 @@ class CsvResultsExporter extends ResultSetExporter {
             return $this->options['delimiter'];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Detect delimeter from the current locale settings. For locales
         // which use comma (,) as the decimal separator, the semicolon (;)
         // should be used as the field separator
@@ -394,6 +395,9 @@ class CsvResultsExporter extends ResultSetExporter {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
 
+=======
+        $delimiter = Internationalization::getCSVDelimiter();
+>>>>>>> Move CSV delimiter detection to i18n
 
         $delimiter = $this->getDelimiter();
         // Output a UTF-8 BOM (byte order mark)
