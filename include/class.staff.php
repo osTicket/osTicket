@@ -450,8 +450,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     function getRole($dept=null, $useDefault=true) {
 =======
+=======
+>>>>>>> Agents Access Export
     function getRoles() {
         if (!isset($this->_roles)) {
             $this->_roles = array($this->dept_id => $this->role);
@@ -470,9 +473,14 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             return $roles[$deptId];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (!$useDefault || !$this->usePrimaryRoleOnAssignment())
                 // View only access
                 return new Role(array());
+=======
+        if ($this->usePrimaryRoleOnAssignment())
+            return $this->role;
+>>>>>>> Agents Access Export
 =======
         if ($this->usePrimaryRoleOnAssignment())
             return $this->role;

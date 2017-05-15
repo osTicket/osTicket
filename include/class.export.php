@@ -253,6 +253,7 @@ class Export {
                     '::getName'  =>  'Name',
                     '::getUsername' => 'Username',
                     '::getStatus' => 'Status',
+<<<<<<< HEAD
                     'permissions' => 'Permissions',
                     '::getDept'  => 'Primary Department',
                     ) + $depts,
@@ -262,6 +263,11 @@ class Export {
                    if (($i = array_search('permissions', $keys)))
                        $record[$i] = implode(",", array_keys($obj->getPermission()->getInfo()));
 
+=======
+                    ) + $depts,
+                $how,
+                array('modify' => function(&$record, $keys, $obj) use ($depts) {
+>>>>>>> Agents Access Export
                     $roles = $obj->getRoles();
                     foreach ($depts as $k => $v) {
                         if (is_numeric($k) && ($i = array_search($k, $keys)) !== false) {
