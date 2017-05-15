@@ -213,7 +213,7 @@ $orgs = Organization::objects();
        active: false,
        autoHeight: true,
        navigation: true,
-       collapsible: false,
+       collapsible: true,
        icons: icons
        
     });
