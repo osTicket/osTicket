@@ -168,7 +168,14 @@ $MyOpenIssuesTicket = Ticket::objects()
             $MyOpenIssuesTickets = $cMyOpenIssuesTicket["count"];
         }        
 
-
+$UnassignedTicket = Ticket::objects()
+        ->filter(array('status_id' => '1')) //Awaiting Quote
+        ->filter(array('topic_id__ne' => '12')) //open issue
+        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
+         
+         foreach ($UnassignedTicket as $cUnassignedTicket) { 
+            $UnassignedTickets = $cUnassignedTicket["count"];
+        } 
 
 //Backlog     
 $BacklogTickets = array(); 
@@ -213,8 +220,8 @@ $orgs = Organization::objects();
        active: false,
        autoHeight: true,
        navigation: true,
-       collapsible: true,
-       icons: icons
+       collapsible: false,
+       //icons: icons
        
     });
 
@@ -223,28 +230,15 @@ $orgs = Organization::objects();
 
  
 
-<div id="dashboard" style="display:none">
-<h3>IT Dashboard</h3>
+<div class="dashboard" >
+<div id="title"><h3>IT Dashboard</h3></div>
+<div id="table">
 <table width="100%" style="font-size: smaller" cellspacing="0">
-
     <tr>
         <td>
-            <table width="100%" style="font-size: smaller" cellspacing="0">          
+            <table width="100%" style="font-size: smaller" cellspacing="0" border = "0">          
                 <tr style="font-weight: bold; text-align: center;">
                     <td></td>
-                    <td width="80px">Assinged</td>
-                    <td width="65px">Held</td>
-                    <td width="80px">Agent Reply</td>
-                    <td width="90px">Submitter Reply</td>
-                    <td width="80px">Implmentation</td>
-                    <td width="80px">Quote</td>
-                    <td width="80px">Total</td>
-                    <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
-                    <td rowspan="3" width="5px">&nbsp;</td>
-                    <td colspan="2"></td>
-                    <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
-                    <td rowspan="3" width="5px">&nbsp;</td>
-                    <td>&nbsp;</td>
                     <td width="30px">CAN</td>
                     <td width="30px">IND</td>
                     <td width="30px">MEX</td>
@@ -254,23 +248,37 @@ $orgs = Organization::objects();
                     <td width="30px">TNN2</td>
                     <td width="30px">TNS</td>
                     <td width="30px">TOTAL</td>
+                    <td rowspan="3" width="2px">&nbsp;</td>
+                    <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
+                    <td rowspan="3" width="2px">&nbsp;</td>
+                    <td rowspan="3" width="125px">
+                    
+                    <table>
+                    <tr><td  width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?>2</td></tr>
+                    </table>
+                    </td>
+                    <td rowspan="3" width="2px">&nbsp;</td>
+                    <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
+                    <td rowspan="3" width="2px">&nbsp;</td>
                     <td>&nbsp;</td>
+                    <td width="80px">Assinged</td>
+                    <td width="65px">Held</td>
+                    <td width="80px">Agent Reply</td>
+                    <td width="90px">Submitter Reply</td>
+                    <td width="80px">Implmentation</td>
+                    <td width="80px">Quote</td>
+                    <td width="80px">Total</td>
+                    <td rowspan="3" width="2px">&nbsp;</td>
+                    <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
+                    <td rowspan="3" width="2px">&nbsp;</td>
+                    <td colspan="2">&nbsp;</td>
+                    <td rowspan="3" >&nbsp;</td>
+                 
+                    
                 </tr>
                 <tr style="text-align: center;">
-                    <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Tickets</span></td>
-                    <td><?php echo $AssignedTickets; ?></td>
-                    <td><?php echo $HeldTickets; ?></td>
-                    <td><?php echo $ReplyTickets; ?></td>
-                    <td><?php echo $TheirReplyTickets; ?></td>
-                    <td><?php echo $ImplementationTickets; ?></td>
-                    <td><?php echo $AwaitingQuoteTickets; ?></td>
-                    <td style="border: 1px solid #bbb; border-collapse:collapse; background: #8b4513; color: #fff;"><?php echo $OpenTickets;?></td>
-             
-                    <td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Issues</span></td>
-                    <td width="30px"><?php echo $OpenIssuesTickets; ?></td>
-                    
                     <td width="40px" style="text-align: right;"><span style="color: red; font-weight: bold;">Backlog</span></td> 
-                    <td><?php echo $BacklogTickets["CAN"] ?></td>
+                    <td><?php echo $BacklogTickets["CAN"]; ?></td>
                     <td><?php echo $BacklogTickets["IND"]; ?></td>
                     <td><?php echo $BacklogTickets["MEX"]; ?></td>
                     <td><?php echo $BacklogTickets["OH"]; ?></td>
@@ -286,11 +294,26 @@ $orgs = Organization::objects();
                                    $BacklogTickets["TNN1"]+
                                    $BacklogTickets["TNN2"]+
                                    $BacklogTickets["TNS"];?></td>
-                    <td>&nbsp;</td>
+                    
+                    <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Tickets</span></td>
+                    <td><?php echo $AssignedTickets; ?></td>
+                    <td><?php echo $HeldTickets; ?></td>
+                    <td><?php echo $ReplyTickets; ?></td>
+                    <td><?php echo $TheirReplyTickets; ?></td>
+                    <td><?php echo $ImplementationTickets; ?></td>
+                    <td><?php echo $AwaitingQuoteTickets; ?></td>
+                    <td style="border: 1px solid #bbb; border-collapse:collapse; background: #8b4513; color: #fff;"><?php echo $OpenTickets;?></td>
+             
+                    <td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Issues</span></td>
+                    <td width="30px"><?php echo $OpenIssuesTickets; ?></td>
+                    
+                    
                    
                 </tr>
            
                 <tr style="text-align: center;">
+                    <td colspan="10">&nbsp;</td>
+                    
                     <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">My Open Tickets</span></td>                   
                     <td><?php echo $MyAssignedTickets; ?></td>
                     <td><?php echo $MyHeldTickets; ?></td>
@@ -302,14 +325,13 @@ $orgs = Organization::objects();
            
                     <td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;">My Open Issues</span></td>
                     <td width="30px"><?php echo $MyOpenIssuesTickets; ?></td>
-                    
-                    <td colspan="11"> &nbsp; </td> 
+                     
                 </tr>
             </table>
         </td>  
 <td> &nbsp; </td>        
     </tr>                
 </table>        
-                
+</div>                
         
 </div>

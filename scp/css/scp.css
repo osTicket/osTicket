@@ -1114,13 +1114,36 @@ a.Icon:hover {
 .Icon.form-add { background:url(../images/icons/icon-form-add.png) 0 0 no-repeat; background-size: 16px 16px; }
 .Icon.list-add { background:url(../images/icons/icon-list-add.png) 0 0 no-repeat; background-size: 16px 16px; }
 
-#dashboard{
-    margin-bottom: 13px;
-    margin-top: -7px;
-    margin-left: -10px;
-    margin-right: -10px;
-}
 
+div#content > div.dashboard {
+    margin-bottom: 10px;
+    margin-top: -9px;
+    margin-left: -9px;
+    margin-right: -10px;
+    background: #fff;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+div.dashboard > div#title {
+    border-top: 1px solid rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    background: #C3D9FF;   
+    margin-bottom: 8px;
+    margin-left: -1px;
+    margin-right: 0px;
+}
+div.dashboard > div#title > h3 {
+    font-size: 14px;
+    margin-left: 14px;
+    margin-top: 0px
+    ;
+    
+}
+html > body > div#container > div#pjax-container > div#content > div.dashboard > div#table {
+    margin-left: 14px;
+    margin-right: 14px;
+    background: #fff;
+}
 #content {
     clear:both;
     border:1px solid #aaa;
