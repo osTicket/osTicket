@@ -202,34 +202,6 @@ $orgs = Organization::objects();
                 
 ?>
 
-<style>
-#dashboard .ui-icon{
-    background-image: url("images/ui-icons_777777_256x240.png");
-}
-
-</style>
-
-<script>
-  $( function() {
-    var icons = {
-         header: "ui-icon-plus",    // custom icon class
-         activeHeader: "ui-icon-minus" // custom icon class
-     };
-    $("#dashboard").show();
-    $( "#dashboard" ).accordion({
-       active: false,
-       autoHeight: true,
-       navigation: true,
-       collapsible: false,
-       //icons: icons
-       
-    });
-
-  } );
-  </script>
-
- 
-
 <div class="dashboard" >
 <div id="title"><h3>IT Dashboard</h3></div>
 <div id="table">
@@ -254,7 +226,7 @@ $orgs = Organization::objects();
                     <td rowspan="3" width="125px">
                     
                     <table>
-                    <tr><td  width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?>2</td></tr>
+                    <tr><td  width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?></td></tr>
                     </table>
                     </td>
                     <td rowspan="3" width="2px">&nbsp;</td>
