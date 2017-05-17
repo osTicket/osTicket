@@ -115,15 +115,15 @@ $MyReplyTicket = Ticket::objects()
             $MyReplyTickets = $cMyReplyTicket["count"];
         }              
 
-$TheirReplyTicket = Ticket::objects()
+$MyTheirReplyTicket = Ticket::objects()
         ->filter(array('staff_id' => $thisstaff->staff_id)) //this staff
         ->filter(array('status_id' => '6')) //Awaiting Submitter Reply
         ->filter(array('topic_id__ne' => '12')) //open issue
         ->filter(array('topic_id__ne' => '14')) //suggestion
         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
          
-         foreach ($TheirReplyTicket as $cTheirReplyTicket) { 
-            $TheirReplyTickets = $cTheirReplyTicket["count"];
+         foreach ($MyTheirReplyTicket as $cMyTheirReplyTicket) { 
+            $MyTheirReplyTickets = $cMyTheirReplyTicket["count"];
         }           
         
 $MyImplementationTicket = Ticket::objects()
