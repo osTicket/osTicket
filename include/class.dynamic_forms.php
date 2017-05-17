@@ -286,10 +286,31 @@ class DynamicForm extends VerySimpleModel {
     }
 
     static function buildDynamicDataView($cdata) {
-        $sql = 'CREATE TABLE IF NOT EXISTS `'.$cdata['table'].'` (PRIMARY KEY
-                ('.$cdata['object_id'].')) DEFAULT CHARSET=utf8 AS '
-             .  static::getCrossTabQuery( $cdata['object_type'], $cdata['object_id']);
-        db_query($sql);
+        $table = $cdata['table'];
+        // To make temp table compatible with mysqli using persistent connections
+        $rand = substr(md5(microtime()), rand(0,26),5);
+        $tmptable = $table.'_'.$rand;
+
+        $sql = 'SHOW TABLES LIKE "'.$table.'"';
+        $ret = db_query($sql);
+        $exists = (mysqli_num_rows($ret) > 0);
+        if ($exists) {  // Nothing to do
+            return;
+        }
+
+        // This rather complicated structure using temporary table is to make the code GTID compatible.
+        // GTID-based replication does not allow CREATE TABLE ... SELECT
+        // See https://dev.mysql.com/doc/refman/5.7/en/replication-gtids-restrictions.html
+        $ret = true;
+        $ret = $ret && db_query('CREATE TEMPORARY TABLE `'.$tmptable.'`'
+            .'(PRIMARY KEY ('.$cdata['object_id'].')) DEFAULT CHARSET=utf8 AS '
+            .static::getCrossTabQuery($cdata['object_type'], $cdata['object_id']));  // create temp table with data and structure
+        $ret = $ret && db_query('CREATE TABLE IF NOT EXISTS `'.$table.'` LIKE `'.$tmptable.'`');  // create structure
+        $ret = $ret && db_query('INSERT `'.$table.'` SELECT * FROM `'.$tmptable.'`');  // copy data
+        $ret = $ret && db_query('DROP TEMPORARY TABLE IF EXISTS `'.$tmptable.'`');  // remove temp table
+        if (!$ret) {
+            throw new Exception(__('buildDynamicDataView: failed to create temporary table'));
+        }
     }
 
     static function dropDynamicDataView($table) {
