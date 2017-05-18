@@ -228,10 +228,10 @@ $orgs = Organization::objects();
                 
 ?>
 
-<div class="dashboard" >
+<div class="dashboard"  >
 <div id="title"><h3>IT Dashboard</h3></div>
 <div id="table">
-<table width="100%" style="font-size: smaller" cellspacing="0">
+<table width="100%" style="font-size: smaller" cellspacing="0" style="align-self: center;">
     <tr>
         <td>
             <table width="100%" style="font-size: smaller" cellspacing="0" border = "0">           
@@ -286,7 +286,6 @@ $orgs = Organization::objects();
                     <td width="80px">Implementation</td>
                     <td width="45px">Quote</td>
                     <td rowspan="3" width="55px" style="text-align: left;"><a href="/scp/tickets.php?queue=17&p=1" style="font-size: xx-large; color: #ff0202;"> <?php echo $SuggestionAssignedTicket + $SuggestionImplementationTicket + $SuggestionAwaitingQuoteTickets ?></a></td>
-                    <td rowspan="3">&nbsp;</td>
                     
                 </tr>
                 <tr style="text-align: center;">
