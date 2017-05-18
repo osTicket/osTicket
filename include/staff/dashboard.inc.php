@@ -214,26 +214,26 @@ $orgs = Organization::objects();
                     <td width="30px">CAN</td>
                     <td width="30px">IND</td>
                     <td width="30px">MEX</td>
-                    <td width="30px">OH</td>
                     <td width="30px">NTC</td>
+                    <td width="30px">OH</td>
                     <td width="30px">TNN1</td>
                     <td width="30px">TNN2</td>
                     <td width="30px">TNS</td>
-                    <td rowspan = "3" width="55px" style="font-size: xx-large; text-align: center; color: #ff0202; font-weight: bold;"><?php echo $BacklogTickets["CAN"]+
+                    <td rowspan = "3" width="55px" style="font-size: xx-large; text-align: center; color: #ff0202; font-weight: bold;"><a href="/scp/tickets.php?queue=199&p=1" style="color:#ff0202"><?php echo $BacklogTickets["CAN"]+
                                    $BacklogTickets["IND"]+
                                    $BacklogTickets["MEX"]+
                                    $BacklogTickets["OH"]+
                                    $BacklogTickets["NTC"]+
                                    $BacklogTickets["TNN1"]+
                                    $BacklogTickets["TNN2"]+
-                                   $BacklogTickets["TNS"];?></td>
+                                   $BacklogTickets["TNS"];?></a></td>
                     <td rowspan="3" width="2px">&nbsp;</td>
                     <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
                     <td rowspan="3" width="2px">&nbsp;</td>
                     <td rowspan="3" width="125px">
                     
                     <table>
-                    <tr><td  width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?></td></tr>
+                    <tr><td  width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px"><a href="/scp/tickets.php?queue=43&p=1" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?></a></td></tr>
                     </table>
                     </td>
                     <td rowspan="3" width="2px">&nbsp;</td>
@@ -244,7 +244,7 @@ $orgs = Organization::objects();
                     <td width="65px">Held</td>
                     <td width="80px">Agent Reply</td>
                     <td width="90px">Submitter Reply</td>
-                    <td width="80px">Implmentation</td>
+                    <td width="80px">Implementation</td>
                     <td width="80px">Quote</td>
                     <td width="30px">TOTAL</td>
                     <td rowspan="3" width="2px">&nbsp;</td>
@@ -257,27 +257,27 @@ $orgs = Organization::objects();
                 </tr>
                 <tr style="text-align: center;">
                     <td width="40px" style="text-align: right;"><span style="color: red; font-weight: bold;">Backlog</span></td> 
-                    <td><?php echo $BacklogTickets["CAN"]; ?></td>
-                    <td><?php echo $BacklogTickets["IND"]; ?></td>
-                    <td><?php echo $BacklogTickets["MEX"]; ?></td>
-                    <td><?php echo $BacklogTickets["OH"]; ?></td>
-                    <td><?php echo $BacklogTickets["NTC"]; ?></td>
-                    <td><?php echo $BacklogTickets["TNN1"]; ?></td>
-                    <td><?php echo $BacklogTickets["TNN2"]; ?></td>
-                    <td><?php echo $BacklogTickets["TNS"]; ?></td>
+                    <td><a href="/scp/tickets.php?queue=200&p=1" style="color:#000"><?php echo $BacklogTickets["CAN"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=201&p=1" style="color:#000"><?php echo $BacklogTickets["IND"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=202&p=1" style="color:#000"><?php echo $BacklogTickets["MEX"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=203&p=1" style="color:#000"><?php echo $BacklogTickets["NTC"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=204&p=1" style="color:#000"><?php echo $BacklogTickets["OH"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=205&p=1" style="color:#000"><?php echo $BacklogTickets["TNN1"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=206&p=1" style="color:#000"><?php echo $BacklogTickets["TNN2"]; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=207&p=1" style="color:#000"><?php echo $BacklogTickets["TNS"]; ?></a></td>
                     
                     
-                    <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Tickets</span></td>
-                    <td><?php echo $AssignedTickets; ?></td>
-                    <td><?php echo $HeldTickets; ?></td>
-                    <td><?php echo $ReplyTickets; ?></td>
-                    <td><?php echo $TheirReplyTickets; ?></td>
-                    <td><?php echo $ImplementationTickets; ?></td>
-                    <td><?php echo $AwaitingQuoteTickets; ?></td>
-                    <td style="border: 1px solid #bbb; border-collapse:collapse; background: #8b4513; color: #fff;"><?php echo $OpenTickets;?></td>
+                    <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Tickets</span></a></td>
+                    <td><a href="/scp/tickets.php?queue=211&p=1" style="color:#000"><?php echo $AssignedTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=216&p=1" style="color:#000"><?php echo $HeldTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=213&p=1" style="color:#000"><?php echo $ReplyTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=212&p=1" style="color:#000"><?php echo $TheirReplyTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=215&p=1" style="color:#000"><?php echo $ImplementationTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=214&p=1" style="color:#000"><?php echo $AwaitingQuoteTickets; ?></a></td>
+                    <td style="border: 1px solid #bbb; border-collapse:collapse; background: #8b4513;"><a href="/scp/tickets.php?queue=3&p=1" style="color:#fff"><?php echo $OpenTickets;?></a></td>
              
                     <td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Issues</span></td>
-                    <td width="30px"><?php echo $OpenIssuesTickets; ?></td>
+                    <td width="30px"><a href="/scp/tickets.php?queue=14&p=1" style="color:#000"><?php echo $OpenIssuesTickets; ?></a></td>
                     
                     
                    
@@ -287,16 +287,16 @@ $orgs = Organization::objects();
                     <td colspan="9">&nbsp;</td>
                     
                     <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">My Open Tickets</span></td>                   
-                    <td><?php echo $MyAssignedTickets; ?></td>
-                    <td><?php echo $MyHeldTickets; ?></td>
-                    <td><?php echo $MyReplyTickets; ?></td>
-                    <td><?php echo $MyTheirReplyTickets; ?></td>
-                    <td><?php echo $MyImplementationTickets; ?></td>
-                    <td><?php echo $MyAwaitingQuoteTickets; ?></td>
-                    <td style="border: 1px solid #bbb; border-collapse:collapse; background: #8b4513; color: #fff;"><?php echo $MyOpenTickets; ?></td>
+                    <td><a href="/scp/tickets.php?queue=35&p=1" style="color:#000"><?php echo $MyAssignedTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=36&p=1" style="color:#000"><?php echo $MyHeldTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=37&p=1" style="color:#000"><?php echo $MyReplyTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=38&p=1" style="color:#000"><?php echo $MyTheirReplyTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=39&p=1" style="color:#000"><?php echo $MyImplementationTickets; ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=40&p=1" style="color:#000"><?php echo $MyAwaitingQuoteTickets; ?></a></td>
+                    <td style="border: 1px solid #bbb; border-collapse:collapse; background: #8b4513; color: #fff;"><a href="/scp/tickets.php?queue=31&p=1" style="color:#fff"><?php echo $MyOpenTickets; ?></a></td>
            
                     <td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;">My Open Issues</span></td>
-                    <td width="30px"><?php echo $MyOpenIssuesTickets; ?></td>
+                    <td width="30px"><a href="/scp/tickets.php?queue=33&p=1" style="color:#000"><?php echo $MyOpenIssuesTickets; ?></a></td>
                      
                 </tr>
             </table>
