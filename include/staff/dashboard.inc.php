@@ -176,7 +176,33 @@ $UnassignedTicket = Ticket::objects()
          foreach ($UnassignedTicket as $cUnassignedTicket) { 
             $UnassignedTickets = $cUnassignedTicket["count"];
         } 
+        
+$SuggestionAssignedTicket = Ticket::objects()
+        ->filter(array('status_id' => '11')) //assigned
+        ->filter(array('topic_id' => '14')) //suggestion
+        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
+         
+         foreach ($SuggestionAssignedTicket as $cSuggestionAssignedTicket) { 
+            $SuggestionAssignedTickets = $cSuggestionAssignedTicket["count"];
+        }
+        
+$SuggestionImplementationTicket = Ticket::objects()
+        ->filter(array('status_id' => '9')) //Awaiting Implementation
+        ->filter(array('topic_id' => '14')) //suggestion
+        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
+         
+         foreach ($SuggestionImplementationTicket as $cSuggestionImplementationTicket) { 
+            $SuggestionImplementationTickets = $cSuggestionImplementationTicket["count"];
+        }
 
+$SuggestionAwaitingQuoteTicket = Ticket::objects()
+        ->filter(array('status_id' => '10')) //Awaiting Quote
+        ->filter(array('topic_id' => '14')) //suggestion
+        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
+         
+         foreach ($SuggestionAwaitingQuoteTicket as $cSuggestionAwaitingQuoteTicket) { 
+            $SuggestionAwaitingQuoteTickets = $cSuggestionAwaitingQuoteTicket["count"];
+        }
 //Backlog     
 $BacklogTickets = array(); 
 $orgs = Organization::objects();
@@ -208,7 +234,7 @@ $orgs = Organization::objects();
 <table width="100%" style="font-size: smaller" cellspacing="0">
     <tr>
         <td>
-            <table width="100%" style="font-size: smaller" cellspacing="0" border = "0">          
+            <table width="100%" style="font-size: smaller" cellspacing="0" border = "0">           
                 <tr style="font-weight: bold; text-align: center;">
                     <td></td>
                     <td width="30px">CAN</td>
@@ -233,7 +259,7 @@ $orgs = Organization::objects();
                     <td rowspan="3" width="125px">
                     
                     <table>
-                    <tr><td  width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px"><a href="/scp/tickets.php?queue=43&p=1" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?></a></td></tr>
+                    <tr><td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;"> Unassigned Tickets </span></td><td width="50px"><a href="/scp/tickets.php?queue=43&p=1" style="font-size: xx-large; text-align: center; color: #ff0202;"><?php echo $UnassignedTickets; ?></a></td></tr>
                     </table>
                     </td>
                     <td rowspan="3" width="2px">&nbsp;</td>
@@ -251,8 +277,16 @@ $orgs = Organization::objects();
                     <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
                     <td rowspan="3" width="2px">&nbsp;</td>
                     <td colspan="2">&nbsp;</td>
-                    <td rowspan="3" >&nbsp;</td>
-                 
+                    <td rowspan="3" width="2px">&nbsp;</td>
+                    <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
+                    <td rowspan="3" width="2px"></td>
+                   
+                    <td width="30px" >&nbsp;</td>
+                    <td width="80px">Assigned</td>
+                    <td width="80px">Implementation</td>
+                    <td width="45px">Quote</td>
+                    <td rowspan="3" width="55px" style="text-align: left;"><a href="/scp/tickets.php?queue=17&p=1" style="font-size: xx-large; color: #ff0202;"> <?php echo $SuggestionAssignedTicket + $SuggestionImplementationTicket + $SuggestionAwaitingQuoteTickets ?></a></td>
+                    <td rowspan="3">&nbsp;</td>
                     
                 </tr>
                 <tr style="text-align: center;">
@@ -278,7 +312,11 @@ $orgs = Organization::objects();
              
                     <td width="75px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Issues</span></td>
                     <td width="30px"><a href="/scp/tickets.php?queue=14&p=1" style="color:#000"><?php echo $OpenIssuesTickets; ?></a></td>
-                    
+                    <td style="text-align: right;"><span style="color: red; font-weight: bold;"> Suggestions </span></td>
+                    <td><a href="/scp/tickets.php?queue=19&p=1" style="color:#000"><?php echo $SuggestionAssignedTickets ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=21&p=1" style="color:#000"><?php echo $SuggestionImplementationTickets ?></a></td>
+                    <td><a href="/scp/tickets.php?queue=20&p=1" style="color:#000"><?php echo $SuggestionAwaitingQuoteTickets ?></a></td>
+                 
                     
                    
                 </tr>
