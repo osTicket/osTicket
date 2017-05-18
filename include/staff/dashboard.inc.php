@@ -219,7 +219,14 @@ $orgs = Organization::objects();
                     <td width="30px">TNN1</td>
                     <td width="30px">TNN2</td>
                     <td width="30px">TNS</td>
-                    <td width="30px">TOTAL</td>
+                    <td rowspan = "3" width="55px" style="font-size: xx-large; text-align: center; color: #ff0202; font-weight: bold;"><?php echo $BacklogTickets["CAN"]+
+                                   $BacklogTickets["IND"]+
+                                   $BacklogTickets["MEX"]+
+                                   $BacklogTickets["OH"]+
+                                   $BacklogTickets["NTC"]+
+                                   $BacklogTickets["TNN1"]+
+                                   $BacklogTickets["TNN2"]+
+                                   $BacklogTickets["TNS"];?></td>
                     <td rowspan="3" width="2px">&nbsp;</td>
                     <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
                     <td rowspan="3" width="2px">&nbsp;</td>
@@ -239,7 +246,7 @@ $orgs = Organization::objects();
                     <td width="90px">Submitter Reply</td>
                     <td width="80px">Implmentation</td>
                     <td width="80px">Quote</td>
-                    <td width="80px">Total</td>
+                    <td width="30px">TOTAL</td>
                     <td rowspan="3" width="2px">&nbsp;</td>
                     <td rowspan="3" width="5px"  style="border-right: 1px solid #bbb; border-collapse:collapse;">&nbsp;</td>
                     <td rowspan="3" width="2px">&nbsp;</td>
@@ -258,14 +265,7 @@ $orgs = Organization::objects();
                     <td><?php echo $BacklogTickets["TNN1"]; ?></td>
                     <td><?php echo $BacklogTickets["TNN2"]; ?></td>
                     <td><?php echo $BacklogTickets["TNS"]; ?></td>
-                    <td style="background: #8b4513; color: #fff;"><?php echo $BacklogTickets["CAN"]+
-                                   $BacklogTickets["IND"]+
-                                   $BacklogTickets["MEX"]+
-                                   $BacklogTickets["OH"]+
-                                   $BacklogTickets["NTC"]+
-                                   $BacklogTickets["TNN1"]+
-                                   $BacklogTickets["TNN2"]+
-                                   $BacklogTickets["TNS"];?></td>
+                    
                     
                     <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">Open Tickets</span></td>
                     <td><?php echo $AssignedTickets; ?></td>
@@ -284,7 +284,7 @@ $orgs = Organization::objects();
                 </tr>
            
                 <tr style="text-align: center;">
-                    <td colspan="10">&nbsp;</td>
+                    <td colspan="9">&nbsp;</td>
                     
                     <td width="80px" style="text-align: right;"><span style="color: red; font-weight: bold;">My Open Tickets</span></td>                   
                     <td><?php echo $MyAssignedTickets; ?></td>
