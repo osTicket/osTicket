@@ -240,7 +240,7 @@ class AdminNav extends StaffNav{
             switch(strtolower($k)){
                 case 'dashboard':
                     $subnav[]=array('desc'=>__('System Logs'),'href'=>'logs.php','iconclass'=>'logs');
-                    $subnav[]=array('desc'=>__('Information'),'href'=>'system.php','iconclass'=>'preferences');
+                    $subnav[]=array('desc'=>__('Information'),'href'=>'system.php#system-overview','iconclass'=>'preferences');
                     break;
                 case 'settings':
                     $subnav[]=array('desc'=>__('Company'),'href'=>'settings.php?t=pages','iconclass'=>'pages');

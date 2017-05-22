@@ -53,6 +53,17 @@ $extensions = array(
 
 ?>
 <h2><?php echo __('About this osTicket Installation'); ?></h2>
+
+<ul class="clean tabs">
+    <li class="active"><a href="#system-overview"><i class="icon-info-sign"></i>
+        <?php echo __('Overview'); ?></a></li>
+    <li><a href="#language-packs"><i class="icon-question-sign"></i>
+        <?php echo __('Installed Language Packs'); ?></a></li>
+    <li><a href="#php-info"><i class="icon-file"></i>
+        <?php echo __('PHP Info'); ?></a></li>
+</ul>
+
+<div class="tab_content" id="system-overview">
 <table class="list" width="100%";>
 <thead>
     <tr><th colspan="2"><?php echo __('Server Information'); ?></th></tr>
@@ -165,8 +176,8 @@ if (!$lv) { ?>
         </td></tr>
 </tbody>
 </table>
-<br/>
-<h2><?php echo __('Installed Language Packs'); ?></h2>
+</div>
+<div class="tab_content" id="language-packs">
 <div style="margin: 0 20px">
 <?php
     foreach (Internationalization::availableLanguages() as $info) {
@@ -191,4 +202,51 @@ if (!$lv) { ?>
         </div>
 <?php
     } ?>
+</div>
+</div>
+<div class="tab_content" id="php-info">
+<?php
+
+// additional credits:
+// http://php.net/manual/en/function.phpinfo.php#77705
+// http://php.net/manual/en/function.phpinfo.php#84000
+
+// start output buffering
+ob_start();
+
+// send phpinfo content
+phpinfo();
+
+// get phpinfo content
+$html = ob_get_contents();
+
+// flush the output buffer
+ob_end_clean();
+
+// remove auth data
+#if (isset($_SERVER['AUTH_USER'])) $html = str_replace($_SERVER['AUTH_USER'], '<i>no value</i>', $html);
+if (isset($_SERVER['AUTH_PASSWORD'])) $html = str_replace($_SERVER['AUTH_PASSWORD'], '<i>*******</i>', $html);
+
+// privatize CSS
+preg_match ('%<style type="text/css">(.*?)</style>.*?<body>(.*?)</body>%s', $html, $matches);
+
+# $matches [1]; # Style information
+# $matches [2]; # Body information
+
+$html = "<div class='phpinfodisplay'><style type='text/css'>\n".
+    join( "\n",
+        array_map(
+            create_function(
+                '$i',
+                'return ".phpinfodisplay " . preg_replace( "/,/", ",.phpinfodisplay ", $i );'
+                ),
+            preg_split( '/\n/', trim(preg_replace( "/\nbody/", "\n", $matches[1])) )
+            )
+        ).
+    "</style>\n".
+    $matches[2].
+    "\n</div>\n";
+
+echo $html;
+?>
 </div>
