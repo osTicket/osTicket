@@ -1590,7 +1590,7 @@ extends CachedResultSet {
         foreach ($this as $record) {
             $matches = true;
             foreach ($criteria as $field=>$check) {
-                if (!SqlCompiler::evaluate($record, $field, $check)) {
+                if (!SqlCompiler::evaluate($record, $check, $field)) {
                     $matches = false;
                     break;
                 }
