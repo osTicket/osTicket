@@ -914,7 +914,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                             href="tickets.php?id=<?php echo $T->getId(); ?>"><?php echo $T->getSubject(); ?></div>
                         </td>
                         <td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getDeptName()); ?></span></div></td>
-                        <td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getStaff()->getName()); ?></span></div></td>
+                        <td nowrap><div><span class="truncate"><?php echo Format::htmlchars($T->getStaff() ? $T->getStaff()->getName() : __('Unknown')); ?></span></div></td>
                         <?php if ( $thisstaff->hasPerm(Ticket::PERM_MERGE, false)): ?>
                             <td nowrap>
                                 <form action="tickets.php?id=<?= $ticket->getId() ?>" method="post" style="display: inline-block;">
