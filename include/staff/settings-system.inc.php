@@ -306,7 +306,7 @@ $gmtime = Misc::gmtime();
                         $selected = $config['default_storage_bk'] == $char
                             ? 'selected="selected"' : '';
                         ?><option <?php echo $selected; ?> value="<?php echo $char; ?>"
-                        ><?php echo $class::$desc; ?></option><?php
+                        ><?php echo __($class::$desc); ?></option><?php
                     }
                 } else {
                  echo sprintf('<option value="">%s</option>',
