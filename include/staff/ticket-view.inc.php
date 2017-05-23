@@ -353,7 +353,7 @@ if($ticket->isOverdue())
                 <tr>
                     <th><?php echo __('Source'); ?>:</th>
                     <td><?php
-                        echo Format::htmlchars($ticket->getSource());
+                        echo Format::htmlchars(__($ticket->getSource()));
 
                         if (!strcasecmp($ticket->getSource(), 'Web') && $ticket->getIP())
                             echo '&nbsp;&nbsp; <span class="faded">('.Format::htmlchars($ticket->getIP()).')</span>';
