@@ -29,7 +29,7 @@ foreach ($faqs as $F) {
         $attachments=$F->has_attachments?'<span class="Icon file"></span>':'';
         echo sprintf('
             <li><a href="faq.php?id=%d" >%s &nbsp;%s</a></li>',
-            $F->getId(),Format::htmlchars($F->question), $attachments);
+            $F->getId(),Format::htmlchars($F->getLocalQuestion()), $attachments);
     }
     echo '  </ol>
          </div>';
