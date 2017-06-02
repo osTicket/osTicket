@@ -566,6 +566,10 @@ class Mailer {
         $mail = mail::factory('mail', $args);
         // Ensure the To: header is properly encoded.
         $to = $headers['To'];
+        
+        // Avoid bare linefeeds
+        $body = str_replace("\n", "\r\n", $body);
+        
         $result = $mail->send($to, $headers, $body);
         if(!PEAR::isError($result))
             return $messageId;
