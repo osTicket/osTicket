@@ -3,7 +3,7 @@ Log of pear packages bundled with osTicket
 * osTicket v1.9.13, v1.10 *
 ===========================================================
 Mail_Mime-1.10.0
-Mail_mimeDecode-1.5.5
+Mail_mimeDecode-1.5.6
 Net_SMTP-1.7.1
 
 * osTicket v1.7.*
