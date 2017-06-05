@@ -457,6 +457,22 @@ class Filter {
     }
 
     function save($id,$vars,&$errors) {
+      if ($this)
+      {
+        foreach ($this->getActions() as $A) {
+          if ($A->type == 'dept')
+              $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+
+          if ($A->type == 'topic')
+              $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+        }
+      }
+
+      if($dept && !$dept->isActive())
+        $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
+
+      if($topic && !$topic->isActive())
+        $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
 
         if(!$vars['execorder'])
             $errors['execorder'] = __('Order required');
@@ -542,7 +558,7 @@ class Filter {
                 $I->setConfiguration($errors, $vars);
                 $I->save();
                 break;
-            case 'I': # exiting filter action
+            case 'I': # existing filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
                     $I->sort = (int) $sort;

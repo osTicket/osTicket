@@ -172,6 +172,10 @@ if($_POST){
 $page='staffmembers.inc.php';
 $tip_namespace = 'staff.agent';
 if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+
+  if ($staff && ($pdept=$staff->getDept()) && !$pdept->isActive())
+    $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Agent'), __('Primary Department'));
+
     $page='staff.inc.php';
 }
 

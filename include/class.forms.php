@@ -2355,10 +2355,52 @@ class DepartmentField extends ChoiceField {
     function getChoices($verbose=false) {
         global $cfg;
 
+        $selected = self::getWidget();
+        if($selected && $selected->value)
+        {
+          if(is_array($selected->value))
+          {
+            foreach ($selected->value as $k => $v)
+            {
+              $current_id = $k;
+              $current_name = $v;
+            }
+          }
+          else {
+            $current_id = $selected->value;
+            $current_name = Dept::getNameById($current_id);
+            $addNew = true;
+          }
+        }
+
+        $active_depts = array();
+        if($current_id)
+          $active_depts = Dept::objects()
+            ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
+            ->values('id', 'name');
+
         $choices = array();
-        if (($depts = Dept::getDepartments()))
-            foreach ($depts as $id => $name)
-                $choices[$id] = $name;
+        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED))
+        {
+          //create array w/queryset
+          $active = array();
+          foreach ($active_depts as $dept)
+            $active[$dept['id']] = $dept['name'];
+
+          //add selected dept to list
+          $active[$current_id] = $current_name;
+
+
+          foreach ($depts as $id => $name)
+          {
+            $choices[$id] = $name;
+            if(!array_key_exists($id, $active) && $current_id)
+              unset($choices[$id]);
+          }
+
+        }
+        if($addNew)
+          $choices[':new:'] = '— '.__('Add New').' —';
 
         return $choices;
     }

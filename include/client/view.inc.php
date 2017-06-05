@@ -174,7 +174,8 @@ echo $attrs; ?>><?php echo $draft ?: $info['message'];
         print $attachments->render(array('client'=>true));
     } ?>
     </div>
-<?php if ($ticket->isClosed()) { ?>
+<?php
+  if ($ticket->isClosed() && $ticket->isReopenable()) { ?>
     <div class="warning-banner">
         <?php echo __('Ticket will be reopened on message post'); ?>
     </div>

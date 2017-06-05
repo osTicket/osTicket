@@ -59,14 +59,27 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             <td>
                 <select name="pid">
                     <option value="">&mdash; <?php echo __('Top-Level Department'); ?> &mdash;</option>
-<?php foreach (Dept::getDepartments() as $id=>$name) {
-    if ($info['id'] && $id == $info['id'])
-        continue; ?>
-                    <option value="<?php echo $id; ?>" <?php
-                    if ($info['pid'] == $id) echo 'selected="selected"';
-                    ?>><?php echo $name; ?></option>
-<?php } ?>
-                </select>
+                    <?php
+                    if($info['pid'])
+                      $current_name = Dept::getNameById($info['pid']);
+                    if ($depts=Dept::getPublicDepartments())
+                    {
+                      if(!array_key_exists($info['pid'], $depts) && $info['pid'])
+                      {
+                        $depts[$info['pid']] = $current_name;
+                        $warn = sprintf(__('%s selected must be active'), __('Parent Department'));
+                      }
+                    foreach ($depts as $id=>$name) {
+                        $selected=($info['pid'] && $id==$info['pid'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                    }
+                  }
+                  ?>
+              </select>
+              <?php
+              if($warn) { ?>
+                  &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+              <?php } ?>
             </td>
         </tr>
         <tr>
@@ -78,6 +91,16 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 ?>" type="text" size="30" name="name" value="<?php echo $info['name']; ?>"
                 autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['name']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                <?php echo __('Status');?>:
+            </td>
+            <td>
+                <input type="radio" name="status" value="Active" <?php echo $info['status'] == 'Active'?'checked="checked"':''; ?>> <?php echo __('Active'); ?>
+                <input type="radio" name="status" value="Disabled" <?php echo $info['status'] == 'Disabled'?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
+                <input type="radio" name="status" value="Archived" <?php echo $info['status'] == 'Archived'?'checked="checked"':''; ?>> <?php echo __('Archived'); ?>
             </td>
         </tr>
         <tr>

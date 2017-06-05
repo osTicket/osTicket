@@ -1002,6 +1002,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         if(!$vars['role_id'])
             $errors['role_id']=__('Role for primary department is required');
 
+        $dept = Dept::lookup($vars['dept_id']);
+        if(!$dept->isActive())
+          $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Department'));
+
         // Ensure we will still have an administrator with access
         if ($vars['isadmin'] !== '1' || $vars['islocked'] === '1') {
             $sql = 'select count(*), max(staff_id) from '.STAFF_TABLE

@@ -41,15 +41,28 @@ class FilterAction extends VerySimpleModel {
         return $this->_config;
     }
 
-    function setConfiguration(&$errors=array(), $source=false) {
-        $config = array();
-        foreach ($this->getImpl()->getConfigurationForm($source ?: $_POST)
-                ->getFields() as $name=>$field) {
-            if (!$field->hasData())
-                continue;
+    function parseConfiguration($source, &$errors=array())
+    {
+      if (!$source)
+        return $this->getConfiguration();
+
+      $config = array();
+      foreach ($this->getImpl()->getConfigurationForm($source)
+              ->getFields() as $name=>$field) {
+          if (!$field->hasData())
+              continue;
+          if($field->to_php($field->getClean()))
             $config[$name] = $field->to_php($field->getClean());
-            $errors = array_merge($errors, $field->errors());
-        }
+          else
+            $config[$name] = $field->getClean();
+
+          $errors = array_merge($errors, $field->errors());
+      }
+      return $config;
+    }
+
+    function setConfiguration(&$errors=array(), $source=false) {
+        $config = $this->parseConfiguration($source ?: $_POST, $errors);
         if (count($errors) === 0)
             $this->set('configuration', JsonDataEncoder::encode($config));
         return count($errors) === 0;
@@ -279,14 +292,11 @@ class FA_RouteDepartment extends TriggerAction {
 
     function getConfigurationOptions() {
         return array(
-            'dept_id' => new ChoiceField(array(
-                'configuration' => array(
-                    'prompt' => __('Unchanged'),
-                    'data' => array('quick-add' => 'department'),
-                ),
-                'choices' =>
-                    Dept::getDepartments() +
-                    array(':new:' => '— '.__('Add New').' —'),
+                'dept_id' => new DepartmentField(array(
+                    'configuration' => array(
+                        'prompt' => __('Unchanged'),
+                        'data' => array('quick-add' => 'department'),
+                    ),
                 'validators' => function($self, $clean) {
                     if ($clean === ':new:')
                         $self->addError(__('Select a department'));
