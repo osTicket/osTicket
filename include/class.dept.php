@@ -62,11 +62,14 @@ implements TemplateVariable, Searchable {
     var $autorespEmail;
 
     const ALERTS_DISABLED = 2;
+    const DISPLAY_DISABLED = 2;
     const ALERTS_DEPT_AND_EXTENDED = 1;
     const ALERTS_DEPT_ONLY = 0;
 
     const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
     const FLAG_DISABLE_AUTO_CLAIM  = 0x0002;
+    const FLAG_ACTIVE = 0x0004;
+    const FLAG_ARCHIVED = 0x0008;
 
     function asVar() {
         return $this->getName();
@@ -142,6 +145,24 @@ implements TemplateVariable, Searchable {
 
     function getFullName() {
         return self::getNameById($this->getId());
+    }
+
+    function getStatus() {
+        if($this->flags & self::FLAG_ACTIVE)
+          return __('Active');
+        elseif($this->flags & self::FLAG_ARCHIVED)
+          return __('Archived');
+        else
+          return __('Disabled');
+    }
+
+    function allowsReopen() {
+      return !($this->flags & self::FLAG_ARCHIVED);
+    }
+
+    function isActive()
+    {
+        return !!($this->flags & self::FLAG_ACTIVE);
     }
 
     function getEmailId() {
@@ -377,6 +398,7 @@ implements TemplateVariable, Searchable {
 
         $ht['assign_members_only'] = $this->assignMembersOnly();
         $ht['disable_auto_claim'] =  $this->disableAutoClaim();
+        $ht['status'] = $this->getStatus();
         return $ht;
     }
 
@@ -481,7 +503,7 @@ implements TemplateVariable, Searchable {
      *
      */
 
-    private function setFlag($flag, $val) {
+    public function setFlag($flag, $val) {
 
         if ($val)
             $this->flags |= $flag;
@@ -511,7 +533,7 @@ implements TemplateVariable, Searchable {
     }
 
     function getNameById($id) {
-        $names = static::getDepartments();
+        $names = Dept::getDepartments();
         return $names[$id];
     }
 
@@ -525,8 +547,8 @@ implements TemplateVariable, Searchable {
             : null;
     }
 
-    static function getDepartments( $criteria=null, $localize=true) {
-        static $depts = null;
+    static function getDepartments($criteria=null, $localize=true, $disabled=true) {
+        $depts = null;
 
         if (!isset($depts) || $criteria) {
             // XXX: This will upset the static $depts array
@@ -534,7 +556,7 @@ implements TemplateVariable, Searchable {
             $query = self::objects();
             if (isset($criteria['publiconly']))
                 $query->filter(array(
-                            'ispublic' => ($criteria['publiconly'] ? 1 : 0)));
+                            'flags__hasbit' => Dept::FLAG_ACTIVE));
 
             if ($manager=$criteria['manager'])
                 $query->filter(array(
@@ -549,10 +571,15 @@ implements TemplateVariable, Searchable {
             }
 
             $query->order_by('name')
-                ->values('id', 'pid', 'name', 'parent');
+                 ->values('id', 'pid', 'flags', 'name', 'parent');
 
             foreach ($query as $row)
-                $depts[$row['id']] = $row;
+            {
+              $display = ($row['flags'] & self::FLAG_ACTIVE);
+
+              $depts[$row['id']] = array('id' => $row['id'], 'pid'=>$row['pid'], 'name'=>$row['name'],
+                  'parent'=>$row['parent'], 'disabled' => !$display);
+            }
 
             $localize_this = function($id, $default) use ($localize) {
                 if (!$localize)
@@ -579,21 +606,32 @@ implements TemplateVariable, Searchable {
                 // Fetch local names
                 $names[$id] = $localize_this($id, $name);
             }
-            asort($names);
+
+            // Apply requested filters
+            $requested_names = array();
+            foreach ($names as $id=>$n) {
+                $info = $depts[$id];
+                if (!$disabled && $info['disabled'])
+                    continue;
+                if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
+                    $n .= " - ".__("(disabled)");
+
+                $requested_names[$id] = $n;
+            }
+            asort($requested_names);
 
             // TODO: Use locale-aware sorting mechanism
-
             if ($criteria)
-                return $names;
+                return $requested_names;
 
-            $depts = $names;
+            $depts = $requested_names;
         }
 
-        return $depts;
+        return $requested_names;
     }
 
     static function getPublicDepartments() {
-        static $depts =null;
+        $depts =null;
 
         if (!$depts)
             $depts = self::getDepartments(array('publiconly'=>true));
@@ -645,6 +683,10 @@ implements TemplateVariable, Searchable {
         if ($vars['pid'] && !($p = static::lookup($vars['pid'])))
             $errors['pid'] = __('Department selection is required');
 
+        $dept = Dept::lookup($vars['pid']);
+        if($dept && !$dept->isActive())
+          $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Parent Department'));
+
         // Format access update as [array(dept_id, role_id, alerts?)]
         $access = array();
         if (isset($vars['members'])) {
@@ -670,9 +712,26 @@ implements TemplateVariable, Searchable {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
-        $this->flags = 0;
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+
+        switch ($vars['status'])
+        {
+          case __('Active'):
+            $this->setFlag(self::FLAG_ACTIVE, true);
+            $this->setFlag(self::FLAG_ARCHIVED, false);
+            break;
+
+          case __('Disabled'):
+            $this->setFlag(self::FLAG_ACTIVE, false);
+            $this->setFlag(self::FLAG_ARCHIVED, false);
+            break;
+
+          case __('Archived'):
+            $this->setFlag(self::FLAG_ACTIVE, false);
+            $this->setFlag(self::FLAG_ARCHIVED, true);
+            break;
+        }
 
         $this->path = $this->getFullPath();
 
@@ -761,7 +820,7 @@ extends Form {
                 'default' => 0,
                 'choices' =>
                     array(0 => '— '.__('Top-Level Department').' —')
-                    + Dept::getDepartments()
+                    + Dept::getPublicDepartments()
             )),
             'name' => new TextboxField(array(
                 'required' => true,

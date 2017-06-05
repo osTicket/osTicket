@@ -238,7 +238,25 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php
                 $existing = array();
                 if ($filter) { foreach ($filter->getActions() as $A) {
+                    $_warn = '';
                     $existing[] = $A->type;
+                    if($A->type == 'dept')
+                    {
+                      $errors['topic_id'] = '';
+                      // $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+                      $dept_config = $A->parseConfiguration($_POST);
+                      $dept = Dept::lookup($dept_config['dept_id']);
+                      if($dept && !$dept->isActive())
+                        $_warn = sprintf(__('%s must be active'), __('Department'));
+                    }
+                    elseif($A->type == 'topic')
+                    {
+                      $errors['dept_id'] = '';
+                      $topic_config = $A->parseConfiguration($_POST);
+                      $topic = Topic::lookup($topic_config['topic_id']);
+                      if($topic && !$topic->isActive())
+                        $_warn = sprintf(__('%s must be active'), __('Help Topic'));
+                    }
                 ?>
                 <tr style="background-color:white"><td><i class="icon-sort icon-large icon-muted"></i>
                     <?php echo $A->getImpl()->getName(); ?>:</td>
@@ -248,7 +266,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         // XXX: Drop this when the ORM supports proper caching
                         $form->isValid();
                         include STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
-                        ?>
+                        if($_warn) {
+                            ?>&nbsp;<span class="error">*&nbsp;<?php echo $_warn; ?></span>
+                        <?php } ?>
                         <input type="hidden" name="actions[]" value="I<?php echo $A->getId(); ?>"/>
                         <div class="pull-right" style="position:absolute;top:2px;right:2px;">
                             <a href="#" title="<?php echo __('clear'); ?>" onclick="javascript:

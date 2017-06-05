@@ -63,11 +63,16 @@ if($_POST){
 
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $num = Topic::objects()->filter(array(
-                            'topic_id__in' => $_POST['ids'],
-                        ))->update(array(
-                            'isactive' => true,
+                        $topics = Topic::objects()->filter(array(
+                          'topic_id__in'=>$_POST['ids'],
                         ));
+                        foreach ($topics as $t)
+                        {
+                          $t->setFlag(Topic::FLAG_ARCHIVED, false);
+                          $t->setFlag(Topic::FLAG_ACTIVE, true);
+                          if($t->save())
+                            $num++;
+                        }
 
                         if ($num > 0) {
                             if($num==$count)
@@ -82,13 +87,18 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $num = Topic::objects()->filter(array(
-                            'topic_id__in'=>$_POST['ids'],
+                        $topics = Topic::objects()->filter(array(
+                          'topic_id__in'=>$_POST['ids'],
                         ))->exclude(array(
-                            'topic_id'=>$cfg->getDefaultTopicId(),
-                        ))->update(array(
-                            'isactive' => false,
+                            'topic_id'=>$cfg->getDefaultTopicId()
                         ));
+                        foreach ($topics as $t)
+                        {
+                          $t->setFlag(Topic::FLAG_ARCHIVED, false);
+                          $t->setFlag(Topic::FLAG_ACTIVE, false);
+                          if($t->save())
+                            $num++;
+                        }
                         if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
@@ -98,6 +108,31 @@ if($_POST){
                                     _N('selected help topic', 'selected help topics', $count));
                         } else {
                             $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected help topic', 'selected help topics', $count));
+                        }
+                        break;
+                    case 'archive':
+                        $topics = Topic::objects()->filter(array(
+                          'topic_id__in'=>$_POST['ids'],
+                        ))->exclude(array(
+                            'topic_id'=>$cfg->getDefaultTopicId()
+                        ));
+                        foreach ($topics as $t)
+                        {
+                          $t->setFlag(Topic::FLAG_ARCHIVED, true);
+                          $t->setFlag(Topic::FLAG_ACTIVE, false);
+                          if($t->save())
+                            $num++;
+                        }
+                        if ($num > 0) {
+                            if($num==$count)
+                                $msg = sprintf(__('Successfully archived %s'),
+                                    _N('selected help topic', 'selected help topics', $count));
+                            else
+                                $warn = sprintf(__('%1$d of %2$d %3$s archived'), $num, $count,
+                                    _N('selected help topic', 'selected help topics', $count));
+                        } else {
+                            $errors['err'] = sprintf(__('Unable to archive %s'),
                                 _N('selected help topic', 'selected help topics', $count));
                         }
                         break;
@@ -150,7 +185,11 @@ if($_POST){
 
 $page='helptopics.inc.php';
 $tip_namespace = 'manage.helptopic';
-if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+if($topic || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+{
+    if ($topic && ($dept=$topic->getDept()) && !$dept->isActive())
+      $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Help Topic'), __('Department'));
+
     $page='helptopic.inc.php';
 }
 

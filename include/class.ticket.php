@@ -207,7 +207,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isReopenable() {
-        return $this->getStatus()->isReopenable();
+        return ($this->getStatus()->isReopenable()
+          && $this->getDept()->allowsReopen());
     }
 
     function isClosed() {
@@ -3157,6 +3158,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 && !array_key_exists($vars['source'], Ticket::getSources()))
             $errors['source'] = sprintf( __('Invalid source given - %s'),
                     Format::htmlchars($vars['source']));
+
+        $topic = Topic::lookup($vars['topicId']);
+        if($topic && !$topic->isActive())
+          $errors['topicId']= sprintf(__('%s selected must be active'), __('Help Topic'));
 
         // Validate dynamic meta-data
         $forms = DynamicFormEntry::forTicket($this->getId());

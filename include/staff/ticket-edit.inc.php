@@ -94,6 +94,11 @@ if ($_POST)
                     <option value="" selected >&mdash; <?php echo __('Select Help Topic');?> &mdash;</option>
                     <?php
                     if($topics=Topic::getHelpTopics()) {
+                      if(!array_key_exists($ticket->topic_id, $topics))
+                      {
+                        $topics[$ticket->topic_id] = $ticket->topic;
+                        $warn = sprintf(__('%s selected must be active'), __('Help Topic'));
+                      }
                         foreach($topics as $id =>$name) {
                             echo sprintf('<option value="%d" %s>%s</option>',
                                     $id, ($info['topicId']==$id)?'selected="selected"':'',$name);
@@ -101,7 +106,10 @@ if ($_POST)
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
+                <?php
+                if($warn) { ?>
+                    &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $warn; ?></font>
+                <?php } ?>
             </td>
         </tr>
         <tr>
