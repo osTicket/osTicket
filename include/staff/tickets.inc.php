@@ -543,7 +543,7 @@ return false;">
                 <?php } ?>
                 <td title="<?php echo $T['user__default_email__address']; ?>" nowrap>
                   <a class="Icon <?php echo strtolower($T['source']); ?>Ticket preview"
-                    title="Preview Ticket"
+                    title="<?php echo __('Preview Ticket') ?>"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                     data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                     ><?php echo $tid; ?></a></td>
