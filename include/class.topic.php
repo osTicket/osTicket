@@ -362,6 +362,68 @@ implements TemplateVariable {
         return $requested_names;
     }
 
+    //@CHANGED: Added  function to create hierarchy tree
+    static function getHelpTopicsTree($publicOnly=false, $disabled=false, $localize=true) {
+        global $cfg;
+        static $topics, $names = array();
+        
+        // If localization is specifically requested, then rebuild the list.
+        if (!$names || $localize) {
+            $objects = self::objects()->values_flat(
+                'topic_id', 'topic_pid', 'ispublic', 'isactive', 'topic'
+            )
+            ->order_by('sort');
+
+            $localize_this = function($id, $default) use ($localize) {
+                if (!$localize)
+                    return $default;
+
+                $tag = _H("topic.name.{$id}");
+                $T = CustomDataTranslation::translate($tag);
+                return $T != $tag ? $T : $default;
+            };
+ 
+            // Fetch information for all topics, in declared sort order
+            $topics = array();
+            foreach ($objects as $T) {
+                list($id, $pid, $pub, $act, $topic) = $T;
+                if ($publicOnly && !$pub)
+                    continue;
+                if (!$disabled && !$act)
+                    continue;
+                $disabled = "";
+                if ($disabled === self::DISPLAY_DISABLED && !$act)
+                    $disabled.= " &mdash; ".__("(disabled)");
+                
+                
+                $topics[] = array('id'=>$id,'pid'=>$pid, 'text'=>$localize_this($id, $topic).$disabled, 'children' =>array(), 'public'=>$pub,'disabled'=>!$act);
+            }
+        }
+        return self::generateTree($topics);
+    }
+    
+    //@CHANGED: Added recursive function for Help Topics tree
+    static function generateTree($datas, $parent = 0, $depth=0){
+        if($depth > 1000) return ''; // Make sure not to have an endless recursion
+        $tree = '[';
+        for($i=0, $ni=count($datas); $i < $ni; $i++){
+            if($datas[$i]['pid'] == $parent){
+                $tree .= '{';
+                $tree .= '"id" : '.$datas[$i]['id'].',';
+                $tree .= '"text" : "'.$datas[$i]['text'].'",';
+                //Add folder icon
+                $children = self::generateTree($datas, $datas[$i]['id'], $depth+1);
+                $tree .= ($children != "[]") ? '"state" : "closed",' : '';
+                $tree .= '"children" : '.$children;
+                $tree .= '},';
+            }
+        }
+        //remove trailing comma
+        $tree = rtrim($tree, ',');
+        $tree .= ']';
+        return $tree;
+    }
+
     static function getPublicHelpTopics() {
         return self::getHelpTopics(true);
     }
