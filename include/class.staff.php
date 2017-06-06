@@ -1003,7 +1003,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             $errors['role_id']=__('Role for primary department is required');
 
         $dept = Dept::lookup($vars['dept_id']);
-        if(!$dept->isActive())
+        if($dept && !$dept->isActive())
           $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Department'));
 
         // Ensure we will still have an administrator with access
