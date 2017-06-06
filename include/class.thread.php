@@ -40,6 +40,10 @@ implements Searchable {
             'collaborators' => array(
                 'reverse' => 'Collaborator.thread',
             ),
+
+            'referrals' => array(
+                'reverse' => 'ThreadReferral.thread',
+            ),
             'entries' => array(
                 'reverse' => 'ThreadEntry.thread',
             ),
@@ -102,6 +106,15 @@ implements Searchable {
                 $this->_entries->filter($criteria);
         }
         return $this->_entries;
+    }
+
+    // Referrals
+    function getNumReferrals() {
+        return $this->referrals->count();
+    }
+
+    function getReferrals() {
+        return $this->referrals;
     }
 
     // Collaborators
@@ -262,6 +275,30 @@ implements Searchable {
         return $this->_participants;
     }
 
+    function refer($to) {
+
+        $vars = array('thread_id' => $this->getId());
+        switch (true) {
+        case $to instanceof Staff:
+            $vars['object_id'] = $to->getId();
+            $vars['object_type'] = ObjectModel::OBJECT_TYPE_STAFF;
+            break;
+        case $to instanceof Team:
+            $vars['object_id'] = $to->getId();
+            $vars['object_type'] = ObjectModel::OBJECT_TYPE_TEAM;
+            break;
+        case $to instanceof Dept:
+            $vars['object_id'] = $to->getId();
+            $vars['object_type'] = ObjectModel::OBJECT_TYPE_DEPT;
+            break;
+        default:
+            return false;
+        }
+
+        var_dump($vars);
+
+        return ThreadReferral::create($vars);
+    }
 
     // Render thread
     function render($type=false, $options=array()) {
@@ -1636,6 +1673,79 @@ implements TemplateVariable {
 
 RolePermission::register(/* @trans */ 'Tickets', ThreadEntry::getPermissions());
 
+
+class ThreadReferral extends VerySimpleModel {
+    static $meta = array(
+        'table' => THREAD_REFERRAL_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'thread' => array(
+                'constraint' => array('thread_id' => 'Thread.id'),
+            ),
+            'agent' => array(
+                'constraint' => array(
+                    'object_type' => "'S'",
+                    'object_id' => 'Staff.staff_id',
+                ),
+            ),
+            'team' => array(
+                'constraint' => array(
+                    'object_type' => "'E'",
+                    'object_id' => 'Team.team_id',
+                ),
+            ),
+            'dept' => array(
+                'constraint' => array(
+                    'object_type' => "'D'",
+                    'object_id' => 'Dept.id',
+                ),
+            ),
+          )
+        );
+
+    var $icons = array(
+            'E' => 'group',
+            'D' => 'sitemap',
+            'S' => 'user'
+            );
+
+    var $_object = null;
+
+    function getId() {
+        return $this->id;
+    }
+
+    function getName() {
+        return (string) $this->getObject();
+    }
+
+    function getObject() {
+
+        if (!isset($this->_object)) {
+            $this->_object = ObjectModel::lookup(
+                    $this->object_id, $this->object_type);
+        }
+
+        return $this->_object;
+    }
+
+    function getIcon() {
+        return $this->icons[$this->object_type];
+    }
+
+    function display() {
+        return sprintf('<i class="icon-%s"></i> %s',
+                $this->getIcon(), $this->getName());
+    }
+
+    static function create($vars) {
+
+        $new = new self($vars);
+        $new->created = SqlFunction::NOW();
+        return $new->save();
+    }
+}
+
 class ThreadEvent extends VerySimpleModel {
     static $meta = array(
         'table' => THREAD_EVENT_TABLE,
@@ -1690,6 +1800,7 @@ class ThreadEvent extends VerySimpleModel {
     const REOPENED  = 'reopened';
     const STATUS    = 'status';
     const TRANSFERRED = 'transferred';
+    const REFERRED = 'referred';
     const VIEWED    = 'viewed';
 
     const MODE_STAFF = 1;
@@ -1719,6 +1830,7 @@ class ThreadEvent extends VerySimpleModel {
             'created'   => 'magic',
             'overdue'   => 'time',
             'transferred' => 'share-alt',
+            'referred' => 'exchange',
             'edited'    => 'pencil',
             'closed'    => 'thumbs-up-alt',
             'reopened'  => 'rotate-right',
@@ -1957,6 +2069,27 @@ class AssignmentEvent extends ThreadEvent {
             break;
         case isset($data['claim']):
             $desc = __('<b>{somebody}</b> claimed this {timestamp}');
+            break;
+        }
+        return $this->template($desc);
+    }
+}
+
+class ReferralEvent extends ThreadEvent {
+    static $icon = 'exchange';
+    static $state = 'referred';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        $data = $this->getData();
+        switch (true) {
+        case isset($data['staff']):
+            $desc = __('<b>{somebody}</b> referred this to <strong>{<Staff>data.staff}</strong> {timestamp}');
+            break;
+        case isset($data['team']):
+            $desc = __('<b>{somebody}</b> referred this to <strong>{<Team>data.team}</strong> {timestamp}');
+            break;
+        case isset($data['dept']):
+            $desc = __('<b>{somebody}</b> referred this to <strong>{<Dept>data.dept}</strong> {timestamp}');
             break;
         }
         return $this->template($desc);

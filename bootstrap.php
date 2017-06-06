@@ -98,6 +98,7 @@ class Bootstrap {
         define('TICKET_TABLE',$prefix.'ticket');
         define('TICKET_CDATA_TABLE', $prefix.'ticket__cdata');
         define('THREAD_EVENT_TABLE',$prefix.'thread_event');
+        define('THREAD_REFERRAL_TABLE',$prefix.'thread_referral');
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
