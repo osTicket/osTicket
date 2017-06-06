@@ -92,6 +92,33 @@ if($ticket->isOverdue())
                 data-redirect="tickets.php"
                 href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><i class="icon-share"></i></a>
             </span>
+            <span class="action-button pull-right"
+                data-dropdown="#action-dropdown-refer"
+                data-placement="bottom"
+                data-toggle="tooltip"
+                title=" <?php echo __('Refer'); ?>"
+                >
+                <i class="icon-caret-down pull-right"></i>
+                <a class="ticket-action" id="ticket-refer"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/refer"><i class="icon-exchange"></i></a>
+            </span>
+            <div id="action-dropdown-refer" class="action-dropdown anchor-right">
+              <ul>
+                 <li><a class="no-pjax ticket-action"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/refer/agents"><i
+                    class="icon-user"></i> <?php echo __('Agent'); ?></a>
+                 <li><a class="no-pjax ticket-action"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/refer/teams"><i
+                    class="icon-group"></i> <?php echo __('Team'); ?></a>
+                 <li><a class="no-pjax ticket-action"
+                    data-redirect="tickets.php"
+                    href="#tickets/<?php echo $ticket->getId(); ?>/refer/departments"><i
+                    class="icon-sitemap"></i> <?php echo __('Department'); ?></a>
+              </ul>
+            </div>
             <?php
             } ?>
 
