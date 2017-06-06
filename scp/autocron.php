@@ -60,7 +60,7 @@ Cron::TicketMonitor();
 if (mt_rand(1, 20) == 4)
     Cron::CleanOrphanedFiles();
 
-if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enabled!
+if($cfg && $cfg->isAutoCronEnabled() && !DEV) { //ONLY fetch tickets if autocron is enabled!
     Cron::MailFetcher();  //Fetch mail.
     $ost->logDebug(_S('Auto Cron'), sprintf(_S('Mail fetcher cron call [%s]'), $caller));
 }
