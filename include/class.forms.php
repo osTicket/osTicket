@@ -2671,17 +2671,24 @@ class AssigneeField extends ChoiceField {
     }
 
     function to_php($value, $id=false) {
+        $type = '';
         if (is_array($id)) {
             reset($id);
             $id = key($id);
+            $type = $id[0];
+            $id = substr($id, 1);
         }
 
-        if ($id[0] == 's')
-            return Staff::lookup(substr($id, 1));
-        elseif ($id[0] == 't')
-            return Team::lookup(substr($id, 1));
-
-        return $id;
+        switch ($type) {
+        case 's':
+            return Staff::lookup($id);
+        case 't':
+            return Team::lookup($id);
+        case 'd':
+            return Dept::lookup($id);
+        default:
+            return $id;
+        }
     }
 
 
@@ -4612,6 +4619,128 @@ class ClaimForm extends AssignmentForm {
     }
 
 }
+
+class ReferralForm extends Form {
+
+    static $id = 'refer';
+    var $_target = null;
+    var $_choices = null;
+    var $_prompt = '';
+
+    function getFields() {
+
+        if ($this->fields)
+            return $this->fields;
+
+        $fields = array(
+            'target' => new AssigneeField(array(
+                    'id'=>1,
+                    'label' => __('Referee'),
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'validator-error' => __('Selection required'),
+                    'configuration' => array(
+                        'criteria' => array(
+                            'available' => true,
+                            ),
+                        'prompt' => $this->_prompt,
+                       ),
+                    )
+                ),
+            'comments' => new TextareaField(array(
+                    'id' => 2,
+                    'label'=> '',
+                    'required'=>false,
+                    'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'small',
+                        'placeholder' => __('Optional reason for the referral'),
+                        ),
+                    )
+                ),
+            );
+
+
+        if (isset($this->_choices))
+            $fields['target']->setChoices($this->_choices);
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getField($name) {
+
+        if (($fields = $this->getFields())
+                && isset($fields[$name]))
+            return $fields[$name];
+    }
+
+    function isValid($include=false) {
+
+        if (!parent::isValid($include) || !($f=$this->getField('target')))
+            return false;
+
+        // Do additional assignment validation
+        $choice = $this->getTarget();
+        switch (true) {
+        case $choice instanceof Staff:
+            // Make sure the agent is available
+            if (!$choice->isAvailable())
+                $f->addError(__('Agent is unavailable for assignment'));
+        break;
+        case $choice instanceof Team:
+            // Make sure the team is active and has members
+            if (!$choice->isActive())
+                $f->addError(__('Team is disabled'));
+            elseif (!$choice->getNumMembers())
+                $f->addError(__('Team does not have members'));
+        break;
+        case $choice instanceof Dept:
+        break;
+        default:
+            $f->addError(__('Unknown selection'));
+        }
+
+        return !$this->errors();
+    }
+
+    function render($options) {
+
+        switch(strtolower($options['template'])) {
+        case 'simple':
+            $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
+            break;
+        default:
+            throw new Exception(sprintf(__('%s: Unknown template style %s'),
+                        'FormUtils', $options['template']));
+        }
+
+        $form = $this;
+        include $inc;
+    }
+
+    function setChoices($choices, $prompt='') {
+        $this->_choices = $choices;
+        $this->_prompt = $prompt;
+        $this->_fields = array();
+    }
+
+    function getTarget() {
+
+        if (!isset($this->_target))
+            $this->_target = $this->getField('target')->getClean();
+
+        return $this->_target;
+    }
+
+    function getComments() {
+        return $this->getField('comments')->getClean();
+    }
+}
+
 
 class TransferForm extends Form {
 

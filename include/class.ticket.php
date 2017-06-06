@@ -852,6 +852,36 @@ implements RestrictedAccess, Threadable, Searchable {
         return $form;
     }
 
+    function getReferralForm($source=null, $options=array()) {
+
+        $prompt = '';
+        $choices = array();
+        switch (strtolower($options['target'])) {
+        case 'agents':
+            $dept = $this->getDept();
+            foreach ($dept->getAssignees() as $member)
+                $choices['s'.$member->getId()] = $member;
+            $prompt = sprintf('%s %s', __('Select an'), __('Agent'));
+            break;
+        case 'teams':
+            if (($teams = Team::getActiveTeams()))
+                foreach ($teams as $id => $name)
+                    $choices['t'.$id] = $name;
+            $prompt = sprintf('%s %s', __('Select a'), __('Team'));
+            break;
+        case 'departments':
+            foreach (Dept::getDepartments() as $k => $v)
+                $choices["d$k"] = $v;
+            $prompt = sprintf('%s %s', __('Select a'), __('Department'));
+            break;
+        }
+
+        $form = ReferralForm::instantiate($source, $options);
+        $form->setChoices($choices, $prompt);
+
+        return $form;
+    }
+
     function getClaimForm($source=null, $options=array()) {
         global $thisstaff;
 
@@ -2283,6 +2313,65 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->unassign();
     }
 
+    function refer(ReferralForm $form, &$errors, $alert=true) {
+        global $thisstaff;
+
+        $evd = array();
+        $choice = $form->getTarget();
+        switch (true) {
+        case $choice instanceof Staff:
+            $dept = $this->getDept();
+            if ($this->getStaffId() == $choice->getId()) {
+                $errors['target'] = sprintf(__('%s is assigned to %s'),
+                        __('Ticket'),
+                        __('the agent')
+                        );
+            } elseif(!$choice->isAvailable()) {
+                $errors['assignee'] = sprintf(__('Agent is unavailable for %s'),
+                        __('referral'));
+            } elseif ($dept->assignMembersOnly() && !$dept->isMember($choice)) {
+                $errors['err'] = __('Permission denied');
+            } else {
+                $evd['staff'] = array($choice->getId(), (string) $choice->getName()->getOriginal());
+            }
+            break;
+        case $choice instanceof Team:
+            if ($this->getTeamId() == $choice->getId()) {
+                $errors['assignee'] = sprintf(__('%s is assigned to %s'),
+                        __('Ticket'),
+                        __('the team')
+                        );
+            } else {
+                //TODO::
+                $evd = array('team' => $choice->getId());
+            }
+            break;
+        case $choice instanceof Dept:
+            if ($this->getTeamId() == $choice->getId()) {
+                $errors['target'] = sprintf(__('%s is already in %s'),
+                        __('Ticket'),
+                        __('the department')
+                        );
+            } else {
+                //TODO::
+                $evd = array('dept' => $choice->getId());
+            }
+            break;
+        default:
+            $errors['target'] = __('Unknown referral');
+        }
+
+        if (!$errors && !$this->thread->refer($choice))
+            $errors['err'] = __('Unable to reffer ticket');
+
+        if ($errors)
+            return false;
+
+        $this->logEvent('referred', $evd);
+
+        return true;
+    }
+
     //Change ownership
     function changeOwner($user) {
         global $thisstaff;
@@ -3073,19 +3162,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
             return null;
 
-        // -- Open and assigned to me
-        $assigned = Q::any(array(
-            'staff_id' => $staff->getId(),
-        ));
-        // -- Open and assigned to a team of mine
-        if ($teams = array_filter($staff->getTeams()))
-            $assigned->add(array('team_id__in' => $teams));
-
-        $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
-
-        // -- Routed to a department of mine
-        if (!$staff->showAssignedOnly() && ($depts = $staff->getDepts()))
-            $visibility->add(array('dept_id__in' => $depts));
+        $visibility = $staff->getTicketsVisibility();
 
         $blocks = Ticket::objects()
             ->filter(Q::any($visibility))

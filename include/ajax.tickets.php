@@ -418,6 +418,88 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
 
+  function referrals($tid) {
+
+      return $this->refer($tid);
+
+  }
+
+function refer($tid, $target=null) {
+    global $thisstaff;
+
+    if (!($ticket=Ticket::lookup($tid)))
+        Http::response(404, __('No such ticket'));
+
+    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+            || !($form = $ticket->getReferralForm($_POST,
+                    array('target' => $target))))
+        Http::response(403, __('Permission denied'));
+
+    $errors = array();
+    $info = array(
+            ':title' => sprintf(__('Ticket #%s: %s'),
+                $ticket->getNumber(),
+                __('Refer')
+                ),
+            ':action' => sprintf('#tickets/%d/refer%s',
+                $ticket->getId(),
+                ($target  ? "/$target": '')),
+            );
+
+    if ($_POST) {
+
+        switch ($_POST['do']) {
+        case 'refer':
+            if ($form->isValid() && $ticket->refer($form, $errors)) {
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s referred to %s'),
+                            sprintf(__('Ticket #%s'),
+                                 sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                     $ticket->getId(),
+                                     $ticket->getNumber()))
+                            ,
+                            $form->getTarget())
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
+            break;
+        case 'manage':
+            $remove = array();
+            if (is_array($_POST['referrals'])) {
+                $remove = array();
+                foreach ($_POST['referrals'] as $k => $v)
+                    if ($v[0] == '-')
+                        $remove[] = substr($v, 1);
+                if (count($remove)) {
+                    $num = $ticket->thread->referrals
+                        ->filter(array('id__in' => $remove))
+                        ->delete();
+                    if ($num) {
+                        $info['msg'] = sprintf(
+                                __('%s successfully'),
+                                sprintf(__('Removed %d referrals'),
+                                    $num
+                                    )
+                                );
+                    }
+                    //TODO: log removal
+                }
+            }
+            break;
+        default:
+             $errors['err'] = __('Unknown Action');
+        }
+    }
+
+    $thread = $ticket->getThread();
+    include STAFFINC_DIR . 'templates/refer.tmpl.php';
+}
+
     function assign($tid, $target=null) {
         global $thisstaff;
 
@@ -544,6 +626,9 @@ class TicketsAjaxAPI extends AjaxController {
                     ),
                 'assign' => array(
                     'verbed' => __('assigned'),
+                    ),
+                'refer' => array(
+                    'verbed' => __('referred'),
                     ),
                 'claim' => array(
                     'verbed' => __('assigned'),
