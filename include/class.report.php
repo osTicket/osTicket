@@ -202,7 +202,7 @@ class OverviewReport {
             $pk = 'dept__id';
             $stats = $stats
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                ->values('dept__id', 'dept__name');
+                ->values('dept__id', 'dept__name', 'dept__flags');
             $times = $times
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
                 ->values('dept__id');
@@ -212,8 +212,13 @@ class OverviewReport {
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
             $stats = $stats
+<<<<<<< HEAD
                 ->values('topic_id', 'topic__topic')
                 ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0));
+=======
+                ->values('topic_id', 'topic__topic', 'topic__flags')
+                ->filter(array('topic_id__gt' => 0));
+>>>>>>> bug fixes v2
             $times = $times
                 ->values('topic_id')
                 ->filter(array('topic_id__gt' => 0));
@@ -246,9 +251,31 @@ class OverviewReport {
         }
         $rows = array();
         foreach ($stats as $R) {
+          if (isset($R['dept__flags'])) {
+            if ($R['dept__flags'] & Dept::FLAG_ARCHIVED)
+              $status = ' - '.__('Archived');
+            elseif ($R['dept__flags'] & Dept::FLAG_ACTIVE)
+              $status = '';
+            else
+              $status = ' - '.__('Disabled');
+          }
+          if (isset($R['topic__flags'])) {
+            if ($R['topic__flags'] & Topic::FLAG_ARCHIVED)
+              $status = ' - '.__('Archived');
+            elseif ($R['topic__flags'] & Topic::FLAG_ACTIVE)
+              $status = '';
+            else
+              $status = ' - '.__('Disabled');
+          }
+
             $T = $timings[$R[$pk]];
+<<<<<<< HEAD
             $rows[] = array($header($R), $R['Opened'], $R['Assigned'],
                 $R['Overdue'], $R['Closed'], $R['Reopened'], $R['Deleted'],
+=======
+            $rows[] = array($header($R) . $status, $R['Opened'], $R['Assigned'],
+                $R['Overdue'], $R['Closed'], $R['Reopened'],
+>>>>>>> bug fixes v2
                 number_format($T['ServiceTime'], 1),
                 number_format($T['ResponseTime'], 1));
         }

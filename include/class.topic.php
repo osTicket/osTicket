@@ -430,7 +430,7 @@ implements TemplateVariable, Searchable {
             $errors['topic']=__('Topic already exists');
 
           $dept = Dept::lookup($vars['dept_id']);
-          if(!$dept->isActive())
+          if($dept && !$dept->isActive())
             $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Department'));
 
         if (!is_numeric($vars['dept_id']))
