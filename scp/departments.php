@@ -130,7 +130,10 @@ if($_POST){
 
 $page='departments.inc.php';
 $tip_namespace = 'staff.department';
-if($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+if ($_REQUEST['a'] && $_REQUEST['a'] == 'export') {
+  if (!Dept::export($dept))
+      $errors['err'] = sprintf(__('Unable to export %s.'), __('Department'));
+} elseif ($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='department.inc.php';
 }
 
