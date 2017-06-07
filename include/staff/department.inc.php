@@ -325,7 +325,17 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo sprintf(__('Agents who are primary members of %s'), __('this department')); ?>
                 </small></div>
             </td>
-        </tr>
+            <td>
+              <?php
+                echo sprintf(
+                    '<a class="no-pjax" href="departments.php?id=%d&a=export"</a>',
+                    $dept->getId());
+                    ?>
+              <span class="action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Export');?>">
+                  <i class="icon-download-alt icon-fixed-width"></i>
+              </span>
+            </td>
+          </tr>
         <?php
         if (!count($dept->members)) { ?>
         <tr><td colspan=2><em><?php

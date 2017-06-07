@@ -473,6 +473,15 @@ implements TemplateVariable {
             $this->flags &= ~$flag;
     }
 
+    function export($dept, $criteria=null, $filename='') {
+        include_once(INCLUDE_DIR.'class.error.php');
+        $members = $dept->getMembers();
+
+        //Sort based on name formating
+        $members = Staff::nsort($members);
+        Export::departmentMembers($dept, $members, $filename);
+    }
+
     /*----Static functions-------*/
     static function getIdByName($name, $pid=null) {
         $row = static::objects()

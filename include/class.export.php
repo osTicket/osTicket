@@ -258,7 +258,7 @@ class Export {
         return false;
     }
 
-    static function  agents($agents, $filename='', $how='csv') {
+    static function agents($agents, $filename='', $how='csv') {
 
         // Filename or stream to export agents to
         $filename = $filename ?: sprintf('Agents-%s.csv',
@@ -284,6 +284,40 @@ class Export {
         exit;
 
     }
+
+static function departmentMembers($dept, $agents, $filename='', $how='csv') {
+    $primaryMembers = array();
+    foreach ($dept->getPrimaryMembers() as $agent) {
+      $primaryMembers[] = $agent->getId();
+    }
+
+    // Filename or stream to export depts' agents to
+    $filename = $filename ?: sprintf('%s-%s.csv', $dept->getName(),
+            strftime('%Y%m%d'));
+    Http::download($filename, "text/$how");
+    echo self::dumpQuery($agents, array(
+                '::getName'  =>  'Name',
+                '::getUsername' => 'Username',
+                2 => 'Access Type',
+                3 => 'Access Role',
+              ),
+            $how,
+            array('modify' => function(&$record, $keys, $obj) use ($dept, $primaries, $primaryMembers) {
+                $role = $obj->getRole($dept);
+
+                if (array_search($obj->getId(), $primaryMembers, true) === false)
+                  $type = 'Extended';
+                else {
+                  $type = 'Primary';
+                }
+
+                $record[2] = $type;
+                $record[3] = $role->name;
+                return $record;
+                })
+            );
+    exit;
+  }
 }
 
 class ResultSetExporter {
