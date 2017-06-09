@@ -776,7 +776,7 @@ class SavedSearch extends VerySimpleModel {
                     continue;
                 }
                 $id = $info[2];
-                if (is_numeric($id) && ($field = DynamicFormField::lookup($id))) {
+                if (is_numeric($id) && ($field = DynamicFormField::lookup($id)) && is_object($field->form)) {
                     $impl = $field->getImpl();
                     $impl->set('label', sprintf('%s / %s',
                         $field->form->getLocal('title'), $field->getLocal('label')
