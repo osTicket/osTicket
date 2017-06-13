@@ -1,4 +1,7 @@
 #landing_page {
+  display: flex;
+  flex-direction: column-reverse;
+
   #new_ticket {
     margin-top: 40px;
     width: 295px;
@@ -13,6 +16,35 @@
     padding-left: 75px;
     float: right;
     background: url('../images/check_status_icon.png') top left no-repeat;
+  }
+
+  .sidebar {
+    margin: 10px 0;
+
+    .front-page-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      p {
+        &:first-child {
+          margin-right: 15px;
+        }
+      }
+
+      .button {
+        &:extend(.btn);
+        &:extend(.btn-primary);
+        &:extend(.btn-lg);
+        white-space: inherit;
+        border-radius: 0;
+        text-decoration: none;
+
+        &.green {
+          &:extend(.btn-success);
+        }
+      }
+    }
   }
 }
 

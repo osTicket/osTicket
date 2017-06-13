@@ -8,6 +8,7 @@
 
 #header {
   position: relative;
+  margin-top: 20px;
 
   @media(min-width: 991px) {
     display: flex;
@@ -84,9 +85,9 @@
       color: #333;
       text-decoration: none;
 
-      a:hover {
-        background-color: #ededed;
-        color: #0054a6;
+      &:hover {
+        background-color: rgba(1, 117, 216, 0.68);
+        color: #ededed;
       }
 
       &::before {
@@ -96,7 +97,7 @@
       }
     }
 
-    a.active, a:hover {
+    a.active {
       background-color: #0175d8;
       color: #fff;
     }
@@ -130,28 +131,28 @@
 }
 
 #content {
-  padding: 20px 0;
-  margin: 0 20px;
-  height: auto !important;
-  height: 350px;
-  min-height: 350px;
+  padding: 0;
+  display: inline-block;
+  width: 100%;
 }
 
 #footer {
   text-align: center;
-  font-size: 11px;
-  color: #333;
+  font-size: 12px;
+  color: #fff;
+  background: #232533;
+  padding: 15px 0;
 
   a {
     color: #333;
   }
 
   p {
-    margin: 10px 0 0 0;
+    margin: 0;
   }
 
   #poweredBy {
-    display: block;
+    display: none;
     width: 126px;
     height: 23px;
     outline: none;
