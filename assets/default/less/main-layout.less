@@ -49,83 +49,48 @@
   }
 }
 
-#nav {
-  .make-md-column(12);
-  padding-left: 0;
-  padding-right: 0;
-  margin: 20px 0;
-  background: #fff;
-  list-style: none;
-  text-align: center;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: center;
-  background: #232533;
-  border-bottom: 4px solid #0175d8;
+#navigation-bar {
+  margin: 0;
 
-  .icons(@icon: "\f024") {
+  .icons(@option: "\f015") {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
-    font-size: 3em;
+    font-size: 1em;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    content: @icon;
+    content: @option;
+    margin-right: 5px;
   }
 
-  li {
-    display: flex;
-    padding: 0;
+  .not-registered {
+    color: #fff;
+    cursor: default;
+  }
 
-    a {
-      background: #f7f7f7;
-      text-align: center;
-      padding: 20px 10px;
-      color: #333;
-      text-decoration: none;
-
-      &:hover {
-        background-color: rgba(1, 117, 216, 0.68);
-        color: #ededed;
-      }
-
-      &::before {
-        width: 100%;
-        display: block;
-        color: rgba(0,0,0,0.5);
-      }
+  a.home    {
+    &::before {
+      .icons("\f015");
     }
-
-    a.active {
-      background-color: #0175d8;
-      color: #fff;
+  }
+  a.kb      {
+    &::before {
+      .icons("\f187");
     }
-
-    a.home    {
-      &::before {
-        .icons("\f015");
-      }
+  }
+  a.new     {
+    &::before {
+      .icons("\f067");
     }
-    a.kb      {
-      &::before {
-        .icons("\f187");
-      }
+  }
+  a.status  {
+    &::before {
+      .icons("\f03a");
     }
-    a.new     {
-      &::before {
-        .icons("\f067");
-      }
-    }
-    a.status  {
-      &::before {
-        .icons("\f03a");
-      }
-    }
-    a.tickets {
-      &::before {
-        .icons("\f145");
-      }
+  }
+  a.tickets {
+    &::before {
+      .icons("\f145");
     }
   }
 }
@@ -139,8 +104,8 @@
 #footer {
   text-align: center;
   font-size: 12px;
-  color: #fff;
-  background: #232533;
+  color: #000;
+  background: #f0f0f0;
   padding: 15px 0;
 
   a {
@@ -152,12 +117,11 @@
   }
 
   #poweredBy {
-    display: none;
-    width: 126px;
-    height: 23px;
-    outline: none;
-    text-indent: -9999px;
-    margin: 0 auto;
-    background: url('../images/poweredby.png') top left no-repeat;
+    display: inline-block;
+    margin-top: 15px;
+
+    img {
+      max-width: 100%;
+    }
   }
 }
