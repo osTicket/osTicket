@@ -130,41 +130,45 @@ $tickets->values(
     'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
     'dept__name', 'dept__ispublic', 'user__default_email__address'
-);
+); ?>
 
-?>
 <div class="search well">
-<div class="flush-left">
-<form action="tickets.php" method="get" id="ticketSearchForm">
-    <input type="hidden" name="a"  value="search">
-    <input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
-    <input type="submit" value="<?php echo __('Search');?>">
-<div class="pull-right">
-    <?php echo __('Help Topic'); ?>:
-    <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
-        <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-<?php
-foreach (Topic::getHelpTopics(true) as $id=>$name) {
-        $count = $thisclient->getNumTopicTickets($id, $org_tickets);
-        if ($count == 0)
-            continue;
-?>
-        <option value="<?php echo $id; ?>"i
-            <?php if ($settings['topic_id'] == $id) echo 'selected="selected"'; ?>
-            ><?php echo sprintf('%s (%d)', Format::htmlchars($name),
-                $thisclient->getNumTopicTickets($id)); ?></option>
-<?php } ?>
-    </select>
-</div>
-</form>
-</div>
+    <div class="flush-left">
+        <form action="tickets.php" method="get" id="ticketSearchForm">
+            <input type="hidden" name="a"  value="search">
+            <input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
+            <input type="submit" value="<?php echo __('Search');?>">
+            <div class="pull-right">
+                <?php echo __('Help Topic'); ?>:
+                <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
+                    <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
+                    <?php
+                    foreach (Topic::getHelpTopics(true) as $id=>$name) {
+                            $count = $thisclient->getNumTopicTickets($id, $org_tickets);
+                            if ($count == 0)
+                                continue; ?>
+                        <option value="<?php echo $id; ?>"i
+                            <?php if ($settings['topic_id'] == $id) echo 'selected="selected"'; ?>
+                            ><?php echo sprintf('%s (%d)', Format::htmlchars($name),
+                                $thisclient->getNumTopicTickets($id)); ?></option>
+                    <?php
+                    } ?>
+                </select>
+            </div>
+        </form>
+    </div>
 
-<?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
-<div style="margin-top:10px"><strong><a href="?clear" style="color:#777"><i class="icon-remove-circle"></i> <?php echo __('Clear all filters and sort'); ?></a></strong></div>
-<?php } ?>
-
+    <?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
+        <div style="margin-top:10px">
+            <strong>
+                <a href="?clear" style="color:#777">
+                    <i class="icon-remove-circle"></i>
+                    <?php echo __('Clear all filters and sort'); ?>
+                </a>
+            </strong>
+        </div>
+    <?php } ?>
 </div>
-
 
 <h1 style="margin:10px 0">
     <a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
@@ -172,30 +176,31 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
     <?php echo __('Tickets'); ?>
     </a>
 
-<div class="pull-right states">
-    <small>
-<?php if ($openTickets) { ?>
-    <i class="icon-file-alt"></i>
-    <a class="state <?php if ($status == 'open') echo 'active'; ?>"
-        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-    <?php echo _P('ticket-status', 'Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
-    </a>
-    <?php if ($closedTickets) { ?>
-    &nbsp;
-    <span style="color:lightgray">|</span>
-    <?php }
-}
-if ($closedTickets) {?>
-    &nbsp;
-    <i class="icon-file-text"></i>
-    <a class="state <?php if ($status == 'closed') echo 'active'; ?>"
-        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
-    <?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' (%d)', $closedTickets); ?>
-    </a>
-<?php } ?>
-    </small>
-</div>
+    <div class="pull-right states">
+        <small>
+            <?php if ($openTickets) { ?>
+                <i class="icon-file-alt"></i>
+                <a class="state <?php if ($status == 'open') echo 'active'; ?>"
+                    href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
+                <?php echo _P('ticket-status', 'Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
+                </a>
+                <?php if ($closedTickets) { ?>
+                &nbsp;
+                <span style="color:lightgray">|</span>
+                <?php }
+            }
+            if ($closedTickets) { ?>
+                &nbsp;
+                <i class="icon-file-text"></i>
+                <a class="state <?php if ($status == 'closed') echo 'active'; ?>"
+                    href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
+                <?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' (%d)', $closedTickets); ?>
+                </a>
+            <?php } ?>
+        </small>
+    </div>
 </h1>
+
 <table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
     <caption><?php echo $showing; ?></caption>
     <thead>
@@ -260,8 +265,8 @@ if ($closedTickets) {?>
     ?>
     </tbody>
 </table>
+
 <?php
 if ($total) {
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 }
-?>
