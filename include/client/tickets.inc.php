@@ -133,12 +133,14 @@ $tickets->values(
 ); ?>
 
 <div class="search well">
-    <div class="flush-left">
-        <form action="tickets.php" method="get" id="ticketSearchForm">
-            <input type="hidden" name="a"  value="search">
-            <input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
-            <input type="submit" value="<?php echo __('Search');?>">
-            <div class="pull-right">
+    <form action="tickets.php" method="get" id="ticketSearchForm">
+        <input type="hidden" name="a"  value="search">
+
+        <div class="col-md-12 text-center col">
+            <div class="form-group">
+                <input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
+            </div>
+            <div class="form-group">
                 <?php echo __('Help Topic'); ?>:
                 <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
                     <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
@@ -155,19 +157,19 @@ $tickets->values(
                     } ?>
                 </select>
             </div>
-        </form>
-    </div>
+            <input class="btn btn-primary" type="submit" value="<?php echo __('Search');?>">
+        </div>
 
-    <?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
-        <div style="margin-top:10px">
-            <strong>
-                <a href="?clear" style="color:#777">
+        <div class="col-md-12 text-center col">
+            <?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
+                <a class="btn btn-danger" href="?clear">
                     <i class="icon-remove-circle"></i>
                     <?php echo __('Clear all filters and sort'); ?>
                 </a>
-            </strong>
+            <?php } ?>
         </div>
-    <?php } ?>
+
+    </form>
 </div>
 
 <h1 style="margin:10px 0">
