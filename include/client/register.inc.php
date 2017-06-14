@@ -48,7 +48,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </td>
     </tr>
 <tr>
-    <td colspan=2">
+    <td colspan="2">
         <div><hr><h3><?php echo __('Access Credentials'); ?></h3></div>
     </td>
 </tr>

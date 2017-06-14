@@ -1,71 +1,37 @@
 #ticketForm, #clientLogin {
-  div {
-    padding: 0 15px;
-
-    label {
-      display: block;
-      width: 140px;
-      float: left;
-    }
-
-    label.required {
-        font-weight: bold;
-        text-align: left;
-    }
-
-    input, textarea {
-      width: auto;
-      border: 1px solid #aaa;
-      background: #fff;
-      margin-right: 10px;
-      display: block;
-      float: left;
-    }
-
-    input[type=file] {
-      border: 0;
-    }
-
-    select {
-      display: block;
-      float: left;
-    }
-    div.captchaRow {
-      line-height: 31px;
-
-      input {
-        position: relative;
-        top: 6px;
-      }
-    }
-
+  label.required {
+    font-weight: bold;
+    text-align: left;
   }
 
-  td, div {
-    textarea {
-      width: 600px;
-    }
+  input[type=file] {
+    border: 0;
+  } 
 
-    em {
-      color: #777;
-    }
+  .captchaRow {
+    line-height: 31px;
 
-    .captcha {
-      width: 88px;
-      height: 31px;
-      background: #000;
-      display: block;
-      float: left;
-      margin-right: 20px;
-    }
-
-    label.inline {
-      width: auto;
-      padding: 0 10px;
+    input {
+      position: relative;
+      top: 6px;
     }
   }
 
-  div.error {
+  .captcha {
+    width: 88px;
+    height: 31px;
+    background: #000;
+    display: block;
+    float: left;
+    margin-right: 20px;
+  }
+
+  .inline {
+    width: auto;
+    padding: 0 10px;
+  }
+
+  .error {
     input {
       border: 1px solid #a00;
     }
@@ -88,12 +54,6 @@
 }
 
 #clientLogin {
-  width: 400px;
-  margin-top: 20px;
-  padding: 10px 100px 10px 10px;
-  border: 1px solid #ccc;
-  background: url('../images/lock.png?1319655200') 440px 50% no-repeat #f6f6f6;
-
   p {
     clear: both;
     text-align: center;
@@ -168,8 +128,6 @@
 }
 
 #ticketForm {
-  background-color: rgb(241, 241, 241);
-  border-radius: 10px;
   margin: 20px 0;
 
   .buttons {
@@ -183,37 +141,41 @@
   hr {
     display: none;
   }
+}
 
-  table {
-    width: 100%;
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="tel"],
+input[type="password"] {
+  &:extend(.form-control);
+}
 
-    tr {
-      &>td {
-        position: relative;
+.osticket-group {
+  display: flex;
+  flex-direction: column;
 
-        &>label {
-          width: 100%;
-          padding: 0 15px;
+  .form-header {
+    margin-top: 0;
 
-          &>input[type="text"],
-          &>input[type="email"],
-          &>input[type="tel"],
-          &>input[type="number"],
-          &>input[type="password"] {
-            &:extend(.form-control);
-          }
-        }
-
-        &>select#topicId {
-          &:extend(.form-control);
-
-          &+.error {
-            position: absolute;
-            top: 10px;
-            right: 5px;
-          }
-        }
-      }
+    h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
     }
   }
+}
+
+.inl-blk {
+  display: inline-block !important;
+}
+
+#dynamic-form {
+  display: flex;
+  flex-direction: column;
+
+  // &>div,
+  // &>label {
+
+  // }
 }

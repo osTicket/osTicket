@@ -76,107 +76,109 @@ if ($lang) {
     }  ?>
 </head>
 <body>
-    <div id="header">
-        <div class="container">
+<div id="header">
+    <div class="container">
+        <div class="col-md-3">
             <a id="logo" href="<?php echo ROOT_PATH; ?>index.php"
             title="<?php echo __('Support Center'); ?>">
                 <span class="valign-helper"></span>
                 <img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
                 echo $ost->getConfig()->getTitle(); ?>">
             </a>
-
-            <div class="pull-right flush-right">
-                <p>
-<?php           if (($all_langs = Internationalization::getConfiguredSystemLanguages()) && (count($all_langs) > 1)) {
-                    $qs = array();
-                    parse_str($_SERVER['QUERY_STRING'], $qs);
-                    foreach ($all_langs as $code=>$info) {
-                        list($lang, $locale) = explode('_', $code);
-                        $qs['lang'] = $code; ?>
-                        <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
-                            href="?<?php echo http_build_query($qs);
-                            ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
-<?php               }
-                } ?>
-                </p>
-            </div>
         </div>
-    </div>
 
-    <!--<div class="clear"></div>-->
-
-<?php   if($nav){ ?>
-        <nav class="navbar navbar-inverse" id="navigation-bar">
-            <div class="container">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">
-                        <i class="fa fa-ticket"></i>
-                        osTicket
-                    </a>
+        <?php if (($all_langs = Internationalization::getConfiguredSystemLanguages()) && (count($all_langs) > 1)) { ?>
+            <div class="col-md-9">
+                <div class="flush-right">
+                <?php
+                $qs = array();
+                parse_str($_SERVER['QUERY_STRING'], $qs);
+                foreach ($all_langs as $code=>$info) {
+                    list($lang, $locale) = explode('_', $code);
+                    $qs['lang'] = $code; ?>
+                    <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
+                        href="?<?php echo http_build_query($qs);
+                        ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
+                <?php
+                } ?>
                 </div>
+            </div>
+        <?php } ?>
+    </div>
+</div>
 
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="nav navbar-nav">
-                        <?php
-                        if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
-                            foreach($navs as $name => $nav) {
-                                echo sprintf('<li class="%s"><a class="%s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
-                            }
-                        }
-                        ?>
-                    </ul>
-                    <ul class="navbar-form navbar-right">
-                        <?php
-                        if ($thisclient && is_object($thisclient) && $thisclient->isValid() && !$thisclient->isGuest()) { ?>
-                            <?= Format::htmlchars($thisclient->getName()).'&nbsp;|'; ?>
+<?php if($nav){ ?>
+<nav class="navbar navbar-inverse" id="navigation-bar">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <i class="fa fa-ticket"></i>
+                osTicket
+            </a>
+        </div>
 
-                            <a class='btn btn-default' href="<?php echo ROOT_PATH; ?>profile.php">
-                                <i class="fa fa-user"></i>
-                                <?php echo __('Profile'); ?>
-                            </a>
-                            <a class='btn btn-primary' href="<?php echo ROOT_PATH; ?>tickets.php">
-                                <i class="fa fa-ticket"></i>
-                                <?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?>
-                            </a>
-                            <a class='btn btn-danger' href="<?php echo $signout_url; ?>">
-                                <i class="fa fa-sign-out"></i>
-                                <?php echo __('Sign Out'); ?>
-                            </a>
-                        <?php
-                        } elseif($nav) {
-                              if ($cfg->getClientRegistrationMode() == 'public') { ?>
-                                <a class='btn not-registered'>
-                                    <i class="fa fa-user"></i>
-                                    <?php echo __('Guest User'); ?>
-                                </a>
-                        <?php }
-                              if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
-                                <a class='btn btn-danger' href="<?php echo $signout_url; ?>">
-                                    <i class="fa fa-sign-out"></i>
-                                    <?php echo __('Sign Out'); ?>
-                                </a>
-                        <?php } elseif ($cfg->getClientRegistrationMode() != 'disabled') { ?>
-                                <a class='btn btn-success' href="<?php echo $signin_url; ?>">
-                                    <i class="fa fa-sign-in"></i>
-                                    <?php echo __('Sign In'); ?>
-                                </a>
-                        <?php }
-                        } ?>
-                    </ul>
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav>
-<?php   }else{ ?>
-         <hr>
-<?php   } ?>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <?php
+                if($nav && ($navs=$nav->getNavLinks()) && is_array($navs)){
+                    foreach($navs as $name => $nav) {
+                        echo sprintf('<li class="%s"><a class="%s" href="%s">%s</a></li>%s',$nav['active']?'active':'',$name,(ROOT_PATH.$nav['href']),$nav['desc'],"\n");
+                    }
+                }
+                ?>
+            </ul>
+            <ul class="navbar-form navbar-right">
+                <?php
+                if ($thisclient && is_object($thisclient) && $thisclient->isValid() && !$thisclient->isGuest()) { ?>
+                    <?= Format::htmlchars($thisclient->getName()).'&nbsp;|'; ?>
+
+                    <a class='btn btn-default' href="<?php echo ROOT_PATH; ?>profile.php">
+                        <i class="fa fa-user"></i>
+                        <?php echo __('Profile'); ?>
+                    </a>
+                    <a class='btn btn-primary' href="<?php echo ROOT_PATH; ?>tickets.php">
+                        <i class="fa fa-ticket"></i>
+                        <?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?>
+                    </a>
+                    <a class='btn btn-danger' href="<?php echo $signout_url; ?>">
+                        <i class="fa fa-sign-out"></i>
+                        <?php echo __('Sign Out'); ?>
+                    </a>
+                <?php
+                } elseif($nav) {
+                        if ($cfg->getClientRegistrationMode() == 'public') { ?>
+                        <a class='btn not-registered'>
+                            <i class="fa fa-user"></i>
+                            <?php echo __('Guest User'); ?>
+                        </a>
+                <?php }
+                        if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
+                        <a class='btn btn-danger' href="<?php echo $signout_url; ?>">
+                            <i class="fa fa-sign-out"></i>
+                            <?php echo __('Sign Out'); ?>
+                        </a>
+                <?php } elseif ($cfg->getClientRegistrationMode() != 'disabled') { ?>
+                        <a class='btn btn-success' href="<?php echo $signin_url; ?>">
+                            <i class="fa fa-sign-in"></i>
+                            <?php echo __('Sign In'); ?>
+                        </a>
+                <?php }
+                } ?>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<?php }else{ ?>
+<hr>
+<?php } ?>
 
 <div id="content-container">
     <div class="container">

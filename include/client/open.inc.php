@@ -28,50 +28,64 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         }
         $forms[] = $F;
     }
-}
+} ?>
 
-?>
 <h1><?php echo __('Open a New Ticket');?></h1>
 <p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
   <input type="hidden" name="a" value="open">
-  <table width="800" cellpadding="1" cellspacing="0" border="0">
-    <tbody>
 <?php
-        if (!$thisclient) {
-            $uform = UserForm::getUserForm()->getForm($_POST);
-            if ($_POST) $uform->isValid();
-            $uform->render(false);
-        }
-        else { ?>
-            <tr><td colspan="2"><hr /></td></tr>
-        <tr><td><?php echo __('Email'); ?>:</td><td><?php
-            echo $thisclient->getEmail(); ?></td></tr>
-        <tr><td><?php echo __('Client'); ?>:</td><td><?php
-            echo Format::htmlchars($thisclient->getName()); ?></td></tr>
-        <?php } ?>
-    </tbody>
-    <tbody>
-    <tr><td colspan="2"><hr />
-        <div class="form-header" style="margin-bottom:0.5em">
-        <b><?php echo __('Help Topic'); ?></b>
+if (!$thisclient) {
+    $uform = UserForm::getUserForm()->getForm($_POST); ?>
+    <div class="panel panel-primary">
+        <div class="panel-body">
+            <?php if ($_POST) $uform->isValid(); ?>
+            <div class="osticket-group">
+                <?php $uform->render(false); ?>
+            </div>
         </div>
-    </td></tr>
-    <tr>
-        <td colspan="2">
-            <select id="topicId" name="topicId" onchange="javascript:
+    </div>
+<?php
+} else { ?>
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <div class="form-group">
+            <?php echo __('Email'); ?>:
+            <?php echo $thisclient->getEmail(); ?>
+        </div>
+        <div class="form-group">
+            <?php echo __('Client'); ?>:
+            <?php echo Format::htmlchars($thisclient->getName()); ?>
+        </div>
+    </div>
+</div>
+<?php
+} ?>
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <div class="form-group">
+            <div class="form-header">
+                <b>
+                    <?php echo __('Help Topic'); ?>
+                    <p class="error inl-blk">*&nbsp;<?php echo $errors['topicId']; ?></p>
+                </b>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <select class="form-control" id="topicId" name="topicId" onchange="javascript:
                     var data = $(':input[name]', '#dynamic-form').serialize();
                     $.ajax(
-                      'ajax.php/form/help-topic/' + this.value,
-                      {
+                        'ajax.php/form/help-topic/' + this.value,
+                        {
                         data: data,
                         dataType: 'json',
                         success: function(json) {
-                          $('#dynamic-form').empty().append(json.html);
-                          $(document.head).append(json.media);
+                            $('#dynamic-form').empty().append(json.html);
+                            $(document.head).append(json.media);
                         }
-                      });">
+                        });">
                 <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
                 <?php
                 if($topics=Topic::getPublicHelpTopics()) {
@@ -84,46 +98,43 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                 <?php
                 } ?>
             </select>
-            <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
-        </td>
-    </tr>
-    </tbody>
-    <tbody id="dynamic-form">
-        <?php foreach ($forms as $form) {
-            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+        </div>
+
+        <div id="dynamic-form">
+            <?php foreach ($forms as $form) {
+                include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+            } ?>
+        </div>
+        <?php
+        if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
+            if($_POST && $errors && !$errors['captcha'])
+                $errors['captcha']=__('Please re-enter the text again');
+            ?>
+            <div class="captchaRow form-group">
+                <div class="required"><?php echo __('CAPTCHA Text');?>:</div>
+                <p>
+                    <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
+                    &nbsp;&nbsp;
+                    <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
+                    <em><?php echo __('Enter the text shown on the image.');?></em>
+                    <p class="error">*&nbsp;<?php echo $errors['captcha']; ?></p>
+                </p>
+            </div>
+        <?php
         } ?>
-    </tbody>
-    <tbody>
-    <?php
-    if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
-        if($_POST && $errors && !$errors['captcha'])
-            $errors['captcha']=__('Please re-enter the text again');
-        ?>
-    <tr class="captchaRow">
-        <td class="required"><?php echo __('CAPTCHA Text');?>:</td>
-        <td>
-            <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
-            &nbsp;&nbsp;
-            <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
-            <em><?php echo __('Enter the text shown on the image.');?></em>
-            <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
-        </td>
-    </tr>
-    <?php
-    } ?>
-    <tr><td colspan=2>&nbsp;</td></tr>
-    </tbody>
-  </table>
-<hr/>
-  <p class="buttons" style="text-align:center;">
-        <input type="submit" value="<?php echo __('Create Ticket');?>">
-        <input type="reset" name="reset" value="<?php echo __('Reset');?>">
-        <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
-            $('.richtext').each(function() {
-                var redactor = $(this).data('redactor');
-                if (redactor && redactor.opts.draftDelete)
-                    redactor.deleteDraft();
-            });
-            window.location.href='index.php';">
-  </p>
+        <p>&nbsp;</p>
+    </div>
+</div>
+
+<div class="buttons" style="text-align:center;">
+    <input class="btn btn-primary" type="submit" value="<?php echo __('Create Ticket');?>">
+    <input class="btn btn-default" type="reset" name="reset" value="<?php echo __('Reset');?>">
+    <input class="btn btn-default" type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
+        $('.richtext').each(function() {
+            var redactor = $(this).data('redactor');
+            if (redactor && redactor.opts.draftDelete)
+                redactor.deleteDraft();
+        });
+        window.location.href='index.php';">
+</div>
 </form>

@@ -3,12 +3,10 @@
     // space below.
     // XXX: Would be nice to handle the decoration with a CSS class
     ?>
-    <tr><td colspan="2"><hr />
     <div class="form-header" style="margin-bottom:0.5em">
-    <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
-    <div><?php echo Format::display($form->getInstructions()); ?></div>
+        <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
+        <div><?php echo Format::display($form->getInstructions()); ?></div>
     </div>
-    </td></tr>
     <?php
     // Form fields, each with corresponding errors follows. Fields marked
     // 'private' are not included in the output for clients
@@ -22,8 +20,6 @@
             continue;
         }
         ?>
-        <tr>
-            <td colspan="2" style="padding-top:10px;">
             <?php if (!$field->isBlockLevel()) { ?>
                 <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
                     if ($field->isRequiredForUsers()) echo 'required'; ?>">
@@ -37,7 +33,6 @@
                         echo Format::viewableImages($field->getLocal('hint')); ?></em>
                 <?php
                 } ?>
-            <br/>
             <?php
             }
             $field->render(array('client'=>true));
@@ -47,8 +42,6 @@
             <?php }
             $field->renderExtras(array('client'=>true));
             ?>
-            </td>
-        </tr>
         <?php
     }
 ?>
