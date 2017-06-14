@@ -179,3 +179,25 @@ input[type="password"] {
 
   // }
 }
+
+#form-inner {
+  label {
+    display: block;
+  }
+
+  .action-button {
+    &:extend(.btn);
+    &:extend(.btn-primary);
+    &:extend(.btn-block);
+  }
+
+  .select2 {
+    width: 100% !important;
+  }
+
+  .form-header {
+    h3 {
+      margin-top: 0;
+    }
+  }
+}
