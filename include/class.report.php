@@ -140,56 +140,68 @@ class OverviewReport {
         global $thisstaff;
 
         list($start, $stop) = $this->getDateRange();
-        $times = Ticket::objects()
+        $times = ThreadEvent::objects()
             ->constrain(array(
                 'thread__entries' => array(
-                    'thread__entries__type' => 'R'
-                ),
-            ))
+                    'thread__entries__type' => 'R',
+                    ),
+               ))
+            ->constrain(array(
+                'thread__events' => array(
+                    'thread__events__state' => 'created',
+                    'state' => 'closed',
+                    'annulled' => 0,
+                    ),
+                ))
             ->aggregate(array(
-                'ServiceTime' => SqlAggregate::AVG(SqlFunction::DATEDIFF(
-                    new SqlField('closed'), new SqlField('created')
-                )),
-                'ResponseTime' => SqlAggregate::AVG(SqlFunction::DATEDIFF(
-                    new SqlField('thread__entries__created'), new SqlField('thread__entries__parent__created')
+                'ServiceTime' => SqlAggregate::AVG(SqlFunction::timestampdiff(
+                  new SqlCode('HOUR'), new SqlField('thread__events__timestamp'), new SqlField('timestamp'))
+                ),
+                'ResponseTime' => SqlAggregate::AVG(SqlFunction::timestampdiff(
+                    new SqlCode('HOUR'),new SqlField('thread__entries__parent__created'), new SqlField('thread__entries__created')
                 )),
             ));
 
-        $stats = Ticket::objects()
-            ->constrain(array(
-                'thread__events' => array(
-                    'thread__events__annulled' => 0,
-                    'thread__events__timestamp__range' => array($start, $stop),
-                ),
-            ))
-            ->aggregate(array(
-                'Opened' => SqlAggregate::COUNT(
-                    SqlCase::N()
-                        ->when(new Q(array('thread__events__state' => 'created')), 1)
-                ),
-                'Assigned' => SqlAggregate::COUNT(
-                    SqlCase::N()
-                        ->when(new Q(array('thread__events__state' => 'assigned')), 1)
-                ),
-                'Overdue' => SqlAggregate::COUNT(
-                    SqlCase::N()
-                        ->when(new Q(array('thread__events__state' => 'overdue')), 1)
-                ),
-                'Closed' => SqlAggregate::COUNT(
-                    SqlCase::N()
-                        ->when(new Q(array('thread__events__state' => 'closed')), 1)
-                ),
-                'Reopened' => SqlAggregate::COUNT(
-                    SqlCase::N()
-                        ->when(new Q(array('thread__events__state' => 'reopened')), 1)
-                ),
-            ));
+            $stats = ThreadEvent::objects()
+                ->filter(array(
+                        'annulled' => 0,
+                        'timestamp__range' => array($start, $stop),
+                        'thread__object_type' => 'T',
+                   ))
+                ->aggregate(array(
+                    'Opened' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                            ->when(new Q(array('state' => 'created')), 1)
+                    ),
+                    'Assigned' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                            ->when(new Q(array('state' => 'assigned')), 1)
+                    ),
+                    'Overdue' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                            ->when(new Q(array('state' => 'overdue')), 1)
+                    ),
+                    'Closed' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                            ->when(new Q(array('state' => 'closed')), 1)
+                    ),
+                    'Reopened' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                            ->when(new Q(array('state' => 'reopened')), 1)
+                    ),
+                    'Deleted' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                            ->when(new Q(array('state' => 'deleted')), 1)
+                    ),
+                ));
 
         switch ($group) {
         case 'dept':
             $headers = array(__('Department'));
             $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
-            $pk = 'dept_id';
+            $pk = 'dept__id';
+            //adriane
+            // $pk = 'dept_id';
             $stats = $stats
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
                 ->values('dept__id', 'dept__name');
@@ -203,7 +215,7 @@ class OverviewReport {
             $pk = 'topic_id';
             $stats = $stats
                 ->values('topic_id', 'topic__topic')
-                ->filter(array('topic_id__gt' => 0));
+                ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0));
             $times = $times
                 ->values('topic_id')
                 ->filter(array('topic_id__gt' => 0));
@@ -234,18 +246,17 @@ class OverviewReport {
         foreach ($times as $T) {
             $timings[$T[$pk]] = $T;
         }
-
         $rows = array();
         foreach ($stats as $R) {
             $T = $timings[$R[$pk]];
             $rows[] = array($header($R), $R['Opened'], $R['Assigned'],
-                $R['Overdue'], $R['Closed'], $R['Reopened'],
+                $R['Overdue'], $R['Closed'], $R['Reopened'], $R['Deleted'],
                 number_format($T['ServiceTime'], 1),
                 number_format($T['ResponseTime'], 1));
         }
         return array("columns" => array_merge($headers,
                         array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
-                              __('Service Time'),__('Response Time'))),
+                              __('Deleted'),__('Service Time'),__('Response Time'))),
                      "data" => $rows);
     }
 }

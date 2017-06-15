@@ -1340,7 +1340,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if (!parent::delete())
             return false;
 
-        $thread->delete();
+        $this->logEvent('deleted');
 
         Draft::deleteForNamespace('task.%.' . $this->getId());
 

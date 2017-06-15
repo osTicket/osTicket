@@ -3082,7 +3082,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!parent::delete())
             return false;
 
-        $t->delete();
+        $this->logEvent('deleted');
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();

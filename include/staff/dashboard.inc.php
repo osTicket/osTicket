@@ -87,8 +87,36 @@ foreach ($groups as $g=>$desc) {
     <div class="tab_content <?php echo (!$first) ? 'hidden' : ''; ?>" id="<?php echo Format::slugify($g); ?>">
     <table class="dashboard-stats table"><tbody><tr>
 <?php
-    foreach ($data['columns'] as $j=>$c) { ?>
-        <th <?php if ($j === 0) echo 'width="30%" class="flush-left"'; ?>><?php echo Format::htmlchars($c); ?></th>
+    foreach ($data['columns'] as $j=>$c) {
+      ?>
+        <th <?php if ($j === 0) echo 'width="30%" class="flush-left"'; ?>><?php echo Format::htmlchars($c);
+        switch ($c) {
+          case 'Opened':
+            ?><i class="help-tip icon-question-sign" href="#opened"></i><?php
+            break;
+          case 'Assigned':
+            ?><i class="help-tip icon-question-sign" href="#assigned"></i><?php
+            break;
+            case 'Overdue':
+              ?><i class="help-tip icon-question-sign" href="#overdue"></i><?php
+              break;
+            case 'Closed':
+              ?><i class="help-tip icon-question-sign" href="#closed"></i><?php
+              break;
+            case 'Reopened':
+              ?><i class="help-tip icon-question-sign" href="#reopened"></i><?php
+              break;
+            case 'Deleted':
+              ?><i class="help-tip icon-question-sign" href="#deleted"></i><?php
+              break;
+            case 'Service Time':
+              ?><i class="help-tip icon-question-sign" href="#service_time"></i><?php
+              break;
+            case 'Response Time':
+              ?><i class="help-tip icon-question-sign" href="#response_time"></i><?php
+              break;
+        }
+        ?></th>
 <?php
     } ?>
     </tr></tbody>
