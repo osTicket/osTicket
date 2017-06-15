@@ -1557,6 +1557,12 @@ class ThreadEvent extends VerySimpleModel {
                 ),
                 'null' => true,
             ),
+            'topic' => array(
+                'constraint' => array(
+                    'topic_id' => 'Topic.topic_id',
+                ),
+                'null' => true,
+            ),
         ),
     );
 
@@ -1721,11 +1727,27 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     static function forTicket($ticket, $state, $user=false) {
+      global $thisstaff;
+
+      if($thisstaff && !$ticket->getStaffId())
+        $staff = $thisstaff->getId();
+      else
+        $staff = $ticket->getStaffId();
+        
         $inst = self::create(array(
-            'staff_id' => $ticket->getStaffId(),
+            'staff_id' => $staff,
             'team_id' => $ticket->getTeamId(),
             'dept_id' => $ticket->getDeptId(),
             'topic_id' => $ticket->getTopicId(),
+        ), $user);
+        return $inst;
+    }
+
+    static function forTask($task, $state, $user=false) {
+        $inst = self::create(array(
+            'staff_id' => $task->getStaffId(),
+            'team_id' => $task->getTeamId(),
+            'dept_id' => $task->getDeptId(),
         ), $user);
         return $inst;
     }
@@ -1773,8 +1795,10 @@ class ThreadEvents extends InstrumentedList {
         if ($object instanceof Ticket)
             // TODO: Use $object->createEvent() (nolint)
             $event = ThreadEvent::forTicket($object, $state, $user);
-        else
-            $event = ThreadEvent::create(false, $user);
+        elseif ($object instanceof Task)
+            $event = ThreadEvent::forTask($object, $state, $user);
+        // else
+        //     $event = ThreadEvent::create(false, $user);
 
         # Annul previous entries if requested (for instance, reopening a
         # ticket will annul an 'closed' entry). This will be useful to
@@ -2528,6 +2552,7 @@ implements TemplateVariable {
 
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
+        $vars['pid'] = $this->getLastMessage()->id;
 
         if (!($resp = ResponseThreadEntry::add($vars, $errors)))
             return $resp;
