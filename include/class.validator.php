@@ -161,9 +161,33 @@ class Validator {
         // MX if no MX records exist for the domain. Also, include a
         // full-stop trailing char so that the default domain of the server
         // is not added automatically
-        if ($verify and !count(dns_get_record($m->host.'.', DNS_MX)))
-            return 0 < count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
-
+		if ($verify) {
+			$dns_failed = false;
+			set_error_handler(array('self', 'throwException'));
+			try {
+				// Pull all records at once to avoid multiple domain lookups
+				$dns_record = dns_get_record($m->host.'.', DNS_MX|DNS_A|DNS_AAAA|DNS_NS);
+			} catch (Exception $e) {
+				// DNS server was unreachable
+				$dns_failed = true;
+			}
+			restore_error_handler();
+			
+			if (!$dns_failed) {
+				if( empty($dns_record) )
+					return false;
+				$dns_record_types = array_column($dns_record, 'type');
+				// Below could be multiple ands but its easier to read with if's
+				if( !in_array('MX', $dns_record_types) ) { 
+					if( in_array('A', $dns_record_types) || in_array('AAAA', $dns_record_types) )
+						// Check for NS record for a valid domain
+						// Bad DNS providers return A records for NXDOMAIN errors
+						if( !in_array('NS', $dns_record_types) )
+							return false;
+				}
+			}
+		}
+        
         return true;
     }
 
