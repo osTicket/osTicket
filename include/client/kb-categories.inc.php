@@ -57,30 +57,30 @@
 
     <div class="col-md-4">
         <div class="sidebar">
-        <div class="searchbar">
-            <form method="get" action="faq.php">
-            <input type="hidden" name="a" value="search"/>
-            <select name="topicId"  style="width:100%;max-width:100%"
-                onchange="javascript:this.form.submit();">
-                <option value="">—<?php echo __("Browse by Topic"); ?>—</option>
-                <?php
-                $topics = Topic::objects()
-                    ->annotate(array('has_faqs'=>SqlAggregate::COUNT('faqs')))
-                    ->filter(array('has_faqs__gt'=>0));
-                foreach ($topics as $T) { ?>
-                    <option value="<?php echo $T->getId(); ?>"><?php echo $T->getFullName();
-                            ?></option>
-                <?php
-                } ?>
-            </select>
-            </form>
-        </div>
-        <br/>
-        <div class="content">
-            <section>
-                <div class="header"><?php echo __('Other Resources'); ?></div>
-            </section>
-        </div>
+            <div class="searchbar">
+                <form method="get" action="faq.php">
+                <input type="hidden" name="a" value="search"/>
+                <select name="topicId"  style="width:100%;max-width:100%"
+                    onchange="javascript:this.form.submit();">
+                    <option value="">—<?php echo __("Browse by Topic"); ?>—</option>
+                    <?php
+                    $topics = Topic::objects()
+                        ->annotate(array('has_faqs'=>SqlAggregate::COUNT('faqs')))
+                        ->filter(array('has_faqs__gt'=>0));
+                    foreach ($topics as $T) { ?>
+                        <option value="<?php echo $T->getId(); ?>"><?php echo $T->getFullName();
+                                ?></option>
+                    <?php
+                    } ?>
+                </select>
+                </form>
+            </div>
+            <br/>
+            <div class="content">
+                <section>
+                    <div class="header"><?php echo __('Other Resources'); ?></div>
+                </section>
+            </div>
         </div>
     </div>
 </div>
