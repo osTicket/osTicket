@@ -60,9 +60,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Status');?>:
             </td>
             <td>
-                <input type="radio" name="status" value="Active" <?php echo $info['status'] == 'Active'?'checked="checked"':''; ?>> <?php echo __('Active'); ?>
-                <input type="radio" name="status" value="Disabled" <?php echo $info['status'] == 'Disabled'?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
-                <input type="radio" name="status" value="Archived" <?php echo $info['status'] == 'Archived'?'checked="checked"':''; ?>> <?php echo __('Archived'); ?>
+                <select name="status">
+                  <option value="Active"<?php echo ($info['status'] == __('Active'))?'selected="selected"':'';?>><?php echo __('Active'); ?></option>
+                  <option value="Disabled"<?php echo ($info['status'] == __('Disabled'))?'selected="selected"':'';?>><?php echo __('Disabled'); ?></option>
+                  <option value="Archived"<?php echo ($info['status'] == __('Archived'))?'selected="selected"':'';?>><?php echo __('Archived'); ?></option>
+                </select>
                 &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>

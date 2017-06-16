@@ -13,6 +13,11 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+status:
+    title: Status
+    content: >
+        If disabled or archived, this <span class="doc-desc-title">Department</span>
+        will not be available.
 type:
     title: Type
     content: >
