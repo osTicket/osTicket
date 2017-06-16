@@ -107,19 +107,15 @@ if ($thisclient && $thisclient->isGuest()
             </div>
         </div>
         <div class="col-md-12">
-            <div class="panel panel-primary last-item">
-                <div class="panel-body">
-                    <?php
-                    $ticket->getThread()->render(
-                        array('M', 'R'),
-                        array(
-                            'mode' => Thread::MODE_CLIENT,
-                            'html-id' => 'ticketThread'
-                        )
-                    );
-                    ?>
-                </div>
-            </div>
+            <?php
+            $ticket->getThread()->render(
+                array('M', 'R'),
+                array(
+                    'mode' => Thread::MODE_CLIENT,
+                    'html-id' => 'ticketThread'
+                )
+            );
+            ?>
         </div>
     </div>
 </div>

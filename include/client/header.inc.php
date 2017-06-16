@@ -118,7 +118,7 @@ if ($lang) {
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="<?php echo ROOT_PATH; ?>index.php">
                 <i class="fa fa-ticket"></i>
                 osTicket
             </a>
@@ -139,7 +139,6 @@ if ($lang) {
                 <?php
                 if ($thisclient && is_object($thisclient) && $thisclient->isValid() && !$thisclient->isGuest()) { ?>
                     <?= Format::htmlchars($thisclient->getName()).'&nbsp;|'; ?>
-
                     <a class='btn btn-default' href="<?php echo ROOT_PATH; ?>profile.php">
                         <i class="fa fa-user"></i>
                         <?php echo __('Profile'); ?>
@@ -154,13 +153,13 @@ if ($lang) {
                     </a>
                 <?php
                 } elseif($nav) {
-                        if ($cfg->getClientRegistrationMode() == 'public') { ?>
-                        <a class='btn btn-default'>
+                      if ($cfg->getClientRegistrationMode() == 'public') { ?>
+                        <a class='btn btn-default' disabled="disabled">
                             <i class="fa fa-user"></i>
                             <?php echo __('Guest User'); ?>
                         </a>
                 <?php }
-                        if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
+                      if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
                         <a class='btn btn-danger' href="<?php echo $signout_url; ?>">
                             <i class="fa fa-sign-out"></i>
                             <?php echo __('Sign Out'); ?>

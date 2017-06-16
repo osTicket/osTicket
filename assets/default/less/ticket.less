@@ -74,6 +74,50 @@ a.refresh {
 }
 
 #ticketThread {
+  display: flex;
+  flex-direction: column;
+
+  .thread-entry {
+    padding: 10px;
+    border: 1px solid #337ab7;
+
+    &.response {
+      text-align: right;
+    }
+
+    .avatar {
+      img {
+        &:extend(.img-rounded);
+      }
+    }
+    .header {
+      display: inline-block;
+      padding: 0 0.9em;
+      border-bottom: 1px solid #337ab7;
+    }
+  }
+
+  .thread-event {
+    &.action {
+      padding: 10px 15px;
+      border-bottom: 1px solid transparent;
+      border-bottom-right-radius: 3px;
+      border-bottom-left-radius: 3px;
+      color: #fff;
+      background-color: #337ab7;
+      border-color: #337ab7;
+      margin-bottom: 25px;
+
+      img.avatar {
+        max-height: 15px;
+        border-radius: 2px;
+        margin-top: -3px;
+        margin-left: 5px;
+        margin-right: 2px;
+      }
+    }
+  }
+
   table {
     margin-top: 10px;
     border: 1px solid #aaa;

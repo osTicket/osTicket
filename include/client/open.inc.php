@@ -51,12 +51,12 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         <div class="panel panel-primary">
             <div class="panel-body">
                 <div class="form-group">
-                    <?php echo __('Email'); ?>:
-                    <?php echo $thisclient->getEmail(); ?>
+                    <label><?php echo __('Email'); ?>:</label>
+                    <p><?php echo $thisclient->getEmail(); ?></p>
                 </div>
                 <div class="form-group">
-                    <?php echo __('Client'); ?>:
-                    <?php echo Format::htmlchars($thisclient->getName()); ?>
+                    <label><?php echo __('Client'); ?>:</label>
+                    <p><?php echo Format::htmlchars($thisclient->getName()); ?></p>
                 </div>
             </div>
         </div>
