@@ -155,7 +155,7 @@ if ($lang) {
                 <?php
                 } elseif($nav) {
                         if ($cfg->getClientRegistrationMode() == 'public') { ?>
-                        <a class='btn btn-default not-registered'>
+                        <a class='btn btn-default'>
                             <i class="fa fa-user"></i>
                             <?php echo __('Guest User'); ?>
                         </a>

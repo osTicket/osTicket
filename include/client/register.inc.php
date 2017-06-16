@@ -71,12 +71,13 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         </div>
                     <?php } ?>
                 </div>
-            </div>
-
-            <div class="text-center">
-                <input class="btn btn-primary" type="submit" value="Register"/>
-                <input class="btn btn-default" type="button" value="Cancel" onclick="javascript:
-                    window.location.href='index.php';"/>
+                <div class="panel-footer">
+                    <div class="text-center">
+                        <input class="btn btn-primary" type="submit" value="<?php echo __('Register');?>">
+                        <input class="btn btn-default" type="button" value="<?php echo __('Cancel');?>" onClick="javascript:
+                            window.location.href='index.php';">
+                    </div>
+                </div>
             </div>
         </div>
 
