@@ -200,8 +200,6 @@ class OverviewReport {
             $headers = array(__('Department'));
             $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
             $pk = 'dept__id';
-            //adriane
-            // $pk = 'dept_id';
             $stats = $stats
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
                 ->values('dept__id', 'dept__name');
