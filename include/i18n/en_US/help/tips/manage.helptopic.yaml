@@ -27,7 +27,7 @@ topic:
 status:
     title: Status
     content: >
-        If disabled, this <span class="doc-desc-title">Help Topic</span>
+        If disabled or archived, this <span class="doc-desc-title">Help Topic</span>
         will not be available.
 
 type:

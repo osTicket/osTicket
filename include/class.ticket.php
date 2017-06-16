@@ -208,7 +208,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function isReopenable() {
         return ($this->getStatus()->isReopenable()
-          && $this->getDept()->allowsReopen());
+          && $this->getDept()->allowsReopen()
+        && $this->getTopic()->allowsReopen());
     }
 
     function isClosed() {
