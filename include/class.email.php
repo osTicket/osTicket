@@ -248,7 +248,8 @@ class Email extends VerySimpleModel {
 
         $id = isset($this->email_id) ? $this->getId() : 0;
         if($id && $id!=$vars['id'])
-            $errors['err']=__('Internal error. Get technical help.');
+            $errors['err']=__('Get technical help!')
+                .' '.__('Internal error occurred');
 
         if(!$vars['email'] || !Validator::is_email($vars['email'])) {
             $errors['email']=__('Valid email required');
@@ -273,7 +274,7 @@ class Email extends VerySimpleModel {
                     && $vars['userid']
                     && !Crypto::encrypt($vars['passwd'], SECRET_SALT, $vars['userid'])
                     )
-                $errors['passwd'] = __('Unable to encrypt password - get technical support');
+                $errors['passwd'] = sprintf('%s - %s', __('Unable to encrypt password'), __('Get technical help!'));
         }
 
         list($vars['mail_protocol'], $encryption) = explode('/', $vars['mail_proto']);

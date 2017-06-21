@@ -26,7 +26,7 @@ if ($_POST) {
         if(!$_POST['captcha'])
             $errors['captcha']=__('Enter text shown on the image');
         elseif(strcmp($_SESSION['captcha'], md5(strtoupper($_POST['captcha']))))
-            $errors['captcha']=__('Invalid - try again!');
+            $errors['captcha']=sprintf('%s - %s', __('Invalid'), __('Please try again!'));
     }
 
     $tform = TicketForm::objects()->one()->getForm($vars);

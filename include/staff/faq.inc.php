@@ -77,7 +77,7 @@ if ($topics = Topic::getAllHelpTopics()) {
 ?>
     <div style="padding-top:9px">
         <strong><?php echo __('Help Topics');?></strong>:
-        <div class="faded"><?php echo __('Check all help topics related to this FAQ.');?></div>
+        <div class="faded"><?php echo sprintf(__('Check all help topics related to %s.'), __('this FAQ article'));?></div>
     </div>
     <select multiple="multiple" name="topics[]" class="multiselect"
         data-placeholder="<?php echo __('Help Topics'); ?>"

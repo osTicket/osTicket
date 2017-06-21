@@ -364,7 +364,7 @@ class Internationalization {
 
         return $lang = self::isLanguageInstalled($best_match_langcode)
             ? $best_match_langcode
-            : $cfg->getPrimaryLanguage();
+            : ($cfg ? $cfg->getPrimaryLanguage() : 'en_US');
     }
 
     static function getCurrentLanguage($user=false) {
@@ -399,6 +399,46 @@ class Internationalization {
             $locale = self::getCurrentLanguage();
 
         return $locale;
+    }
+
+
+    //  getIntDateFormatter($options)
+    //
+    // Setting up the IntlDateFormatter is pretty expensive, so cache it since
+    // there aren't many variations of the arguments passed to the constructor
+    static function getIntDateFormatter($options) {
+        static $cache = false;
+        global $cfg;
+
+        // Set some defaults
+        $options['locale'] = $options['locale'] ?: self::getCurrentLocale();
+
+        // Generate signature key for options given
+        $k = md5(implode(':', array_filter(
+                    array_intersect_key($options,
+                        array_flip(array(
+                                'locale',
+                                'daytype',
+                                'timetype',
+                                'timezone',
+                                'pattern')
+                            )))));
+
+        // We if we have it cached
+        if (isset($cache[$k]) && $cache[$k])
+            return $cache[$k];
+
+        // Create formatter && cache
+        $cache[$k] = $formatter = new IntlDateFormatter(
+                $options['locale'],
+                $options['daytype'] ?: null,
+                $options['timetype'] ?: null,
+                $options['timezone'] ?: null,
+                $options['calendar'] ?: IntlDateFormatter::GREGORIAN,
+                $options['pattern'] ?: null
+                );
+
+        return $formatter;
     }
 
     static function rfc1766($what) {

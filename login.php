@@ -70,7 +70,7 @@ if ($_POST && isset($_POST['luser'])) {
                 ?: 'tickets.php');
         }
     } elseif(!$errors['err']) {
-        $errors['err'] = __('Invalid username or password - try again!');
+        $errors['err'] = sprintf('%s - %s', __('Invalid username or password'), __('Please try again!'));
     }
     $suggest_pwreset = true;
 }
@@ -95,7 +95,7 @@ elseif ($_POST && isset($_POST['lticket'])) {
             Format::htmlchars($user->getName()->getFirst()));
         $_POST = null;
     } elseif(!$errors['err']) {
-        $errors['err'] = __('Invalid email or ticket number - try again!');
+        $errors['err'] = sprintf('%s - %s', __('Invalid email or ticket number'), __('Please try again!'));
     }
 }
 elseif (isset($_GET['do'])) {
