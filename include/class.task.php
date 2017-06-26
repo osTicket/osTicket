@@ -1014,7 +1014,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         case 'create_date':
             return new FormattedDate($this->getCreateDate());
          case 'due_date':
-            if ($due = $this->getEstDueDate())
+            if ($due = $this->getDueDate())
                 return new FormattedDate($due);
             break;
         case 'close_date':
