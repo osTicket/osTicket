@@ -241,8 +241,25 @@ implements RestrictedAccess, Threadable, Searchable {
          return $this->hasState('deleted');
     }
 
-    function isAssigned() {
-        return $this->isOpen() && ($this->getStaffId() || $this->getTeamId());
+    function isAssigned($to=null) {
+
+        if ($this->isOpen())
+            return false;
+
+        if (!$to)
+            return ($this->getStaffId() || $this->getTeamId());
+
+        switch (true) {
+        case $to instanceof Staff:
+            return ($to->getId() == $this->getStaffId() ||
+                    $to->isTeamMember($this->getTeamId()));
+            break;
+        case $to instanceof Team:
+            return ($to->getId() == $this->getTeamId());
+            break;
+        }
+
+        return false;
     }
 
     function isOverdue() {
@@ -269,6 +286,8 @@ implements RestrictedAccess, Threadable, Searchable {
             && $this->isOpen()
             && $staff->getId() != $this->getStaffId()
             && !$staff->isTeamMember($this->getTeamId())
+            && !$this->thread->getReferral($staff->getId(),
+                ObjectModel::OBJECT_TYPE_STAFF)
         ) {
             return false;
         }
@@ -841,9 +860,20 @@ implements RestrictedAccess, Threadable, Searchable {
             $source = array('assignee' => array($assignee));
 
         $form = AssignmentForm::instantiate($source, $options);
-
         if ($assignees)
             $form->setAssignees($assignees);
+
+        if (($refer = $form->getField('refer'))) {
+            if ($assignee) {
+                $visibility = new VisibilityConstraint(
+                        new Q(array()), VisibilityConstraint::HIDDEN);
+                $refer->set('visibility', $visibility);
+            } else {
+                $refer->configure('desc', sprintf(__('Maintain referral access to %s'),
+                        $this->getAssigned()));
+            }
+        }
+
 
         if ($prompt && ($f=$form->getField('assignee')))
             $f->configure('prompt', $prompt);
@@ -854,30 +884,22 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getReferralForm($source=null, $options=array()) {
 
-        $prompt = '';
-        $choices = array();
-        switch (strtolower($options['target'])) {
-        case 'agents':
-            $dept = $this->getDept();
-            foreach ($dept->getAssignees() as $member)
-                $choices['s'.$member->getId()] = $member;
-            $prompt = sprintf('%s %s', __('Select an'), __('Agent'));
-            break;
-        case 'teams':
-            if (($teams = Team::getActiveTeams()))
-                foreach ($teams as $id => $name)
-                    $choices['t'.$id] = $name;
-            $prompt = sprintf('%s %s', __('Select a'), __('Team'));
-            break;
-        case 'departments':
-            foreach (Dept::getDepartments() as $k => $v)
-                $choices["d$k"] = $v;
-            $prompt = sprintf('%s %s', __('Select a'), __('Department'));
-            break;
-        }
-
         $form = ReferralForm::instantiate($source, $options);
-        $form->setChoices($choices, $prompt);
+        $dept = $this->getDept();
+        // Agents
+        $staff = Staff::objects()->filter(array(
+         'isactive' => 1,
+         ))
+         ->filter(Q::not(array('dept_id' => $dept->getId())));
+        $staff = Staff::nsort($staff);
+        $agents = array();
+        foreach ($staff as $s)
+          $agents[$s->getId()] = $s;
+        $form->setChoices('agent', $agents);
+        // Teams
+        $form->setChoices('team', Team::getActiveTeams());
+        // Depts
+        $form->setChoices('dept', Dept::getDepartments());
 
         return $form;
     }
@@ -899,7 +921,8 @@ implements RestrictedAccess, Threadable, Searchable {
     function getTransferForm($source=null) {
 
         if (!$source)
-            $source = array('dept' => array($this->getDeptId()));
+            $source = array('dept' => array($this->getDeptId()),
+                    'refer' => false);
 
         return TransferForm::instantiate($source);
     }
@@ -2121,6 +2144,9 @@ implements RestrictedAccess, Threadable, Searchable {
                     $_errors, $thisstaff, false);
         }
 
+        if ($form->refer() && $cdept)
+            $this->thread->refer($cdept);
+
         //Send out alerts if enabled AND requested
         if (!$alert || !$cfg->alertONTransfer())
             return true; //no alerts!!
@@ -2243,6 +2269,7 @@ implements RestrictedAccess, Threadable, Searchable {
         global $thisstaff;
 
         $evd = array();
+        $refer = null;
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
             $dept = $this->getDept();
@@ -2257,6 +2284,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $errors['err'] = __('Permission denied');
             } else {
                 $this->staff_id = $assignee->getId();
+                $refer = $this->staff ?: null;
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
                     $alert = false;
                     $evd['claim'] = true;
@@ -2271,6 +2299,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         __('the team')
                         );
             } else {
+                $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
             }
@@ -2284,6 +2313,9 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->logEvent('assigned', $evd);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
+
+        if ($refer && $form->refer())
+            $this->thread->refer($refer);
 
         return true;
     }
@@ -2317,52 +2349,50 @@ implements RestrictedAccess, Threadable, Searchable {
         global $thisstaff;
 
         $evd = array();
-        $choice = $form->getTarget();
+        $referee = $form->getReferee();
         switch (true) {
-        case $choice instanceof Staff:
+        case $referee instanceof Staff:
             $dept = $this->getDept();
-            if ($this->getStaffId() == $choice->getId()) {
-                $errors['target'] = sprintf(__('%s is assigned to %s'),
+            if ($this->getStaffId() == $referee->getId()) {
+                $errors['agent'] = sprintf(__('%s is assigned to %s'),
                         __('Ticket'),
                         __('the agent')
                         );
-            } elseif(!$choice->isAvailable()) {
-                $errors['assignee'] = sprintf(__('Agent is unavailable for %s'),
+            } elseif(!$referee->isAvailable()) {
+                $errors['agent'] = sprintf(__('Agent is unavailable for %s'),
                         __('referral'));
-            } elseif ($dept->assignMembersOnly() && !$dept->isMember($choice)) {
-                $errors['err'] = __('Permission denied');
             } else {
-                $evd['staff'] = array($choice->getId(), (string) $choice->getName()->getOriginal());
+                $evd['staff'] = array($referee->getId(), (string) $referee->getName()->getOriginal());
             }
             break;
-        case $choice instanceof Team:
-            if ($this->getTeamId() == $choice->getId()) {
-                $errors['assignee'] = sprintf(__('%s is assigned to %s'),
+        case $referee instanceof Team:
+            if ($this->getTeamId() == $referee->getId()) {
+                $errors['team'] = sprintf(__('%s is assigned to %s'),
                         __('Ticket'),
                         __('the team')
                         );
             } else {
                 //TODO::
-                $evd = array('team' => $choice->getId());
+                $evd = array('team' => $referee->getId());
             }
             break;
-        case $choice instanceof Dept:
-            if ($this->getTeamId() == $choice->getId()) {
-                $errors['target'] = sprintf(__('%s is already in %s'),
+        case $referee instanceof Dept:
+            if ($this->getTeamId() == $referee->getId()) {
+                $errors['dept'] = sprintf(__('%s is already in %s'),
                         __('Ticket'),
                         __('the department')
                         );
             } else {
                 //TODO::
-                $evd = array('dept' => $choice->getId());
+                $evd = array('dept' => $referee->getId());
             }
             break;
         default:
             $errors['target'] = __('Unknown referral');
         }
 
-        if (!$errors && !$this->thread->refer($choice))
-            $errors['err'] = __('Unable to reffer ticket');
+        if (!$errors && !$this->thread->refer($referee))
+            $errors['err'] = __('Unable to refer ticket');
 
         if ($errors)
             return false;
