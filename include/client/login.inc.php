@@ -8,7 +8,7 @@ $content = Page::lookupByType('banner-client');
 
 if ($content) {
     list($title, $body) = $ost->replaceTemplateVariables(
-        array($content->getName(), $content->getBody()));
+        array($content->getLocalName(), $content->getLocalBody()));
 } else {
     $title = __('Sign In');
     $body = __('To better serve you, we encourage our clients to register for an account and verify the email address we have on record.');
