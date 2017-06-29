@@ -1220,6 +1220,8 @@ implements RestrictedAccess, Threadable {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())));
                     $t->deleteDrafts();
                 };
+		$this->onClose();
+
                 break;
             case 'open':
                 // TODO: check current status if it allows for reopening
@@ -2581,6 +2583,31 @@ implements RestrictedAccess, Threadable {
             );
         }
         return $response;
+    }
+
+    function onClose()
+    {
+                global $thisstaff, $cfg;
+
+                $dept = $this->getDept ();
+
+                if ($thisstaff && $vars ['signature'] == 'mine')
+                        $signature = $thisstaff->getSignature ();
+                elseif ($vars ['signature'] == 'dept' && $dept && $dept->isPublic ())
+                        $signature = $dept->getSignature ();
+                else
+                        $signature = '';
+
+                $variables = array ('signature' => $signature,'staff' => $thisstaff,'poster' => $thisstaff );
+
+                if (($email = $dept->getEmail ()) && ($tpl = $dept->getTemplate ()) && ($msg = $tpl->getCloseMsgTemplate ())) {
+
+                        $msg = $this->replaceVars ( $msg->asArray (), $variables );
+
+                        if ($cfg->stripQuotedReply () && ($tag = $cfg->getReplySeparator ()))
+                        $msg ['body'] = "<p style=\"display:none\">$tag<p>" . $msg ['body'];
+                $email->send ( $this->getEmail (), $msg ['subj'], $msg ['body'] );
+                }
     }
 
     //Activity log - saved as internal notes WHEN enabled!!
