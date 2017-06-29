@@ -3896,7 +3896,7 @@ class CheckboxWidget extends Widget {
         $data = $this->field->getSource();
         if (count($data)) {
             if (!isset($data[$this->name]))
-                return false;
+                return null;
             return @in_array($this->field->get('id'), $data[$this->name]);
         }
         return parent::getValue();
@@ -4479,10 +4479,8 @@ class AssignmentForm extends Form {
 
         $fields = array(
             'assignee' => new AssigneeField(array(
-                    'id'=>1,
-                    'label' => __('Assignee'),
-                    'flags' => hexdec(0X450F3),
-                    'required' => true,
+                    'id'=>1, 'label' => __('Assignee'),
+                    'flags' => hexdec(0X450F3), 'required' => true,
                     'validator-error' => __('Assignee selection required'),
                     'configuration' => array(
                         'criteria' => array(
@@ -4491,11 +4489,15 @@ class AssignmentForm extends Form {
                        ),
                     )
                 ),
+            'refer' => new BooleanField(array(
+                    'id'=>2, 'label'=>'', 'required'=>false,
+                    'default'=>false,
+                    'configuration'=>array(
+                        'desc' => 'Maintain referral access to current assignees')
+                    )
+                ),
             'comments' => new TextareaField(array(
-                    'id' => 2,
-                    'label'=> '',
-                    'required'=>false,
-                    'default'=>'',
+                    'id' => 3, 'label'=> '', 'required'=>false, 'default'=>'',
                     'configuration' => array(
                         'html' => true,
                         'size' => 'small',
@@ -4580,6 +4582,10 @@ class AssignmentForm extends Form {
     function getComments() {
         return $this->getField('comments')->getClean();
     }
+
+    function refer() {
+        return $this->getField('refer')->getClean();
+    }
 }
 
 class ClaimForm extends AssignmentForm {
@@ -4633,22 +4639,60 @@ class ReferralForm extends Form {
             return $this->fields;
 
         $fields = array(
-            'target' => new AssigneeField(array(
+            'target' => new ChoiceField(array(
                     'id'=>1,
                     'label' => __('Referee'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
                     'validator-error' => __('Selection required'),
-                    'configuration' => array(
-                        'criteria' => array(
-                            'available' => true,
-                            ),
-                        'prompt' => $this->_prompt,
-                       ),
-                    )
+                    'choices' => array(
+                    'agent' => __('Agent'),
+                    'team'  => __('Team'),
+                                'dept'  => __('Department'),
+                               ),
+                            )
+                ),
+            'agent' => new ChoiceField(array(
+                    'id'=>2,
+                    'label' => '',
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'configuration'=>array('prompt'=>__('Select Agent')),
+                            'validator-error' => __('Agent selection required'),
+                    'visibility' => new VisibilityConstraint(
+                        new Q(array('target__eq'=>'agent')),
+                        VisibilityConstraint::HIDDEN
+                      ),
+                            )
+                ),
+            'team' => new ChoiceField(array(
+                    'id'=>3,
+                    'label' => '',
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'validator-error' => __('Team selection required'),
+                    'configuration'=>array('prompt'=>__('Select Team')),
+                            'visibility' => new VisibilityConstraint(
+                                    new Q(array('target__eq'=>'team')),
+                                    VisibilityConstraint::HIDDEN
+                              ),
+                            )
+                ),
+            'dept' => new ChoiceField(array(
+                    'id'=>4,
+                    'label' => '',
+                    'flags' => hexdec(0X450F3),
+                    'required' => true,
+                    'validator-error' => __('Dept. selection required'),
+                    'configuration'=>array('prompt'=>__('Select Department')),
+                            'visibility' => new VisibilityConstraint(
+                                    new Q(array('target__eq'=>'dept')),
+                                    VisibilityConstraint::HIDDEN
+                              ),
+                            )
                 ),
             'comments' => new TextareaField(array(
-                    'id' => 2,
+                    'id' => 5,
                     'label'=> '',
                     'required'=>false,
                     'default'=>'',
@@ -4660,11 +4704,6 @@ class ReferralForm extends Form {
                     )
                 ),
             );
-
-
-        if (isset($this->_choices))
-            $fields['target']->setChoices($this->_choices);
-
 
         $this->setFields($fields);
 
@@ -4678,27 +4717,29 @@ class ReferralForm extends Form {
             return $fields[$name];
     }
 
+
+
     function isValid($include=false) {
 
         if (!parent::isValid($include) || !($f=$this->getField('target')))
             return false;
 
         // Do additional assignment validation
-        $choice = $this->getTarget();
+        $referee = $this->getReferee();
         switch (true) {
-        case $choice instanceof Staff:
+        case $referee instanceof Staff:
             // Make sure the agent is available
-            if (!$choice->isAvailable())
+            if (!$referee->isAvailable())
                 $f->addError(__('Agent is unavailable for assignment'));
         break;
-        case $choice instanceof Team:
+        case $referee instanceof Team:
             // Make sure the team is active and has members
-            if (!$choice->isActive())
+            if (!$referee->isActive())
                 $f->addError(__('Team is disabled'));
-            elseif (!$choice->getNumMembers())
+            elseif (!$referee->getNumMembers())
                 $f->addError(__('Team does not have members'));
         break;
-        case $choice instanceof Dept:
+        case $referee instanceof Dept:
         break;
         default:
             $f->addError(__('Unknown selection'));
@@ -4722,18 +4763,31 @@ class ReferralForm extends Form {
         include $inc;
     }
 
-    function setChoices($choices, $prompt='') {
-        $this->_choices = $choices;
-        $this->_prompt = $prompt;
-        $this->_fields = array();
+    function setChoices($field, $choices, $prompt='') {
+
+        if (!($f= $this->getField($field)))
+           return;
+
+        $f->set('choices', $choices);
+
+        return $f;
     }
 
-    function getTarget() {
+    function getReferee() {
 
-        if (!isset($this->_target))
-            $this->_target = $this->getField('target')->getClean();
+        $target = $this->getField('target')->getClean();
+        if (!$target || !($f=$this->getField($target)))
+            return null;
 
-        return $this->_target;
+        $id = $f->getClean();
+        switch($target) {
+        case 'agent':
+            return Staff::lookup($id);
+        case 'team':
+            return Team::lookup($id);
+        case 'dept':
+            return Dept::lookup($id);
+        }
     }
 
     function getComments() {
@@ -4765,8 +4819,13 @@ class TransferForm extends Form {
                     'validator-error' => __('Department selection is required'),
                     )
                 ),
+            'refer' => new BooleanField(array(
+                'id'=>2, 'label'=>'', 'required'=>false, 'default'=>false,
+                'configuration'=>array(
+                    'desc' => 'Maintain referral access to current department')
+            )),
             'comments' => new TextareaField(array(
-                    'id' => 2,
+                    'id' => 3,
                     'label'=> '',
                     'required'=>false,
                     'default'=>'',
@@ -4811,6 +4870,10 @@ class TransferForm extends Form {
         $form = $this;
         include $inc;
 
+    }
+
+    function refer() {
+        return $this->getField('refer')->getClean();
     }
 
     function getDept() {

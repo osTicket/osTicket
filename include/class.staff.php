@@ -449,7 +449,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return isset($this->locale) ? $this->locale : 0;
     }
 
-    function getRole($dept=null) {
+    function getRole($dept=null, $useDefault=true) {
         $deptId = is_object($dept) ? $dept->getId() : $dept;
         if ($deptId && $deptId != $this->dept_id) {
             if (isset($this->_roles[$deptId]))
@@ -458,7 +458,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
                 return $this->_roles[$deptId] = $access->role;
 
-            if (!$this->usePrimaryRoleOnAssignment())
+            if (!$useDefault || !$this->usePrimaryRoleOnAssignment())
                 // View only access
                 return new Role(array());
 

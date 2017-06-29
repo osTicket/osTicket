@@ -460,7 +460,7 @@ function refer($tid, $target=null) {
                                      $ticket->getId(),
                                      $ticket->getNumber()))
                             ,
-                            $form->getTarget())
+                            $form->getReferee())
                         );
                 Http::response(201, $ticket->getId());
             }
