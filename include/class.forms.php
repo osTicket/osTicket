@@ -3837,17 +3837,21 @@ class InlineFormField extends FormField {
     }
 
     function getInlineForm($data=false) {
+        if (isset($this->_iform))
+            return $this->_iform;
+
         $form = $this->get('form');
         if (is_array($form)) {
-            $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource(),
+            return $this->_iform = new SimpleForm($form,
+                $data ?: $this->value ?: $this->getSource(),
                 // Generate a unique formId for the subform based on
                 // information about this field
                 array(
-                'id' => crc32($this->get('id') . $this->get('name')
-                    . ($this->_form ? $this->_form->getId() : ''))
+                'id' => md5($this->get('name') . implode(':', array_keys($form)))
             ));
         }
-        return $form;
+
+        throw new Exception('Unable to build inline form: missing `form` array');
     }
 }
 
@@ -3946,7 +3950,7 @@ class InlineFormWidget extends Widget {
         $form = $this->field->getInlineForm($data);
         if (!$form)
             return null;
-        return $form->getClean() ?: parent::getValue();
+        return $form->getClean();
     }
 }
 

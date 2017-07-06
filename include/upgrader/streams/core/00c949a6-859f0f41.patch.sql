@@ -14,8 +14,8 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
   ADD `task_group_id` int(10) unsigned NOT NULL DEFAULT '0' AFTER `sequence_id`;
 
 INSERT INTO `%TABLE_PREFIX%event`
-  (`id`, `state`)
-  VALUES (15, `started`);
+  (`id`, `name`)
+  VALUES (15, 'started');
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task_set`;
 CREATE TABLE `%TABLE_PREFIX%task_set` (
