@@ -18,6 +18,10 @@
             if (!$field->isVisibleToUsers() && !$field->isRequiredForUsers())
                 continue;
         }
+        elseif (isset($options['mode']) && $options['mode'] == 'edit') {
+            if (!$field->isEditableToUsers())
+                continue;
+        }
         elseif (!$field->isVisibleToUsers() && !$field->isEditableToUsers()) {
             continue;
         }

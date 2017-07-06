@@ -122,6 +122,7 @@ $nav->setActiveNav('tickets');
 if($ticket && $ticket->checkUserAccess($thisclient)) {
     if (isset($_REQUEST['a']) && $_REQUEST['a'] == 'edit'
             && $ticket->hasClientEditableFields()) {
+        $options['mode'] = 'edit';
         $inc = 'edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
@@ -136,6 +137,7 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
     $inc='tickets.inc.php';
 } else {
     $nav->setActiveNav('new');
+    $options['mode'] = 'create';
     $inc='open.inc.php';
 }
 include(CLIENTINC_DIR.'header.inc.php');
