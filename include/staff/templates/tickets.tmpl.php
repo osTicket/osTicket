@@ -75,13 +75,7 @@ $tickets->annotate(array(
 
 $tickets->values('staff_id', 'staff__firstname', 'staff__lastname', 'team__name', 'team_id', 'lock__lock_id', 'lock__staff_id', 'isoverdue', 'status_id', 'status__name', 'status__state', 'number', 'cdata__subject', 'ticket_id', 'source', 'dept_id', 'dept__name', 'user_id', 'user__default_email__address', 'user__name', 'lastupdate');
 
-/************************** 
- * Import/copy the sort code from /include/staff/tickets.inc.php
- *
- * slightly modified for this view
- */
-$override_sort = FALSE;
-
+// Add sorting
 $sort_options = array(
     'priority,updated' =>   __('Priority + Most Recently Updated'),
     'updated' =>            __('Most Recently Updated'),
@@ -140,122 +134,117 @@ $queue_columns = array(
 
 
     
-    // Impose visibility constraints    
-    // Apply requested sorting
-    $queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
-    $queue_sort_options = array('priority,updated', 'updated',
-        'priority,due', 'due', 'priority,created', 'answered', 'number',
-        'hot');
-    
-    // If relevance is available, use it as the default (carries over from tickets view)
-    if ($_SESSION[$queue_sort_key][0] == 'relevance') {
-        unset($_SESSION[$queue_sort_key]);
-    }
-    
-    // Manually selected ticket sort
-    if (isset($_GET['sort'])) {
-        $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
-    }
-    elseif (!isset($_SESSION[$queue_sort_key])) {
-        $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
-    }
-    
-    list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
-    $orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
-    $orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
-    
-    switch ($sort_cols) {
-        case 'number':
-            $queue_columns['number']['sort_dir'] = $sort_dir;
-            $tickets->extra(array(
-                'order_by'=>array(
-                    array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
-                )
-            ));
-            break;
-            
-        case 'priority,created':
-            $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__:priority__priority_urgency');
-            // Fall through to columns for `created`
-        case 'created':
-            $queue_columns['date']['heading'] = __('Date Created');
-            $queue_columns['date']['sort_col'] = $date_col = 'created';
-            $tickets->values('created');
-            $tickets->order_by($sort_dir ? 'created' : '-created');
-            break;
-            
-        case 'priority,due':
-            $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
-            // Fall through to add in due date filter
-        case 'due':
-            $queue_columns['date']['heading'] = __('Due Date');
-            $queue_columns['date']['sort'] = 'due';
-            $queue_columns['date']['sort_col'] = $date_col = 'est_duedate';
-            $tickets->values('est_duedate');
-            $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'), $orm_dir_r);
-            break;
-            
-        case 'closed':
-            $queue_columns['date']['heading'] = __('Date Closed');
-            $queue_columns['date']['sort'] = $sort_cols;
-            $queue_columns['date']['sort_col'] = $date_col = 'closed';
-            $queue_columns['date']['sort_dir'] = $sort_dir;
-            $tickets->values('closed');
-            $tickets->order_by('closed', $orm_dir);
-            break;
-            
-        case 'answered':
-            $queue_columns['date']['heading'] = __('Last Response');
-            $queue_columns['date']['sort'] = $sort_cols;
-            $queue_columns['date']['sort_col'] = $date_col = 'thread__lastresponse';
-            $queue_columns['date']['sort_dir'] = $sort_dir;
-            $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
-            $tickets->order_by('thread__lastresponse', $orm_dir);
-            $tickets->values('thread__lastresponse');
-            break;
-            
-        case 'hot':
-            $tickets->order_by('thread_count', $orm_dir);
-            $tickets->annotate(array(
-                'thread_count' => SqlAggregate::COUNT('thread__entries'),
-            ));
-            break;
-            
-        case 'relevance':
-            $tickets->order_by(new SqlCode('__relevance__'), $orm_dir);
-            break;
-            
-        case 'assignee':
-            $tickets->order_by('staff__lastname', $orm_dir);
-            $tickets->order_by('staff__firstname', $orm_dir);
-            $tickets->order_by('team__name', $orm_dir);
-            $queue_columns['assignee']['sort_dir'] = $sort_dir;
-            break;
-            
-        default:
-            if ($sort_cols && isset($queue_columns[$sort_cols])) {
-                $queue_columns[$sort_cols]['sort_dir'] = $sort_dir;
-                if (isset($queue_columns[$sort_cols]['sort_col']))
-                    $sort_cols = $queue_columns[$sort_cols]['sort_col'];
-                    $tickets->order_by($sort_cols, $orm_dir);
-                    break;
-            }
-            
-        case 'priority,updated':
-            $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
-            // Fall through for columns defined for `updated`
-        case 'updated':
-            $queue_columns['date']['heading'] = __('Last Updated');
-            $queue_columns['date']['sort'] = $sort_cols;
-            $queue_columns['date']['sort_col'] = $date_col = 'lastupdate';
-            $tickets->order_by('lastupdate', $orm_dir);
-            break;
-    }
+// Impose visibility constraints    
+// Apply requested sorting
+$queue_sort_key = sprintf(':Q%s:%s:sort', ObjectModel::OBJECT_TYPE_TICKET, $queue_name);
+$queue_sort_options = array('priority,updated', 'updated',
+    'priority,due', 'due', 'priority,created', 'answered', 'number',
+    'hot');
 
-   
-    //$tickets->order_by('-created'); // original line-replaced
-/********************************** End import/copy sort-code */
+// If relevance is available, use it as the default (carries over from tickets view)
+if ($_SESSION[$queue_sort_key][0] == 'relevance') {
+    unset($_SESSION[$queue_sort_key]);
+}
 
+// Manually selected ticket sort
+if (isset($_GET['sort'])) {
+    $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
+}
+elseif (!isset($_SESSION[$queue_sort_key])) {
+    $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
+}
+
+list($sort_cols, $sort_dir) = $_SESSION[$queue_sort_key];
+$orm_dir = $sort_dir ? QuerySet::ASC : QuerySet::DESC;
+$orm_dir_r = $sort_dir ? QuerySet::DESC : QuerySet::ASC;
+
+switch ($sort_cols) {
+    case 'number':
+        $queue_columns['number']['sort_dir'] = $sort_dir;
+        $tickets->extra(array(
+            'order_by'=>array(
+                array(SqlExpression::times(new SqlField('number'), 1), $orm_dir)
+            )
+        ));
+        break;
+        
+    case 'priority,created':
+        $tickets->order_by(($sort_dir ? '-' : '') . 'cdata__:priority__priority_urgency');
+        // Fall through to columns for `created`
+    case 'created':
+        $queue_columns['date']['heading'] = __('Date Created');
+        $queue_columns['date']['sort_col'] = $date_col = 'created';
+        $tickets->values('created');
+        $tickets->order_by($sort_dir ? 'created' : '-created');
+        break;
+        
+    case 'priority,due':
+        $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
+        // Fall through to add in due date filter
+    case 'due':
+        $queue_columns['date']['heading'] = __('Due Date');
+        $queue_columns['date']['sort'] = 'due';
+        $queue_columns['date']['sort_col'] = $date_col = 'est_duedate';
+        $tickets->values('est_duedate');
+        $tickets->order_by(SqlFunction::COALESCE(new SqlField('est_duedate'), 'zzz'), $orm_dir_r);
+        break;
+        
+    case 'closed':
+        $queue_columns['date']['heading'] = __('Date Closed');
+        $queue_columns['date']['sort'] = $sort_cols;
+        $queue_columns['date']['sort_col'] = $date_col = 'closed';
+        $queue_columns['date']['sort_dir'] = $sort_dir;
+        $tickets->values('closed');
+        $tickets->order_by('closed', $orm_dir);
+        break;
+        
+    case 'answered':
+        $queue_columns['date']['heading'] = __('Last Response');
+        $queue_columns['date']['sort'] = $sort_cols;
+        $queue_columns['date']['sort_col'] = $date_col = 'thread__lastresponse';
+        $queue_columns['date']['sort_dir'] = $sort_dir;
+        $date_fallback = '<em class="faded">'.__('unanswered').'</em>';
+        $tickets->order_by('thread__lastresponse', $orm_dir);
+        $tickets->values('thread__lastresponse');
+        break;
+        
+    case 'hot':
+        $tickets->order_by('thread_count', $orm_dir);
+        $tickets->annotate(array(
+            'thread_count' => SqlAggregate::COUNT('thread__entries'),
+        ));
+        break;
+        
+    case 'relevance':
+        $tickets->order_by(new SqlCode('__relevance__'), $orm_dir);
+        break;
+        
+    case 'assignee':
+        $tickets->order_by('staff__lastname', $orm_dir);
+        $tickets->order_by('staff__firstname', $orm_dir);
+        $tickets->order_by('team__name', $orm_dir);
+        $queue_columns['assignee']['sort_dir'] = $sort_dir;
+        break;
+        
+    default:
+        if ($sort_cols && isset($queue_columns[$sort_cols])) {
+            $queue_columns[$sort_cols]['sort_dir'] = $sort_dir;
+            if (isset($queue_columns[$sort_cols]['sort_col']))
+                $sort_cols = $queue_columns[$sort_cols]['sort_col'];
+                $tickets->order_by($sort_cols, $orm_dir);
+                break;
+        }
+        
+    case 'priority,updated':
+        $tickets->order_by('cdata__:priority__priority_urgency', $orm_dir_r);
+        // Fall through for columns defined for `updated`
+    case 'updated':
+        $queue_columns['date']['heading'] = __('Last Updated');
+        $queue_columns['date']['sort'] = $sort_cols;
+        $queue_columns['date']['sort_col'] = $date_col = 'lastupdate';
+        $tickets->order_by('lastupdate', $orm_dir);
+        break;
+}
 
 TicketForm::ensureDynamicDataView();
 // Fetch the results
