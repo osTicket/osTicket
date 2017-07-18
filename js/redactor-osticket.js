@@ -94,6 +94,7 @@ RedactorPlugins.draft = function() {
             // No change yet — dont't show the button
             return;
         }
+        this.$box.find('textarea').attr('data-draft-id', this.opts.draftId);
         if (data && this.code.get()) {
             this.$draft_saved.show().delay(5000).fadeOut();
         }
@@ -290,10 +291,10 @@ $(function() {
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
             reset.click(function() {
-                if (el.hasClass('draft'))
-                    el.redactor('deleteDraft');
+                if (el.attr('data-draft-id'))
+                    el.redactor('draft.deleteDraft').attr('data-draft-id', '');
                 else
-                    el.redactor('set', '', false, false);
+                    el.redactor('insert.set', '', false, false);
             });
         }
         $('input[type=submit]', el.closest('form')).on('click', function() {
