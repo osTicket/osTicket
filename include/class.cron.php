@@ -51,6 +51,11 @@ class Cron {
         AttachmentFile::deleteOrphans();
     }
 
+    function CleanExpiredSessions() {
+        require_once(INCLUDE_DIR.'class.ostsession.php');
+        DbSessionBackend::cleanup();
+    }
+
     function MaybeOptimizeTables() {
         // Once a week on a 5-minute cron
         $chance = rand(1,2000);
@@ -100,6 +105,7 @@ class Cron {
         self::MailFetcher();
         self::TicketMonitor();
         self::PurgeLogs();
+        self::CleanExpiredSessions();
         // Run file purging about every 10 cron runs
         if (mt_rand(1, 9) == 4)
             self::CleanOrphanedFiles();
