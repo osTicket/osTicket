@@ -77,6 +77,7 @@ class UsersAjaxAPI extends AjaxController {
                     'emails__address__contains' => $q,
                     'name__contains' => $q,
                     'org__name__contains' => $q,
+                    'cdata__phone__contains' => $q,
                 )));
             }
 

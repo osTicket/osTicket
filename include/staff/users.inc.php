@@ -14,6 +14,7 @@ if ($_REQUEST['query']) {
         'emails__address__contains' => $search,
         'name__contains' => $search,
         'org__name__contains' => $search,
+        'cdata__phone__contains' => $search,
         // TODO: Add search for cdata
     )));
     $qs += array('query' => $_REQUEST['query']);
