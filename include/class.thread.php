@@ -1613,15 +1613,16 @@ class ThreadEvent extends VerySimpleModel {
         return $this->template(sprintf(
             __('%s by {somebody} {timestamp}'),
             $this->state
-        ));
+        ), $mode);
     }
 
-    function template($description) {
+    function template($description, $mode=self::MODE_STAFF) {
         global $thisstaff, $cfg;
 
         $self = $this;
+        $hideName = $cfg->hideStaffName();
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
-            function ($m) use ($self, $thisstaff, $cfg) {
+            function ($m) use ($self, $thisstaff, $cfg, $hideName, $mode) {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
@@ -1637,7 +1638,10 @@ class ThreadEvent extends VerySimpleModel {
                     }
                     return implode('/', $assignees);
                 case 'somebody':
-                    $name = $self->getUserName();
+                    if ($hideName && $self->agent && $mode == self::MODE_CLIENT)
+                        $name = __('Staff');
+                    else
+                        $name = $self->getUserName();
                     if ($cfg->isAvatarsEnabled()
                             && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
@@ -1850,9 +1854,9 @@ class CloseEvent extends ThreadEvent {
 
     function getDescription($mode=self::MODE_STAFF) {
         if ($this->getData('status'))
-            return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
+            return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'), $mode);
         else
-            return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
+            return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 
@@ -1909,7 +1913,7 @@ class CollaboratorEvent extends ThreadEvent {
                 : 'somebody';
             break;
         }
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -1918,7 +1922,7 @@ class CreationEvent extends ThreadEvent {
     static $state = 'created';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Created by <b>{somebody}</b> {timestamp}'));
+        return $this->template(__('Created by <b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 
@@ -2000,7 +2004,7 @@ class EditEvent extends ThreadEvent {
             break;
         }
 
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -2018,7 +2022,7 @@ class ReopenEvent extends ThreadEvent {
     static $state = 'reopened';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Reopened by <b>{somebody}</b> {timestamp}'));
+        return $this->template(__('Reopened by <b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 

@@ -2,7 +2,10 @@
 global $cfg;
 $entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
-$name = $user ? $user->getName() : $entry->poster;
+if ($entry->staff && $cfg->hideStaffName())
+    $name = __('Staff');
+else
+    $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
 if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
