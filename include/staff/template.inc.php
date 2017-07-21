@@ -78,6 +78,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             uasort($_tpls, function($a,$b) {
                 return strcmp($a['group'].$a['name'], $b['group'].$b['name']);
             });
+         $infoTemplate = $info;             
          foreach($_tpls as $cn=>$info){
              if (!$info['name'])
                  continue;
@@ -162,7 +163,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <td colspan=2>
                 <textarea class="richtext no-bar" name="notes" cols="21"
-                    rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+                    rows="8" style="width: 80%;"><?php echo $infoTemplate['notes']; ?></textarea>
             </td>
         </tr>
     </tbody>
