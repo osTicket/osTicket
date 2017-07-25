@@ -425,6 +425,12 @@ implements TemplateVariable {
                 $u->setPrimaryContact(array_search($u->id, $vars['contacts']) !== false);
                 $u->save();
             }
+        } else {
+            $members = $this->allMembers();
+            $members->update(array(
+                'status' => SqlExpression::bitand(
+                    new SqlField('status'), ~User::PRIMARY_ORG_CONTACT)
+                ));
         }
 
         return $this->save();
