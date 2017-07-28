@@ -268,7 +268,7 @@ if ($task->isOverdue())
                 <?php
                 foreach ($actions as $action) {?>
                 <span class="action-button <?php echo $action['class'] ?: ''; ?>">
-                    <a class="task-action"
+                    <a class="<?php echo ($action['class'] == 'no-pjax') ? '' : 'task-action'; ?>"
                         <?php
                         if ($action['dialog'])
                             echo sprintf("data-dialog-config='%s'", $action['dialog']);
