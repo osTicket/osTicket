@@ -3321,10 +3321,8 @@ implements RestrictedAccess, Threadable {
             elseif (!isset($vars['teamId']) && $topic->getTeamId())
                 $vars['teamId'] = $topic->getTeamId();
 
-            //set default sla.
-            if (isset($vars['slaId']))
-                $vars['slaId'] = $vars['slaId'] ?: $cfg->getDefaultSLAId();
-            elseif ($topic && $topic->getSLAId())
+            // Help topic SLA.
+            if (!$vars['slaId'] && $topic->getSLAId())
                 $vars['slaId'] = $topic->getSLAId();
         }
 
