@@ -53,7 +53,7 @@ $action = $info[':action'] ?: ('#');
             value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php
+            <input type="submit" <?php if ($info['error']) echo 'disabled="true"'; ?> value="<?php
             echo $verb ?: __('Transfer'); ?>">
         </span>
      </p>

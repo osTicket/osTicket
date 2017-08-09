@@ -250,7 +250,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function changeUserForm($tid) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
@@ -260,8 +260,15 @@ class TicketsAjaxAPI extends AjaxController {
 
         $user = User::lookup($ticket->getOwnerId());
 
+        $errors = array();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+        }
+
         $info = array(
-                'title' => sprintf(__('Change user for ticket #%s'), $ticket->getNumber())
+                'title' => sprintf(__('Change user for ticket #%s'), $ticket->getNumber()),
+                'error' => $errors['err'],
                 );
 
         return self::_userlookup($user, null, $info);
@@ -279,7 +286,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function manageForms($ticket_id) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, "Login required");
@@ -288,8 +295,14 @@ class TicketsAjaxAPI extends AjaxController {
         elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
             Http::response(403, "Access Denied");
 
+        $errors = array();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+        }
+
         $forms = DynamicFormEntry::forTicket($ticket->getId());
-        $info = array('action' => '#tickets/'.$ticket->getId().'/forms/manage');
+        $info = array('action' => '#tickets/'.$ticket->getId().'/forms/manage', 'error' => $errors['err']);
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
 
@@ -375,7 +388,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function transfer($tid) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
@@ -384,13 +397,18 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, __('Permission denied'));
 
         $errors = array();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+        }
 
         $info = array(
                 ':title' => sprintf(__('Ticket #%s: %s'),
                     $ticket->getNumber(),
                     __('Transfer')),
                 ':action' => sprintf('#tickets/%d/transfer',
-                    $ticket->getId())
+                    $ticket->getId()),
+                'error' => $errors['err'],
                 );
 
         $form = $ticket->getTransferForm($_POST);
@@ -418,7 +436,7 @@ class TicketsAjaxAPI extends AjaxController {
 
 
     function assign($tid, $target=null) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
@@ -429,6 +447,11 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, __('Permission denied'));
 
         $errors = array();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+        }
+
         $info = array(
                 ':title' => sprintf(__('Ticket #%s: %s'),
                     $ticket->getNumber(),
@@ -441,6 +464,7 @@ class TicketsAjaxAPI extends AjaxController {
                 ':action' => sprintf('#tickets/%d/assign%s',
                     $ticket->getId(),
                     ($target  ? "/$target": '')),
+                'error' => $errors['err'],
                 );
 
         if ($ticket->isAssigned()) {
@@ -476,7 +500,7 @@ class TicketsAjaxAPI extends AjaxController {
 
     function claim($tid) {
 
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
@@ -489,13 +513,18 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, __('Permission denied'));
 
         $errors = array();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+        }
+
         $info = array(
                 ':title' => sprintf(__('Ticket #%s: %s'),
                     $ticket->getNumber(),
                     __('Claim')),
                 ':action' => sprintf('#tickets/%d/claim',
                     $ticket->getId()),
-
+                'error' => $errors['err'],
                 );
 
         if ($ticket->isAssigned()) {
@@ -811,7 +840,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function changeTicketStatus($tid, $status, $id=0) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Access denied');
@@ -821,6 +850,12 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown ticket #');
 
         $role = $thisstaff->getRole($ticket->getDeptId());
+
+        $errors = array();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+        }
 
         $info = array();
         $state = null;
@@ -852,7 +887,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $info['status_id'] = $id ?: $ticket->getStatusId();
 
-        return self::_changeTicketStatus($ticket, $state, $info);
+        return self::_changeTicketStatus($ticket, $state, $info, $errors);
     }
 
     function setTicketStatus($tid) {

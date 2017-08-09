@@ -611,6 +611,20 @@ implements RestrictedAccess, Threadable {
             return $lock;
     }
 
+    function checkLock($lock, $ticket, $thisstaff, &$errors) {
+        if (!$lock && !($lock = $ticket->acquireLock($thisstaff->getId()))) {
+            return $errors['err'] = sprintf('%s %s', __('This action requires a lock.'), __('Please try again!'));
+        }
+        // Use locks to avoid double replies
+        elseif ($lock->getStaffId() != $thisstaff->getId()) {
+            return $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
+        }
+        // Attempt to renew the lock if possible
+        elseif ($lock->isExpired() && !$lock->renew()) {
+            return $errors['err'] = sprintf('%s %s', __('Your lock has expired.'), __('Please try again!'));
+        }
+    }
+
     function acquireLock($staffId, $lockTime=null) {
         global $cfg;
 

@@ -1,6 +1,10 @@
 <h3 class="drag-handle"><i class="icon-paste"></i> <?php echo __('Manage Forms'); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
-<hr/><?php echo __(
+<hr/><?php
+if ($info['error']) {
+    echo sprintf('<p id="msg_error">%s</p>', $info['error']);
+}
+echo __(
 'Sort the forms on this ticket by click and dragging on them. Use the box below the forms list to add new forms to the ticket.'
 ); ?>
 <br/>
@@ -84,7 +88,7 @@ foreach ($forms as $e) { ?>
                 echo $user ? 'cancel' : 'close' ?>" value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Save Changes'); ?>">
+            <input type="submit" <?php if ($info['error']) echo 'disabled="true"'; ?> value="<?php echo __('Save Changes'); ?>">
         </span>
      </p>
 
