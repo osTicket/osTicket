@@ -1774,7 +1774,7 @@ class DatetimeField extends FormField {
 
     function asVar($value, $id=false) {
         if (!$value) return null;
-        return new FormattedDate((int) $value, 'UTC', false, false);
+        return new FormattedDate(strtotime($value), 'UTC', false, false);
     }
     function asVarType() {
         return 'FormattedDate';
