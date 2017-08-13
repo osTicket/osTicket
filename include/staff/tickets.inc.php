@@ -30,6 +30,8 @@ $sort_options = array(
     'closed' =>             __('Most Recently Closed'),
     'hot' =>                __('Longest Thread'),
     'relevance' =>          __('Relevance'),
+    'topic' =>	            __('Help Topic')
+
 );
 
 // Queues columns
@@ -72,6 +74,10 @@ $queue_columns = array(
             'width' => '16%',
             'heading' => __('Department'),
             'sort_col'  => 'dept__name',
+	    'topic' => array(
+		'width' => '16%',
+		'heading' => __('Help Topic'),
+		'sort_col' => 'topic',
             ),
         );
 
@@ -81,20 +87,21 @@ $use_subquery = true;
 $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
 $queue_name = $_SESSION[$queue_key] ?: '';
 
+),
 switch ($queue_name) {
 case 'closed':
     $status='closed';
     $results_type=__('Closed Tickets');
     $showassigned=true; //closed by.
     $queue_sort_options = array('closed', 'priority,due', 'due',
-        'priority,updated', 'priority,created', 'answered', 'number', 'hot');
+        'priority,updated', 'priority,created', 'answered', 'number', 'hot', 'topic');
     break;
 case 'overdue':
     $status='open';
     $results_type=__('Overdue Tickets');
     $tickets->filter(array('isoverdue'=>1));
     $queue_sort_options = array('priority,due', 'due', 'priority,updated',
-        'updated', 'answered', 'priority,created', 'number', 'hot');
+        'updated', 'answered', 'priority,created', 'number', 'hot', 'topic');
     break;
 case 'assigned':
     $status='open';
@@ -106,7 +113,7 @@ case 'assigned':
     )));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
-        'hot');
+        'hot', 'topic');
     break;
 case 'answered':
     $status='open';
@@ -114,13 +121,13 @@ case 'answered':
     $results_type=__('Answered Tickets');
     $tickets->filter(array('isanswered'=>1));
     $queue_sort_options = array('answered', 'priority,updated', 'updated',
-        'priority,created', 'priority,due', 'due', 'number', 'hot');
+        'priority,created', 'priority,due', 'due', 'number', 'hot', 'topic');
     break;
 default:
 case 'search':
     $queue_sort_options = array('priority,updated', 'priority,created',
         'priority,due', 'due', 'updated', 'answered',
-        'closed', 'number', 'hot');
+        'closed', 'number', 'hot', 'topic');
     // Consider basic search
     if ($_REQUEST['query']) {
         $results_type=__('Search Results');
@@ -195,7 +202,7 @@ case 'open':
         $tickets->filter(array('isanswered'=>0));
     $queue_sort_options = array('priority,updated', 'updated',
         'priority,due', 'due', 'priority,created', 'answered', 'number',
-        'hot');
+        'hot', 'topic');
     break;
 }
 
@@ -372,7 +379,7 @@ TicketForm::ensureDynamicDataView();
 
 // Select pertinent columns
 // ------------------------------------------------------------
-$tickets->values('lock__staff_id', 'staff_id', 'isoverdue', 'team_id',
+$tickets->values('topic', 'lock__staff_id', 'staff_id', 'isoverdue', 'team_id',
 'ticket_id', 'number', 'cdata__subject', 'user__default_email__address',
 'source', 'cdata__:priority__priority_color', 'cdata__:priority__priority_desc', 'status_id', 'status__name', 'status__state', 'dept_id', 'dept__name', 'user__name', 'lastupdate', 'isanswered', 'staff__firstname', 'staff__lastname', 'team__name');
 
@@ -592,7 +599,10 @@ return false;">
                 }
                 ?>
                 <td nowrap><span class="truncate" style="max-width: 169px"><?php
-                    echo Format::htmlchars($lc); ?></span></td>
+                <td class="nohover" align="left">
+			<?php echo Topic::getLocalNameById($T['topic']); ?></td>
+		echo Format::htmlchars($lc); ?></span></td>
+			    
             </tr>
             <?php
             } //end of foreach
@@ -602,7 +612,7 @@ return false;">
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8">
             <?php if($total && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
