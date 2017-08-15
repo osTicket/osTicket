@@ -1774,7 +1774,10 @@ class DatetimeField extends FormField {
 
     function asVar($value, $id=false) {
         if (!$value) return null;
-        return new FormattedDate((int) $value, 'UTC', false, false);
+        // Test if value is actually a stringy Date & make timestamp 
+        // otherwise assume it is already a timestamp
+        $timestamp = strtotime($value) ?: (int) $value;
+        return new FormattedDate($timestamp, 'UTC', false, false);
     }
     function asVarType() {
         return 'FormattedDate';
