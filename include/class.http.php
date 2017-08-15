@@ -106,7 +106,7 @@ class Http {
     }
 
     function download($filename, $type, $data=null, $disposition='attachment') {
-        if (strpos($type, 'image/') !== 0)
+        if (strpos($type, 'image/') !== 0 || preg_match('/image\/.*\+.*/', $type))
           $disposition='attachment';
 
         header('Pragma: private');
