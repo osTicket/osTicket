@@ -286,8 +286,7 @@ implements RestrictedAccess, Threadable, Searchable {
             && $this->isOpen()
             && $staff->getId() != $this->getStaffId()
             && !$staff->isTeamMember($this->getTeamId())
-            && !$this->thread->getReferral($staff->getId(),
-                ObjectModel::OBJECT_TYPE_STAFF)
+            && !$this->thread->isReferred($staff)
         ) {
             return false;
         }

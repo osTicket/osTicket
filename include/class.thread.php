@@ -278,11 +278,52 @@ implements Searchable {
     function getReferral($id, $type) {
 
         return $this->referrals->findFirst(array(
-                    'object_id' => $id,
-                    'object_type' => $type));
+                    'object_id'     => $id,
+                    'object_type'   => $type));
+    }
+
+    function isReferred($to=null, $strict=false) {
+
+        if (is_null($to))
+            return ($this->referrals);
+
+        switch (true) {
+        case $to instanceof Staff:
+            // Referred to the staff
+            if ($this->getReferral($to->getId(),
+                        ObjectModel::OBJECT_TYPE_STAFF))
+                return true;
+
+            // Strict check only checks the Agent
+            if ($strict)
+                return false;
+
+            // Referred to staff's department
+            if ($this->referrals->findFirst(array(
+                            'object_id__in' => $to->getDepts(),
+                            'object_type'   => ObjectModel::OBJECT_TYPE_DEPT)))
+                return true;
+            // Referred to staff's  team
+            if ($this->referrals->findFirst(array(
+                            'object_id__in' => $to->getTeams(),
+                            'object_type'   => ObjectModel::OBJECT_TYPE_TEAM)))
+                return true;
+            break;
+        case $to instanceof Dept:
+            // Refered to the dept
+            if ($this->getReferral($to->getId,
+                        ObjectModel::OBJECT_TYPE_DEPT))
+                return true;
+            break;
+        }
+
+        return false;
     }
 
     function refer($to) {
+
+        if ($this->isReferred($to, true))
+            return true;
 
         $vars = array('thread_id' => $this->getId());
         switch (true) {
