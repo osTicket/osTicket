@@ -1,5 +1,5 @@
  <?php
-if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
+if(!defined('ADMINPAGE')) { ?>
                                 
     <li ><a class="waves-effect waves-primary" href="/scp/dashboard.php" ><i class=" ti-dashboard"></i> Dashboard </a> </li>
     <li class=" has_sub ">

@@ -370,9 +370,11 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                <?php
                                 if($thisstaff->isAdmin() && !defined('ADMINPAGE')) { ?>
                                <a  class="dropdown-item notify-item" href="<?php echo ROOT_PATH ?>scp/admin.php"><i class="mdi mdi-settings"></i> <?php echo __('Admin Panel'); ?></a>
-                                <?php }else{ ?>
+                                <?php }else{ 
+                                 if ($thisstaff->isAdmin()) {?>
+                                
                                <a  class="dropdown-item notify-item" href="<?php echo ROOT_PATH ?>scp/index.php"><i class="mdi mdi-account-box-outline"></i><?php echo __('Agent Panel'); ?></a>
-                                <?php } ?>
+                                 <?php }} ?>
                                 <!-- item-->
                                 <a  class="dropdown-item notify-item" href="<?php echo ROOT_PATH ?>scp/profile.php"> <i class="mdi mdi-account-star-variant"></i> <?php echo __('Profile'); ?></a>
                                 
