@@ -2842,11 +2842,15 @@ implements RestrictedAccess, Threadable, Searchable {
         ) {
             return false;
         }
+        
+        
+        $vars['duedate'] = date("Y-m-d H:i:s", strtotime($vars['duedate']));
+        if ($vars['duedate'] == '1970-01-01 00:00:00') $vars['duedate'] = null;
 
         $fields = array();
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>__('Help topic selection is required'));
         $fields['slaId']    = array('type'=>'int',      'required'=>0, 'error'=>__('Select a valid SLA'));
-        $fields['duedate']  = array('type'=>'date',     'required'=>0, 'error'=>__('Invalid date format - must be MM/DD/YY'));
+       //$fields['duedate']  = array('type'=>'datetime',     'required'=>0, 'error'=>__('Invalid date format - must be MM/DD/YY'));
 
         $fields['user_id']  = array('type'=>'int',      'required'=>0, 'error'=>__('Invalid user-id'));
 
@@ -2858,21 +2862,16 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
         if ($vars['duedate']) {
-            if ($this->isClosed())
-                $errors['duedate']=__('Due date can NOT be set on a closed ticket');
-            elseif (!$vars['time'] || strpos($vars['time'],':') === false)
-                $errors['time']=__('Select a time from the list');
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
-                $errors['duedate']=__('Invalid due date');
-            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
+        //    if ($this->isClosed())
+        //        $errors['duedate']=__('Due date can NOT be set on a closed ticket');
+        //    else
+            if ($vars['duedate'] <= date("Y-m-d H:i:s"))
                 $errors['duedate']=__('Due date must be in the future');
         }
-
         if (isset($vars['source']) // Check ticket source if provided
                 && !array_key_exists($vars['source'], Ticket::getSources()))
             $errors['source'] = sprintf( __('Invalid source given - %s'),
                     Format::htmlchars($vars['source']));
-
         // Validate dynamic meta-data
         $forms = DynamicFormEntry::forTicket($this->getId());
         foreach ($forms as $form) {
@@ -2887,26 +2886,20 @@ implements RestrictedAccess, Threadable, Searchable {
                 $errors = array_merge($errors, $form->errors());
             }
         }
-
         if ($errors)
             return false;
-
         // Decide if we need to keep the just selected SLA
         $keepSLA = ($this->getSLAId() != $vars['slaId']);
-
         $this->topic_id = $vars['topicId'];
         $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
-        $this->duedate = $vars['duedate']
-            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))
-            : null;
-
+        $this->duedate = $vars['duedate'];
+            
         if ($vars['user_id'])
             $this->user_id = $vars['user_id'];
         if ($vars['duedate'])
             // We are setting new duedate...
             $this->isoverdue = 0;
-
         $changes = array();
         foreach ($this->dirty as $F=>$old) {
             switch ($F) {
@@ -2918,14 +2911,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 $changes[$F] = array($old, $this->{$F});
             }
         }
-
         if (!$this->save())
             return false;
-
 	$vars['note'] = ThreadEntryBody::clean($vars['note']);
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
-
         // Update dynamic meta-data
         foreach ($forms as $f) {
             if ($C = $f->getChanges())
@@ -2940,21 +2930,17 @@ implements RestrictedAccess, Threadable, Searchable {
                 $f->save();
             }
         }
-
         if ($changes)
             $this->logEvent('edited', $changes);
-
         // Reselect SLA if transient
         if (!$keepSLA
             && (!$this->getSLA() || $this->getSLA()->isTransient())
         ) {
             $this->selectSLAId();
         }
-
         // Update estimated due date in database
         $estimatedDueDate = $this->getEstDueDate();
         $this->updateEstDueDate();
-
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if($this->isOverdue()
             && (!$estimatedDueDate //Duedate + SLA cleared
@@ -2962,7 +2948,6 @@ implements RestrictedAccess, Threadable, Searchable {
         )) {
             $this->clearOverdue();
         }
-
         Signal::send('model.updated', $this);
         return $this->save();
     }
@@ -3225,15 +3210,16 @@ implements RestrictedAccess, Threadable, Searchable {
                 __('Correct any errors below and try again'));
 
         // Make sure the due date is valid
-        if ($vars['duedate']) {
-            if (!$vars['time'] || strpos($vars['time'],':') === false)
-                $errors['time']=__('Select a time from the list');
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
-                $errors['duedate']=__('Invalid due date');
-            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
-                $errors['duedate']=__('Due date must be in the future');
-        }
-
+        // if ($vars['duedate']) {
+            // if (!$vars['time'] || strpos($vars['time'],':') === false)
+                // $errors['time']=__('Select a time from the list');
+            // elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
+                // $errors['duedate']=__('Invalid due date');
+            // elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
+                // $errors['duedate']=__('Due date must be in the future');
+        // }
+               
+         
         $topic_forms = array();
         if (!$errors) {
 
@@ -3458,11 +3444,12 @@ implements RestrictedAccess, Threadable, Searchable {
             $ticket->email_id = $vars['emailId'];
 
         //Make sure the origin is staff - avoid firebug hack!
-        if ($vars['duedate'] && !strcasecmp($origin,'staff'))
-            $ticket->duedate = date('Y-m-d G:i',
-                Misc::dbtime($vars['duedate'].' '.$vars['time']));
-
-
+        if ($vars['duedate'] && !strcasecmp($origin,'staff')) {
+            
+            $duedate_datetime = date("Y-m-d H:i:s", strtotime($vars['duedate']));
+            $ticket->duedate = $duedate_datetime;
+        }
+            
         if (!$ticket->save())
             return null;
         if (!($thread = TicketThread::create($ticket->getId())))

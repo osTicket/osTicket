@@ -84,7 +84,7 @@ var scp_prep = function() {
         return false;
      });
 
-    $('#actions:submit, #actions :submit.button:not(.no-confirm), #actions .confirm').bind('click', function(e) {
+    $('#actions:submit, #actions :submit.button:not(.no-confirm), #actions .confirm, .cr-confirm, .category-action').bind('click', function(e) {
 
         var formObj,
             name = this.name || $(this).data('name');
@@ -114,9 +114,10 @@ var scp_prep = function() {
         e.preventDefault();
         return false;
      });
-
+     
     $('a.confirm-action').click(function(e) {
         $dialog = $('.dialog#confirm-action');
+  
         if ($($(this).attr('href')+'-confirm', $dialog).length) {
             e.preventDefault();
             var action = $(this).attr('href').substr(1, $(this).attr('href').length);
@@ -498,27 +499,20 @@ var scp_prep = function() {
     });
     // Ensure the "new ticket" link is never in the drop-down menu
     $('#new-ticket').parent('li').addClass('primary-only');
-    $('#customQ_nav').overflowmenu({
-      guessHeight: false,
-      // items: 'li.top-queue',
-      change: function( e, ui ) {
-        var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
-        handle.toggle( ui.secondary.children().length > 0 );
-      }
-    });
+    
   });
 
   // Auto fetch queue counts
   $(function() {
     var fired = false;
-    $('li.top-queue.item').hover(function() {
+    $('li.top-queue.item').ready(function() {
       if (fired) return;
       fired = true;
       $.ajax({
         url: 'ajax.php/queue/counts',
         dataType: 'json',
         success: function(json) {
-          $('li > span.queue-count').each(function(i, e) {
+          $('a > span.queue-count').each(function(i, e) {
             var $e = $(e);
             $e.text(json['q' + $e.data('queueId')]);
           });
@@ -1211,7 +1205,7 @@ $(document).on('click.note', '.quicknote .delete', function() {
 $(document).on('click', '#new-note', function() {
   var note = $(this).closest('.quicknote'),
     T = $('<textarea>'),
-    button = $('<input type="button">').val(__('Create'));
+    button = $('<input class="btn btn-primary btn-sm pull-left" type="button">').val(__('Add Note'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
         { note: T.redactor('code.get'), no_options: note.hasClass('no-options') },

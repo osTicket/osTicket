@@ -2,79 +2,82 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
+<div class="subnav">
 
-    <div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
-        <div class="pull-left">
-            <h2><?php echo __('Reports');?></h2>
-        </div>
-        <div class="clear"></div>
+    <div class="float-left subnavtitle">
+                          
+    <?php echo __('Reports');?>                        
+    
     </div>
-<div>
-<div>
-<br>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+   &nbsp;
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
 
 
+<div class="card-box">
+<div class="row">
+<div class="col">
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;border:none;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:12px 10px;border-style:solid;border-width:0px;overflow:hidden;word-break:normal;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:12px 10px;border-style:solid;border-width:0px;overflow:hidden;word-break:normal;}
-.tg .tg-3we0{background-color:#ffffff;vertical-align:top}
-</style>
-
-
-<table class="tg" width="100%">
-
-    <tr class="tg-3we0">
-        <td width="220px">
+<div class="row table">
+    <div>
+        
             <strong>
                 <a href="http://crpsql01/ReportServer/Pages/ReportViewer.aspx?%2fosTicket%2fIT%2fIT+Performance" target="_blank">
                 IT Performance</a>
             </strong>
-        </td>
-        <td>
-            <em>Report showing IT performance.</em>
-        </td>
-    </tr>
-    <tr class="tg-3we0">
-        <td width="220px">
+    </div>
+    <div>
+            <em>&nbsp; Report showing IT performance.</em>
+        
+    </div>
+</div>    
+<div class="row table">
+    <div>
+        
             <strong>
                 <a href="http://crpsql01/ReportServer/Pages/ReportViewer.aspx?%2fosTicket%2fIT%2fOpenTicketsAge" target="_blank">
                 Open Ticket Age</a>
             </strong>
-        </td>
-        <td>
-            <em>Report showing Open Ticket by age.</em>
-        </td>
-    </tr>
-    <tr class="tg-3we0">
-        <td width="220px">
+     </div>
+    <div>       
+        
+            <em>&nbsp; Report showing Open Ticket by age.</em>
+        
+    </div>
+</div> 
+<div class="row table">
+    <div>
+        
             <strong>
                 <a href="http://crpsql01/ReportServer/Pages/ReportViewer.aspx?%2fosTicket%2fIT%2fOpen+Issues+and+Suggestions" target="_blank">
                 Open Issues and Suggesitons</a>
             </strong>
-        </td>
-        <td>
-            <em>Report showing Open Issues and Suggestions.</em>
-        </td>
-    </tr>
-        <tr class="tg-3we0">
-        <td width="220px">
+    </div>
+
+    <div>        
+        
+            <em>&nbsp; Report showing Open Issues and Suggestions.</em>
+        
+    </div>
+</div>
+<div class="row table">
+        <div>
+        
             <strong>
                 <a href="http://crpsql01/ReportServer/Pages/ReportViewer.aspx?%2fosTicket%2fIT%2fManagement+Review+Data&rs:Format=Excel" target="_blank">
                 Management Review Data</a>
             </strong>
-        </td>
-        <td>
-            <em>Export Management Review Data (Excel).</em>
-        </td>
-    </tr>
+     </div>
+    <div>       
+        
+            <em>&nbsp; Export Management Review Data (Excel).</em>
+        
+    </div>
     
- 
-</table>
-<br><br><br>
-<hr>
-<div>
-</div>
+ </div>
 
+
+ </div> </div> </div>
 

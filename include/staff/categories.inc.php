@@ -33,48 +33,65 @@ $pageNav->paginate($categories);
 ?>
 
 <form action="categories.php" method="POST" id="mass-actions">
-    <div class="sticky bar opaque">
-        <div class="content">
-            <div class="pull-left flush-left">
-                <h2><?php echo __('FAQ Categories');?></h2>
-            </div>
-            <div class="pull-right flush-right">
-                <a href="categories.php?a=add" class="green button">
-                    <i class="icon-plus-sign"></i>
-                    <?php echo __( 'Add New Category');?>
-                </a>
-                <div class="pull-right flush-right">
+<div class="subnav">
 
-                    <span class="action-button" data-dropdown="#action-dropdown-more">
-                        <i class="icon-caret-down pull-right"></i>
-                        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                    </span>
-                    <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                        <ul id="actions">
-                            <li class="danger">
-                                <a class="confirm" data-form-id="mass-actions" data-name="delete" href="categories.php?a=delete">
-                                    <i class="icon-trash icon-fixed-width"></i>
-                                    <?php echo __( 'Delete'); ?>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="float-left subnavtitle">
+                          
+    <?php echo __('FAQ Categories');?>                  
+    
     </div>
+    
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+    
+    <a href="categories.php?a=add" class="btn btn-icon waves-effect waves-light btn-success">
+                    <i class="fa fa-plus-square" data-placement="bottom"
+        data-toggle="tooltip" title=" <?php echo __( 'Add New Category');?>"></i>
+                   
+                </a>
+
+            <a class="btn btn-icon waves-effect waves-light btn-secondary category-action" data-form-id="mass-actions" data-name="make_public" href=""
+            data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Mark as Public'); ?>">
+                                    <i class="fa fa-users"></i> 
+            </a>
+                                
+            <a class="btn btn-icon waves-effect waves-light btn-secondary category-action" data-form-id="mass-actions" data-name="make_private" href=""
+            data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Mark as Internal'); ?>">
+                                    <i class=" fa fa-user"></i>                                 
+            </a>
+               
+                
+                <a class="btn btn-icon waves-effect waves-light btn-danger category-action" data-form-id="mass-actions" data-name="delete" href="categories.php?a=delete" 
+                data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Delete Category'); ?>">
+                                    <i class="icon-trash icon-fixed-width"></i>
+                                    
+                                </a>
+
+                                
+                                
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
+
+
+
+<div class="card-box">
+
+<div class="row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+    
     <div class="clear"></div>
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="mass_process" >
     <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table  id="faqcategories" class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
-            <th width="4%">&nbsp;</th>
-            <th width="56%"><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="10%"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
-            <th width="10%"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
-            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th >&nbsp;</th>
+            <th ><a <?php echo $name_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th data-breakpoints="xs"><a  <?php echo $type_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
+            <th data-breakpoints="xs"><a  <?php echo $faqs_sort; ?> href="categories.php?<?php echo $qstr; ?>&sort=faqs"><?php echo __('FAQs');?></a></th>
+            <th data-breakpoints="xs"><a  <?php echo $updated_sort; ?>href="categories.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -94,10 +111,10 @@ $pageNav->paginate($categories);
                   <input type="checkbox" name="ids[]" value="<?php echo $C->getId(); ?>" class="ckb"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td><a class="truncate" style="width:500px" href="categories.php?id=<?php echo $C->getId(); ?>"><?php
+                <td><a class="truncate" href="categories.php?id=<?php echo $C->getId(); ?>"><?php
                     echo $C->getLocalName(); ?></a></td>
                 <td><?php echo $C->getVisibilityDescription(); ?></td>
-                <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
+                <td><?php echo $faqs; ?></td>
                 <td>&nbsp;<?php echo Format::datetime($C->updated); ?></td>
             </tr><?php
         } // end of foreach ?>
@@ -116,18 +133,28 @@ $pageNav->paginate($categories);
      </tr>
     </tfoot>
 </table>
-<?php
-if ($total) {
-    echo '<div>&nbsp;'.__('Page').': '.$pageNav->getPageLinks().'</div>';
-?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="make_public" value="<?php echo __('Make Public');?>">
-    <input class="button" type="submit" name="make_private" value="<?php echo __('Make Internal');?>">
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete');?>" >
-</p>
-<?php
-}
-?>
+
+<div class="row">
+<div class="col">
+    <div class="float-left">
+    <nav>
+    <ul class="pagination">   
+        <?php
+            echo $pageNav->getPageLinks();
+        ?>
+    </ul>
+    </nav>
+    </div>
+    <div class="float-left">
+    
+</div>
+    
+   
+    <div class="float-right">
+          <span class="faded"><?php echo $pageNav->showing(); ?></span>
+    </div>  
+</div></div>
+
 </form>
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm');?></h3>
@@ -150,11 +177,18 @@ if ($total) {
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="btn btn-sm btn-warning close">
         </span>
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="btn btn-sm btn-danger confirm">
         </span>
      </p>
     <div class="clear"></div>
 </div>
+<script>
+
+jQuery(function($){
+	$('#faqcategories').footable();
+});
+        
+</script>

@@ -197,7 +197,7 @@ if($_POST && !$errors):
                 // Go back to the ticket listing page on reply
                 $ticket = null;
 				    $fl= $qurl.$purl.$qfurl;	
-					$redirect = "tickets.php?{$fl}";
+					$redirect = "tickets.php?reponse=1&{$fl}";
 
             } elseif(!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
@@ -248,7 +248,7 @@ if($_POST && !$errors):
                     Draft::deleteForNamespace('ticket.note.'.$ticket->getId(),
                         $thisstaff->getId());
 					$fl= $qurl.$purl.$qfurl;
-				   	$redirect = "tickets.php?queue={$fl}";
+				   	$redirect = "tickets.php?reponse=1&{$fl}";
                 } else {
 
                 if(!$errors['err'])
@@ -436,7 +436,7 @@ if (isset($_GET['clear_filter']))
 
 //Navigation
 $nav->setTabActive('tickets');
-$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
+//$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
 
 // Fetch ticket queues organized by root and sub-queues
 $queues = CustomQueue::queues()
@@ -521,6 +521,7 @@ if($ticket) {
         // XXX: Check staff access?
         $quick_filter = @$_REQUEST['filter'];
         $tickets = $queue->getQuery(false, $quick_filter);
+       
     }
 
     //set refresh rate if the user has it configured

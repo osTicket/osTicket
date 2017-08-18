@@ -36,16 +36,34 @@ if($category && $_REQUEST['a']!='add'){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
+
+
+<div class="subnav">
+
+    <div class="float-left subnavtitle">
+                          
+    <?php echo __('Update Category').' / '.$info['name']; ?>               
+    
+    </div>
+    
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+    
+    &nbsp;
+                                
+                                
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
+
+<div class="card-box">
+
+<div class="row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
- <h2><?php echo $title; ?>
-     <?php if (isset($info['name'])) { ?><small>
-    — <?php echo $info['name']; ?></small>
-     <?php } ?>
-    </h2>
 
 
     <div style="margin:8px 0"><strong><?php echo __('Category Type');?>:</strong>
@@ -62,28 +80,31 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <div style="margin-top:20px"></div>
 
-<ul class="tabs clean" style="margin-top:9px;">
-    <li class="active"><a href="#info"><?php echo __('Category Information'); ?></a></li>
-    <li><a href="#notes"><?php echo __('Internal Notes'); ?></a></li>
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a href="#info" data-toggle="tab" aria-expanded="true" class="nav-link active" ><?php echo __('Category Information'); ?></a></li>
+    <li class="nav-item"><a href="#notes" data-toggle="tab" aria-expanded="false" class="nav-link"><?php echo __('Internal Notes'); ?></a></li>
 </ul>
 
-<div class="tab_content" id="info">
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="info">
 
-<?php
+    <?php
 $langs = Internationalization::getConfiguredSystemLanguages();
 if (count($langs) > 1) { ?>
-    <ul class="alt tabs clean" id="trans">
-        <li class="empty"><i class="icon-globe" title="This content is translatable"></i></li>
+    <ul class="nav nav-tabs" id="trans">
+        <!--<li class="nav-item empty"><i class="icon-globe" title="This content is translatable"></i></li>-->
 <?php foreach ($langs as $tag=>$i) {
     list($lang, $locale) = explode('_', $tag);
  ?>
-    <li class="<?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
-        ?>"><a href="#lang-<?php echo $tag; ?>" title="<?php
+    <li class="nav-item "><a data-toggle="tab" class="nav-link <?php if ($tag == $cfg->getPrimaryLanguage()) echo "active";
+        ?>" href="#lang-<?php echo $tag; ?>" title="<?php
         echo Internationalization::getLanguageDescription($tag);
     ?>"><span class="flag flag-<?php echo strtolower($i['flag'] ?: $locale ?: $lang); ?>"></span>
     </a></li>
 <?php } ?>
     </ul>
+    <div class="tab-content">
+
 <?php
 } ?>
 
@@ -102,17 +123,21 @@ if (count($langs) > 1) { ?>
         $cname = "trans[$code][$cname]";
         $dname = "trans[$code][$dname]";
     } ?>
-    <div class="tab_content <?php
-        if ($code != $cfg->getPrimaryLanguage()) echo "hidden";
+    <div class="tab-pane fade <?php
+        if ($tag == $cfg->getPrimaryLanguage()) echo "show active";
       ?>" id="lang-<?php echo $tag; ?>"
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
     >
+    
+    <div><strong>Language: </strong><span class="text-danger"><?php
+        echo Internationalization::getLanguageDescription($tag);?></span>
+    </div>
     <div style="padding-bottom:8px;">
         <b><?php echo __('Category Name');?></b>:
         <span class="error">*</span>
         <div class="faded"><?php echo __('Short descriptive name.');?></div>
     </div>
-    <input type="text" size="70" style="font-size:110%;width:100%;box-sizing:border-box"
+    <input type="text" class="form-control"
         name="<?php echo $cname; ?>" value="<?php echo $category; ?>">
     <div class="error"><?php echo $errors['name']; ?></div>
 
@@ -127,20 +152,31 @@ if (count($langs) > 1) { ?>
         echo $desc; ?></textarea>
     </div>
 <?php } ?>
+   
+   </div>
+    
+    </div>
+    
+    <div class="tab-pane fade" id="notes" >
+        <b><?php echo __('Internal Notes');?></b>:
+        <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
+        <textarea class="richtext no-bar" name="notes" cols="21"
+            rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+    </div>
 </div>
 
 
-<div class="tab_content" id="notes" style="display:none;">
-    <b><?php echo __('Internal Notes');?></b>:
-    <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
-    <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+</div>
 </div>
 
 
-<p style="text-align:center">
-    <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="categories.php"'>
-</p>
+
+<div class="row" style="margin-top: 10px;">
+ <div class="col">
+    <input type="submit" class="btn btn-sm btn-primary" name="submit" value="<?php echo $submit_text; ?>">
+    <input type="reset"  class="btn btn-sm btn-warning" name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" class="btn btn-sm btn-danger" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="categories.php"'>
+</div>
+</div>
+</div>
 </form>

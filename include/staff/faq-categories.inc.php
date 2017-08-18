@@ -2,43 +2,42 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
-<form id="kbSearch" action="kb.php" method="get">
-    <input type="hidden" name="a" value="search">
-    <input type="hidden" name="cid" value="<?php echo Format::htmlchars($_REQUEST['cid']); ?>"/>
-    <input type="hidden" name="topicId" value="<?php echo Format::htmlchars($_REQUEST['topicId']); ?>"/>
 
-    <div id="basic_search">
-        <div class="attached input">
-            <input id="query" type="text" size="20" name="q" autofocus
-                value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
-            <button class="attached button" id="searchSubmit" type="submit">
-                <i class="icon icon-search"></i>
-            </button>
+<div class="subnav">
+
+    <div class="float-left subnavtitle">
+                          
+    <?php echo __('Frequently Asked Questions');?>                        
+    
+    </div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+   &nbsp;
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
+
+
+<div class="card-box">
+<div class="row">
+<div class="col">
+ <div class="float-right">
+            <form  id="kbSearch" class="form-inline" action="kb.php" method="get">
+                <input type="hidden" name="a" value="search">
+                <input type="hidden" name="cid" value="<?php echo Format::htmlchars($_REQUEST['cid']); ?>"/>
+                <input type="hidden" name="topicId" value="<?php echo Format::htmlchars($_REQUEST['topicId']); ?>"/>
+                
+                 <div class="input-group input-group-sm">
+                 <input type="hidden" name="a" value="search">
+                    <input id="query" type="text" class="form-control form-control-sm rlc-search basic-search" name="q" autofocus
+                value="<?php echo Format::htmlchars($_REQUEST['q']); ?>"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Search KB" >
+                <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+                    <button type="submit"  class="input-group-addon" id="searchSubmit" ><i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <div class="pull-right">
-            <span class="action-button muted" data-dropdown="#category-dropdown">
-                <i class="icon-caret-down pull-right"></i>
-                <span>
-                    <i class="icon-filter"></i>
-                    <?php echo __('Category'); ?>
-                </span>
-            </span>
-            <span class="action-button muted" data-dropdown="#topic-dropdown">
-                <i class="icon-caret-down pull-right"></i>
-                <span>
-                    <i class="icon-filter"></i>
-                    <?php echo __('Help Topic'); ?>
-                </span>
-            </span>
-        </div>
-
-        <div id="category-dropdown" class="action-dropdown anchor-right"
-            onclick="javascript:
-                var form = $(this).closest('form');
-                form.find('[name=cid]').val($(event.target).data('cid'));
-                form.submit();">
-            <ul class="bleed-left">
 <?php
 $total = FAQ::objects()->count();
 
@@ -48,26 +47,42 @@ $categories = Category::objects()
     ->order_by('name')
     ->all();
 array_unshift($categories, new Category(array('id' => 0, 'name' => __('All Categories'), 'faq_count' => $total)));
-foreach ($categories as $C) {
+
+
+      $cselected = Category::findNameById($_GET['cid']);
+      if (!$cselected) {$cselected = 'Category';}
+      
+      
+?>
+
+<div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+
+<div class="btn-group btn-group-sm" role="group">
+        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
+         title="<?php echo __('Categories'); ?>"><i class="fa fa-filter"></i> <?php echo $cselected;?>
+        </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+              
+                      <?php      
+              foreach ($categories as $C) {
         $active = $_REQUEST['cid'] == $C->getId(); ?>
-        <li <?php if ($active) echo 'class="active"'; ?>>
-            <a href="#" data-cid="<?php echo $C->getId(); ?>">
-                <i class="icon-fixed-width <?php
-                if ($active) echo 'icon-hand-right'; ?>"></i>
+        
+            <a class="dropdown-item no-pjax" href="kb.php?a=search&cid=<?php echo $C->getId(); ?>&topicId=<?php echo $_GET['topicId'];?>">
+                <i class="fa fa-filter"></i>
                 <?php echo sprintf('%s (%d)',
                     Format::htmlchars($C->getLocalName()),
                     $C->faq_count); ?></a>
-        </li> <?php
+         <?php
 } ?>
-            </ul>
-        </div>
+                       
+        
+            </div>
+    </div>
 
-        <div id="topic-dropdown" class="action-dropdown anchor-right"
-            onclick="javascript:
-                var form = $(this).closest('form');
-                form.find('[name=topicId]').val($(event.target).data('topicId'));
-                form.submit();">
-            <ul class="bleed-left">
+
+       
+
 <?php
 $topics = Topic::objects()
     ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
@@ -77,29 +92,47 @@ usort($topics, function($a, $b) {
     return strcmp($a->getFullName(), $b->getFullName());
 });
 array_unshift($topics, new Topic(array('id' => 0, 'topic' => __('All Topics'), 'faq_count' => $total)));
-foreach ($topics as $T) {
-        $active = $_REQUEST['topicId'] == $T->getId(); ?>
-        <li <?php if ($active) echo 'class="active"'; ?>>
-            <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
+
+ $tselected = Topic::getTopicName($_GET['topicId']);
+      if (!$tselected) {$tselected = 'Help Topic';}
+?>
+
+<div class="btn-group btn-group-sm" role="group">
+        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
+         title="<?php echo __('Help Topics'); ?>"><i class="fa fa-filter"></i> <?php echo $tselected;?>
+        </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+              
+               <?php foreach ($topics as $T) { ?>
+
+            <a class="dropdown-item no-pjax" href="kb.php?a=search&cid=<?php echo $_GET['cid']; ?>&topicId=<?php echo $T->getId(); ?>">
                 <i class="icon-fixed-width <?php
                 if ($active) echo 'icon-hand-right'; ?>"></i>
                 <?php echo sprintf('%s (%d)',
                     Format::htmlchars($T->getFullName()),
                     $T->faq_count); ?></a>
-        </li> <?php
+         <?php
 } ?>
-            </ul>
-        </div>
+                       
+        
+            </div>
+    </div>
+</div>
 
-    </div>
+
+</div>
+
+
+
+
+
+
 </form>
-    <div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
-        <div class="pull-left">
-            <h2><?php echo __('Frequently Asked Questions');?></h2>
-        </div>
-        <div class="clear"></div>
-    </div>
-<div>
+
+<div class="col-sm-12"> 
+
+
 <?php
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     $faqs = FAQ::objects()
@@ -109,11 +142,10 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
         ))
         ->order_by('question');
 
-    if ($_REQUEST['cid'])
-        $faqs->filter(array('category_id'=>$_REQUEST['cid']));
+  
 
-    if ($_REQUEST['topicId'])
-        $faqs->filter(array('topics__topic_id'=>$_REQUEST['topicId']));
+    if ($_GET['topicId'])
+        $faqs->filter(array('topics__topic_id'=>$_GET['topicId']));
 
     if ($_REQUEST['q'])
         $faqs->filter(Q::ANY(array(
@@ -162,4 +194,5 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 }
 ?>
+</div>
 </div>

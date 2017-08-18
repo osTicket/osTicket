@@ -32,6 +32,20 @@ $form_fields = array(
     )),
 );
 
+if ($_REQUEST['a'] =='delete'){
+    if(!$faq) {
+        $errors['err']=sprintf(__('%s: Unknown or invalid'), __('FAQ article'));
+    } else {
+        $category = $faq->getCategory();
+                if($faq->delete()) {
+                    $msg=sprintf(__('Successfully deleted %s.'), Format::htmlchars($faq->getQuestion()));
+                    $faq=null;
+                } else {
+                    $errors['err']=sprintf(__('Unable to delete %s.'), __('this FAQ article'));
+                }
+                
+    }  
+}                     
 // Build attachment lists for language-specific attachment fields
 if ($langs = $cfg->getSecondaryLanguages()) {
     // Primary-language specific files

@@ -293,9 +293,9 @@ if ($form && count($langs) > 1) { ?>
     </tbody>
     </table>
 <p class="centered">
-    <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick='window.location.href="?"'>
+    <input class="btn btn-primary" type="submit" name="submit" value="<?php echo $submit_text; ?>">
+    <input class="btn btn-warning" type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
+    <input class="btn btn-danger" type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick='window.location.href="?"'>
 </p>
 
 <div style="display:none;" class="draggable dialog" id="delete-confirm">
@@ -313,11 +313,11 @@ if ($form && count($langs) > 1) { ?>
     <div id="deleted-fields"></div>
     <hr style="margin-top:1em"/>
     <p class="full-width">
-        <span class="buttons pull-left">
-            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
+        <span class="btn btn-danger pull-left">
+            <input class="btn btn-danger" type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Continue'); ?>" class="confirm">
+            <input class="btn btn-primary" type="submit" value="<?php echo __('Continue'); ?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

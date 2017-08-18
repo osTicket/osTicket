@@ -57,53 +57,91 @@ $_SESSION[':Q:orgs'] = $orgs;
 $orgs->values('id', 'name', 'created', 'updated');
 $orgs->order_by($order . $order_column);
 ?>
-<div id="basic_search">
-    <div style="min-height:25px;">
-        <form action="orgs.php" method="get">
+
+<div class="subnav">
+
+
+                        <div class="float-left subnavtitle">
+                        
+                            <span ><a href="<?php echo $refresh_url; ?>"
+                                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
+                                </a> &nbsp;
+            <?php echo __('Organazations');?>
+                                
+                                </span>
+                        
+                       
+                       
+                        </div>
+                         <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+                       
+                    
+                     <?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
+                <a class="btn btn-secondary add-org"
+                   href="#" data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Add Organization'); ?>">
+                    <i class="fa fa-plus-square"></i>
+                    
+                </a>
+                <?php } ?>
+                    
+                    
+                   
+                    
+                    <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('More'); ?>"><i class="fa fa-cog"></i>
+            </button>
+                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+                    
+                   <?php
+                            if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
+                            <a class="dropdown-item orgs-action" href="#delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __('Delete'); ?></a>
+                            <?php }
+                             # end of registration-enabled? ?>
+               
+                        </div>
+                    </div>
+                
+                         </div>
+                        
+                        <div class="clearfix"></div>
+                        
+                  
+ </div>
+
+<div class="card-box">
+
+<div class="row">
+    <div class="col">
+        <div class="float-right">
+           <form  class="form-inline" action="orgs.php" method="get" style="padding-bottom: 10px; margin-top: -5px;">
             <?php csrf_token(); ?>
-            <div class="attached input">
-            <input type="hidden" name="a" value="search">
-            <input type="search" class="basic-search" id="basic-org-search" name="query" autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>" autocomplete="off" autocorrect="off" autocapitalize="off">
-                <button type="submit" class="attached button"><i class="icon-search"></i>
+            
+             <div class="input-group input-group-sm">
+             <input type="hidden" name="a" value="search">
+                <input type="text" class="form-control form-control-sm basic-search" id="basic-org-search" name="query"
+                          value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+                        autocomplete="off" autocorrect="off" autocapitalize="off"  placeholder="Search Organizations">
+           
+                <button type="submit"  class="input-group-addon" ><i class="fa fa-search"></i>
                 </button>
-            <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </div>
         </form>
-    </div>
-</div>
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="sticky bar opaque">
-        <div class="content" >
-            <div class="pull-left flush-left">
-                <h2><?php echo __('Organizations'); ?></h2>
-            </div>
-            <div class="pull-right">
-                <?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
-                <a class="green button action-button add-org"
-                   href="#">
-                    <i class="icon-plus-sign"></i>
-                    <?php echo __('Add Organization'); ?>
-                </a>
-                <?php }
-            if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
-                <span class="action-button" data-dropdown="#action-dropdown-more"
-                      style="/*DELME*/ vertical-align:top; margin-bottom:0">
-                    <i class="icon-caret-down pull-right"></i>
-                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                </span>
-                <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                    <ul>
-                        <li class="danger"><a class="orgs-action" href="#delete">
-                            <i class="icon-trash icon-fixed-width"></i>
-                            <?php echo __('Delete'); ?></a></li>
-                    </ul>
-                </div>
-                <?php } ?>
-            </div>
         </div>
     </div>
 </div>
-<div class="clear"></div>
+
+
+
+
+<div class="row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="clear"></div>
+<div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
 if ($orgs->exists(true))
@@ -117,14 +155,14 @@ else
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" id="action" name="do" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%" style="margin-left: auto;margin-right:auto;">
+ <table  id="orgs" class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
-            <th nowrap width="4%">&nbsp;</th>
-            <th width="300"><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
-            <th width="50"><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
-            <th width="150"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th ><a <?php echo $update_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=update"><?php echo __('Last Updated'); ?></a></th>
+            <th>&nbsp;</th>
+            <th><a <?php echo $name_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
+            <th><a <?php echo $users_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Users'); ?></a></th>
+            <th data-breakpoints="xs sm"><a <?php echo $create_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
+            <th data-breakpoints="xs sm"><a <?php echo $update_sort; ?> href="orgs.php?<?php echo $qstr; ?>&sort=update"><?php echo __('Last Updated'); ?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -167,18 +205,49 @@ else
      </tr>
     </tfoot>
 </table>
-<?php
-if ($total): //Show options..
-    echo sprintf('<div>&nbsp;%s: %s &nbsp; <a class="no-pjax"
-            href="orgs.php?a=export">%s</a></div>',
-            __('Page'),
-            $pageNav->getPageLinks(),
-            __('Export'));
-endif;
-?>
-</form>
 
+
+<div class="row">
+    <div class="col">
+        <div class="float-left">
+        <nav>
+        <ul class="pagination">   
+            <?php
+                echo $pageNav->getPageLinks();
+            ?>
+        </ul>
+        </nav>
+        </div>
+        <div class="float-left">
+        
+        <div class="btn btn-icon waves-effect btn-default m-b-5"> 
+               <?php
+                echo sprintf('<a class="export-csv no-pjax" href="orgs.php?a=export">%s</a>',
+                       
+                        ('<i class="ti-cloud-down faded"></i>'));
+                ?>
+        </div>
+                <i class=" hidden help-tip icon-question-sign" href="#export"></i>
+        </div>
+            
+           
+            <div class="float-right">
+                  <span class="faded"><?php echo $pageNav->showing(); ?></span>
+            </div>  
+    </div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
 <script type="text/javascript">
+
+
+jQuery(function($){
+	$('#orgs').footable();
+});
+
 $(function() {
     $('input#basic-org-search').typeahead({
         source: function (typeahead, query) {

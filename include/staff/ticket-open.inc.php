@@ -29,33 +29,42 @@ if ($_POST)
 //  $user = User::lookupByemail($thisstaff->getEmail());
  //}
 ?>
-<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data" class="ticket_open_content">
+<div class="subnav">
+
+    <div class="float-left subnavtitle">
+                          
+   <?php echo __('Open a New Ticket');?>                       
+    
+    </div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+   &nbsp;
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
+
+<div class="card-box">
+<div class="row">
+<div class="col"> 
+<form action="tickets.php?a=open" method="post" id="save"  enctype="multipart/form-data" >
+<fieldset> 
+
+<div class="row ticketform">
+            <div class='col-sm-4'>
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
 
-    <div class="ticket_open_title">
-        <h2><?php echo __('Open a New Ticket');?></h2>
-    </div>
+    
 
- <table class="ticket_open" width="100%" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-    <!-- This looks empty - but beware, with fixed table layout, the user
-         agent will usually only consult the cells in the first row to
-         construct the column widths of the entire toable. Therefore, the
-         first row needs to have two cells -->
-        <tr><td style="padding:0;"></td><td style="padding:0;"></td></tr>
-    </thead>
-    <tbody class="open_ticket_userinformation">
-        <tr id="open_ticket_userinformation">
-            <th colspan="2" style="min-width:120px;" width="160">
+        <div class="form-group">
                 <em><strong><?php echo __('User Information'); ?></strong>: </em>
                 <div class="error"><?php echo $errors['user']; ?></div>
-            </th>
-        </tr>
+            
+        </div>
         <?php
         if ($user) { ?>
-        <tr id="open_ticket_userdata"><td><strong><?php echo __('User'); ?>:</strong></td><td>
+        <div class="form-group">
+        <label><?php echo __('User'); ?>:</label>
             <div id="user-info">
                 <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
             <a href="#" onclick="javascript:
@@ -69,7 +78,7 @@ if ($_POST)
                 <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                 &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                 </a>
-                <a class="inline button" style="overflow:inherit" href="#"
+                <a class="inline btn btn-warning btn-sm" style="overflow:inherit" href="#"
                     onclick="javascript:
                         $.userLookup('ajax.php/users/select/'+$('input#uid').val(),
                             function(user) {
@@ -80,59 +89,69 @@ if ($_POST)
                         return false;
                     "><i class="icon-retweet"></i> <?php echo __('Change'); ?></a>
             </div>
-        </td></tr>
+            
+        </div>
         <?php
         } else { //Fallback: Just ask for email and name
             ?>
-        <tr id="open_ticket_userdata">
-            <td style="min-width:120px;" width="160" class="required"> <br><?php echo __('Email Address'); ?>: </td>
-            <td>
-                <div class="attached input">
-                   <input type="text" size=45 name="email" id="user-email" class="attached requiredfield""
-                        autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>" /> </span>
-                <a href="?a=open&amp;uid={id}" data-dialog="ajax.php/users/lookup/form"
-                    class="attached button requiredfield"><i class="icon-search requiredfield"></i></a>
-                </div>
-                <span class="error">*</span>
-                <div class="error"><?php echo $errors['email']; ?></div>
-            </td>
-        </tr>
-        <tr id="open_ticket_userdata">
-            <td style="min-width:120px;" width="160" class="required"> <?php echo __('Full Name'); ?>: </td>
-            <td>
-                <span style="display:inline-block;">
-                    <input type="text" size=45 name="name" id="user-name" class="requiredfield" style="height: 15px;" value="<?php echo $info['name']; ?>" /> </span>
-                <span class="error">*</span>
+            
+         
+
+<form class="form-inline">
+  
+  <label for="inlineFormInputGroup"><?php echo __('Email Address'); ?>: </label>
+  <div class="input-group input-group-sm  mb-2 mr-sm-2 mb-sm-0">
+    
+    <input type="text"  size=45 name="email" id="user-email" class="form-control form-control-sm requiredfield" id="inlineFormInputGroup" autocomplete="off" autocorrect="off" value="<?php echo $info['email']; ?>">
+    <div class="input-group-addon"><a href="?a=open&amp;uid={id}" data-dialog="ajax.php/users/lookup/form"><i class="fa fa-search"></i></a></div>
+  </div>
+
+ 
+</form>         
+            
+            
+       
+        <div class="form-group">
+            <label> <?php echo __('Full Name'); ?>: </label>
+           
+                
+                    <input type="text" size=45 name="name" id="user-name" class="form-control form-control-sm requiredfield" value="<?php echo $info['name']; ?>" /> 
+                
                 <div class="error"><?php echo $errors['name']; ?></div>
-            </td>
-        </tr>
+          
+        </div>
         <?php
         } ?>
 
         <?php
         if($cfg->notifyONNewStaffTicket()) {  ?>
-        <tr  id="open_ticket_userdata">
-            <td width="160"><strong><?php echo __('Ticket Notice'); ?>:</strong></td>
-            <td>
-            <input type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>><?php
+        <div class="form-group">
+            <label><?php echo __('Ticket Notice'); ?>:</label>
+         <div class="form-check">    
+            <label class="form-check-label">
+      <input class="form-check-input" type="checkbox" name="alertuser" <?php echo (!$errors || $info['alertuser'])? 'checked="checked"': ''; ?>>
+      <?php
                 echo __('Send alert to user.'); ?>
-            </td>
-        </tr>
+    </label>
+            
+        </div>    
+        </div>
         <?php
         } ?>
-    </tbody>
-    <tbody class="open_ticket_informationdata">
-        <tr id="open_ticket_informationoptions">
-            <th colspan="2">
+    </div>
+    <div class='col-sm-4'>
+    
+        <div class="form-group">
+            
                 <em><strong><?php echo __('Ticket Information');?></strong>:</em>
-            </th>
-        </tr>
-        <tr id="open_ticket_informationdata">
-            <td width="160" class="required">
+           
+        </div>
+        <div class="form-group">
+            <label>
                 <?php echo __('Ticket Source');?>:
-            </td>
-            <td>
-                <select name="source" class="requiredfield">
+            </label>
+            
+                <select name="source" class="form-control form-control-sm requiredfield">
                     <?php
                     $source = $info['source'] ?: 'Phone';
                     $sources = Ticket::getSources();
@@ -144,25 +163,27 @@ if ($_POST)
                                 $v);
                     ?>
                 </select>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['source']; ?></font>
-            </td>
-        </tr>
-        <tr id="open_ticket_informationdata">
-            <td width="160" class="required">
+                <?php if ($errors['source']) { ?>
+                <span><font class="error"><?php echo $errors['source']; ?></font></span>
+                <?php } ?>
+            
+        </div>
+        <div class="form-group">
+            <label>
                 <?php echo __('Help Topic'); ?>:
-            </td>
-            <td >
-                    <input id="cc" name="topicId" class="easyui-combotree " style="width:250px; height:24px; background:#ffffcc"></input>
-                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
-            </td>
-        </tr>
-        <tr id="open_ticket_informationdata" style="display:none;">
-            <td width="160">
+            </label>
+            
+                    <input id="cc" name="topicId" class="easyui-combotree "  style="width:95%;  border-radius: 2px !important;"></input>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['topicId']; ?></font>
+            
+        </div>
+        <div  class="form-group" style="display:none;">
+            <label>
                 <?php echo __('Department'); ?>:
-            </td>
-            <td>
+            <label>
+            
                 <select name="deptId">
-                    <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
+                    <option  class="form-control form-control-sm " value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
                     if($depts=Dept::getDepartments(array('dept_id' => $thisstaff->getDepts()))) {
                         foreach($depts as $id =>$name) {
@@ -179,14 +200,18 @@ if ($_POST)
                     ?>
                 </select>
                 &nbsp;<font class="error"><?php echo $errors['deptId']; ?></font>
-            </td>
-        </tr>
-         <tr  id="open_ticket_informationdata">
-            <td width="160">
+            
+        </div>
+        
+       </div>
+       <div class='col-sm-4'>
+       
+         <div class="form-group"  style="display:none;">
+            <label>
                 <?php echo __('SLA Plan');?>:
-            </td>
-            <td>
-                <select name="slaId">
+            </label>
+            
+                <select  class="form-control form-control-sm " name="slaId">
                     <option value="0" selected="selected" >&mdash; <?php echo __('System Default');?> &mdash;</option>
                     <?php
                     if($slas=SLA::getSLAs()) {
@@ -198,34 +223,37 @@ if ($_POST)
                     ?>
                 </select>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['slaId']; ?></font>
-            </td>
-         </tr>
+            
+         </div>
 
-         <tr id="open_ticket_informationdata">
-            <td width="160">
-                <?php echo __('Due Date');?>:
-            </td>
-            <td>
-                <input class="dp" id="duedate" name="duedate" value="<?php echo Format::htmlchars($info['duedate']); ?>" size="12" autocomplete=OFF>
-                &nbsp;&nbsp;
-                <?php
-                $min=$hr=null;
-                if($info['time'])
-                    list($hr, $min)=explode(':', $info['time']);
-
-                echo Misc::timeDropdown($hr, $min, 'time');
-                ?>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
-            </td>
-        </tr>
+                 <div class="form-group">
+            
+                &nbsp;
+           
+        </div>
+        
+          
+          <div  class="form-group">
+             <label><?php echo __('Due Date');?>:</label>
+            
+            <div class='input-group date' id="datepicker1" >
+                    <input type='text' id="duedate" name="duedate" class="form-control form-control-sm"  />
+                    <span class="input-group-addon" style="display: inline">
+                        <span class="fa fa-calendar"></span>
+                    </span>
+                </div>
+                
+                        
+        
+                
+            </div>
 
         <?php
         if($thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)) { ?>
-        <tr id="open_ticket_informationdata">
-            <td width="160"><?php echo __('Assign To');?>:</td>
-            <td>
-                <select id="assignId" name="assignId">
+        <div class="form-group">
+            <label><?php echo __('Assign To');?>:</label>
+            
+                <select class="form-control form-control-sm " id="assignId" name="assignId">
                     <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                     <?php
                     if(($users=Staff::getAvailableStaffMembers())) {
@@ -249,24 +277,31 @@ if ($_POST)
                     }
                     ?>
                 </select>&nbsp;<span class='error'>&nbsp;<?php echo $errors['assignId']; ?></span>
-            </td>
-        </tr>
+            
+        </div>
         <?php } ?>
-        </tbody>
-        <tbody id="dynamic-form">
+     
+
+    </div>
+    </div>
+<div class='col-sm-12'><hr></div>    
+<div id="dynamic-form">
+        
         <?php
             foreach ($forms as $form) {
                 print $form->getForm()->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
         ?>
-        </tbody>
-       
-</table>
-<p style="text-align:center;">
-    <input type="submit" name="submit" class="save pending" value="<?php echo _P('action-button', 'Submit');?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
+        </div>
+        
+        
+ </fieldset>      
+
+<div >
+    <input class="btn btn-primary btn-sm" type="submit" name="submit" class="save pending" value="<?php echo _P('action-button', 'Submit');?>">
+    <input class="btn btn-warning btn-sm" type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input class="btn btn-warning btn-danger btn-sm" type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor && redactor.opts.draftDelete)
@@ -274,8 +309,11 @@ if ($_POST)
         });
         window.location.href='tickets.php';
     ">
-</p>
+</div>
 </form>
+</div>
+</div> 
+</div> 
 <script type="text/javascript">
 $(function() {
     $('input#user-email').typeahead({
@@ -323,14 +361,20 @@ $(document).ready(function(){
                 }
              $('#cc').combotree('setText', parentStr + node.text);            
               
+             
+              
         } 
 
     });
     $('#cc').combotree({ 
         onSelect: function (r) { 
         
+       
+        
+        
             //Loads the dynamic form on selection
             var data = $(':input[name]', '#dynamic-form').serialize();
+            
             $.ajax(
               'ajax.php/form/help-topic/' + r.id,
               {
@@ -364,6 +408,14 @@ $(document).ready(function(){
             }
         }
     $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+    
+    $('#datepicker1').datetimepicker({
+                   useCurrent: false,
+                   format: 'MM/DD/YYYY',
+                   showClear: true,
+                   showTodayButton: true
+                   
+               });
      
        
 });

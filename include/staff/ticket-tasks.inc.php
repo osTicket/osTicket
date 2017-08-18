@@ -17,29 +17,18 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
 
 ?>
 <div id="tasks_content" style="display:block;">
-<div class="pull-left">
+<div class="pull-left subnavtitle">
    <?php
     if ($count) {
-        echo '<strong>'.$showing.'</strong>';
+         echo '<strong>'.$showing.'</strong>';
     } else {
         echo sprintf(__('%s does not have any tasks'), $ticket? 'This ticket' :
                 'System');
     }
    ?>
 </div>
-<div class="pull-right">
+<!--<div class="btn-group btn-group-sm pull-right ticketbuttons" role="group" aria-label="Button group with nested dropdown">-->
     <?php
-    if ($role && $role->hasPerm(Task::PERM_CREATE)) { ?>
-        <a
-        class="green button action-button ticket-task-action"
-        data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"
-        data-dialog-config='{"size":"large"}'
-        href="#tickets/<?php
-            echo $ticket->getId(); ?>/add-task">
-            <i class="icon-plus-sign"></i> <?php
-            print __('Add New Task'); ?></a>
-    <?php
-    }
     if ($count)
         Task::getAgentActions($thisstaff, array(
                     'container' => '#tasks_content',
@@ -47,7 +36,7 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
                         $ticket->getId()),
                     'morelabel' => __('Options')));
     ?>
-</div>
+<!--</div>-->
 <div class="clear"></div>
 <div>
 <?php
@@ -57,7 +46,7 @@ if ($count) { ?>
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
             <?php
@@ -100,13 +89,13 @@ if ($count) { ?>
                 <input class="ckb" type="checkbox" name="tids[]"
                 value="<?php echo $id; ?>" <?php echo $sel?'checked="checked"':''; ?>>
             </td>
-            <td align="center" nowrap>
+            <td nowrap>
               <a class="Icon no-pjax preview"
                 title="<?php echo __('Preview Task'); ?>"
                 href="<?php echo $viewhref; ?>"
                 data-preview="#tasks/<?php echo $id; ?>/preview"
                 ><?php echo $task->getNumber(); ?></a></td>
-            <td align="center" nowrap><?php echo
+            <td nowrap><?php echo
             Format::datetime($task->created); ?></td>
             <td><?php echo $status; ?></td>
             <td>

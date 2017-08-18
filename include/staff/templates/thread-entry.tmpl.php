@@ -26,7 +26,7 @@ if ($user && $cfg->isAvatarsEnabled())
 <?php   if ($entry->hasActions()) {
             $actions = $entry->getActions(); ?>
         <span class="muted-button pull-right" data-dropdown="#entry-action-more-<?php echo $entry->getId(); ?>">
-            <i class="icon-caret-down"></i>
+            <i class="fa fa-chevron-down"></i>
         </span>
         <div id="entry-action-more-<?php echo $entry->getId(); ?>" class="action-dropdown anchor-right">
             <ul class="title">

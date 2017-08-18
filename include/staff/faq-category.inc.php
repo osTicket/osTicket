@@ -1,48 +1,57 @@
-<?php
+ <?php
 if(!defined('OSTSTAFFINC') || !$category || !$thisstaff) die('Access Denied');
 
-?>
-<div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
-<div class="pull-left">
-  <h2><?php echo __('Frequently Asked Questions');?></h2>
-</div>
-<?php if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
-echo sprintf('<div class="pull-right flush-right">
-    <a class="green action-button" href="faq.php?cid=%d&a=add">'.__('Add New FAQ').'</a>
-    <span class="action-button" data-dropdown="#action-dropdown-more"
-          style="/*DELME*/ vertical-align:top; margin-bottom:0">
-        <i class="icon-caret-down pull-right"></i>
-        <span ><i class="icon-cog"></i>'. __('More').'</span>
-    </span>
-    <div id="action-dropdown-more" class="action-dropdown anchor-right">
-        <ul>
-            <li><a class="user-action" href="categories.php?id=%d">
-                <i class="icon-pencil icon-fixed-width"></i>'
-                .__('Edit Category').'</a>
-            </li>
-            <li class="danger">
-                <a class="user-action" href="categories.php">
-                    <i class="icon-trash icon-fixed-width"></i>'
-                    .__('Delete Category').'</a>
-            </li>
-        </ul>
-    </div>
-</div>', $category->getId(), $category->getId());
-} else {
-?><?php
-} ?>
-    <div class="clear"></div>
 
-</div>
-<div class="faq-category">
-    <div style="margin-bottom:10px;">
-        <div class="faq-title pull-left"><?php echo $category->getName() ?></div>
-        <div class="faq-status inline">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</div>
-        <div class="clear"><time class="faq"> <?php echo __('Last Updated').' '. Format::daydatetime($category->getUpdateDate()); ?></time></div>
+$view = $category->isPublic()?__('Public'):__('Internal');
+?>
+<div class="subnav">
+
+    <div class="float-left subnavtitle">
+                          
+    <?php echo __('Frequently Asked Questions') .' / <strong>'. $category->getName().'</strong> ('.$view.') - '.__('Last Updated').' '. Format::datetime($category->getUpdateDate());; ?>                      
+    
     </div>
-    <div class="cat-desc has_bottom_border">
-    <?php echo Format::display($category->getDescription()); ?>
-</div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+   <?php if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) {  ?>
+        <a href="faq.php?cid=<?php echo $category->getId();?>&a=add" class="btn btn-icon waves-effect waves-light btn-success">
+                    <i class="fa fa-plus-square" data-placement="bottom"
+        data-toggle="tooltip" title=" <?php echo __( 'Add New Faq');?>"></i></a>
+      
+        <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary  waves-effect  btn-nbg dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('More'); ?>"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+            
+                <a class="dropdown-item user-action" href="categories.php?id=<?php echo $category->getId();?>"><i class="icon-pencil icon-fixed-width"></i> <?php echo __('Edit Category');?></a>
+                
+           
+      
+            </div>
+        </div>
+       <?php } else {
+        ?>
+        &nbsp;
+        <?php
+        } ?>
+        
+        <a href="categories.php" class="btn btn-icon waves-effect waves-light btn-secondary">
+                    <i class="fa fa-list-alt" data-placement="bottom"
+        data-toggle="tooltip" title=" <?php echo __( 'Categories');?>"></i></a>
+        
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
+
+
+<div class="card-box">
+
+<div class="row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+<h4 class="m-t-0 header-title"><?php echo Format::display($category->getDescription()); ?></h4>
+
 <?php
 
 
@@ -65,4 +74,7 @@ if ($faqs->exists(true)) {
     echo '<strong>'.__('Category does not have FAQs').'</strong>';
 }
 ?>
+</div>
+</div>
+</div>
 </div>

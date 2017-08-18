@@ -77,7 +77,12 @@ class OrganizationModel extends VerySimpleModel {
     function getName() {
         return $this->name;
     }
-
+    function getNamebyId($id) {
+        $row = static::objects()->filter(array('id' => $id))
+            ->values_flat('name')->first();
+           
+        return $row ? $row[0] : 0;
+    }
     function getNumUsers() {
         return $this->users->count();
     }

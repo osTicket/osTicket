@@ -13,9 +13,9 @@ if ($parent_id
 
 <form action="#tickets/search" method="post" name="search">
 
-  <div class="flex row">
-    <div class="span6">
-      <select name="parent_id">
+  <div class="row form-group">
+    <div class="col-md-6">
+      <select name="parent_id" class="form-control form-control-sm">
           <option value="0" <?php
               if (!$parent_id) echo 'selected="selected"';
               ?>><?php echo '—'.__("My Searches").'—'; ?></option>
@@ -26,23 +26,23 @@ foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
               ><?php echo $q->getFullName(); ?></option>
 <?php       } ?>
       </select>
-    </div><div class="span6">
-      <input name="name" type="text" size="30" 
+    </div><div class="col-md-6">
+      <input class="form-control form-control-sm" name="name" type="text" size="30" 
         value="<?php echo Format::htmlchars($search->getName()); ?>"
         placeholder="<?php
-        echo __('Enter a title for the search queue'); ?>"/>
+        echo __('Name for Saved Search'); ?>"/>
       <div class="error"><?php echo Format::htmlchars($errors['name']); ?></div>
     </div>
   </div>
 
-<ul class="tabs">
-    <li class="active"><a href="#criteria"><?php echo __('Criteria'); ?></a></li>
-    <li><a href="#columns"><?php echo __('Columns'); ?></a></li>
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a href="#criteria" data-toggle="tab" class="nav-link active"><?php echo __('Criteria'); ?></a></li>
+    <li class="nav-item"><a href="#columns"  data-toggle="tab" class="nav-link"><?php echo __('Columns'); ?></a></li>
 </ul>
-
-<div class="tab_content" id="criteria">
+<div class="tab-content">
+<div class="tab-pane show active" id="criteria">
   <div class="flex row">
-    <div class="span12">
+    <div class="col">
 <?php if ($parent) { ?>
       <div class="faded" style="margin-bottom: 1em">
       <div>
@@ -60,19 +60,19 @@ foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
 
 </div>
 
-<div class="tab_content hidden" id="columns">
+<div class="tab-pane" id="columns">
     <?php 
     $queue = $search;
     include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
 </div>
-
+</div>
   <hr/>
   <div>
     <div class="buttons pull-right">
-      <button class="button" type="submit" name="submit" value="search"
+      <button class="btn btn-success btn-sm"" type="submit" name="submit" value="search"
         id="do_search"><i class="icon-search"></i>
         <?php echo __('Search'); ?></button>
-      <button class="green button" type="submit" name="submit" value="save"
+      <button class="btn btn-danger btn-sm" type="submit" name="submit" value="save"
         onclick="javascript:
           var form = $(this).closest('form');
           form.attr('action', form.attr('action') + '/' + <?php echo

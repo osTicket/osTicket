@@ -8,9 +8,9 @@ if (isset($options['entry']) && $options['mode'] == 'edit'
     return;
 
 if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
-<tbody>
+
 <?php } ?>
-    <tr id="df"><td style="width:<?php echo $options['width'] ?: 150;?>px;"></td><td></td></tr>
+   
 <?php
 // Keep up with the entry id in a hidden field to decide what to add and
 // delete when the parent form is submitted
@@ -18,8 +18,10 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     <input type="hidden" name="forms[]" value="<?php
         echo $options['entry']->getId(); ?>" />
 <?php } ?>
-<?php if ($form->getTitle()) { ?>
-    <tr><th colspan="2">
+<?php 
+if ($options['modal'] !== 'ticketedit'){
+if ($form->getTitle()) { ?>
+    <div>
         <em>
 <?php if ($options['mode'] == 'edit') { ?> 
         <div class="pull-right">
@@ -31,13 +33,20 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
     <?php } ?>
             <i class="icon-sort" title="Drag to Sort"></i>
         </div>
-<?php } ?>
+<?php } 
+
+
+?>
         <strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
         <div><?php echo Format::display($form->getInstructions()); ?></div>
-        </em>
-    </th></tr>
+        </em> 
+
+    </div>
     <?php
     }
+    
+    }
+    
     foreach ($form->getFields() as $field) {
         try {
 			if (!$field->isEnabled())
@@ -51,29 +60,27 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
        
 		?>
 		
-        <tr  id="open_ticket_dynamicformdata">
+        
 		
-			<?php if ($field->ForceFullWidth()) {?>
-		<td colspan=2>
-			<?php } else if ($field->isBlockLevel()) { ?>
-                <td <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
+			<?php if ($field->isBlockLevel()) { ?>
+                <div <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
                 ?> > <td style="padding-right:16px;" <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
                 ?>> &nbsp
                 <?php
             }
             
 			else { ?>
-                <td class="multi-line dynamicformdatamulti <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
+                <div class="multi-line dynamicformdatamulti <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
-                <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
-                <td><div style="position:relative" <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
+                <label><?php echo Format::htmlchars($field->getLocal('label')); ?>:</label>
+                <div <?php if ($field->errors()){echo ' class="has-danger"';}?>style="position:relative" <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'id="requiredfield"';
                 ?>><?php
             }
 			
             $field->render($options); ?>
             <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
-                <span class="error ">*</span>
+                <span class="error "></span>
             <?php
             }
             if ($field->isStorable() && ($a = $field->getAnswer()) && $a->isDeleted()) {
@@ -103,12 +110,13 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                     echo Format::viewableImages($field->getLocal('hint')); ?></em>
             <?php
             }
+                     
             foreach ($field->errors() as $e) { ?>
-                <div class="error"><?php echo Format::htmlchars($e); ?></div>
+                <div class="form-control-feedback-danger "><?php echo Format::htmlchars($e); ?></div>
             <?php } ?>
-            </div></td>
-        </tr>
+            </div>
+        
     <?php }
 if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
-</tbody>
+
 <?php } ?>

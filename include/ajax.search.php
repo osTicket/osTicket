@@ -1,33 +1,23 @@
 <?php
 /*********************************************************************
     ajax.search.php
-
     AJAX interface for searches, queue management, etc.
-
     Jared Hancock <jared@osticket.com>
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2014 osTicket
     http://www.osticket.com
-
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
     See LICENSE.TXT for details.
-
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 if(!defined('INCLUDE_DIR')) die('403');
-
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
-
 class SearchAjaxAPI extends AjaxController {
-
     function getAdvancedSearchDialog($key=false, $context='advsearch') {
         global $thisstaff;
-
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
-
         $search = new SavedSearch(array(
             'root' => 'T',
             'parent_id' => @$_GET['parent_id'] ?: 0,
@@ -45,69 +35,55 @@ class SearchAjaxAPI extends AjaxController {
         }
         $this->_tryAgain($search, $search->getForm());
     }
-
     function editSearch($id) {
         global $thisstaff;
-
         $search = SavedSearch::lookup($id);
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
         elseif (!$search || !$search->checkAccess($thisstaff))
             Http::response(404, 'No such saved search');
-
         $this->_tryAgain($search, $search->getForm());
     }
-
     function addField($name) {
         global $thisstaff;
-
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
-
         $search = new SavedSearch(array('root'=>'T'));
         $searchable = $search->getSupportedMatches();
         if (!($F = $searchable[$name]))
             Http::response(404, 'No such field: ', print_r($name, true));
-
         $fields = SavedSearch::getSearchField($F, $name);
         $form = new AdvancedSearchForm($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
             $F->value = true;
-
         ob_start();
         include STAFFINC_DIR . 'templates/advanced-search-field.tmpl.php';
         $html = ob_get_clean();
-
         return $this->encode(array(
             'success' => true,
             'html' => $html,
         ));
     }
-
     function doSearch() {
         $search = new SavedSearch(array('root' => 'T'));
         $form = $search->getForm($_POST);
         if (false === $this->_setupSearch($search, $form)) {
             return;
         }
-
         Http::response(200, $this->encode(array(
             'redirect' => 'tickets.php?queue=adhoc',
         )));
     }
-
     function _hasErrors(SavedSearch $search, $form) {
         if (!$form->isValid()) {
             $this->_tryAgain($search, $form);
             return true;
         }
     }
-
     function _setupSearch(SavedSearch $search, $form, $key='advsearch') {
         if ($this->_hasErrors($search, $form))
             return false;
-
         if ($key) {
             $keep = array();
             // Add in new search to the list of recent searches
@@ -142,40 +118,32 @@ class SearchAjaxAPI extends AjaxController {
             str_replace(array('+','/','='), '', base64_encode($hash)),
             -$size);
     }
-
     function _tryAgain($search, $form, $errors=array()) {
         $matches = $search->getSupportedMatches();
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
-
     function saveSearch($id) {
         global $thisstaff;
-
         $search = SavedSearch::lookup($id);
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
         elseif (!$search || !$search->checkAccess($thisstaff))
             Http::response(404, 'No such saved search');
-
         if (false === $this->_saveSearch($search))
             return;
-
         Http::response(200, $this->encode(array(
             'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
         )));
     }
-
     function _saveSearch(SavedSearch $search) {
         $form = $search->getForm($_POST);
         $errors = array();
         if (!$search->update($_POST, $errors)
             || !$search->save()
         ) {
-
             $this->_tryAgain($search, $form, $errors);
             return false;
         }
-
         $search->config = JsonDataEncoder::encode($form->getState());
         if (isset($_POST['name']))
             $search->title = $_POST['name'];
@@ -184,36 +152,28 @@ class SearchAjaxAPI extends AjaxController {
         if (!$search->save()) {
             Http::response(500, 'Unable to update search. Internal error occurred');
         }
-
         return true;
     }
-
     function createSearch() {
         global $thisstaff;
-
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
-
         $search = SavedSearch::create(array('root' => 'T'));
         $search->staff_id = $thisstaff->getId();
         if (false === $this->_saveSearch($search))
             return;
-
         Http::response(200, $this->encode(array(
             'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
         )));
     }
-
     function editColumn($column_id) {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
         elseif (!($column = QueueColumn::lookup($column_id))) {
             Http::response(404, 'No such queue');
         }
-
         if ($_POST) {
             $data_form = $column->getDataConfigForm($_POST);
             if ($data_form->isValid()) {
@@ -222,21 +182,17 @@ class SearchAjaxAPI extends AjaxController {
                     Http::response(201, 'Successfully updated');
             }
         }
-
         $root = 'Ticket';
         include STAFFINC_DIR . 'templates/queue-column-edit.tmpl.php';
     }
-
     function editSort($sort_id) {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
         elseif (!($sort = QueueSort::lookup($sort_id))) {
             Http::response(404, 'No such queue sort');
         }
-
         if ($_POST) {
             $data_form = $sort->getDataConfigForm($_POST);
             if ($data_form->isValid()) {
@@ -245,13 +201,10 @@ class SearchAjaxAPI extends AjaxController {
                     Http::response(201, 'Successfully updated');
             }
         }
-
         include STAFFINC_DIR . 'templates/queue-sorting-edit.tmpl.php';
     }
-
     function deleteQueue($id) {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
@@ -267,36 +220,27 @@ class SearchAjaxAPI extends AjaxController {
             }
             Http::response(201, 'Have a nice day');
         }
-
         include STAFFINC_DIR . 'templates/queue-delete-confirm.tmpl.php';
     }
-
     function previewQueue($id=false) {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
         if ($id && (!($queue = CustomQueue::lookup($id)))) {
             Http::response(404, 'No such queue');
         }
-
         if (!$queue) {
             $queue = CustomQueue::create();
         }
-
         $queue->update($_POST);
-
         $form = $queue->getForm($_POST);
         $tickets = $queue->getQuery($form);
         $count = 10; // count($queue->getBasicQuery($form));
-
         include STAFFINC_DIR . 'templates/queue-preview.tmpl.php';
     }
-
     function addCondition() {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
@@ -322,43 +266,33 @@ class SearchAjaxAPI extends AjaxController {
         $condition = new QueueColumnCondition(array());
         include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
     }
-
     function addConditionProperty() {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
         elseif (!isset($_GET['prop']) || !isset($_GET['condition'])) {
             Http::response(400, '`prop` and `condition` parameters required');
         }
-
         $prop = $_GET['prop'];
         $id = $_GET['condition'];
         include STAFFINC_DIR . 'templates/queue-column-condition-prop.tmpl.php';
     }
-
     function collectQueueCounts($ids=null) {
         global $thisstaff;
-
         if (!$thisstaff) {
             Http::response(403, 'Agent login is required');
         }
-
         $queues = CustomQueue::objects()
             ->filter(Q::any(array(
                 'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
                 'staff_id' => $thisstaff->getId(),
             )));
-
         if ($ids && is_array($ids))
             $queues->filter(array('id__in' => $ids));
-
         $query = Ticket::objects();
-
         // Visibility contraints ------------------
         // TODO: Consider SavedSearch::ignoreVisibilityConstraints()
-
         // -- Open and assigned to me
         $assigned = Q::any(array(
             'staff_id' => $thisstaff->getId(),
@@ -366,15 +300,11 @@ class SearchAjaxAPI extends AjaxController {
         // -- Open and assigned to a team of mine
         if ($teams = array_filter($thisstaff->getTeams()))
             $assigned->add(array('team_id__in' => $teams));
-
         $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
-
         // -- Routed to a department of mine
         if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
             $visibility->add(array('dept_id__in' => $depts));
-
         $query->filter($visibility);
-
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
             if (count($Q->extra) || $Q->isWindowed()) {
@@ -391,8 +321,8 @@ class SearchAjaxAPI extends AjaxController {
                 ));
             }
         }
-
         Http::response(200, false, 'application/json');
         return $this->encode($query->values()->one());
     }
+    
 }

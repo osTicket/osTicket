@@ -1,65 +1,13 @@
-<?php
+ <div class="btn-group btn-group-sm pull-right" role="group" aria-label="Button group with nested dropdown">
+ <?php
 // Tasks' mass actions based on logged in agent
 
 $actions = array();
 
-if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
 
-    if (isset($options['status'])) {
-        $status = $options['status'];
-    ?>
-        <span
-            class="action-button"
-            data-dropdown="#action-dropdown-tasks-status">
-            <i class="icon-caret-down pull-right"></i>
-            <a class="tasks-status-action"
-                href="#statuses"
-                data-placement="bottom"
-                data-toggle="tooltip"
-                title="<?php echo __('Change Status'); ?>"><i
-                class="icon-flag"></i></a>
-        </span>
-        <div id="action-dropdown-tasks-status"
-            class="action-dropdown anchor-right">
-            <ul>
-                <?php
-                if (!$status || !strcasecmp($status, 'closed')) { ?>
-                <li>
-                    <a class="no-pjax tasks-action"
-                        href="#tasks/mass/reopen"><i
-                        class="icon-fixed-width icon-undo"></i> <?php
-                        echo __('Reopen');?> </a>
-                </li>
-                <?php
-                }
-                if (!$status || !strcasecmp($status, 'open')) {
-                ?>
-                <li>
-                    <a class="no-pjax tasks-action"
-                        href="#tasks/mass/close"><i
-                        class="icon-fixed-width icon-ok-circle"></i> <?php
-                        echo __('Close');?> </a>
-                </li>
-                <?php
-                } ?>
-            </ul>
-        </div>
-<?php
-    } else {
 
-        $actions += array(
-                'reopen' => array(
-                    'icon' => 'icon-undo',
-                    'action' => __('Reopen')
-                ));
 
-        $actions += array(
-                'close' => array(
-                    'icon' => 'icon-ok-circle',
-                    'action' => __('Close')
-                ));
-    }
-}
+
 
 if ($agent->hasPerm(Task::PERM_ASSIGN, false)) {
     $actions += array(
@@ -95,26 +43,27 @@ if ($agent->hasPerm(Task::PERM_DELETE, false)) {
                 'action' => __('Delete')
             ));
 }
+?>
+
+
+        
+<?php
+
 if ($actions && !isset($options['status'])) {
     $more = $options['morelabel'] ?: __('More');
     ?>
-    <span
-        class="action-button"
-        data-dropdown="#action-dropdown-moreoptions">
-        <i class="icon-caret-down pull-right"></i>
-        <a class="tasks-action"
-            href="#moreoptions"><i
-            class="icon-reorder"></i> <?php
-            echo $more; ?></a>
-    </span>
-    <div id="action-dropdown-moreoptions"
-        class="action-dropdown anchor-right">
-        <ul>
-    <?php foreach ($actions as $a => $action) { ?>
-            <li <?php
-                if ($action['class'])
-                    echo sprintf("class='%s'", $action['class']); ?> >
-                <a class="no-pjax tasks-action"
+    
+        <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary  waves-effect  btn-nbg dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('More'); ?>"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+            <?php foreach ($actions as $a => $action) { ?>
+            <?php
+                //if ($action['class'])
+                    //echo sprintf("class='%s'", $action['class']); ?>
+                <a class="dropdown-item no-pjax tasks-action"  
                     <?php
                     if ($action['dialog'])
                         echo sprintf("data-dialog-config='%s'", $action['dialog']);
@@ -124,64 +73,98 @@ if ($actions && !isset($options['status'])) {
                     href="<?php
                     echo sprintf('#tasks/mass/%s', $a); ?>"
                     ><i class="icon-fixed-width <?php
-                    echo $action['icon'] ?: 'icon-tag'; ?>"></i> <?php
+                    echo $action['icon'] ?: 'icon-tag'; ?> style="color:#d9534f;"></i> <?php
                     echo $action['action']; ?></a>
-            </li>
+           
         <?php
         } ?>
-        </ul>
-    </div>
+            </div>
+        </div>
  <?php
  } else {
     // Mass Claim/Assignment
-    if ($agent->hasPerm(Task::PERM_ASSIGN, false)) {?>
-    <span
-        class="action-button" data-placement="bottom"
-        data-dropdown="#action-dropdown-assign" data-toggle="tooltip" title=" <?php
-        echo __('Assign'); ?>">
-        <i class="icon-caret-down pull-right"></i>
-        <a class="tasks-action" id="tasks-assign"
-            href="#tasks/mass/assign"><i class="icon-user"></i></a>
-    </span>
-    <div id="action-dropdown-assign" class="action-dropdown anchor-right">
-      <ul>
-         <li><a class="no-pjax tasks-action"
+    
+     if (isset($options['status'])) {
+        $status = $options['status'];
+  
+
+   if ($agent->hasPerm(Task::PERM_CLOSE, false)) { ?>
+    <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary waves-effect dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-flag" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('Change Status'); ?>"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+                 <?php
+                if (!$status || !strcasecmp($status, 'closed')) { ?>
+                     <a class="dropdown-item no-pjax tasks-action"
+                        href="#tasks/mass/reopen"><i
+                        class="icon-fixed-width icon-undo"></i> <?php
+                        echo __('Reopen');?> </a>
+                
+                <?php
+                }
+                if (!$status || !strcasecmp($status, 'open')) {
+                ?>
+              
+                    <a class="dropdown-item no-pjax tasks-action"
+                        href="#tasks/mass/close"><i
+                        class="icon-fixed-width icon-ok-circle"></i> <?php
+                        echo __('Close');?> </a>
+                
+                <?php
+                } ?>   
+            </div>
+        </div>
+        
+     <?php } }
+   if ($agent->hasPerm(Task::PERM_ASSIGN, false)) { ?>
+ <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary waves-effect dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('Assign'); ?>"></i>
+            </button>
+                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+                    
+                    <a class="dropdown-item no-pjax tasks-action"
             href="#tasks/mass/claim"><i
             class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
-         <li><a class="no-pjax tasks-action"
+         <a class="dropdown-item no-pjax tasks-action"
             href="#tasks/mass/assign/agents"><i
             class="icon-user"></i> <?php echo __('Agent'); ?></a>
-         <li><a class="no-pjax tasks-action"
+         <a class="dropdown-item no-pjax tasks-action"
             href="#tasks/mass/assign/teams"><i
             class="icon-group"></i> <?php echo __('Team'); ?></a>
-      </ul>
-    </div>
+                    
+            </div>
+        </div>                   
+    
     <?php
     }
 
     // Mass Transfer
     if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {?>
-    <span class="action-button">
-     <a class="tasks-action" id="tasks-transfer" data-placement="bottom"
+    
+     <a class="btn btn-secondary btn-sm  waves-effect  tasks-action" id="tasks-transfer" data-placement="bottom"
         data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
         href="#tasks/mass/transfer"><i class="icon-share"></i></a>
-    </span>
+    
     <?php
     }
 
 
     // Mass Delete
     if ($agent->hasPerm(Task::PERM_DELETE, false)) {?>
-    <span class="red button action-button">
-     <a class="tasks-action" id="tasks-delete" data-placement="bottom"
+    
+     <a class="btn btn-icon waves-effect waves-light btn-danger tasks-action" id="tasks-delete" data-placement="bottom"
         data-toggle="tooltip" title="<?php echo __('Delete'); ?>"
         href="#tasks/mass/delete"><i class="icon-trash"></i></a>
-    </span>
+   
 <?php
     }
 } ?>
 
-
+</div>
 <script type="text/javascript">
 $(function() {
     $(document).off('.tasks-actions');
@@ -210,7 +193,7 @@ $(function() {
                            @$options['container'] ?: '#pjax-container'
                            );
                   else
-                    echo sprintf("$.pjax.reload('%s');",
+                    echo sprintf(" location.reload();",
                             @$options['container'] ?: '#pjax-container');
                  ?>
              });

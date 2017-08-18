@@ -51,6 +51,47 @@ else
 
 ?>
 <form action="canned.php" method="POST" name="canned">
+<div class="subnav">
+
+    <div class="float-left subnavtitle">
+                          
+   <?php echo __('Canned Responses');?>                        
+    
+    </div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+   
+        <a href="canned.php?a=add" class="btn btn-icon waves-effect waves-light btn-success">
+                    <i class="fa fa-plus-square" data-placement="bottom"
+        data-toggle="tooltip" title=" <?php echo __( 'Add New Response');?>"></i>
+                   
+                </a>
+                
+                        <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary  waves-effect  btn-nbg dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('More'); ?>"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+            
+                <a class="dropdown-item cr-confirm" data-name="enable" href="canned.php?a=enable"><i class="icon-ok-sign icon-fixed-width"></i> <?php echo __('Enable');?></a>
+                <a class="dropdown-item cr-confirm" data-name="disable" href="canned.php?a=disable"><i class="icon-ban-circle icon-fixed-width"></i> <?php echo __('Disable');?></a>
+                <a class="dropdown-item cr-confirm" data-name="delete" href="canned.php?a=delete"><i class="icon-trash icon-fixed-width"></i> <?php echo __('Delete');?></a>
+                
+           
+      
+            </div>
+        </div>
+       
+    </div>
+        
+   <div class="clearfix"></div> 
+</div> 
+
+
+<div class="card-box">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+
 
 <div class="sticky bar opaque">
     <div class="content">
@@ -58,7 +99,7 @@ else
             <h2><?php echo __('Canned Responses');?></h2>
         </div>
         <div class="pull-right flush-right">
-            <a href="canned.php?a=add" class="green button"><i class="icon-plus-sign"></i> <?php echo __('Add New Response');?></a>
+            
 
             <span class="action-button" data-dropdown="#action-dropdown-more" style="/*DELME*/ vertical-align:top; margin-bottom:0">
                     <i class="icon-caret-down pull-right"></i>
@@ -93,14 +134,14 @@ else
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table  id="cannedresponses" class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
-            <th width="4%">&nbsp;</th>
-            <th width="46%"><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Title');?></a></th>
-            <th width="10%"><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
-            <th width="20%"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
-            <th width="20%" nowrap><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+            <th>&nbsp;</th>
+            <th><a <?php echo $title_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=title"><?php echo __('Title');?></a></th>
+            <th><a  <?php echo $status_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Status');?></a></th>
+            <th data-breakpoints="xs"><a  <?php echo $dept_sort; ?> href="canned.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th data-breakpoints="xs"><a  <?php echo $updated_sort; ?>href="canned.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -144,14 +185,26 @@ else
      </tr>
     </tfoot>
 </table>
-<?php
-if($res && $num): //Show options..
-    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-?>
-
-<?php
-endif;
-?>
+<div class="row">
+<div class="col">
+    <div class="float-left">
+    <nav>
+    <ul class="pagination">   
+        <?php
+            echo $pageNav->getPageLinks();
+        ?>
+    </ul>
+    </nav>
+    </div>
+    <div class="float-left">
+    
+</div>
+    
+   
+    <div class="float-right">
+          <span class="faded"><?php echo $pageNav->showing(); ?></span>
+    </div>  
+</div></div>
 </form>
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm');?></h3>
@@ -174,11 +227,20 @@ endif;
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="btn btn-sm btn-warning close">
         </span>
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="btn btn-sm btn-danger confirm">
         </span>
      </p>
     <div class="clear"></div>
 </div>
+</div>
+</div>
+<script>
+
+jQuery(function($){
+	$('#cannedresponses').footable();
+});
+        
+</script>

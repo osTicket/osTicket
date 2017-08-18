@@ -58,13 +58,13 @@ $action = $info[':action'] ?: ('#tasks/mass/'. $action);
         <hr>
         <p class="full-width">
             <span class="buttons pull-left">
-                <input type="reset" value="<?php echo __('Reset'); ?>">
-                <input type="button" name="cancel" class="close"
+                <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
+                <input type="button" name="cancel" class="close btn-danger"
                 value="<?php echo __('Cancel'); ?>">
             </span>
             <span class="buttons pull-right">
                 <input type="submit" value="<?php
-                echo $verb ?: __('Submit'); ?>">
+                echo $verb ?: __('Submit'); ?>" class="btn btn-sm btn-success">
             </span>
          </p>
     </form>

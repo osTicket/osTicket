@@ -75,11 +75,49 @@ $qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 ?>
 
-<div id="basic_search">
-    <div style="min-height:25px;">
-    <form action="directory.php" method="GET" name="filter">
-       <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" >
-        <select name="did" id="did">
+<div class="subnav">
+
+
+                        <div class="float-left subnavtitle">
+                        
+                            <span ><a href="<?php echo $refresh_url; ?>"
+                                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
+                                </a> &nbsp;
+            <?php echo __('Agent Directory');?>
+                                
+                                </span>
+                        
+                       
+                       
+                        </div>
+                         <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+                         &nbsp;
+                         </div>
+                        
+                        <div class="clearfix"></div>
+                        
+                  
+ </div>
+
+<div class="card-box">
+
+<div class="row">
+    <div class="col">
+        <div class="float-right">
+<form  class="form-inline" action="directory.php" method="get"  name="filter"  style="padding-bottom: 10px; margin-top: -5px;">
+            <?php csrf_token(); ?>
+            
+             <div class="input-group input-group-sm">
+             <input type="hidden" name="a" value="search">
+                <input type="text" name="q" value="<?php echo Format::htmlchars($_REQUEST['q']); ?>" class="form-control form-control-sm"  placeholder="Search Agents">
+            <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+                
+                
+            
+        </select><button type="submit" class="input-group-addon" ><i class="fa fa-search"></i>
+                </button>
+                
+                    <select name="did" id="did" class="form-control form-control-sm">
              <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
              <?php
                 foreach (Dept::getDepartments(array('nonempty'=>1)) as $id=>$name) {
@@ -87,36 +125,36 @@ $qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
                     echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
                 }
              ?>
-        </select>
-        &nbsp;&nbsp;
-        <input type="submit" name="submit" value="<?php echo __('Filter');?>"/>
-        &nbsp;<i class="help-tip icon-question-sign" href="#apply_filtering_criteria"></i>
-    </form>
- </div>
-</div>
-<div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="pull-left flush-left">
-        <h2><?php echo __('Agents');?>
-            &nbsp;<i class="help-tip icon-question-sign" href="#staff_members"></i>
-        </h2>
+             <input type="submit" name="submit" value="&#xf0b0;" class="input-group-addon fa" style="padding-top: 7px"/>
+        
+            </div>
+            &nbsp;<i class="help-tip icon-question-sign" href="#apply_filtering_criteria"></i>
+        </form>
+        </div>
     </div>
 </div>
+<div class="row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="clear"></div>
+<div>                        
+                        
+
+
     <?php
     if ($agents->exists(true))
         $showing=$pageNav->showing();
     else
         $showing=__('No agents found!');
     ?>
-<table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table  id="agents" class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
-            <th width="20%"><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="15%"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
-            <th width="25%"><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
-            <th width="15%"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone"><?php echo __('Phone Number');?></a></th>
-            <th width="10%"><a <?php echo $ext_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=ext"><?php echo __(/* As in a phone number `extension` */ 'Extension');?></a></th>
-            <th width="15%"><a <?php echo $mobile_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=mobile"><?php echo __('Mobile Number');?></a></th>
+            <th><a <?php echo $name_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th data-breakpoints="xs sm"><a  <?php echo $dept_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=dept"><?php echo __('Department');?></a></th>
+            <th><a  <?php echo $email_sort; ?>href="directory.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
+            <th data-breakpoints="xs sm"><a <?php echo $phone_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=phone"><?php echo __('Phone Number');?></a></th>
+            <th data-breakpoints="xs sm"><a <?php echo $ext_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=ext"><?php echo __(/* As in a phone number `extension` */ 'Extension');?></a></th>
+            <th data-breakpoints="xs sm"><a <?php echo $mobile_sort; ?> href="directory.php?<?php echo $qstr; ?>&sort=mobile"><?php echo __('Mobile Number');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -134,17 +172,34 @@ $qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
             <?php
             } // end of foreach
         ?>
-    <tfoot>
-     <tr>
-        <td colspan="6">
-            <?php if ($agents->exists(true)) {
-                echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-                ?>
-            <?php } else {
-                echo __('No agents found!');
-            } ?>
-        </td>
-     </tr>
-    </tfoot>
+   
 </table>
+<div class="row">
+    <div class="col">
+        <div class="float-left">
+        <nav>
+        <ul class="pagination">   
+            <?php
+                echo $pageNav->getPageLinks();
+            ?>
+        </ul>
+        </nav>
+        </div>
 
+            
+           
+            <div class="float-right">
+                  <span class="faded"><?php echo $pageNav->showing(); ?></span>
+            </div>  
+    </div>
+</div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+jQuery(function($){
+	$('#agents').footable();
+});
+
+</script>

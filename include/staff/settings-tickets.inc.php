@@ -3,23 +3,39 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 if(!($maxfileuploads=ini_get('max_file_uploads')))
     $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 ?>
-<h2><?php echo __('Ticket Settings and Options');?></h2>
+
+
+<div class="subnav">
+
+    <div class="float-left subnavtitle" id="ticketviewtitle">
+       <?php echo __('Ticket Settings and Options');?>
+    </div>
+
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+    &nbsp;
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="card-box">
+<h2></h2>
 <form action="settings.php?t=tickets" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
 
-<ul class="clean tabs">
-    <li class="active"><a href="#settings"><i class="icon-asterisk"></i>
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a href="#settings" data-toggle="tab" class="nav-link active"><i class="icon-asterisk"></i>
         <?php echo __('Settings'); ?></a></li>
-    <li><a href="#autoresp"><i class="icon-mail-reply-all"></i>
+    <li class="nav-item"><a href="#autoresp" data-toggle="tab" class="nav-link"><i class="icon-mail-reply-all"></i>
         <?php echo __('Autoresponder'); ?></a></li>
-    <li><a href="#alerts"><i class="icon-bell-alt"></i>
+    <li class="nav-item"><a href="#alerts" data-toggle="tab" class="nav-link"><i class="icon-bell-alt"></i>
         <?php echo __('Alerts and Notices'); ?></a></li>
-    <li><a href="#queues"><i class="icon-table"></i>
+    <li class="nav-item"><a href="#queues" data-toggle="tab" class="nav-link"><i class="icon-table"></i>
         <?php echo __('Queues'); ?></a></li>
 </ul>
-<div class="tab_content" id="settings">
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<div class="tab-content">
+<div class="tab-pane fade show active" id="settings">
+<table class="form_table settings_table" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -273,24 +289,25 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     </tbody>
 </table>
 </div>
-<div class="hidden tab_content" id="autoresp"
+<div class="tab-pane fade" id="autoresp"
     data-tip-namespace="settings.autoresponder">
     <?php include STAFFINC_DIR . 'settings-autoresp.inc.php'; ?>
 </div>
-<div class="hidden tab_content" id="alerts"
+<div class="tab-pane fade" id="alerts"
     data-tip-namespace="settings.alerts">
     <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
 </div>
 
-<div class="hidden tab_content" id="queues">
+<div class="tab-pane fade" id="queues">
     <?php include STAFFINC_DIR . 'queues-ticket.inc.php'; ?>
 </div>
-
+</div>
 <p style="text-align:center;">
     <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
     <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
 </form>
+</div>
 <script type="text/javascript">
 $(function() {
     var request = null,

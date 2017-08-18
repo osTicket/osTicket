@@ -146,68 +146,6 @@ $open_name = _P('queue-name',
     /* This is the name of the open tasks queue */
     'Open');
 
-$nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
-                       'title'=>__('Open Tasks'),
-                       'href'=>'tasks.php?status=open',
-                       'iconclass'=>'Ticket'),
-                    ((!$_REQUEST['status'] && !isset($_SESSION['advsearch:tasks'])) || $_REQUEST['status']=='open'));
-
-if ($stats['assigned']) {
-
-    $nav->addSubMenu(array('desc'=>__('My Tasks').' ('.number_format($stats['assigned']).')',
-                           'title'=>__('Assigned Tasks'),
-                           'href'=>'tasks.php?status=assigned',
-                           'iconclass'=>'assignedTickets'),
-                        ($_REQUEST['status']=='assigned'));
-}
-
-if ($stats['overdue']) {
-    $nav->addSubMenu(array('desc'=>__('Overdue').' ('.number_format($stats['overdue']).')',
-                           'title'=>__('Stale Tasks'),
-                           'href'=>'tasks.php?status=overdue',
-                           'iconclass'=>'overdueTickets'),
-                        ($_REQUEST['status']=='overdue'));
-
-    if(!$sysnotice && $stats['overdue']>10)
-        $sysnotice=sprintf(__('%d overdue tasks!'), $stats['overdue']);
-}
-
-if ($stats['closed']) {
-    $nav->addSubMenu(array('desc' => __('Completed').' ('.number_format($stats['closed']).')',
-                           'title'=>__('Completed Tasks'),
-                           'href'=>'tasks.php?status=closed',
-                           'iconclass'=>'closedTickets'),
-                        ($_REQUEST['status']=='closed'));
-}
-
-if (isset($_SESSION['advsearch:tasks'])) {
-    // XXX: De-duplicate and simplify this code
-    $search = SavedSearch::create();
-    $form = $search->getFormFromSession('advsearch:tasks');
-    $form->loadState($_SESSION['advsearch:tasks']);
-    $tasks = Task::objects();
-    $tasks = $search->mangleQuerySet($tasks, $form);
-    $count = $tasks->count();
-    $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
-                           'title'=>__('Advanced Task Search'),
-                           'href'=>'tasks.php?status=search',
-                           'iconclass'=>'Ticket'),
-                        (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
-}
-
-if ($thisstaff->hasPerm(TaskModel::PERM_CREATE, false)) {
-    $nav->addSubMenu(array('desc'=>__('New Task'),
-                           'title'=> __('Open a New Task'),
-                           'href'=>'#tasks/add',
-                           'iconclass'=>'newTicket new-task',
-                           'id' => 'new-task',
-                           'attr' => array(
-                               'data-dialog-config' => '{"size":"large"}'
-                               )
-                           ),
-                        ($_REQUEST['a']=='open'));
-}
-
 
 $ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js"></script>');
 $ost->addExtraHeader('<script type="text/javascript" src="js/thread.js"></script>');

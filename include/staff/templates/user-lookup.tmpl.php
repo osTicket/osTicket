@@ -39,7 +39,7 @@ else { ?>
 <?php
 }
 if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
-    <a class="action-button pull-right" style="overflow:inherit"
+    <a class=" btn btn-sm btn-success pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i>
         <?php echo __('Add New User'); ?></a>
 <?php }
@@ -69,11 +69,11 @@ if ($user) { ?>
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" name="cancel" class="close"  value="<?php
+            <input type="button" name="cancel" class="close btn-danger"  value="<?php
             echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Continue'); ?>">
+            <input class="btn btn-primary btn-sm" type="submit" value="<?php echo __('Continue'); ?>">
         </span>
      </p>
 </form>
@@ -89,11 +89,11 @@ if ($user) { ?>
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
-            <input type="button" name="cancel" class="<?php echo $user ?  'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
+            <input class="btn btn-warning btn-sm" type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" name="cancel" class="<?php echo $user ?  'cancel btn-danger' : 'close btn-danger' ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Add User'); ?>">
+            <input class="btn btn-primary btn-sm" type="submit" value="<?php echo __('Add User'); ?>">
         </span>
      </p>
 </form>
@@ -102,7 +102,7 @@ else { ?>
     <hr/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" name="cancel" class="<?php echo $user ?  'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
+            <input type="button" name="cancel" class="<?php echo $user ?  'cancel btn-danger' : 'close btn-danger' ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
      </p>
 <?php } ?>

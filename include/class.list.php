@@ -785,8 +785,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function display() {
-        return sprintf('<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">%s</a>',
+        return sprintf('<a class="preview" href="#" data-preview="#list/%d/items/%d/preview">%s</a>',
                 $this->getListId(),
                 $this->getId(),
                 $this->getValue()
@@ -1418,10 +1417,41 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function display() {
-        return sprintf('<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">%s</a>',
+        
+        switch ($this->getLocalName()){
+            case "Assigned":
+            $badge = 'badge label-table bg-primary';
+            break;
+            case "Awaiting Submitter Reply":
+            $badge = 'badge label-table bg-success';
+            break;
+            case "Awaiting Agent Reply":
+            $badge = 'badge label-table bg-danger';
+            break;
+            case "Hold":
+            $badge = 'badge label-table badge-warning';
+            break;
+            case "Awaiting Implementation":
+            $badge = 'badge label-table bg-purple';
+            break;
+            case "Awaiting Quote":
+            $badge = 'badge label-table bg-flatpurple';
+            break;
+            case "Auto-Closed":
+            $badge = 'badge label-table bg-flatgreenalt2';
+            break;
+            case "Closed":
+            $badge = 'badge label-table badge-success';
+            break;
+            case "Unassigned":
+            $badge = 'badge label-table bg-flatred';
+            break;
+        }
+        
+        return sprintf('<a class="preview" href="#" data-preview="#list/%d/items/%d/preview"><span class="%s">%s</span></a>',
                 $this->getListId(),
                 $this->getId(),
+                $badge,
                 $this->getLocalName()
                 );
     }
@@ -1483,6 +1513,10 @@ implements CustomListItem, TemplateVariable, Searchable {
 
     static function status_options() {
         include(STAFFINC_DIR . 'templates/status-options.tmpl.php');
+    }
+    
+    static function status_filter_options() {
+        include(STAFFINC_DIR . 'templates/status-filter-options.tmpl.php');
     }
 }
 ?>

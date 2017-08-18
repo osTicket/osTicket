@@ -34,7 +34,7 @@ if ($info['error']) {
 <form method="post" class="org" action="<?php echo $info['action'] ?: '#orgs/lookup'; ?>">
     <input type="hidden" id="org-id" name="orgid" value="<?php echo $org ? $org->getId() : 0; ?>"/>
     <i class="icon-group icon-4x pull-left icon-border"></i>
-    <a class="action-button pull-right" style="overflow:inherit"
+    <a class="btn btn-sm btn-success" pull-right" style="overflow:inherit"
         id="unselect-org"  href="#"><i class="icon-remove"></i>
         <?php echo __('Add New Organization'); ?></a>
     <div><strong id="org-name"><?php echo $org ?  Format::htmlchars($org->getName()) : ''; ?></strong></div>
@@ -57,10 +57,10 @@ if ($info['error']) {
 <hr>
 <p class="full-width">
     <span class="buttons pull-left">
-        <input type="button" name="cancel" class="close"  value="<?php echo __('Cancel'); ?>">
+        <input type="button" name="cancel" class="close btn-danger"  value="<?php echo __('Cancel'); ?>">
     </span>
     <span class="buttons pull-right">
-        <input type="submit" value="<?php echo __('Continue'); ?>">
+        <input type="submit" value="<?php echo __('Continue'); ?>" class="btn btn-sm btn-primary">
     </span>
  </p>
 </form>
@@ -75,12 +75,12 @@ if ($info['error']) {
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
-            <input type="button" name="cancel" class="<?php echo $org ? 'cancel' : 'close' ?>"
+            <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
+            <input type="button" name="cancel" class="<?php echo $org ? 'cancel btn-danger' : 'close btn-danger' ?>"
                 value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Add Organization'); ?>">
+            <input type="submit" value="<?php echo __('Add Organization'); ?>" class="btn btn-sm btn-primary">
         </span>
      </p>
 </form>

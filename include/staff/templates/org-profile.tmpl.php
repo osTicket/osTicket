@@ -162,12 +162,12 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
 <hr>
 <p class="full-width">
     <span class="buttons pull-left">
-        <input type="reset" value="<?php echo __('Reset'); ?>">
+        <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
         <input type="button" name="cancel" class="<?php
-echo $account ? 'cancel' : 'close'; ?>"  value="<?php echo __('Cancel'); ?>">
+echo $account ? 'cancel' : 'close btn-danger'; ?>"  value="<?php echo __('Cancel'); ?>">
     </span>
     <span class="buttons pull-right">
-        <input type="submit" value="<?php echo __('Update Organization'); ?>">
+        <input type="submit" value="<?php echo __('Update Organization'); ?>" class="btn btn-sm btn-primary">
     </span>
 </p>
 </form>

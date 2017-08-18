@@ -113,10 +113,10 @@ if ($count) //Show options..
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="No, Cancel" class="close">
+            <input class="btn btn-danger" type="button" value="No, Cancel" class="close">
         </span>
         <span class="buttons pull-right">
-            <input type="button" value="Yes, Do it!" class="confirm">
+            <input class="btn btn-primary" type="button" value="Yes, Do it!" class="confirm">
         </span>
     </p>
     <div class="clear"></div>

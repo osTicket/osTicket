@@ -59,83 +59,114 @@ $users->values('id', 'name', 'default_email__address', 'account__id',
     'account__status', 'created', 'updated', 'org__name');
 $users->order_by($order . $order_column);
 ?>
-<div id="basic_search">
-    <div style="min-height:25px;">
-        <form action="users.php" method="get">
-            <?php csrf_token(); ?>
-            <input type="hidden" name="a" value="search">
-            <div class="attached input">
-                <input type="text" class="basic-search" id="basic-user-search" name="query"
-                         size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
-                        autocomplete="off" autocorrect="off" autocapitalize="off">
-            <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
-                <button type="submit" class="attached button"><i class="icon-search"></i>
-                </button>
-            </div>
-        </form>
-    </div>
- </div>
-<form id="users-list" action="users.php" method="POST" name="staff" >
 
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="sticky bar opaque">
-        <div class="content">
-            <div class="pull-left flush-left">
-                <h2><?php echo __('User Directory'); ?></h2>
-            </div>
-            <div class="pull-right">
-                <?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
-                <a class="green button action-button popup-dialog"
-                   href="#users/add">
-                    <i class="icon-plus-sign"></i>
-                    <?php echo __('Add User'); ?>
-                </a>
-                <a class="action-button popup-dialog"
-                   href="#users/import">
-                    <i class="icon-upload"></i>
-                    <?php echo __('Import'); ?>
-                </a>
-                <?php } ?>
-                <span class="action-button" data-dropdown="#action-dropdown-more"
-                      style="/*DELME*/ vertical-align:top; margin-bottom:0">
-                    <i class="icon-caret-down pull-right"></i>
-                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                </span>
-                <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                    <ul>
-                        <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                        <li><a href="#add-to-org" class="users-action">
-                            <i class="icon-group icon-fixed-width"></i>
-                            <?php echo __('Add to Organization'); ?></a></li>
-                        <?php
-                            }
-                        if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
-                        <li><a class="users-action" href="#reset">
-                            <i class="icon-envelope icon-fixed-width"></i>
-                            <?php echo __('Send Password Reset Email'); ?></a></li>
-                        <?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
-                        <li><a class="users-action" href="#register">
-                            <i class="icon-smile icon-fixed-width"></i>
-                            <?php echo __('Register'); ?></a></li>
-                        <li><a class="users-action" href="#lock">
-                            <i class="icon-lock icon-fixed-width"></i>
-                            <?php echo __('Lock'); ?></a></li>
-                        <li><a class="users-action" href="#unlock">
-                            <i class="icon-unlock icon-fixed-width"></i>
-                            <?php echo __('Unlock'); ?></a></li>
-                        <?php }
-                        if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
-                        <li class="danger"><a class="users-action" href="#delete">
-                            <i class="icon-trash icon-fixed-width"></i>
-                            <?php echo __('Delete'); ?></a></li>
-                        <?php }
-                        } # end of registration-enabled? ?>
-                    </ul>
+<div class="subnav">
+
+
+                        <div class="float-left subnavtitle">
+                        
+                            <span ><a href="<?php echo $refresh_url; ?>"
+                                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
+                                </a> &nbsp;
+            <?php echo __('User Directory');?>
+                                
+                                </span>
+                        
+                       
+                       
+                        </div>
+ 
+        <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+                    <?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
+                    <a class="btn btn-secondary popup-dialog"
+                       href="#users/add" data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Add User'); ?>">
+                        <i class="fa fa-plus-square"></i>
+                    </a>
+                    
+                    <a class="btn btn-secondary popup-dialog"
+                       href="#users/import"  data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Import'); ?>">
+                        <i class="fa fa-arrow-circle-up"></i>
+                        
+                    </a>
+                    <?php } ?>
+                    
+                    <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('More'); ?>"><i class="fa fa-cog"></i>
+            </button>
+                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+                    
+                    <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+                            <a href="#add-to-org"  class="dropdown-item users-action">
+                                <i class="icon-group icon-fixed-width"></i>
+                                <?php echo __('Add to Organization'); ?></a>
+                            <?php
+                                }
+                            if ('disabled' != $cfg->getClientRegistrationMode()) { ?>
+                            <a class="dropdown-item users-action" href="#reset">
+                                <i class="icon-envelope icon-fixed-width"></i>
+                                <?php echo __('Send Password Reset Email'); ?></a>
+                            <?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
+                            <a class="dropdown-item users-action" href="#register">
+                                <i class="icon-smile icon-fixed-width"></i>
+                                <?php echo __('Register'); ?></a>
+                            <a class="dropdown-item users-action" href="#lock">
+                                <i class="icon-lock icon-fixed-width"></i>
+                                <?php echo __('Lock'); ?></a>
+                            <a class="dropdown-item users-action" href="#unlock">
+                                <i class="icon-unlock icon-fixed-width"></i>
+                                <?php echo __('Unlock'); ?></a>
+                            <?php }
+                            if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
+                            <a class="dropdown-item users-action" href="#delete">
+                                <i class="icon-trash icon-fixed-width"></i>
+                                <?php echo __('Delete'); ?></a>
+                            <?php }
+                            } # end of registration-enabled? ?>
+               
+                        </div>
+                    </div>
+                </div> 
+                        
+                         
+                         
+                         <div class="clearfix"></div>
+                        
+                  
+ </div>
+
+<div class="card-box">
+
+<div class="row">
+    <div class="col">
+        <div class="float-right">
+            <form  class="form-inline" action="users.php" method="get" style="padding-bottom: 10px; margin-top: -5px;">
+                <?php csrf_token(); ?>
+                
+                 <div class="input-group input-group-sm">
+                 <input type="hidden" name="a" value="search">
+                    <input type="text" class="form-control form-control-sm basic-search" id="basic-user-search" name="query"
+                            value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
+                            autocomplete="off" autocorrect="off" autocapitalize="off"  placeholder="Search Users">
+                <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+                    <button type="submit"  class="input-group-addon" ><i class="fa fa-search"></i>
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+<div class="row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="clear"></div>
+<div>
+
+
+<form id="users-list" action="users.php" method="POST" name="staff" >
+
 <div class="clear"></div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
@@ -149,7 +180,7 @@ else
  <input type="hidden" id="action" name="a" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
  <input type="hidden" id="org_id" name="org_id" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940" style="margin-left:auto;margin-right:auto;">
+ <table  id="users" class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
             <th nowrap width="4%">&nbsp;</th>
@@ -157,11 +188,11 @@ else
                 echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
 			<th><a <?php echo $org_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=org"><?php echo __('Organization'); ?></a></th>
-            <th width="22%"><a  <?php echo $status_sort; ?> href="users.php?<?php
+            <th data-breakpoints="xs sm" width="22%"><a  <?php echo $status_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
-            <th width="20%"><a <?php echo $create_sort; ?> href="users.php?<?php
+            <th data-breakpoints="xs sm" width="20%"><a <?php echo $create_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th width="20%"><a <?php echo $update_sort; ?> href="users.php?<?php
+            <th data-breakpoints="xs sm"  width="20%"><a <?php echo $update_sort; ?> href="users.php?<?php
                 echo $qstr; ?>&sort=update"><?php echo __('Updated'); ?></a></th>
         </tr>
     </thead>
@@ -202,7 +233,7 @@ else
                              <small>(%d)</small>', $U['ticket_count']);
                     ?>
                 </td>
-				<td><?php echo $organization; ?></td>
+				<td><?php echo ltrim($organization,","); ?></td>
                 <td><?php echo $status; ?></td>
                 <td><?php echo Format::date($U['created']); ?></td>
                 <td><?php echo Format::datetime($U['updated']); ?>&nbsp;</td>
@@ -224,20 +255,51 @@ else
             } ?>
         </td>
      </tr>
-<tr><td colspan="6">
-<?php
-if ($total) {
-    echo sprintf('<div>&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
-            href="users.php?a=export&qh=%s">'.__('Export').'</a></div>',
-            $pageNav->getPageLinks(),
-            $qhash);
-}
-?>  </td></tr>
+
   </tfoot>
 </table>
 </form>
 
+<div class="row">
+    <div class="col">
+        <div class="float-left">
+        <nav>
+        <ul class="pagination">   
+            <?php
+                echo $pageNav->getPageLinks();
+            ?>
+        </ul>
+        </nav>
+        </div>
+        <div class="float-left">
+        
+        <div class="btn btn-icon waves-effect btn-default m-b-5"> 
+               <?php
+                echo sprintf('<a class="export-csv no-pjax" href="users.php?a=export&qh=%s">%s</a>',
+                       $qhash,
+                        ('<i class="ti-cloud-down faded"></i>'));
+                ?>
+        </div>
+                <i class=" hidden help-tip icon-question-sign" href="#export"></i>
+        </div>
+            
+           
+            <div class="float-right">
+                  <span class="faded"><?php echo $pageNav->showing(); ?></span>
+            </div>  
+    </div>
+</div>
+
+
+</div>
+</div>
+</div>
 <script type="text/javascript">
+
+jQuery(function($){
+	$('#users').footable();
+});
+
 $(function() {
     $('input#basic-user-search').typeahead({
         source: function (typeahead, query) {

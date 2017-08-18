@@ -21,7 +21,7 @@ if ($info['error']) {
     </div>
     <?php
     if ($ticket) { ?>
-    <a class="action-button pull-right change-user" style="overflow:inherit"
+    <a class="btn btn-sm btn-warning pull-right change-user" style="overflow:inherit"
         href="#tickets/<?php echo $ticket->getId(); ?>/change-user" ><i class="icon-user"></i>
         <?php echo __('Change User'); ?></a>
     <?php
@@ -36,21 +36,21 @@ if ($info['error']) {
     } ?>
 
 <div class="clear"></div>
-<ul class="tabs" id="user_tabs" style="margin-top:5px">
-    <li class="active"><a href="#info-tab"
-        ><i class="icon-info-sign"></i>&nbsp;<?php echo __('User'); ?></a></li>
+<ul class="nav nav-tabs" id="user_tabs" style="margin-top:5px">
+    <li class="nav-item"><a href="#info-tab"
+        class="nav-link active" data-toggle="tab"><i class="icon-info-sign"></i>&nbsp;<?php echo __('User'); ?></a></li>
 <?php if ($org) { ?>
-    <li><a href="#org-tab"
-        ><i class="icon-fixed-width icon-building"></i>&nbsp;<?php echo __('Organization'); ?></a></li>
+    <li class="nav-item"><a href="#org-tab"
+        class="nav-link" data-toggle="tab"><i class="icon-fixed-width icon-building"></i>&nbsp;<?php echo __('Organization'); ?></a></li>
 <?php }
     $ext_id = "U".$user->getId();
     $notes = QuickNote::forUser($user, $org)->all(); ?>
-    <li><a href="#notes-tab"
-        ><i class="icon-fixed-width icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
+    <li class="nav-item"><a href="#notes-tab"
+        class="nav-link" data-toggle="tab"><i class="icon-fixed-width icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
 </ul>
 
-<div id="user_tabs_container">
-<div class="tab_content" id="info-tab">
+<div class="tab-content" id="user_tabs_container">
+<div class="tab-pane fade show active" id="info-tab">
 <div class="floating-options">
 <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     <a href="<?php echo $info['useredit'] ?: '#'; ?>" id="edituser" class="action" title="<?php echo __('Edit'); ?>"><i class="icon-edit"></i></a>
@@ -77,7 +77,7 @@ if ($info['error']) {
 </div>
 
 <?php if ($org) { ?>
-<div class="hidden tab_content" id="org-tab">
+<div class="tab-pane fade" id="org-tab">
 <?php if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
 <div class="floating-options">
     <a href="orgs.php?id=<?php echo $org->getId(); ?>" title="<?php
@@ -85,6 +85,7 @@ if ($info['error']) {
 </div>
 <?php } ?>
     <table class="custom-info" width="100%">
+
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>
     <tr><th colspan="2"><strong><?php
@@ -101,7 +102,7 @@ if ($info['error']) {
 </div>
 <?php } # endif ($org) ?>
 
-<div class="hidden tab_content" id="notes-tab">
+<div class="tab-pane fade" id="notes-tab">
 <?php $show_options = true;
 foreach ($notes as $note)
     include STAFFINC_DIR . 'templates/note.tmpl.php';
@@ -140,12 +141,12 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
             <input type="button" name="cancel" class="<?php
-    echo ($ticket && $user) ? 'cancel' : 'close' ?>"  value="<?php echo __('Cancel'); ?>">
+    echo ($ticket && $user) ? 'cancel' : 'close btn-danger' ?>"  value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Update User'); ?>">
+            <input class="btn btn-sm btn-primary" type="submit" value="<?php echo __('Update User'); ?>">
         </span>
      </p>
 </form>

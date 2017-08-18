@@ -51,12 +51,12 @@ if ($info['error']) {
         <input type="hidden" name="id" value="<?php echo $org->getId(); ?>" />
         <p class="full-width">
         <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
-            <input type="button" name="cancel" class="close"
+            <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
+            <input type="button" name="cancel" class="close btn-primary"
                 value="<?php echo __('No, Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Yes, Delete'); ?>">
+            <input type="submit" value="<?php echo __('Yes, Delete'); ?>" class="btn btn-sm btn-danger">
         </span>
         </p>
     </form>

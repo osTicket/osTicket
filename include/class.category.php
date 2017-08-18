@@ -49,7 +49,7 @@ class Category extends VerySimpleModel {
     function getVisibilityDescription() {
         switch ($this->ispublic) {
         case self::VISIBILITY_PRIVATE:
-            return __('Private');
+            return __('Internal');
         case self::VISIBILITY_PUBLIC:
             return __('Public');
         case self::VISIBILITY_FEATURED:
@@ -230,7 +230,13 @@ class Category extends VerySimpleModel {
 
         return ($row) ? $row[0] : null;
     }
+    static function findNameById($id) {
+        $row = self::objects()->filter(array(
+            'category_id'=>$id
+        ))->values_flat('name')->first();
 
+        return ($row) ? $row[0] : null;
+    }
     static function findByName($name) {
         return self::objects()->filter(array(
             'name'=>$name

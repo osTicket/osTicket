@@ -53,12 +53,12 @@ $action = $info[':action'] ?: ('#');
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
-            <input type="button" name="cancel" class="close"
+            <input class="btn btn-warning btn-sm" type="reset" value="<?php echo __('Reset'); ?>">
+            <input type="button" name="cancel" class="close btn-danger"
             value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php
+            <input class="btn btn-primary btn-sm" type="submit" value="<?php
             echo $verb ?: __('Assign'); ?>">
         </span>
      </p>

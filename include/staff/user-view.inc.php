@@ -6,166 +6,203 @@ $org = $user->getOrganization();
 
 
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
-    <tr>
-        <td width="50%" class="has_bottom_border">
-             <h2><a href="users.php?id=<?php echo $user->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?></a></h2>
-        </td>
-        <td width="50%" class="right_align has_bottom_border">
-<?php if (($account && $account->isConfirmed())
-    || $thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-            <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
-                <i class="icon-caret-down pull-right"></i>
-                <span><i class="icon-cog"></i> <?php echo __('More'); ?></span>
-            </span>
-<?php }
-    if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
-            <a id="user-delete" class="red button action-button pull-right user-action"
-            href="#users/<?php echo $user->getId(); ?>/delete"><i class="icon-trash"></i>
-            <?php echo __('Delete User'); ?></a>
-<?php } ?>
-<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
-            <?php
+
+<div class="subnav">
+   
+      
+       <div class="float-left subnavtitle">
+      
+      <a href="users.php?id=<?php echo $user->getId(); ?>"
+             title="Reload"><i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?></a>
+      </a>
+      </div>
+      
+     
+                <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+                   
+
+                  <?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { 
             if ($account) { ?>
-            <a id="user-manage" class="action-button pull-right user-action"
-            href="#users/<?php echo $user->getId(); ?>/manage"><i class="icon-edit"></i>
-            <?php echo __('Manage Account'); ?></a>
+            <a id="user-manage" class="btn btn-secondary user-action"
+            href="#users/<?php echo $user->getId(); ?>/manage"  data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Manage'); ?>"><i class="icon-edit"></i>
+           </a>
             <?php
             } else { ?>
-            <a id="user-register" class="action-button pull-right user-action"
-            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-smile"></i>
-            <?php echo __('Register'); ?></a>
+            <a id="user-register" class="btn btn-secondary user-action"
+            href="#users/<?php echo $user->getId(); ?>/register"  data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Register'); ?>"><i class="icon-smile"></i>
+           </a>
             <?php
             } ?>
 <?php } ?>
-            <div id="action-dropdown-more" class="action-dropdown anchor-right">
-              <ul>
-                <?php
-                if ($account) {
-                    if (!$account->isConfirmed()) {
-                        ?>
-                    <li><a class="confirm-action" href="#confirmlink"><i
-                        class="icon-envelope"></i>
-                        <?php echo __('Send Activation Email'); ?></a></li>
-                    <?php
-                    } else { ?>
-                    <li><a class="confirm-action" href="#pwreset"><i
-                        class="icon-envelope"></i>
-                        <?php echo __('Send Password Reset Email'); ?></a></li>
-                    <?php
-                    } ?>
-<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
-                    <li><a class="user-action"
-                        href="#users/<?php echo $user->getId(); ?>/manage/access"><i
-                        class="icon-lock"></i>
-                        <?php echo __('Manage Account Access'); ?></a></li>
-                <?php
-}
-                } ?>
-<?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                <li><a href="#ajax.php/users/<?php echo $user->getId();
+                    
+            <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            data-toggle="dropdown"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
+             title="<?php echo __('More'); ?>"></i>
+            </button>
+                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
+                    
+                    <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+                <a href="#ajax.php/users/<?php echo $user->getId();
                     ?>/forms/manage" onclick="javascript:
                     $.dialog($(this).attr('href').substr(1), 201);
                     return false"
-                    ><i class="icon-paste"></i>
-                    <?php echo __('Manage Forms'); ?></a></li>
-<?php } ?>
-
-              </ul>
-            </div>
-        </td>
-    </tr>
-</table>
-<div class="avatar pull-left" style="margin: 10px; width: 80px;">
-    <?php echo $user->getAvatar(); ?>
-</div>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="830" border="0">
-    <tr>
-        <td width="50%">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
-                <tr>
-                    <th width="150"><?php echo __('Name'); ?>:</th>
-                    <td>
-<?php
-if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                    <b><a href="#users/<?php echo $user->getId();
-                    ?>/edit" class="user-action"><i
-                        class="icon-edit"></i>
-<?php }
-                    echo Format::htmlchars($user->getName()->getOriginal());
-if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                        </a></b>
-<?php } ?>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Email'); ?>:</th>
-                    <td>
-                        <span id="user-<?php echo $user->getId(); ?>-email"><?php echo $user->getEmail(); ?></span>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Organization'); ?>:</th>
-                    <td>
-                        <span id="user-<?php echo $user->getId(); ?>-org">
-                        <?php
-                            if ($org)
-                                echo sprintf('<a href="#users/%d/org" class="user-action">%s</a>',
-                                        $user->getId(), $org->getName());
-                            elseif ($thisstaff->hasPerm(User::PERM_EDIT)) {
-                                echo sprintf(
-                                    '<a href="#users/%d/org" class="user-action">%s</a>',
-                                    $user->getId(),
-                                    __('Add Organization'));
-                            }
+                    class="dropdown-item"><i class="icon-paste"></i>
+                    <?php echo __('Manage Forms'); ?></a>
+                    <?php } ?>
+                    
+                    
+                    
+                    
+                                    <?php
+                if ($account) {
+                    if (!$account->isConfirmed()) {
                         ?>
-                        </span>
-                    </td>
-                </tr>
-            </table>
-        </td>
-        <td width="50%" style="vertical-align:top">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
-                <tr>
-                    <th width="150"><?php echo __('Status'); ?>:</th>
-                    <td> <span id="user-<?php echo $user->getId();
-                    ?>-status"><?php echo $user->getAccountStatus(); ?></span></td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Created'); ?>:</th>
-                    <td><?php echo Format::datetime($user->getCreateDate()); ?></td>
-                </tr>
-                <tr>
-                    <th><?php echo __('Updated'); ?>:</th>
-                    <td><?php echo Format::datetime($user->getUpdateDate()); ?></td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
-<br>
-<div class="clear"></div>
-<ul class="clean tabs" id="user-view-tabs">
-    <li class="active"><a href="#tickets"><i
-    class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
-    <li><a href="#notes"><i
-    class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
-</ul>
-<div id="user-view-tabs_container">
-    <div id="tickets" class="tab_content">
+                    <a class="dropdown-item confirm-action" href="#confirmlink"><i
+                        class="icon-envelope"></i>
+                        <?php echo __('Send Activation Email'); ?></a>
+                    <?php
+                    } else { ?>
+                    <a class="dropdown-item confirm-action" href="#pwreset"><i
+                        class="icon-envelope"></i>
+                        <?php echo __('Send Password Reset Email'); ?></a>
+                    <?php
+                    } ?>
+<?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { ?>
+                    <a class="dropdown-item user-action"
+                        href="#users/<?php echo $user->getId(); ?>/manage/access"><i
+                        class="icon-lock"></i>
+                        <?php echo __('Manage Account Access'); ?></a>
+                <?php
+}
+                } ?>
+
+                        </div>
+                    </div>
+                    
+                    
+                    
+                                        <?php if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
+            <a id="user-delete" class="btn btn-secondary user-action"
+            href="#users/<?php echo $user->getId(); ?>/delete"  data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Delete User'); ?>"><i class="fa fa-trash-o"></i>
+            </a>
+<?php } ?>
+            <a class="btn btn-secondary"
+            href="users.php"  data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Users'); ?>"><i class="fa fa-list-alt"></i>
+            </a>
+                </div>
+
+    <div class="clearfix"></div>
+
+</div>      
+        
+
+
+<div class="card-box">
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<div class="row">   
+<div class="col-sm-3">
+<div>
+    <label> <?php echo __('Name'); ?>: </label>
+
+        <?php
+        if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+                            <b><a href="#users/<?php echo $user->getId();
+                            ?>/edit" class="user-action"><i
+                                class="icon-edit"></i>
+        <?php }
+                            echo Format::htmlchars($user->getName()->getOriginal());
+        if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
+                                </a></b>
+        <?php } ?>
+</div>
+<div>
+    <label><?php echo __('Email'); ?>:</label>
+    <span id="user-<?php echo $user->getId(); ?>-email"><?php echo $user->getEmail(); ?></span>
+</div>
+
+<div>
+    <label><?php echo __('Organization'); ?>:</label>
+    <span id="user-<?php echo $user->getId(); ?>-org">
     <?php
+        if ($org)
+            echo sprintf('<a href="#users/%d/org" class="user-action">%s</a>',
+                    $user->getId(), $org->getName());
+        elseif ($thisstaff->hasPerm(User::PERM_EDIT)) {
+            echo sprintf(
+                '<a href="#users/%d/org" class="user-action">%s</a>',
+                $user->getId(),
+                __('Add Organization'));
+        }
+    ?>
+    </span>
+</div>
+
+</div>
+<div class="col-sm-9">
+<div>
+    <label><?php echo __('Status'); ?>:</label>
+<span id="user-<?php echo $user->getId();
+                    ?>-status"><?php echo $user->getAccountStatus(); ?></span>
+</div>
+<div>
+    <label><?php echo __('Created'); ?>:</label>
+<?php echo Format::datetime($user->getCreateDate()); ?>
+</div>
+<div>
+    <label><?php echo __('Updated'); ?>:</label>
+<?php echo Format::datetime($user->getUpdateDate()); ?>
+</div>
+
+
+</div>
+</div>
+
+
+<!--<div class="avatar pull-left" style="margin: 10px; width: 80px;">
+    <?php echo $user->getAvatar(); ?>
+</div>-->
+
+
+
+</div>
+      
+
+
+     
+     
+<ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">
+  <li class="nav-item">
+    <a class="nav-link active" href="#ticket" role="tab" data-toggle="tab"><i class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#note" role="tab" data-toggle="tab"><i class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a>
+  </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active" id="ticket">
+   <?php
     include STAFFINC_DIR . 'templates/tickets.tmpl.php';
     ?>
-    </div>
-
-    <div class="hidden tab_content" id="notes">
-    <?php
+  </div>
+  <div role="tabpanel" class="tab-pane" id="note">
+  <?php
     $notes = QuickNote::forUser($user);
     $create_note_url = 'users/'.$user->getId().'/note';
     include STAFFINC_DIR . 'templates/notes.tmpl.php';
     ?>
-    </div>
+  </div>
+
+</div>
+     
+
 </div>
 <div class="hidden dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm'); ?></h3>
@@ -195,10 +232,10 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
         <hr style="margin-top:1em"/>
         <p class="full-width">
             <span class="buttons pull-left">
-                <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
+                <input type="button" value="<?php echo __('Cancel'); ?>" class="close btn-danger">
             </span>
             <span class="buttons pull-right">
-                <input type="submit" value="<?php echo __('OK'); ?>">
+                <input class="btn btn-primary btn-sm" type="submit" value="<?php echo __('OK'); ?>">
             </span>
          </p>
     </form>

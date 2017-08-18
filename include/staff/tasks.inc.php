@@ -69,7 +69,7 @@ $queue_name = $_SESSION[$queue_key] ?: '';
 switch ($queue_name) {
 case 'closed':
     $status='closed';
-    $results_type=__('Completed Tasks');
+    $results_type=__('Closed Tasks');
     $showassigned=true; //closed by.
     $queue_sort_options = array('closed', 'updated', 'created', 'number','ticketnumber', 'hot');
 
@@ -284,59 +284,59 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 
 
 ?>
-<!-- SEARCH FORM START -->
-<div id='basic_search'>
-  <div class="pull-right" style="height:25px">
-    <span class="valign-helper"></span>
-    <?php
-        require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
-    ?>
-   </div>
-    <form action="tasks.php" method="get" onsubmit="javascript:
-        $.pjax({
-        url:$(this).attr('action') + '?' + $(this).serialize(),
-        container:'#pjax-container',
-        timeout: 2000
-        });
-        return false;">
-        <input type="hidden" name="a" value="search">
-        <input type="hidden" name="search-type" value=""/>
-        <div class="attached input">
-            <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
-                   autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-                   autocomplete="off" autocorrect="off" autocapitalize="off">
-            <button type="submit" class="attached button"><i class="icon-search"></i>
-            </button>
-        </div>
-    </form>
+<form action="tasks.php" method="POST" name='tasks' id="tasks">
+<div class="subnav">
 
-</div>
-<!-- SEARCH FORM END -->
-<div class="clear"></div>
-<div class=style="margin-bottom:20px; padding-top:5px;">
-<div class="sticky bar opaque">
-    <div class="content">
-        <div class="pull-left flush-left">
-            <h2><a href="<?php echo $refresh_url; ?>"
-                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
-                $results_type.$showing; ?></a></h2>
-        </div>
-        <div class="pull-right flush-right">
+    <div class="float-left subnavtitle">
+                          
+     <a href="<?php echo $refresh_url; ?>"
+                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i></a> Tasks / <?php echo
+                $results_type.$showing; ?>                          
+    
+    </div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+    <a class="btn btn-icon waves-effect waves-light btn-success newTicket new-task" href="#tasks/add" title="Open a New Task" id="new-task" data-dialog-config="{&quot;size&quot;:&quot;large&quot;}"><i class="fa fa-plus-square" data-placement="bottom"
+        data-toggle="tooltip" title="<?php echo __('New Task'); ?>"></i></a>
            <?php
            if ($count)
                 echo Task::getAgentActions($thisstaff, array('status' => $status));
             ?>
+      </div>   
+   <div class="clearfix"></div> 
+</div> 
+
+
+
+
+<div class="card-box">
+<div class="row">
+    <div class="col">
+        <div class="float-right">
+            <form  class="form-inline" action="users.php" method="get" style="padding-bottom: 10px; margin-top: -5px;">
+                <?php csrf_token(); ?>
+                
+                 <div class="input-group input-group-sm">
+                 <input type="hidden" name="a" value="search">
+                    <input type="text" class="form-control form-control-sm basic-search" data-url="ajax.php/tasks/lookup" name="query"
+                     value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+                   autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Search Tasks" >
+                <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+                    <button type="submit"  class="input-group-addon" ><i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-<div class="clear"></div>
-<form action="tasks.php" method="POST" name='tasks' id="tasks">
+<div class='col-sm-12 navspacer'> 
+ <table id="tasks" class="table table-striped table-hover table-condensed table-sm">
+
 <?php csrf_token(); ?>
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo
  Format::htmlchars($_REQUEST['status'], true); ?>" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
@@ -348,9 +348,22 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             $qstr = Http::build_query($args);
             // Show headers
             foreach ($queue_columns as $k => $column) {
-                echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
+                
+                $foo = 'data-breakpoints="xs sm"'; 
+                switch ($column['heading']) {
+                case 'Task':
+                    $foo = '';
+                    break;
+                case 'Title':
+                    $foo = '';
+                    break;    
+                
+                }
+                
+                
+                echo sprintf( '<th %s><a href="?sort=%s&dir=%s&%s"
                         class="%s">%s</a></th>',
-                        $column['width'],
+                        $foo,                        
                         $column['sort'] ?: $k,
                         $column['sort_dir'] ? 0 : 1,
                         $qstr,
@@ -466,20 +479,45 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
             } ?>
         </td>
      </tr>
-    </tfoot>
+    </tfoot></form>
     </table>
-    <?php
-    if ($total>0) { //if we actually had any tasks returned.
-        echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;';
-        echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
-                Http::build_query(array(
+    
+    <div class="row">
+    <div class="col">
+        <div class="float-left">
+        <nav>
+        <ul class="pagination">   
+            <?php
+                echo $pageNav->getPageLinks();
+            ?>
+        </ul>
+        </nav>
+        </div>
+        <div class="float-left">
+        
+        <div class="btn btn-icon waves-effect btn-default m-b-5"> 
+               <?php
+                echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
+                       Http::build_query(array(
                         'a' => 'export', 'h' => $hash,
                         'status' => $_REQUEST['status'])),
-                __('Export'));
-        echo '&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
-    } ?>
-    </form>
+                        ('<i class="ti-cloud-down faded"></i>'));
+                ?>
+        </div>
+                <i class=" hidden help-tip icon-question-sign" href="#export"></i>
+        </div>
+            
+           
+            <div class="float-right">
+                  <span class="faded"><?php echo $pageNav->showing(); ?></span>
+            </div>  
+    </div>
 </div>
+
+   
+</div>
+</div>
+
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm');?></h3>
@@ -501,6 +539,10 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
     <div class="clear"></div>
 </div>
 <script type="text/javascript">
+jQuery(function($){
+    $('#tasks').footable();	
+});
+
 $(function() {
 
     $(document).off('.new-task');

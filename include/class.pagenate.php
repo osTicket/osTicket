@@ -108,7 +108,7 @@ class PageNate {
     function getPageLinks($hash=false, $pjax=false) {
         $html                 = '';
         $file                =$this->url;
-        $displayed_span     = 5;
+        $displayed_span     = 2;
         $total_pages         = ceil( ($this->total - $this->slack) / $this->limit );
         $this_page             = ceil( ($this->start+1) / $this->limit );
 
@@ -128,7 +128,7 @@ class PageNate {
 
         if($start_loop>1){
             $lastspan=($start_loop-$displayed_span>0)?$start_loop-$displayed_span:1;
-            $html .= "\n<a href=\"$file&p=$lastspan\" ><strong>&laquo;</strong></a>";
+            $html .= "\n<li class=\"page-item\"><a class=\"page-link\" href=\"$file&p=$lastspan\" >&laquo;</a></li>";
         }
 
         for ($i=$start_loop; $i <= $stop_loop; $i++) {
@@ -137,12 +137,12 @@ class PageNate {
             if ($hash)
                 $href .= '#'.$hash;
             if ($i == $this_page) {
-                $html .= "\n<b>[$i]</b>";
+                $html .= "\n<li class=\"page-item active\"><a class=\"page-link\" href=\"#\">$i</a></li>";
             }
             elseif ($pjax) {
-                $html .= " <a href=\"{$href}\" data-pjax-container=\"{$pjax}\"><b>$i</b></a>";
+                $html .= "\n<li class=\"page-item\"><a class=\"page-link\" href=\"{$href}\" data-pjax-container=\"{$pjax}\">$i</a></li>";
             } else {
-                $html .= "\n<a href=\"{$href}\" ><b>$i</b></a>";
+                $html .= "\n<li class=\"page-item\"><a class=\"page-link\" href=\"{$href}\" >$i</a></li>";
             }
         }
         if($stop_loop<$total_pages){
@@ -150,7 +150,7 @@ class PageNate {
             $href = "{$file}&amp;p={$nextspan}";
             if ($hash)
                 $href .= '#'.$hash;
-            $html .= "\n<a href=\"{$href}\" ><strong>&raquo;</strong></a>";
+            $html .= "\n<li class=\"page-item\"><a class=\"page-link\" href=\"{$href}\" >&raquo;</a></li>";
         }
 
 

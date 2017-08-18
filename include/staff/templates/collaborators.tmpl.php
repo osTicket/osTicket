@@ -47,11 +47,11 @@ if(($users=$thread->getCollaborators())) {?>
     id="msg_warning"><?php echo __('You have made changes that you need to save.'); ?></p></div>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
-            <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
+            <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
+            <input type="button" value="<?php echo __('Cancel'); ?>" class="close btn-danger">
         </span>
         <span class="buttons pull-right">
-        <input type="submit" value="<?php echo __('Save Changes'); ?>">
+        <input type="submit" value="<?php echo __('Save Changes'); ?>" class="btn btn-sm btn-success">
         </span>
      </p>
 </form>

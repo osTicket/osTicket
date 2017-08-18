@@ -169,10 +169,10 @@ endif;
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
+            <input class="btn btn-danger" type="button" value="<?php echo __('No, Cancel');?>" class="close">
         </span>
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
+            <input class="btn btn-primary" type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
         </span>
      </p>
     <div class="clear"></div>

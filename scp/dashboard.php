@@ -43,6 +43,7 @@ if ($_POST['export']) {
 }
 
 $nav->setTabActive('dashboard');
+
 $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.dashboard" />',
     "$('#content').data('tipNamespace', 'dashboard.dashboard');");
 

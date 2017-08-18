@@ -333,7 +333,7 @@ class CustomForm extends SimpleForm {
 
         $options = $this->options;
         $user = $options['user'] ?: $thisstaff ?: $thisclient;
-        $isedit = ($options['mode'] == 'edit');
+        $isedit = ($options['mode'] == 'edit' || $options['mode'] == 'ticketedit');
         $fields = array();
         foreach (parent::getFields() as $field) {
             if ($isedit && !$field->isEditable($user))
@@ -2314,8 +2314,9 @@ class PriorityField extends ChoiceField {
             return parent::display($prio);
         if (is_array($styles))
             $styles += array(
-                'background-color' => $prio->getColor()
+                'badge' => $prio->getColor()
             );
+       
         return Format::htmlchars($prio->getDesc());
     }
 
@@ -3314,8 +3315,8 @@ class TextboxWidget extends Widget {
             $size = "size=\"{$config['size']}\"";
         if (isset($config['length']) && $config['length'])
             $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['classes']))
-            $classes = 'class="'.$config['classes'].'"';
+       // if (isset($config['classes']))
+            $classes = 'class="form-control form-control-sm '.$config['classes'].'"';
         if (isset($config['autocomplete']))
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
         if (isset($config['autofocus']))
@@ -3400,7 +3401,7 @@ class TextareaWidget extends Widget {
         if (isset($config['html']) && $config['html']) {
             $class = array('richtext', 'no-bar');
             $class[] = @$config['size'] ?: 'small';
-            $class = sprintf('class="%s"', implode(' ', $class));
+            $class = sprintf('class="input-group %s"', implode(' ', $class));
             $this->value = Format::viewableImages($this->value);
         }
         if (isset($config['context']))
@@ -3514,8 +3515,8 @@ class ChoicesWidget extends Widget {
         if (!is_array($values))
             $values = $have_def ? array($def_key => $choices[$def_key]) : array();
 
-        if (isset($config['classes']))
-            $classes = 'class="'.$config['classes'].'"';
+        //if (isset($config['classes']))
+            $classes = 'class="form-control form-control-sm '.$config['classes'].'"';
         ?>
         <select name="<?php echo $this->name; ?>[]"
             <?php echo implode(' ', array_filter(array($classes))); ?>
@@ -3948,16 +3949,21 @@ class CheckboxWidget extends Widget {
         if (isset($config['classes']))
             $classes = array_merge($classes, (array) $config['classes']);
         ?>
-        <label class="<?php echo implode(' ', $classes); ?>">
-        <input id="<?php echo $this->id; ?>"
+        
+        <label for="<?php echo $this->id; ?>" class="custom-control custom-checkbox">
+        <input  class="custom-control-input" id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
             echo $this->field->get('id'); ?>"/>
-        <?php
+        
+        <span class="custom-control-indicator"></span>
+<span class="custom-control-description"><?php
         if ($config['desc']) {
             echo Format::viewableImages($config['desc']);
-        } ?>
+        } ?></span>
+        
         </label>
+        
 <?php
     }
 
@@ -4078,13 +4084,15 @@ class ThreadEntryWidget extends Widget {
 
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
+        
+        <?php if ($options['modal'] !== 'ticketedit'){ ?>
         <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('placeholder')); ?>"
             class="<?php if ($config['html']) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
             cols="21" rows="8" style="width:80%;"><?php echo
             Format::htmlchars($this->value) ?: $draft; ?></textarea>
-    <?php
+    <?php }
         if (!$config['attachments'])
             return;
 
@@ -4165,7 +4173,7 @@ class FileUploadWidget extends Widget {
                 'download_url' => $file->getDownloadUrl(),
             );
         }
-        ?><div id="<?php echo $id;
+        ?><?php if ($options['mode'] !== 'ticketedit'){ ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
             <div class="dropzone"><i class="icon-upload"></i>
             <?php echo sprintf(
@@ -4191,7 +4199,7 @@ class FileUploadWidget extends Widget {
           files: <?php echo JsonDataEncoder::encode($files); ?>
         });});
         </script>
-<?php
+        <?php }
     }
 
     function getValue() {
