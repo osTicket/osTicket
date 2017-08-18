@@ -34,8 +34,6 @@ if ($lang) {
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/bootstrap.css" media="all">
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
     <script src="<?php echo ROOT_PATH; ?>scp/js/tether.min.js"></script>
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/rwd-table.min.css" media="all">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/tablesaw.css" media="all">
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/modernizr.min.js"></script>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/morris.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/footable.bootstrap.css" media="all">
@@ -353,7 +351,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                         }       
                                 } 
                                 ?>                                                               <!-- All-->
-                                <a href="tickets.php?queue=37&p=1" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=3&p=1&l=0&s=1" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
 
