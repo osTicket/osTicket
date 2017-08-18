@@ -168,16 +168,15 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                          foreach ($MyTheirReplyTicket as $cMyTheirReplyTicket) { 
                                             $entryTypes = ThreadEntry::getTypes();
                                             $entries = $cMyTheirReplyTicket->getThread()->getEntries();
-                                            $entries
-                                            ->filter(array('type__in' => array_keys($entryTypes)))
-                                            ->order_by('-created')
-                                            ->limit(1);
+                                       
                                             $i = 0;
                                             foreach ($entries as $entry) {
+                                                if ($i < 1){
+                                               
                                                 $ruser = $entry->getUser() ?: $entry->getStaff();
                                                 $name = $ruser ? $ruser->getName() : $entry->poster;
                                                 $i++;
-                                            ?>
+                                                ?>
 
                                                 <a href="tickets.php?id=<?php echo $cMyTheirReplyTicket->ticket_id;?>#reply" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-pink"><i class="mdi mdi-comment-account"></i></div>
@@ -185,7 +184,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 
                                     <small class="text-muted"><?php echo Format::datetime($entry->created);?></small></p>
                                 </a>
-                                    <?php
+                                    <?php }
                                         }       
                                 } 
                                 ?>                               
@@ -329,12 +328,10 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                  foreach ($MyTheirReplyTicket as $cMyTheirReplyTicket) { 
                                     $entryTypes = ThreadEntry::getTypes();
                                     $entries = $cMyTheirReplyTicket->getThread()->getEntries();
-                                    $entries
-                                    ->filter(array('type__in' => array_keys($entryTypes)))
-                                    ->order_by('-created')
-                                    ->limit(1);
+                                    
                                     $i = 0;
                                     foreach ($entries as $entry) {
+                                        if ($i < 1){
                                         $ruser = $entry->getUser() ?: $entry->getStaff();
                                         $name = $ruser ? $ruser->getName() : $entry->poster;
                                         $i++;
@@ -347,7 +344,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                             <small class="text-muted truncate"><?php //echo $entry->getBody()->toHtml(); ?>  </small>                                  
                                             <small class="text-muted"><?php echo Format::datetime($entry->created);?></small></p>
                                         </a>
-                                    <?php
+                                        <?php }
                                         }       
                                 } 
                                 ?>                                                               <!-- All-->
