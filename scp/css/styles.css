@@ -7,18 +7,25 @@
   right: 0;
   top: 0;
   z-index: 999; }
-  .topbar .topbar-left {
+    .topbar .topbar-left {
     float: left;
     position: relative;
-    /*padding-bottom: 1px;*/
+    padding-bottom: 1px;
     width: 240px;
     z-index: 1;
     background-color: #24292e; }
-  .topbar .topbar-left-sm {
+    .topbar .topbar-left-sm {
     width: 180px; }
   .topbar .topbar-left-sm + .navbar-custom {
     margin-left: 180px; }
 
+    
+    
+@media screen and (max-width: 490px) {  
+    .topbar .topbar-left {
+        padding-bottom: 0px !important;
+    }
+}
 .logo {
   color: #ffffff !important;
   font-size: 20px;
