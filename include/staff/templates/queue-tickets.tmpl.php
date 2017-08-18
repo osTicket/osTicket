@@ -503,7 +503,10 @@ if (!$sselected) {$sselected = 'Status';}
                 case 'CAN':
                     $badgecolor = 'bg-warning';
                     break;
-                case 'IND':
+                    case 'EXT':
+                    $badgecolor = 'bg-flatbrown';
+                    break;
+                    case 'IND':
                     $badgecolor = 'bg-primary';
                     break;
 
