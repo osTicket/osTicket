@@ -1541,6 +1541,9 @@ class QueueColumnCondition {
 class QueueColumnConditionProperty
 extends ChoiceField {
     static $properties = array(
+        'badge' => array(
+            'Default', 'Primary', 'Success', 'Info', 'Warning', 'Danger',
+            ),
         'background-color' => 'ColorChoiceField',
         'color' => 'ColorChoiceField',
         'font-family' => array(

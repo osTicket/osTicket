@@ -495,7 +495,8 @@ if (!$sselected) {$sselected = 'Status';}
         foreach ($columns as $C) {
             
         list($contents, $styles) = $C->render($T);
-            
+        
+                 
         if ($C->heading == 'Location') {
            
            switch ($contents){
@@ -553,10 +554,16 @@ if (!$sselected) {$sselected = 'Status';}
                 case 'High':
                     $badgecolor = 'bg-danger';
                     break;
-               }
+                    
+                default:
                
+               $badgecolor =  strtolower('bg-'.strtok(substr($styles, strpos($styles, "badge:") + 6), ';'));
+               }
+                              
                $badge='badge label-table '.$badgecolor;
-           } 
+                    
+               $styles = str_replace('rem','',str_replace(strtok(substr($styles, strpos($styles, "rem:") + 3), ';'),'',str_replace('badge','rem',$styles)));
+         }
            
             if ($style = $styles ? 'style="'.$styles.'"' : '') {
                 echo "<td $style><div $style><span class =\"$badge\">$contents</span></div></td>";
