@@ -155,7 +155,8 @@ abstract class SessionBackend {
         // Last chance session update
         $i = new ArrayObject(array('touched' => false));
         Signal::send('session.close', null, $i);
-        return $this->update($id, $i['touched'] ? session_encode() : $data);
+        $this->update($id, $i['touched'] ? session_encode() : $data);
+        return TRUE;
     }
 
     abstract function read($id);
