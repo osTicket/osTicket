@@ -9,19 +9,19 @@
 $colid = $column->getId();
 $data_form = $data_form ?: $column->getDataConfigForm($_POST);
 ?>
-<ul class="tabs">
-  <li class="active"><a href="#data"><?php echo __('Data'); ?></a></li>
-  <li><a href="#annotations"><?php echo __('Annotations'); ?></a></li>
-  <li><a href="#conditions"><?php echo __('Conditions'); ?></a></li>
+<ul class="nav nav-tabs">
+  <li class="nav-item"><a href="#data" class="nav-link active" data-toggle="tab"><?php echo __('Data'); ?></a></li>
+  <li class="nav-item"><a href="#annotations" class="nav-link" data-toggle="tab"><?php echo __('Annotations'); ?></a></li>
+  <li class="nav-item"><a href="#conditions" class="nav-link" data-toggle="tab"><?php echo __('Conditions'); ?></a></li>
 </ul>
-
-<div class="tab_content" id="data">
+<div class="tab-content">
+<div class="tab-pane fade show active" id="data">
 <?php
   print $data_form->asTable();
 ?>
 </div>
 
-<div class="hidden tab_content" style="margin: 0 20px"
+<div class="tab-pane fade" style="margin: 0 20px"
   data-col-id="<?php echo $colid; ?>"
   id="annotations" style="max-width: 400px">
   <div class="empty placeholder" style="margin-left: 20px">
@@ -112,7 +112,7 @@ foreach (Internationalization::sortKeyedList($annotations) as $class=>$desc) {
   </div>
 </div>
 
-<div class="hidden tab_content" id="conditions" style="margin: 0 20px">
+<div class="tab-pane fade" id="conditions" style="margin: 0 20px">
   <div style="margin-bottom: 15px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
   ?></div>
   <div class="conditions">
@@ -162,4 +162,5 @@ if ($column->getConditions(false)) {
       </script>
     </div>
   </div>
+</div>
 </div>

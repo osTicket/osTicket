@@ -21,11 +21,11 @@ include 'queue-column.tmpl.php';
 <hr>
 <p class="full-width">
     <span class="buttons pull-left">
-        <input type="reset" value="<?php echo __('Reset'); ?>">
-        <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
+        <input type="reset" value="<?php echo __('Reset'); ?>" class="btn btn-sm btn-warning">
+        <input type="button" value="<?php echo __('Cancel'); ?>" class="close btn-danger">
     </span>
     <span class="buttons pull-right">
-        <input type="submit" value="<?php echo __('Save'); ?>">
+        <input type="submit" value="<?php echo __('Save'); ?>" class="btn btn-sm btn-primary">
     </span>
  </p>
 

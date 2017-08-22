@@ -24,6 +24,24 @@ else {
 }
 ?>
 
+<div class="subnav">
+
+    <div class="float-left subnavtitle" id="ticketviewtitle">
+       <a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
+      <i class="icon-caret-right" style="color:rgba(0,0,0,.3);"></i> <?php echo $title; ?>
+      <?php if (isset($queue->id)) { ?><small>
+      — <?php echo $queue->getFullName(); ?></small>
+      <?php } ?>
+
+    </div>
+
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+     &nbsp;
+    </div> 
+    <div class="clearfix"></div>
+</div>
+    
+<div class="card-box">
 <form action="queues.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
   <?php csrf_token(); ?>
   <input type="hidden" name="do" value="<?php echo $action; ?>">
@@ -31,27 +49,21 @@ else {
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
   <input type="hidden" name="root" value="<?php echo Format::htmlchars($_REQUEST['t']); ?>">
 
-  <h2><a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
-      <i class="icon-caret-right" style="color:rgba(0,0,0,.3);"></i> <?php echo $title; ?>
-      <?php if (isset($queue->id)) { ?><small>
-      — <?php echo $queue->getFullName(); ?></small>
-      <?php } ?>
-  </h2>
 
-  <ul class="clean tabs">
-    <li class="active"><a href="#criteria"><i class="icon-filter"></i>
+  <ul class="nav nav-tabs">
+    <li class="nav-item"><a href="#criteria" class="nav-link active" data-toggle="tab"><i class="icon-filter"></i>
       <?php echo __('Criteria'); ?></a></li>
-    <li><a href="#columns"><i class="icon-columns"></i>
+    <li class="nav-item"><a href="#columns" class="nav-link" data-toggle="tab"><i class="icon-columns"></i>
       <?php echo __('Columns'); ?></a></li>
-    <li><a href="#sorting-tab"><i class="icon-sort-by-attributes"></i>
+    <li class="nav-item"><a href="#sorting-tab" class="nav-link" data-toggle="tab"><i class="icon-sort-by-attributes"></i>
       <?php echo __('Sort'); ?></a></li>
-    <li><a href="#conditions-tab"><i class="icon-exclamation-sign"></i>
+    <li class="nav-item"><a href="#conditions-tab" class="nav-link" data-toggle="tab"><i class="icon-exclamation-sign"></i>
       <?php echo __('Conditions'); ?></a></li>
-    <li><a href="#preview-tab"><i class="icon-eye-open"></i>
+    <li class="nav-item"><a href="#preview-tab" class="nav-link" data-toggle="tab"><i class="icon-eye-open"></i>
       <?php echo __('Preview'); ?></a></li>
   </ul>
-
-  <div class="tab_content" id="criteria">
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="criteria">
     <table class="table">
       <td style="width:60%; vertical-align:top">
         <div><strong><?php echo __('Queue Name'); ?>:</strong></div>
@@ -154,7 +166,7 @@ else {
     </table>
   </div>
 
-  <div class="hidden tab_content" id="columns">
+  <div class="hidden tab-pane fade" id="columns">
 
     <div>
       <h3 class="title"><?php echo __("Manage columns in this queue"); ?>
@@ -166,7 +178,7 @@ else {
     <?php include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
   </div>
 
-  <div class="hidden tab_content" id="sorting-tab">
+  <div class="hidden tab-pane fade" id="sorting-tab">
     <h3 class="title"><?php echo __("Manage Queue Sorting"); ?>
       <div class="sub-title"><?php echo __(
         "Select the sorting options available in the sorting drop-down when viewing the queue. New items can be added via the drop-down below.");
@@ -304,7 +316,7 @@ var Q = setInterval(function() {
         </table>
     </div>    
     
-    <div class="hidden tab_content" id="preview-tab">
+    <div class="hidden tab-pane fade" id="preview-tab">
     <div id="preview">
     </div>
 
@@ -325,7 +337,7 @@ var Q = setInterval(function() {
     </script>
   </div>
 
-  <div class="hidden tab_content" id="conditions-tab">
+  <div class="hidden tab-pane fade" id="conditions-tab">
     <div style="margin-bottom: 15px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
       ?> <?php echo __("These conditions apply to an entire row in the queue."); 
     ?></div>
@@ -382,11 +394,12 @@ if ($queue->getConditions()) {
   </div>
 
   </div>
-
-  <p style="text-align:center;">
-    <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="window.history.go(-1);">
-  </p>
+</div>
+ <div>
+    <input type="submit" name="submit" value="<?php echo $submit_text; ?>" class="btn btn-sm btn-primary">
+    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>" class="btn btn-sm btn-warning">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="window.history.go(-1);" class="btn btn-sm btn-danger">
+  </div>
 
 </form>
+</div>

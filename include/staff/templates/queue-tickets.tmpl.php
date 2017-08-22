@@ -496,51 +496,6 @@ if (!$sselected) {$sselected = 'Status';}
             
         list($contents, $styles) = $C->render($T);
         
-                 
-        if ($C->heading == 'Location') {
-           
-           switch ($contents){
-               
-                case 'CAN':
-                    $badgecolor = 'bg-warning';
-                    break;
-                    case 'EXT':
-                    $badgecolor = 'bg-flatbrown';
-                    break;
-                    case 'IND':
-                    $badgecolor = 'bg-primary';
-                    break;
-
-                case 'MEX':
-                    $badgecolor = 'bg-purple';
-                    break;
-
-                case 'NTC':
-                    $badgecolor = 'bg-flatorange';
-                    break;
-
-                case 'OH':
-                    $badgecolor = 'bg-flatpurple';
-                    break;              
-
-                case 'SS':
-                    $badgecolor = 'bg-flatgrey';
-                    break;
-
-                case 'TNN1':
-                    $badgecolor = 'bg-flatbluegreen';
-                    break;
-
-                case 'TNN2':
-                    $badgecolor = 'bg-flatred';
-                    break;
-
-                case 'TNS':
-                    $badgecolor = 'bg-flatgreen';
-                    break;
-               }
-            $badge='badge label-table '.$badgecolor;
-        }
          if (strchr($styles, 'badge')!= false){
                
                 switch ($contents){
@@ -558,11 +513,13 @@ if (!$sselected) {$sselected = 'Status';}
                 default:
                
                $badgecolor =  strtolower('bg-'.strtok(substr($styles, strpos($styles, "badge:") + 6), ';'));
+               $badgecolor = preg_replace('/\s+/', '', $badgecolor);
                }
                               
                $badge='badge label-table '.$badgecolor;
                     
                $styles = str_replace('rem','',str_replace(strtok(substr($styles, strpos($styles, "rem:") + 3), ';'),'',str_replace('badge','rem',$styles)));
+              
          }
            
             if ($style = $styles ? 'style="'.$styles.'"' : '') {

@@ -1542,7 +1542,11 @@ class QueueColumnConditionProperty
 extends ChoiceField {
     static $properties = array(
         'badge' => array(
-            'Default', 'Primary', 'Success', 'Info', 'Warning', 'Danger',
+            'Default', 'Primary', 'Success', 'Info', 'Warning', 'Danger', 'Purple', 
+            'pink', 'White', 'Flat Red', 'Flat Red Alt', 'Flat Purple', 'Flat Purple Alt', 
+            'Flat Blue', 'Flat Blue Alt', 'Flat bluegreen', 'Flat Bluegreen Alt', ' Flat Green', 
+            'Flat Green Alt', 'Flat Green Alt2', 'Flat yellow', 'Flat Yellow Alt', 'Flat Orange', 
+            'Flat Orange Alt', 'Flat Grey', 'Flat Brown',
             ),
         'background-color' => 'ColorChoiceField',
         'color' => 'ColorChoiceField',
