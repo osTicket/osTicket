@@ -169,7 +169,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                             $entryTypes = ThreadEntry::getTypes();
                                             $entries = $cMyTheirReplyTicket->getThread()->getEntries();
                                             $r++;
-                                            if ($r == 7){break;}
+                                            if ($r == 8){break;}
                                             $i = 0;
                                             foreach ($entries as $entry) {
                                                 if ($i == 1){break;}
@@ -189,7 +189,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                                
                                 } 
                                 
-                                if ($r > 6) {
+                                if ($r > 8) {
                                 ?>                               
                                 <!-- All-->
                                 <a href="tickets.php?queue=37&p=1" class="dropdown-item notify-item notify-all">
@@ -332,7 +332,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     $entryTypes = ThreadEntry::getTypes();
                                     $entries = $cUnassignedTicket->getThread()->getEntries();
                                     $r++;
-                                    if ($r == 7){break;}
+                                    if ($r == 8){break;}
                                     $i = 0;
                                     foreach ($entries as $entry) {
                                         if ($i == 1){break;}
@@ -350,7 +350,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                         </a>
                                         <?php }
                                 } 
-                                if ($r > 6) {
+                                if ($r > 8) {
                                 ?>                               
                                 <!-- All-->
                                 <a href="tickets.php?queue=3&p=1&l=0&s=1" class="dropdown-item notify-item notify-all">

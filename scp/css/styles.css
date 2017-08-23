@@ -99,6 +99,14 @@
     
   .notification-list .notify-item {
     padding: 10px 20px; }
+    
+  @media screen and (max-width: 400px) {  
+    .notification-list .notify-item {
+        padding-top: 0px !important;
+        padding-bottom: 10px !important;
+    }
+}  
+    
     .notification-list .notify-item .notify-icon {
       float: left;
       height: 36px;
