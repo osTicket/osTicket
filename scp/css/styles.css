@@ -98,7 +98,10 @@
     }
     
   .notification-list .notify-item {
-    padding: 10px 20px; }
+    padding-top: 10px;
+    padding-right: 20px;
+    padding-bottom: 5px;
+    padding-left: 20px; }
     
   @media screen and (max-width: 400px) {  
     .notification-list .notify-item {
