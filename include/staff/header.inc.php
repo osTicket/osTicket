@@ -168,11 +168,12 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                          foreach ($MyTheirReplyTicket as $cMyTheirReplyTicket) { 
                                             $entryTypes = ThreadEntry::getTypes();
                                             $entries = $cMyTheirReplyTicket->getThread()->getEntries();
-                                       
+                                            $r++;
+                                            if ($r == 7){break;}
                                             $i = 0;
                                             foreach ($entries as $entry) {
-                                                if ($i < 1){
-                                               
+                                                if ($i == 1){break;}
+                                                $i = 0;
                                                 $ruser = $entry->getUser() ?: $entry->getStaff();
                                                 $name = $ruser ? $ruser->getName() : $entry->poster;
                                                 $i++;
@@ -185,14 +186,16 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     <small class="text-muted"><?php echo Format::datetime($entry->created);?></small></p>
                                 </a>
                                     <?php }
-                                        }       
+                                               
                                 } 
+                                
+                                if ($r > 6) {
                                 ?>                               
                                 <!-- All-->
                                 <a href="tickets.php?queue=37&p=1" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
-
+                                 <?php } ?>
                             </div>
                         </li>
                         <li class="list-inline-item dropdown notification-list mr-0">
@@ -319,39 +322,41 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 </div>
 
                             <?php
-                            $MyTheirReplyTicket = Ticket::objects()
+                            $UnassignedTicket = Ticket::objects()
                                 ->filter(array('status_id' => '1')) //Awaiting Submitter Reply
                                 ->filter(array('topic_id__ne' => '12')) //open issue
                                 ->filter(array('topic_id__ne' => '14')); //suggestion
-                               
                                 
-                                 foreach ($MyTheirReplyTicket as $cMyTheirReplyTicket) { 
+                                $r = 0;
+                                foreach ($UnassignedTicket as $cUnassignedTicket) { 
                                     $entryTypes = ThreadEntry::getTypes();
-                                    $entries = $cMyTheirReplyTicket->getThread()->getEntries();
-                                    
+                                    $entries = $cUnassignedTicket->getThread()->getEntries();
+                                    $r++;
+                                    if ($r == 7){break;}
                                     $i = 0;
                                     foreach ($entries as $entry) {
-                                        if ($i < 1){
+                                        if ($i == 1){break;}
                                         $ruser = $entry->getUser() ?: $entry->getStaff();
                                         $name = $ruser ? $ruser->getName() : $entry->poster;
                                         $i++;
                                     ?>
 
-                                        <a href="tickets.php?id=<?php echo $cMyTheirReplyTicket->ticket_id;?>" class="dropdown-item notify-item">
+                                        <a href="tickets.php?id=<?php echo $cUnassignedTicket->ticket_id;?>" class="dropdown-item notify-item">
                                             <div class="notify-icon bg-primary"><i class="mdi mdi-comment-account"></i></div>
-                                            <p class="notify-details"><?php echo $cMyTheirReplyTicket->{user}->name;?></p> 
-                                            <p class="notify-details"><?php echo Format::htmlchars($cMyTheirReplyTicket->getSubject());?> 
+                                            <p class="notify-details"><?php echo $cUnassignedTicket->{user}->name;?></p> 
+                                            <p class="notify-details"><?php echo Format::htmlchars($cUnassignedTicket->getSubject());?> 
                                             <small class="text-muted truncate"><?php //echo $entry->getBody()->toHtml(); ?>  </small>                                  
                                             <small class="text-muted"><?php echo Format::datetime($entry->created);?></small></p>
                                         </a>
                                         <?php }
-                                        }       
                                 } 
-                                ?>                                                               <!-- All-->
+                                if ($r > 6) {
+                                ?>                               
+                                <!-- All-->
                                 <a href="tickets.php?queue=3&p=1&l=0&s=1" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
-
+                                 <?php } ?> 
                             </div>
                         </li>
                         
