@@ -169,7 +169,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                             $entryTypes = ThreadEntry::getTypes();
                                             $entries = $cMyTheirReplyTicket->getThread()->getEntries();
                                             $r++;
-                                            if ($r == 8){break;}
+                                            if ($r == 9){break;}
                                             $i = 0;
                                             foreach ($entries as $entry) {
                                                 if ($i == 1){break;}
@@ -332,7 +332,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     $entryTypes = ThreadEntry::getTypes();
                                     $entries = $cUnassignedTicket->getThread()->getEntries();
                                     $r++;
-                                    if ($r == 8){break;}
+                                    if ($r == 9){break;}
                                     $i = 0;
                                     foreach ($entries as $entry) {
                                         if ($i == 1){break;}
