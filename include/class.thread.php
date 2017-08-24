@@ -2209,7 +2209,7 @@ class TextThreadEntryBody extends ThreadEntryBody {
                 .Format::clickableurls($escaped).'</div>';
         case 'email':
             return '<div style="white-space:pre-wrap">'
-                .$escaped.'</div>';
+                .nl2br($escaped).'</div>';
         case 'pdf':
             return nl2br($escaped);
         default:
