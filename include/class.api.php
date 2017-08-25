@@ -103,19 +103,14 @@ class API {
         $sql='SELECT ipaddr FROM '.API_KEY_TABLE.' WHERE id='.db_input($id);
 
         if(($res=db_query($sql)) && db_num_rows($res))
-                list($addr) = db_fetch_row($res);
+            list($addr) = db_fetch_row($res);
 
         return $addr;
-
     }
 
     function getIdByKey($key, $ip='') {
 
         $sql='SELECT id FROM '.API_KEY_TABLE.' WHERE apikey='.db_input($key);
-
-		#presumably api keys are unique anyway.  ip can be checked in php rather than mysql
-        #if($ip)
-        #    $sql.=' AND ipaddr='.db_input($ip);
 
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id) = db_fetch_row($res);
@@ -133,13 +128,12 @@ class API {
 
     function save($id, $vars, &$errors) {
 
-
         if(!preg_match('/^hostname:(?:[\w\-\*]+\.?)+$/i', $vars['ipaddr']) &&
-	     	 !preg_match('/^(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/i',$vars['ipaddr']) &&
+            !preg_match('/^(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/i',$vars['ipaddr']) &&
              !preg_match('/^(?:hostname:)?regex:.+$',$vars['ipaddr']))&&
-	   	   (!$id && !$vars['ipaddr'])){
-            $errors['ipaddr'] = __('Valid IP/Hostname is required');
-	       }
+            (!$id && !$vars['ipaddr'])){
+                $errors['ipaddr'] = __('Valid IP/Hostname is required');
+            }
 
         if($errors) return false;
 
@@ -194,34 +188,29 @@ class ApiController {
             return $this->exerr(401, __('Valid API key required'));
         elseif (!$key->isActive()) {
             return $this->exerr(401, __('API key not found/active or source IP not authorized'));
-		} else {
+        } else {
 
-	       $iporhname = API::getAddrById($key->id);
+            $iporhname = API::getAddrById($key->id);
 
-			if(!preg_match('/^(hostname:)?(regex:)?(.+)$/i',$iporhname,$matches))
-				return $this->exerr(401, __('source not authorized. bad match pattern'));
-	
-			list($_,$is_hname_match,$is_regex_match,$match_addr) = $matches;
-			$is_wc_match = $is_regex_match ? false : (strpos($matches[3],"*") !== false);
-	
-			if ($is_hname_match && !$is_regex_match && !$is_wc_match)
-			{
-				$match_addr = gethostbyname($match_addr);
-				$is_hname_match = false;
-				$is_wc_match = true;
-			}
+            if(!preg_match('/^(hostname:)?(regex:)?(.+)$/i',$iporhname,$matches))
+                return $this->exerr(401, __('source not authorized. bad match pattern'));
 
-			$remote_iporhost = $is_hname_match ? gethostbyaddr($_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
-	
-			#wildcard/normal match
-			if ($is_wc_match  &&
-			    !preg_match("/^".str_replace(".","\.",str_replace("*",".+?",$match_addr))."$/i",$remote_iporhost)) {
-				return $this->exerr(401, __('source hostname not authorized (wc/nml)'));
-			#regex match
-			} elseif ( $is_regex_match && !preg_match($match_addr,$remote_iporhost)) {
-				return $this->exerr(401, __('source hostname not authorized (re)'));
-			}
-		}
+            list($_,$is_hname_match,$is_regex_match,$match_addr) = $matches;
+            $is_wc_match = $is_regex_match ? false : (strpos($matches[3],"*") !== false);
+
+            if ($is_hname_match && !$is_regex_match && !$is_wc_match) {
+                $match_addr = gethostbyname($match_addr);
+                $is_hname_match = false;
+            }
+            
+            if( $is_wc_match )
+                $match_addr = "/^".str_replace(".","\.",str_replace("*",".+?",$match_addr))."$/i";
+
+            $remote_iporhost = $is_hname_match ? gethostbyaddr($_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+        
+            if (!preg_match($match_addr,$remote_iporhost))
+                return $this->exerr(401, __('source hostname not authorized'));
+        }
         return $key;
     }
 
