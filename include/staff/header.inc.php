@@ -258,43 +258,43 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     <h5 class="font-16"><span class="badge badge-danger float-right"><?php echo $BacklogTotal; ?></span>Backlog</h5>
                                 </div>
 
-                                <a href="/scp/tickets.php?queue=3&p=1&l=2&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=2&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-warning"><?php echo $BacklogTickets["CAN"]; ?></div>
                                     <p class="notify-details">CAN<small class="text-muted">Canada's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=10&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=10&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatbrown"><?php echo $BacklogTickets["EXT"]; ?></div>
                                     <p class="notify-details">EXT<small class="text-muted">External's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=8&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=8&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-primary"><?php echo $BacklogTickets["IND"]; ?></div>
                                     <p class="notify-details">IND<small class="text-muted">Indiana's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=6&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=6&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-purple"><?php echo $BacklogTickets["MEX"]; ?></div>
                                     <p class="notify-details">MEX<small class="text-muted">Mexico's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=5&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=5&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatorange"><?php echo $BacklogTickets["NTC"]; ?></div>
                                     <p class="notify-details">NTC<small class="text-muted">Tech Center's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=9&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=9&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatpurple"><?php echo $BacklogTickets["OH"]; ?></div>
                                     <p class="notify-details">OH<small class="text-muted">Ohio's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=11&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=11&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatgrey"><?php echo $BacklogTickets["SS"]; ?></div>
                                     <p class="notify-details">SS<small class="text-muted">Shared Services's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=4&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=4&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatbluegreen"><?php echo $BacklogTickets["TNN1"]; ?></div>
                                     <p class="notify-details">TNN1<small class="text-muted">Tennessee North's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=3&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=3&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatred"><?php echo $BacklogTickets["TNN2"]; ?></div>
                                     <p class="notify-details">TNN2<small class="text-muted">Tennessee North 2's Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=7&s=" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatgreen"><?php echo $BacklogTickets["TNS"]; ?></div>
                                     <p class="notify-details">TNS<small class="text-muted">Tennesee South's Backlog</small></p>
                                 </a>
