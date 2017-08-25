@@ -43,7 +43,7 @@ $_SESSION['sta'] = $sta;
 $qfl = array();
 $qfs = array();
 
-if ($loc & $loc !==0)
+//if ($loc & $loc !==0)
   $qfl =  array('user__org_id' => $loc );
 
 
