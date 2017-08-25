@@ -108,14 +108,14 @@ class Misc {
         } else {
             // User time to UTC
             $time = self::user2gmtime($var);
+            // UTC to db time
+            $time = DateTime::createFromFormat('U', $time);
         }
 
         if (!isset($dbtz)) {
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
         }
-        // UTC to db time
-        $D = DateTime::createFromFormat('U', $time);
-        return $time + $dbtz->getOffset($D);
+        return $time + $dbtz->getOffset($time);
     }
 
     /*Helper get GM time based on timezone offset*/
