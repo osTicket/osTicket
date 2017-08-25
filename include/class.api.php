@@ -204,7 +204,7 @@ class ApiController {
             }
             
             if( $is_wc_match )
-                $match_addr = "/^".str_replace(".","\.",str_replace("*",".+?",$match_addr))."$/i";
+                $match_addr = "/^".str_replace("*",".+?",str_replace(".","\.",$match_addr))."$/i";
 
             $remote_iporhost = $is_hname_match ? gethostbyaddr($_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
         
@@ -360,8 +360,8 @@ class ApiXmlDataParser extends XmlDataParser {
     function fixup($current) {
         global $cfg;
 
-		if($current['ticket'])
-			$current = $current['ticket'];
+        if($current['ticket'])
+            $current = $current['ticket'];
 
         if (!is_array($current))
             return $current;
