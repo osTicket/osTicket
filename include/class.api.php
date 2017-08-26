@@ -183,33 +183,30 @@ class ApiController {
     function requireApiKey() {
         # Validate the API key -- required to be sent via the X-API-Key
         # header
-
+        
         if(!($key=$this->getApiKey()))
             return $this->exerr(401, __('Valid API key required'));
         elseif (!$key->isActive()) {
-            return $this->exerr(401, __('API key not found/active or source IP not authorized'));
+            return $this->exerr(401, __('API key not found/active or source IP/hostname not authorized'));
         } else {
+            if(!preg_match('/^(hostname:)?(regex:)?(.+)$/i',API::getAddrById($key->id),$matches))
+                return $this->exerr(401, __('API key not found/active or source IP/hostname not authorized'));
+            
+            list($_,$is_hostname_match,$is_re_match,$match_addr) = $matches;
+            $is_wc_match = $is_re_match ? false : (strpos($matches[3],"*") !== false);
 
-            $iporhname = API::getAddrById($key->id);
-
-            if(!preg_match('/^(hostname:)?(regex:)?(.+)$/i',$iporhname,$matches))
-                return $this->exerr(401, __('source not authorized. bad match pattern'));
-
-            list($_,$is_hname_match,$is_regex_match,$match_addr) = $matches;
-            $is_wc_match = $is_regex_match ? false : (strpos($matches[3],"*") !== false);
-
-            if ($is_hname_match && !$is_regex_match && !$is_wc_match) {
+            if ($is_hostname_match && !$is_re_match && !$is_wc_match) {
                 $match_addr = gethostbyname($match_addr);
-                $is_hname_match = false;
+                $is_hostname_match = false;
             }
             
             if( $is_wc_match )
                 $match_addr = "/^".str_replace("*",".+?",str_replace(".","\.",$match_addr))."$/i";
 
-            $remote_iporhost = $is_hname_match ? gethostbyaddr($_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+            $remote_ip_or_hostname = $is_hostname_match ? gethostbyaddr($_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
         
-            if (!preg_match($match_addr,$remote_iporhost))
-                return $this->exerr(401, __('source hostname not authorized'));
+            if (!preg_match($match_addr,$remote_ip_or_hostname))
+                return $this->exerr(401, __('API key not found/active or source IP/hostname not authorized'));
         }
         return $key;
     }
