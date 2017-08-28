@@ -93,6 +93,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Private');?></strong> <?php echo mb_convert_case(__('(internal)'), MB_CASE_TITLE);?>
                 </label>
                 &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
+                &nbsp;<span class="error"><?php echo $errors['ispublic']; ?></span>
             </td>
         </tr>
         <tr>
