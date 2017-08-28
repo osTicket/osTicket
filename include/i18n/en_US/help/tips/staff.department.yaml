@@ -67,7 +67,7 @@ group_membership:
         class="doc-desc-title">Alerts &amp; Notices</span>.
     links:
       - title: Configure Alerts &amp; Notices
-        href: /scp/settings.php?t=alerts
+        href: "/scp/settings.php?t=tickets#alerts"
 
 sandboxing:
     title: Ticket Assignment Restrictions
