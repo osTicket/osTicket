@@ -151,7 +151,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 <i class="mdi mdi-email noti-icon"></i>
                                 <span class="badge badge-pink noti-icon-badge"><?php echo $MyReplyTickets; ?></span>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-replies dropdown-menu-right dropdown-arrow dropdown-menu-xlg" aria-labelledby="Preview">
+                            <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-xlg" aria-labelledby="Preview">
                                
                                <!-- item-->
                                 <div class="dropdown-item noti-title">

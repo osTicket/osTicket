@@ -10,7 +10,7 @@
     .topbar .topbar-left {
     float: left;
     position: relative;
-    padding-bottom: 1px;
+    padding-bottom: 0px;
     width: 240px;
     z-index: 1;
     background-color: #24292e; }
@@ -21,7 +21,7 @@
 
     
     
-@media screen and (max-width: 490px) {  
+@media screen and (max-width: 900px) {  
     .topbar .topbar-left {
         padding-bottom: 0px !important;
     }
@@ -365,7 +365,7 @@ body.fixed-left .side-menu.left {
   padding: 10px 20px 0 20px; }
 
 #wrapper.enlarged .navbar-custom {
-  margin-left: 70px; }
+  margin-left: 69px; }
 #wrapper.enlarged .menu-title, #wrapper.enlarged .menu-arrow {
   display: none !important; }
 #wrapper.enlarged #sidebar-menu ul ul {
@@ -833,12 +833,7 @@ a:focus {
 
 .dropdown-menu-lg {
   max-width: 280px; }
-@media screen and (max-width: 490px) {  
-    .dropdown-menu-replies {
-    left:-150px !important;
-   
-    }
-}
+
 code {
   color: #5d9cec;
   border-radius: 4px; }
@@ -4413,7 +4408,7 @@ File: Responsive
     z-index: 1000;}
 
   .navbar-custom {
-    margin-left: 70px !important; }
+    margin-left: 69px !important; }
 
   .page-title-box .page-title {
     float: none;
