@@ -212,35 +212,35 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 
                                 
                                 <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=&s=11" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=11" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-primary"><?php echo $MyAssignedTickets; ?></div>
                                     <p class="notify-details">Assigned<small class="text-muted">Assigned to Me</small></p>
                                 </a>
                                 <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=&s=7" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=7" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-danger"><?php echo $MyReplyTickets; ?></div>
                                     <p class="notify-details">My Reply<small class="text-muted">Waiting on my reply</small></p>
                                 </a>                                <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=&s=6" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=6" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-success"><?php echo $MyTheirReplyTickets; ?></div>
                                     <p class="notify-details">Their Reply<small class="text-muted">Waiting on their reply</small></p>
                                 </a>
                                                                <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=&s=9" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=9" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-purple"><?php echo $MyImplementationTickets; ?></div>
                                     <p class="notify-details">Implmentation<small class="text-muted">Awaiting Implmentation</small></p>
                                 </a>
                                                                 <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=&s=10" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=10" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatpurple"><?php echo $MyAwaitingQuoteTickets; ?></div>
                                     <p class="notify-details">Quote<small class="text-muted">Awaiting Quote</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=31&p=1&l=&s=8" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=8" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-warning"><?php echo $MyHeldTickets; ?></div>
                                     <p class="notify-details">Held<small class="text-muted">Tickets on Hold</small></p>
                                 </a>
                                 <!-- All-->
-                                <a href="tickets.php?queue=31&p=1&l=&s=" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=31&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
 
@@ -302,7 +302,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 
 
                                 <!-- All-->
-                                <a href="tickets.php?queue=199&p=1" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=3&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
 
