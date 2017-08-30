@@ -77,7 +77,7 @@ $orgs->order_by($order . $order_column);
                        
                     
                      <?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
-                <a class="btn btn-secondary add-org"
+                <a class="btn btn-light add-org"
                    href="#" data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Add Organization'); ?>">
                     <i class="fa fa-plus-square"></i>
@@ -89,7 +89,7 @@ $orgs->order_by($order . $order_column);
                    
                     
                     <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('More'); ?>"><i class="fa fa-cog"></i>
             </button>

@@ -96,7 +96,7 @@ TicketForm::ensureDynamicDataView();
         if ($user) { ?>
     <div class="btn-group btn-group-sm pull-right navbuttonsnobg" style="margin-top:5px;margin-right:15px;">
         
-            <a class="btn btn-secondary btn-small btn-nbg" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>"  data-placement="bottom"
+            <a class="btn btn-light btn-small btn-nbg" href="tickets.php?a=open&uid=<?php echo $user->getId(); ?>"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('New Ticket'); ?>">
                 <i class="fa fa-plus-square"></i></a>
         

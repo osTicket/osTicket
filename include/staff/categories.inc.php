@@ -49,12 +49,12 @@ $pageNav->paginate($categories);
                    
                 </a>
 
-            <a class="btn btn-icon waves-effect waves-light btn-secondary category-action" data-form-id="mass-actions" data-name="make_public" href=""
+            <a class="btn btn-icon waves-effect waves-light btn-light category-action" data-form-id="mass-actions" data-name="make_public" href=""
             data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Mark as Public'); ?>">
                                     <i class="fa fa-users"></i> 
             </a>
                                 
-            <a class="btn btn-icon waves-effect waves-light btn-secondary category-action" data-form-id="mass-actions" data-name="make_private" href=""
+            <a class="btn btn-icon waves-effect waves-light btn-light category-action" data-form-id="mass-actions" data-name="make_private" href=""
             data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Mark as Internal'); ?>">
                                     <i class=" fa fa-user"></i>                                 
             </a>

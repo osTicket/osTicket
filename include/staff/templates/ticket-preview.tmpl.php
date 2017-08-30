@@ -55,15 +55,15 @@ if($ticket->isOpen()) {
    <div class="btn-group btn-group-sm  m-b-10" role="group" aria-label="Button group with nested dropdown">
 
          
-         <a class="btn btn-secondary waves-effect" href="tickets.php?id=<?php echo $tid;?>#reply" id="post-reply" data-placement="bottom" data-toggle="tooltip"data-original-title="Post Reply">
+         <a class="btn btn-light waves-effect" href="tickets.php?id=<?php echo $tid;?>#reply" id="post-reply" data-placement="bottom" data-toggle="tooltip"data-original-title="Post Reply">
                     <i class="fa fa-reply"></i></a>
                     
                     
-         <a class="btn btn-secondary waves-effect" href="tickets.php?id=<?php echo $tid;?>#note" id="post-note" data-placement="bottom" data-toggle="tooltip" data-original-title="Post Internal Note">
+         <a class="btn btn-light waves-effect" href="tickets.php?id=<?php echo $tid;?>#note" id="post-note" data-placement="bottom" data-toggle="tooltip" data-original-title="Post Internal Note">
                     <i class="fa fa-pencil-square-o"></i></a>
                   
         
-    <a class="btn btn-secondary waves-effect" href="tickets.php?id=10202#tickets/10202/assign/agents" id="post-note" data-placement="bottom" data-toggle="tooltip" title="" data-original-title="Assign">
+    <a class="btn btn-light waves-effect" href="tickets.php?id=10202#tickets/10202/assign/agents" id="post-note" data-placement="bottom" data-toggle="tooltip" title="" data-original-title="Assign">
                     <i class="fa fa-user"></i></a>                    
                     
          

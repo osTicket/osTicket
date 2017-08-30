@@ -114,10 +114,10 @@ $qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
                 
                 
             
-        </select><button type="submit" class="input-group-addon" ><i class="fa fa-search"></i>
+       <button type="submit" class="input-group-addon"  ><i class="fa fa-search"></i>
                 </button>
                 
-                    <select name="did" id="did" class="form-control form-control-sm">
+                    <select name="did" id="did" class="form-control form-control-sm" style="height: 34px;">
              <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
              <?php
                 foreach (Dept::getDepartments(array('nonempty'=>1)) as $id=>$name) {

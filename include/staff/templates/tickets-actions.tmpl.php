@@ -20,8 +20,8 @@ if ($agent->hasPerm(Ticket::PERM_EDIT, false)) { ?>
 
 
 <div class="btn-group btn-group-sm" role="group">
-        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
-        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
+        <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Change Priority'); ?>"><i class="icon-exclamation"></i>
         </button>
     <div class="dropdown-menu " aria-labelledby="btnGroupDrop1" id="action-dropdown-change-priority">
@@ -40,7 +40,7 @@ if ($agent->hasPerm(Ticket::PERM_EDIT, false)) { ?>
 // Mass Topic Change
 if ($agent->hasPerm(Ticket::PERM_EDIT, false)) {?>
 
-        <a class="btn btn-secondary tickets-action" id="tickets-helptopic" data-placement="bottom"
+        <a class="btn btn-light tickets-action" id="tickets-helptopic" data-placement="bottom"
     data-toggle="tooltip" title="<?php echo __('Change Help Topic'); ?>"
    href="#tickets/mass/topic"><i class="icon-bookmark"></i></a>
 
@@ -51,7 +51,7 @@ if ($agent->hasPerm(Ticket::PERM_EDIT, false)) {?>
 if ($agent->hasPerm(Ticket::PERM_ASSIGN, false)) {?>
 
 <div class="btn-group btn-group-sm" role="group">
-        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+        <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Assign'); ?>"><i class="icon-user"></i>
         </button>
@@ -76,7 +76,7 @@ if ($agent->hasPerm(Ticket::PERM_ASSIGN, false)) {?>
 // Mass Transfer
 if ($agent->hasPerm(Ticket::PERM_TRANSFER, false)) {?>
 
- <a class="btn btn-secondary tickets-action" id="tickets-transfer" data-placement="bottom"
+ <a class="btn btn-light tickets-action" id="tickets-transfer" data-placement="bottom"
     data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
     href="#tickets/mass/transfer"><i class="icon-share"></i></a>
 

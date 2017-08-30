@@ -31,8 +31,9 @@ if ($lang) {
     </style>
     <![endif]-->
     
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/bootstrap.css" media="all">
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/bootstrap.min.css" media="all">
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
+    
     <script src="<?php echo ROOT_PATH; ?>scp/js/tether.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/modernizr.min.js"></script>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/morris.css" media="all">

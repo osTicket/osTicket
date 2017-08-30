@@ -149,14 +149,14 @@ if ($task->isOverdue())
             <div class="btn-group btn-group-sm  float-right subnavbuttons" role="group" aria-label="Button group with nested dropdown">
             <a  id="task-view"
                 target="_blank"
-                class="btn btn-secondary btn-nbg"
+                class="btn btn-light btn-nbg"
                 href="tasks.php?id=<?php
                  echo $task->getId(); ?>"><i class="icon-share"  data-placement="bottom" data-toggle="tooltip" 
                  title="<?php echo __('View Task'); ?>"></i></a>
            
                 <div class="btn-group btn-group-sm" role="group">
                 
-                <button id="btnGroupDrop1" type="button" class="btn btn-secondary btn-nbg dropdown-toggle" 
+                <button id="btnGroupDrop1" type="button" class="btn btn-light btn-nbg dropdown-toggle" 
                 data-toggle="dropdown"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
                  title="<?php echo __('more'); ?>"></i>
                 </button>
@@ -206,7 +206,7 @@ if ($task->isOverdue())
             </div>
            </div>
            
-                <a class="btn btn-secondary btn-nbg" id="all-ticket-tasks" href="#" >
+                <a class="btn btn-light btn-nbg" id="all-ticket-tasks" href="#" >
                 <i class="fa fa-list-alt"  data-placement="bottom" data-toggle="tooltip" 
                  title="<?php echo __('All Tasks'); ?>"></i></a>
 
@@ -222,7 +222,7 @@ if ($task->isOverdue())
                     
                 <div class="btn-group btn-group-sm" role="group">
                 
-                <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+                <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
                 data-toggle="dropdown"><i class="fa fa-flag" data-placement="bottom" data-toggle="tooltip" 
                  title="<?php echo __('Change Status'); ?>"></i>
                 </button>
@@ -256,7 +256,7 @@ if ($task->isOverdue())
                 
                 <div class="btn-group btn-group-sm" role="group">
                 
-                <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+                <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
                 data-toggle="dropdown"><i class="fa fa-user" data-placement="bottom" data-toggle="tooltip" 
                  title="<?php echo __('Assign'); ?>"></i>
                 </button>
@@ -290,7 +290,7 @@ if ($task->isOverdue())
                 <?php
                 foreach ($actions as $action) {?>
                 
-                    <a class="btn btn-secondary task-action"
+                    <a class="btn btn-light task-action"
                         <?php
                         if ($action['dialog'])
                             echo sprintf("data-dialog-config='%s'", $action['dialog']);
@@ -308,7 +308,7 @@ if ($task->isOverdue())
            <?php
                 }
                 ?>
-                 <a class="btn btn-secondary" href="tasks.php" ><i class="fa fa-list-alt" data-placement="bottom"
+                 <a class="btn btn-light" href="tasks.php" ><i class="fa fa-list-alt" data-placement="bottom"
                         data-toggle="tooltip"
                         title="<?php echo __('Tasks'); ?>"></i></a>
                 

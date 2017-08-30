@@ -54,7 +54,7 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
     <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
 
         <div class="btn-group btn-group-sm hidden-xs-down" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle waves-effect " 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle waves-effect " 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
             title="<?php echo __('Print'); ?>"><i class="icon-print"></i>
             </button>
@@ -80,7 +80,7 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
             if ($ticket->isOpen() && $role->hasPerm(Ticket::PERM_ASSIGN)) {?>
 
             <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle waves-effect" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle waves-effect" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
             title="<?php echo $ticket->isAssigned() ? __('Assign') : __('Reassign'); ?>"><i class="icon-user"></i>
             </button>
@@ -102,22 +102,22 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
             </div>
       <?php } ?>
                 
-            <a  class="btn btn-secondary waves-effect" id="savebutton" onclick="document.getElementById('save').submit();" 
+            <a  class="btn btn-light waves-effect" id="savebutton" onclick="document.getElementById('save').submit();" 
             data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Save'); ?>"><i class="fa fa-floppy-o"></i></a>
          
-            <a class="btn btn-secondary waves-effect" id="cancelbutton" href="" onclick="window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>" 
+            <a class="btn btn-light waves-effect" id="cancelbutton" href="" onclick="window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>" 
             data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Cancel');?>" ><i class="fa fa-times"></i></a>		
                     
             <?php If  ($topic) { ?>
                 
                 <?php if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
                     
-                    <a class="btn btn-secondary waves-effect" href="#reply" class="post-response" id="post-reply" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Post Reply'); ?>">
+                    <a class="btn btn-light waves-effect" href="#reply" class="post-response" id="post-reply" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Post Reply'); ?>">
                     <i class="fa fa-reply"></i></a>
                          
                 <?php }  ?> 
                 
-                    <a class="btn btn-secondary waves-effect" href="#note" id="post-note" class="post-response" data-placement="bottom" data-toggle="tooltip"title="<?php echo __('Post Internal Note'); ?>">
+                    <a class="btn btn-light waves-effect" href="#note" id="post-note" class="post-response" data-placement="bottom" data-toggle="tooltip"title="<?php echo __('Post Internal Note'); ?>">
                     <i class="fa fa-pencil-square-o"></i></a>
                 
             <?php	}
@@ -127,7 +127,7 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
                         || ($dept && $dept->isManager($thisstaff))) { ?>        
         
                     <div class="btn-group btn-group-sm" role="group">
-                    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle waves-effect" 
+                    <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle waves-effect" 
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
                     title="<?php echo __('More'); ?>"> <i class="icon-cog"></i>
                     </button>
@@ -205,10 +205,10 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
       <?php
                 }
                 ?>
-        <a class="btn btn-secondary btn-sm waves-effect" href="#" data-stop="top" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Scroll Top'); ?>">
+        <a class="btn btn-light btn-sm waves-effect" href="#" data-stop="top" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Scroll Top'); ?>">
                     <i class="icon-chevron-up"></i></a>	
                     
-        <a class="btn btn-secondary btn-sm waves-effect" data-placement="bottom"  data-toggle="tooltip" title="<?php echo __('Tickets'); ?>"
+        <a class="btn btn-light btn-sm waves-effect" data-placement="bottom"  data-toggle="tooltip" title="<?php echo __('Tickets'); ?>"
                     href="tickets.php<?php ?>"><i class="icon-list-alt"></i></a>			
                 
     </div>
@@ -289,7 +289,23 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
         </div>  
         <div>
                 <label><?php echo __('Priority');?>:</label>
-                    <?php echo $ticket->getPriority(); ?>
+                    <?php 
+                    
+                    switch ($ticket->getPriority()){
+               
+                case 'Low':
+                    $badgecolor = 'bg-success';
+                    break;
+                case 'Normal':
+                    $badgecolor = 'bg-warning';
+                    break;
+                case 'High':
+                    $badgecolor = 'bg-danger';
+                    break;
+                    
+                default:
+                    }
+                    echo '<span class="badge label-table '.$badgecolor.'">'.$ticket->getPriority().'</span>'; ?>
         </div>
         <div>
             <label><?php echo __('Department');?>:</label>
@@ -469,7 +485,7 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
           
              </div>
             <?php if ($errors['duedate']){ ?>
-            <div class="form-control-feedback"><?php echo $errors['duedate'];?></div>
+            <div class="form-control-feedback-danger"><?php echo $errors['duedate'];?></div>
             <?php } ?>
              </div>    
                 <?php
@@ -487,7 +503,7 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
             <label><?php echo __('Help Topic');?>:</label>
             	<input id="cc" name="topicId" class="easyui-combotree " style="width:95%;  border-radius: 2px !important;"></input>
 				<?php if ($errors['topicId'] || !$topic){ ?>
-                <div class="form-control-feedback"><?php echo __('Help topic selection is required');?></div>
+                <div class="form-control-feedback-danger"><?php echo __('Help topic selection is required');?></div>
                 <?php }?>
 					  </div>    
         </div></div>
@@ -1107,6 +1123,7 @@ $(function() {
                 
                 }
              $('#cc').combotree('setText', parentStr + node.text);
+             keytrigger = true;
             
                 
             }

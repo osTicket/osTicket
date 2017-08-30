@@ -51,7 +51,7 @@ input.close{
     margin-left: 5px;
     font-size:  0.875rem;
     font-weight: normal;
-    line-height: 1.25;
+    line-height: 1.5;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
@@ -545,7 +545,7 @@ input.rlc-search {
     background:#fff;
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
-    border-radius:5px;
+    border-radius:2px;
     -moz-box-shadow: 5px 5px 10px -2px rgba(0,0,0,0.5);
     -webkit-box-shadow: 5px 5px 10px -2px rgba(0,0,0,0.5);
     box-shadow: 5px 5px 10px -2px rgba(0,0,0,0.5);
@@ -662,12 +662,12 @@ input.rlc-search {
 
 i.help-tip {
     vertical-align: inherit;
-    color: #aaa;
+    color: orange !important;
     opacity: 0.8;
     text-indent: initial;
 }
 i.help-tip:hover {
-    color: orange !important;
+    color: #aaa;
     cursor: pointer;
     opacity: 1;
 }
@@ -1934,17 +1934,17 @@ html > body > div#popup.dialog.draggable.ui-draggable.size-normal > div.body > p
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
     border-color: rgba(0,0,0,0.2);
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    -moz-border-radius: 5px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    -moz-border-radius: 2px;
     cursor:pointer;
 }
 .thread-preview-entry .thread-body {
     border: 1px solid #ddd;
     
     border-bottom: 1px solid #ccc;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
     padding-bottom:10px;
     height:auto;
     overflow:visible;

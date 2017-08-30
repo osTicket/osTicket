@@ -23,13 +23,13 @@ $org = $user->getOrganization();
 
                   <?php if ($thisstaff->hasPerm(User::PERM_MANAGE)) { 
             if ($account) { ?>
-            <a id="user-manage" class="btn btn-secondary user-action"
+            <a id="user-manage" class="btn btn-light user-action"
             href="#users/<?php echo $user->getId(); ?>/manage"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Manage'); ?>"><i class="icon-edit"></i>
            </a>
             <?php
             } else { ?>
-            <a id="user-register" class="btn btn-secondary user-action"
+            <a id="user-register" class="btn btn-light user-action"
             href="#users/<?php echo $user->getId(); ?>/register"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Register'); ?>"><i class="icon-smile"></i>
            </a>
@@ -38,7 +38,7 @@ $org = $user->getOrganization();
 <?php } ?>
                     
             <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
             data-toggle="dropdown"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('More'); ?>"></i>
             </button>
@@ -85,12 +85,12 @@ $org = $user->getOrganization();
                     
                     
                                         <?php if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
-            <a id="user-delete" class="btn btn-secondary user-action"
+            <a id="user-delete" class="btn btn-light user-action"
             href="#users/<?php echo $user->getId(); ?>/delete"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Delete User'); ?>"><i class="fa fa-trash-o"></i>
             </a>
 <?php } ?>
-            <a class="btn btn-secondary"
+            <a class="btn btn-light"
             href="users.php"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Users'); ?>"><i class="fa fa-list-alt"></i>
             </a>

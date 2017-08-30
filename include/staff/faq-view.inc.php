@@ -21,11 +21,11 @@ $view = $category->isPublic()?__('Public'):__('Internal');
         $query['a'] = 'print';
         $query['id'] = $faq->getId();
         $query = http_build_query($query); ?>
-            <a href="faq.php?<?php echo $query; ?>" class="btn btn-icon waves-effect waves-light btn-secondary">
+            <a href="faq.php?<?php echo $query; ?>" class="btn btn-icon waves-effect waves-light btn-light">
             <i class="icon-print"></i></a>
         <?php
         if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
-            <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit" class="btn btn-icon waves-effect waves-light btn-secondary">
+            <a href="faq.php?id=<?php echo $faq->getId(); ?>&a=edit" class="btn btn-icon waves-effect waves-light btn-light">
             <i class="icon-edit"></i></a>
         <?php } ?>
         
@@ -154,7 +154,7 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-secondary waves-effect" data-dismiss="modal">No, Close</button>
+                <button type="button" class="btn btn-sm btn-light waves-effect" data-dismiss="modal">No, Close</button>
                 <a href="faq.php?id=<?php echo  $faq->getId();?>&a=delete" ><button type="button" class="btn btn-sm btn-danger waves-effect waves-light">Yes, Delete!</button></a>
             </div>
         </div>

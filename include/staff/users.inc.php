@@ -78,13 +78,13 @@ $users->order_by($order . $order_column);
  
         <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
                     <?php if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
-                    <a class="btn btn-secondary popup-dialog"
+                    <a class="btn btn-light popup-dialog"
                        href="#users/add" data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Add User'); ?>">
                         <i class="fa fa-plus-square"></i>
                     </a>
                     
-                    <a class="btn btn-secondary popup-dialog"
+                    <a class="btn btn-light popup-dialog"
                        href="#users/import"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Import'); ?>">
                         <i class="fa fa-arrow-circle-up"></i>
@@ -93,7 +93,7 @@ $users->order_by($order . $order_column);
                     <?php } ?>
                     
                     <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('More'); ?>"><i class="fa fa-cog"></i>
             </button>

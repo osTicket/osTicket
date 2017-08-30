@@ -54,7 +54,7 @@ if ($actions && !isset($options['status'])) {
     ?>
     
         <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary  waves-effect  btn-nbg dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light  waves-effect  btn-nbg dropdown-toggle" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('More'); ?>"></i>
             </button>
@@ -90,7 +90,7 @@ if ($actions && !isset($options['status'])) {
 
    if ($agent->hasPerm(Task::PERM_CLOSE, false)) { ?>
     <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary waves-effect dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light waves-effect dropdown-toggle" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-flag" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('Change Status'); ?>"></i>
             </button>
@@ -120,7 +120,7 @@ if ($actions && !isset($options['status'])) {
      <?php } }
    if ($agent->hasPerm(Task::PERM_ASSIGN, false)) { ?>
  <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary waves-effect dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light waves-effect dropdown-toggle" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('Assign'); ?>"></i>
             </button>
@@ -145,7 +145,7 @@ if ($actions && !isset($options['status'])) {
     // Mass Transfer
     if ($agent->hasPerm(Task::PERM_TRANSFER, false)) {?>
     
-     <a class="btn btn-secondary btn-sm  waves-effect  tasks-action" id="tasks-transfer" data-placement="bottom"
+     <a class="btn btn-light btn-sm  waves-effect  tasks-action" id="tasks-transfer" data-placement="bottom"
         data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
         href="#tasks/mass/transfer"><i class="icon-share"></i></a>
     

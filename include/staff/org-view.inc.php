@@ -17,7 +17,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
       
       
                           <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
             data-toggle="dropdown" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('More'); ?>"><i class="fa fa-cog"></i>
             </button>
@@ -36,13 +36,13 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     </div>
       
       <?php if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
-            <a id="org-delete" class="btn btn-secondary org-action"
+            <a id="org-delete" class="btn btn-light org-action"
             href="#orgs/<?php echo $org->getId(); ?>/delete"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Delete Organization'); ?>"><i class="fa fa-trash-o"></i>
             </a>
 <?php } ?>
       
-        <a class="btn btn-secondary"
+        <a class="btn btn-light"
             href="orgs.php"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Organizations'); ?>"><i class="fa fa-list-alt"></i>
         </a>

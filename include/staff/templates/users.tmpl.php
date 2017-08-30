@@ -67,13 +67,13 @@ else
 </div>
 <div class="btn-group btn-group-sm pull-right" style="margin-top:5px;margin-right:15px;">
         
-            <a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="btn btn-secondary btn-small btn-nbg add-user"
+            <a href="#orgs/<?php echo $org->getId(); ?>/add-user" class="btn btn-light btn-small btn-nbg add-user"
         data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Add User'); ?>"><i class="fa fa-plus-square"></i> </a>
-    <a href="#orgs/<?php echo $org->getId(); ?>/import-users" class="btn btn-secondary btn-small btn-nbg add-user"   data-placement="bottom"
+    <a href="#orgs/<?php echo $org->getId(); ?>/import-users" class="btn btn-light btn-small btn-nbg add-user"   data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Import'); ?>" >
         <i class="fa fa-arrow-circle-up"></i></a>
-    <button id="actions" class="btn btn-secondary btn-small btn-nbg" type="submit" name="remove-users"  data-placement="bottom"
+    <button id="actions" class="btn btn-light btn-small btn-nbg" type="submit" name="remove-users"  data-placement="bottom"
                     data-toggle="tooltip" title="<?php echo __('Remove'); ?>"><i class="icon-trash"></i></button>
         
 </div>

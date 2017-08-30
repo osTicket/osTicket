@@ -67,7 +67,7 @@ else
                 </a>
                 
                         <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-secondary  waves-effect  btn-nbg dropdown-toggle" 
+            <button id="btnGroupDrop1" type="button" class="btn btn-light  waves-effect  btn-nbg dropdown-toggle" 
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
              title="<?php echo __('More'); ?>"></i>
             </button>

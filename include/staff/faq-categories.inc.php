@@ -58,7 +58,7 @@ array_unshift($categories, new Category(array('id' => 0, 'name' => __('All Categ
 <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
 
 <div class="btn-group btn-group-sm" role="group">
-        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+        <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Categories'); ?>"><i class="fa fa-filter"></i> <?php echo $cselected;?>
         </button>
@@ -98,7 +98,7 @@ array_unshift($topics, new Topic(array('id' => 0, 'topic' => __('All Topics'), '
 ?>
 
 <div class="btn-group btn-group-sm" role="group">
-        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+        <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Help Topics'); ?>"><i class="fa fa-filter"></i> <?php echo $tselected;?>
         </button>

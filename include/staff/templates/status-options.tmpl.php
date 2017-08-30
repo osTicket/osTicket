@@ -33,7 +33,7 @@ if (!$nextStatuses)
 ?>
 
         <div class="btn-group btn-group-sm" role="group">
-        <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" 
+        <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Change Status'); ?>"><i class="icon-flag"></i>
         </button>
