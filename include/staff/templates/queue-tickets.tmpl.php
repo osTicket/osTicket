@@ -371,7 +371,7 @@ if (!$sselected) {$sselected = 'Status';}
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Filter Status'); ?>"><i class="fa fa-filter"></i> <?php echo $sselected; ?>
         </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+            <div class="dropdown-menu dropdown-menu-xlg dropdown-menu-right" aria-labelledby="btnGroupDrop1">
               
               <a class="dropdown-item no-pjax" href="tickets.php?l=<?php echo $_GET['l']?>&s=0"><i class="fa fa-filter"></i> All</a>
            <?php foreach ($Statuses as $status) { 
