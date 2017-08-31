@@ -943,6 +943,9 @@ code, pre {
 .text-dark {
   color: #797979 !important; }
 
+.badge-default {
+    background-color: #636c72;
+}  
 /* Dropcap */
 .dropcap {
   font-size: 3.1em; }
@@ -2069,6 +2072,7 @@ m-r--5 {
 
 .nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
   background-color: #039cfd; }
+
 
 /*===========
 Modal
