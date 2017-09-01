@@ -76,7 +76,7 @@ class TicketsAjaxAPI extends AjaxController {
             }
             else {
                 $tickets[] = array('email'=>$email, 'value'=>$email,
-                    'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
+                    'info'=>"$email <span class='badge badge-pill badge-default  pull-right'>$count</span>", 'matches'=>$_REQUEST['q']);
             }
         }
         return $this->json_encode($tickets);
