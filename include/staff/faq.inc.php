@@ -28,6 +28,9 @@ if($faq){
             }
         }
     }
+    
+$category=$faq->getCategory();
+$view = $category->isPublic()?__('Public'):__('Internal');
 }else {
     $title=__('Add New FAQ');
     $action='create';
@@ -41,9 +44,7 @@ if($faq){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $qstr = Http::build_query($qs);
 
-$category=$faq->getCategory();
 
-$view = $category->isPublic()?__('Public'):__('Internal');
 ?>
 
 <div class="subnav">
