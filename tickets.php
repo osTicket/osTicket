@@ -31,6 +31,7 @@ if($_REQUEST['id']) {
         $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
         $ticket=null;
     } elseif($ticket->isChild() && $cfg->getRedirectChildTicket()){
+        $_SESSION['_auth']['user-ticket'] = $ticket->getMaster()->number;
         Http::redirect('tickets.php?id=' . $ticket->getMaster()->getId());
     }
 }
