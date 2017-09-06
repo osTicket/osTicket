@@ -297,7 +297,6 @@ $pageNav->setURL('tickets.php', $args);
 </div>
 
 <div class="card-box">
-
 <div class="row">
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
@@ -310,10 +309,10 @@ $pageNav->setURL('tickets.php', $args);
                                 timeout: 2000
                               });
                                 return false;">
-                
+                <input type="hidden" name="a" value="search">
+                <input type="hidden" name="search-type" value=""/>
                  <div class="input-group input-group-sm">
-                 <input type="hidden" name="a" value="search">
-                    <input type="text" class="form-control form-control-sm rlc-search basic-search" data-url="ajax.php/tickets/lookup" name="query"
+                 <input type="text" class="form-control form-control-sm rlc-search basic-search" data-url="ajax.php/tickets/lookup" name="query"
                      value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
                    autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Search Tickets" >
                 <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
