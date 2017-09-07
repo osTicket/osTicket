@@ -143,7 +143,7 @@ echo '</div>'; // ticket preview content.
     <?php
     echo sprintf('<span><a class="collaborators"
                             href="#thread/%d/collaborators">%s</a></span>',
-                            $ticket->getId(),
+                            $thread->getId(),
                             $thread && $thread->getNumCollaborators()
                                 ? __('Manage Collaborators') : __('Add Collaborator')
                                 );
