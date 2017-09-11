@@ -21,6 +21,9 @@ class Filter {
     var $id;
     var $ht;
 
+    const FLAG_INACTIVE_HT = 0x0001;
+    const FLAG_INACTIVE_DEPT  = 0x0002;
+
     static $match_types = array(
         /* @trans */ 'User Information' => array(
             array('name'      =>    /* @trans */ 'Name',
@@ -136,6 +139,13 @@ class Filter {
 
     function getHelpTopic() {
         return $this->ht['topic_id'];
+    }
+
+    public function setFlag($flag, $val) {
+        if ($val)
+            $this->ht['flags'] |= $flag;
+        else
+            $this->ht['flags'] &= ~$flag;
     }
 
     function stopOnMatch() {
@@ -502,6 +512,7 @@ class Filter {
 
         $sql=' updated=NOW() '
             .',isactive='.db_input($vars['isactive'])
+            .',flags='.db_input($vars['flags'])
             .',target='.db_input($vars['target'])
             .',name='.db_input($vars['name'])
             .',execorder='.db_input($vars['execorder'])

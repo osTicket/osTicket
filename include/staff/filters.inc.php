@@ -2,9 +2,11 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 $targets = Filter::getTargets();
 $qs = array();
-$sql='SELECT filter.*,count(rule.id) as rules '.
+$sql='SELECT filter.*,count(rule.id) as rules, topic.configuration AS topic, dept.configuration AS dept '.
      'FROM '.FILTER_TABLE.' filter '.
      'LEFT JOIN '.FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '.
+     'LEFT JOIN '.FILTER_ACTION_TABLE.' topic ON (topic.filter_id = filter.id AND topic.type = \'topic\') '.
+     'LEFT JOIN '.FILTER_ACTION_TABLE.' dept ON (dept.filter_id = filter.id AND dept.type = \'dept\') '.
      "WHERE filter.`name` <> 'SYSTEM BAN LIST' ".
      'GROUP BY filter.id';
 $sortOptions=array('name'=>'filter.name','status'=>'filter.isactive','order'=>'filter.execorder','rules'=>'rules',
@@ -104,6 +106,26 @@ else
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
             while ($row = db_fetch_array($res)) {
+              if ($row['topic']) {
+                $filter = Filter::lookup($row['id']);
+                if ($filter->ht['flags'] & !Filter::FLAG_INACTIVE_HT) {
+                  $filter->setFlag(Filter::FLAG_INACTIVE_HT, true);
+                  $vars = $filter->ht;
+                  $vars['rules']= $filter->getRules();
+                  $filter->update($filter->ht, $errors);
+                }
+              }
+
+              if ($row['dept']) {
+                $filter = Filter::lookup($row['id']);
+                if ($filter->ht['flags'] & !Filter::FLAG_INACTIVE_DEPT) {
+                  $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, true);
+                  $vars = $filter->ht;
+                  $vars['rules']= $filter->getRules();
+                  $filter->update($filter->ht, $errors);
+                }
+              }
+
                 $sel=false;
                 if($ids && in_array($row['id'],$ids))
                     $sel=true;
@@ -113,7 +135,17 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td>&nbsp;<a href="filters.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
+                <td>&nbsp;<a href="filters.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>
+                  <?php
+                    if ($row['flags'] & Filter::FLAG_INACTIVE_DEPT)
+                      echo '<a data-placement="bottom" data-toggle="tooltip" title="Inactive Department Selected"
+                        <i class="pull-right icon-warning-sign"></a>';
+
+                    if ($row['flags'] & Filter::FLAG_INACTIVE_HT)
+                      echo '<a data-placement="bottom" data-toggle="tooltip" title="Inactive Help Topic Selected"
+                        <i class="pull-right icon-warning-sign"></a>';
+                  ?>
+                </td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['execorder']; ?>&nbsp;</td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['rules']; ?>&nbsp;</td>
