@@ -548,8 +548,7 @@ implements TemplateVariable {
             $query->order_by('name')
                  ->values('id', 'pid', 'flags', 'name', 'parent');
 
-            foreach ($query as $row)
-            {
+            foreach ($query as $row) {
               $display = ($row['flags'] & self::FLAG_ACTIVE);
 
               $depts[$row['id']] = array('id' => $row['id'], 'pid'=>$row['pid'], 'name'=>$row['name'],
