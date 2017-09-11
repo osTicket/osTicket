@@ -115,7 +115,7 @@ if (($all_langs = Internationalization::getConfiguredSystemLanguages())
         list($lang, $locale) = explode('_', $code);
         $qs['lang'] = $code;
 ?>
-        <a class="flag flag-<?php echo strtolower($locale ?: $info['flag'] ?: $lang); ?>"
+        <a class="flag flag-<?php echo strtolower($info['flag'] ?: $locale ?: $lang); ?>"
             href="?<?php echo http_build_query($qs);
             ?>" title="<?php echo Internationalization::getLanguageDescription($code); ?>">&nbsp;</a>
 <?php }
