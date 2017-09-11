@@ -457,8 +457,7 @@ class Filter {
     }
 
     function save($id,$vars,&$errors) {
-      if ($this)
-      {
+      if ($this) {
         foreach ($this->getActions() as $A) {
           if ($A->type == 'dept')
               $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);

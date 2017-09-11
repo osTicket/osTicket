@@ -240,8 +240,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 if ($filter) { foreach ($filter->getActions() as $A) {
                     $_warn = '';
                     $existing[] = $A->type;
-                    if($A->type == 'dept')
-                    {
+                    if($A->type == 'dept') {
                       $errors['topic_id'] = '';
                       // $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                       $dept_config = $A->parseConfiguration($_POST);
@@ -249,8 +248,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                       if($dept && !$dept->isActive())
                         $_warn = sprintf(__('%s must be active'), __('Department'));
                     }
-                    elseif($A->type == 'topic')
-                    {
+                    elseif($A->type == 'topic') {
                       $errors['dept_id'] = '';
                       $topic_config = $A->parseConfiguration($_POST);
                       $topic = Topic::lookup($topic_config['topic_id']);
