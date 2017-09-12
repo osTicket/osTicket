@@ -11,9 +11,9 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
         <span class="valign-helper"></span>
         <img src="logo.php?login" alt="osTicket :: <?php echo __('Staff Control Panel');?>" />
     </a></h1>
-    <h3><?php echo Format::htmlchars($msg); ?></h3>
+    <h3 id="login-message"><?php echo Format::htmlchars($msg); ?></h3>
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
-    <form action="login.php" method="post" id="login">
+    <form action="login.php" method="post" id="login" onsubmit="attemptLoginAjax(event)">
         <?php csrf_token(); ?>
         <input type="hidden" name="do" value="scplogin">
         <fieldset>
@@ -21,10 +21,11 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
             echo $info['userid']; ?>" placeholder="<?php echo __('Email or Username'); ?>"
             autofocus autocorrect="off" autocapitalize="off">
         <input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
-            <?php if ($show_reset && $cfg->allowPasswordReset()) { ?>
-            <h3 style="display:inline"><a href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
-            <?php } ?>
-            <button class="submit button pull-right" type="submit" name="submit"><i class="icon-signin"></i>
+            <h3 style="display:inline"><a id="reset-link" class="<?php
+                if (!$show_reset || !$cfg->allowPasswordReset()) echo 'hidden';
+                ?>" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
+            <button class="submit button pull-right" type="submit"
+                name="submit"><i class="icon-signin"></i>
                 <?php echo __('Log In'); ?>
             </button>
         </fieldset>
@@ -61,11 +62,85 @@ if (count($ext_bks)) { ?>
             document.getElementById('loginBox').style.backgroundColor = 'white';
         }
     });
+
+    function attemptLoginAjax(e) {
+        var objectifyForm = function(formArray) { //serialize data function
+            var returnArray = {};
+            for (var i = 0; i < formArray.length; i++) {
+                returnArray[formArray[i]['name']] = formArray[i]['value'];
+            }
+            return returnArray;
+        };
+        if ($.fn.effect) {
+            // For some reason, JQuery-UI shake does not considere an element's
+            // padding when shaking. Looks like it might be fixed in 1.12.
+            // Thanks, https://stackoverflow.com/a/22302374
+            var oldEffect = $.fn.effect;
+            $.fn.effect = function (effectName) {
+                if (effectName === "shake") {
+                    var old = $.effects.createWrapper;
+                    $.effects.createWrapper = function (element) {
+                        var result;
+                        var oldCSS = $.fn.css;
+
+                        $.fn.css = function (size) {
+                            var _element = this;
+                            var hasOwn = Object.prototype.hasOwnProperty;
+                            return _element === element && hasOwn.call(size, "width") && hasOwn.call(size, "height") && _element || oldCSS.apply(this, arguments);
+                        };
+
+                        result = old.apply(this, arguments);
+
+                        $.fn.css = oldCSS;
+                        return result;
+                    };
+                }
+                return oldEffect.apply(this, arguments);
+            };
+        }
+        var form = $(e.target),
+            data = objectifyForm(form.serializeArray())
+        data.ajax = 1;
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: data,
+            cache: false,
+            success: function(json) {
+                if (!typeof(json) === 'object' || !json.status)
+                    return;
+                switch (json.status) {
+                case 401:
+                    if (json && json.redirect)
+                        document.location.href = json.redirect;
+                    if (json && json.message)
+                        $('#login-message').text(json.message)
+                    if (json && json.show_reset)
+                        $('#reset-link').show()
+                    if ($.fn.effect) {
+                        $('#loginBox').effect('shake')
+                    }
+                    // Clear the password field
+                    $('#pass').val('').focus();
+                    break
+                case 302:
+                    if (json && json.redirect)
+                        document.location.href = json.redirect;
+                    break
+                }
+            },
+        });
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return false;
+    }
     </script>
     <!--[if IE]>
     <style>
         #loginBox:after { background-color: white !important; }
     </style>
     <![endif]-->
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
 </body>
 </html>
