@@ -30,29 +30,57 @@ $msg = $_SESSION['_staff']['auth']['msg'];
 $msg = $msg ?: ($content ? $content->getLocalName() : __('Authentication Required'));
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
-if($_POST) {
+if ($_POST) {
+    $json = isset($_POST['ajax']) && $_POST['ajax'];
+    $respond = function($code, $message) use ($json, $ost) {
+        if ($json) {
+            $payload = is_array($message) ? $message
+                : array('message' => $message);
+            $payload['status'] = (int) $code;
+            Http::response(200, JSONDataEncoder::encode($payload),
+                'application/json');
+        }
+        else {
+            // Extract the `message` portion only
+            if (is_array($message))
+                $message = $message['message'];
+            Http::response($code, $message);
+        }
+    };
+    $redirect = function($url) use ($json) {
+        if ($json)
+            Http::response(200, JsonDataEncoder::encode(array(
+                'status' => 302, 'redirect' => $url)), 'application/json');
+        else
+            Http::redirect($url);
+    };
+
     // Check the CSRF token, and ensure that future requests will have to
     // use a different CSRF token. This will help ward off both parallel and
     // serial brute force attacks, because new tokens will have to be
     // requested for each attempt.
-    if (!$ost->checkCSRFToken())
-        Http::response(400, __('Valid CSRF Token Required'));
-
-    // Rotate the CSRF token (original cannot be reused)
-    $ost->getCSRF()->rotate();
+    if (!$ost->checkCSRFToken()) {
+        $_SESSION['_staff']['auth']['msg'] = __('Valid CSRF Token Required');
+        $redirect($_SERVER['REQUEST_URI']);
+    }
 
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
             $_POST['passwd'], $errors)) {
-        session_write_close();
-        Http::redirect($dest);
-        require_once('index.php'); //Just incase header is messed up.
-        exit;
+        $redirect($dest);
     }
 
-    $msg = $errors['err']?$errors['err']:__('Invalid login');
+    $msg = $errors['err'] ?: __('Invalid login');
     $show_reset = true;
+
+    if ($json) {
+        $respond(401, ['message' => $msg, 'show_reset' => $show_reset]);
+    }
+    else {
+        // Rotate the CSRF token (original cannot be reused)
+        $ost->getCSRF()->rotate();
+    }
 }
 elseif ($_GET['do']) {
     switch ($_GET['do']) {
