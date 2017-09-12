@@ -1628,6 +1628,8 @@ class ChoiceField extends FormField {
         $deleted = array_diff($B, $A);
         $added = array_map(array($this, 'display'), $added);
         $deleted = array_map(array($this, 'display'), $deleted);
+        $added = array_filter($added);
+        $deleted = array_filter($deleted);
 
         if ($added && $deleted) {
             $desc = sprintf(
@@ -2368,21 +2370,50 @@ class DepartmentField extends ChoiceField {
     }
 
     function to_php($value, $id=false) {
-        if (is_array($id)) {
-            reset($id);
-            $id = key($id);
+        if ($id) {
+            if (is_array($id)) {
+                reset($id);
+                $id = key($id);
+            }
+            return $id;
+        } else {
+            return $value;
         }
-        return $id;
     }
 
     function to_database($dept) {
-        return ($dept instanceof Dept)
-            ? array($dept->getName(), $dept->getId())
-            : $dept;
+        if ($dept instanceof Dept)
+            return array($dept->getName(), $dept->getId());
+
+        if (!is_array($dept)) {
+            $choices = $this->getChoices();
+            if (isset($choices[$dept]))
+                $dept = array($choices[$dept], $dept);
+        }
+        if (!$dept)
+            $dept = array();
+
+        return $dept;
     }
 
     function toString($value) {
+        if (!is_array($value))
+            $value = $this->getChoice($value);
+        if (is_array($value))
+            return implode(', ', $value);
         return (string) $value;
+    }
+
+    function getChoice($value) {
+        $choices = $this->getChoices();
+        $selection = array();
+        if ($value && is_array($value)) {
+            $selection = $value;
+        } elseif (isset($choices[$value])) {
+            $selection[] = $choices[$value];
+        }
+
+        return $selection;
     }
 
     function searchable($value) {
