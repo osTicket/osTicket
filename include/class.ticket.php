@@ -3151,8 +3151,13 @@ implements RestrictedAccess, Threadable {
                     foreach ($__topic->getForms() as $idx=>$__F) {
                         $disabled = array();
                         foreach ($__F->getFields() as $field) {
-                            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                            if (!$field->isEnabled()) {
                                 $disabled[] = $field->get('id');
+                            } else {
+                                // Check for Dept. Field to set Dept.
+                                if ($field->get('type') == 'department')
+                                    $vars['deptId'] = key($field->getValue());
+                            }
                         }
                         // Special handling for the ticket form — disable fields
                         // requested to be disabled as per the help topic.
