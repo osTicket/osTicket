@@ -628,7 +628,8 @@ $('svg').height(700);
 			label : labels[2],
 			data : datas[2],
 			bars : {
-				show : true
+				show : true,
+                align: "center"   
 			}
 		}];
 		var options = {
