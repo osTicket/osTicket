@@ -588,12 +588,6 @@ Morris.Bar({
 });
 $('svg').height(700);
 
-/**
- * Theme: Minton Admin Template
- * Author: Coderthemes
- * Module/App: Flot-Chart
- */
-
 ! function($) {
 	"use strict";
 
