@@ -126,7 +126,7 @@
         <div class="portlet"><!-- /primary heading -->
             <div class="portlet-heading">
                 <h3 class="portlet-title text-dark">
-                    TICKETS (By Status)
+                    MY TICKETS (By Status)
                 </h3>
                 <div class="portlet-widgets">
                     
@@ -746,7 +746,6 @@ $(function() {
 $(function() {
 
 		var data = [
-        ["Unassigned", <?php echo $MyUnassignedTickets; ?>], 
         ["Assigned", <?php echo $MyAssignedTickets; ?>], 
         ["Held", <?php echo $MyHeldTickets; ?>], 
         ["Agent Reply", <?php echo $MyReplyTickets; ?>], 
@@ -798,7 +797,7 @@ $(function() {
 			}
 		});
 	
-	}); 
+	});   
 //Suggestions By Status
 $(function() {
 
