@@ -491,11 +491,11 @@ $(function() {
                         WHEN 39 THEN 'Connectivity/Change' 
                         WHEN 40 THEN 'Connectivity/Downtime' 
                         WHEN 42 THEN 'Connectivity/Downtime/Internal' 
-                        WHEN 43 THEN 'Connectivity/Downtime/Vend as TOPICor' 
+                        WHEN 43 THEN 'Connectivity/Downtime/Vendor' 
                         WHEN 41 THEN 'Connectivity/Maintenance'
                                                             
                         WHEN 44 THEN 'Connectivity/Maintenance/Internal' 
-                        WHEN 45 THEN 'Connectivity/Maintenance/Vend as TOPICor' 
+                        WHEN 45 THEN 'Connectivity/Maintenance/Vendor' 
                         WHEN 85 THEN 'Connectivity/VPN' 
                         WHEN 81 THEN 'Connectivity/WSA' 
                         WHEN 21 THEN 'Email' 
