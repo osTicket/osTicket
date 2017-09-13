@@ -145,20 +145,31 @@
 </div>
 
 <div class="row">
-
     <div class="col-lg-6">
-        <div class="card-box">
-            <h4 class="text-dark  header-title m-t-0 m-b-10">Tickets (Open|Closed|Backlog)</h4>
-        
-            <div class="widget-chart text-center">
-                <div id="ticketsopenclosedbacklog" style="height: 275px;"></div>
-        
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TICKETS (OPEN|CLOSED|BACKLOG)
+                </h3>
+                <div class="portlet-widgets">
+                    <a href="javascript:;" data-toggle="reload"><i class="ion-refresh"></i></a>
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet5"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
             </div>
-            <div class="p-b-50">
+            <div id="portlet5" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                    <div id="combine-chart">
+                        <div id="combine-chart-container" class="flot-chart" style="height: 320px;">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
     <div class="col-lg-6">
         <div class="card-box">
             <h4 class="text-dark  header-title m-t-0 m-b-10">Top 10 Topics</h4>
@@ -171,8 +182,22 @@
             </div>
         </div>
     </div>
-    
 </div>
+                        
+                        
+                        
+                   
+                        
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.time.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.min.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.resize.min.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.pie.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.selection.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.stack.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.crosshair.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tickrotor.js"></script>
+
 <script>
 Morris.Bar({
   element: 'ticketsbystatus',
@@ -448,67 +473,6 @@ Morris.Bar({
   }    
 });
 
-Morris.Area({
-  element: 'ticketsopenclosedbacklog',
-  data: [
-   <?php
-        $sql="select CALENDARWEEK as WEEK, 
-                max(case when Status = 'OPEN' then VALUE else 0 end)as OPEN, 
-                max(case when Status = 'CLOSED' then VALUE else 0 end) as CLOSED,
-                max(case when Status = 'BACKLOG' then VALUE else 0 end) as BACKLOG
-                from ( 
-
-                Select * from(                        
-                                SELECT   COUNT(created) AS VALUE, 'OPEN' AS Status, FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) 
-                                                         - 2, 7)) AS CALENDARWEEK
-                                FROM         ost_ticket
-                                WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
-                                                         INTERVAL 12 WEEK) AND CURRENT_DATE () -1
-                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
-                                GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
-                                
-                                Union all
-                                
-                                SELECT   COUNT(closed) AS VALUE, 'CLOSED' AS Status, FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) 
-                                                         - 2, 7)) AS CALENDARWEEK
-                                FROM         ost_ticket
-                                WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
-                                                         INTERVAL 12 WEEK) AND CURRENT_DATE () -1
-                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
-                                GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
-                                
-                                UNION all 
-                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS) as VALUE, 'BACKLOG' AS Status,  
-                STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W') as CALENDARWEEK from osticket_sup.ost_backlog 
-
-                where STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
-
-                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 12 WEEK) AND CURRENT_DATE () -1
-                group by STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
-                                
-                Order by CALENDARWEEK, STATUS)dt
-
-                group by CALENDARWEEK;";
-        $results = db_query($sql); 
-
-        foreach ($results as $result) {
-            echo "{ y: '".$result['WEEK']."', a: ".$result['BACKLOG'].", b: ".$result['OPEN'].", c:".$result['CLOSED']." },";
-        }
-        
-    ?> 
-        ],
-  xkey: 'y',
-  ykeys: ['c','a','b'],
-  xLabels: 'week',
-  xLabelAngle: 45,
-  labels: ['Backlog','Opened', 'Closed' ],
-  fillOpacity: 0.7,
-  hideHover: 'auto',
-  behaveLikeLine: true,
-  resize: true,
-  pointStrokeColors: ['black'],
-  lineColors:['#d9221d','#e2c22a','#6c92ea']
-});
 
 Morris.Bar({
   element: 'toptentopic',
@@ -623,6 +587,206 @@ Morris.Bar({
    
 });
 $('svg').height(700);
+
+/**
+ * Theme: Minton Admin Template
+ * Author: Coderthemes
+ * Module/App: Flot-Chart
+ */
+
+! function($) {
+	"use strict";
+
+	var FlotChart = function() {
+		this.$body = $("body")
+		this.$realData = []
+	};
+
+	//creates Combine Chart
+	FlotChart.prototype.createCombineGraph = function(selector, ticks, labels, datas) {
+
+		var data = [{
+			label : labels[0],
+			data : datas[0],
+			lines : {
+				show : true,
+				fill : true
+			},
+			points : {
+				show : true
+			}
+		}, {
+			label : labels[1],
+			data : datas[1],
+			lines : {
+				show : true
+			},
+			points : {
+				show : true
+			}
+		}, {
+			label : labels[2],
+			data : datas[2],
+			bars : {
+				show : true
+			}
+		}];
+		var options = {
+			series : {
+				shadowSize : 0
+			},
+			grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee"
+			},
+			colors : ['#d9221d', '#e2c22a', '#6c92ea'],
+			tooltip : true,
+			tooltipOpts : {
+				defaultTheme : false
+			},
+			legend : {
+				position : "ne",
+				margin : [0, -24],
+				noColumns : 0,
+				labelBoxBorderColor : null,
+				labelFormatter : function(label, series) {
+					// just add some space to labes
+					return '' + label + '&nbsp;&nbsp;';
+				},
+				width : 30,
+				height : 2
+			},
+			yaxis : {
+				tickColor : '#f5f5f5',
+				font : {
+					color : '#bdbdbd'
+				}
+			},
+			xaxis : {
+				ticks: ticks,
+				tickColor : '#f5f5f5',
+				font : {
+                    color : '#868e96',
+                    				},
+                
+                rotateTicks: 135
+			}
+		};
+
+		$.plot($(selector), data, options);
+	},
+
+	//initializing various charts and components
+	FlotChart.prototype.init = function() {
+		
+         <?php
+        $sql="select CALENDARWEEK as WEEK, 
+                max(case when Status = 'OPEN' then VALUE else 0 end)as OPEN, 
+                max(case when Status = 'CLOSED' then VALUE else 0 end) as CLOSED,
+                max(case when Status = 'BACKLOG' then VALUE else 0 end) as BACKLOG
+                from ( 
+
+                Select * from(                        
+                                SELECT   COUNT(created) AS VALUE, 'OPEN' AS Status, FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) 
+                                                         - 2, 7)) AS CALENDARWEEK
+                                FROM         ost_ticket
+                                WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
+                                                         INTERVAL 12 WEEK) AND CURRENT_DATE () -1
+                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
+                                GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
+                                
+                                Union all
+                                
+                                SELECT   COUNT(closed) AS VALUE, 'CLOSED' AS Status, FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) 
+                                                         - 2, 7)) AS CALENDARWEEK
+                                FROM         ost_ticket
+                                WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
+                                                         INTERVAL 12 WEEK) AND CURRENT_DATE () -1
+                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
+                                GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
+                                
+                                UNION all 
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS) as VALUE, 'BACKLOG' AS Status,  
+                STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W') as CALENDARWEEK from osticket_sup.ost_backlog 
+
+                where STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
+
+                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 12 WEEK) AND CURRENT_DATE () -1
+                group by STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
+                                
+                Order by CALENDARWEEK, STATUS)dt
+
+                group by CALENDARWEEK;";
+        $results = db_query($sql); 
+                
+        
+    ?> 
+        
+		//Combine graph data
+		var Backlog = [
+        <?php
+        $r=0;
+        foreach ($results as $result) {
+            echo "[".$r.",\"".$result['BACKLOG']."\"],";
+             $r++;
+        }
+        
+        ?>
+        ];
+		var Open = [
+        <?php
+        $r=0;
+        foreach ($results as $result) {
+            echo "[".$r.",\"".$result['OPEN']."\"],";
+             $r++;
+        }
+        
+        ?>
+        ];
+		var Closed = [
+        <?php
+        $r=0;
+        foreach ($results as $result) {
+            echo "[".$r.",\"".$result['CLOSED']."\"],";
+             $r++;
+        }
+        
+        ?>
+        ];
+		var Weeks = [
+        
+        <?php
+        $r=0;
+        foreach ($results as $result) {
+            echo "[".$r.",\"".$result['WEEK']."\"],";
+             $r++;
+        }
+        
+        ?>
+        
+        ];
+		var combinelabels = ["Backlog", "Open", "Closed"];
+		var combinedatas = [Backlog, Open, Closed];
+
+		this.createCombineGraph("#combine-chart #combine-chart-container", Weeks, combinelabels, combinedatas);
+	},
+
+	//init flotchart
+	$.FlotChart = new FlotChart, $.FlotChart.Constructor =
+	FlotChart
+
+}(window.jQuery),
+
+//initializing flotchart
+function($) {
+	"use strict";
+	$.FlotChart.init()
+}(window.jQuery);
+
+
 </script>
 
 

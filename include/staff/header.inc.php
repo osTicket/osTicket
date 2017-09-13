@@ -16,6 +16,9 @@ if ($lang) {
     echo ' lang="' . Internationalization::rfc1766($lang) . '"';
 }
 ?>>
+<script>
+            var resizefunc = [];
+</script>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 	<link rel="icon" href="<?php echo ROOT_PATH ?>images/favicon.ico" type="image/x-icon" />
@@ -66,9 +69,7 @@ if ($lang) {
     ?>
 </head>
 <body class="fixed-left">
-<script>
-            var resizefunc = [];
-</script>
+
 
  
     <div id="pjax-container" class="<?php if ($_POST) echo 'no-pjax'; ?>">

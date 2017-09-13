@@ -120,6 +120,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <script src="<?php echo ROOT_PATH; ?>scp/js/notify-metro.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.core.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.app.js"></script>
+
        
 <script type="text/javascript">
     getConfig().resolve(<?php
