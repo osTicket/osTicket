@@ -1,3 +1,10 @@
+osTicket v1.9.16
+================
+### Performance and Security
+ * XSS: Encode html entities of cached form data (#3960, bcd58e8)
+ * ORM: Addresses an SQL injection vulnerability in ORM lookup function
+    (#3959, 1eaa6910)
+
 osTicket v1.9.15
 ================
 ### Enhancements
