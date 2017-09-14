@@ -1,3 +1,21 @@
+osTicket v1.10.1
+================
+### Enhancements
+- Users: Support search by phone number
+- i18n: Fix getPrimaryLanguage() on non-object (#3799)
+- Add TimezoneField (#3786)
+- Chunk long text body (#3757, 7b68c994)
+- Spyc: convert hex strings to INTs under PHP 7 (#3621)
+- forms: Proper Field Deletion
+- Move orphaned tasks on department deletion to the default department (42e2c55a)
+- List: Save List Item Abbreviation (8513f137)
+
+### Performance and Security
+- XSS: Encode html entities of advanced search title (#3919)
+- XSS: Encode html entities of cached form data (#3960, bcd58e8)
+- ORM: Addresses an SQL injection vulnerability in ORM lookup function (#3959, 1eaa6910)
+
+
 osTicket v1.10
 ==============
 ### Enhancements
