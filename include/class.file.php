@@ -559,6 +559,10 @@ class AttachmentFile {
         return $id;
     }
 
+    function lookupByHash($hash) {
+        return self::lookup(AttachmentFile::getIdByHash($hash));
+    }
+
     function lookup($id) {
 
         $id = is_numeric($id)?$id:AttachmentFile::getIdByHash($id);
