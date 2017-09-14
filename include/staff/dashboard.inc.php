@@ -252,6 +252,68 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TICKETS (STATUS BY TECH)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet6"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet6" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                    <div id="statusbyagent-chart">
+                        <div class="row">
+                            <div id="statusbyagent-chart-container" class="col-sm-8" style="height: 320px;">
+                            </div>
+                            <div id="statusbyagent-chart-legend" class="col-sm-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TICKETS (STATUS BY LOCATION)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet7"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet7" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                
+                    <div id="statusbylocation-chart">
+                        <div class="row">
+                            <div id="statusbylocation-chart-container" class="col-sm-8" style="height: 320px;">
+                            </div>
+                            <div id="statusbylocation-chart-legend" class="col-sm-4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                        
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.js"></script> 
@@ -403,7 +465,6 @@ $('svg').height(700);
 
                 group by CALENDARWEEK;";
         $results = db_query($sql); 
-                
         
     ?> 
         
@@ -847,7 +908,247 @@ $(function() {
 			}
 		});
 	
-	});            
+	}); 
+
+    <?php
+        $sql="	select distinct lastname, owner_name  from (            select sum(count) as COUNT, STATUS, OWNER_NAME,LASTNAME from
+				(Select COUNT(Status) as Count, STATUS, OWNER_NAME, LASTNAME from
+					(SELECT ost_ticket.number as Ticket, 
+						ost_ticket_status.name as STATUS, 
+						ost_ticket.Updated, 
+						ost_staff.lastname as LASTNAME,
+						CONCAT(ost_staff.lastname, ', ', ost_staff.firstname) as OWNER_NAME
+						FROM (ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+						 LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and 
+						 ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
+				where lastname is not null Group by lastname,  Status, OWNER_NAME )b
+            group by STATUS,LASTNAME) a ";
+        $techs = db_query($sql); 
+        
+        $sql= "select distinct LOCATION from 
+                (select sum(COUNT) as COUNT, STATUS, LOCATION from
+                    (Select COUNT(STATUS) as COUNT,STATUS, LOCATION from
+                        (SELECT ost_ticket.number as Ticket, ost_ticket_status.name as STATUS, ost_organization.name as LOCATION
+                        FROM ((ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+                        LEFT JOIN (ost_user LEFT JOIN ost_organization ON ost_user.org_id = ost_organization.id) ON ost_ticket.user_id = ost_user.id)
+                        LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
+                    where LOCATION is not null
+                Group by LOCATION,  STATUS ) a
+               group by LOCATION, STATUS) b ";
+                
+        $locs = db_query($sql); 
+        
+        $sql="SELECT distinct ost_ticket_status.name as STATUS 
+			    FROM (ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+                WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12 order by STATUS";
+        
+        $cstatuses = db_query($sql); 
+        
+        $sql="select sum(count) as COUNT, STATUS, OWNER_NAME,LASTNAME from
+				(Select COUNT(Status) as Count, STATUS, OWNER_NAME, LASTNAME from
+					(SELECT ost_ticket.number as Ticket, 
+						ost_ticket_status.name as STATUS, 
+						ost_ticket.Updated, 
+						ost_staff.lastname as LASTNAME,
+						CONCAT(ost_staff.lastname, ', ', ost_staff.firstname) as OWNER_NAME
+						FROM (ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+						 LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and 
+						 ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
+				where lastname is not null Group by lastname,  Status, OWNER_NAME )b
+            group by STATUS,LASTNAME";
+            
+        $ctechsdata = db_query($sql);
+        
+        $sql="select sum(COUNT) as COUNT, STATUS, LOCATION from
+                (Select COUNT(STATUS) as COUNT,STATUS, LOCATION from
+                    (SELECT ost_ticket.number as Ticket, ost_ticket_status.name as STATUS, ost_organization.name as LOCATION
+                    FROM ((ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+                    LEFT JOIN (ost_user LEFT JOIN ost_organization ON ost_user.org_id = ost_organization.id) ON ost_ticket.user_id = ost_user.id)
+                    LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
+                    where LOCATION is not null
+                Group by LOCATION,  STATUS ) a
+              group by LOCATION, STATUS";
+
+$clocsdata = db_query($sql);
+        
+?>
+//Status by tech
+$(function () {        
+<?php                
+           foreach ($cstatuses as $cstatus) {
+             
+             echo "var ".preg_replace('/\s+/', '', $cstatus["STATUS"])." = { \n";
+             echo "label: '".$cstatus["STATUS"]."', \n";
+             echo  "data: [ \n";
+             
+             foreach ($ctechsdata as $techsdata) {
+             
+                if ($techsdata["STATUS"] == $cstatus["STATUS"] ){
+                     
+                    echo  "[\"".$techsdata["OWNER_NAME"]."\", ".$techsdata["COUNT"]."],\n"; 
+                } 
+             
+             }
+             echo "] };\n";
+        
+        }
+    ?>     
+     
+
+   
+    var dataset = [
+   <?php
+  foreach ($cstatuses as $cstatus) {
+             
+             echo preg_replace('/\s+/', '', $cstatus["STATUS"]).",";
+   }   
+   ?>
+   ];
+
+    var options = {
+        series: {
+            stack: true,
+            bars: {
+                show: true
+            }
+        },
+        
+        bars: {
+            align: "center",
+            horizontal: false,
+            barWidth: .8,
+            lineWidth: 1
+        },
+         grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee",
+                labelMargin: 20
+			},
+            
+			 tooltip: {
+                 show: true,
+                 cssClass: "flot",
+                 content: "%s: %y",
+                
+                
+              },
+
+        yaxis : {
+				tickColor : '#f5f5f5',
+				font : {
+					color : '#bdbdbd'
+				}
+			},
+			xaxis: {
+				mode: "categories",
+				tickLength: 0,
+                tickColor : '#f5f5f5',
+				font : {
+                color : '#868e96',
+                    	},
+                rotateTicks: 135
+        },
+        legend: {
+                show: true,
+                container: '#statusbyagent-chart-legend'
+				
+				
+        }
+    };
+    
+    $.plot($("#statusbyagent-chart #statusbyagent-chart-container"), dataset, options);
+});
+
+//Status by Location
+$(function () {        
+<?php                
+           foreach ($cstatuses as $cstatus) {
+             
+             echo "var ".preg_replace('/\s+/', '', $cstatus["STATUS"])." = { \n";
+             echo "label: '".$cstatus["STATUS"]."', \n";
+             echo  "data: [ \n";
+             
+             foreach ($clocsdata as $locsdata) {
+             
+                if ($locsdata["STATUS"] == $cstatus["STATUS"] ){
+                     
+                    echo  "[\"".$locsdata["LOCATION"]."\", ".$locsdata["COUNT"]."],\n"; 
+                } 
+             
+             }
+             echo "] };\n";
+        
+        }
+    ?>     
+     
+
+   
+    var dataset = [
+   <?php
+  foreach ($cstatuses as $cstatus) {
+             
+             echo preg_replace('/\s+/', '', $cstatus["STATUS"]).",";
+   }   
+   ?>
+   ];
+
+    var options = {
+        series: {
+            stack: true,
+            bars: {
+                show: true
+            }
+        },
+        
+        bars: {
+            align: "center",
+            horizontal: false,
+            barWidth: .8,
+            lineWidth: 1
+        },
+         grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee",
+                labelMargin: 20
+			},
+            
+			 tooltip: {
+                 show: true,
+                 cssClass: "flot",
+                 content: "%s: %y",
+                
+                
+              },
+
+        yaxis : {
+				tickColor : '#f5f5f5',
+				font : {
+					color : '#bdbdbd'
+				}
+			},
+			xaxis: {
+				mode: "categories",
+				tickLength: 0,
+                tickColor : '#f5f5f5',
+				font : {
+                color : '#868e96',
+                    	},
+                rotateTicks: 135
+        },
+        legend: {
+                show: true,
+                container: '#statusbylocation-chart-legend'
+        }
+    };
+    
+    $.plot($("#statusbylocation-chart #statusbylocation-chart-container"), dataset, options);
+});        
 </script>
 
 
