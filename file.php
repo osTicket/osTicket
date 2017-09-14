@@ -21,7 +21,7 @@ require_once(INCLUDE_DIR.'class.file.php');
 if (!$_GET['key']
     || !$_GET['signature']
     || !$_GET['expires']
-    || !($file = AttachmentFile::lookup($_GET['key']))
+    || !($file = AttachmentFile::lookupByHash($_GET['key']))
 ) {
     Http::response(404, __('Unknown or invalid file'));
 }
