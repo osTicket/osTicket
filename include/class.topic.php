@@ -184,6 +184,19 @@ implements TemplateVariable {
       return !!($this->flags & self::FLAG_ACTIVE);
     }
 
+    function clearInactiveTopic($topic_id) {
+      global $cfg;
+
+      $emails = Email::objects()->filter(array('topic_id'=>$topic_id))->values_flat('email_id');
+      if ($emails) {
+        foreach ($emails as $email_id) {
+          $email = Email::lookup($email_id[0]);
+          $email->topic_id = $cfg->getDefaultTopicId();
+          $email->save();
+        }
+      }
+    }
+
     function getStatus() {
       if($this->flags & self::FLAG_ACTIVE)
         return 'Active';

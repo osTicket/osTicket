@@ -25,6 +25,9 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                 if(!$dept){
                     $errors['err']=sprintf(__('%s: Unknown or invalid'), __('department'));
                 }elseif($dept->update($_POST,$errors)){
+                    if ($_POST["status"] != __('Active'))
+                      Dept::clearInactiveDept($dept->getId());
+
                     $msg=sprintf(__('Successfully updated %s.'),
                         __('this department'));
                 }elseif(!$errors['err']){
@@ -96,8 +99,7 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             ))->exclude(array(
                                 'id'=>$cfg->getDefaultDeptId()
                             ));
-                            foreach ($depts as $d)
-                            {
+                            foreach ($depts as $d) {
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, true);
                               if($d->save())
@@ -122,12 +124,14 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             ))->exclude(array(
                                 'id'=>$cfg->getDefaultDeptId()
                             ));
-                            foreach ($depts as $d)
-                            {
+                            foreach ($depts as $d) {
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
-                              if($d->save())
+                              if($d->save()) {
                                 $num++;
+                                //set dept_id to default for topics/emails using disabled dept
+                                Dept::clearInactiveDept($d->getId());
+                              }
                             }
                             if ($num > 0) {
                                 if($num==$count)
@@ -147,12 +151,14 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             ))->exclude(array(
                                 'id'=>$cfg->getDefaultDeptId()
                             ));
-                            foreach ($depts as $d)
-                            {
+                            foreach ($depts as $d) {
                               $d->setFlag(Dept::FLAG_ARCHIVED, true);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
-                              if($d->save())
+                              if($d->save()) {
                                 $num++;
+                                //set dept_id to default for topics/emails using archived dept
+                                Dept::clearInactiveDept($d->getId());
+                              }
                             }
                             if ($num > 0) {
                                 if($num==$count)

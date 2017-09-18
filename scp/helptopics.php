@@ -28,6 +28,9 @@ if($_POST){
             if(!$topic){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('help topic'));
             }elseif($topic->update($_POST,$errors)){
+              if ($_POST["status"] != __('Active'))
+                Topic::clearInactiveTopic($topic->getId());
+
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this help topic'));
             }elseif(!$errors['err']){
@@ -66,8 +69,7 @@ if($_POST){
                         $topics = Topic::objects()->filter(array(
                           'topic_id__in'=>$_POST['ids'],
                         ));
-                        foreach ($topics as $t)
-                        {
+                        foreach ($topics as $t) {
                           $t->setFlag(Topic::FLAG_ARCHIVED, false);
                           $t->setFlag(Topic::FLAG_ACTIVE, true);
                           if($t->save())
@@ -92,12 +94,14 @@ if($_POST){
                         ))->exclude(array(
                             'topic_id'=>$cfg->getDefaultTopicId()
                         ));
-                        foreach ($topics as $t)
-                        {
+                        foreach ($topics as $t) {
                           $t->setFlag(Topic::FLAG_ARCHIVED, false);
                           $t->setFlag(Topic::FLAG_ACTIVE, false);
-                          if($t->save())
+                          if($t->save()) {
                             $num++;
+                            //remove topic_id for emails using disabled topic
+                            Topic::clearInactiveTopic($t->getId());
+                          }
                         }
                         if ($num > 0) {
                             if($num==$count)
@@ -117,12 +121,14 @@ if($_POST){
                         ))->exclude(array(
                             'topic_id'=>$cfg->getDefaultTopicId()
                         ));
-                        foreach ($topics as $t)
-                        {
+                        foreach ($topics as $t) {
                           $t->setFlag(Topic::FLAG_ARCHIVED, true);
                           $t->setFlag(Topic::FLAG_ACTIVE, false);
-                          if($t->save())
+                          if($t->save()) {
                             $num++;
+                            //remove topic_id for emails using disabled topic
+                            Topic::clearInactiveTopic($t->getId());
+                          }
                         }
                         if ($num > 0) {
                             if($num==$count)

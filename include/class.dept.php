@@ -144,9 +144,30 @@ implements TemplateVariable {
       return !($this->flags & self::FLAG_ARCHIVED);
     }
 
-    function isActive()
-    {
+    function isActive() {
         return !!($this->flags & self::FLAG_ACTIVE);
+    }
+
+    function clearInactiveDept($dept_id) {
+      global $cfg;
+
+      $topics = Topic::objects()->filter(array('dept_id'=>$dept_id))->values_flat('topic_id');
+      if ($topics) {
+        foreach ($topics as $topic_id) {
+          $topic = Topic::lookup($topic_id[0]);
+          $topic->dept_id = $cfg->getDefaultDeptId();
+          $topic->save();
+        }
+      }
+
+      $emails = Email::objects()->filter(array('dept_id'=>$dept_id))->values_flat('email_id');
+      if ($emails) {
+        foreach ($emails as $email_id) {
+          $email = Email::lookup($email_id[0]);
+          $email->dept_id = $cfg->getDefaultDeptId();
+          $email->save();
+        }
+      }
     }
 
     function getEmailId() {

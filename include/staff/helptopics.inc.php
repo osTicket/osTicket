@@ -123,13 +123,6 @@ $order_by = 'sort';
                 if ($topic->dept_id) {
                     $deptId = $topic->dept_id;
                     $dept = (string) $topic->dept;
-                    $department = Dept::lookup($deptId);
-                    if (!$department->isActive()) {
-                      $deptId = $defaultDept->getId();
-                      $dept = (string) $defaultDept;
-                      $topic->dept_id = $deptId;
-                      $topic->save();
-                    }
                 } elseif ($defaultDept) {
                     $deptId = $defaultDept->getId();
                     $dept = (string) $defaultDept;
