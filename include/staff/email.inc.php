@@ -144,8 +144,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			    <?php
                     $warn = '';
                     $topics = Topic::getHelpTopics();
-                    if($info['topic_id'] && !array_key_exists($info['topic_id'], $topics))
-                    {
+                    if($info['topic_id'] && !array_key_exists($info['topic_id'], $topics)) {
                       $topics[$info['topic_id']] = $email->topic;
                       $warn = sprintf(__('%s selected must be active'), __('Help Topic'));
                     }
