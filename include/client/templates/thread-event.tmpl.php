@@ -1,5 +1,5 @@
 <?php
-$desc = $event->getDescription(ThreadEvent::MODE_CLIENT);
+$desc = $event->getDescription(ThreadEvent::MODE_CLIENT); 
 if (!$desc)
     return;
 ?>

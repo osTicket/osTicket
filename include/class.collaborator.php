@@ -34,6 +34,9 @@ implements EmailContact, ITicketUser {
         ),
     );
 
+    const FLAG_ACTIVE = 0x0001;
+    const FLAG_CC = 0x0002;
+
     function __toString() {
         return Format::htmlchars($this->toString());
     }
@@ -46,7 +49,7 @@ implements EmailContact, ITicketUser {
     }
 
     function isActive() {
-        return $this->isactive;
+        return !!($this->flags & self::FLAG_ACTIVE);
     }
 
     function getCreateDate() {
@@ -80,21 +83,36 @@ implements EmailContact, ITicketUser {
         return $this->user->getName();
     }
 
+    static function getIdByUserId($userId, $threadId) {
+        $row = Collaborator::objects()
+            ->filter(array('user_id'=>$userId, 'thread_id'=>$threadId))
+            ->values_flat('id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
+
     // VariableReplacer interface
     function getVar($what) {
         global $cfg;
 
         switch (strtolower($what)) {
         case 'ticket_link':
-            return sprintf('%s/view.php?%s',
-                $cfg->getBaseUrl(),
-                Http::build_query(
-                    // TODO: Chance to $this->getTicket when
-                    array('auth' => $this->getTicket()->getAuthToken($this)),
-                    false
-                )
-            );
-            break;
+            if ($this->getTicket()->getAuthToken($this)
+                && ($ticket=$this->getTicket())
+                && !$ticket->getThread()->getNumCollaborators()) {
+                  $qstr['auth'] = $ticket->getAuthToken($this);
+                  return sprintf('%s/view.php?%s',
+                          $cfg->getBaseUrl(),
+                          Http::build_query($qstr, false)
+                          );
+                }
+                else {
+                  return sprintf('%s/tickets.php?id=%s',
+                          $cfg->getBaseUrl(),
+                          $ticket->getId()
+                          );
+                }
         }
     }
 
@@ -114,6 +132,45 @@ implements EmailContact, ITicketUser {
         return $this->user_id;
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    public function setFlag($flag, $val) {
+        if ($val)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
+
+    public function setCc() {
+      $this->setFlag(Collaborator::FLAG_ACTIVE, true);
+      $this->setFlag(Collaborator::FLAG_CC, true);
+      $this->save();
+    }
+
+    public function setBcc() {
+      $this->setFlag(Collaborator::FLAG_ACTIVE, true);
+      $this->setFlag(Collaborator::FLAG_CC, false);
+      $this->save();
+    }
+
+    function isCc() {
+        return !!($this->flags & self::FLAG_CC);
+    }
+
+    function getCollabList($collabs) {
+      $collabList = array();
+      foreach ($collabs as $c) {
+        $u = User::lookup($c);
+        if ($u) {
+          $email = $u->getEmail()->address;
+          $collabList[$c] = $email;
+        }
+      }
+      return $collabList;
+    }
+
     static function create($vars=false) {
         $inst = new static($vars);
         $inst->created = SqlFunction::NOW();
@@ -127,15 +184,14 @@ implements EmailContact, ITicketUser {
     }
 
     static function add($info, &$errors) {
-
         if (!$info || !$info['threadId'] || !$info['userId'])
             $errors['err'] = __('Invalid or missing information');
-        elseif ($c = static::lookup(array(
+        elseif ($c = Collaborator::lookup(array(
             'thread_id' => $info['threadId'],
             'user_id' => $info['userId'],
         )))
-            $errors['err'] = sprintf(__('%s is already a collaborator'),
-                    $c->getName());
+          $errors['err'] = sprintf(__('%s is already a collaborator'),
+                      $c->getName());
 
         if ($errors) return false;
 

@@ -1310,6 +1310,10 @@ table.fixed > tr > td + td:not([width]) {
     width: auto;
 }
 
+tr.no_border > td, td.no_border{
+  border-style:hidden;
+}
+
 td.multi-line {
     vertical-align:top;
     padding-top: 0.4em;
@@ -1582,6 +1586,27 @@ img.avatar {
 
 .thread-entry.avatar .header {
     position: relative;
+}
+
+.thread-entry.bccmessage .header {
+    background:#DDFDAC;
+}
+
+.thread-entry.avatar.bccmessage .header:before {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 8px solid #CCC;
+}
+
+.thread-entry.avatar.bccmessage .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 7px solid #DDFDAC;
+    margin-left: 1px;
 }
 
 .thread-entry.message .header {

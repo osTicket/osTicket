@@ -38,8 +38,17 @@ if ($thisclient && $thisclient->isGuest()
                 </b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
-    <a class="action-button" href="tickets.php?a=print&id=<?php
-        echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
+  <?php
+      if($collabs = $ticket->getRecipients()) {
+        foreach ($collabs as $collab) {
+          if(get_class($collab) == 'Collaborator' && $collab->user_id == $thisclient->getId() && !$collab->isCc()) {
+            $viewThreads = true;
+          }
+        }
+      } ?>
+      <a class="action-button" href="tickets.php?a=print&id=<?php
+          echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
+
 <?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
@@ -134,13 +143,15 @@ echo $v;
 </tr>
 </table>
 <br>
+  <?php
+    $email = $thisclient->getUserName();
+    $clientName = TicketUser::lookupByEmail($email)->getName()->name;
 
-<?php
-    $ticket->getThread()->render(array('M', 'R'), array(
-                'mode' => Thread::MODE_CLIENT,
-                'html-id' => 'ticketThread')
-            );
-?>
+    $ticket->getThread()->render(array('M', 'R', 'poster' => $clientName), array(
+                    'mode' => Thread::MODE_CLIENT,
+                    'html-id' => 'ticketThread')
+                );
+  ?>
 
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>
