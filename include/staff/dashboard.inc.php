@@ -280,7 +280,7 @@
             </div>
         </div>
     </div>
-        <div class="col-lg-3">
+        <div class="col-lg-6">
         <div class="portlet"><!-- /primary heading -->
             <div class="portlet-heading">
                 <h3 class="portlet-title text-dark">
@@ -308,33 +308,7 @@
             </div>
         </div>
    
-    <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TOP 10 CLOSED TOPICS (PRIOR YEAR)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet11"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet11" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptenclosedpytopic-chart">
-                        
-                            <div id="toptenclosedpytopic-chart-container"  style="height: 320px;">
-                            </div>
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
     
 </div>
@@ -369,9 +343,101 @@
             </div>
         </div>
     </div>
+        <div class="col-lg-6">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TOP 10 CLOSED TOPICS (PRIOR YEAR)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet11"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet11" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                    <div id="toptenclosedpytopic-chart">
+                        
+                            <div id="toptenclosedpytopic-chart-container"  style="height: 320px;">
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+ </div>
+ <div class="row">
+    <div class="col-lg-12">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TICKETS CLOSED (TECH 1 YEARS)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet7"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet7" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                
+                    <div id="closedbytech-chart">
+                        <div class="row">
+                            <div id="closedbytech-chart-container" class="col-sm-10" style="height: 320px;">
+                            </div>
+                            <div id="closedbytech-chart-legend" class="col-sm-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
+ <div class="row">
+    <div class="col-lg-12">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TICKETS CLOSED (LOCATION 1 YEARS)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet13"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet13" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                
+                    <div id="closedbylocation-chart">
+                        <div class="row">
+                            <div id="closedbylocation-chart-container" class="col-sm-10" style="height: 320px;">
+                            </div>
+                            <div id="closedbylocation-chart-legend" class="col-sm-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
  </div>
  
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.curvedLines.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.js"></script> 
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.time.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.min.js"></script>
@@ -382,7 +448,6 @@
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.orderBars.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.stack.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.crosshair.js"></script>
-
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tickrotor.js"></script>
 
 <script>
@@ -1517,8 +1582,251 @@ $(function () {
     
     $.plot($("#statusbylocation-chart #statusbylocation-chart-container"), dataset, options);
 });  
+//location 2 year
+<?php
+
+$sql="select distinct LASTNAME,OWNER_NAME from
+(
+	select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
+	(
+	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, u.lastname as LASTNAME, 
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM osticket_sup.ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
 
 
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	) a
+
+	group by OWNER_NAME, CALENDARWEEK
+)b";
+
+$locs = db_query($sql);
+
+$sql="select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
+	(
+	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, u.lastname as LASTNAME, 
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM osticket_sup.ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	) a
+
+	group by OWNER_NAME, CALENDARWEEK
+";
+
+$locsdata = db_query($sql);
+
+?>
+
+       
+<?php                
+           foreach ($locs as $loc) {
+             
+             echo "var ".preg_replace('/\s+/', '', $loc["LASTNAME"])." = [\n";
+                         
+             foreach ($locsdata as $locdata) {
+             
+                if ($locdata["LASTNAME"] == $loc["LASTNAME"] ){
+                     
+                    echo  "[\"".$locdata["CALENDARWEEK"]."\", ".$locdata["COUNT"]."],\n"; 
+                } 
+             
+             }
+             echo "];\n";
+        
+        }
+    ?> 
+
+$(function () {        
+    $.plot($("#closedbytech-chart-container"),
+        [
+        
+        <?php                
+           foreach ($locs as $loc) {
+              ?> 
+               {
+              data: <?php echo $loc["LASTNAME"];?>,
+              label: "<?php echo $loc["OWNER_NAME"];?>",
+              points: { show: true },
+              lines: { show: true}
+
+            },
+            <?php   
+           }  
+         ?> 
+         
+            
+        ],
+        {            
+            grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee",
+                labelMargin: 20,
+                margin: 10
+			},
+            tooltip: {
+                 show: true,
+                 cssClass: "flot",
+                 content: "%s | %y",
+                
+                
+              },
+            xaxis: {
+                mode: "categories",
+				tickLength: 0,
+                tickColor : '#f5f5f5',
+				font : {
+                color : '#868e96',
+                    	},
+                rotateTicks: 135
+            },
+            yaxes: [
+                {
+                    /* First y axis */
+                },
+                {
+                    /* Second y axis */
+                    position: "right"  /* left or right */
+                }
+            ], legend: {
+                show: true,
+                container: '#closedbytech-chart-legend'
+				
+				
+        }      
+        }
+    );
+});
+
+//location 2 year
+<?php
+
+$sql="select distinct LOCATION from
+(
+	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	(
+	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM osticket_sup.ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	) a
+
+	group by LOCATION, CALENDARWEEK
+)b ";
+
+$locs = db_query($sql);
+
+$sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	(
+	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM osticket_sup.ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	) a
+
+	group by LOCATION, CALENDARWEEK
+";
+
+$locsdata = db_query($sql);
+
+?>
+
+       
+<?php                
+           foreach ($locs as $loc) {
+             
+             echo "var ".preg_replace('/\s+/', '', $loc["LOCATION"])." = [\n";
+                         
+             foreach ($locsdata as $locdata) {
+             
+                if ($locdata["LOCATION"] == $loc["LOCATION"] ){
+                     
+                    echo  "[\"".$locdata["CALENDARWEEK"]."\", ".$locdata["COUNT"]."],\n"; 
+                } 
+             
+             }
+             echo "];\n";
+        
+        }
+    ?> 
+
+$(function () {        
+    $.plot($("#closedbylocation-chart-container"),
+        [
+        
+        <?php                
+           foreach ($locs as $loc) {
+              ?> 
+               {
+              data: <?php echo $loc["LOCATION"];?>,
+              label: "<?php echo $loc["LOCATION"];?>",
+              points: { show: true },
+              lines: { show: true},
+             
+            },
+            <?php   
+           }  
+         ?> 
+            
+        ],
+        
+        {            
+            grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee",
+                labelMargin: 20,
+                margin: 10
+			},
+            tooltip: {
+                 show: true,
+                 cssClass: "flot",
+                 content: "%s | %y",
+                
+                
+              },
+            xaxis: {
+                mode: "categories",
+				tickLength: 0,
+                tickColor : '#f5f5f5',
+				font : {
+                color : '#868e96',
+                    	},
+                rotateTicks: 135
+            },
+            yaxes: [
+                {
+                    /* First y axis */
+                },
+                {
+                    /* Second y axis */
+                    position: "right"  /* left or right */
+                }
+            ], legend: {
+                show: true,
+                container: '#closedbylocation-chart-legend'
+				
+				
+        }      
+        }
+    );
+});
+
+    
       
 </script>
 
