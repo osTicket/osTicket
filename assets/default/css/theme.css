@@ -1127,6 +1127,28 @@ img.avatar {
     margin-left: 1px;
 }
 
+.thread-entry.bccmessage .header {
+    background:#DDFDAC;
+}
+.thread-entry.avatar.bccmessage .header:before {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 8px solid #CCC;
+}
+.thread-entry.avatar.bccmessage .header:before {
+    border-right-color: #CCC;
+}
+.thread-entry.avatar.bccmessage .header:after {
+    top: 7px;
+    left: -8px;
+    right: initial;
+    border-left: none;
+    border-right: 7px solid #DDFDAC;
+    margin-left: 1px;
+}
+
 .thread-entry .header .title {
     max-width: 500px;
     vertical-align: bottom;

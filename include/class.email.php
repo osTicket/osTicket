@@ -169,13 +169,13 @@ class Email extends VerySimpleModel {
         return $info;
     }
 
-    function send($to, $subject, $message, $attachments=null, $options=null) {
+    function send($to, $subject, $message, $attachments=null, $options=null, $cc=array()) {
 
         $mailer = new Mailer($this);
         if($attachments)
             $mailer->addAttachments($attachments);
 
-        return $mailer->send($to, $subject, $message, $options);
+        return $mailer->send($to, $subject, $message, $options, $cc);
     }
 
     function sendAutoReply($to, $subject, $message, $attachments=null, $options=array()) {

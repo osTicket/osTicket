@@ -3,46 +3,73 @@
 <?php
 if($info && $info['msg']) {
     echo sprintf('<p id="msg_notice" style="padding-top:2px;">%s</p>', $info['msg']);
-} ?>
+}
+
+if ($thread->object_type == 'T')
+  $type = '\'tickets\'';
+if ($thread->object_type == 'A')
+  $type = '\'tasks\'';
+?>
 <hr/>
 <?php
 if(($users=$thread->getCollaborators())) {?>
 <div id="manage_collaborators">
-<form method="post" class="collaborators" action="#thread/<?php echo $thread->getId(); ?>/collaborators">
+<form method="post" class="collaborators" onsubmit="refreshAndClose(<?php echo $thread->object_id; ?>, <?php echo $type; ?>);" action="#thread/<?php echo $thread->getId(); ?>/collaborators">
     <table border="0" cellspacing="1" cellpadding="1" width="100%">
     <?php
     foreach($users as $user) {
         $checked = $user->isActive() ? 'checked="checked"' : '';
+        $cc = $user->isCc() ? 'selected="selected"' : '';
+        $bcc = !$user->isCc() ? 'selected="selected"' : '';
+
         echo sprintf('<tr>
                         <td>
                             <label class="inline checkbox">
+                            <input type="checkbox" class="hidden" name="uid[]" id="%d" value="%d" checked="checked">
                             <input type="checkbox" name="cid[]" id="c%d" value="%d" %s>
                             </label>
                             <a class="collaborator" href="#thread/%d/collaborators/%d/view">%s%s</a>
-                            <span class="faded"><em>%s</em></span></td>
-                        <td width="10">
-                            <input type="hidden" name="del[]" id="d%d" value="">
-                            <a class="remove" href="#d%d">&times;</a></td>
-                        <td width="30">&nbsp;</td>
-                    </tr>',
-                    $user->getId(),
-                    $user->getId(),
-                    $checked,
-                    $thread->getId(),
-                    $user->getId(),
-                    (($U = $user->getUser()) && ($A = $U->getAvatar()))
-                        ? $U->getAvatar()->getImageTag(24) : '',
-                    Format::htmlchars($user->getName()),
-                    $user->getEmail(),
-                    $user->getId(),
-                    $user->getId());
+                            <div align="left">
+                                <span class="faded"><em>%s</em></span>
+                            </div>
+                        </td>', $user->getId(),
+                        $user->getId(),
+                        $user->getId(),
+                        $user->getId(),
+                        $checked,
+                        $thread->getId(),
+                        $user->getId(),
+                        (($U = $user->getUser()) && ($A = $U->getAvatar()))
+                            ? $U->getAvatar()->getImageTag(24) : '',
+                        Format::htmlchars($user->getName()),
+                        $user->getEmail());
+
+            if ($thread->object_type == 'T') {
+              echo sprintf('<td>
+                <select name="recipientType[]">
+                    <option value="Cc" %s>Cc</option>
+                    <option value="Bcc" %s>Bcc</option>
+                </select>
+              </td>', $cc, $bcc);
+            }
+
+            echo sprintf('<td width="10">
+                <input type="hidden" name="del[]" id="d%d" value="">
+                <a class="remove" href="#d%d">
+                  <i class="icon-trash icon-fixed-width"></i>
+                </a>
+            </td>
+            <td width="30">&nbsp;</td>
+            </tr>',$user->getId(), $user->getId());
     }
     ?>
+    <td>
+      <div><a class="collaborator" id="addcollaborator"
+          href="#thread/<?php echo $thread->getId(); ?>/add-collaborator"
+          ><i class="icon-plus-sign"></i> <?php echo __('Add Collaborator'); ?></a></div>
+    </td>
     </table>
     <hr style="margin-top:1em"/>
-    <div><a class="collaborator"
-        href="#thread/<?php echo $thread->getId(); ?>/add-collaborator"
-        ><i class="icon-plus-sign"></i> <?php echo __('Add New Collaborator'); ?></a></div>
     <div id="savewarning" style="display:none; padding-top:2px;"><p
     id="msg_warning"><?php echo __('You have made changes that you need to save.'); ?></p></div>
     <p class="full-width">
@@ -136,4 +163,8 @@ $(function() {
     });
 
 });
+
+function refreshAndClose(tid, type) {
+  window.location.href = type + '.php?id=' + tid;
+}
 </script>

@@ -637,6 +637,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   `body` text NOT NULL,
   `format` varchar(16) NOT NULL default 'html',
   `ip_address` varchar(64) NOT NULL default '',
+  `recipients` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
@@ -761,7 +762,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
 
 CREATE TABLE `%TABLE_PREFIX%thread_collaborator` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `isactive` tinyint(1) NOT NULL DEFAULT '1',
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
   `thread_id` int(11) unsigned NOT NULL DEFAULT '0',
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority

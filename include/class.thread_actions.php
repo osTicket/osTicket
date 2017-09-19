@@ -18,6 +18,65 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.thread.php');
 
+class TEA_ShowEmailRecipients extends ThreadEntryAction {
+    static $id = 'emailrecipients';
+    static $name = /* trans */ 'View Email Recipients';
+    static $icon = 'group';
+
+    function isVisible() {
+        global $thisstaff;
+
+        if ($this->entry->getEmailHeader())
+          return ($thisstaff && $this->entry->getEmailHeader());
+        elseif ($this->entry->recipients)
+          return $this->entry->recipients;
+
+    }
+
+    function getJsStub() {
+        return sprintf("$.dialog('%s');",
+            $this->getAjaxUrl()
+        );
+    }
+
+    function trigger() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET' && $this->entry->recipients:
+            return $this->getRecipients();
+        case 'GET':
+            return $this->trigger__get();
+        }
+    }
+
+    private function trigger__get() {
+        $hdr = Mail_parse::splitHeaders(
+                $this->entry->getEmailHeader(), true);
+
+        $recipients = array();
+        foreach (array('To', 'TO', 'Cc', 'CC', 'Bcc', 'BCC') as $k) {
+            if (isset($hdr[$k]) && $hdr[$k] &&
+                ($addresses=Mail_Parse::parseAddressList($hdr[$k]))) {
+                foreach ($addresses as $addr) {
+                    $email = sprintf('%s@%s', $addr->mailbox, $addr->host);
+                    $name = $addr->personal ?: '';
+                    $recipients[$k][] = sprintf('%s<%s>',
+                            (($name && strcasecmp($name, $email))? "$name ": ''),
+                            $email);
+                }
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/thread-email-recipients.tmpl.php';
+    }
+
+    private function getRecipients() {
+      $recipients = json_decode($this->entry->recipients, true);
+
+      include STAFFINC_DIR . 'templates/thread-email-recipients.tmpl.php';
+    }
+}
+ThreadEntry::registerAction(/* trans */ 'E-Mail', 'TEA_ShowEmailRecipients');
+
 class TEA_ShowEmailHeaders extends ThreadEntryAction {
     static $id = 'view_headers';
     static $name = /* trans */ 'View Email Headers';
@@ -134,6 +193,7 @@ JS
             'staffId' => $old->staff_id,
             'type' => $old->type,
             'threadId' => $old->thread_id,
+            'recipients' => $old->recipients,
 
             // Connect the new entry to be a child of the previous
             'pid' => $old->id,
@@ -313,16 +373,19 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
                 && ($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getReplyMsgTemplate())) {
 
+            $recipients = json_decode($response->recipients, true);
+
             $msg = $object->replaceVars($msg->asArray(),
                 $variables + array('recipient' => $object->getOwner()));
 
             $attachments = $cfg->emailAttachments()
                 ? $response->getAttachments() : array();
             $email->send($object->getOwner(), $msg['subj'], $msg['body'],
-                $attachments, $options);
+                $attachments, $options, $recipients);
         }
         // TODO: Add an option to the dialog
-        $object->notifyCollaborators($response, array('signature' => $signature));
+        if ($object instanceof Task)
+          $object->notifyCollaborators($response, array('signature' => $signature));
 
         // Log an event that the item was resent
         $object->logEvent('resent', array('entry' => $response->id));

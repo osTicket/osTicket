@@ -129,7 +129,7 @@ $tickets->order_by($order.$order_by);
 $tickets->values(
     'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
-    'dept__name', 'dept__ispublic', 'user__default_email__address'
+    'dept__name', 'dept__ispublic', 'user__default_email__address', 'user_id'
 );
 
 ?>
@@ -238,6 +238,7 @@ if ($closedTickets) {?>
                 $subject="<b>$subject</b>";
                 $ticketNumber="<b>$ticketNumber</b>";
             }
+            $thisclient->getId() != $T['user_id'] ? $isCollab = true : $isCollab = false;
             ?>
             <tr id="<?php echo $T['ticket_id']; ?>">
                 <td>
@@ -247,7 +248,11 @@ if ($closedTickets) {?>
                 <td><?php echo Format::date($T['created']); ?></td>
                 <td><?php echo $status; ?></td>
                 <td>
+                  <?php if ($isCollab) {?>
+                    <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><i class="icon-group"></i> <?php echo $subject; ?></div>
+                  <?php } else {?>
                     <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
+                    <?php } ?>
                 </td>
                 <td><span class="truncate"><?php echo $dept; ?></span></td>
             </tr>

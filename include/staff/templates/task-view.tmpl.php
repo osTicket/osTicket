@@ -619,7 +619,6 @@ else
 <?php
 echo $reply_attachments_form->getMedia();
 ?>
-
 <script type="text/javascript">
 $(function() {
     $(document).off('.tasks-content');
