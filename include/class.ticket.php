@@ -948,7 +948,6 @@ implements RestrictedAccess, Threadable, Searchable {
                 'id__in' => $cids
             ))->update(array(
                 'updated' => SqlFunction::NOW(),
-                'isactive' => 1,
             ));
             $collab->save();
         }
@@ -959,7 +958,6 @@ implements RestrictedAccess, Threadable, Searchable {
                 Q::not(array('id__in' => $cids))
             ))->update(array(
                 'updated' => SqlFunction::NOW(),
-                'isactive' => 0,
             ));
         }
 
@@ -2349,7 +2347,7 @@ implements RestrictedAccess, Threadable, Searchable {
           else
             $user = User::lookup($vars['userId']);
 
-          $c = $this->getThread()->addCollaborator($user,array('isactive'=>1), $errors);
+          $c = $this->getThread()->addCollaborator($user,array(), $errors);
 
           foreach (array('To', 'TO', 'Cc', 'CC') as $k) {
             if ($user && isset($hdr[$k]) && $hdr[$k])
@@ -2607,7 +2605,7 @@ implements RestrictedAccess, Threadable, Searchable {
           foreach ($vars['ccs'] as $uid) {
             $user = User::lookup($uid);
             if (!in_array($uid, $collabIds))
-              if (($c2=$ticket->getThread()->addCollaborator($user,array('isactive'=>1), $errors)))
+              if (($c2=$ticket->getThread()->addCollaborator($user,array(), $errors)))
                     $c2->setCc();
           }
         }
@@ -2615,7 +2613,7 @@ implements RestrictedAccess, Threadable, Searchable {
           foreach ($vars['bccs'] as $uid) {
             $user = User::lookup($uid);
             if (!in_array($uid, $collabIds))
-              if (($c2=$ticket->getThread()->addCollaborator($user,array('isactive'=>1), $errors)))
+              if (($c2=$ticket->getThread()->addCollaborator($user,array(), $errors)))
                 $c2->setBcc();
           }
         }
@@ -3731,7 +3729,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($ccuser && !$existing = Collaborator::getIdByUserId($ccuser->getId(), $ticket->getThreadId())) {
                 $collabsCc[] = $ccuser->getEmail()->address;
 
-              if (($c2=$ticket->getThread()->addCollaborator($ccuser,array('isactive'=>1), $errors)))
+              if (($c2=$ticket->getThread()->addCollaborator($ccuser,array(), $errors)))
                     $c2->setCc();
             }
           }
@@ -3745,7 +3743,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($bccuser && !$existing = Collaborator::getIdByUserId($bccuser->getId(), $ticket->getThreadId())) {
               $collabsBcc[] = $bccuser;
 
-              if (($c2=$ticket->getThread()->addCollaborator($bccuser,array('isactive'=>1), $errors)))
+              if (($c2=$ticket->getThread()->addCollaborator($bccuser,array(), $errors)))
                 $c2->setBcc();
             }
           }

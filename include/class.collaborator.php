@@ -196,7 +196,6 @@ implements EmailContact, ITicketUser {
         if ($errors) return false;
 
         $collab = static::create(array(
-            'isactive' => isset($info['isactive']) ? $info['isactive'] : 0,
             'thread_id' => $info['threadId'],
             'user_id' => $info['userId'],
         ));

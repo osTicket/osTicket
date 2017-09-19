@@ -371,7 +371,7 @@ if($_POST && !$errors):
                         $errors['err']=__('Permission Denied. You are not allowed to add collaborators');
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = __('Unknown user selected');
-                    } elseif ($c2 = $ticket->addCollaborator($user, array('isactive'=>1), $errors)) {
+                  } elseif ($c2 = $ticket->addCollaborator($user, array(), $errors)) {
                         $c2->setFlag(Collaborator::FLAG_CC, true);
                         $c2->save();
                         $msg = sprintf(__('Collaborator %s added'),
@@ -386,7 +386,7 @@ if($_POST && !$errors):
                           $errors['err']=__('Permission Denied. You are not allowed to add collaborators');
                       } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                           $errors['err'] = __('Unknown user selected');
-                      } elseif ($c2 = $ticket->addCollaborator($user, array('isactive'=>1), $errors)) {
+                    } elseif ($c2 = $ticket->addCollaborator($user, array(), $errors)) {
                           $msg = sprintf(__('Collaborator %s added'),
                               Format::htmlchars($user->getName()));
                       }
