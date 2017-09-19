@@ -83,7 +83,7 @@ if ($count) { ?>
             $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',
                     Format::truncate($task->staff->getName(),40));
 
-        $status = $task->isOpen() ? '<strong>open</strong>': 'closed';
+        $status = $task->isOpen() ? '<strong>'.__('Open').'</strong>': __('Closed');
 
         $title = Format::htmlchars(Format::truncate($task->getTitle(),40));
         $threadcount = $task->getThread() ?
