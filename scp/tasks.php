@@ -41,7 +41,6 @@ $reply_attachments_form = new SimpleForm(array(
 
 //At this stage we know the access status. we can process the post.
 if($_POST && !$errors):
-
     if ($task) {
         //More coffee please.
         $errors=array();
@@ -110,6 +109,24 @@ if($_POST && !$errors):
         default:
             $errors['err']=__('Unknown action');
         endswitch;
+
+        switch(strtolower($_POST['do'])):
+          case 'addcc':
+              $errors = array();
+              if (!$role->hasPerm(TicketModel::PERM_EDIT)) {
+                  $errors['err']=__('Permission Denied. You are not allowed to add collaborators');
+              } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
+                  $errors['err'] = __('Unknown user selected');
+              } elseif ($c2 = $task->addCollaborator($user, array('isactive'=>1), $errors)) {
+                  $c2->setFlag(Collaborator::FLAG_CC, true);
+                  $c2->save();
+                  $msg = sprintf(__('Collaborator %s added'),
+                      Format::htmlchars($user->getName()));
+              }
+              else
+                $errors['err'] = sprintf('%s %s', __('Unable to add collaborator.'), __('Please try again!'));
+              break;
+      endswitch;
     }
     if(!$errors)
         $thisstaff->resetStats(); //We'll need to reflect any changes just made!

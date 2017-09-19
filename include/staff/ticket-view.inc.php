@@ -179,6 +179,19 @@ if($ticket->isOverdue())
                 <?php
                 } ?>
 
+                <li>
+
+                    <?php
+                    $recipients = __(' Manage Collaborators');
+
+                    echo sprintf('<a class="collaborators manage-collaborators"
+                            href="#thread/%d/collaborators"><i class="icon-group"></i>%s</a>',
+                            $ticket->getThreadId(),
+                            $recipients);
+                   ?>
+                </li>
+
+
 <?php           if ($thisstaff->hasPerm(Email::PERM_BANLIST)) {
                      if(!$emailBanned) {?>
                         <li><a class="confirm-action" id="ticket-banemail"
@@ -301,6 +314,21 @@ if($ticket->isOverdue())
 <?php   } ?>
                                 </ul>
                             </div>
+                            <?php
+                            if ($role->hasPerm(TicketModel::PERM_EDIT)) {
+                            $numCollaborators = $ticket->getThread()->getNumCollaborators();
+                             if ($ticket->getThread()->getNumCollaborators())
+                                $recipients = sprintf(__('%d'),
+                                        $numCollaborators);
+                            else
+                              $recipients = 0;
+
+                             echo sprintf('<span><a class="collaborators preview"
+                                    href="#thread/%d/collaborators"><span id="t%d-recipients"><i class="icon-group"></i> (%s)</span></a></span>',
+                                    $ticket->getThreadId(),
+                                    $ticket->getThreadId(),
+                                    $recipients);
+                             }?>
 <?php                   } # end if ($user) ?>
                     </td>
                 </tr>
@@ -554,6 +582,30 @@ if ($errors['err'] && isset($_POST['a'])) {
             <?php
             }?>
            <tbody id="to_sec">
+           <tr>
+               <td width="120">
+                   <label><strong><?php echo __('From'); ?>:</strong></label>
+               </td>
+               <td>
+                   <?php
+                   # XXX: Add user-to-name and user-to-email HTML ID#s
+                   $addresses = Email::getAddresses();
+                   ?>
+                   <select id="from_name" name="from_name">
+                     <?php
+                     $sql=' SELECT email_id, email, name, smtp_host '
+                         .' FROM '.EMAIL_TABLE.' WHERE smtp_active = 1';
+                     if(($res=db_query($sql)) && db_num_rows($res)) {
+                         while (list($id, $email, $name, $host) = db_fetch_row($res)){
+                             $email=$name?"$name &lt;$email&gt;":$email;
+                             ?>
+                             <option value="<?php echo $id; ?>"<?php echo ($dept->getEmail()->email_id==$id)?'selected="selected"':''; ?>><?php echo $email; ?></option>
+                         <?php
+                         }
+                     } ?>
+                   </select>
+               </td>
+           </tr>
             <tr>
                 <td width="120">
                     <label><strong><?php echo __('To'); ?>:</strong></label>
@@ -590,19 +642,61 @@ if ($errors['err'] && isset($_POST['a'])) {
                         style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
-                    $recipients = __('Add Recipients');
-                    if ($ticket->getThread()->getNumCollaborators())
-                        $recipients = sprintf(__('Recipients (%d of %d)'),
-                                $ticket->getThread()->getNumActiveCollaborators(),
-                                $ticket->getThread()->getNumCollaborators());
-
-                    echo sprintf('<span><a class="collaborators preview"
-                            href="#thread/%d/collaborators"><span id="t%d-recipients">%s</span></a></span>',
-                            $ticket->getThreadId(),
-                            $ticket->getThreadId(),
-                            $recipients);
                    ?>
                 </td>
+             </tr>
+             <?php $collaborators = $ticket->getThread()->getCollaborators();
+             $cc_cids = array();
+             $bcc_cids = array();
+             foreach ($collaborators as $c) {
+               if ($c->flags & Collaborator::FLAG_CC && $c->flags & Collaborator::FLAG_ACTIVE)
+                  $cc_cids[] = $c->user_id;
+                elseif (!($c->flags & Collaborator::FLAG_CC) && $c->flags & Collaborator::FLAG_ACTIVE) {
+                  $bcc_cids[] = $c->user_id;
+                }
+             }
+            ?>
+             <tr>
+                 <td width="160"><b><?php echo __('Cc'); ?>:</b></td>
+                 <td>
+                     <select name="ccs[]" id="cc_users" multiple="multiple"
+                         data-placeholder="<?php echo __('Select Contacts'); ?>">
+                         <option value=""></option>
+                         <option value="NEW">&mdash; <?php echo __('Add New');?> &mdash;</option>
+                         <?php
+                         $users = User::objects();
+                         foreach ($users as $u) {
+                           if($u->id != $ticket->user_id && !in_array($u->getId(), $bcc_cids)) {
+                         ?>
+                         <option value="<?php echo $u->id; ?>" <?php
+                            if (in_array($u->getId(), $cc_cids))
+                              echo 'selected="selected"'; ?>><?php echo $u->getName(); ?>
+                         </option>
+                             <?php } } ?>
+                     </select>
+                     <br/><span class="error"><?php echo $errors['ccs']; ?></span>
+                 </td>
+             </tr>
+             <tr>
+               <td width="160"><b><?php echo __('Bcc'); ?>:</b></td>
+               <td>
+                   <select name="bccs[]" id="bcc_users" multiple="multiple"
+                       data-placeholder="<?php echo __('Select Contacts'); ?>">
+                       <option value=""></option>
+                       <option value="NEW">&mdash; <?php echo __('Add New');?> &mdash;</option>
+                       <?php
+                       $users = User::objects();
+                       foreach ($users as $u) {
+                         if($u->id != $ticket->user_id && !in_array($u->getId(), $cc_cids)) {
+                       ?>
+                       <option value="<?php echo $u->id; ?>" <?php
+                           if (in_array($u->getId(), $bcc_cids))
+                           echo 'selected="selected"'; ?>><?php echo $u->getName(); ?>
+                       </option>
+                           <?php } } ?>
+                   </select>
+                   <br/><span class="error"><?php echo $errors['bccs']; ?></span>
+               </td>
              </tr>
             </tbody>
             <?php
@@ -966,5 +1060,79 @@ $(function() {
         return false;
     });
 
+});
+
+$(function() {
+    $("#cc_users").select2({width: '350px'});
+    $("#bcc_users").select2({width: '350px'});
+});
+
+$(function() {
+   $('#cc_users').on("select2:select", function(e) {
+     var el = $(this);
+     var tid = <?php echo $ticket->getThreadId(); ?>;
+
+    if(el.val().includes("NEW")) {
+      $("li[title='— Add New —']").remove();
+      var url = 'ajax.php/thread/' + tid + '/add-collaborator' ;
+       $.userLookup(url, function(user) {
+         e.preventDefault();
+          if($('.dialog#confirm-action').length) {
+              $('.dialog#confirm-action #action').val('addcc');
+              $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
+              $('#overlay').show();
+          }
+       });
+          var arr = el.val();
+          var removeStr = "NEW";
+
+          arr.splice($.inArray(removeStr, arr),1);
+          $(this).val(arr);
+     }
+  });
+
+  $('#bcc_users').on("select2:select", function(e) {
+      var el = $(this);
+      var tid = <?php echo $ticket->getThreadId(); ?>;
+
+      if(el.val().includes("NEW")) {
+        $("li[title='— Add New —']").remove();
+        var url = 'ajax.php/thread/' + tid + '/add-collaborator' ;
+         $.userLookup(url, function(user) {
+            e.preventDefault();
+            if($('.dialog#confirm-action').length) {
+                $('.dialog#confirm-action #action').val('addbcc');
+                $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
+                $('#overlay').show();
+            }
+         });
+         var arr = el.val();
+         var removeStr = "NEW";
+
+         arr.splice($.inArray(removeStr, arr),1);
+         $(this).val(arr);
+      }
+  });
+
+  $('#cc_users').on("select2:unselecting", function(e) {
+      var confirmation = confirm(__("Are you sure you want to remove the collaborator from receiving this reply?"));
+      if (confirmation == false) {
+        $('#cc_users').on("select2:opening", function(e) {
+          return false;
+        });
+        return false;
+      }
+
+ });
+
+ $('#bcc_users').on("select2:unselecting", function(e) {
+     var confirmation = confirm(__("Are you sure you want to remove the collaborator from receiving this reply?"));
+     if (confirmation == false) {
+         $('#bcc_users').on("select2:opening", function(e) {
+           return false;
+         });
+         return false;
+       }
+ });
 });
 </script>

@@ -94,7 +94,6 @@ class ThreadAjaxAPI extends AjaxController {
                 || !$object->checkStaffPerm($thisstaff))
             Http::response(404, __('No such thread'));
 
-
         $user = $uid? User::lookup($uid) : null;
 
         //If not a post then assume new collaborator form
@@ -116,6 +115,8 @@ class ThreadAjaxAPI extends AjaxController {
                             array('isactive'=>1), $errors))) {
                 $info = array('msg' => sprintf(__('%s added as a collaborator'),
                             Format::htmlchars($c->getName())));
+                $c->setCc();
+                $c->save();
                 return self::_collaborators($thread, $info);
             }
         }
@@ -232,8 +233,7 @@ class ThreadAjaxAPI extends AjaxController {
         if ($thread->updateCollaborators($_POST, $errors))
             Http::response(201, $this->json_encode(array(
                             'id' => $thread->getId(),
-                            'text' => sprintf('Recipients (%d of %d)',
-                                $thread->getNumActiveCollaborators(),
+                            'text' => sprintf('(%d)',
                                 $thread->getNumCollaborators())
                             )
                         ));

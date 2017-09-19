@@ -294,7 +294,7 @@ class Mailer {
             0, 6);
     }
 
-    function send($recipient, $subject, $message, $options=null) {
+    function send($recipient, $subject, $message, $options=null, $collabs=array()) {
         global $ost, $cfg;
 
         //Get the goodies
@@ -507,6 +507,19 @@ class Mailer {
                     $file->getType(), $filename, false);
             }
         }
+
+        $cc = array();
+        if($collabs) {
+          if($collabs['cc']) {
+            foreach ($collabs['cc'] as $email) {
+              $mime->addCc($email);
+              $email = preg_replace("/(\r\n|\r|\n)/s",'', trim($email));
+              $cc[] = $email;
+            }
+            $to = $to.', '.implode(', ',$cc);
+          }
+        }
+        $to = ltrim($to, ', ');
 
         //Desired encodings...
         $encodings=array(

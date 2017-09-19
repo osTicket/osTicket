@@ -101,6 +101,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>.lastmessage</td><td>'.__('Last Message').'</td></tr>
                     <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Thread Entry expansions').'</b></em></td></tr>
                     <tr><td>.poster</td><td>'.__('Poster').'</td></tr>
+                    <tr><td>.posterType</td><td>'.__('Can be User or Agent').'</td></tr>
                     <tr><td>.create_date</td><td>'.__('Date Created').'</td></tr>
                 </table>
             </td>
