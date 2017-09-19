@@ -202,7 +202,6 @@ implements Searchable {
                 'id__in' => $cids
             ))->update(array(
                 'updated' => SqlFunction::NOW(),
-                'isactive' => 1,
             ));
 
             foreach ($vars['cid'] as $c) {
@@ -225,7 +224,6 @@ implements Searchable {
           }
           $inactive->update(array(
               'updated' => SqlFunction::NOW(),
-              'isactive' => 0,
           ));
         }
 
