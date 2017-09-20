@@ -295,12 +295,17 @@ class FA_RouteDepartment extends TriggerAction {
     }
 
     function getConfigurationOptions() {
+      $depts = Dept::getDepartments(null, true, false);
+
         return array(
-                'dept_id' => new DepartmentField(array(
-                    'configuration' => array(
-                        'prompt' => __('Unchanged'),
-                        'data' => array('quick-add' => 'department'),
-                    ),
+                'dept_id' => new ChoiceField(array(
+                'configuration' => array(
+                    'prompt' => __('Unchanged'),
+                    'data' => array('quick-add' => 'department'),
+                ),
+                'choices' =>
+                    $depts +
+                    array(':new:' => '— '.__('Add New').' —'),
                 'validators' => function($self, $clean) {
                     if ($clean === ':new:')
                         $self->addError(__('Select a department'));
@@ -429,7 +434,8 @@ class FA_AssignTopic extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $choices = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        $choices = Topic::getHelpTopics(false, false);
+
         return array(
             'topic_id' => new ChoiceField(array(
                 'configuration' => array('prompt' => __('Unchanged')),

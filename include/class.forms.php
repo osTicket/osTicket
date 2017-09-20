@@ -2612,12 +2612,9 @@ class DepartmentField extends ChoiceField {
         global $cfg;
 
         $selected = self::getWidget();
-        if($selected && $selected->value)
-        {
-          if(is_array($selected->value))
-          {
-            foreach ($selected->value as $k => $v)
-            {
+        if($selected && $selected->value) {
+          if(is_array($selected->value)) {
+            foreach ($selected->value as $k => $v) {
               $current_id = $k;
               $current_name = $v;
             }
@@ -2636,8 +2633,7 @@ class DepartmentField extends ChoiceField {
             ->values('id', 'name');
 
         $choices = array();
-        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED))
-        {
+        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
           //create array w/queryset
           $active = array();
           foreach ($active_depts as $dept)
@@ -2647,8 +2643,7 @@ class DepartmentField extends ChoiceField {
           $active[$current_id] = $current_name;
 
 
-          foreach ($depts as $id => $name)
-          {
+          foreach ($depts as $id => $name) {
             $choices[$id] = $name;
             if(!array_key_exists($id, $active) && $current_id)
               unset($choices[$id]);
