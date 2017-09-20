@@ -566,11 +566,47 @@ class Filter {
                     'sort' => (int) $sort,
                 ));
                 $I->setConfiguration($errors, $vars);
+                $config = json_decode($I->ht['configuration'], true);
+
+                if ($I->ht['type'] == 'dept') {
+                  $dept = Dept::lookup($config['dept_id']);
+                  if (!$dept || !$dept->isActive()) {
+                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+                    continue;
+                  }
+                }
+
+                if ($I->ht['type'] == 'topic') {
+                  $topic = Topic::lookup($config['topic_id']);
+                  if (!$topic || !$topic->isActive()) {
+                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+                    continue;
+                  }
+                }
+
                 $I->save();
                 break;
             case 'I': # existing filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
+
+                    $config = json_decode($I->ht['configuration'], true);
+
+                    if ($I->ht['type'] == 'dept') {
+                      $dept = Dept::lookup($config['dept_id']);
+                      if (!$dept || !$dept->isActive()) {
+                        $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+                        continue;
+                      }
+                    }
+                    if ($I->ht['type'] == 'topic') {
+                      $topic = Topic::lookup($config['topic_id']);
+                      if (!$topic || !$topic->isActive()) {
+                        $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+                        continue;
+                      }
+                    }
+
                     $I->sort = (int) $sort;
                     $I->save();
                 }
