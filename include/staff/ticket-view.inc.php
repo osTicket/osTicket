@@ -981,8 +981,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
     </div>
 </div>
 <script type="text/javascript">
-
-    var keytrigger = false;     
+$(function() {
+    var savetrigger = false;
             
  $("#datepicker1").on("dp.change", function (e) {
   
@@ -1001,7 +1001,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 $("i.fa.fa-pencil-square-o").css("color", "#eeeeee");
                 $("#updatearea").css("display", "none");
                 $("#detailschanged").css("display", "inherit");
-                if (!keytrigger) {
+                if (!savetrigger) {
                 $.notify({
                     text: 'Changes made please click the save <i class="icon-save"></i> or cancel <i //class="icon-remove"></i> button on the ribbon.',
                     image: '<i class="icon-save"></i>'
@@ -1013,12 +1013,13 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 });
                         }
                         
-                keytrigger = true;
+                savetrigger = true;
              }
         };
  });       
             
-$(function() {
+
+    
     $(document).on('click', 'a.change-user', function(e) {
         e.preventDefault();
         var tid = <?php echo $ticket->getOwnerId(); ?>;
@@ -1123,7 +1124,7 @@ $(function() {
                 
                 }
              $('#cc').combotree('setText', parentStr + node.text);
-             keytrigger = true;
+             //keytrigger = true;
             
                 
             }
@@ -1179,6 +1180,7 @@ $(function() {
             $("#detailschanged").css("display", "inherit");
             
             $("#help-topic-error").css("display", "none"); 
+            if (!savetrigger) {
             $.notify({
             text: 'Changes made please click the save <i class="icon-save"></i> or cancel <i //class="icon-remove"></i> button on the ribbon.',
             image: '<i class="icon-save"></i>'
@@ -1187,13 +1189,16 @@ $(function() {
             className: 'error',
             autoHide: false,
             clickToHide: true
-        });            
+        }); 
+        }
+       savetrigger = true;       
         } 
 
     });
-});
+
 
 // Hide form buttons By Default
+
 $('#save').find('input, select, text').change(function(){
     $("#savebutton").css("background-color", "#52bb56");
     $("#savebutton").css("color", "#fff");
@@ -1203,8 +1208,8 @@ $('#save').find('input, select, text').change(function(){
     $("i.fa.fa-pencil-square-o").css("color", "#eeeeee");
     $("#updatearea").css("display", "none");
     $("#detailschanged").css("display", "inherit");
-    if (!keytrigger) {
    
+   if (!savetrigger) {
     $.notify({
             text: 'Changes made please click the save <i class="icon-save"></i> or cancel <i //class="icon-remove"></i> button on the ribbon.',
             image: '<i class="icon-save"></i>'
@@ -1214,10 +1219,9 @@ $('#save').find('input, select, text').change(function(){
             autoHide: false,
             clickToHide: true
         });
-    }
-    keytrigger = true;
+   }
+    savetrigger = true;
 });
-
 
 
 $("#save").keyup(function(e){
@@ -1233,7 +1237,7 @@ $("#save").keyup(function(e){
         $("i.fa.fa-pencil-square-o").css("color", "#eeeeee");
         $("#updatearea").css("display", "none");
         $("#detailschanged").css("display", "inherit");
-    if (!keytrigger) {
+    if (!savetrigger) {
    
     $.notify({
             text: 'Changes made please click the save <i class="icon-save"></i> or cancel <i //class="icon-remove"></i> button on the ribbon.',
@@ -1245,7 +1249,7 @@ $("#save").keyup(function(e){
             clickToHide: true
         });
     }
-    keytrigger = true;
+    savetrigger = true;
    }
 });
 
@@ -1276,7 +1280,7 @@ $('#note').keyup(function(e){
 $(".dropdown-menu a").click(function() {
     $(this).closest(".dropdown-menu").prev().dropdown("toggle");
 });
-
+});
 </script>
 
 
