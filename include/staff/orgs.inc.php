@@ -66,7 +66,7 @@ $orgs->order_by($order . $order_column);
                             <span ><a href="<?php echo $refresh_url; ?>"
                                 title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
                                 </a> &nbsp;
-            <?php echo __('Organazations');?>
+            <?php echo __('Organizations');?>
                                 
                                 </span>
                         
