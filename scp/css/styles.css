@@ -911,7 +911,27 @@ code, pre {
   background-color: #546E7A !important; }   
 .bg-flatbrown {
   background-color: #795548 !important; }      
+.bg-graphgreen {
+     background-color: #cbebcc !important;
+}
+.bg-graphyellow {
+     background-color: #f3e7aa !important;
+} 
+.bg-graphred {
+     background-color: #f0a7a5!important;
+} 
+
 /* Text Colors */
+.text-graphgreen {
+     color: #cbebcc !important;
+}
+.text-graphyellow {
+     color: #f3e7aa !important;
+} 
+.text-graphred {
+     color: #f0a7a5 !important;
+} 
+
 .text-white {
   color: #ffffff; }
 

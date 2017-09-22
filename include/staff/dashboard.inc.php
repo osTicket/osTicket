@@ -152,13 +152,13 @@
                 <div class="portlet-widgets">
                     
                     <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet4"><i class="ion-minus-round"></i></a>
+                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet3"><i class="ion-minus-round"></i></a>
                     <span class="divider"></span>
                     <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
                 </div>
                 <div class="clearfix"></div>
             </div>
-            <div id="portlet4" class="panel-collapse collapse show">
+            <div id="portlet3" class="panel-collapse collapse show">
                 <div class="portlet-body">
                     <div id="toptentopic">
                         <div id="myticketsbystatus-chart-container" class="flot-chart" style="height: 260px;">
@@ -177,13 +177,13 @@
                 <div class="portlet-widgets">
                     
                     <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet5"><i class="ion-minus-round"></i></a>
+                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet4"><i class="ion-minus-round"></i></a>
                     <span class="divider"></span>
                     <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
                 </div>
                 <div class="clearfix"></div>
             </div>
-            <div id="portlet5" class="panel-collapse collapse show">
+            <div id="portlet4" class="panel-collapse collapse show">
                 <div class="portlet-body">
                     <div id="toptentopic">
                         <div id="suggestionssbystatus-chart-container" class="flot-chart" style="height: 260px;">
@@ -196,7 +196,467 @@
     
     
 </div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TICKETS (YEAR TO DATE)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet5"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet5" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                
+                    <div class="table-responsive">
+                        
+                            <?php
+                            $sql = "select distinct STATUS from
+                                    (
+                                    SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                    left join ost_user u on u.id = t.user_id 
+                                    left join ost_organization o on o.id = u.org_id
+                                    left join ost_ticket_status s on s.id = t.status_id
+                                    where year(t.updated) = year(now()) and s.state = 'open' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                    ) a
+                                    where LOCATION is not null order by STATUS";
+                                    
+                            $statuses = db_query($sql);   
 
+                            $sql = "select distinct LOCATION, STATUS from
+                                    (
+                                    select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now()) and s.state = 'open' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by STATUS, LOCATION ) a
+                                    where LOCATION is not null order by LOCATION";
+                                    
+                            $locs = db_query($sql); 
+                            
+                            $sql = "SELECT distinct name as LOCATION FROM ost_organization order by LOCATION";
+                                    
+                            $rawlocs = db_query($sql);
+                            
+                            $sql = "select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now())and s.state = 'open' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by STATUS, LOCATION ";
+                            
+                            $tbldatas = db_query($sql);
+                            
+                            $sql="select LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now()) and s.state = 'open' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by LOCATION ";
+                                    
+                            $tbltotals = db_query($sql);
+
+                            ?>
+                            <table class="table table-hover table-condensed table-sm m-b-0"><thead>
+                            <tr class="bg-graphred"><th>OPEN</th>
+                            <?php
+                            
+                            foreach ($rawlocs as $loc) {
+
+                                echo '<th>'.$loc["LOCATION"].'</th>'; 
+                            }
+                            ?>
+                            <th>TOTAL</th></tr></thead>
+                            <?php
+                            
+                            foreach ($statuses as $status) {
+                                
+                                $class = null;
+                                switch ($status["STATUS"]){
+                                    case 'Hold':
+                                    $class = 'class="text-warning"';
+                                    break;
+                                    
+                                }
+                                
+                                echo '<tr '.$class.'><td>'.$status["STATUS"].'</td>'; 
+                                    foreach ($locs as $loc) {
+                                     
+                                       if ($status["STATUS"] == $loc["STATUS"]) {
+                                           
+                                            foreach ($tbldatas as $tbldata) {
+                                                
+                                                if ($status["STATUS"] == $tbldata["STATUS"] &&  $loc["LOCATION"] == $tbldata["LOCATION"]) {
+                                                    
+                                                if ($tbldata["COUNT"] != 0) $count = number_format($tbldata["COUNT"]);
+                                                    echo '<td>'.$count.'</td>';
+                                                    $total = $total + $count;
+                                                    $count = null;
+                                                }
+                                            }
+                                            
+                                    }
+                                
+                                } echo '<td><strong><span class="text-danger">'.number_format($total).'</span></strong></td></tr>'; 
+                                $total= null;
+                            }   
+                             ?>
+                             <tr class="text-danger"><th>TOTAL</th>
+                             <?php
+                             $total = null;
+                             foreach ($tbltotals as $tbltotal){
+                                 $count = $tbltotal["COUNT"];
+                                 echo '<td><strong><span class="text-danger">'.number_format($count).'</span></strong></td>';
+                                 $total = $total + $count;
+                                 $count = null;
+                             }   
+                             
+                             echo '<td><strong><span class="text-danger">'.number_format($total).'</strong></span></td></tr>';
+                            ?>
+                            
+                            <?php
+                            $sql = "select distinct STATUS from
+                                    (
+                                    SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                    left join ost_user u on u.id = t.user_id 
+                                    left join ost_organization o on o.id = u.org_id
+                                    left join ost_ticket_status s on s.id = t.status_id
+                                    where year(t.updated) = year(now()) and s.state = 'closed' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                    ) a
+                                    where LOCATION is not null order by STATUS";
+                                    
+                            $statuses = db_query($sql);   
+
+                            $sql = "select distinct LOCATION, STATUS from
+                                    (
+                                    select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now()) and s.state = 'closed' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by STATUS, LOCATION ) a
+                                    where LOCATION is not null order by LOCATION";
+                                    
+                            $locs = db_query($sql); 
+                            
+                            $sql = "SELECT distinct name as LOCATION FROM ost_organization order by LOCATION";
+                                    
+                            $rawlocs = db_query($sql);
+                            
+                            $sql = "select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now())and s.state = 'closed' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by STATUS, LOCATION ";
+                            
+                            $tbldatas = db_query($sql);
+                            
+                            $sql="select LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now()) and s.state = 'closed' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by LOCATION ";
+                                    
+                            $tbltotals = db_query($sql);
+
+                            ?>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr class="bg-graphgreen"><th>CLOSED</th>
+                            <?php
+                             
+                            foreach ($rawlocs as $loc) {
+
+                                echo '<th></th>'; 
+                            }
+                            ?>
+                            <th></th></tr></thead>
+                            <?php
+                            
+                            foreach ($statuses as $status) {
+                                
+                                $class = null;
+                                switch ($status["STATUS"]){
+                                    case 'Auto-Closed':
+                                    $class = 'class="text-warning"';
+                                    break;
+                                }
+                                
+                                echo '<tr '.$class.'><td>'.$status["STATUS"].'</td>'; 
+                                    foreach ($locs as $loc) {
+                                     
+                                       if ($status["STATUS"] == $loc["STATUS"]) {
+                                           
+                                            foreach ($tbldatas as $tbldata) {
+                                                
+                                                if ($status["STATUS"] == $tbldata["STATUS"] &&  $loc["LOCATION"] == $tbldata["LOCATION"]) {
+                                                    
+                                                if ($tbldata["COUNT"] != 0) $count = number_format($tbldata["COUNT"]);
+                                                    echo '<td>'.$count.'</td>';
+                                                    $total = $total + $count;
+                                                    $count = null;
+                                                }
+                                            }
+                                            
+                                    }
+                                
+                                } echo '<td><strong><span class="text-success">'.number_format($total).'</strong></span></td></tr>'; 
+                                $total= null;
+                            }   
+                             ?>
+                             <tr class="text-success"><th>TOTAL</th>
+                             <?php
+                             $total = null;
+                             foreach ($tbltotals as $tbltotal){
+                                 $count = $tbltotal["COUNT"];
+                                 echo '<td><strong><span class="text-success">'.number_format($count).'</strong></span></td>';
+                                 $total = $total + $count;
+                                 $count = null;
+                             }   
+                             
+                             echo '<td><strong><span class="text-success">'.number_format($total).'</strong></span></td></tr>';
+                            ?>
+                            
+                            
+                            <?php
+                            $sql = "select distinct STATUS from
+                                    (
+                                    SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                    left join ost_user u on u.id = t.user_id 
+                                    left join ost_organization o on o.id = u.org_id
+                                    left join ost_ticket_status s on s.id = t.status_id
+                                    where year(t.updated) = year(now()) AND t.topic_id <> 14 AND t.topic_id <> 12
+                                    ) a
+                                    where LOCATION is not null order by STATUS";
+                                    
+                            $statuses = db_query($sql);   
+
+                            $sql = "select distinct LOCATION, STATUS from
+                                    (
+                                    select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now()) AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by STATUS, LOCATION ) a
+                                    where LOCATION is not null order by LOCATION";
+                                    
+                            $locs = db_query($sql); 
+                            
+                            $sql = "SELECT distinct name as LOCATION FROM ost_organization order by LOCATION";
+                                    
+                            $rawlocs = db_query($sql);
+                            
+                            $sql = "select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now()) AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by STATUS, LOCATION ";
+                            
+                            $tbldatas = db_query($sql);
+                            
+                            $sql="select LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now())AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    group by LOCATION ";
+                                    
+                            $tbltotals = db_query($sql);
+                            
+                            $sql="Select count(user_id) as COUNT, LOCATION from
+                                (
+                                SELECT distinct t.user_id, o.name as LOCATION FROM ost_ticket t  
+                                left join ost_user u on t.user_id = u.id 
+                                left join ost_organization o on u.org_id = o.id 
+                                where year(t.updated) = year(now())AND t.topic_id <> 14 AND t.topic_id <> 12
+                                )a
+                                where LOCATION is not null
+                                group by LOCATION order by LOCATION";
+                             
+                            $usertotals = db_query($sql);
+
+                            ?>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr class="bg-graphgreen"><th>ALL TICKETS</th>
+                            <?php
+                             
+                            foreach ($rawlocs as $loc) {
+
+                                echo '<th></th>'; 
+                            }
+                            ?>
+                            <th></th></tr></thead>
+                          
+                             <tr class="text-success"><th>TOTAL</th>
+                             <?php
+                             $total = null;
+                             foreach ($tbltotals as $tbltotal){
+                                 $count = $tbltotal["COUNT"];
+                                 echo '<td><strong><span class="text-success">'.number_format($count).'</strong></span></td>';
+                                 $total = $total + $count;
+                                 $count = null;
+                             }   
+                             $ttotal = $total;
+                             echo '<td><strong><span class="text-success">'.number_format($ttotal).'</strong></span></td></tr>';
+                            ?>
+                            <tr class="text-success"><th>TOTAL USERS</th>
+                             <?php
+                             $total = null;
+                             foreach ($usertotals as $tbltotal){
+                                 $count = $tbltotal["COUNT"];
+                                 echo '<td><strong><span class="text-success">'.number_format($count).'</strong></span></td>';
+                                 $total = $total + $count;
+                                 $count = null;
+                             }   
+                             $ttotal = $total;
+                             echo '<td><strong><span class="text-success">'.number_format($ttotal).'</strong></span></td></tr>';
+                            ?>
+                            <tr class="text-success"><th>TICKETS PER USER</th>
+                             <?php
+                             $total = null;
+                             foreach ($tbltotals as $tbltotal){
+                                 
+                                 foreach ($usertotals as $usertotal){
+                                     
+                                     if ($usertotal["LOCATION"] == $tbltotal["LOCATION"]){
+                                     $tcount = $tbltotal["COUNT"] / $usertotal["COUNT"];
+                                     echo '<td><strong><span class="text-success">'.number_format($tcount).'</strong></span></td>';
+                                 $total = $total + $usertotal["COUNT"];
+                                 $tcount = null;
+                                     }
+                                 }
+                                 
+                                 
+                             }   
+                             $ttotal = $ttotal / $total;
+                             echo '<td><strong><span class="text-success">'.number_format($ttotal).'</strong></span></td></tr>';
+                            ?>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
 <div class="row">
     <div class="col-lg-6">
         <div class="portlet"><!-- /primary heading -->
@@ -260,13 +720,13 @@
                 <div class="portlet-widgets">
                     
                     <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet6"><i class="ion-minus-round"></i></a>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet8"><i class="ion-minus-round"></i></a>
                     <span class="divider"></span>
                     <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
                 </div>
                 <div class="clearfix"></div>
             </div>
-            <div id="portlet6" class="panel-collapse collapse show">
+            <div id="portlet8" class="panel-collapse collapse show">
                 <div class="portlet-body">
                     <div id="statusbyagent-chart">
                         <div class="row">
@@ -322,13 +782,13 @@
                 <div class="portlet-widgets">
                     
                     <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet7"><i class="ion-minus-round"></i></a>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet10"><i class="ion-minus-round"></i></a>
                     <span class="divider"></span>
                     <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
                 </div>
                 <div class="clearfix"></div>
             </div>
-            <div id="portlet7" class="panel-collapse collapse show">
+            <div id="portlet10" class="panel-collapse collapse show">
                 <div class="portlet-body">
                 
                     <div id="statusbylocation-chart">
@@ -381,13 +841,13 @@
                 <div class="portlet-widgets">
                     
                     <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet7"><i class="ion-minus-round"></i></a>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet12"><i class="ion-minus-round"></i></a>
                     <span class="divider"></span>
                     <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
                 </div>
                 <div class="clearfix"></div>
             </div>
-            <div id="portlet7" class="panel-collapse collapse show">
+            <div id="portlet12" class="panel-collapse collapse show">
                 <div class="portlet-body">
                 
                     <div id="closedbytech-chart">
@@ -577,7 +1037,7 @@ $('svg').height(700);
                                 
                                 UNION all 
                                 select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS) as VALUE, 'BACKLOG' AS Status,  
-                STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W') as CALENDARWEEK from osticket_sup.ost_backlog 
+                STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W') as CALENDARWEEK from ost_backlog 
 
                 where STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
 
@@ -1590,12 +2050,12 @@ $sql="select distinct LASTNAME,OWNER_NAME from
 	select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
 	(
 	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, u.lastname as LASTNAME, 
-    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM osticket_sup.ost_ticket t 
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR) 
 	) a
 
 	group by OWNER_NAME, CALENDARWEEK
@@ -1606,7 +2066,7 @@ $locs = db_query($sql);
 $sql="select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
 	(
 	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, u.lastname as LASTNAME, 
-    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM osticket_sup.ost_ticket t 
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
 
@@ -1704,20 +2164,20 @@ $(function () {
     );
 });
 
-//location 2 year
+//closed by location 2 year
 <?php
 
 $sql="select distinct LOCATION from
 (
 	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM osticket_sup.ost_ticket t 
+	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR) and o.name is not null
 	) a
 
 	group by LOCATION, CALENDARWEEK
@@ -1727,7 +2187,7 @@ $locs = db_query($sql);
 
 $sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM osticket_sup.ost_ticket t 
+	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
