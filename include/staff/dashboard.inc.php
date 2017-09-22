@@ -2242,7 +2242,7 @@ $sql="select distinct LASTNAME,OWNER_NAME from
 (
 	select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
 	(
-	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, u.lastname as LASTNAME, 
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, u.lastname as LASTNAME, 
     concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
@@ -2258,7 +2258,7 @@ $locs = db_query($sql);
 
 $sql="select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
 	(
-	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, u.lastname as LASTNAME, 
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, u.lastname as LASTNAME, 
     concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
@@ -2284,7 +2284,7 @@ $locsdata = db_query($sql);
              
                 if ($locdata["LASTNAME"] == $loc["LASTNAME"] ){
                      
-                    echo  "[\"".$locdata["CALENDARWEEK"]."\", ".$locdata["COUNT"]."],\n"; 
+                    echo  "[\"".date("F", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10))."\", ".$locdata["COUNT"]."],\n"; 
                 } 
              
              }
@@ -2364,7 +2364,7 @@ $sql="select distinct LOCATION from
 (
 	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
@@ -2380,7 +2380,7 @@ $locs = db_query($sql);
 
 $sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
@@ -2406,7 +2406,7 @@ $locsdata = db_query($sql);
              
                 if ($locdata["LOCATION"] == $loc["LOCATION"] ){
                      
-                    echo  "[\"".$locdata["CALENDARWEEK"]."\", ".$locdata["COUNT"]."],\n"; 
+                    echo  "[\"".date("F", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10))."\", ".$locdata["COUNT"]."],\n"; 
                 } 
              
              }
