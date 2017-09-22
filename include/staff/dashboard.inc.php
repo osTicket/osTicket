@@ -830,6 +830,36 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-6">
+        
+        </div>
+        <div class="col-lg-6">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
+                    TOP 10 TICKET (BY ASSOCIATE)
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet11"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet11" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                    <div id="toptenbyassociate-chart">
+                        
+                            <div id="toptenbyassociate-chart-container"  style="height: 320px;">
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
  </div>
  <div class="row">
     <div class="col-lg-12">
@@ -1567,7 +1597,76 @@ $(function() {
 		});
 	
 	});
+//Top 10 Closed prior
+    $(function() {
 
+		var data = [
+        
+           <?php
+        $sql1="select * from (
+	select count(ticket_id) as COUNT, ASSOCIATE, LOCATION from
+	(
+	SELECT t.ticket_id, t.updated, o.name as LOCATION, u.name as ASSOCIATE FROM ost_ticket t 
+		left join ost_user u on u.id = t.user_id 
+		left join ost_organization o on o.id = u.org_id
+		left join ost_ticket_status s on s.id = t.status_id
+		where year(t.updated) = year(now())AND t.topic_id <> 14 AND t.topic_id <> 12 and u.id <> 674
+	)a
+	group by ASSOCIATE order by COUNT DESC
+    ) a limit 10";
+        $tresults = db_query($sql1); 
+
+        foreach ($tresults as $tresult) {
+            echo "[\"".$tresult['ASSOCIATE']."\", ".$tresult['COUNT']."],";
+        }
+    ?> 
+                
+        ];
+
+		$.plot("#toptenbyassociate-chart-container", [ data ], {
+			series: {
+				bars: {
+					show: true,
+					barWidth: 0.6,
+					align: "center"
+				}
+			},
+            grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee",
+                labelMargin: 18,
+                margin: 10
+			},
+            colors : ['#6c92ea'],
+			 tooltip: {
+                 show: true,
+                 cssClass: "flot",
+                 content: "%x: %y",
+                
+                
+              },
+            yaxis : {
+				tickColor : '#f5f5f5',
+				font : {
+					color : '#bdbdbd'
+				}
+			},
+			xaxis: {
+				mode: "categories",
+				tickLength: 0,
+                tickColor : '#f5f5f5',
+				font : {
+                    color : '#868e96',
+                    				},
+                
+                rotateTicks: 135
+			}
+		});
+	
+	});
 //Backlog
 $(function() {
 
