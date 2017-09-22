@@ -627,8 +627,8 @@
                                  $total = $total + $count;
                                  $count = null;
                              }   
-                             $ttotal = $total;
-                             echo '<td><strong><span class="text-success">'.number_format($ttotal).'</strong></span></td></tr>';
+                             $utotal = $total;
+                             echo '<td><strong><span class="text-success">'.number_format($utotal).'</strong></span></td></tr>';
                             ?>
                             <tr class="text-success"><th>TICKETS PER USER</th>
                              <?php
