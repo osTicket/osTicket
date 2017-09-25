@@ -922,6 +922,38 @@
         <div class="portlet"><!-- /primary heading -->
             <div class="portlet-heading">
                 <h3 class="portlet-title text-dark">
+                    TICKETS OPENED (LOCATION 1 YEARS) 
+                </h3>
+                <div class="portlet-widgets">
+                    
+                    <span class="divider"></span>
+                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet16"><i class="ion-minus-round"></i></a>
+                    <span class="divider"></span>
+                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div id="portlet16" class="panel-collapse collapse show">
+                <div class="portlet-body">
+                
+                    <div id="openedbylocation-chart">
+                        <div class="row">
+                            <div id="openedbylocation-chart-container" class="col-sm-10" style="height: 320px;">
+                            </div>
+                            <div id="openedbylocation-chart-legend" class="col-sm-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div>
+ <div class="row">
+    <div class="col-lg-12">
+        <div class="portlet"><!-- /primary heading -->
+            <div class="portlet-heading">
+                <h3 class="portlet-title text-dark">
                     TICKETS CLOSED (LOCATION 1 YEARS)
                 </h3>
                 <div class="portlet-widgets">
@@ -936,11 +968,11 @@
             <div id="portlet13" class="panel-collapse collapse show">
                 <div class="portlet-body">
                 
-                    <div id="closedbylocation-chart">
+                    <div id="ticketsclosedbylocation-chart">
                         <div class="row">
-                            <div id="closedbylocation-chart-container" class="col-sm-10" style="height: 320px;">
+                            <div id="ticketsclosedbylocation-chart-container" class="col-sm-10" style="height: 320px;">
                             </div>
-                            <div id="closedbylocation-chart-legend" class="col-sm-2">
+                            <div id="ticketsclosedbylocation-chart-legend" class="col-sm-2">
                             </div>
                         </div>
                     </div>
@@ -951,7 +983,6 @@
  </div>
  
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.curvedLines.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.js"></script> 
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.time.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.min.js"></script>
@@ -2357,10 +2388,133 @@ $(function () {
     );
 });
 
-//closed by location 2 year
+//Opened by location 2 year
 <?php
 
 $sql="select distinct LOCATION from
+(
+	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	(
+	SELECT  month(FROM_DAYS(TO_DAYS(t.created) - MOD(TO_DAYS(t.created) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 and year(t.created) > year(CURDATE() - INTERVAL 1 YEAR) and o.name is not null
+	) a
+
+	group by LOCATION, CALENDARWEEK
+)b ";
+
+$olocs = db_query($sql);
+
+$sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	(
+	SELECT month(t.created) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 and year(t.created) > year(CURDATE() - INTERVAL 1 YEAR)
+	) a
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK order by CALENDARWEEK, LOCATION
+    
+";
+
+$olocsdata = db_query($sql);
+
+?>
+
+       
+<?php                
+           foreach ($olocs as $oloc) {
+             
+             echo "var obl".preg_replace('/\s+/', '', $oloc["LOCATION"])." = [\n";
+                         
+             foreach ($olocsdata as $olocdata) {
+             
+                if ($olocdata["LOCATION"] == $oloc["LOCATION"] ){
+                     
+                    echo  "[\"".date("F", mktime(0, 0, 0, $olocdata["CALENDARWEEK"], 10))."\", ".$olocdata["COUNT"]."],\n"; 
+                } 
+             
+             }
+             echo "];\n";
+        
+        }
+    ?> 
+
+$(function () {        
+    $.plot($("#openedbylocation-chart-container"),
+        [
+        
+        <?php                
+           foreach ($olocs as $oloc) {
+              ?> 
+               {
+              data: obl<?php echo $oloc["LOCATION"];?>,
+              label: "<?php echo $oloc["LOCATION"];?>",
+              points: { show: true },
+              lines: { show: true},
+             
+            },
+            <?php   
+           }  
+         ?> 
+            
+        ],
+        
+        {            
+            grid : {
+				hoverable : true,
+				clickable : true,
+				tickColor : "#f9f9f9",
+				borderWidth : 1,
+				borderColor : "#eeeeee",
+                labelMargin: 20,
+                margin: 10
+			},
+            tooltip: {
+                 show: true,
+                 cssClass: "flot",
+                 content: "%s | %y",
+                
+                
+              },
+            xaxis: {
+                mode: "categories",
+				tickLength: 0,
+                tickColor : '#f5f5f5',
+				font : {
+                color : '#868e96',
+                    	},
+                rotateTicks: 135
+            },
+            yaxes: [
+                {
+                    /* First y axis */
+                },
+                {
+                    /* Second y axis */
+                    position: "right"  /* left or right */
+                }
+            ], legend: {
+                show: true,
+                container: '#openedbylocation-chart-legend'
+				
+				
+        }      
+        }
+    );
+});
+
+//closed by location 2 year
+<?php
+
+$csql="select distinct LOCATION from
 (
 	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 	(
@@ -2376,9 +2530,9 @@ $sql="select distinct LOCATION from
 	group by LOCATION, CALENDARWEEK
 )b ";
 
-$locs = db_query($sql);
+$locs = db_query($csql);
 
-$sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+$csql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 	(
 	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
@@ -2388,11 +2542,11 @@ $sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
 
 	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
 	) a
-
-	group by LOCATION, CALENDARWEEK
+    where LOCATION is not null
+	group by LOCATION, CALENDARWEEK  order by CALENDARWEEK, LOCATION
 ";
 
-$locsdata = db_query($sql);
+$locsdata = db_query($csql);
 
 ?>
 
@@ -2416,7 +2570,7 @@ $locsdata = db_query($sql);
     ?> 
 
 $(function () {        
-    $.plot($("#closedbylocation-chart-container"),
+    $.plot($("#ticketsclosedbylocation-chart-container"),
         [
         
         <?php                
@@ -2471,7 +2625,7 @@ $(function () {
                 }
             ], legend: {
                 show: true,
-                container: '#closedbylocation-chart-legend'
+                container: '#ticketsclosedbylocation-chart-legend'
 				
 				
         }      
