@@ -1178,7 +1178,7 @@ class TicketsAjaxAPI extends AjaxController {
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
     }
 
-    function addTask($tid) {
+    function addTask($tid, $thread_id=NULL) {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
@@ -1186,6 +1186,9 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!$ticket->checkStaffPerm($thisstaff, Task::PERM_CREATE))
             Http::response(403, 'Permission denied');
+
+        if ($thread_id && !($thread_entry=ThreadEntry::lookup($thread_id)))
+            Http::response(404, 'Unknown ticket thread');
 
         $info=$errors=array();
 
@@ -1231,6 +1234,9 @@ class TicketsAjaxAPI extends AjaxController {
                 $ticket->getNumber(),
                 __('Add New Task')
                 );
+
+        if ($thread_entry)
+            $vars['description'] = Format::htmlchars($thread_entry->getBody());
 
          include STAFFINC_DIR . 'templates/task.tmpl.php';
     }
