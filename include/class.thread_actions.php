@@ -429,3 +429,42 @@ class TEA_ResendThreadEntry extends TEA_EditAndResendThreadEntry {
     }
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_ResendThreadEntry');
+
+class TEA_CreateTask extends ThreadEntryAction {
+    static $id = 'create_task';
+    static $name = /* trans */ 'Create Task';
+    static $icon = 'plus';
+
+    function isVisible() {
+        global $thisstaff;
+
+        return $thisstaff && $thisstaff->hasPerm(Task::PERM_CREATE, false);
+    }
+
+    function getJsStub() {
+        return sprintf(<<<JS
+var url = '%s';
+var redirect = $(this).data('redirect');
+$.dialog(url, [201], function(xhr, resp) {
+    if (!!redirect)
+        $.pjax({url: redirect, container:'#pjax-container'});
+    else
+        $.pjax({url: 'ajax.php/tickets/378/tasks', container: '#tasks_content', push: false});
+});
+JS
+        , $this->getAjaxUrl()
+        );
+    }
+
+    function trigger() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            return $this->trigger__get();
+        }
+    }
+
+    private function trigger__get() {
+        include STAFFINC_DIR . 'templates/task.tmpl.php';
+    }
+}
+ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_CreateTask');
