@@ -950,9 +950,12 @@ code, pre {
 .text-success {
   color: #52bb56; }
 
+.text-secondary {
+  color: #868e96; }
+
 .text-info {
   color: #67d1f8; }
-
+  
 .text-inverse {
   color: #4c5667; }
 

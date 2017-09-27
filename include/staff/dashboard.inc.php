@@ -616,21 +616,21 @@
                                  $count = null;
                              }   
                              $ttotal = $total;
-                             echo '<td><strong><span class="text-success">'.number_format($ttotal).'</strong></span></td></tr>';
+                             echo '<td><strong><span class="text-primary">'.number_format($ttotal).'</strong></span></td></tr>';
                             ?>
-                            <tr class="text-success"><th>TOTAL USERS</th>
+                            <tr class="text-warning"><th>TOTAL USERS</th>
                              <?php
                              $total = null;
                              foreach ($usertotals as $tbltotal){
                                  $count = $tbltotal["COUNT"];
-                                 echo '<td><strong><span class="text-success">'.number_format($count).'</strong></span></td>';
+                                 echo '<td><strong><span class="text-warning">'.number_format($count).'</strong></span></td>';
                                  $total = $total + $count;
                                  $count = null;
                              }   
                              $utotal = $total;
-                             echo '<td><strong><span class="text-success">'.number_format($utotal).'</strong></span></td></tr>';
+                             echo '<td><strong><span class="text-primary">'.number_format($utotal).'</strong></span></td></tr>';
                             ?>
-                            <tr class="text-success"><th>TICKETS PER USER</th>
+                            <tr class="text-secondary"><th>TICKETS PER USER</th>
                              <?php
                              $total = null;
                              foreach ($tbltotals as $tbltotal){
@@ -639,7 +639,7 @@
                                      
                                      if ($usertotal["LOCATION"] == $tbltotal["LOCATION"]){
                                      $tcount = $tbltotal["COUNT"] / $usertotal["COUNT"];
-                                     echo '<td><strong><span class="text-success">'.number_format($tcount).'</strong></span></td>';
+                                     echo '<td><strong><span class="text-secondary">'.number_format($tcount).'</strong></span></td>';
                                  $total = $total + $usertotal["COUNT"];
                                  $tcount = null;
                                      }
@@ -648,7 +648,7 @@
                                  
                              }   
                              $ttotal = $ttotal / $total;
-                             echo '<td><strong><span class="text-success">'.number_format($ttotal).'</strong></span></td></tr>';
+                             echo '<td><strong><span class="text-primary">'.number_format($ttotal).'</strong></span></td></tr>';
                             ?>
                         </table>
                     </div>
