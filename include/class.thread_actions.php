@@ -447,12 +447,13 @@ var url = '%s';
 var redirect = $(this).data('redirect');
 $.dialog(url, [201], function(xhr, resp) {
     if (!!redirect)
-        $.pjax({url: redirect, container:'#pjax-container'});
+        $.pjax({url: redirect, container: '#pjax-container'});
     else
-        $.pjax({url: 'ajax.php/tickets/378/tasks', container: '#tasks_content', push: false});
+        $.pjax({url: 'tickets.php?id=%d#tasks', container: '#pjax-container'});
 });
 JS
-        , $this->getAjaxUrl()
+        , $this->getAjaxUrl(),
+        $this->entry->getThread()->getObjectId()
         );
     }
 
@@ -460,11 +461,23 @@ JS
         switch ($_SERVER['REQUEST_METHOD']) {
         case 'GET':
             return $this->trigger__get();
+        case 'POST':
+            return $this->trigger__post();
         }
     }
 
     private function trigger__get() {
-        include STAFFINC_DIR . 'templates/task.tmpl.php';
+
+        $vars = array(
+                'description' => Format::htmlchars($this->entry->getBody())
+                );
+        return $this->getTicketsAPI()->addTask($this->entry->getThread()->getObjectId(),
+            $vars);
     }
+
+    private function trigger__post() {
+        return $this->getTicketsAPI()->addTask($this->entry->getThread()->getObjectId());
+    }
+
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_CreateTask');

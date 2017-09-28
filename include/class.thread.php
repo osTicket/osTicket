@@ -2996,6 +2996,10 @@ abstract class ThreadEntryAction {
             static::getId()
         );
     }
+
+    function getTicketsAPI() {
+        return new TicketsAjaxAPI();
+    }
 }
 
 interface Threadable {
