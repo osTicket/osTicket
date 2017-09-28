@@ -59,7 +59,6 @@ class TaskModel extends VerySimpleModel {
 
             'ticket' => array(
                 'constraint' => array(
-                    'object_type' => "'T'",
                     'object_id' => 'Ticket.ticket_id',
                 ),
                 'null' => true,
@@ -535,8 +534,17 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $this->reopen();
             $this->closed = null;
 
-            $ecb = function ($t) {
+            $ecb = function ($t) use($thisstaff) {
                 $t->logEvent('reopened', false, null, 'closed');
+                if ($t->ticket) {
+                    $t->ticket->reopen();
+                    $vars = array(
+                            'title' => sprintf('Task %s Reopened',
+                                $t->getNumber()),
+                            'note' => __('Task reopened')
+                            );
+                    $t->ticket->logNote($vars['title'], $vars['note'], $thisstaff);
+                }
             };
             break;
         case 'closed':
@@ -553,8 +561,16 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
             $this->close();
             $this->closed = SqlFunction::NOW();
-            $ecb = function($t) {
+            $ecb = function($t) use($thisstaff) {
                 $t->logEvent('closed');
+                if ($t->ticket) {
+                    $vars = array(
+                            'title' => sprintf('Task %s Closed',
+                                $t->getNumber()),
+                            'note' => __('Task closed')
+                            );
+                    $t->ticket->logNote($vars['title'], $vars['note'], $thisstaff);
+                }
             };
             break;
         default:
