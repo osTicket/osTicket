@@ -492,11 +492,10 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $authkey = $bk::$id.':'.$authkey;
 
         // Now set session crap and lets roll baby!
-        $authsession = &$_SESSION['_auth']['staff'];
-
-        $authsession = array(); //clear.
-        $authsession['id'] = $staff->getId();
-        $authsession['key'] =  $authkey;
+        $_SESSION['_auth']['staff'] = array(
+            'id'    => $staff->getId(),
+            'key'   => $authkey,
+        );
 
         $staff->setAuthKey($authkey);
         $staff->refreshSession(true); //set the hash.
@@ -693,11 +692,11 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $authkey = $bk::$id.':'.$authkey;
 
         //Set the session goodies
-        $authsession = &$_SESSION['_auth']['user'];
-
-        $authsession = array(); //clear.
-        $authsession['id'] = $user->getId();
-        $authsession['key'] = $authkey;
+        $authsession = array(
+            'id' => $user->getId(),
+            'key' => $authkey,
+        );
+        $_SESSION['_auth']['user'] = $authsession;
     }
 
     function authenticate($username, $password) {

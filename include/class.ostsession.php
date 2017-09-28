@@ -33,9 +33,6 @@ class osTicketSession {
         // Set osTicket specific session name.
         session_name('OSTSESSID');
 
-        // Forced cleanup on shutdown
-        register_shutdown_function('session_write_close');
-
         // Set session cleanup time to match TTL
         ini_set('session.gc_maxlifetime', $ttl);
 
@@ -70,20 +67,44 @@ class osTicketSession {
             $this->backend = new self::$backends['db']($this->ttl);
         }
 
-        if ($this->backend instanceof SessionBackend) {
-            // Set handlers.
-            session_set_save_handler(
-                array($this->backend, 'open'),
-                array($this->backend, 'close'),
-                array($this->backend, 'read'),
-                array($this->backend, 'write'),
-                array($this->backend, 'destroy'),
-                array($this->backend, 'gc')
-            );
-        }
+        if ($this->backend instanceof SessionHandlerInterface)
+            session_set_save_handler($this->backend);
 
-        // Start the session.
-        session_start();
+        // Start the session. Custom locking session cannot be supported if
+        // PHP is using session auto start.
+        $auto_start = ini_get('session.auto_start') ?: false;
+        if (!$auto_start && $this->backend instanceof SessionBackend) {
+            $new = false;
+            $id = $this->backend->start($new);
+            $data = $this->backend->read($id);
+            $session = unserialize($data) ?: array();
+            if ($new)
+                self::renewCookie();
+
+            // Wrap to synchronize updates between same session_id's. This
+            // prevents a race condition where multiple writes to the same
+            // session will clobber the data inside it. This is normally
+            // enforced by PHP for file-backed sessions; however, it will
+            // need to be manually implemented here for db- or memcache-backed
+            // sessions
+            $_SESSION = new LockingArray($session);
+            $_SESSION->setBackend($id, $this->backend);
+            register_shutdown_function(function() use ($id) {
+                $i = new ArrayObject(array('touched' => false));
+                Signal::send('session.close', null, $i);
+                // It would be possible to check if the session is
+                // locked. If not, it might be safe to assume no changes
+                // were made and no write() is necessary.
+                if ($_SESSION->isLocked()) {
+                    $_SESSION->releaseLock();
+                    $this->backend->write($id, serialize($_SESSION->asArray()));
+                }
+            });
+        }
+        else {
+            // Use built-in PHP session engine
+            session_start();
+        }
     }
 
     function regenerate_id(){
@@ -131,12 +152,14 @@ class osTicketSession {
     }
 }
 
-abstract class SessionBackend {
-    var $isnew = false;
+abstract class SessionBackend
+implements SessionHandlerInterface {
     var $ttl;
+    var $deflate;
 
     function __construct($ttl=SESSION_TTL) {
         $this->ttl = $ttl;
+        $this->deflate = function_exists('gzdeflate');
     }
 
     function open($save_path, $session_name) {
@@ -151,14 +174,50 @@ abstract class SessionBackend {
         return $this->ttl;
     }
 
-    function write($id, $data) {
-        // Last chance session update
-        $i = new ArrayObject(array('touched' => false));
-        Signal::send('session.close', null, $i);
-        return $this->update($id, $i['touched'] ? session_encode() : $data);
+    function start(&$new=false) {
+        if (!session_id()) {
+            $name = session_name();
+            if (isset($_COOKIE[$name])) {
+                session_id($_COOKIE[$name]);
+            }
+            else {
+                // There's a sort-of race here. randCode will use the value
+                // of session_id() on some platforms as a source of random
+                // data. Let's put something slightly less predictable in
+                // it. Also, for random data on the installer, don't
+                // completely rely on the SECRET_SALT code
+                session_id(uniqid('', true));
+
+                // 6 bits per char (64 characters), 30*6 = 180-bit
+                session_id(Misc::randCode(30));
+                $new = true;
+            }
+        }
+        // Implement PHP's session garbage collection
+        $probability = ini_get('session.gc_probability') ?: 1;
+        $divisor = ini_get('session.gc_divisor') ?: 100;
+        $likliness = $divisor / $probability;
+        if (rand(0, $likliness) == 1) {
+            $this->gc($this->getTTL());
+        }
+        return session_id();
     }
 
-    abstract function read($id);
+    function write($id, $data) {
+        // Last chance session update
+        if ($this->deflate)
+            $data = gzdeflate($data, 2);
+        return $this->update($id, $data);
+    }
+
+    function read($id) {
+        $data = $this->fetch($id);
+        if ($this->deflate && strlen($data))
+            $data = @gzinflate($data) ?: $data;
+        return $data;
+    }
+
+    abstract function fetch($id);
     abstract function update($id, $data);
     abstract function destroy($id);
     abstract function gc($maxlife);
@@ -176,13 +235,12 @@ class DbSessionBackend
 extends SessionBackend {
     var $data = null;
 
-    function read($id) {
+    function fetch($id) {
         try {
             $this->data = SessionData::objects()->filter([
                 'session_id' => $id,
                 'session_expire__gt' => SqlFunction::NOW(),
             ])->one();
-            $this->id = $id;
         }
         catch (DoesNotExist $e) {
             $this->data = new SessionData(['session_id' => $id]);
@@ -196,24 +254,43 @@ extends SessionBackend {
     function update($id, $data){
         global $thisstaff;
 
-        if (defined('DISABLE_SESSION') && $this->data->__new__)
-            return true;
-
-        $ttl = $this && method_exists($this, 'getTTL')
-            ? $this->getTTL() : SESSION_TTL;
-
         // Create a session data obj if not loaded.
         if (!isset($this->data))
             $this->data = new SessionData(['session_id' => $id]);
 
+        if (defined('DISABLE_SESSION') && $this->data->__new__)
+            return true;
+
+        $ttl = $this->getTTL() ?: SESSION_TTL;
+
         $this->data->session_data = $data;
         $this->data->session_expire =
             SqlFunction::NOW()->plus(SqlInterval::SECOND($ttl));
+        $this->data->session_updated = SqlFunction::NOW();
         $this->data->user_id = $thisstaff ? $thisstaff->getId() : 0;
         $this->data->user_ip = $_SERVER['REMOTE_ADDR'];
         $this->data->user_agent = $_SERVER['HTTP_USER_AGENT'];
 
         return $this->data->save();
+    }
+
+    function checkTouched() {
+        list($lastupdate) = SessionData::objects()
+            ->filter(['session_id' => $id])
+            ->values_flat('session_updated')
+            ->first();
+
+        if (isset($lastupdate)) {
+            // If we think the data is new, then it must have been touched.
+            // This case should never happen for existing sessions.
+            if ($this->data->__new__)
+                return true;
+
+            // XXX: Only accurate to one second
+            return $this->data->session_updated != $lastupdate;
+        }
+
+        return false;
     }
 
     function destroy($id){
@@ -259,7 +336,7 @@ extends SessionBackend {
         return sha1($id.SECRET_SALT);
     }
 
-    function read($id) {
+    function fetch($id) {
         $key = $this->getKey($id);
 
         // Try distributed read first
@@ -293,9 +370,23 @@ extends SessionBackend {
         foreach ($this->servers as $S) {
             list($host, $port) = $S;
             $this->memcache->pconnect($host, $port);
-            if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
+            if (!$this->memcache->replace($key, $data, 0, $this->getTTL())) {
                 $this->memcache->set($key, $data, 0, $this->getTTL());
+                $this->memcache->set("$key.time", Misc::gmtime(), 0, $this->getTTL());
+            }
         }
+    }
+
+    function checkTouched() {
+        // Just check if the timestamp occurred after the start of this
+        // session, assuming the session was fetched very shortly thereafter
+        $key = $this->getKey($id);
+        if ($timestamp = $this->memcache->get("$key.time")) {
+            // XXX: Only accurate to 1 second
+            return $timestamp > gmdate('U', $_SERVER['REQUEST_TIME_FLOAT']);
+        }
+        // Else it hasn't yet been saved
+        return false;
     }
 
     function destroy($id) {
@@ -321,4 +412,212 @@ class FallbackSessionBackend {
     }
 }
 
-?>
+// Locking semantic systems for assistance on parallel request race
+// conditions. This functions like a global mutex with a unique identifier.
+// For session locking, the session id is used.
+abstract class BaseLockSystem {
+    protected $id;
+    static $registry;
+
+    function __construct($id) {
+        $this->id = $id;
+    }
+
+    static function isSupported() {
+        return true;
+    }
+    static function register($class) {
+        self::$registry[] = $class;
+    }
+
+    static function getImpl($id) {
+        foreach (self::$registry as $class) {
+            if ($class::isSupported())
+                return new $class($id);
+        }
+    }
+
+    /**
+     * Acquire the lock. After the timeout period, the lock is granted
+     * implicitly. This will prevent long session hangs because of an
+     * aborted request or what not
+     *
+     * Parameters:
+     * $timeout - (float) number of seconds to wait for a lock before a
+     *      timeout occurs.
+     * $waited - (boolean) byref parameter set to TRUE if the locking system
+     *      had to wait for the lock
+     *
+     * Returns:
+     * TRUE if the lock was acquired, and FALSE otherwise, including if a
+     * timeout occurred.
+     */
+    abstract function acquire($timeout=5, &$waited=false);
+    abstract function release();
+}
+
+class ApcuLockingImpl
+extends BaseLockSystem {
+    protected $key;
+
+    function acquire($timeout=5, &$waited=false) {
+        $this->key = 'sesslock'.SECRET_SALT.$this->id;
+        $ttl = ini_get('max_execution_time');
+        $timeout *= 400;
+        while (--$timeout) {
+            if (apcu_add($this->key, 'x', $ttl))
+                return true;
+            // Spinlock in 2.5ms increments
+            usleep(2500);
+            $waited = true;
+        }
+    }
+
+    function release() {
+        if (isset($this->key))
+            apcu_delete($this->key);
+    }
+
+    static function isSupported() {
+        return function_exists('apcu_add');
+    }
+}
+BaseLockSystem::register('ApcuLockingImpl');
+
+class FileLockingImpl
+extends BaseLockSystem {
+    protected $fp;
+    protected $path;
+
+    function acquire($timeout=5, &$waited=false) {
+        $basepath = rtrim(sys_get_temp_dir(), '\\/') . '/sesslock_';
+        // Consider cleaning up old lock files every so often, in case of
+        // PHP crashes and the file was not cleaned.
+        if (rand(0, 200) == 42) {
+            $now = time();
+            $ttl = ini_get('max_execution_time');
+            foreach (glob("{$basepath}*", GLOB_NOSORT) as $f) {
+                if ($now - filectime($f) > $ttl)
+                    @unlink($f);
+            }
+        }
+        // Don't use the session ID in the filename, as that could allow for
+        // session hijacking
+        $this->path = $basepath . hash_hmac('md5', $this->id, SECRET_SALT);
+        // Use 'c' for the file mode as that is recommended for a following
+        // flock() call in the PHP docs
+        $this->fp = fopen($this->path, 'c');
+        if ($this->fp === false) {
+            // Cannot be supported on this platform
+            return true;
+        }
+        $timeout *= 400;
+        $blocked = null;
+        while (--$timeout) {
+            if (flock($this->fp, LOCK_EX | LOCK_NB, $blocked))
+                return true;
+            if ($blocked != 1)
+                // Odd. Should have indiciated block would be required
+                break;
+            // Spinlock in 2.5ms increments
+            usleep(2500);
+            $waited = true;
+        }
+    }
+
+    function release() {
+        if ($this->fp) {
+            @flock($this->fp, LOCK_UN);
+            @unlink($this->path);
+        }
+    }
+
+    static function isSupported() {
+        return function_exists('flock');
+    }
+}
+BaseLockSystem::register('FileLockingImpl');
+
+class LockingArray
+extends ArrayObject {
+    protected $id;
+    protected $lock;
+    protected $backend;
+    protected $parent;
+
+    function __construct(array $contents, $parent=null) {
+        parent::__construct();
+        $this->parent = $parent;
+        // Unpack contents and wrap nested arrays
+        foreach ($contents as $k=>$v)
+            $this->offsetSet($k, $v, false);
+    }
+
+    function setBackend($id, $backend) {
+        $this->id = $id;
+        $this->backend = $backend;
+    }
+
+    function getRoot() {
+        $P = $this;
+        while ($P->parent)
+            $P = $P->parent;
+        return $P;
+    }
+
+    function acquireLock($timeout=5) {
+        if (!isset($this->lock)) {
+            if (!($this->lock = BaseLockSystem::getImpl($this->id))) {
+                // Locking cannot be supported on this platform. Perhaps
+                // emit a NOTICE?
+                return false;
+            }
+            $waited = false;
+            if (!$this->lock->acquire($timeout, $waited)) {
+                return false;
+            }
+            // Check and see if we waited for a lock or if the backend
+            // indicates session has been touched since it was loaded in
+            // this session
+            if ($waited || $this->backend->checkTouched()) {
+                // Reload the session from the backend. (If we waited, then
+                // it is likely that another request updated the session
+                // while we were waiting).
+                $this->reload();
+            }
+        }
+        return true;
+    }
+
+    function releaseLock() {
+        if (isset($this->lock)) {
+            $this->lock->release();
+        }
+    }
+
+    function isLocked() {
+        return isset($this->lock);
+    }
+
+    function reload() {
+        $data = $this->backend->read($this->id);
+        // TODO: Deserialize and load $data
+        $this->exchangeArray(unserialize($data));
+    }
+
+    function asArray() {
+        $copy = array();
+        foreach ($this as $k=>$v)
+            $copy[$k] = $v instanceof self ? $v->asArray() : $v;
+        return $copy;
+    }
+
+    // ArrayAccess delegates
+    function offsetSet($offs, $what, $lock=true) {
+        if ($lock)
+            $this->getRoot()->acquireLock();
+        if (is_array($what))
+            $what = new static($what, $this);
+        parent::offsetSet($offs, $what);
+    }
+}

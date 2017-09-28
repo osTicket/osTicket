@@ -3970,11 +3970,11 @@ class FileUploadWidget extends Widget {
 
         // New files uploaded in this session are allowed
         if (isset($_SESSION[':uploadedFiles']))
-            $allowed += $_SESSION[':uploadedFiles'];
+            $allowed += (array) $_SESSION[':uploadedFiles'];
 
         // Canned attachments initiated by this session
         if (isset($_SESSION[':cannedFiles']))
-           $allowed += $_SESSION[':cannedFiles'];
+           $allowed += (array) $_SESSION[':cannedFiles'];
 
         // Parse the files and make sure it's allowed.
         foreach ($files as $info) {
