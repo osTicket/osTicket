@@ -1315,6 +1315,16 @@ function refer($tid, $target=null) {
 
         $info=$errors=array();
 
+        // Internal form
+        $iform = TaskForm::getInternalForm($_POST);
+        // Due date must be before tickets due date
+        if ($ticket && $ticket->getEstDueDate()
+                &&  Misc::db2gmtime($ticket->getEstDueDate()) > Misc::gmtime()
+                && ($f=$iform->getField('duedate'))) {
+            $f->configure('max', Misc::db2gmtime($ticket->getEstDueDate()));
+        }
+
+
         if ($_POST) {
             Draft::deleteForNamespace(
                     sprintf('ticket.%d.task', $ticket->getId()),
@@ -1322,8 +1332,7 @@ function refer($tid, $target=null) {
             // Default form
             $form = TaskForm::getInstance();
             $form->setSource($_POST);
-            // Internal form
-            $iform = TaskForm::getInternalForm($_POST);
+
             $isvalid = true;
             if (!$iform->isValid())
                 $isvalid = false;
