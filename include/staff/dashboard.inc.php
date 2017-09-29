@@ -474,28 +474,28 @@
                                                     
                                                 if ($tbldata["COUNT"] != 0) $count = number_format($tbldata["COUNT"]);
                                                     echo '<td>'.$count.'</td>';
-                                                    $total = $total + $count;
+                                                    $ctotal = $ctotal + $count;
                                                     $count = null;
                                                 }
                                             }
                                             
                                     }
                                 
-                                } echo '<td><strong><span class="text-success">'.number_format($total).'</strong></span></td></tr>'; 
-                                $total= null;
+                                } echo '<td><strong><span class="text-success">'.number_format($ctotal).'</strong></span></td></tr>'; 
+                                $ctotal= null;
                             }   
                              ?>
                              <tr class="text-success"><th>TOTAL</th>
                              <?php
-                             $total = null;
+                             
                              foreach ($tbltotals as $tbltotal){
                                  $count = $tbltotal["COUNT"];
                                  echo '<td><strong><span class="text-success">'.number_format($count).'</strong></span></td>';
-                                 $total = $total + $count;
+                                 $btotal = $btotal + $count;
                                  $count = null;
                              }   
                              
-                             echo '<td><strong><span class="text-success">'.number_format($total).'</strong></span></td></tr>';
+                             echo '<td><strong><span class="text-success">'.number_format($btotal).'</strong></span></td></tr>';
                             ?>
                             
                             
@@ -612,10 +612,9 @@
                              foreach ($tbltotals as $tbltotal){
                                  $count = $tbltotal["COUNT"];
                                  echo '<td><strong><span class="text-success">'.number_format($count).'</strong></span></td>';
-                                 $total = $total + $count;
+                                 $ttotal = $ttotal + $count;
                                  $count = null;
                              }   
-                             $ttotal = $total;
                              echo '<td><strong><span class="text-primary">'.number_format($ttotal).'</strong></span></td></tr>';
                             ?>
                             <tr class="text-warning"><th>TOTAL USERS</th>
