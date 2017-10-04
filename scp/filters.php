@@ -31,6 +31,8 @@ if($_POST){
             if(!$filter){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
             }elseif($filter->update($_POST,$errors)){
+                $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, false);
+                $filter->setFlag(Filter::FLAG_INACTIVE_HT, false);
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
