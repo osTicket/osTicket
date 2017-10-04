@@ -459,6 +459,12 @@ implements TemplateVariable {
         $this->noautoresp = !!$vars['noautoresp'];
         $this->notes = Format::sanitize($vars['notes']);
 
+        $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));
+        if ($filter_actions && $vars['status'] == __('Active'))
+          FilterAction::setFilterFlag($filter_actions, 'topic', false);
+        else
+          FilterAction::setFilterFlag($filter_actions, 'topic', true);
+
         switch ($vars['status'])
         {
           case __('Active'):

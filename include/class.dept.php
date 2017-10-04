@@ -710,6 +710,12 @@ implements TemplateVariable {
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
 
+        $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $this->getId().'}'));
+        if ($filter_actions && $vars['status'] == __('Active'))
+          FilterAction::setFilterFlag($filter_actions, 'dept', false);
+        else
+          FilterAction::setFilterFlag($filter_actions, 'dept', true);
+
         switch ($vars['status'])
         {
           case __('Active'):

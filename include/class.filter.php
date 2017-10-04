@@ -146,6 +146,8 @@ class Filter {
             $this->ht['flags'] |= $flag;
         else
             $this->ht['flags'] &= ~$flag;
+        $vars['rules']= $this->getRules();
+        $this->update($this->ht, $errors);
     }
 
     function stopOnMatch() {
@@ -350,7 +352,7 @@ class Filter {
     }
 
     function update($vars,&$errors) {
-
+        $vars['flags'] = $this->ht['flags'];
         if(!Filter::save($this->getId(),$vars,$errors))
             return false;
 
@@ -544,6 +546,29 @@ class Filter {
         return count($errors) == 0;
     }
 
+    function validate_actions($action) {
+
+      $config = json_decode($action->ht['configuration'], true);
+      if ($action->ht['type'] == 'dept') {
+        $dept = Dept::lookup($config['dept_id']);
+        if (!$dept || !$dept->isActive()) {
+          $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+          return $errors;
+        }
+      }
+
+      if ($action->ht['type'] == 'topic') {
+        $topic = Topic::lookup($config['topic_id']);
+        if (!$topic || !$topic->isActive()) {
+          $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+          return $errors;
+        }
+      }
+
+      return false;
+
+    }
+
     function save_actions($id, $vars, &$errors) {
         if (!is_array(@$vars['actions']))
             return;
@@ -568,20 +593,10 @@ class Filter {
                 $I->setConfiguration($errors, $vars);
                 $config = json_decode($I->ht['configuration'], true);
 
-                if ($I->ht['type'] == 'dept') {
-                  $dept = Dept::lookup($config['dept_id']);
-                  if (!$dept || !$dept->isActive()) {
-                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
-                    continue;
-                  }
-                }
-
-                if ($I->ht['type'] == 'topic') {
-                  $topic = Topic::lookup($config['topic_id']);
-                  if (!$topic || !$topic->isActive()) {
-                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
-                    continue;
-                  }
+                $invalid = self::validate_actions($I);
+                if ($invalid) {
+                  $errors['err'] = sprintf($invalid['err']);
+                  return;
                 }
 
                 $I->save();
@@ -592,19 +607,10 @@ class Filter {
 
                     $config = json_decode($I->ht['configuration'], true);
 
-                    if ($I->ht['type'] == 'dept') {
-                      $dept = Dept::lookup($config['dept_id']);
-                      if (!$dept || !$dept->isActive()) {
-                        $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
-                        continue;
-                      }
-                    }
-                    if ($I->ht['type'] == 'topic') {
-                      $topic = Topic::lookup($config['topic_id']);
-                      if (!$topic || !$topic->isActive()) {
-                        $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
-                        continue;
-                      }
+                    $invalid = self::validate_actions($I);
+                    if ($invalid) {
+                      $errors['err'] = sprintf($invalid['err']);
+                      return;
                     }
 
                     $I->sort = (int) $sort;

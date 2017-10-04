@@ -78,6 +78,15 @@ class FilterAction extends VerySimpleModel {
         return $this->_impl;
     }
 
+    function setFilterFlag($actions, $flag, $bool) {
+        $errors = array();
+        foreach ($actions as $action) {
+          $filter = Filter::lookup($action->filter_id);
+          if ($flag == 'dept') $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, $bool);
+          if ($flag == 'topic') $filter->setFlag(Filter::FLAG_INACTIVE_HT, $bool);
+        }
+    }
+
     function apply(&$ticket, array $info) {
         return $this->getImpl()->apply($ticket, $info);
     }
@@ -297,6 +306,13 @@ class FA_RouteDepartment extends TriggerAction {
     function getConfigurationOptions() {
       $depts = Dept::getDepartments(null, true, false);
 
+      if ($this->action->type == 'dept') {
+        $dept_id = json_decode($this->action->configuration, true);
+        $dept = Dept::lookup($dept_id['dept_id']);
+        if ($dept && !$dept->isActive())
+          $depts[$dept->getId()] = $dept->getName();
+      }
+
         return array(
                 'dept_id' => new ChoiceField(array(
                 'configuration' => array(
@@ -435,6 +451,13 @@ class FA_AssignTopic extends TriggerAction {
 
     function getConfigurationOptions() {
         $choices = Topic::getHelpTopics(false, false);
+
+        if ($this->action->type == 'topic') {
+          $topic_id = json_decode($this->action->configuration, true);
+          $topic = Topic::lookup($topic_id['topic_id']);
+          if ($topic && !$topic->isActive())
+            $choices[$topic->getId()] = $topic->getName();
+        }
 
         return array(
             'topic_id' => new ChoiceField(array(

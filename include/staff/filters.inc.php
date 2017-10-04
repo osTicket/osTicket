@@ -106,26 +106,6 @@ else
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         if($res && db_num_rows($res)):
             while ($row = db_fetch_array($res)) {
-              if ($row['topic']) {
-                $filter = Filter::lookup($row['id']);
-                if ($filter->ht['flags'] & !Filter::FLAG_INACTIVE_HT) {
-                  $filter->setFlag(Filter::FLAG_INACTIVE_HT, true);
-                  $vars = $filter->ht;
-                  $vars['rules']= $filter->getRules();
-                  $filter->update($filter->ht, $errors);
-                }
-              }
-
-              if ($row['dept']) {
-                $filter = Filter::lookup($row['id']);
-                if ($filter->ht['flags'] & !Filter::FLAG_INACTIVE_DEPT) {
-                  $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, true);
-                  $vars = $filter->ht;
-                  $vars['rules']= $filter->getRules();
-                  $filter->update($filter->ht, $errors);
-                }
-              }
-
                 $sel=false;
                 if($ids && in_array($row['id'],$ids))
                     $sel=true;
