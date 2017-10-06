@@ -1203,98 +1203,26 @@ $(function() {
 		var data = [
         
            <?php
-        $sql1="select * from (SELECT COUNT(TOPIC) AS COUNT, TOPIC
-                FROM (SELECT ost_ticket.number AS Ticket, 
-                    CASE ost_help_topic.topic_id 
-                        WHEN 35 THEN 'Associates' 
-                        WHEN 29 THEN 'Associates/Add' 
-                        WHEN 36 THEN 'Associates/Change' 
-                        WHEN 31 THEN 'Associates/Termination' 
-                        WHEN 27 THEN 'Connectivity' 
-                        WHEN 37 THEN 'Connectivity/Add'
-                                                            
-                        WHEN 39 THEN 'Connectivity/Change' 
-                        WHEN 40 THEN 'Connectivity/Downtime' 
-                        WHEN 42 THEN 'Connectivity/Downtime/Internal' 
-                        WHEN 43 THEN 'Connectivity/Downtime/Vendor' 
-                        WHEN 41 THEN 'Connectivity/Maintenance'
-                                                            
-                        WHEN 44 THEN 'Connectivity/Maintenance/Internal' 
-                        WHEN 45 THEN 'Connectivity/Maintenance/Vendor' 
-                        WHEN 85 THEN 'Connectivity/VPN' 
-                        WHEN 81 THEN 'Connectivity/WSA' 
-                        WHEN 21 THEN 'Email' 
-                        WHEN 46 THEN 'Email/Add'
-                                                            
-                        WHEN 47 THEN 'Email/Change' 
-                        WHEN 48 THEN 'Email/Downtime' 
-                        WHEN 83 THEN 'Email/Outlook' 
-                        WHEN 84 THEN 'Email/OWA' 
-                        
-                        WHEN 30 THEN 'Facility' 
-                        WHEN 50 THEN 'Facility/Downtime' 
-                        WHEN 86 THEN 'Facility/Door System' 
-                        WHEN 51 THEN 'Facility/Downtime/Power Outtage' 
-                        WHEN 49 THEN 'Facility/Organization (5S)' 
-                        
-                        WHEN 22 THEN 'File and Print' 
-                        WHEN 52 THEN 'File and Print/Add' 
-                        WHEN 57 THEN 'File and Print/Change' 
-                        WHEN 58 THEN 'File and Print/Configuration'
-                                                            
-                        WHEN 53 THEN 'File and Print/Permissions' 
-                        WHEN 54 THEN 'File and Print/Permissions/Add' 
-                        WHEN 55 THEN 'File and Print/Permissions/Change' 
-                        WHEN 56 THEN 'ile and Print/Permissions/Remove' 
-                        WHEN 32 THEN 'Hardware' 
-                        WHEN 59
-                                                            THEN 'Hardware/Add' 
-                        WHEN 60 THEN 'Hardware/Change' 
-                        WHEN 61 THEN 'Hardware/Configuration' 
-                        WHEN 62 THEN 'Hardware/Downtime' 
-                        WHEN 63 THEN 'Hardware/Maintenance' 
-                        WHEN 26 THEN 'Skype | Phones' 
-                        WHEN 64 THEN 'Skype | Phones/Add'
-                                                            
-                        WHEN 65 THEN 'Skype | Phones/Change' 
-                        WHEN 66 THEN 'Skype | Phones/Configuration' 
-                        WHEN 68 THEN 'Skype | Phones/Downtime' 
-                        WHEN 67 THEN 'Skype | Phones/Remove' 
-                        WHEN 28 THEN 'Software' 
-                        WHEN 34 THEN 'Software/Engineering | Design'
-                                                            
-                        WHEN 72 THEN 'Software/Engineering | Design/Install' 
-                        WHEN 74 THEN 'Software/Engineering | Design/Remove' 
-                        WHEN 73 THEN 'Software/Engineering | Design/Update' 
-                        WHEN 69 THEN 'Software/Install' 
-                        WHEN 33 THEN 'Software/Office'
-                                                            
-                        WHEN 75 THEN 'Software/Office/Install' 
-                        WHEN 77 THEN 'Software/Office/Remove' 
-                        WHEN 76 THEN 'Software/Office/Update' 
-                        WHEN 71 THEN 'Software/Remove' 
-                        WHEN 82 THEN 'Software/QuoteLog' 
-                        WHEN 13 THEN 'Software/ShopEdge'
-                                                            
-                        WHEN 78 THEN 'Software/ShopEdge/Downtime' 
-                        WHEN 15 THEN 'Software/ShopEdge/EDI' 
-                        WHEN 17 THEN 'Software/ShopEdge/Performance' 
-                        WHEN 18 THEN 'Software/ShopEdge/Printing' 
-                        WHEN 19 THEN 'Software/ShopEdge/Reports'
-                                                            
-                        WHEN 16 THEN 'Software/ShopEdge/Security' 
-                        WHEN 14 THEN 'Software/ShopEdge/Suggestion' 
-                        WHEN 80 THEN 'Software/Suggestions System' 
-                        WHEN 12 THEN 'Open Issue' 
-                    END AS TOPIC
-                    FROM      ost_ticket LEFT JOIN
-                                      ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
-                    WHERE   ost_ticket.status_id <> 3 AND ost_ticket.status_id <> 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12) AS a
-
-                WHERE  TOPIC IS NOT NULL
-                GROUP BY TOPIC
-                limit 10)a
-                order by count desc";
+        $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
+FROM     (SELECT ost_ticket.number AS Ticket, 
+                                    CASE ost_help_topic.topic_id WHEN 35 THEN 'Associates' WHEN 29 THEN 'Associates/Add' WHEN 36 THEN 'Associates/Change' WHEN 31 THEN 'Associates/Termination' WHEN 27 THEN 'Connectivity' WHEN 37 THEN 'Connectivity/Add'
+                                     WHEN 39 THEN 'Connectivity/Change' WHEN 40 THEN 'Connectivity/Downtime' WHEN 42 THEN 'Connectivity/Downtime/Internal' WHEN 43 THEN 'Connectivity/Downtime/Vend as TOPICor' WHEN 41 THEN 'Connectivity/Maintenance'
+                                     WHEN 44 THEN 'Connectivity/Maintenance/Internal' WHEN 45 THEN 'Connectivity/Maintenance/Vend as TOPICor' WHEN 85 THEN 'Connectivity/VPN' WHEN 81 THEN 'Connectivity/WSA' WHEN 21 THEN 'Email' WHEN 46 THEN 'Email/Add'
+                                     WHEN 47 THEN 'Email/Change' WHEN 48 THEN 'Email/Downtime' WHEN 83 THEN 'Email/Outlook' WHEN 84 THEN 'Email/OWA' WHEN 30 THEN 'Facility' WHEN 50 THEN 'Facility/Downtime' WHEN 86 THEN 'Facility/Door System' WHEN
+                                     51 THEN 'Facility/Downtime/Power Outtage' WHEN 49 THEN 'Facility/Organization (5S)' WHEN 22 THEN 'File and Print' WHEN 52 THEN 'File and Print/Add' WHEN 57 THEN 'File and Print/Change' WHEN 58 THEN 'File and Print/Configuration'
+                                     WHEN 53 THEN 'File and Print/Permissions' WHEN 54 THEN 'File and Print/Permissions/Add' WHEN 55 THEN 'File and Print/Permissions/Change' WHEN 56 THEN 'ile and Print/Permissions/Remove' WHEN 32 THEN 'Hardware' WHEN 59
+                                     THEN 'Hardware/Add' WHEN 60 THEN 'Hardware/Change' WHEN 61 THEN 'Hardware/Configuration' WHEN 62 THEN 'Hardware/Downtime' WHEN 63 THEN 'Hardware/Maintenance' WHEN 26 THEN 'Skype | Phones' WHEN 64 THEN 'Skype | Phones/Add'
+                                     WHEN 65 THEN 'Skype | Phones/Change' WHEN 66 THEN 'Skype | Phones/Configuration' WHEN 68 THEN 'Skype | Phones/Downtime' WHEN 67 THEN 'Skype | Phones/Remove' WHEN 28 THEN 'Software' WHEN 34 THEN 'Software/Engineering | Design'
+                                     WHEN 72 THEN 'Software/Engineering | Design/Install' WHEN 74 THEN 'Software/Engineering | Design/Remove' WHEN 73 THEN 'Software/Engineering | Design/Update' WHEN 69 THEN 'Software/Install' WHEN 33 THEN 'Software/Office'
+                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'Software/ShopEdge'
+                                     WHEN 78 THEN 'Software/ShopEdge/Downtime' WHEN 15 THEN 'Software/ShopEdge/EDI' WHEN 17 THEN 'Software/ShopEdge/Performance' WHEN 18 THEN 'Software/ShopEdge/Printing' WHEN 19 THEN 'Software/ShopEdge/Reports'
+                                     WHEN 16 THEN 'Software/ShopEdge/Security' WHEN 14 THEN 'Software/ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
+                  FROM      ost_ticket LEFT JOIN
+                                    ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
+                  WHERE   ost_ticket.status_id <> 3 AND ost_ticket.status_id <> 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12) AS a
+WHERE  TOPIC IS NOT NULL
+GROUP BY TOPIC
+ORDER BY COUNT DESC limit 10";
         $tresults = db_query($sql1); 
 
         foreach ($tresults as $tresult) {
@@ -1354,98 +1282,26 @@ $(function() {
 		var data = [
         
            <?php
-        $sql1="select * from (SELECT COUNT(TOPIC) AS COUNT, TOPIC
-                FROM (SELECT ost_ticket.number AS Ticket, 
-                    CASE ost_help_topic.topic_id 
-                        WHEN 35 THEN 'Associates' 
-                        WHEN 29 THEN 'Associates/Add' 
-                        WHEN 36 THEN 'Associates/Change' 
-                        WHEN 31 THEN 'Associates/Termination' 
-                        WHEN 27 THEN 'Connectivity' 
-                        WHEN 37 THEN 'Connectivity/Add'
-                                                            
-                        WHEN 39 THEN 'Connectivity/Change' 
-                        WHEN 40 THEN 'Connectivity/Downtime' 
-                        WHEN 42 THEN 'Connectivity/Downtime/Internal' 
-                        WHEN 43 THEN 'Connectivity/Downtime/Vendor' 
-                        WHEN 41 THEN 'Connectivity/Maintenance'
-                                                            
-                        WHEN 44 THEN 'Connectivity/Maintenance/Internal' 
-                        WHEN 45 THEN 'Connectivity/Maintenance/Vendor' 
-                        WHEN 85 THEN 'Connectivity/VPN' 
-                        WHEN 81 THEN 'Connectivity/WSA' 
-                        WHEN 21 THEN 'Email' 
-                        WHEN 46 THEN 'Email/Add'
-                                                            
-                        WHEN 47 THEN 'Email/Change' 
-                        WHEN 48 THEN 'Email/Downtime' 
-                        WHEN 83 THEN 'Email/Outlook' 
-                        WHEN 84 THEN 'Email/OWA' 
-                        
-                        WHEN 30 THEN 'Facility' 
-                        WHEN 50 THEN 'Facility/Downtime' 
-                        WHEN 86 THEN 'Facility/Door System' 
-                        WHEN 51 THEN 'Facility/Downtime/Power Outtage' 
-                        WHEN 49 THEN 'Facility/Organization (5S)' 
-                        
-                        WHEN 22 THEN 'File and Print' 
-                        WHEN 52 THEN 'File and Print/Add' 
-                        WHEN 57 THEN 'File and Print/Change' 
-                        WHEN 58 THEN 'File and Print/Configuration'
-                                                            
-                        WHEN 53 THEN 'File and Print/Permissions' 
-                        WHEN 54 THEN 'File and Print/Permissions/Add' 
-                        WHEN 55 THEN 'File and Print/Permissions/Change' 
-                        WHEN 56 THEN 'ile and Print/Permissions/Remove' 
-                        WHEN 32 THEN 'Hardware' 
-                        WHEN 59
-                                                            THEN 'Hardware/Add' 
-                        WHEN 60 THEN 'Hardware/Change' 
-                        WHEN 61 THEN 'Hardware/Configuration' 
-                        WHEN 62 THEN 'Hardware/Downtime' 
-                        WHEN 63 THEN 'Hardware/Maintenance' 
-                        WHEN 26 THEN 'Skype | Phones' 
-                        WHEN 64 THEN 'Skype | Phones/Add'
-                                                            
-                        WHEN 65 THEN 'Skype | Phones/Change' 
-                        WHEN 66 THEN 'Skype | Phones/Configuration' 
-                        WHEN 68 THEN 'Skype | Phones/Downtime' 
-                        WHEN 67 THEN 'Skype | Phones/Remove' 
-                        WHEN 28 THEN 'Software' 
-                        WHEN 34 THEN 'Software/Engineering | Design'
-                                                            
-                        WHEN 72 THEN 'Software/Engineering | Design/Install' 
-                        WHEN 74 THEN 'Software/Engineering | Design/Remove' 
-                        WHEN 73 THEN 'Software/Engineering | Design/Update' 
-                        WHEN 69 THEN 'Software/Install' 
-                        WHEN 33 THEN 'Software/Office'
-                                                            
-                        WHEN 75 THEN 'Software/Office/Install' 
-                        WHEN 77 THEN 'Software/Office/Remove' 
-                        WHEN 76 THEN 'Software/Office/Update' 
-                        WHEN 71 THEN 'Software/Remove' 
-                        WHEN 82 THEN 'Software/QuoteLog' 
-                        WHEN 13 THEN 'Software/ShopEdge'
-                                                            
-                        WHEN 78 THEN 'Software/ShopEdge/Downtime' 
-                        WHEN 15 THEN 'Software/ShopEdge/EDI' 
-                        WHEN 17 THEN 'Software/ShopEdge/Performance' 
-                        WHEN 18 THEN 'Software/ShopEdge/Printing' 
-                        WHEN 19 THEN 'Software/ShopEdge/Reports'
-                                                            
-                        WHEN 16 THEN 'Software/ShopEdge/Security' 
-                        WHEN 14 THEN 'Software/ShopEdge/Suggestion' 
-                        WHEN 80 THEN 'Software/Suggestions System' 
-                        WHEN 12 THEN 'Open Issue' 
-                    END AS TOPIC
-                    FROM      ost_ticket LEFT JOIN
-                                      ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
-                    WHERE   ost_ticket.status_id = 3 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12 and year(ost_ticket.closed) = year(now())) AS a
-
-                WHERE  TOPIC IS NOT NULL
-                GROUP BY TOPIC
-                limit 10)a
-                order by count desc";
+        $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
+FROM     (SELECT ost_ticket.number AS Ticket, 
+                                    CASE ost_help_topic.topic_id WHEN 35 THEN 'Associates' WHEN 29 THEN 'Associates/Add' WHEN 36 THEN 'Associates/Change' WHEN 31 THEN 'Associates/Termination' WHEN 27 THEN 'Connectivity' WHEN 37 THEN 'Connectivity/Add'
+                                     WHEN 39 THEN 'Connectivity/Change' WHEN 40 THEN 'Connectivity/Downtime' WHEN 42 THEN 'Connectivity/Downtime/Internal' WHEN 43 THEN 'Connectivity/Downtime/Vend as TOPICor' WHEN 41 THEN 'Connectivity/Maintenance'
+                                     WHEN 44 THEN 'Connectivity/Maintenance/Internal' WHEN 45 THEN 'Connectivity/Maintenance/Vend as TOPICor' WHEN 85 THEN 'Connectivity/VPN' WHEN 81 THEN 'Connectivity/WSA' WHEN 21 THEN 'Email' WHEN 46 THEN 'Email/Add'
+                                     WHEN 47 THEN 'Email/Change' WHEN 48 THEN 'Email/Downtime' WHEN 83 THEN 'Email/Outlook' WHEN 84 THEN 'Email/OWA' WHEN 30 THEN 'Facility' WHEN 50 THEN 'Facility/Downtime' WHEN 86 THEN 'Facility/Door System' WHEN
+                                     51 THEN 'Facility/Downtime/Power Outtage' WHEN 49 THEN 'Facility/Organization (5S)' WHEN 22 THEN 'File and Print' WHEN 52 THEN 'File and Print/Add' WHEN 57 THEN 'File and Print/Change' WHEN 58 THEN 'File and Print/Configuration'
+                                     WHEN 53 THEN 'File and Print/Permissions' WHEN 54 THEN 'File and Print/Permissions/Add' WHEN 55 THEN 'File and Print/Permissions/Change' WHEN 56 THEN 'ile and Print/Permissions/Remove' WHEN 32 THEN 'Hardware' WHEN 59
+                                     THEN 'Hardware/Add' WHEN 60 THEN 'Hardware/Change' WHEN 61 THEN 'Hardware/Configuration' WHEN 62 THEN 'Hardware/Downtime' WHEN 63 THEN 'Hardware/Maintenance' WHEN 26 THEN 'Skype | Phones' WHEN 64 THEN 'Skype | Phones/Add'
+                                     WHEN 65 THEN 'Skype | Phones/Change' WHEN 66 THEN 'Skype | Phones/Configuration' WHEN 68 THEN 'Skype | Phones/Downtime' WHEN 67 THEN 'Skype | Phones/Remove' WHEN 28 THEN 'Software' WHEN 34 THEN 'Software/Engineering | Design'
+                                     WHEN 72 THEN 'Software/Engineering | Design/Install' WHEN 74 THEN 'Software/Engineering | Design/Remove' WHEN 73 THEN 'Software/Engineering | Design/Update' WHEN 69 THEN 'Software/Install' WHEN 33 THEN 'Software/Office'
+                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'Software/ShopEdge'
+                                     WHEN 78 THEN 'Software/ShopEdge/Downtime' WHEN 15 THEN 'Software/ShopEdge/EDI' WHEN 17 THEN 'Software/ShopEdge/Performance' WHEN 18 THEN 'Software/ShopEdge/Printing' WHEN 19 THEN 'Software/ShopEdge/Reports'
+                                     WHEN 16 THEN 'Software/ShopEdge/Security' WHEN 14 THEN 'Software/ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
+                  FROM      ost_ticket LEFT JOIN
+                                    ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
+                  WHERE    year(ost_ticket.closed) = year(now()) and ost_ticket.status_id = 3 or ost_ticket.status_id = 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12 ) AS a
+WHERE  TOPIC IS NOT NULL
+GROUP BY TOPIC
+ORDER BY COUNT DESC limit 10";
         $tresults = db_query($sql1); 
 
         foreach ($tresults as $tresult) {
@@ -1506,102 +1362,30 @@ $(function() {
 		var data = [
         
            <?php
-        $sql1="select * from (SELECT COUNT(TOPIC) AS COUNT, TOPIC
-                FROM (SELECT ost_ticket.number AS Ticket, 
-                    CASE ost_help_topic.topic_id 
-                        WHEN 35 THEN 'Associates' 
-                        WHEN 29 THEN 'Associates/Add' 
-                        WHEN 36 THEN 'Associates/Change' 
-                        WHEN 31 THEN 'Associates/Termination' 
-                        WHEN 27 THEN 'Connectivity' 
-                        WHEN 37 THEN 'Connectivity/Add'
-                                                            
-                        WHEN 39 THEN 'Connectivity/Change' 
-                        WHEN 40 THEN 'Connectivity/Downtime' 
-                        WHEN 42 THEN 'Connectivity/Downtime/Internal' 
-                        WHEN 43 THEN 'Connectivity/Downtime/Vendor' 
-                        WHEN 41 THEN 'Connectivity/Maintenance'
-                                                            
-                        WHEN 44 THEN 'Connectivity/Maintenance/Internal' 
-                        WHEN 45 THEN 'Connectivity/Maintenance/Vendor' 
-                        WHEN 85 THEN 'Connectivity/VPN' 
-                        WHEN 81 THEN 'Connectivity/WSA' 
-                        WHEN 21 THEN 'Email' 
-                        WHEN 46 THEN 'Email/Add'
-                                                            
-                        WHEN 47 THEN 'Email/Change' 
-                        WHEN 48 THEN 'Email/Downtime' 
-                        WHEN 83 THEN 'Email/Outlook' 
-                        WHEN 84 THEN 'Email/OWA' 
-                        
-                        WHEN 30 THEN 'Facility' 
-                        WHEN 50 THEN 'Facility/Downtime' 
-                        WHEN 86 THEN 'Facility/Door System' 
-                        WHEN 51 THEN 'Facility/Downtime/Power Outtage' 
-                        WHEN 49 THEN 'Facility/Organization (5S)' 
-                        
-                        WHEN 22 THEN 'File and Print' 
-                        WHEN 52 THEN 'File and Print/Add' 
-                        WHEN 57 THEN 'File and Print/Change' 
-                        WHEN 58 THEN 'File and Print/Configuration'
-                                                            
-                        WHEN 53 THEN 'File and Print/Permissions' 
-                        WHEN 54 THEN 'File and Print/Permissions/Add' 
-                        WHEN 55 THEN 'File and Print/Permissions/Change' 
-                        WHEN 56 THEN 'ile and Print/Permissions/Remove' 
-                        WHEN 32 THEN 'Hardware' 
-                        WHEN 59
-                                                            THEN 'Hardware/Add' 
-                        WHEN 60 THEN 'Hardware/Change' 
-                        WHEN 61 THEN 'Hardware/Configuration' 
-                        WHEN 62 THEN 'Hardware/Downtime' 
-                        WHEN 63 THEN 'Hardware/Maintenance' 
-                        WHEN 26 THEN 'Skype | Phones' 
-                        WHEN 64 THEN 'Skype | Phones/Add'
-                                                            
-                        WHEN 65 THEN 'Skype | Phones/Change' 
-                        WHEN 66 THEN 'Skype | Phones/Configuration' 
-                        WHEN 68 THEN 'Skype | Phones/Downtime' 
-                        WHEN 67 THEN 'Skype | Phones/Remove' 
-                        WHEN 28 THEN 'Software' 
-                        WHEN 34 THEN 'Software/Engineering | Design'
-                                                            
-                        WHEN 72 THEN 'Software/Engineering | Design/Install' 
-                        WHEN 74 THEN 'Software/Engineering | Design/Remove' 
-                        WHEN 73 THEN 'Software/Engineering | Design/Update' 
-                        WHEN 69 THEN 'Software/Install' 
-                        WHEN 33 THEN 'Software/Office'
-                                                            
-                        WHEN 75 THEN 'Software/Office/Install' 
-                        WHEN 77 THEN 'Software/Office/Remove' 
-                        WHEN 76 THEN 'Software/Office/Update' 
-                        WHEN 71 THEN 'Software/Remove' 
-                        WHEN 82 THEN 'Software/QuoteLog' 
-                        WHEN 13 THEN 'Software/ShopEdge'
-                                                            
-                        WHEN 78 THEN 'Software/ShopEdge/Downtime' 
-                        WHEN 15 THEN 'Software/ShopEdge/EDI' 
-                        WHEN 17 THEN 'Software/ShopEdge/Performance' 
-                        WHEN 18 THEN 'Software/ShopEdge/Printing' 
-                        WHEN 19 THEN 'Software/ShopEdge/Reports'
-                                                            
-                        WHEN 16 THEN 'Software/ShopEdge/Security' 
-                        WHEN 14 THEN 'Software/ShopEdge/Suggestion' 
-                        WHEN 80 THEN 'Software/Suggestions System' 
-                        WHEN 12 THEN 'Open Issue' 
-                    END AS TOPIC
-                    FROM      ost_ticket LEFT JOIN
-                                      ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
-                    WHERE   ost_ticket.status_id = 3 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12 and year(ost_ticket.closed) = year(CURDATE() - INTERVAL 1 YEAR)) AS a
+        $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
+FROM     (SELECT ost_ticket.number AS Ticket, 
+                                    CASE ost_help_topic.topic_id WHEN 35 THEN 'Associates' WHEN 29 THEN 'Associates/Add' WHEN 36 THEN 'Associates/Change' WHEN 31 THEN 'Associates/Termination' WHEN 27 THEN 'Connectivity' WHEN 37 THEN 'Connectivity/Add'
+                                     WHEN 39 THEN 'Connectivity/Change' WHEN 40 THEN 'Connectivity/Downtime' WHEN 42 THEN 'Connectivity/Downtime/Internal' WHEN 43 THEN 'Connectivity/Downtime/Vend as TOPICor' WHEN 41 THEN 'Connectivity/Maintenance'
+                                     WHEN 44 THEN 'Connectivity/Maintenance/Internal' WHEN 45 THEN 'Connectivity/Maintenance/Vend as TOPICor' WHEN 85 THEN 'Connectivity/VPN' WHEN 81 THEN 'Connectivity/WSA' WHEN 21 THEN 'Email' WHEN 46 THEN 'Email/Add'
+                                     WHEN 47 THEN 'Email/Change' WHEN 48 THEN 'Email/Downtime' WHEN 83 THEN 'Email/Outlook' WHEN 84 THEN 'Email/OWA' WHEN 30 THEN 'Facility' WHEN 50 THEN 'Facility/Downtime' WHEN 86 THEN 'Facility/Door System' WHEN
+                                     51 THEN 'Facility/Downtime/Power Outtage' WHEN 49 THEN 'Facility/Organization (5S)' WHEN 22 THEN 'File and Print' WHEN 52 THEN 'File and Print/Add' WHEN 57 THEN 'File and Print/Change' WHEN 58 THEN 'File and Print/Configuration'
+                                     WHEN 53 THEN 'File and Print/Permissions' WHEN 54 THEN 'File and Print/Permissions/Add' WHEN 55 THEN 'File and Print/Permissions/Change' WHEN 56 THEN 'ile and Print/Permissions/Remove' WHEN 32 THEN 'Hardware' WHEN 59
+                                     THEN 'Hardware/Add' WHEN 60 THEN 'Hardware/Change' WHEN 61 THEN 'Hardware/Configuration' WHEN 62 THEN 'Hardware/Downtime' WHEN 63 THEN 'Hardware/Maintenance' WHEN 26 THEN 'Skype | Phones' WHEN 64 THEN 'Skype | Phones/Add'
+                                     WHEN 65 THEN 'Skype | Phones/Change' WHEN 66 THEN 'Skype | Phones/Configuration' WHEN 68 THEN 'Skype | Phones/Downtime' WHEN 67 THEN 'Skype | Phones/Remove' WHEN 28 THEN 'Software' WHEN 34 THEN 'Software/Engineering | Design'
+                                     WHEN 72 THEN 'Software/Engineering | Design/Install' WHEN 74 THEN 'Software/Engineering | Design/Remove' WHEN 73 THEN 'Software/Engineering | Design/Update' WHEN 69 THEN 'Software/Install' WHEN 33 THEN 'Software/Office'
+                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'Software/ShopEdge'
+                                     WHEN 78 THEN 'Software/ShopEdge/Downtime' WHEN 15 THEN 'Software/ShopEdge/EDI' WHEN 17 THEN 'Software/ShopEdge/Performance' WHEN 18 THEN 'Software/ShopEdge/Printing' WHEN 19 THEN 'Software/ShopEdge/Reports'
+                                     WHEN 16 THEN 'Software/ShopEdge/Security' WHEN 14 THEN 'Software/ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
+                  FROM      ost_ticket LEFT JOIN
+                                    ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
+                  WHERE    year(ost_ticket.closed) = year(CURDATE() - INTERVAL 1 YEAR) and ost_ticket.status_id = 3 or ost_ticket.status_id = 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12 ) AS a
+WHERE  TOPIC IS NOT NULL
+GROUP BY TOPIC
+ORDER BY COUNT DESC limit 10";
+        $ptresults = db_query($sql1); 
 
-                WHERE  TOPIC IS NOT NULL
-                GROUP BY TOPIC
-                limit 10)a
-                order by count desc";
-        $tresults = db_query($sql1); 
-
-        foreach ($tresults as $tresult) {
-            echo "[\"".$tresult['TOPIC']."\", ".$tresult['COUNT']."],";
+        foreach ($ptresults as $ptresult) {
+            echo "[\"".$ptresult['TOPIC']."\", ".$ptresult['COUNT']."],";
         }
     ?> 
                 
