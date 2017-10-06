@@ -2025,8 +2025,8 @@ class DatetimeField extends FormField {
         // Parse value to DateTime object
         $val = Format::parseDatetime($value);
         // Get configured min/max (if any)
-        $min = $this->getMinDatetime();
-        $max = $this->getMaxDatetime();
+        $min = $this->getMinDateTime();
+        $max = $this->getMaxDateTime();
 
         if (!$val) {
             $this->_errors[] = __('Enter a valid date');
