@@ -11,7 +11,7 @@ global $thisstaff;
 <!-- SubQ class: only if top level Q has subQ -->
 <li <?php if ($hasChildren)  echo 'class="subQ"'; ?>>
 
-  <span class="<?php if ($thisstaff->isAdmin() || $q->isPrivate())  echo 'personalQmenu'; ?>
+  <span class="<?php if ($thisstaff->isAdmin() || !$q->isAQueue())  echo 'personalQmenu'; ?>
     pull-right newItemQ queue-count"
     data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
   </span>

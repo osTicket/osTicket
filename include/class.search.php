@@ -656,16 +656,54 @@ class SavedSearch extends CustomQueue {
         return static::objects()->filter(Q::any(array(
             'staff_id' => $agent->getId(),
             'flags__hasbit' => self::FLAG_PUBLIC,
+            Q::all(array(
+                'flags__hasbit' => self::FLAG_VISIBLE_TEAM,
+                'team__members__staff_id' => $agent->getId(),
+            )),
         )))
         ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
     }
 
     function update($vars, &$errors=array()) {
+        global $thisstaff;
+
         if (!parent::update($vars, $errors))
             return false;
 
         // Personal queues _always_ inherit from their parent
         $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id > 0);
+
+        // Set the TEAM visibility
+        $form = $this->getVisibilityForm($vars);
+        if (!$form->isValid())
+            return false;
+
+        $this->clearFlag(self::FLAG_VISIBLE_TEAM | self::FLAG_PUBLIC);
+        $this->staff_id = $thisstaff->getId();
+        $answers = $form->getClean();
+        switch ($answers['visible_to']) {
+        case 'team':
+            $this->setFlag(self::FLAG_VISIBLE_TEAM);
+            $this->staff_id = $answers['visible_team'];
+            break;
+        case 'public':
+            if ($thisstaff->isAdmin())
+                $this->setFlag(self::FLAG_PUBLIC);
+            break;
+        }
+
+        // If visible to other users, parent queue must also be visible
+        if ($answers['visible_to'] != 'me' && isset($this->parent)
+            # Must be public
+            && (!$this->parent->hasFlag(self::FLAG_PUBLIC)
+            # Or be a queue (which are all public)
+                && !$this->parent->hasFlag(self::FLAG_QUEUE)
+            # Or team must match
+                && !($this->parent->hasFlag(self::FLAG_VISIBLE_TEAM)
+                    && $this->parent->staff_id == $this->staff_id)
+        )) {
+            $errors['visibility'] = __('Parent queue visibility does not match');
+        }
 
         return count($errors) === 0;
     }
@@ -674,6 +712,23 @@ class SavedSearch extends CustomQueue {
         $search = parent::create($vars);
         $search->clearFlag(self::FLAG_QUEUE);
         return $search;
+    }
+
+    function getVisibilityForm($source=null) {
+        if ($source === null) {
+            $source = array();
+            if ($this->hasFlag(self::FLAG_PUBLIC)) {
+                $source['visible_to'] = 'public';
+            }
+            elseif ($this->hasFlag(self::FLAG_VISIBLE_TEAM)) {
+                $source['visible_to'] = 'team';
+                $source['visible_team'] = $this->staff_id;
+            }
+            else {
+                $source['visible_to'] = 'me';
+            }
+        }
+        return new QueueVisibilityForm($source);
     }
 }
 
@@ -999,6 +1054,42 @@ class TicketStatusChoiceField extends SelectionField {
         default:
             return parent::getSearchQ($method, $value, $name);
         }
+    }
+}
+
+class QueueVisibilityForm
+extends AbstractForm {
+    function getInstructions() {
+        return __('Determine the agents who will have access to your saved search. Bear in mind that everyone with access will also have edit rights.');
+    }
+
+    function buildFields() {
+        global $thisstaff;
+        $choices = array(
+            'me' => __('Me'),
+        );
+        # Hide 'team' option if agent is not in any teams
+        $teams = Team::getTeams(array('including' => $thisstaff));
+        if (count($teams))
+            $choices['team'] =  __('One of my teams');
+        # Require admin rights to make queue global
+        if ($thisstaff->isAdmin())
+            $choices['public'] = __('Anyone');
+
+        return array(
+            'visible_to' => new ChoiceField(array(
+                'required' => true,
+                'label' => __('Visible To'),
+                'choices' => $choices,
+            )),
+            'visible_team' => new ChoiceField(array(
+                'required' => true,
+                'choices' => $teams,
+                'visibility' => new VisibilityConstraint(new Q(array(
+                    "visible_to__eq" => 'team',
+                )), VisibilityConstraint::HIDDEN),
+            )),
+        );
     }
 }
 

@@ -145,6 +145,7 @@ class SearchAjaxAPI extends AjaxController {
 
     function _tryAgain($search, $form, $errors=array()) {
         $matches = $search->getSupportedMatches();
+        $visibility_form = $search->getVisibilityForm();
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 
@@ -342,6 +343,10 @@ class SearchAjaxAPI extends AjaxController {
         $queues = CustomQueue::objects()
             ->filter(Q::any(array(
                 'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                Q::any(array(
+                    'flags__hasbit' => CustomQueue::FLAG_VISIBLE_TEAM,
+                    'team__members__staff_id' => $thisstaff->getId(),
+                )),
                 'staff_id' => $thisstaff->getId(),
             )));
 

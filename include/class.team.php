@@ -273,6 +273,12 @@ implements TemplateVariable {
                 ))
                 ->filter(array('members_count__gt'=>0));
             }
+            elseif (isset($criteria['including']) && $criteria['including']) {
+                $query = $query->filter(array(
+                    'flags__hasbit' => self::FLAG_ENABLED,
+                    'members__staff' => $criteria['including']
+                ));
+            }
 
             $items = array();
             foreach ($query as $row) {
@@ -302,6 +308,10 @@ implements TemplateVariable {
             $teams = self::getTeams(array('active'=>true));
 
         return $teams;
+    }
+
+    static function forAgent(Staff $agent) {
+        return static::getTeams(array('including' => $agent));
     }
 
     static function create($vars=false) {

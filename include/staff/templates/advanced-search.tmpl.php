@@ -38,6 +38,7 @@ foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
 <ul class="tabs">
     <li class="active"><a href="#criteria"><?php echo __('Criteria'); ?></a></li>
     <li><a href="#columns"><?php echo __('Columns'); ?></a></li>
+    <li><a href="#visibility"><?php echo __('Visibility'); ?></a></li>
 </ul>
 
 <div class="tab_content" id="criteria">
@@ -64,6 +65,19 @@ foreach (CustomQueue::queues()->order_by('sort', 'title') as $q) { ?>
     <?php 
     $queue = $search;
     include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
+</div>
+
+<div class="tab_content hidden" id="visibility">
+<?php
+    if (isset($errors['visibility'])) { ?>
+        <div class="error"><?php
+            echo Format::htmlchars($errors['visibility']); ?></div>
+<?php
+    }
+    # Validate the form
+    $visibility_form->getClean();
+    print $visibility_form->asTable();
+?>
 </div>
 
   <hr/>

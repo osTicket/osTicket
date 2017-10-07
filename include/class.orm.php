@@ -2283,6 +2283,7 @@ class SqlCompiler {
             'endswith' => function($a, $b) { return iEndsWith($a, $b); },
             'regex' => function($a, $b) { return preg_match("/$a/iu", $b); },
             'hasbit' => function($a, $b) { return ($a & $b) == $b; },
+            'in' => function($a, $b) { return in_array($a, $b); },
         ); }
         // TODO: Support Q expressions
         if ($check instanceof Q)

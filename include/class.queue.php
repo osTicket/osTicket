@@ -49,6 +49,11 @@ class CustomQueue extends VerySimpleModel {
                     'staff_id' => 'Staff.staff_id',
                 )
             ),
+            'team' => array(
+                'constraint' => array(
+                    'staff_id' => 'Team.team_id',
+                )
+            ),
         )
     );
 
@@ -59,6 +64,7 @@ class CustomQueue extends VerySimpleModel {
     const FLAG_INHERIT_COLUMNS =  0x0010; // Inherit column layout from parent
     const FLAG_INHERIT_SORTING =  0x0020; // Inherit advanced sorting from parent
     const FLAG_INHERIT_DEF_SORT = 0x0040; // Inherit default selected sort
+    const FLAG_VISIBLE_TEAM =     0x0100; // `staff_id` represents a team_id
 
     const FLAG_INHERIT_EVERYTHING = 0x78; // Maskf or all INHERIT flags
 
@@ -619,11 +625,17 @@ class CustomQueue extends VerySimpleModel {
         global $thisstaff;
         if (!$thisstaff instanceof Staff)
             return array();
-
         return $this->children->findAll(array(
-            'staff_id' => $thisstaff->getId(),
             Q::not(array(
-                'flags__hasbit' => self::FLAG_PUBLIC
+                'flags__hasbit' => self::FLAG_QUEUE
+            )),
+            Q::any(array(
+                'staff_id' => $thisstaff->getId(),
+                'flags__hasbit' => self::FLAG_PUBLIC,
+                Q::all(array(
+                    'flags__hasbit' => self::FLAG_VISIBLE_TEAM,
+                    'staff_id__in' => $thisstaff->getTeams(),
+                ))
             ))
         ));
     }
@@ -745,7 +757,18 @@ class CustomQueue extends VerySimpleModel {
 
     function checkAccess(Staff $agent) {
         return $agent->getId() == $this->staff_id
-            || $this->hasFlag(self::FLAG_PUBLIC);
+            || $this->hasFlag(self::FLAG_PUBLIC)
+            || ($this->hasFlag(self::FLAG_VISIBLE_TEAM)
+                && in_array($this->staff_id, $agent->getTeams()));
+    }
+
+    function checkEditAccess(Staff $agent) {
+        # Either you own it or you're an admin or you're on the team
+        return $agent->isAdmin()
+            || ($agent->getId() == $this->staff_id
+                && !$this->hasFlag(self::FLAG_VISIBLE_TEAM))
+            || (in_array($this->staff_id, $agent->getTeams())
+                && $this->hasFlag(self::FLAG_VISIBLE_TEAM));
     }
 
     function ignoreVisibilityConstraints() {

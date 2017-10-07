@@ -146,7 +146,7 @@ return false;">
                 <div class="noclick-dropdown anchor-left">
                     <ul>
 <?php
-if ($queue->isPrivate()) { ?>
+if (!$queue->isAQueue() && $queue->checkEditAccess($thisstaff)) { ?>
                         <li>
                             <a class="no-pjax" href="#"
                               data-dialog="ajax.php/tickets/search/<?php echo
@@ -175,7 +175,7 @@ else {
                         </li>
 <?php
 }
-if ($thisstaff->isAdmin()) { ?>
+if ($thisstaff->isAdmin() && $queue->isAQueue()) { ?>
                         <li>
                             <a class="no-pjax"
                             href="queues.php?a=sub&amp;id=<?php echo $queue->id; ?>"><i
@@ -193,7 +193,7 @@ if (
     $queue->id > 0
     && (
         ($thisstaff->isAdmin() && $queue->parent_id)
-        || $queue->isPrivate()
+        || $queue->checkEditAccess($thisstaff)
 )) { ?>
                         <li class="danger">
                             <a class="no-pjax confirm-action" href="#"
