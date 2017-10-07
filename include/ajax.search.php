@@ -145,7 +145,7 @@ class SearchAjaxAPI extends AjaxController {
 
     function _tryAgain($search, $form, $errors=array()) {
         $matches = $search->getSupportedMatches();
-        $visibility_form = $search->getVisibilityForm();
+        $visibility_form = $search->getVisibilityForm($_POST ?: null);
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 

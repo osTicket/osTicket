@@ -653,15 +653,18 @@ class SavedSearch extends CustomQueue {
     private $children = false;
 
     static function forStaff(Staff $agent) {
-        return static::objects()->filter(Q::any(array(
+        $criteria = Q::any(array(
             'staff_id' => $agent->getId(),
             'flags__hasbit' => self::FLAG_PUBLIC,
-            Q::all(array(
+        ));
+        if ($teams = $agent->getTeams()) {
+            $criteria->add(Q::all(array(
                 'flags__hasbit' => self::FLAG_VISIBLE_TEAM,
-                'team__members__staff_id' => $agent->getId(),
-            )),
-        )))
-        ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
+                'staff_id__in' => $teams,
+            )));
+        }
+        return static::objects()->filter($criteria)
+            ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
     }
 
     function update($vars, &$errors=array()) {
@@ -693,7 +696,8 @@ class SavedSearch extends CustomQueue {
         }
 
         // If visible to other users, parent queue must also be visible
-        if ($answers['visible_to'] != 'me' && isset($this->parent)
+        if ($answers['visible_to'] != 'me'
+            && $this->parent
             # Must be public
             && (!$this->parent->hasFlag(self::FLAG_PUBLIC)
             # Or be a queue (which are all public)
