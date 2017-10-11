@@ -313,7 +313,7 @@ abstract class AuthenticationBackend {
             if ($bk instanceof AuthDirectorySearch)
                 $backends[$bk::$id] = $bk;
 
-        return array_unique($backends);
+        return array_unique($backends,SORT_REGULAR);
     }
 
     static function searchUsers($query) {
