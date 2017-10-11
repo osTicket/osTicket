@@ -310,7 +310,7 @@ implements RestrictedAccess, Threadable {
             return true;
 
         $warning = null;
-        if ($this->getMissingRequiredFields()) {
+        if (self::getMissingRequiredFields($this)) {
             $warning = sprintf(
                     __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
                     __('This ticket'),
@@ -965,17 +965,31 @@ implements RestrictedAccess, Threadable {
         }
     }
 
-    function getMissingRequiredFields() {
+    static function getMissingRequiredFields($ticket) {
+        // Check for fields disabled by Help Topic
+        $disabled = array();
+        foreach ($ticket->entries as $entry) {
+            $extra = JsonDataParser::decode($entry->extra);
+            if (!empty($extra['disable']))
+                $disabled[] = $extra['disable'];
+        }
+        $disabled = !empty($disabled) ? call_user_func_array('array_merge', $disabled) : NULL;
 
-        return $this->getDynamicFields(array(
+        $criteria = array(
                     'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
                     'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
                     'answers__value__isnull' => true,
-                    ));
+                    );
+
+        // If there are disabled fields then exclude them
+        if ($disabled)
+            array_push($criteria, Q::not(array('answers__field__id__in' => $disabled)));
+
+        return $ticket->getDynamicFields($criteria, $ticket);
     }
 
     function getMissingRequiredField() {
-        $fields = $this->getMissingRequiredFields();
+        $fields = self::getMissingRequiredFields($this);
         return $fields ? $fields[0] : null;
     }
 
