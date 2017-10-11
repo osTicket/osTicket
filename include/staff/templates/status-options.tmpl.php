@@ -14,8 +14,13 @@ $actions= array(
         );
 
 $states = array('open');
+<<<<<<< HEAD
 if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(Ticket::PERM_CLOSE)
         && (!$ticket || !$ticket->getMissingRequiredFields()))
+=======
+if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(TicketModel::PERM_CLOSE)
+        && (!$ticket || !Ticket::getMissingRequiredFields($ticket)))
+>>>>>>> issue: Check Missing Required Fields
     $states = array_merge($states, array('closed'));
 
 $statusId = $ticket ? $ticket->getStatusId() : 0;
