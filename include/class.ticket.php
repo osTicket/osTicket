@@ -4051,11 +4051,12 @@ implements RestrictedAccess, Threadable, Searchable {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            $response = $ticket->postReply($vars, $errors, false);
+            $response = $ticket->postReply($vars, $errors,
+                    !isset($vars['alertuser']));
         }
 
         // Not assigned...save optional note if any
-        if (!$vars['assignId'] && $vars['note']) {
+        if (!$ticket->isAssigned() && $vars['note']) {
             if (!$cfg->isRichTextEnabled()) {
                 $vars['note'] = new TextThreadEntryBody($vars['note']);
             }
@@ -4073,7 +4074,15 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($msg=$tpl->getNewTicketNoticeMsgTemplate())
             && ($email=$dept->getEmail())
         ) {
-            $message = (string) $ticket->getLastMessage();
+           $attachments = array();
+           $message = $ticket->getLastMessage();
+           if ($cfg->emailAttachments()) {
+               $attachments = $message->getAttachments();
+               if ($response && $response->getNumAttachments())
+                 $attachments = $attachments->merge($response->getAttachments());
+           }
+
+            $message = (string) $message;
             if ($response) {
                 $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
                 $message .= $response->getBody();
@@ -4085,9 +4094,6 @@ implements RestrictedAccess, Threadable, Searchable {
                 $signature=$dept->getSignature();
             else
                 $signature='';
-
-            $attachments = ($cfg->emailAttachments() && $response)
-                ? $response->getAttachments() : array();
 
             $msg = $ticket->replaceVars($msg->asArray(),
                 array(
