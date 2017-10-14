@@ -1480,6 +1480,7 @@ extends AbstractForm {
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+			User::PERM_SDIRECTORY,
         );
         return $clean;
     }
