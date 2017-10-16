@@ -166,7 +166,7 @@ class StaffNav {
                 case 'dashboard':
                     $subnav[]=array('desc'=>__('Dashboard'),'href'=>'dashboard.php','iconclass'=>'logs');
 					if($staff) {
-						if ($staff->hasPerm(User::PERM_SDIRECTORY, false))
+						if ($staff->hasPerm(Staff::PERM_SDIRECTORY, true))
 							$subnav[]=array('desc'=>__('Agent Directory'),'href'=>'directory.php','iconclass'=>'teams');
 					}
                     $subnav[]=array('desc'=>__('My Profile'),'href'=>'profile.php','iconclass'=>'users');

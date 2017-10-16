@@ -82,7 +82,6 @@ class UserModel extends VerySimpleModel {
     const PERM_DELETE =     'user.delete';
     const PERM_MANAGE =     'user.manage';
     const PERM_DIRECTORY =  'user.dir';
-	const PERM_SDIRECTORY =  'staff.dir';
 
     static protected $perms = array(
         self::PERM_CREATE => array(
@@ -108,11 +107,6 @@ class UserModel extends VerySimpleModel {
         self::PERM_DIRECTORY => array(
             'title' => /* @trans */ 'User Directory',
             'desc' => /* @trans */ 'Ability to access the user directory',
-            'primary' => true,
-        ),
-		self::PERM_SDIRECTORY => array(
-            'title' => /* @trans */ 'Staff Directory',
-            'desc' => /* @trans */ 'Ability to access the staff directory',
             'primary' => true,
         ),
     );
