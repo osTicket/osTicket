@@ -1383,6 +1383,39 @@ class TextareaField extends FormField {
         return false;
     }
 
+    function validateEntry($value) {
+        parent::validateEntry($value);
+        $config = $this->getConfiguration();
+        $validators = array(
+            '' =>       null,
+            'choices' => array(
+                function($val) {
+                    $val = str_replace('"', '', JsonDataEncoder::encode($val));
+                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[A-z0-9 _-]+$/";
+                    foreach (explode('\r\n', $val) as $v) {
+                        if (!preg_match($regex, $v))
+                            return false;
+                    }
+                    return true;
+                }, __('Each choice requires a key and has to be on a new line. (eg. key:value)')
+            ),
+        );
+        // Support configuration forms, as well as GUI-based form fields
+        $valid = $this->get('validator');
+        if (!$valid) {
+            $valid = $config['validator'];
+        }
+        if (!$value || !isset($validators[$valid]))
+            return;
+        $func = $validators[$valid];
+        $error = $func[1];
+        if ($config['validator-error'])
+            $error = $this->getLocal('validator-error', $config['validator-error']);
+        if (is_array($func) && is_callable($func[0]))
+            if (!call_user_func($func[0], $value))
+                $this->_errors[] = $error;
+    }
+
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1539,7 +1572,8 @@ class ChoiceField extends FormField {
         return array(
             'choices'  =>  new TextareaField(array(
                 'id'=>1, 'label'=>__('Choices'), 'required'=>false, 'default'=>'',
-                'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change'),
+                'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change.</br><b>Note:</b> If you have more than two choices, use a List instead.'),
+                'validator'=>'choices',
                 'configuration'=>array('html'=>false)
             )),
             'default' => new TextboxField(array(
