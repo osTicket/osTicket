@@ -54,8 +54,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     var $_config = null;
     var $_perm;
 	const PERM_SDIRECTORY =  'staff.dir';
-#	const PERM_DEPDIRECTORY = 'dep.dir';
-#	const PERM TEAMDIRECTORY = 'team.dir';
 	
 	static protected $perms = array(
 		self::PERM_SDIRECTORY => array(
@@ -63,16 +61,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
             'desc' => /* @trans */ 'Ability to access the staff directory',
             'primary' => true,
         ),
-#		self::PERM_DEPDIRECTORY => array(
-#            'title' => /* @trans */ 'Staff Directory',
-#            'desc' => /* @trans */ 'Ability to access only the Deparment staff directory(Staff Directory must be enabled)',
-#            'primary' => true,
-#        ),
-#		self::PERM_TEAMDIRECTORY => array(
-#            'title' => /* @trans */ 'Staff Directory',
-#            'desc' => /* @trans */ 'Ability to access only the Team staff directory (Staff Directory must be enabled)',
-#            'primary' => true,
-#        ),
     );
 	   
 	static function getPermissions() {
