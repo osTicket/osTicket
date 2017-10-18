@@ -2029,7 +2029,7 @@ class DatetimeField extends FormField {
         $config = $this->getConfiguration();
         $value = is_int($value)
             ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value
-            : $value;
+            : (is_object($value) ? $value : new DateTime($value));
         switch ($method) {
         case 'equal':
             $l = clone $value;
