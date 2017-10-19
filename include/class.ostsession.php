@@ -53,7 +53,7 @@ class osTicketSession {
             list($domain) = explode(':', $_SERVER['HTTP_HOST']);
 
         session_set_cookie_params($ttl, ROOT_PATH, $domain,
-            osTicket::is_https());
+            osTicket::is_https(), true);
 
         if (!defined('SESSION_BACKEND'))
             define('SESSION_BACKEND', 'db');
