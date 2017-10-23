@@ -315,7 +315,7 @@ class MailFetcher {
 
         if ($replyto = $headerinfo->reply_to) {
             $header['reply-to'] = $replyto[0]->mailbox.'@'.$replyto[0]->host;
-            $header['reply-to-name'] = $replyto[0]->personal;
+            $header['reply-to-name'] = $this->mime_decode($replyto[0]->personal);
         }
 
         // Put together a list of recipients
