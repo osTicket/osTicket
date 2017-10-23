@@ -300,7 +300,7 @@ if ($_POST)
         <tr>
             <td colspan=2>
             <?php
-            if(($cannedResponses=Canned::getCannedResponses())) {
+            if($cfg->isCannedResponseEnabled() && ($cannedResponses=Canned::getCannedResponses())) {
                 ?>
                 <div style="margin-top:0.3em;margin-bottom:0.5em">
                     <?php echo __('Canned Response');?>:&nbsp;
