@@ -2912,6 +2912,10 @@ select {
    -moz-border-radius: 4px;
 }
 
+#cannedResp {
+    margin-bottom: 10px;
+}
+
 a.attachment {
     padding-left: 1.2em;
     display: block;
