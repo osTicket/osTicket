@@ -315,7 +315,7 @@ if($ticket->isOverdue())
                                 </ul>
                             </div>
                             <?php
-                            if ($role->hasPerm(TicketModel::PERM_EDIT)) {
+                            if ($role->hasPerm(Ticket::PERM_EDIT)) {
                             $numCollaborators = $ticket->getThread()->getNumCollaborators();
                              if ($ticket->getThread()->getNumCollaborators())
                                 $recipients = sprintf(__('%d'),
