@@ -702,9 +702,26 @@ class HelpTopicChoiceField extends ChoiceField {
 
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends ChoiceField {
+    var $_choices = null;
+
     function getChoices($verbose=false) {
         return Dept::getDepartments();
     }
+
+   function getQuickFilterChoices() {
+       global $thisstaff;
+
+       if (!isset($this->_choices)) {
+         $this->_choices = array();
+         $depts = $thisstaff ? $thisstaff->getDepts() : array();
+         foreach ($this->getChoices() as $id => $name) {
+           if (!$depts || in_array($id, $depts))
+               $this->_choices[$id] = $name;
+         }
+       }
+
+       return $this->_choices;
+   }
 
     function getSearchMethods() {
         return array(
