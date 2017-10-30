@@ -154,7 +154,7 @@ if ($_POST)
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Internal Note');?></strong>: <?php echo __('Reason for editing the ticket (required)');?> <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
+                <em><strong><?php echo __('Internal Note');?></strong>: <?php echo __('Reason for editing the ticket (optional)');?> <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
             </th>
         </tr>
         <tr>
