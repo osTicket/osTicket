@@ -389,9 +389,9 @@ class SearchAjaxAPI extends AjaxController {
                 ));
             }
             else {
-                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
                 $query->aggregate(array(
-                    'q'.$queue->id => SqlAggregate::COUNT($expr)
+                    'q'.$queue->id => SqlAggregate::COUNT($expr, true)
                 ));
             }
         }
