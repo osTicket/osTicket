@@ -260,9 +260,19 @@ class SearchAjaxAPI extends AjaxController {
                 Http::response(500, 'Unable to delete queue');
             }
             Http::response(201, 'Have a nice day');
+           $_SESSION['::sysmsgs']['msg'] = sprintf(__( 'Successfully deleted%s.'),
+                       $queue->getName());
         }
 
-        include STAFFINC_DIR . 'templates/queue-delete-confirm.tmpl.php';
+       $info = array(
+               ':action' => sprintf('#queue/%s/delete', $queue->getId()),
+               ':title' => sprintf('%s %s', __('Please Confirm'), __('Queue Deletion')),
+               'warn' => __('Deleted Queues cannot be recovered'),
+               ':message' => sprintf('Are you sure you want to delete %s queue?', $queue->getName()),
+               ':confirm' => 'Yes, Delete!'
+               );
+
+        include STAFFINC_DIR . 'templates/confirm.tmpl.php';
     }
 
     function previewQueue($id=false) {
