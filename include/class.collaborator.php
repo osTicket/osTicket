@@ -98,6 +98,7 @@ implements EmailContact, ITicketUser {
 
         switch (strtolower($what)) {
         case 'ticket_link':
+            $qstr = array();
             if ($this->getTicket()->getAuthToken($this)
                 && ($ticket=$this->getTicket())
                 && !$ticket->getThread()->getNumCollaborators()) {

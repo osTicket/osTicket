@@ -949,7 +949,6 @@ implements RestrictedAccess, Threadable, Searchable {
             ))->update(array(
                 'updated' => SqlFunction::NOW(),
             ));
-            $collab->save();
         }
 
         if ($cids) {
@@ -2349,6 +2348,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
           $c = $this->getThread()->addCollaborator($user,array(), $errors);
 
+          $addresses = array();
           foreach (array('To', 'TO', 'Cc', 'CC') as $k) {
             if ($user && isset($hdr[$k]) && $hdr[$k])
               $addresses[] = Mail_Parse::parseAddressList($hdr[$k]);

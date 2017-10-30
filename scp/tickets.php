@@ -473,6 +473,7 @@ $queues = CustomQueue::queues()
 foreach ($queues->findAll(array('parent_id' => 0))
 as $q) {
     $nav->addSubMenu(function() use ($q, $queue) {
+        $selected = false;
         // A queue is selected if it is the one being displayed. It is
         // "child" selected if its ID is in the path of the one selected
         $child_selected = $queue
@@ -487,6 +488,7 @@ as $q) {
 // Add my advanced searches
 $nav->addSubMenu(function() use ($queue) {
     global $thisstaff;
+    $selected = false;
     // A queue is selected if it is the one being displayed. It is
     // "child" selected if its ID is in the path of the one selected
     $child_selected = $queue instanceof SavedSearch;
