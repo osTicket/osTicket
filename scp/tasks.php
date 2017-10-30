@@ -113,7 +113,7 @@ if($_POST && !$errors):
         switch(strtolower($_POST['do'])):
           case 'addcc':
               $errors = array();
-              if (!$role->hasPerm(TicketModel::PERM_EDIT)) {
+              if (!$role->hasPerm(Ticket::PERM_EDIT)) {
                   $errors['err']=__('Permission Denied. You are not allowed to add collaborators');
               } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                   $errors['err'] = __('Unknown user selected');
