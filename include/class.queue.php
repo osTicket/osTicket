@@ -526,40 +526,52 @@ class CustomQueue extends VerySimpleModel {
         // Last resort — use standard columns
         foreach (array(
             QueueColumn::placeholder(array(
+		"id" => 1,
                 "heading" => "Number",
                 "primary" => 'number',
                 "width" => 85,
+		"bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticketP",
                 "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
                 "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
             )),
             QueueColumn::placeholder(array(
+                "id" => 2,
                 "heading" => "Created",
                 "primary" => 'created',
                 "width" => 100,
+		"bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
+                "id" => 3,
                 "heading" => "Subject",
                 "primary" => 'cdata__subject',
                 "width" => 250,
+		"bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticket",
                 "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
                 "truncate" => 'ellipsis',
             )),
             QueueColumn::placeholder(array(
+                "id" => 4,
                 "heading" => "From",
                 "primary" => 'user__name',
                 "width" => 150,
+                "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
+                "id" => 5,
                 "heading" => "Priority",
                 "primary" => 'cdata__priority',
                 "width" => 120,
+                "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
+                "id" => 6,
                 "heading" => "Assignee",
                 "primary" => 'assignee',
                 "width" => 100,
+                "bits" => QueueColumn::FLAG_SORTABLE,
             )),
         ) as $col)
             $this->addColumn($col);
@@ -1814,7 +1826,8 @@ extends VerySimpleModel {
     }
 
     function applySort($query, $reverse=false) {
-        $fields = CustomQueue::getSearchableFields($this->getQueue()->getRoot());
+	$root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
+        $fields = CustomQueue::getSearchableFields($root);
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
             $query = $field->applyOrderBy($query, $reverse,
