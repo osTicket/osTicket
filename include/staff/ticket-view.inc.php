@@ -468,7 +468,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
         <tr>
             <td width="200"><?php
 echo Format::htmlchars($label);
-            ?>:</th>
+            ?>:</td>
             <td><?php
 echo $v;
             ?></td>
