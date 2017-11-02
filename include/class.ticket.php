@@ -1878,7 +1878,7 @@ implements RestrictedAccess, Threadable {
                 return new FormattedDate($this->getCloseDate());
             break;
         case 'last_update':
-            return new FormattedDate($this->last_update);
+            return new FormattedDate($this->lastupdate);
         case 'user':
             return $this->getOwner();
         default:
