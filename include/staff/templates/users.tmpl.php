@@ -1,9 +1,16 @@
 <?php
 $qs = array();
-$select = 'SELECT user.*, email.address as email ';
+$select = "SELECT user.*, email.address as email,
+CASE
+WHEN ( account.status & 1 << 0 ) AND ! ( account.status & 1 << 1 ) THEN 'Active (Registered)'
+WHEN ( account.status & 1 << 1 )                                   THEN 'Locked (Administrative)'
+WHEN account.status = 0                                            THEN 'Locked (Pending Activation)'
+WHEN account.status IS NULL                                        THEN 'Guest'
+END AS astatus";
 
 $from = 'FROM '.USER_TABLE.' user '
-      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) ';
+      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
+      . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON ( user.id = account.user_id)' ;
 
 $where = ' WHERE user.org_id='.db_input($org->getId());
 
@@ -78,9 +85,9 @@ if ($num) { ?>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="350"><?php echo __('Name'); ?></th>
-            <th width="300"><?php echo __('Email'); ?></th>
-            <th width="100"><?php echo __('Status'); ?></th>
+            <th width="300"><?php echo __('Name'); ?></th>
+            <th width="280"><?php echo __('Email'); ?></th>
+            <th width="170"><?php echo __('Status'); ?></th>
             <th width="100"><?php echo __('Created'); ?></th>
         </tr>
     </thead>
@@ -91,7 +98,7 @@ if ($num) { ?>
             while ($row = db_fetch_array($res)) {
 
                 $name = new PersonsName($row['name']);
-                $status = 'Active';
+                $status = $row['astatus'];
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
                     $sel=true;
