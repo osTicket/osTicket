@@ -1365,9 +1365,17 @@ implements TemplateVariable {
             ) {
                 if (@$mid_info['userId']) {
                     $mailinfo['userId'] = $mid_info['userId'];
+
+                    $user = User::lookupByEmail($mailinfo['email']);
+                    if ($user && $mailinfo['userId'] != $user->getId())
+                      $mailinfo['userId'] = $user->getId();
                 }
                 elseif (@$mid_info['staffId']) {
                     $mailinfo['staffId'] = $mid_info['staffId'];
+
+                    $staffId = Staff::getIdByEmail($mailinfo['email']);
+                    if ($staffId && $mailinfo['staffId'] != $staffId)
+                      $mailinfo['staffId'] = $staffId;
                 }
 
                 // Capture the user type
