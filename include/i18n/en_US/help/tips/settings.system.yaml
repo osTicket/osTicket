@@ -18,8 +18,7 @@ helpdesk_status:
     content: >
         If the status is changed to <span
         class="doc-desc-opt">Offline</span>, the client interface will be
-        disabled.  This does not however affect any normal Agent interaction
-        with the Agent Panel.
+        disabled.  Only Admins will be able to access the system.
 
 helpdesk_url:
     title: Helpdesk URL
