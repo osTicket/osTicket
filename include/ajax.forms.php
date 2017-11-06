@@ -381,9 +381,15 @@ class DynamicFormsAjaxAPI extends AjaxController {
     }
 
     function attach() {
+        global $thisstaff;
+
+        $config = DynamicFormField::objects()
+            ->filter(array('type__contains'=>'thread'))
+            ->first()->getConfiguration();
         $field = new FileUploadField();
+        $field->_config = $config;
         return JsonDataEncoder::encode(
-            array('id'=>$field->ajaxUpload())
+            array('id'=>$field->ajaxUpload($thisstaff ? true : false))
         );
     }
 
