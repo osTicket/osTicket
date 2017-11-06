@@ -670,8 +670,8 @@ class FormField {
         # Validates a user-input into an instance of this field on a dynamic
         # form
         if ($this->get('required') && !$value && $this->hasData())
-            $this->_errors[] = $this->getLabel()
-                ? sprintf(__('%s is a required field'), $this->getLabel())
+            $this->_errors[] = $this->getLocal('label')
+                ? sprintf(__('%s is a required field'), $this->getLocal('label'))
                 : __('This is a required field');
 
         # Perform declared validators for the field
