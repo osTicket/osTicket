@@ -345,7 +345,7 @@ case 'priority,updated':
     // Fall through for columns defined for `updated`
 case 'updated':
     $queue_columns['date']['heading'] = __('Last Updated');
-    $queue_columns['date']['sort'] = $sort_cols;
+    $queue_columns['date']['sort'] = 'updated';
     $queue_columns['date']['sort_col'] = $date_col = 'lastupdate';
     $tickets->order_by('lastupdate', $orm_dir);
     break;
