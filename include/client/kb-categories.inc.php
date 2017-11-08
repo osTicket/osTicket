@@ -59,9 +59,18 @@ foreach ($topics as $T) { ?>
     </div>
     <br/>
     <div class="content">
-        <section>
-            <div class="header"><?php echo __('Other Resources'); ?></div>
+<?php
+        $resources = Page::getActivePages()->filter(array('type'=>'other'));
+        if ($resources->all()) { ?>
+        <section><div class="header"><?php echo __('Other Resources'); ?></div>
+            <?php   foreach ($resources as $page) { ?>
+                <div><a href="<?php echo ROOT_PATH; ?>pages/<?php echo $page->getNameAsSlug();
+                    ?>"><?php echo $page->getLocalName(); ?></a></div>
+            <?php   } ?>
         </section>
+        <?php
+        }
+        ?>
     </div>
     </div>
 </div>
