@@ -7,6 +7,8 @@ setup/cli/modules/importer
 .vagrant
 ._.DS_Store
 Vagrantfile
+scp/sugarcrm.txt
+scp/error_log.txt
 
 # Staging directory used for packaging script
 stage
