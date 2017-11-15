@@ -2442,12 +2442,23 @@ class MySqlCompiler extends SqlCompiler {
     function like_escape($what, $e='\\') {
         return str_replace(array($e, '%', '_'), array($e.$e, $e.'%', $e.'_'), $what);
     }
+    function like_ekran($what) {
+        return '%"'.$what.'"%';
+    }
 
     function __contains($a, $b) {
-        # {%a} like %{$b}%
-        # Escape $b
-        $b = $this->like_escape($b);
-        return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+        if (is_array($b)) {
+            $val1 = array_map(array($this, 'like_escape'), $b);
+            $val2 = array_map(array($this, 'like_ekran'), $val1);
+            $vals = array_map(array($this, 'input'), $val2);
+            return '( '.$a.' LIKE '.implode(' AND '.$a.' LIKE ', $vals).')';
+        }else{
+            # {%a} like %{$b}%
+            # Escape $b
+            $b = $this->like_escape($b);
+            return sprintf('%s LIKE %s', $a, $this->input("%$b%"));
+        }
+        
     }
     function __startswith($a, $b) {
         $b = $this->like_escape($b);
