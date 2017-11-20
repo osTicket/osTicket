@@ -367,7 +367,7 @@
                                     left join ost_ticket_status s on s.id = t.status_id
                                     where year(t.updated) = year(now()) and s.state = 'closed' AND t.topic_id <> 14 AND t.topic_id <> 12
                                     ) a
-                                    where LOCATION is not null order by STATUS";
+                                    where LOCATION is not null and status = 'Closed' or status = 'Auto-Closed'order by STATUS";
                                     
                             $statuses = db_query($sql);   
 
@@ -391,7 +391,7 @@
                                     ost_ticket_status s on 1=1 order by STATUS, LOCATION
                                     )d
                                     group by STATUS, LOCATION ) a
-                                    where LOCATION is not null order by LOCATION";
+                                    where LOCATION is not null order by STATUS, LOCATION";
                                     
                             $locs = db_query($sql); 
                             
@@ -416,9 +416,42 @@
                                     join
                                     ost_ticket_status s on 1=1 order by STATUS, LOCATION
                                     )d
-                                    group by STATUS, LOCATION ";
+                                    where status = 'Closed' or status = 'Auto-Closed' group by STATUS, LOCATION  order by STATUS, LOCATION";
                             
                             $tbldatas = db_query($sql);
+                            
+                            $sql = "select STATUS,sum(COUNT) as Count from (
+                                select STATUS, LOCATION, sum(COUNT) as COUNT from
+                                    (
+                                    select STATUS, LOCATION, count(ticket_id) as COUNT from
+                                        (
+                                        SELECT t.ticket_id, t.updated, o.name as LOCATION, s.name as STATUS FROM ost_ticket t 
+                                        left join ost_user u on u.id = t.user_id 
+                                        left join ost_organization o on o.id = u.org_id
+                                        left join ost_ticket_status s on s.id = t.status_id
+                                        where year(t.updated) = year(now())and s.state = 'closed' AND t.topic_id <> 14 AND t.topic_id <> 12
+                                        ) a
+                                        where LOCATION is not null
+                                        group by STATUS, LOCATION 
+                                        union all 
+                                        SELECT s.name as STATUS, o.name as LOCATION , 0 as COUNT FROM ost_organization o
+                                    join
+                                    ost_ticket_status s on 1=1 order by STATUS, LOCATION
+                                    )d
+                                    where status = 'Closed' or status = 'Auto-Closed' group by STATUS, LOCATION  order by STATUS, LOCATION
+                                    )t
+                                    group by status";
+                                    
+                            $tbldatasts = db_query($sql);
+                            
+                            foreach ($tbldatasts as $tbldatast) {
+                                if ($tbldatast["STATUS"] == "Auto-Closed") { 
+                                    $totac = $tbldatast["Count"];
+                                }
+                                if ($tbldatast["STATUS"] == "Closed") {
+                                    $totc = $tbldatast["Count"];
+                                }
+                            }
                             
                             $sql="select LOCATION, sum(COUNT) as COUNT from
                                     (
@@ -437,9 +470,10 @@
                                     join
                                     ost_ticket_status s on 1=1 order by STATUS, LOCATION
                                     )d
-                                    group by LOCATION ";
+                                    group by LOCATION order by STATUS, LOCATION";
                                     
                             $tbltotals = db_query($sql);
+                            
 
                             ?>
                             <tr><td>&nbsp;</td></tr>
@@ -462,6 +496,7 @@
                                     $class = 'class="text-warning"';
                                     break;
                                 }
+                               
                                 
                                 echo '<tr '.$class.'><td>'.$status["STATUS"].'</td>'; 
                                     foreach ($locs as $loc) {
@@ -474,15 +509,22 @@
                                                     
                                                 if ($tbldata["COUNT"] != 0) $count = number_format($tbldata["COUNT"]);
                                                     echo '<td>'.$count.'</td>';
-                                                    $ctotal = $ctotal + $count;
-                                                    $count = null;
+                                                    
+                                                    
+                                                                                                                                                                
                                                 }
                                             }
-                                            
                                     }
                                 
-                                } echo '<td><strong><span class="text-success">'.number_format($ctotal).'</strong></span></td></tr>'; 
-                                $ctotal= null;
+                                } 
+                                if ($status["STATUS"] == "Auto-Closed") {
+                                    $ctotal = $totac;
+                                } else {
+                                    $ctotal = $totc;                                   
+                                }
+                                                                
+                                echo '<td><strong><span class="text-success">'.number_format($ctotal).'</strong></span></td></tr>'; 
+                                
                             }   
                              ?>
                              <tr class="text-success"><th>TOTAL</th>
