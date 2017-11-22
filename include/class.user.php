@@ -240,7 +240,6 @@ implements TemplateVariable {
         return $user;
     }
 
-// look here
     static function fromForm($form, $create=true) {
         global $thisstaff;
 
@@ -262,7 +261,6 @@ implements TemplateVariable {
             $valid = false;
         }
 
-error_log("form : ".print_r($form,TRUE)."\n",3,"./error_log.txt");
         return $valid ? self::fromVars($form->getClean(), $create) : null;
     }
 
@@ -556,9 +554,6 @@ error_log("form : ".print_r($form,TRUE)."\n",3,"./error_log.txt");
 
         if (count($this->dirty)) //XXX: doesn't work??
             $this->set('updated', new SqlFunction('NOW'));
-
-error_log("this : ".print_r($this,TRUE)."\n",3,"./error_log.txt");
-//die("Saving-Death");
         return parent::save($refetch);
     }
 

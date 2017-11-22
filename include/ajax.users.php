@@ -321,8 +321,6 @@ class UsersAjaxAPI extends AjaxController {
         if (!$user_info)
             $info['error'] = __('Unable to find user in directory');
 
-error_log("user info : ".print_r($user_info,TRUE)."\n",3,"./error_log.txt");
-
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
     }
 
@@ -364,7 +362,6 @@ error_log("user info : ".print_r($user_info,TRUE)."\n",3,"./error_log.txt");
         include(STAFFINC_DIR . 'templates/user-lookup.tmpl.php');
         $resp = ob_get_contents();
         ob_end_clean();
-error_log("resp : ".print_r($resp,TRUE)."\n",3,"./error_log.txt");
         return $resp;
 
     }
