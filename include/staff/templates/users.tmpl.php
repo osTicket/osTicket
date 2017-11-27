@@ -1,9 +1,16 @@
 <?php
 $qs = array();
-$select = 'SELECT user.*, email.address as email ';
+$select = "SELECT user.*, email.address as email,
+CASE
+WHEN ( account.status & 1 << 0 ) AND ! ( account.status & 1 << 1 ) THEN 'Active (Registered)'
+WHEN ( account.status & 1 << 1 )                                   THEN 'Locked (Administrative)'
+WHEN account.status = 0                                            THEN 'Locked (Pending Activation)'
+WHEN account.status IS NULL                                        THEN 'Guest'
+END AS astatus";
 
 $from = 'FROM '.USER_TABLE.' user '
-      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) ';
+      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
+      . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON ( user.id = account.user_id)' ;
 
 $where = ' WHERE user.org_id='.db_input($org->getId());
 
@@ -34,9 +41,9 @@ $total=db_count('SELECT count(DISTINCT user.id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
-$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$qs += array('id' => $org->getId());
 
-$pageNav->setURL('users.php', $qs);
+$pageNav->setURL('orgs.php', $qs);
 //Ok..lets roll...create the actual query
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
@@ -78,9 +85,9 @@ if ($num) { ?>
     <thead>
         <tr>
             <th width="7px">&nbsp;</th>
-            <th width="350"><?php echo __('Name'); ?></th>
-            <th width="300"><?php echo __('Email'); ?></th>
-            <th width="100"><?php echo __('Status'); ?></th>
+            <th width="300"><?php echo __('Name'); ?></th>
+            <th width="280"><?php echo __('Email'); ?></th>
+            <th width="170"><?php echo __('Status'); ?></th>
             <th width="100"><?php echo __('Created'); ?></th>
         </tr>
     </thead>
@@ -91,7 +98,7 @@ if ($num) { ?>
             while ($row = db_fetch_array($res)) {
 
                 $name = new PersonsName($row['name']);
-                $status = 'Active';
+                $status = $row['astatus'];
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
                     $sel=true;
