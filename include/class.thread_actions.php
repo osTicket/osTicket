@@ -1,4 +1,4 @@
-<?php
+ <?php
 /*********************************************************************
     class.thread_actions.php
 
@@ -123,9 +123,9 @@ JS
         $old = $this->entry;
         $new = ThreadEntryBody::fromFormattedText($_POST['body'], $old->format);
 
-        if ($new->getClean() == $old->body)
-            // No update was performed
-            return $old;
+        // if ($new->getClean() == $old->body)
+            // // No update was performed
+            // return $old;
 
         $entry = ThreadEntry::create(array(
             // Copy most information from the old entry
@@ -141,6 +141,8 @@ JS
             // Add in new stuff
             'title' => Format::htmlchars($_POST['title']),
             'body' => $new,
+            'time_spent' =>  $_POST['time_spent'],
+            'time_type' => $_POST['time_type'],
             'ip_address' => $_SERVER['REMOTE_ADDR'],
         ));
 
@@ -190,6 +192,8 @@ JS
 
         // Hide the old entry from the object thread
         $old->flags |= ThreadEntry::FLAG_HIDDEN;
+        $old->time_spent = 0;
+        $old->time_type = 0;
         $old->save();
 
         return $entry;

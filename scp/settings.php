@@ -27,6 +27,8 @@ $settingOptions=array(
         array(__('Agent Settings and Options'), 'settings.agents'),
     'users' =>
         array(__('User Settings and Options'), 'settings.users'),
+    'tickettime' =>
+        array(__('Ticket Time Settings'), 'settings.tickettime'),
     'pages' =>
         array(__('Site Pages'), 'settings.pages'),
     'kb' =>
