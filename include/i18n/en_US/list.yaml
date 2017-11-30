@@ -53,3 +53,27 @@
             length: 100
   configuration:
     handler: TicketStatusList
+
+# Time Types
++- type: time-type
++  name: Time Type
++  name_plural: Time Types
++  sort_mode: SortCol
++  masks: 13
++  notes: Time Spent plugin list, do not modify
++  items:
++    - status: 1
++      sort: 1
++      value: Telephone
++    - status: 1
++      sort: 1
++      value: Email
++    - status: 1
++      sort: 3
++      value: Remote
++    - status: 1
++      sort: 4
++      value: Workshop
++    - status: 1
++      sort: 5
++      value: Onsite

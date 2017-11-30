@@ -15,13 +15,11 @@ $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
 $lock  = $ticket->getLock();  //Ticket lock obj
 $topic = $ticket->getHelpTopicId();
-
 if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
 //Useful warnings and errors the user might want to know!
-
 if (!$errors['err']) {
     if ($lock && $lock->getStaffId()!=$thisstaff->getId())
         $errors['err'] = sprintf(__('%s is currently locked by %s'),
@@ -33,7 +31,6 @@ if (!$errors['err']) {
         $errors['err'] = __('EndUser email address is not valid! Consider updating it before responding');
 }
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
-
 ?>
 
 
@@ -212,7 +209,6 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
                     href="tickets.php<?php ?>"><i class="icon-list-alt"></i></a>			
                 
     </div>
-
 <div class="clearfix"></div>
           
 </div>
@@ -250,7 +246,6 @@ elseif ($ticket->isAssigned()
  <?php } ?>
   
 <div class="card-box">
-
 <?php 
  
 $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
@@ -438,7 +433,10 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
             <label><?php echo __('Last Message');?>:</label>
                 <?php echo Format::datetime($ticket->getLastMsgDate()); ?>
         </div>
-
+                <div>
+            <label><?php echo __('Time Spent');?>:</label>
+                <?php echo $ticket->getTimeSpent(); ?>
+        </div>
                 </div>
             </div>
             <div class='col-sm-3'>
@@ -464,7 +462,6 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
             <?php }?>
         </div>
                
-
         <div>
         <?php  
             $duedate = date("m/d/Y", strtotime($ticket->getEstDueDate()));
@@ -541,7 +538,6 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
 <?php
 $tcount = $ticket->getThreadEntries($types)->count();
 ?>
-
 <ul class="nav nav-tabs" id="ticket_tabs" >
     <li class="nav-item "><a class="nav-link active" id="ticket-thread-tab" href="#ticket_thread"  data-toggle="tab"><?php
         echo sprintf(__('Ticket Thread <span class="badge badge-primary badge-pill">%d</span>'), $tcount); ?></a>
@@ -551,20 +547,13 @@ $tcount = $ticket->getThreadEntries($types)->count();
             echo sprintf('&nbsp; <span class="badge badge-primary badge-pill">%d</span>', $ticket->getNumTasks());
         ?></a>
 </ul>
-
-
 <div class="tab-content">
-
-
  <div id="tasks" class="tab-pane">
-
 <div id="ticket-tasks">
 <?php include STAFFINC_DIR . 'ticket-tasks.inc.php'; ?>
 </div>
 </div>
-
 <div id="ticket_thread" class="tab-pane active">
-
 <?php
     // Render ticket thread
     $ticket->getThread()->render(
@@ -576,13 +565,9 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 )
             );
 ?>
-
 <div id="updatearea"  <?php if (!$topic) { echo ' class="hidden"';} ?>>
 <div class="sticky bar stop actions" id="response_options">
-
-
 <div id="ReponseTabs" >
-
     <ul  class="nav nav-pills"  id="ticket_tabs">
 			<li class="nav-item">
         <a  class="nav-link active" id="ticket-thread-tab" href="#reply" data-toggle="tab" <?php echo isset($errors['reply']) ? 'error' : ''; ?>><?php echo __('Post Reply');?></a>
@@ -591,7 +576,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
 			
 			
 		</ul>
-
 			<div class="tab-content clearfix">
                 <div class="tab-pane active" id="reply">
                         <form  class="tab_content spellcheck exclusive save"
@@ -655,7 +639,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
                                         $ticket->getThreadId(),
                                         $recipients);
                                ?>
-
                         <?php
                         } ?>
                         </div>
@@ -664,7 +647,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
                           <div class="alert alert-danger">
                             <?php echo $errors['response']; ;?>
                           </div>
-
                             <?php
                             }?>
                            
@@ -768,6 +750,38 @@ $tcount = $ticket->getThreadEntries($types)->count();
                                     </select>
                                 
                             </div>
+                            <?php //if ($cfg->isThreadTime()) {
+            if($ticket->isOpen()) { ?>
+            <div><table><tr>
+                <td width="120">
+                    <label><strong>Time Spent:</strong></label>
+                </td>
+                <td>
+                    <input type="text" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (Minutes)
+                    <?php if ($cfg->isThreadTimer()) { ?>
+                    <i class="fa fa-play" title="Start / Resume timer"></i>
+                    <i class="fa fa-pause" title="Pause timer"></i>
+                    <i class="fa fa-undo" title="Reset timer to zero"></i>
+                    <?php } ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="time_type"><strong>Time Type:</strong></label>
+                </td>
+                <td>
+                    <select id="time_type" name="time_type">
+                    <?php
+                    $list = DynamicList::lookup(['type' => 'time-type']);
+                    foreach ($list->getAllItems() as $item) { ?>
+                        <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+<?php               } ?>
+                    </select>
+                </td>
+            </tr></table></div>
+            <?php }//} ?>            
                             <div>
                             <input class="btn btn-primary btn-sm" type="submit" value="<?php echo __('Post Reply');?>">
                             </div>
@@ -802,7 +816,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 <div class="alert alert-danger">
                     <?php echo $errors['title']; ;?>
                 </div>
-
                     
             <?php
             } ?>
@@ -815,7 +828,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
                 <div class="alert alert-danger">
                     <?php echo $errors['note']; ;?>
                 </div>
-
                     
             <?php
             } ?>
@@ -860,6 +872,38 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     </select>
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                </div>
+                <?php //if ($cfg->isThreadTime()) {
+                    if($ticket->isOpen()) { ?>
+                    <div><table><tr>
+                        <td width="120">
+                            <label><strong>Time Spent:</strong></label>
+                        </td>
+                        <td>
+                            <input type="text" name="time_spent" size="5"
+                            value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                            (Minutes)
+                            <?php if ($cfg->isThreadTimer()) { ?>
+                            <i class="fa fa-play" title="Start / Resume timer"></i>
+                            <i class="fa fa-pause" title="Pause timer"></i>
+                            <i class="fa fa-undo" title="Reset timer to zero"></i>
+                            <?php } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="time_type"><strong>Time Type:</strong></label>
+                        </td>
+                        <td>
+                            <select id="time_type" name="time_type">
+                            <?php
+                            $list = DynamicList::lookup(['type' => 'time-type']);
+                            foreach ($list->getAllItems() as $item) { ?>
+                                <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+                            <?php } ?>
+                        </td>
+                    </tr></table></div>
+            <?php }//} ?>            
+            
         <div>
            <input class="btn btn-primary btn-sm" type="submit" value="<?php echo __('Post Note');?>">
            <input class="btn btn-warning btn-sm" type="reset" value="<?php echo __('Reset');?>">
@@ -874,9 +918,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
    
    </div> <!-- Sticky bar stop -->
  </div> <!-- update area -->
-
  </div>
-
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
@@ -922,7 +964,6 @@ $tcount = $ticket->getThreadEntries($types)->count();
          </p>
     </form></div>
     <div class="clear"></div>
-
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
@@ -1018,7 +1059,6 @@ $(function() {
         };
  });       
             
-
     
     $(document).on('click', 'a.change-user', function(e) {
         e.preventDefault();
@@ -1042,8 +1082,6 @@ $(function() {
     
     
     
-
-
     $('#post-note').click(function(e){
     	e.preventDefault();
         $('#ticket_tabs a[href="#note"]').tab('show');
@@ -1066,13 +1104,11 @@ $(function() {
             $('html, body').animate({scrollTop: $stop}, 'fast');
                         
     })
-
     $.extend($.fn.tree.methods,{
     getLevel: function(jq, target){
         return $(target).find('span.tree-indent,span.tree-hit').length;
     }
 });
-
     $(document).ready(function(){
         var val = <?php echo Topic::getHelpTopicsTree();?> ;
         $('#cc').combotree({ 
@@ -1094,7 +1130,6 @@ $(function() {
         $(function(){
           var hash = window.location.hash;
           hash && $('ul.nav a[href="' + hash + '"]').tab('show');
-
           $('.nav-tabs a').click(function (e) {
             $(this).tab('show');
             var scrollmem = $('body').scrollTop();
@@ -1106,7 +1141,6 @@ $(function() {
          $('#cc').combotree({ 
             onChange : function(){
                 
-
                 var c = $('#cc');
                 var t = c.combotree('tree');  // get tree object
                 var node = t.tree('getSelected');
@@ -1159,7 +1193,6 @@ $(function() {
                <?php if ($outstanding !== false){echo "$.Notification.notify('warning','top right', 'Warning', '".$warning."');";} ?>     
                <?php if ($warn)   {echo "$.Notification.notify('warning','top right', 'Overdue', '".$warn."');";} ?>
                <?php // if ($bannermsg){echo "$.Notification.notify('success','top right', 'Success', '".$bannermsg."');";} ?>
-
                
               
            
@@ -1193,12 +1226,8 @@ $(function() {
         }
        savetrigger = true;       
         } 
-
     });
-
-
 // Hide form buttons By Default
-
 $('#save').find('input, select, text').change(function(){
     $("#savebutton").css("background-color", "#52bb56");
     $("#savebutton").css("color", "#fff");
@@ -1222,11 +1251,8 @@ $('#save').find('input, select, text').change(function(){
    }
     savetrigger = true;
 });
-
-
 $("#save").keyup(function(e){
     var charCode = e.which || e.keyCode; 
-
     if (!(charCode === 9)){
         
         $("#savebutton").css("background-color", "#52bb56");
@@ -1252,11 +1278,9 @@ $("#save").keyup(function(e){
     savetrigger = true;
    }
 });
-
 $('#reply').find('input, select').change(function(){
 $("#savebutton").css("pointer-events", "none");
 });
-
 $('#reply').keyup(function(e){
     var charCode = e.which || e.keyCode; 
     if (!(charCode === 9)){
@@ -1264,7 +1288,6 @@ $('#reply').keyup(function(e){
      
     }
 });   
-
 $('#note').find('input, select').change(function(){
 $("#savebutton").css("pointer-events", "none");
 });
@@ -1276,11 +1299,41 @@ $('#note').keyup(function(e){
      
     }
 });       
-
 $(".dropdown-menu a").click(function() {
     $(this).closest(".dropdown-menu").prev().dropdown("toggle");
 });
 });
+
+
+// START - Ticket Time Timer
+<?php if ($cfg->isThreadTimer()) { ?>
+$('input[name=time_spent]').val(0);        // sets default value to 0 minutes
+$('i.fa-play').hide();
+var timerOn = true;                        // var to store if the timer is on or off
+
+setInterval(function() {
+    $('input[name=time_spent]').each(function() {
+        if (timerOn) $(this).val(parseInt($(this).val()) + 1);
+    });
+}, 60000);
+
+$('i.fa-undo').click(function() {
+    $('input[name=time_spent]').val(0);        // sets default value to 0 minutes
+    return false;
+});
+
+$('i.fa-play').click(function() {
+    timerOn = true;
+    $('i.fa-play').hide();
+    $('i.fa-pause').show();
+    return false;
+});
+$('i.fa-pause').click(function() {
+    timerOn = false;
+    $('i.fa-pause').hide();
+    $('i.fa-play').show();
+    return false;
+});
+<?php } ?>
+// END - Ticket Time Timer
 </script>
-
-

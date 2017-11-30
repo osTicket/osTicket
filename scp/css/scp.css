@@ -1031,6 +1031,7 @@ div.thread-entry.message > div.header > a > time.relative{
   border-top-right-radius: 0px;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
+  width: 100%;
 }
 /* Line 59 */
 .faded
