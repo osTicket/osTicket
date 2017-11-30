@@ -31,6 +31,11 @@ if (!$view_all_tickets) {
 $l = $_GET['l'];
 $s = $_GET['s'];
 
+$filters=1;
+if ($_GET['a'] == 'search') $filters=0;
+if ($_GET['queue'] == 'adhoc') $filters=0;
+
+
 if (is_numeric($l)) $_SESSION['loc'] = $l;
 if (is_numeric($s)) $_SESSION['sta'] = $s;
 
@@ -90,9 +95,10 @@ foreach (TicketStatusList::getStatuses(
         ->filter(array('status_id' => $stat->getId()));
      
     // var_dump(  $query->values()->one());  
-     
-    $sfiltercount[$stat->getId()] = $query->values()->one();
-      
+ 
+    if ($filters == 1){ 
+       $sfiltercount[$stat->getId()] = $query->values()->one();
+    }      
     }    
     
     
@@ -100,26 +106,27 @@ foreach (TicketStatusList::getStatuses(
                 ->order_by('name');
                    
                      
-                     foreach ($Organization as $cOrganization) {
-$query = Ticket::objects();   
-    
-    $lqfilter = Q::any(new Q($qfs));
-   
-    if ($sta  >0){
-     $query->filter($lqfilter);
-     }     
-     
-    $Q = $queue->getBasicQuery();
-    $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
-          
-   $query->aggregate(array(
-        $queue->getId() => SqlAggregate::COUNT($expr)))
-        ->filter(array('user__org_id' => $cOrganization->getId()));
-     
-    // var_dump(  $query->values()->one());  
-     
-    $lfiltercount[$cOrganization->getId()] = $query->values()->one();
-                     }                     
+    foreach ($Organization as $cOrganization) {
+        $query = Ticket::objects();   
+        
+        $lqfilter = Q::any(new Q($qfs));
+       
+        if ($sta  >0){
+         $query->filter($lqfilter);
+         }     
+         
+        $Q = $queue->getBasicQuery();
+        $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
+              
+       $query->aggregate(array(
+            $queue->getId() => SqlAggregate::COUNT($expr)))
+            ->filter(array('user__org_id' => $cOrganization->getId()));
+         
+            // var_dump(  $query->values()->one());  
+        if ($filters == 1){      
+           $lfiltercount[$cOrganization->getId()] = $query->values()->one();
+        } 
+    }                     
  
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
@@ -333,7 +340,7 @@ $pageNav->setURL('tickets.php', $args);
       if ($lselected == '0' ) {$lselected = 'Location';}
 ?>
 
-    <div class="btn-group btn-group-sm" role="group">
+    <div class="btn-group btn-group-sm <?php if ($filters == 0){ echo 'hidden';}?>" role="group">
         <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-light dropdown-toggle" 
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
          title="<?php echo __('Filter Location'); ?>"><i class="fa fa-filter"></i> <?php echo $lselected;?>
@@ -364,7 +371,7 @@ $pageNav->setURL('tickets.php', $args);
 
 if (!$sselected) {$sselected = 'Status';}
 ?>
-<div class="btn-group btn-group-sm" role="group">
+<div class="btn-group btn-group-sm <?php if ($filters == 0){ echo 'hidden';}?>" role="group">
         
         <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-light dropdown-toggle" 
         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
