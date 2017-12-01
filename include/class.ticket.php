@@ -2036,7 +2036,7 @@ static function formatTime($time) {
 	
         $this->setLastMessage($message);
 		// Set Status to Responded
-		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9  && $this->getStatusId() !== 0)
+		if ($this->getStatusId() !== 10 && $this->getStatusId() !== 9  && $this->getStatusId() !== 0  && $this->getStatusId() !== 1)
 		$this->setStatusId(7);	
         // Add email recipients as collaborators...
 		
