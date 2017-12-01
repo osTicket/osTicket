@@ -29,7 +29,9 @@ class TEA_ShowEmailHeaders extends ThreadEntryAction {
         if (!$this->entry->getEmailHeader())
             return false;
 
-        return $thisstaff && $thisstaff->isAdmin();
+        /* I think viewing headers should not be restricted to admins / OTFDR 2017-12-01
+        return $thisstaff && $thisstaff->isAdmin(); */
+        return $thisstaff;
     }
 
     function getJsStub() {
