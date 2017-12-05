@@ -851,6 +851,93 @@ trait ZeroMeansUnset {
         return parent::getSearchQ($method, $value, $name);
     }
 }
+class DaysOpenField extends ChoiceField {
+        function getChoices($verbose=false) {
+        
+        return $items;
+    }
+
+    function getSearchMethods() {
+        return array(
+
+            'includes' =>   __('includes'),
+            '!includes' =>  __('does not include'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+
+            'includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            '!includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+
+        
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'assigned':
+            return __('assigned');
+        case '!assigned':
+            return __('unassigned');
+        default:
+            return parent::describeSearchMethod($method);
+        }
+    }
+
+    function addToQuery($query, $name=false) {
+
+        return $query;
+    }
+
+    function from_query($row, $name=false) {
+    
+    $ClosedDate = Ticket::objects()
+        ->filter(array('ticket_id' => $row['ticket_id'])); 
+    
+    foreach ($ClosedDate as $cClosedDate) {
+         $closeddate = $cClosedDate->closed;
+       }
+       
+    $opened = new DateTime($row['created']);
+    $closed = new DateTime($closeddate);
+    $current = new DateTime(date("D M d, Y G:i", time()));
+    
+    if ($row['status__id'] == 3 || $row['status__id'] == 12){
+        $whichdate = $closed;
+    } else {
+        $whichdate = $current;
+    }
+
+    $interval = $opened->diff($whichdate);
+        
+    $days = $interval->format('%r%a'); 
+    
+    if ($days ==0) $days = '-';
+
+           return  $days;
+    }
+
+    function display($value) {
+        
+            $styles = array(
+                'badge' =>'badge-danger'
+            );
+           $nvalue = '<span class="badge label-table bg-danger" style="font-weight: bold;">'.(string)$value.'</span>';
+        return  $nvalue;
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}created");
+    }
+}
 
 class AgentSelectionField extends ChoiceField {
     use ZeroMeansUnset;

@@ -306,7 +306,7 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
             <label><?php echo __('Department');?>:</label>
                     <?php echo Format::htmlchars($ticket->getdeptName()); ?></div>
         <div> 
-            <label><?php echo __('Create Date');?>:</label>
+            <label><?php echo __('Opened');?>:</label>
                 <?php echo Format::datetime($ticket->getCreateDate()); ?></div>
                 
         <?php if($ticket->isOpen()) { ?>
@@ -323,7 +323,9 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
                
                 <?php
                 } else { ?>
-                
+        <div> 
+            <label><?php echo __('Closed');?>:</label>
+                <?php echo Format::datetime($ticket->getCloseDate()); ?></div>        
         <div> 
             <label width="100"><?php echo __('Closed By');?>:</label>
                     
@@ -429,13 +431,19 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
                    
             <?php   } # end if (user->org) ?>
         </div>
+        
+        
+        <div>
+            <label><?php echo __('Days Open');?>:</label>
+               <span class="badge badge-danger "><?php echo $ticket->getDaysOpen(); ?></span>
+        </div>
+        <div>
+            <label><?php echo __('Time Spent');?>:</label>
+                <?php echo $ticket->getTimeSpent(); ?>
+        </div>
         <div>
             <label><?php echo __('Last Message');?>:</label>
                 <?php echo Format::datetime($ticket->getLastMsgDate()); ?>
-        </div>
-                <div>
-            <label><?php echo __('Time Spent');?>:</label>
-                <?php echo $ticket->getTimeSpent(); ?>
         </div>
                 </div>
             </div>
