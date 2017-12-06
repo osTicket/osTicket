@@ -451,7 +451,10 @@ if (!$sselected) {$sselected = 'Status';}
             break;  
         case "Close Date":
            $foo = 'data-breakpoints="xs sm"';
-            break;              
+            break;    
+        case "Days Open":
+           $foo = 'data-breakpoints="xs sm"';
+            break;            
         case "Opened":
            $foo = 'data-breakpoints="xs sm"';
             break;
