@@ -128,7 +128,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                 <!-- Button mobile view to collapse sidebar menu -->
                 <nav class="navbar-custom">
 
-                    <ul class="list-inline float-right mb-0 mr-0">
+                    <ul class="list-inline float-right mb-0 mr-2">
 
                         <li class="list-inline-item notification-list hide-phone  mr-0">
                             <a class="nav-link waves-light waves-effect" href="#" id="btn-fullscreen">
@@ -387,7 +387,29 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                         </li>
                         
                     </ul>
-                    
+                    <ul class="translation-links">
+  <li><a href="/" class="english" data-lang="English"><span class="flag flag-us" title="English" alt="English" class="notranslate" ></span></a></li>
+  
+  <li><a href="/" class="spanish" data-lang="Spanish"><span class="flag flag-mx" title="Spanish" alt="Spanish" class="notranslate" ></span></a></li>
+  <div id="google_translate_element"  style="display: none"></div>
+</ul>
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,es', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false, multilanguagePage: true}, 'google_translate_element'); }
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script><!-- Flag click handler -->
+<script type="text/javascript">
+    $('.translation-links a').click(function() {
+      var lang = $(this).data('lang');
+      var $frame = $('.goog-te-menu-frame:first');
+      if (!$frame.size()) {
+        alert("Error: Could not find Google translate frame.");
+        return false;
+      }
+      $('.goog-te-menu-frame:first').contents().find('.goog-te-menu2-item span.text').each(function(){ if( $(this).html() == lang ) $(this).click(); });
+      return false;
+    });
+</script>                   
                     <ul class="list-inline menu-left mb-0">
                                              <li class="float-left">
                             
