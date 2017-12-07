@@ -1,3 +1,11 @@
+html { 
+  background: url(../logo.php?backdrop) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
 input:focus {
     border: 1px solid orange;
     box-shadow: 0 0 4px orange;
@@ -32,18 +40,6 @@ body {
     text-align: center;
 }
 
-#brickwall {
-    background-image: url(../logo.php?backdrop);
-    -webkit-background-size: cover;
-       -moz-background-size: cover;
-         -o-background-size: cover;
-            background-size: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-}
 
 #background-compat {
     display: none;
@@ -61,7 +57,7 @@ body {
     right: 0;
     bottom: 0;
     z-index: -1;
-    background-image: url(../logo.php?backdrop);
+
     -webkit-background-size: cover;
        -moz-background-size: cover;
          -o-background-size: cover;
@@ -80,7 +76,7 @@ body {
     bottom: 0;
     -webkit-filter: blur(7px);
     filter: url("data:image/svg+xml;utf9,<svg%20version='1.1'%20xmlns='http://www.w3.org/2000/svg'><filter%20id='blur'><feGaussianBlur%20stdDeviation='5'%20/></filter></svg>#blur");
-    filter: blur(7px);
+    filter: blur(40px);
     overflow: hidden;
     z-index: -1;
 }

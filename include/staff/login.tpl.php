@@ -44,17 +44,9 @@ if (count($ext_bks)) { ?>
     }
 } ?>
 
-    <div id="company">
-        <div class="content">
-            <?php echo __('Copyright'); ?> &copy; <?php echo Format::htmlchars($ost->company) ?: date('Y'); ?>
-        </div>
-    </div>
+    
 </div>
-<div id="poweredBy"><?php echo __('Powered by'); ?>
-    <a href="http://www.osticket.com" target="_blank">
-        <img alt="osTicket" src="images/osticket-grey.png" class="osticket-logo">
-    </a>
-</div>
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (undefined === window.getComputedStyle(document.documentElement).backgroundBlendMode) {
