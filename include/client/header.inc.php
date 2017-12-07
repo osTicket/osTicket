@@ -47,9 +47,9 @@ if ($lang) {
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
     <script src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.unpacked.js?1"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js?1"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js?1"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
     <?php
