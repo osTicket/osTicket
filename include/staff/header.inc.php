@@ -136,7 +136,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                             </a>
                         </li>
 
-                        <li class="list-inline-item notification-list mr-0">
+                        <li class="list-inline-item notification-list mr-0 hidden">
                         
                             <a class="nav-link right-bar-toggle waves-light waves-effect" href="#">
                                 
@@ -361,6 +361,11 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                  <?php } ?> 
                             </div>
                         </li>
+                        <li class="list-inline-item notification-list mr-0 translation-link">
+                            <a href="/" class="nav-link waves-light waves-effect english" id="english" data-lang="English" style="display:none;"><span class="flag flag-us" title="English" alt="English" class="notranslate" ></span></a>
+                            <a href="/" class="nav-link waves-light waves-effect spanish" id="spanish" data-lang="Spanish"><span class="flag flag-mx" title="Spanish" alt="Spanish" class="notranslate" ></span></a>
+                            <div id="google_translate_element"  style="display: none"></div>
+                        </li>
                         
                         <li class="list-inline-item dropdown notification-list  mr-0">
                             <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button"
@@ -385,13 +390,8 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 
                             </div>
                         </li>
-                        
-                    </ul>
-                    <ul class="translation-links">
-  <li><a href="/" class="english" data-lang="English"><span class="flag flag-us" title="English" alt="English" class="notranslate" ></span></a></li>
-  
-  <li><a href="/" class="spanish" data-lang="Spanish"><span class="flag flag-mx" title="Spanish" alt="Spanish" class="notranslate" ></span></a></li>
-  <div id="google_translate_element"  style="display: none"></div>
+
+    
 </ul>
 <script type="text/javascript">
   function googleTranslateElementInit() {
@@ -399,15 +399,32 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script><!-- Flag click handler -->
 <script type="text/javascript">
-    $('.translation-links a').click(function() {
+    $('.translation-link a').click(function() {
       var lang = $(this).data('lang');
       var $frame = $('.goog-te-menu-frame:first');
+      switch (lang){
+          case "English": 
+            
+            document.getElementById('spanish').style.display = "inherit";
+            document.getElementById('english').style.display = "none";
+            break;
+           case "Spanish": 
+           
+            document.getElementById('spanish').style.display = "none";
+            document.getElementById('english').style.display = "inherit";
+            break;
+          
+      }
+
       if (!$frame.size()) {
         alert("Error: Could not find Google translate frame.");
         return false;
       }
       $('.goog-te-menu-frame:first').contents().find('.goog-te-menu2-item span.text').each(function(){ if( $(this).html() == lang ) $(this).click(); });
       return false;
+      
+      
+  
     });
 </script>                   
                     <ul class="list-inline menu-left mb-0">

@@ -8,21 +8,7 @@ iframe.goog-te-banner-frame{ display: none !important;}**/
 
 .goog-logo-link {display:none !important;} 
 .goog-te-gadget{color: transparent !important;}
-.translation-links {
-    position: absolute;
-    right: 20px;
-    top: 10px;
-    z-index: 1000;
-    list-style: none;
-    text-align: center;
-    padding-left: 0;
-}
-.translation-links li {
-    /*display: inline-block;*/
-}
-.mr-2 {
-    margin-right: 2rem!important;
-}
+
 img {
   display: block;
   max-width: 100%;
