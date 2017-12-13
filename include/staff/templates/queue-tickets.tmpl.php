@@ -31,9 +31,9 @@ if (!$view_all_tickets) {
 $l = $_GET['l'];
 $s = $_GET['s'];
 
-$filters=1;
-if ($_GET['a'] == 'search') $filters=0;
-if ($_GET['queue'] == 'adhoc') $filters=0;
+if (isset($l)||isset($t)||isset($s)) $_SESSION['filter']=1;
+$filters=$_SESSION['filter'];
+if ($_GET['a'] == 'search' || $_GET['queue'] == 'adhoc') $filters=0;
 
 
 if (is_numeric($l)) $_SESSION['loc'] = $l;
@@ -44,6 +44,7 @@ $sta = $_SESSION['sta'];
 
 $_SESSION['loc'] = $loc;
 $_SESSION['sta'] = $sta;
+$_SESSION['filter'] = $filters;
 
 $qfl = array();
 $qfs = array();
