@@ -499,6 +499,46 @@ function refer($tid, $target=null) {
     $thread = $ticket->getThread();
     include STAFFINC_DIR . 'templates/refer.tmpl.php';
 }
+  function editField($tid, $fid) {
+      global $thisstaff;
+
+      if (!($ticket=Ticket::lookup($tid)))
+          Http::response(404, __('No such ticket'));
+
+      if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+          Http::response(403, __('Permission denied'));
+      elseif (!($field=$ticket->getField($fid)))
+          Http::response(404, __('No such field'));
+
+      $errors = array();
+      $info = array(
+              ':title' => sprintf(__('Ticket #%s: %s %s'),
+                  $ticket->getNumber(),
+                  __('Update'),
+                  $field->getlabel()
+                  ),
+              ':action' => sprintf('#tickets/%d/field/%s/edit',
+                  $ticket->getId(), $field->getId())
+              );
+
+      $form = $field->getEditForm($_POST);
+      if ($_POST && $form->isValid()) {
+            if ($ticket->updateField($form, $errors)) {
+              $_SESSION['::sysmsgs']['msg'] = sprintf(
+                      __('%s successfully'),
+                      sprintf(
+                          __('%s updated'),
+                          __($field->getLabel())
+                          )
+                      );
+              Http::response(201, $field->getClean());
+          }
+          $form->addErrors($errors);
+          $info['error'] = $errors['err'] ?: __('Unable to update field');
+      }
+
+      include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
+  }
 
     function assign($tid, $target=null) {
         global $thisstaff;

@@ -324,6 +324,10 @@ class SimpleForm extends Form {
         parent::__construct($source, $options);
         $this->setFields($fields);
     }
+
+    function getId() {
+        return $this->getFormId();
+    }
 }
 
 class CustomForm extends SimpleForm {
@@ -1283,10 +1287,65 @@ class FormField {
         return _H(sprintf('field.%s.%s%s', $subtag, $this->get('id'),
             $this->get('form_id') ? '' : '*internal*'));
     }
+
     function getLocal($subtag, $default=false) {
         $tag = $this->getTranslateTag($subtag);
         $T = CustomDataTranslation::translate($tag);
         return $T != $tag ? $T : ($default ?: $this->get($subtag));
+    }
+
+    function getEditForm($source=null) {
+
+        $fields = array(
+                'field' => $this,
+                'comments' => new TextareaField(array(
+                        'id' => 2,
+                        'label'=> '',
+                        'required' => false,
+                        'default' => '',
+                        'configuration' => array(
+                            'html' => true,
+                            'size' => 'small',
+                            'placeholder' => __('Optional reason for the update'),
+                            )
+                        ))
+                );
+
+        return new SimpleForm($fields, $source);
+    }
+
+    function getChanges() {
+        $a = $this->to_database($this->getClean());
+        $b = $this->to_database($this->answer ? $this->answer->getValue() : $this->get('default'));
+        return ($a != $b) ? array($b, $a) : false;
+    }
+
+
+    function save() {
+
+        if (!($changes=$this->getChanges()))
+            return true;
+
+        if (!($a = $this->answer))
+            return false;
+
+        $val = $changes[1];
+        if (is_array($val)) {
+            $a->set('value', $val[0]);
+            $a->set('value_id', $val[1]);
+        } else {
+            $a->set('value', $val);
+        }
+
+        if (!$a->save(true))
+            return false;
+
+        return $this->parent->save();
+    }
+
+
+    static function init($config) {
+        return new Static($config);
     }
 }
 
@@ -2508,6 +2567,10 @@ class TimezoneField extends ChoiceField {
         return $choices;
     }
 
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
+    }
+
     function searchable($value) {
         return null;
     }
@@ -2594,6 +2657,66 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     );
 });
 
+
+class SLAField extends ChoiceField {
+    function getWidget($widgetClass=false) {
+        $widget = parent::getWidget($widgetClass);
+        if ($widget->value instanceof SLA)
+            $widget->value = $widget->value->getId();
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        global $cfg;
+
+        $choices = array();
+        if (($depts = SLA::getSLAs()))
+            foreach ($depts as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        return $id;
+    }
+
+    function to_database($sla) {
+        return ($sla instanceof SLA)
+            ? array($sla->getName(), $slas->getId())
+            : $sla;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
 
 class AssigneeField extends ChoiceField {
     var $_choices = null;
@@ -3914,6 +4037,10 @@ class DatetimePickerWidget extends Widget {
 
         $config = $this->field->getConfiguration();
         $timezone = $this->field->getTimezone();
+
+        if (!isset($this->value) && ($default=$this->field->get('default')))
+            $this->value = $default;
+
         if ($this->value) {
 
             if (is_int($this->value))

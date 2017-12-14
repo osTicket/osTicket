@@ -785,6 +785,9 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function display() {
+
+        return $this->getValue();
+        //TODO: Allow for display mode (edit, preview or both)
         return sprintf('<a class="preview" href="#"
                 data-preview="#list/%d/items/%d/preview">%s</a>',
                 $this->getListId(),
