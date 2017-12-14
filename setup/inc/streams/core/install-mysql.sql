@@ -717,7 +717,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','transferred','overdue','edited','viewed','error','collab','resent') NOT NULL,
+  `state` enum('created','closed','reopened','assigned','transferred', 'reffered', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL,
   `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
   `username` varchar(128) NOT NULL default 'SYSTEM',
   `uid` int(11) unsigned DEFAULT NULL,
@@ -728,6 +728,19 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   KEY `ticket_state` (`thread_id`, `state`, `timestamp`),
   KEY `ticket_stats` (`timestamp`, `state`)
 ) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_referral`;
+CREATE TABLE `%TABLE_PREFIX%thread_referral` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `thread_id` int(11) unsigned NOT NULL,
+  `object_id` int(11) unsigned NOT NULL,
+  `object_type` char(1) NOT NULL,
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ref` (`object_id`,`object_type`,`thread_id`),
+  KEY `thread_id` (`thread_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_status`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
