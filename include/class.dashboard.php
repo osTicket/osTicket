@@ -10,6 +10,17 @@ $OpenTicket = Ticket::objects()
          foreach ($OpenTicket as $cOpenTicket) { 
             $OpenTickets = $cOpenTicket["count"];
         }
+        
+$sql='SELECT round(avg(datediff(ost_ticket.created,NOW())*-1)) as AvgDaysOpen FROM ost_ticket 
+        WHERE status_id !=3 and status_id !=12 
+        and status_id !=8 and status_id !=9 
+        and topic_id != 12 and topic_id != 14';
+$avgdaysopen = db_query($sql);
+    
+    foreach ($avgdaysopen as $avgdays) {
+        $averagedaysopen = $avgdays['AvgDaysOpen'];
+    }        
+        
 $AssignedTicket = Ticket::objects()
         ->filter(array('status_id' => '11')) //assigned
         ->filter(array('topic_id__ne' => '12')) //open issue

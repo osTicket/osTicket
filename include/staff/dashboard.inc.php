@@ -15,7 +15,7 @@
 </div> 
 
 <div class="row">
-                            <div class="col-lg-2 col-xl-2">
+                            <div class="col-lg-1 col-xl-3">
                                 <div class="widget-bg-color-icon card-box">
                                     <div class="bg-icon bg-icon-danger pull-left">
                                         <i class="mdi mdi-ticket-confirmation text-danger"></i>
@@ -28,7 +28,7 @@
                                 </div>
                             </div>
                             
-                            <div class="col-lg-2 col-xl-2">
+                            <div class="col-lg-1 col-xl-3">
                                 <div class="widget-bg-color-icon card-box">
                                     <div class="bg-icon bg-icon-primary pull-left">
                                         <i class="mdi mdi-ticket-account text-success"></i>
@@ -40,7 +40,19 @@
                                     <div class="clearfix"></div>
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-xl-2">
+                            <div class="col-lg-1 col-xl-3">
+                                <div class="widget-bg-color-icon card-box">
+                                    <div class="bg-icon bg-icon-purple pull-left">
+                                        <i class="mdi mdi-ticket-account text-success"></i>
+                                    </div>
+                                    <div class="text-right">
+                                        <h3 class="text-dark"><b class="counter"><?php echo $averagedaysopen;?></b></h3>
+                                        <p class="text-muted mb-0">Average Days Open</p>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-1 col-xl-3">
                                 <div class="widget-bg-color-icon card-box">
                                     <div class="bg-icon bg-icon-warning pull-left">
                                         <i class="mdi mdi-ticket text-success"></i>
@@ -52,7 +64,7 @@
                                     <div class="clearfix"></div>
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-xl-2">
+                            <div class="col-lg-1 col-xl-3">
                                 <div class="widget-bg-color-icon card-box">
                                     <div class="bg-icon bg-icon-success pull-left">
                                         <i class="ti-light-bulb text-success"></i>
@@ -64,7 +76,7 @@
                                     <div class="clearfix"></div>
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-xl-2">
+                            <div class="col-lg-1 col-xl-3">
                             <div class="widget-bg-color-icon card-box">
                                 <div class="bg-icon bg-icon-primary pull-left">
                                     <i class="ti-info-alt text-success"></i>
@@ -76,7 +88,7 @@
                                 <div class="clearfix"></div>
                             </div>
                         </div>
-                         <div class="col-lg-2 col-xl-2">
+                         <div class="col-lg-1 col-xl-3">
                             <div class="widget-bg-color-icon card-box">
                                 <div class="bg-icon bg-icon-danger pull-left">
                                     <i class="ti-info-alt text-danger"></i>
