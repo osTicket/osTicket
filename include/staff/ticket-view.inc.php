@@ -783,7 +783,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                     <?php
                     $list = DynamicList::lookup(['type' => 'time-type']);
                     foreach ($list->getAllItems() as $item) { ?>
-                        <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+                        <option value="<?php echo $item->getId();?>"<?php if ($item->getId() == 7) echo ' selected';?>> <?php echo $item->getValue(); ?> </option>
 <?php               } ?>
                     </select>
                 </td>
@@ -905,7 +905,7 @@ $tcount = $ticket->getThreadEntries($types)->count();
                             <?php
                             $list = DynamicList::lookup(['type' => 'time-type']);
                             foreach ($list->getAllItems() as $item) { ?>
-                                <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+                                <option value="<?php echo $item->getId();?>"<?php if ($item->getId() == 7) echo ' selected';?>> <?php echo $item->getValue(); ?> </option>
                             <?php } ?>
                         </td>
                     </tr></table></div>
