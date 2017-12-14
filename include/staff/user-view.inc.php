@@ -13,7 +13,7 @@ $org = $user->getOrganization();
        <div class="float-left subnavtitle">
       
       <a href="users.php?id=<?php echo $user->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?></a>
+             title="Reload"><i class="icon-refresh"></i> <span class="notranslate"><?php echo Format::htmlchars($user->getName()); ?></span></a>
       </a>
       </div>
       
@@ -112,13 +112,13 @@ $org = $user->getOrganization();
 
         <?php
         if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                            <b><a href="#users/<?php echo $user->getId();
+                            <b><span class="notranslate"><a href="#users/<?php echo $user->getId();
                             ?>/edit" class="user-action"><i
                                 class="icon-edit"></i>
         <?php }
                             echo Format::htmlchars($user->getName()->getOriginal());
         if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
-                                </a></b>
+                                </span></a></b>
         <?php } ?>
 </div>
 <div>

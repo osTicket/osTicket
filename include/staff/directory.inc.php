@@ -162,7 +162,7 @@ $qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
         $ids=($errors && is_array($_POST['ids']))?$_POST['ids']:null;
         foreach ($agents as $A) { ?>
            <tr id="<?php echo $A->staff_id; ?>">
-                <td>&nbsp;<?php echo Format::htmlchars($A->getName()); ?></td>
+                <td>&nbsp;<span class="notranslate"><?php echo Format::htmlchars($A->getName()); ?></span></td>
                 <td>&nbsp;<?php echo Format::htmlchars((string) $A->dept); ?></td>
                 <td>&nbsp;<?php echo Format::htmlchars($A->email); ?></td>
                 <td>&nbsp;<?php echo Format::phone($A->phone); ?></td>

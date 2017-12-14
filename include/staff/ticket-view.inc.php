@@ -355,8 +355,7 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
                                     });
                             return false;
                             "><i class="icon-user"></i> <span id="user-<?php echo $ticket->getOwnerId(); ?>-name"
-                            ><?php echo Format::htmlchars($ticket->getName());
-                        ?></span></a>
+                            ><span class="notranslate"><?php echo Format::htmlchars($ticket->getName());?></span></span></a>
                         <?php
                         if ($user) { ?>
                             <a href="tickets.php?<?php echo Http::build_query(array(
@@ -616,8 +615,8 @@ $tcount = $ticket->getThreadEntries($types)->count();
                                         $ticket->getReplyToEmail());
                                 $emailReply = (!isset($info['emailreply']) || $info['emailreply']);
                                 ?>
-                                <select id="emailreply" name="emailreply">
-                                    <option value="1" <?php echo $emailReply ?  'selected="selected"' : ''; ?>><?php echo $to; ?></option>
+                                <select id="emailreply" name="emailreply" >
+                                    <option class="notranslate" value="1" <?php echo $emailReply ?  'selected="selected"' : ''; ?>><?php echo $to; ?></option>
                                     <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
                                     >&mdash; <?php echo __('Do Not Email Reply'); ?> &mdash;</option>
                                 </select>
@@ -1001,9 +1000,9 @@ $tcount = $ticket->getThreadEntries($types)->count();
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
         <span id="msg_warning" style="display:block;vertical-align:top">
         <?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the ticket')),
-            '<b>'.Format::htmlchars($ticket->getName()).'</b>', Format::htmlchars($ticket->getEmail())); ?>
+            '<b><span class="notranslate">'.Format::htmlchars($ticket->getName()).'</span></b>', Format::htmlchars($ticket->getEmail())); ?>
         </span>
-        <?php echo sprintf(__('Are you sure you want to <b>change</b> ticket owner to %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>change</b> ticket owner to <span class="notranslate">%s</span>?'),
             '<b><span id="newuser">this guy</span></b>'); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">

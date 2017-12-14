@@ -179,7 +179,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!($user = User::lookup($ticket->getOwnerId())))
             Http::response(404, 'Unknown user');
         $info = array(
-            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
+            'title' => sprintf(__('Ticket #%s: <span class="notranslate">%s</span>'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
         ob_start();

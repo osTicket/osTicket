@@ -119,8 +119,8 @@ if ($num) { ?>
                     <a class="preview"
                         href="users.php?id=<?php echo $row['id']; ?>"
                         data-preview="#users/<?php
-                        echo $row['id']; ?>/preview" ><?php
-                        echo Format::htmlchars($name); ?></a>
+                        echo $row['id']; ?>/preview" ><span class="notranslate"><?php
+                        echo Format::htmlchars($name); ?></span></a>
                     &nbsp;
                     <?php
                     if ($row['tickets'])

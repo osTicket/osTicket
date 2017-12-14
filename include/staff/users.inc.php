@@ -224,8 +224,8 @@ else
                 <td>&nbsp;
                     <a class="preview"
                         href="users.php?id=<?php echo $U['id']; ?>"
-                        data-preview="#users/<?php echo $U['id']; ?>/preview"><?php
-                        echo Format::htmlchars($name); ?></a>
+                        data-preview="#users/<?php echo $U['id']; ?>/preview"><span class="notranslate"><?php
+                        echo Format::htmlchars($name); ?></span></a>
                     &nbsp;
                     <?php
                     if ($U['ticket_count'])

@@ -1568,6 +1568,9 @@ extends ChoiceField {
         'text-transform' => array(
             'uppercase', 'lowercase', 'captalize',
         ),
+        'text-translate' => array(
+            'notranslate',
+        ),
     );
 
     function __construct($property) {

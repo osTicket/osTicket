@@ -55,7 +55,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td width="130">%{ticket.id}</td><td>'.__('Ticket ID').' ('.__('internal ID').')</td></tr>
                     <tr><td>%{ticket.number}</td><td>'.__('Ticket Number').' ('.__('external ID').')</td></tr>
                     <tr><td>%{ticket.email}</td><td>'.__('Email Address').'</td></tr>
-                    <tr><td>%{ticket.name}</td><td>'.__('Full Name').' &mdash;
+                    <tr><td>%{ticket.name}</td><td class="notranslate">'.__('Full Name').' &mdash;
                         <em>'.__('see name expansion').'</em></td></tr>
                     <tr><td>%{ticket.subject}</td><td>'.__('Subject').'</td></tr>
                     <tr><td>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
