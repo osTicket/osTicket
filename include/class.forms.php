@@ -1742,13 +1742,23 @@ class ChoiceField extends FormField {
         $name = $name ?: $this->get('name');
         switch ($method) {
         case '!includes':
-            return Q::not(array("{$name}__in" => array_keys($value)));
+            return Q::not(array("{$name}__in" => $this->getSearchQVaule($value)));
         case 'includes':
-            return new Q(array("{$name}__in" => array_keys($value)));
+            return new Q(array("{$name}__in" => $this->getSearchQVaule($value)));
         default:
             return parent::getSearchQ($method, $value, $name);
         }
     }
+    
+	function getSearchQVaule($array){
+		$ret = array();
+		
+		foreach($array as $name=>$value)
+		{
+			$ret[] = '{"'.$name.'":"'.$value.'"}';
+		}
+		return $ret;
+	}
 
     function describeSearchMethod($method) {
         switch ($method) {
