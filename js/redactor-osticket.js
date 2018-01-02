@@ -274,7 +274,7 @@ $(function() {
                 'linebreaks': true,
                 'tabFocus': false,
                 'toolbarFixedBox': true,
-                'focusCallback': function() { this.$box.addClass('no-pjax'); },
+                'focusCallback': function() { this.$box.addClass('no-pjax notranslate'); },
                 'initCallback': function() {
                     if (this.$element.data('width'))
                         this.$editor.width(this.$element.data('width'));
