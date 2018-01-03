@@ -518,13 +518,13 @@
                                             foreach ($tbldatas as $tbldata) {
                                                 
                                                 if ($status["STATUS"] == $tbldata["STATUS"] &&  $loc["LOCATION"] == $tbldata["LOCATION"]) {
-                                                    
-                                                if ($tbldata["COUNT"] != 0) $count = number_format($tbldata["COUNT"]);
-                                                    echo '<td>'.$count.'</td>';
-                                                    
-                                                    
-                                                                                                                                                                
-                                                }
+                                                  
+                                                        
+                                                $count = number_format($tbldata["COUNT"]);
+                                                ?>
+                                                    <td> <?php if ($count !=0)echo $count;?> </td>
+                                                                                                                                                               
+                                               <?php }
                                             }
                                     }
                                 
@@ -636,15 +636,23 @@
                                     
                             $tbltotals = db_query($sql);
                             
-                            $sql="Select count(user_id) as COUNT, LOCATION from
-                                (
-                                SELECT distinct t.user_id, o.name as LOCATION FROM ost_ticket t  
-                                left join ost_user u on t.user_id = u.id 
-                                left join ost_organization o on u.org_id = o.id 
-                                where year(t.updated) = year(now())AND t.topic_id <> 14 AND t.topic_id <> 12
-                                )a
-                                where LOCATION is not null
-                                group by LOCATION order by LOCATION";
+                            $sql="select sum(COUNT) as COUNT, LOCATION from (
+                                    Select count(user_id) as COUNT, LOCATION from
+                                         (
+                                         SELECT distinct t.user_id, o.name as LOCATION FROM ost_ticket t 
+                                         left join ost_user u on t.user_id = u.id 
+                                         left join ost_organization o on u.org_id = o.id 
+                                          
+                                         where year(t.updated) = year(now())AND t.topic_id <> 14 AND t.topic_id <> 12 
+                                         
+                                         )a
+                                         where LOCATION is not null
+                                         group by LOCATION 
+                                         
+                                         union all 
+                                                 SELECT 0 as COUNT, o.name as LOCATION  FROM ost_organization o
+                                              order by LOCATION)b
+                                group by LOCATION";
                              
                             $usertotals = db_query($sql);
 
@@ -691,7 +699,11 @@
                                  foreach ($usertotals as $usertotal){
                                      
                                      if ($usertotal["LOCATION"] == $tbltotal["LOCATION"]){
-                                     $tcount = $tbltotal["COUNT"] / $usertotal["COUNT"];
+                                     if ($usertotal["COUNT"] !=0){
+                                         $tcount = $tbltotal["COUNT"] / $usertotal["COUNT"];
+                                     } else {
+                                         $tcount =0;
+                                     }
                                      echo '<td><strong><span class="text-secondary">'.number_format($tcount).'</strong></span></td>';
                                  $total = $total + $usertotal["COUNT"];
                                  $tcount = null;
@@ -1175,12 +1187,12 @@ $('svg').height(700);
                                 
                                 UNION all 
                                 select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS) as VALUE, 'BACKLOG' AS Status,  
-                STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W') as CALENDARWEEK from ost_backlog 
+                STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
 
-                where STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
+                where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
 
                 BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 12 WEEK) AND CURRENT_DATE () -1
-                group by STR_TO_DATE(CONCAT(YEAR,WEEK,' Monday'), '%X%V %W')
+                group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
                                 
                 Order by CALENDARWEEK, STATUS)dt
 
@@ -2108,34 +2120,34 @@ $(function () {
 
 $sql="select distinct LASTNAME,OWNER_NAME from
 (
-	select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
+	select CALENDARWEEK,CALENDARYEAR, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
 	(
-	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, u.lastname as LASTNAME, 
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK,YEAR(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARYEAR, u.lastname as LASTNAME, 
     concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR) 
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 12 MONTH)
 	) a
 
-	group by OWNER_NAME, CALENDARWEEK
+	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK
 )b";
 
 $locs = db_query($sql);
 
-$sql="select CALENDARWEEK, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
+$sql="select CALENDARWEEK,CALENDARYEAR, count(LASTNAME) as COUNT,OWNER_NAME, LASTNAME from
 	(
-	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, u.lastname as LASTNAME, 
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK,YEAR(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARYEAR, u.lastname as LASTNAME, 
     concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 12 MONTH)
 	) a
 
-	group by OWNER_NAME, CALENDARWEEK
+	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK
 ";
 
 $locsdata = db_query($sql);
@@ -2152,7 +2164,7 @@ $locsdata = db_query($sql);
              
                 if ($locdata["LASTNAME"] == $loc["LASTNAME"] ){
                      
-                    echo  "[\"".date("F", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10))."\", ".$locdata["COUNT"]."],\n"; 
+                    echo  "[\"".date("M Y", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10, $locdata["CALENDARYEAR"]))."\", ".$locdata["COUNT"]."],\n"; 
                 } 
              
              }
@@ -2230,34 +2242,34 @@ $(function () {
 
 $sql="select distinct LOCATION from
 (
-	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  month(FROM_DAYS(TO_DAYS(t.created) - MOD(TO_DAYS(t.created) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	SELECT month(t.created) AS CALENDARWEEK,year(t.created) AS CALENDARYEAR, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.topic_id <> 14 AND t.topic_id <> 12 and year(t.created) > year(CURDATE() - INTERVAL 1 YEAR) and o.name is not null
+	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 12 MONTH)
 	) a
-
-	group by LOCATION, CALENDARWEEK
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
 )b ";
 
 $olocs = db_query($sql);
 
-$sql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+$sql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT month(t.created) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	SELECT month(t.created) AS CALENDARWEEK,year(t.created) AS CALENDARYEAR, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.topic_id <> 14 AND t.topic_id <> 12 and year(t.created) > year(CURDATE() - INTERVAL 1 YEAR)
+	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 12 MONTH)
 	) a
 	where LOCATION is not null
-	group by LOCATION, CALENDARWEEK order by CALENDARWEEK, LOCATION
+	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
     
 ";
 
@@ -2275,7 +2287,7 @@ $olocsdata = db_query($sql);
              
                 if ($olocdata["LOCATION"] == $oloc["LOCATION"] ){
                      
-                    echo  "[\"".date("F", mktime(0, 0, 0, $olocdata["CALENDARWEEK"], 10))."\", ".$olocdata["COUNT"]."],\n"; 
+                    echo  "[\"".date("M Y", mktime(0, 0, 0, $olocdata["CALENDARWEEK"], 10, $olocdata["CALENDARYEAR"]))."\", ".$olocdata["COUNT"]."],\n"; 
                 } 
              
              }
@@ -2353,34 +2365,34 @@ $(function () {
 
 $csql="select distinct LOCATION from
 (
-	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	SELECT month(t.closed) AS CALENDARWEEK,year(t.closed) AS CALENDARYEAR, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR) and o.name is not null
+	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 12 MONTH) and o.name is not null
 	) a
-
-	group by LOCATION, CALENDARWEEK
-)b ";
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
+)b;"; 
 
 $locs = db_query($csql);
 
-$csql="select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+$csql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	(
-	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	SELECT month(t.closed) AS CALENDARWEEK,year(t.closed) AS CALENDARYEAR, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
 	left join ost_organization o on o.id = u.org_id
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and year(t.closed) > year(CURDATE() - INTERVAL 1 YEAR)
+	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 12 MONTH)
 	) a
-    where LOCATION is not null
-	group by LOCATION, CALENDARWEEK  order by CALENDARWEEK, LOCATION
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
 ";
 
 $locsdata = db_query($csql);
@@ -2397,7 +2409,7 @@ $locsdata = db_query($csql);
              
                 if ($locdata["LOCATION"] == $loc["LOCATION"] ){
                      
-                    echo  "[\"".date("F", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10))."\", ".$locdata["COUNT"]."],\n"; 
+                    echo  "[\"".date("M Y", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10, $locdata["CALENDARYEAR"]))."\", ".$locdata["COUNT"]."],\n"; 
                 } 
              
              }
