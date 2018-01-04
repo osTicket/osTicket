@@ -1,33 +1,58 @@
-<form action="roles.php" method="POST" name="roles">
-<div class="sticky bar">
-    <div class="content">
-        <div class="pull-left">
-            <h2><?php echo __('Roles'); ?></h2>
-        </div>
-        <div class="pull-right flush-right">
-            <a href="roles.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
-echo __('Add New Role'); ?></a>
-            <span class="action-button" data-dropdown="#action-dropdown-more">
-                <i class="icon-caret-down pull-right"></i>
-                <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-            </span>
-            <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                <ul id="actions">
-                    <li><a class="confirm" data-name="enable" href="roles.php?a=enable">
+ <form action="roles.php" method="POST" name="roles">
+ <div class="subnav">
+
+
+                        <div class="float-left subnavtitle">
+                        
+                            <span ><a href="<?php echo $refresh_url; ?>"
+                                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
+                                </a> &nbsp;
+            <?php echo __('Roles');?>
+                                
+                                </span>
+                        
+                       
+                       
+                        </div>
+ 
+        <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+                    
+                    <a class="btn btn-icon waves-effect waves-light btn-success"
+                       href="roles.php?a=add" data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Add New Role'); ?>">
+                        <i class="fa fa-plus-square"></i>
+                    </a>
+        <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
+            data-toggle="dropdown"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
+             title="More"></i>
+            </button>
+                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="actions">
+                    
+                   <a class="confirm" data-name="enable" href="roles.php?a=enable">
                         <i class="icon-ok-sign icon-fixed-width"></i>
-                        <?php echo __('Enable'); ?></a></li>
-                    <li><a class="confirm" data-name="disable" href="roles.php?a=disable">
+                        <?php echo __('Enable'); ?></a>
+                       
+                           <a class="confirm" data-name="disable" href="roles.php?a=disable">
                         <i class="icon-ban-circle icon-fixed-width"></i>
-                        <?php echo __('Disable'); ?></a></li>
+                        <?php echo __('Disable'); ?></a>
                     <li class="danger"><a class="confirm" data-name="delete" href="roles.php?a=delete">
                         <i class="icon-trash icon-fixed-width"></i>
-                        <?php echo __('Delete'); ?></a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="clear"></div>
-    </div>
-</div>
+                        <?php echo __('Delete'); ?></a>
+                               
+                    </div>
+            </div>                    
+        </div>   
+        
+        <div class="clearfix"></div>                      
+ </div>
+ 
+ <div class="card-box">
+
+<div class="row">
+    <div class="col">
+
+
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = Role::objects()->count();
@@ -38,7 +63,7 @@ $showing=$pageNav->showing().' '._N('role', 'roles', $count);
 csrf_token(); ?>
 <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
-<table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+<table class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
@@ -95,12 +120,25 @@ csrf_token(); ?>
      </tr>
     </tfoot>
 </table>
-<?php
-if ($count) //Show options..
-    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-?>
-</form>
+<div class="row">
+<div class="col">
+    <div class="float-left">
+    <nav>
+    <ul class="pagination">   
+        <?php
+            echo $pageNav->getPageLinks();
+        ?>
+    </ul>
+    </nav>
+    </div>
 
+   
+    <div class="float-right">
+          <span class="faded"><?php echo $pageNav->showing(); ?></span>
+    </div>  
+</div></div>
+
+</div></div></div></form>
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm'); ?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
@@ -123,10 +161,10 @@ if ($count) //Show options..
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="close">
+            <input type="button" value="<?php echo __('No, Cancel'); ?>" class="btn btn-sm btn-warning close">
         </span>
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('Yes, Do it!'); ?>" class="confirm">
+            <input type="button" value="<?php echo __('Yes, Do it!'); ?>" class="btn btn-sm btn-danger confirm">
         </span>
     </p>
     <div class="clear"></div>

@@ -26,23 +26,43 @@ if($dept && $_REQUEST['a']!='add') {
 
 $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 ?>
+
+<div class="subnav">
+
+    <div class="float-left subnavtitle" id="ticketviewtitle">
+       <?php echo __('Manage Department');?> <?php if (isset($info['name'])) { ?>
+    -  <span class ="text-pink"><?php echo $info['name']; ?><span>
+    <?php } ?>
+    </div>
+
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+    &nbsp;
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="card-box">
+
+<div class="row">
+    <div class="col">
 <form action="departments.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-<h2><?php echo $title; ?>
-    <?php if (isset($info['name'])) { ?><small>
-    — <?php echo $info['name']; ?></small>
-    <?php } ?>
-</h2>
-<ul class="clean tabs">
-    <li class="active"><a href="#settings">
-        <i class="icon-file"></i> <?php echo __('Settings'); ?></a></li>
-    <li><a href="#access">
-      <i class="icon-user"></i> <?php echo __('Access'); ?></a></li>
+
+<ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">
+  <li class="nav-item">
+    <a class="nav-link active" href="#Settings" role="tab" data-toggle="tab"><i class="icon-file"></i>&nbsp;<?php echo __('Settings'); ?></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#access" role="tab" data-toggle="tab"><i class="icon-user"></i>&nbsp;<?php echo __('Access'); ?></a>
+  </li>
 </ul>
-<div id="settings" class="tab_content">
+
+<div class="tab-content">
+<div role="tabpanel" class="tab-pane active" id="Settings">
+
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
@@ -315,7 +335,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 </table>
 </div>
 
-<div id="access" class="hidden tab_content">
+<div role="tabpanel" class="tab-pane" id="access">
   <table class="two-column table" width="100%">
     <tbody>
         <tr class="header" id="primary-members">
@@ -393,15 +413,15 @@ foreach ($dept->getMembers() as $member) {
     </tbody>
   </table>
 </div>
+ <div><br>
+      <input type="submit" name="submit" value="<?php echo $submit_text; ?>" class="btn btn-sm btn-primary">
+      <input type="reset"  name="reset"  value="<?php echo __('Reset');?>" class="btn btn-sm btn-warning">
+      <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="window.history.go(-1);" class="btn btn-sm btn-danger">
+</div>
 
-<p style="text-align:center">
-    <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel');?>"
-        onclick='window.location.href="?"'>
-</p>
+</div>
 </form>
-
+</div></div></div>
 <script type="text/javascript">
 var addAccess = function(staffid, name, role, alerts, primary, error) {
 

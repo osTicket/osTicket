@@ -1,7 +1,6 @@
 <?php
 if (!defined('OSTADMININC') || !$thisstaff->isAdmin())
     die('Access Denied');
-
 $qs = array();
 $sortOptions=array(
     'name' => 'name',
@@ -10,21 +9,17 @@ $sortOptions=array(
     'email'=> 'email__name',
     'manager'=>'manager__lastname'
     );
-
 $orderWays = array('DESC'=>'DESC', 'ASC'=>'ASC');
 $sort = ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ? strtolower($_REQUEST['sort']) : 'name';
 if ($sort && $sortOptions[$sort]) {
     $order_column = $sortOptions[$sort];
 }
-
 $order_column = $order_column ? $order_column : 'name';
-
 if ($_REQUEST['order'] && isset($orderWays[strtoupper($_REQUEST['order'])])) {
     $order = $orderWays[strtoupper($_REQUEST['order'])];
 } else {
     $order = 'ASC';
 }
-
 if ($order_column && strpos($order_column,',')) {
     $order_column=str_replace(','," $order,",$order_column);
 }
@@ -39,33 +34,59 @@ $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('departments.php', $qs);
 $showing = $pageNav->showing().' '._N('department', 'departments', $count);
 ?>
+
 <form action="departments.php" method="POST" name="depts">
-<div class="sticky bar">
-    <div class="content">
-        <div class="pull-left">
-            <h2><?php echo __('Departments');?></h2>
-        </div>
-        <div class="pull-right flush-right">
-            <a href="departments.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Department');?></a>
-            <span class="action-button" data-dropdown="#action-dropdown-more">
-                <i class="icon-caret-down pull-right"></i>
-                <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-            </span>
-            <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                <ul id="actions">
-                    <li class="danger"><a class="confirm" data-name="delete" href="departments.php?a=delete">
+
+<div class="subnav">
+
+
+                        <div class="float-left subnavtitle">
+                        
+                            <span ><a href="<?php echo $refresh_url; ?>"
+                                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> 
+                                </a> &nbsp;
+            <?php echo __('Departments');?>
+                                
+                                </span>
+                        
+                       
+                       
+                        </div>
+ 
+        <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+                    
+                    <a class="btn btn-icon waves-effect waves-light btn-success"
+                       href="departments.php?a=add" data-placement="bottom"
+                    data-toggle="tooltip" title="<?php echo __('Add Department'); ?>">
+                        <i class="fa fa-plus-square"></i>
+                    </a>
+            
+        <div class="btn-group btn-group-sm" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
+            data-toggle="dropdown"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
+             title="More"></i>
+            </button>
+                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="actions">
+                    
+                   <a class="confirm" data-name="delete" href="departments.php?a=delete">
                         <i class="icon-trash icon-fixed-width"></i>
-                        <?php echo __('Delete'); ?></a></li>
-                </ul>
+                        <?php echo __('Delete'); ?></a>
+                              
+                    </div>
             </div>
-        </div>
-        <div class="clear"></div>
-    </div>
-</div>
+        </div>   
+        
+        <div class="clearfix"></div>                      
+ </div>
+<div class="card-box">
+
+<div class="row">
+    <div class="col">
+                   
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
  <input type="hidden" id="action" name="a" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+  <table class="table table-striped table-hover table-condensed table-sm">
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
@@ -97,7 +118,6 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                 $sel=false;
                 if($ids && in_array($dept->getId(), $ids))
                     $sel=true;
-
                 if ($dept->email) {
                     $email = (string) $dept->email;
                     $emailId = $dept->email->getId();
@@ -105,7 +125,6 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                     $emailId = $defaultEmailId;
                     $email = $defaultEmailAddress;
                 }
-
                 $default= ($defaultId == $dept->getId()) ?' <small>'.__('(Default)').'</small>' : '';
                 ?>
             <tr id="<?php echo $id; ?>">
@@ -150,14 +169,24 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
      </tr>
     </tfoot>
 </table>
-<?php
-if ($count):
-    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-?>
-<?php
-endif;
-?>
-</form>
+<div class="row">
+<div class="col">
+    <div class="float-left">
+    <nav>
+    <ul class="pagination">   
+        <?php
+            echo $pageNav->getPageLinks();
+        ?>
+    </ul>
+    </nav>
+    </div>
+
+   
+    <div class="float-right">
+          <span class="faded"><?php echo $pageNav->showing(); ?></span>
+    </div>  
+</div></div>
+</div></div></form>
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
@@ -179,12 +208,11 @@ endif;
     <hr style="margin-top:1em"/>
     <p class="full-width">
         <span class="buttons pull-left">
-            <input type="button" value="<?php echo __('No, Cancel');?>" class="close">
+            <input type="button" value="<?php echo __('No, Cancel');?>" class="btn btn-sm btn-warning close">
         </span>
         <span class="buttons pull-right">
-            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="confirm">
+            <input type="button" value="<?php echo __('Yes, Do it!');?>" class="btn btn-sm btn-danger confirm">
         </span>
      </p>
     <div class="clear"></div>
 </div>
-
