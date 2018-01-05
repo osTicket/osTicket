@@ -127,6 +127,11 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                 </div>
                 <!-- Button mobile view to collapse sidebar menu -->
                 <nav class="navbar-custom">
+                    <ul class="hide-phone list-inline float-left mb-0 mr-0">
+                        <li class="list-inline-item notification-list hide-phone  mr-0">
+                            <span class="nav-link">IT Support System</span>
+                        </li>
+                    </ul>
 
                     <ul class="list-inline float-right mb-0 mr-2">
 
