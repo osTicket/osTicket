@@ -1,8 +1,6 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
-
 $info = $qs = array();
-
 if ($_REQUEST['a']=='add'){
     if (!$staff) {
         $staff = Staff::create(array(
@@ -15,10 +13,13 @@ if ($_REQUEST['a']=='add'){
             User::PERM_DELETE,
             User::PERM_MANAGE,
             User::PERM_DIRECTORY,
+            Organization::PERM_CREATE,
+            Organization::PERM_EDIT,
+            Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
         ));
     }
-    $title=__('Add New Associate');
+    $title=__('Add New Agent');
     $action='create';
     $submit_text=__('Create');
 }
@@ -60,12 +61,17 @@ else {
     <a class="nav-link active" href="#account" role="tab" data-toggle="tab"><i class="icon-user"></i>&nbsp;<?php echo __('Account'); ?></a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#access" role="tab" data-toggle="tab"><i class="icon-pushpin"></i>&nbsp;<?php echo __('Access'); ?></a>
+    <a class="nav-link" href="#access" role="tab" data-toggle="tab"><i class="icon-lock"></i>&nbsp;<?php echo __('Access'); ?></a>
+  </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#permissions" role="tab" data-toggle="tab"><i class="icon-cog"></i>&nbsp;<?php echo __('Permissions'); ?></a>
+  </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#teams" role="tab" data-toggle="tab"><i class="icon-group"></i>&nbsp;<?php echo __('Teams'); ?></a>
   </li>
 </ul>
 <div class="tab-content">
 <div role="tabpanel" class="tab-pane active" id="account">
-
     <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
       <tbody>
         <tr><td colspan="2"><div>
@@ -183,23 +189,26 @@ if (count($bks) > 1) {
           <td colspan="2">
             <div class="error"><?php echo $errors['isadmin']; ?></div>
             <div class="error"><?php echo $errors['isactive']; ?></div>
-            
-    <label class="custom-control custom-checkbox">
-    <input type="checkbox"  name="islocked" value="1"
-              <?php echo (!$staff->isactive) ? 'checked="checked"' : '';
-                ?> class="custom-control-input">
-    <span class="custom-control-indicator"></span>
-    <span class="custom-control-description"><strong><?php echo __('Disabled'); ?> <strong></span>
-    </label>
-            
-    <label class="custom-control custom-checkbox">
-    <input type="checkbox"  name="isadmin" value="1"
-              <?php echo ($staff->isadmin) ? 'checked="checked"' : '';
-                ?> class="custom-control-input">
-    <span class="custom-control-indicator"></span>
-    <span class="custom-control-description"><strong><?php echo __(Administrator); ?> <strong></span>
-    </label>
-    
+            <label class="checkbox">
+            <input type="checkbox" name="islocked" value="1"
+              <?php echo (!$staff->isactive) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Locked'); ?>
+            </label>
+            <label class="checkbox">
+            <input type="checkbox" name="isadmin" value="1"
+              <?php echo ($staff->isadmin) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Administrator'); ?>
+            </label>
+            <label class="checkbox">
+            <input type="checkbox" name="assigned_only"
+              <?php echo ($staff->assigned_only) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Limit ticket access to ONLY assigned tickets'); ?>
+            </label>
+            <label class="checkbox">
+            <input type="checkbox" name="onvacation"
+              <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
+              <?php echo __('Vacation Mode'); ?>
+            </label>
             <br/>
         </tr>
       </tbody>
@@ -217,17 +226,17 @@ if (count($bks) > 1) {
 
   <!-- ============== DEPARTMENT ACCESS =================== -->
 
-  <div role="tabpanel" class="tab-pane" id="access">
+    <div role="tabpanel" class="tab-pane" id="access">
     <table class="table two-column" width="940" border="0" cellspacing="0" cellpadding="2">
       <tbody>
         <tr class="header">
           <th colspan="3">
             <?php echo __('Access'); ?>
             <div><small><?php echo __(
-            "Select the Team(s) the associate is allowed to access and the corresponding effective role."
+            "Select the departments the agent is allowed to access and the corresponding effective role."
           ); ?>
             </small></div><br>
-            <div><?php echo __('Primary Team'); ?> <span
+            <div><?php echo __('Primary Department'); ?> <span
             class="error">*</span></div>
           </th>
         </tr>
@@ -260,15 +269,16 @@ if (count($bks) > 1) {
             <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
           </td>
           <td>
-    <label class="custom-control custom-checkbox">
-    <input type="checkbox"  name="assign_use_pri_role" value="1"
-              <?php echo ($staff->usePrimaryRoleOnAssignment()) ? 'checked="checked"' : '';
-                ?> class="custom-control-input">
-    <span class="custom-control-indicator"></span>
-    <span class="custom-control-description"><strong><?php echo __('Fall back to primary role on assignments'); ?><strong> <i class="icon-question-sign help-tip"
-                    href="#primary_role_on_assign"></i></span></span>
-    </label>
-           
+            <label class="inline checkbox">
+            <input type="checkbox" name="assign_use_pri_role" <?php
+                if ($staff->usePrimaryRoleOnAssignment())
+                    echo 'checked="checked"';
+                ?> />
+                <?php echo __('Fall back to primary role on assignments'); ?>
+                <i class="icon-question-sign help-tip"
+                    href="#primary_role_on_assign"></i>
+            </label>
+
             <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
         </tr>
@@ -302,7 +312,7 @@ if (count($bks) > 1) {
       <tbody>
         <tr class="header">
           <th colspan="3">
-            <?php echo __('Extended Team(s) Access'); ?>
+            <?php echo __('Extended Access'); ?>
           </th>
         </tr>
 <?php
@@ -315,7 +325,7 @@ foreach ($staff->dept_access as $dept_access) {
           <td colspan="2">
             <i class="icon-plus-sign"></i>
             <select id="add_access" data-quick-add="department">
-              <option value="0">&mdash; <?php echo __('Select Team');?> &mdash;</option>
+              <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
               foreach ($depts as $id=>$name) {
                 echo sprintf('<option value="%d">%s</option>',$id,Format::htmlchars($name));
@@ -332,8 +342,115 @@ foreach ($staff->dept_access as $dept_access) {
     </table>
   </div>
 
-</div>
+  <!-- ================= PERMISSIONS ====================== -->
 
+    <div role="tabpanel" class="tab-pane" id="permissions">
+<?php
+    $permissions = array();
+    foreach (RolePermission::allPermissions() as $g => $perms) {
+        foreach ($perms as $k=>$P) {
+            if (!$P['primary'])
+                continue;
+            if (!isset($permissions[$g]))
+                $permissions[$g] = array();
+            $permissions[$g][$k] = $P;
+        }
+    }
+?>
+    <ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">
+<?php
+    $first = true;
+    foreach ($permissions as $g => $perms) { ?>
+      
+       <li class="nav-item">
+        <a class="nav-link <?php if ($first) { echo ' active'; $first=false; } ?>" role="tab" data-toggle="tab" href="#<?php echo Format::slugify($g); ?>"><?php echo Format::htmlchars(__($g));?></a>
+      </li>
+<?php } ?>
+    </ul>
+    <div class="tab-content">
+<?php
+    $first = true;
+    foreach ($permissions as $g => $perms) { ?>
+    <div role="tabpanel" class="tab-pane <?php if ($first) { echo ' active'; $first=false; } ?>" id="<?php echo Format::slugify($g); ?>">
+  
+      <table class="table">
+<?php foreach ($perms as $k => $v) { ?>
+        <tr>
+          <td>
+            <label>
+            <?php
+            echo sprintf('<input type="checkbox" name="perms[]" value="%s" %s />',
+              $k, ($staff->hasPerm($k)) ? 'checked="checked"' : '');
+            ?>
+            &nbsp;
+            <?php echo Format::htmlchars(__($v['title'])); ?>
+            —
+            <em><?php echo Format::htmlchars(__($v['desc'])); ?></em>
+           </label>
+          </td>
+        </tr>
+<?php   } ?>
+      </table>
+    </div>
+<?php } ?>
+  </div></div>
+
+  <!-- ============== TEAM MEMBERSHIP =================== -->
+
+   <div role="tabpanel" class="tab-pane" id="teams">
+    <table class="table two-column" width="100%">
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Assigned Teams'); ?>
+            <div><small><?php echo __(
+            "Agent will have access to tickets assigned to a team they belong to regardless of the ticket's department. Alerts can be enabled for each associated team."
+            ); ?>
+            </small></div>
+          </th>
+        </tr>
+<?php
+$teams = Team::getTeams();
+foreach ($staff->teams as $TM) {
+  unset($teams[$TM->team_id]);
+}
+?>
+        <tr id="join_team">
+          <td colspan="2">
+            <i class="icon-plus-sign"></i>
+            <select id="add_team" data-quick-add="team">
+              <option value="0">&mdash; <?php echo __('Select Team');?> &mdash;</option>
+              <?php
+              foreach ($teams as $id=>$name) {
+                echo sprintf('<option value="%d">%s</option>',$id,Format::htmlchars($name));
+              }
+              ?>
+              <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
+            </select>
+            <button type="button" class="green button">
+              <?php echo __('Add'); ?>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr id="team_member_template" class="hidden">
+          <td>
+            <input type="hidden" data-name="teams[]" value="" />
+          </td>
+          <td>
+            <label>
+              <input type="checkbox" data-name="team_alerts" value="1" />
+              <?php echo __('Alerts'); ?>
+            </label>
+            <a href="#" class="pull-right drop-membership" title="<?php echo __('Delete');
+              ?>"><i class="icon-trash"></i></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+ </div>
  <div><br>
       <input type="submit" name="submit" value="<?php echo $submit_text; ?>" class="btn btn-sm btn-primary">
       <input type="reset"  name="reset"  value="<?php echo __('Reset');?>" class="btn btn-sm btn-warning">
@@ -345,7 +462,6 @@ foreach ($staff->dept_access as $dept_access) {
 var addAccess = function(daid, name, role, alerts, error) {
   if (!daid) return;
   var copy = $('#extended_access_template').clone();
-
   copy.find('[data-name=dept_access\\[\\]]')
     .attr('name', 'dept_access[]')
     .val(daid);
@@ -370,7 +486,6 @@ var addAccess = function(daid, name, role, alerts, error) {
     return false;
   });
 };
-
 $('#add_extended_access').find('button').on('click', function() {
   var selected = $('#add_access').find(':selected'),
       id = parseInt(selected.val());
@@ -380,9 +495,39 @@ $('#add_extended_access').find('button').on('click', function() {
   selected.remove();
   return false;
 });
-
-
-
+var joinTeam = function(teamid, name, alerts, error) {
+  if (!teamid) return;
+  var copy = $('#team_member_template').clone();
+  copy.find('[data-name=teams\\[\\]]')
+    .attr('name', 'teams[]')
+    .val(teamid);
+  copy.find('[data-name^=team_alerts]')
+    .attr('name', 'team_alerts['+teamid+']')
+    .prop('checked', alerts);
+  copy.find('td:first').append(document.createTextNode(name));
+  copy.attr('id', '').show().insertBefore($('#join_team'));
+  copy.removeClass('hidden');
+  if (error)
+      $('<div class="error">').text(error).appendTo(copy.find('td:last'));
+  copy.find('a.drop-membership').click(function() {
+    $('#add_team').append(
+      $('<option>')
+        .attr('value', copy.find('input[name^=teams][type=hidden]').val())
+        .text(copy.find('td:first').text())
+    );
+    copy.fadeOut(function() { $(this).remove(); });
+    return false;
+  });
+};
+$('#join_team').find('button').on('click', function() {
+  var selected = $('#add_team').find(':selected'),
+      id = parseInt(selected.val());
+  if (!id)
+      return;
+  joinTeam(id, selected.text(), true);
+  selected.remove();
+  return false;
+});
 <?php
 foreach ($staff->dept_access as $dept_access) {
   if (!$dept_access->dept_id) continue;
@@ -393,8 +538,12 @@ foreach ($staff->dept_access as $dept_access) {
     JsonDataEncoder::encode(@$errors['dept_access'][$dept_access->dept_id])
   );
 }
-
-
-
+foreach ($staff->teams as $member) {
+  echo sprintf('joinTeam(%d, %s, %d, %s);', $member->team_id,
+    JsonDataEncoder::encode($member->team->getName()),
+    $member->isAlertsEnabled(),
+    JsonDataEncoder::encode(@$errors['teams'][$member->team_id])
+  );
+}
 ?>
 </script>
