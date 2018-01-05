@@ -428,7 +428,7 @@ implements FormRenderer {
           ?>
           <td class="cell" <?php echo Format::array_implode('=', ' ', array_filter($attrs)); ?>
               data-field-id="<?php echo $f->get('id'); ?>">
-              <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
+              <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"  
                 id="field<?php echo $f->getWidget()->id; ?>"
                 data-field-id="<?php echo $f->get('id'); ?>">
 <?php         if ($label = $f->get('label')) { ?>
@@ -537,6 +537,14 @@ class FormField {
             'choices' => array( /* @trans */ 'Choices', 'ChoiceField'),
             'files' => array(   /* @trans */ 'File Upload', 'FileUploadField'),
             'break' => array(   /* @trans */ 'Section Break', 'SectionBreakField'),
+            'rowstart' => array(   /* @trans */ 'Row Start', 'RowStartField'),
+            'cardstart' => array(   /* @trans */ 'Card Start', 'CardStartField'),
+            'threecolumnstart' => array(   /* @trans */ 'Column (1/4)', 'ThreeColumnStartField'),
+            'sixcolumnstart' => array(   /* @trans */ 'Column (1/2)', 'SixColumnStartField'),
+            'ninecolumnstart' => array(   /* @trans */ 'Column (3/4)', 'NineColumnStartField'),
+            'twelvecolumnbegin' => array(   /* @trans */ 'Column (Full)', 'TwelveColumnStartField'),
+            'columnend' => array(   /* @trans */ 'Column End', 'ColumnEndField'),
+            'carorrowend' => array(   /* @trans */ 'Card or Row End', 'CarorRowEndField'),
             'info' => array(    /* @trans */ 'Information', 'FreeTextField'),
         ),
     );
@@ -1209,6 +1217,10 @@ class FormField {
     function isBlockLevel() {
         return false;
     }
+    
+    function HideAsterisk() {
+        return false;
+    }
 
     /**
      * Fields should not be saved with the dynamic data. It is assumed that
@@ -1339,7 +1351,7 @@ class TextboxField extends FormField {
             'placeholder' => new TextboxField(array(
                 'id'=>5, 'label'=>__('Placeholder'), 'required'=>false, 'default'=>'',
                 'hint'=>__('Text shown in before any input from the user'),
-                'configuration'=>array('size'=>40, 'length'=>40,
+                'configuration'=>array('size'=>40, 'length'=>40,'contenteditable'=>false,
                     'translatable'=>$this->getTranslateTag('placeholder')
                 ),
             )),
@@ -1428,6 +1440,8 @@ class TextareaField extends FormField {
             )),
         );
     }
+    
+    
 
     function display($value) {
         $config = $this->getConfiguration();
@@ -1453,7 +1467,11 @@ class TextareaField extends FormField {
         else
             return $value;
     }
-
+        
+    function HideAsterisk() {
+        return true;
+    }
+    
 }
 
 class PhoneField extends FormField {
@@ -1560,6 +1578,7 @@ class BooleanField extends FormField {
         );
     }
 
+    
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
         switch ($method) {
@@ -2185,6 +2204,165 @@ class SectionBreakField extends FormField {
     function isBlockLevel() {
         return false;
     }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+class RowStartField extends FormField {
+    static $widget = 'RowStartWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+class CarorRowEndField extends FormField {
+    static $widget = 'CarorRowEndWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+
+
+class CardStartField extends FormField {
+    static $widget = 'CardStartWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+
+class ThreeColumnStartField extends FormField {
+    static $widget = 'ThreeColumnStartWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+class SixColumnStartField extends FormField {
+    static $widget = 'SixColumnStartWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+class NineColumnStartField extends FormField {
+    static $widget = 'NineColumnStartWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+class TwelveColumnStartField extends FormField {
+    static $widget = 'TwelveColumnStartWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
+}
+class ColumnEndField extends FormField {
+    static $widget = 'ColumnEndWidget';
+
+    function hasData() {
+        return false;
+    }
+
+	function ForceFullWidth(){
+		return true;
+	}
+	
+    function isBlockLevel() {
+        return false;
+    }
+    
+    function HideAsterisk() {
+        return false;
+    }
 }
 
 class ThreadEntryField extends FormField {
@@ -2197,6 +2375,10 @@ class ThreadEntryField extends FormField {
 		return false;
 	}
     function isBlockLevel() {
+        return true;
+    }
+        
+    function HideAsterisk() {
         return true;
     }
     function isPresentationOnly() {
@@ -2457,6 +2639,7 @@ class DepartmentField extends ChoiceField {
         $choices = array();
         if (($depts = Dept::getDepartments()))
             foreach ($depts as $id => $name)
+                if (strlen($name) > 5)
                 $choices[$id] = $name;
 
         return $choices;
@@ -2502,7 +2685,7 @@ class DepartmentField extends ChoiceField {
 
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
-        'department' => array(__('Department'), DepartmentField),
+        'department' => array(__('Team'), DepartmentField),
     );
 });
 
@@ -2543,7 +2726,7 @@ class AssigneeField extends ChoiceField {
         if (!isset($this->_choices)) {
             $config = $this->getConfiguration();
             $choices = array(
-                    __('Agents') => new ArrayObject(),
+                    __('Associates') => new ArrayObject(),
                     __('Teams') => new ArrayObject());
             $A = current($choices);
             $criteria = $this->getCriteria();
@@ -2561,7 +2744,7 @@ class AssigneeField extends ChoiceField {
 
             next($choices);
             $T = current($choices);
-            if (($teams = Team::getActiveTeams()))
+            if (($teams = Dept::GetDepartments()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
 
@@ -2591,7 +2774,7 @@ class AssigneeField extends ChoiceField {
         if ($id[0] == 's')
             return Staff::lookup(substr($id, 1));
         elseif ($id[0] == 't')
-            return Team::lookup(substr($id, 1));
+            return dept::lookup(substr($id, 1));
 
         return $id;
     }
@@ -3321,7 +3504,7 @@ class TextboxWidget extends Widget {
             $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
-        if (isset($config['disabled']))
+        if (isset($config['disabled'])|| isset($options['disabled']))
             $disabled = 'disabled="disabled"';
         if (isset($config['translatable']) && $config['translatable'])
             $translatable = 'data-translate-tag="'.$config['translatable'].'"';
@@ -3404,17 +3587,31 @@ class TextareaWidget extends Widget {
             $class = sprintf('class="input-group %s"', implode(' ', $class));
             $this->value = Format::viewableImages($this->value);
         }
+        
         if (isset($config['context']))
             $attrs['data-root-context'] = '"'.$config['context'].'"';
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
+        
+        <?php
+           
+        if (isset($config['disabled'])|| isset($options['disabled'])){ ?>
+        
+        <div class="faketextbox">
+        <?php echo $this->value;?>
+        </div>   
+       
+       <?php } else { ?>
+        <textarea style="display:none;" <?php echo $rows." ".$cols." ".$maxlength." ".$disabled. "" .$class
                 .' '.Format::array_implode('=', ' ', $attrs)
                 .' placeholder="'.$config['placeholder'].'"'; ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);
+           
             ?></textarea>
+            
+        <?php } ?>
         </span>
         <?php
     }
@@ -3467,6 +3664,9 @@ class ChoicesWidget extends Widget {
     function render($options=array()) {
 
         $mode = null;
+        if (isset($options['disabled']))
+            $disabled = 'disabled="disabled"';
+        
         if (isset($options['mode']))
             $mode = $options['mode'];
         elseif (isset($this->field->options['render_mode']))
@@ -3518,7 +3718,7 @@ class ChoicesWidget extends Widget {
         //if (isset($config['classes']))
             $classes = 'class="form-control form-control-sm '.$config['classes'].'"';
         ?>
-        <select name="<?php echo $this->name; ?>[]"
+        <select <?php echo $disabled ?> name="<?php echo $this->name; ?>[]"
             <?php echo implode(' ', array_filter(array($classes))); ?>
             id="<?php echo $this->id; ?>"
             <?php if (isset($config['data']))
@@ -3745,7 +3945,7 @@ class TopicChoicesWidget extends Widget {
                           return getParentArry(tree,parent,nodeLevel,parentArry);
                         }
                     }
-                $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+                $('#cc').combotree('setText', '— <?php echo __('Select Category'); ?> —');
                  
                    
             });
@@ -3942,6 +4142,8 @@ class CheckboxWidget extends Widget {
     }
 
     function render($options=array()) {
+        if (isset($options['disabled']))
+            $disabled = 'disabled="disabled"';
         $config = $this->field->getConfiguration();
         if (!isset($this->value))
             $this->value = $this->field->get('default');
@@ -3949,12 +4151,11 @@ class CheckboxWidget extends Widget {
         if (isset($config['classes']))
             $classes = array_merge($classes, (array) $config['classes']);
         ?>
-        
-        <label for="<?php echo $this->id; ?>" class="custom-control custom-checkbox">
+        <label for="<?php echo $this->id; ?>" class="custom-control custom-checkbox m-b-0">
         <input  class="custom-control-input" id="<?php echo $this->id; ?>"
             type="checkbox" name="<?php echo $this->name; ?>[]" <?php
             if ($this->value) echo 'checked="checked"'; ?> value="<?php
-            echo $this->field->get('id'); ?>"/>
+            echo $this->field->get('id'); ?>"/><?php echo $this->field->get('label'); ?>
         
         <span class="custom-control-indicator"></span>
 <span class="custom-control-description"><?php
@@ -3966,6 +4167,7 @@ class CheckboxWidget extends Widget {
         
 <?php
     }
+    
 
     function getValue() {
         $data = $this->field->getSource();
@@ -4061,13 +4263,46 @@ class DatetimePickerWidget extends Widget {
 
 class SectionBreakWidget extends Widget {
     function render($options=array()) {
-        ?><div class="form-header section-break"><h3><?php
+        ?><div class="section-break"><h3><?php
         echo Format::htmlchars($this->field->getLocal('label'));
         ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
         ?></em></div>
         <?php
     }
 }
+class RowStartWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+class CarorRowEndWidget extends Widget {
+     function render($options=array()) {
+     }
+}
+class CardStartWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+class ThreeColumnStartWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+class SixColumnStartWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+class NineColumnStartWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+class TwelveColumnStartWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+class ColumnEndWidget extends Widget {
+    function render($options=array()) {
+    }
+}
+
 
 class ThreadEntryWidget extends Widget {
     function render($options=array()) {
@@ -4163,6 +4398,8 @@ class FileUploadWidget extends Widget {
                 ->all()
             );
         }
+        
+        $deletable = ($options['disabled'] ? 0:1);
 
         foreach ($F as $file) {
             $files[] = array(
@@ -4170,19 +4407,22 @@ class FileUploadWidget extends Widget {
                 'name' => $file->getName(),
                 'type' => $file->getType(),
                 'size' => $file->getSize(),
+                'deletable' => $deletable,
                 'download_url' => $file->getDownloadUrl(),
+                
             );
         }
         ?><?php if ($options['mode'] !== 'ticketedit'){ ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
-            <div class="dropzone"><i class="icon-upload"></i>
-            <?php echo sprintf(
-                __('Drop files here or %s choose them %s'),
-                '<a href="#" class="manual">', '</a>'); ?>
+           
+
+           <div class="dropzone" <?php echo ($options['disabled'] ? 'style="display:none;"':'') ?>>
+            <i class="icon-upload"></i>
+            <?php echo sprintf(__('Drop files here or %s choose them %s'),'<a href="#" class="manual">', '</a>');?>
         <input type="file" multiple="multiple"
             id="file-<?php echo $id; ?>" style="display:none;"
-            accept="<?php echo implode(',', $config['__mimetypes']); ?>"/>
-        </div></div>
+           accept="<?php echo implode(',', $config['__mimetypes']); ?>"/>
+          </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
           url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
@@ -4200,6 +4440,7 @@ class FileUploadWidget extends Widget {
         });});
         </script>
         <?php }
+
     }
 
     function getValue() {
@@ -4287,6 +4528,10 @@ class FreeTextField extends FormField {
 
     function isBlockLevel() {
         return true;
+    }
+        
+    function HideAsterisk() {
+        return false;
     }
 
     /* utils */
@@ -4533,18 +4778,14 @@ class VisibilityConstraint {
     }
 }
 
-class AssignmentForm extends Form {
 
+class AssignmentForm extends Form {
     static $id = 'assign';
     var $_assignee = null;
     var $_assignees = null;
-
-
     function getFields() {
-
         if ($this->fields)
             return $this->fields;
-
         $fields = array(
             'assignee' => new AssigneeField(array(
                     'id'=>1,
@@ -4572,29 +4813,19 @@ class AssignmentForm extends Form {
                     )
                 ),
             );
-
-
         if (isset($this->_assignees))
             $fields['assignee']->setChoices($this->_assignees);
-
-
         $this->setFields($fields);
-
         return $this->fields;
     }
-
     function getField($name) {
-
         if (($fields = $this->getFields())
                 && isset($fields[$name]))
             return $fields[$name];
     }
-
     function isValid($include=false) {
-
         if (!parent::isValid($include) || !($f=$this->getField('assignee')))
             return false;
-
         // Do additional assignment validation
         if (!($assignee = $this->getAssignee())) {
             $f->addError(__('Unknown assignee'));
@@ -4609,12 +4840,9 @@ class AssignmentForm extends Form {
             elseif (!$assignee->getNumMembers())
                 $f->addError(__('Team does not have members'));
         }
-
         return !$this->errors();
     }
-
     function render($options) {
-
         switch(strtolower($options['template'])) {
         case 'simple':
             $inc = STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
@@ -4623,69 +4851,56 @@ class AssignmentForm extends Form {
             throw new Exception(sprintf(__('%s: Unknown template style %s'),
                         'FormUtils', $options['template']));
         }
-
         $form = $this;
         include $inc;
     }
-
     function setAssignees($assignees) {
         $this->_assignees = $assignees;
         $this->_fields = array();
     }
-
     function getAssignees() {
         return $this->_assignees;
     }
-
     function getAssignee() {
-
         if (!isset($this->_assignee))
             $this->_assignee = $this->getField('assignee')->getClean();
-
         return $this->_assignee;
     }
-
     function getComments() {
         return $this->getField('comments')->getClean();
+    }
+        
+    function getDept() {
+        if (!isset($this->_assignee))
+            $this->_assignee = $this->getField('assignee')->getClean();
+        return $this->_assignee;
     }
 }
 
 class ClaimForm extends AssignmentForm {
-
     var $_fields;
-
     function setFields($fields) {
         $this->_fields = $fields;
         parent::setFields($fields);
     }
-
     function getFields() {
-
         if ($this->_fields)
             return $this->_fields;
-
         $fields = parent::getFields();
-
         // Disable && hide assignee field selection
         if (isset($fields['assignee'])) {
             $visibility = new VisibilityConstraint(
                     new Q(array()), VisibilityConstraint::HIDDEN);
-
             $fields['assignee']->set('visibility', $visibility);
         }
-
         // Change coments placeholder to reflect claim
         if (isset($fields['comments'])) {
             $fields['comments']->configure('placeholder',
                     __('Optional reason for the claim'));
         }
-
-
         $this->setFields($fields);
-
         return $this->fields;
     }
-
 }
 
 class TransferForm extends Form {
@@ -4705,10 +4920,10 @@ class TransferForm extends Form {
         $fields = array(
             'dept' => new DepartmentField(array(
                     'id'=>1,
-                    'label' => __('Department'),
+                    'label' => __('Team'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
-                    'validator-error' => __('Department selection is required'),
+                    'validator-error' => __('Team selection is required'),
                     )
                 ),
             'comments' => new TextareaField(array(
@@ -4738,7 +4953,7 @@ class TransferForm extends Form {
         // Do additional validations
         if (!($dept = $this->getDept()))
             $this->getField('dept')->addError(
-                    __('Unknown department'));
+                    __('Unknown Team'));
 
         return !$this->errors();
     }
@@ -4787,10 +5002,10 @@ class TopicForm extends Form {
         $fields = array(
             'topic' => new TopicField(array(
                     'id'=>1,
-                    'label' => __('Help Topic'),
+                    'label' => __('Category'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
-                    'validator-error' => __('Help Topic selection is required.'),
+                    'validator-error' => __('Category selection is required.'),
                     )
                 ),
             'comments' => new TextareaField(array(
@@ -4801,7 +5016,7 @@ class TopicForm extends Form {
                     'configuration' => array(
                         'html' => true,
                         'size' => 'small',
-                        'placeholder' => __('Optional reason changing the Help Topic'),
+                        'placeholder' => __('Optional reason changing the Category'),
                         ),
                     )
                 ),
