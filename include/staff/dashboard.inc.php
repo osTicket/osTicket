@@ -1171,7 +1171,7 @@ $('svg').height(700);
                                                          - 2, 7)) AS CALENDARWEEK
                                 FROM         ost_ticket
                                 WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
-                                                         INTERVAL 12 WEEK) AND CURRENT_DATE () -1
+                                                         INTERVAL 12 WEEK) AND CURRENT_DATE ()
                                 AND ost_ticket.topic_id <> 12 and topic_id <> 14
                                 GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
                                 
@@ -1181,7 +1181,7 @@ $('svg').height(700);
                                                          - 2, 7)) AS CALENDARWEEK
                                 FROM         ost_ticket
                                 WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
-                                                         INTERVAL 12 WEEK) AND CURRENT_DATE () -1
+                                                         INTERVAL 12 WEEK) AND CURRENT_DATE ()
                                 AND ost_ticket.topic_id <> 12 and topic_id <> 14
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
@@ -1191,7 +1191,7 @@ $('svg').height(700);
 
                 where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
 
-                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 12 WEEK) AND CURRENT_DATE () -1
+                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 12 WEEK) AND CURRENT_DATE ()
                 group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
                                 
                 Order by CALENDARWEEK, STATUS)dt
@@ -2128,7 +2128,7 @@ $sql="select distinct LASTNAME,OWNER_NAME from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 12 MONTH)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
 	) a
 
 	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK
@@ -2144,7 +2144,7 @@ $sql="select CALENDARWEEK,CALENDARYEAR, count(LASTNAME) as COUNT,OWNER_NAME, LAS
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 12 MONTH)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
 	) a
 
 	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK
@@ -2250,7 +2250,7 @@ $sql="select distinct LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 12 MONTH)
+	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
@@ -2266,7 +2266,7 @@ $sql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 12 MONTH)
+	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
@@ -2373,7 +2373,7 @@ $csql="select distinct LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 12 MONTH) and o.name is not null
+	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH) and o.name is not null
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
@@ -2389,7 +2389,7 @@ $csql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION fro
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 12 MONTH)
+	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
