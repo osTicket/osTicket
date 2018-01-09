@@ -1,5 +1,8 @@
 /***** Fields *****/
-
+@media (max-width: 420px) {
+  .hide-phone {
+    display: none !important; } }
+    
 body {
         background-color: #f5f5f5 !important;
         top:0 !important;
