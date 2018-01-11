@@ -127,8 +127,9 @@ class StaffNav {
             $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>__('Ticket Queue'));
 
             $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
-            if (count($this->getRegisteredApps()))
-                $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));
+            if (!is_null($this->getRegisteredApps()))
+			if (count($this->getRegisteredApps()))
+                $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));;
         }
 
         return $this->tabs;
