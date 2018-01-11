@@ -311,14 +311,15 @@ class Mail_mimePart
     {
         $encoded =& $this->encoded;
 
-        if (count($this->subparts)) {
+        if (!is_null($this->subparts)){
+			//if (count($this->subparts)) {
             $boundary = $boundary ? $boundary : '=_' . md5(rand() . microtime());
             $eol = $this->eol;
 
             $this->headers['Content-Type'] .= ";$eol boundary=\"$boundary\"";
 
             $encoded['body'] = '';
-
+			
             if ($this->preamble) {
                 $encoded['body'] .= $this->preamble . $eol . $eol;
             }
@@ -333,8 +334,8 @@ class Mail_mimePart
                     $encoded['body'] .= $key . ': ' . $value . $eol;
                 }
                 $encoded['body'] .= $eol . $tmp['body'] . $eol;
-            }
-
+			}
+			
             $encoded['body'] .= '--' . $boundary . '--' . $eol;
         } else if ($this->body) {
             $encoded['body'] = $this->getEncodedData($this->body, $this->encoding);
