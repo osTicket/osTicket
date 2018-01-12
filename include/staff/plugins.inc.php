@@ -74,8 +74,7 @@ foreach ($ost->plugins->allInstalled() as $p) {
     <tr>
         <td align="center"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
                 <?php echo $sel?'checked="checked"':''; ?>></td>
-        <td><a href="plugins.php?id=<?php echo $p->getId(); ?>"
-            >
+        <td><a href="plugins.php?id=<?php echo $p->getId(); ?>">
 	<?php echo $p->getName(); ?></a></td>
 	<td><?php echo $info['version']; ?></a></td>
         <td><?php echo ($p->isActive())
