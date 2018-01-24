@@ -114,7 +114,7 @@ foreach ($groups as $g=>$desc) {
     <div style="margin-top: 5px"><button type="submit" class="link button" name="export"
         value="<?php echo Format::htmlchars($g); ?>">
         <i class="icon-download"></i>
-        <?php echo __('Export'); ?></a></div>
+        <?php echo __('Export'); ?></button></div>
     </div>
 <?php
 }
