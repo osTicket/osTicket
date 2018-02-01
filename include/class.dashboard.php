@@ -61,18 +61,18 @@ $TheirReplyTicket = Ticket::objects()
             $TheirReplyTickets = $cTheirReplyTicket["count"];
         }           
         
-$ImplementationTicket = Ticket::objects()
-        ->filter(array('status_id' => '9')) //Awaiting Implementation
+$ThridPartyTicketsTicket = Ticket::objects()
+        ->filter(array('status_id' => '9')) //Awaiting ThridPartyTickets
         ->filter(array('topic_id__ne' => '12')) //open issue
-        ->filter(array('topic_id__ne' => '14')) //suggestion
+        ->filter(array('topic_id__ne' => '14')) //suggestion s
         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
          
-         foreach ($ImplementationTicket as $cImplementationTicket) { 
-            $ImplementationTickets = $cImplementationTicket["count"];
+         foreach ($ThridPartyTicketsTicket as $cThridPartyTicketsTicket) { 
+            $ThridPartyTicketsTickets = $cThridPartyTicketsTicket["count"];
         }
 
 $AwaitingQuoteTicket = Ticket::objects()
-        ->filter(array('status_id' => '10')) //Awaiting Quote
+        ->filter(array('status_id' => '9')) //Awaiting Quote
         ->filter(array('topic_id__ne' => '12')) //open issue
         ->filter(array('topic_id__ne' => '14')) //suggestion
         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
@@ -137,15 +137,15 @@ $MyTheirReplyTicket = Ticket::objects()
             $MyTheirReplyTickets = $cMyTheirReplyTicket["count"];
         }           
         
-$MyImplementationTicket = Ticket::objects()
+$MyThridPartyTicketsTicket = Ticket::objects()
         ->filter(array('staff_id' => $thisstaff->staff_id)) //this staff
-        ->filter(array('status_id' => '9')) //Awaiting Implementation
+        ->filter(array('status_id' => '9')) //Awaiting ThridPartyTickets
         ->filter(array('topic_id__ne' => '12')) //open issue
         ->filter(array('topic_id__ne' => '14')) //suggestion
         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
          
-         foreach ($MyImplementationTicket as $cMyImplementationTicket) { 
-            $MyImplementationTickets = $cMyImplementationTicket["count"];
+         foreach ($MyThridPartyTicketsTicket as $cMyThridPartyTicketsTicket) { 
+            $MyThridPartyTickets = $cMyThridPartyTicketsTicket["count"];
         }
 
 $MyAwaitingQuoteTicket = Ticket::objects()
@@ -189,7 +189,7 @@ $UnassignedTicket = Ticket::objects()
         } 
         
 $SuggestionAssignedTicket = Ticket::objects()
-        ->filter(array('status_id' => '11')) //assigned
+        ->filter(array('status_id' => '7')) //assigned
         ->filter(array('topic_id' => '14')) //suggestion
         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
          
@@ -197,13 +197,13 @@ $SuggestionAssignedTicket = Ticket::objects()
             $SuggestionAssignedTickets = $cSuggestionAssignedTicket["count"];
         }
         
-$SuggestionImplementationTicket = Ticket::objects()
-        ->filter(array('status_id' => '9')) //Awaiting Implementation
+$SuggestionThridPartyTicketsTicket = Ticket::objects()
+        ->filter(array('status_id' => '9')) //Awaiting ThridPartyTickets
         ->filter(array('topic_id' => '14')) //suggestion
         ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
          
-         foreach ($SuggestionImplementationTicket as $cSuggestionImplementationTicket) { 
-            $SuggestionImplementationTickets = $cSuggestionImplementationTicket["count"];
+         foreach ($SuggestionThridPartyTicketsTicket as $cSuggestionThridPartyTicketsTicket) { 
+            $SuggestionThridPartyTicketsTickets = $cSuggestionThridPartyTicketsTicket["count"];
         }
 
 $SuggestionAwaitingQuoteTicket = Ticket::objects()
@@ -242,6 +242,8 @@ $bl_orgs = Organization::objects();
     $OpenTicket = Ticket::objects()
         ->filter(array('user__org_id' => $bl_org['id']))
         ->filter(array('status_id__ne' => '8')) //hold
+        ->filter(array('status_id__ne' => '9')) //3rd Party
+        ->filter(array('status_id__ne' => '6')) //Submitter Action
         ->filter(array('status_id__ne' => '3')) //closed
         ->filter(array('status_id__ne' => '12')) //autoclosed
         ->filter(array('topic_id__ne' => '12')) //open issue

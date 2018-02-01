@@ -1422,16 +1422,16 @@ implements CustomListItem, TemplateVariable, Searchable {
             case "Assigned":
             $badge = 'badge label-table bg-primary';
             break;
-            case "Awaiting Submitter Reply":
+            case "Awaiting Submitter Action":
             $badge = 'badge label-table bg-success';
             break;
-            case "Awaiting Agent Reply":
-            $badge = 'badge label-table bg-danger';
+            case "Awaiting Agent Action":
+            $badge = 'badge label-table bg-flatorange';
             break;
             case "Hold":
             $badge = 'badge label-table badge-warning';
             break;
-            case "Awaiting Implementation":
+            case "Awaiting 3rd Party":
             $badge = 'badge label-table bg-purple';
             break;
             case "Awaiting Quote":
