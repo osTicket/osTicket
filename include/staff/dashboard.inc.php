@@ -1172,7 +1172,7 @@ $('svg').height(700);
                                 FROM         ost_ticket
                                 WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
                                                          INTERVAL 12 WEEK) AND CURRENT_DATE ()
-                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
+                                AND ost_ticket.topic_id <> 12 and topic_id <> 14 AND topic_id <> 94
                                 GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
                                 
                                 Union all
@@ -1182,7 +1182,7 @@ $('svg').height(700);
                                 FROM         ost_ticket
                                 WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
                                                          INTERVAL 12 WEEK) AND CURRENT_DATE ()
-                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
+                                AND ost_ticket.topic_id <> 12 and topic_id <> 14 AND topic_id <> 94
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
                                 UNION all 
