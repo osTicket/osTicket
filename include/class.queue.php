@@ -38,6 +38,9 @@ class CustomQueue extends VerySimpleModel {
                 'constraint' => array('sort_id' => 'QueueSort.id'),
                 'null' => true,
             ),
+            'exports' => array(
+                'reverse' => 'QueueExport.queue',
+            ),
             'parent' => array(
                 'constraint' => array(
                     'parent_id' => 'CustomQueue.id',
@@ -59,8 +62,10 @@ class CustomQueue extends VerySimpleModel {
     const FLAG_INHERIT_COLUMNS =  0x0010; // Inherit column layout from parent
     const FLAG_INHERIT_SORTING =  0x0020; // Inherit advanced sorting from parent
     const FLAG_INHERIT_DEF_SORT = 0x0040; // Inherit default selected sort
+    const FLAG_INHERIT_EXPORT  =  0x0080; // Inherit export fields from parent
 
-    const FLAG_INHERIT_EVERYTHING = 0x78; // Maskf or all INHERIT flags
+
+    const FLAG_INHERIT_EVERYTHING = 0x158; // Maskf or all INHERIT flags
 
     var $criteria;
     var $_conditions;
@@ -75,6 +80,9 @@ class CustomQueue extends VerySimpleModel {
         // Ensure valid state
         if ($this->hasFlag(self::FLAG_INHERIT_COLUMNS) && !$this->parent_id)
             $this->clearFlag(self::FLAG_INHERIT_COLUMNS);
+
+       if ($this->hasFlag(self::FLAG_INHERIT_EXPORT) && !$this->parent_id)
+            $this->clearFlag(self::FLAG_INHERIT_EXPORT);
     }
 
     function getId() {
@@ -502,6 +510,69 @@ class CustomQueue extends VerySimpleModel {
         return $this->_conditions;
     }
 
+    function getExportableFields() {
+        $cdata = $fields = array();
+        foreach (TicketForm::getInstance()->getFields() as $f) {
+            // Ignore core fields
+            if (in_array($f->get('name'), array('priority')))
+                continue;
+            // Ignore non-data fields
+            elseif (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $name = $f->get('name') ?: 'field_'.$f->get('id');
+            $key = 'cdata.'.$name;
+            $cdata[$key] = $f->getLocal('label');
+        }
+
+        // Standard export fields if none is provided.
+        $fields = array(
+                'number' =>         __('Ticket Number'),
+                'created' =>        __('Date Created'),
+                'cdata.subject' =>  __('Subject'),
+                'user.name' =>      __('From'),
+                'user.default_email.address' => __('From Email'),
+                'cdata.:priority.priority_desc' => __('Priority'),
+                'dept::getLocalName' => __('Department'),
+                'topic::getName' => __('Help Topic'),
+                'source' =>         __('Source'),
+                'status::getName' =>__('Current Status'),
+                'lastupdate' =>     __('Last Updated'),
+                'est_duedate' =>    __('Due Date'),
+                'isoverdue' =>      __('Overdue'),
+                'isanswered' =>     __('Answered'),
+                'staff::getName' => __('Agent Assigned'),
+                'team::getName' =>  __('Team Assigned'),
+                'thread_count' =>   __('Thread Count'),
+                'attachment_count' => __('Attachment Count'),
+                ) + $cdata;
+
+
+        return $fields;
+    }
+
+    function getExportFields() {
+
+        $fields = array();
+        if ($this->parent_id
+            && $this->hasFlag(self::FLAG_INHERIT_EXPORT)
+            && $this->parent
+        ) {
+            $fields = $this->parent->getExportFields();
+        }
+        elseif (count($this->exports)) {
+            $fields = $this->exports;
+        }
+        elseif ($this->isAQueue())
+            return  $this->getExportableFields();
+
+        $_fields = array();
+        foreach ($fields as  $f)
+            $_fields[$f->path] = $f->getHeading();
+
+        return $_fields;
+    }
+
     function getColumns($use_template=false) {
         if ($this->columns_id
             && ($q = CustomQueue::lookup($this->columns_id))
@@ -526,11 +597,11 @@ class CustomQueue extends VerySimpleModel {
         // Last resort — use standard columns
         foreach (array(
             QueueColumn::placeholder(array(
-		"id" => 1,
+                "id" => 1,
                 "heading" => "Number",
                 "primary" => 'number',
                 "width" => 85,
-		"bits" => QueueColumn::FLAG_SORTABLE,
+                "bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticketP",
                 "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
                 "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
@@ -540,14 +611,14 @@ class CustomQueue extends VerySimpleModel {
                 "heading" => "Created",
                 "primary" => 'created',
                 "width" => 100,
-		"bits" => QueueColumn::FLAG_SORTABLE,
+                "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 3,
                 "heading" => "Subject",
                 "primary" => 'cdata__subject',
                 "width" => 250,
-		"bits" => QueueColumn::FLAG_SORTABLE,
+                "bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticket",
                 "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
                 "truncate" => 'ellipsis',
@@ -635,6 +706,17 @@ class CustomQueue extends VerySimpleModel {
                 'flags__hasbit' => self::FLAG_PUBLIC
             ))
         ));
+    }
+
+    function export($filename, $format) {
+
+        if (!($query=$this->getBasicQuery()))
+            return false;
+
+        if (!($fields=$this->getFields()))
+            return false;
+
+        return Export::saveTickets($query, $fields, $filename, $format);
     }
 
     /**
@@ -774,6 +856,11 @@ class CustomQueue extends VerySimpleModel {
         return $this->hasFlag(self::FLAG_INHERIT_COLUMNS);
     }
 
+    function inheritExport() {
+        return ($this->hasFlag(self::FLAG_INHERIT_EXPORT) ||
+                !count($this->exports));
+    }
+
     function inheritSorting() {
         return $this->hasFlag(self::FLAG_INHERIT_SORTING);
     }
@@ -865,6 +952,8 @@ class CustomQueue extends VerySimpleModel {
             $this->parent_id > 0 && isset($vars['inherit']));
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
             $this->parent_id > 0 && isset($vars['inherit-columns']));
+        $this->setFlag(self::FLAG_INHERIT_EXPORT,
+            $this->parent_id > 0 && isset($vars['inherit-fields']));
         $this->setFlag(self::FLAG_INHERIT_SORTING,
             $this->parent_id > 0 && isset($vars['inherit-sorting']));
 
@@ -904,6 +993,34 @@ class CustomQueue extends VerySimpleModel {
             }
             // Re-sort the in-memory columns array
             $this->columns->sort(function($c) { return $c->sort; });
+        }
+
+        // Update export fields for the queue
+        if (isset($vars['exports']) &&
+                 !$this->hasFlag(self::FLAG_INHERIT_EXPORT)) {
+            $new = $vars['exports'];
+            $order = array_keys($new);
+            foreach ($this->exports as $f) {
+                $key = $f->getPath();
+                if (!isset($vars['exports'][$key])) {
+                    $this->exports->remove($f);
+                    continue;
+                }
+                $info = $vars['exports'][$key];
+                $f->set('heading', $info['heading']);
+                $f->set('sort',array_search($key, $order));
+                unset($new[$key]);
+            }
+
+            foreach($new as $k => $field) {
+                $f = QueueExport::create(array(
+                            //'queue_id' => $this->getId(),
+                            'path' => $k,
+                            'heading' => $field['heading'],
+                            'sort' => array_search($k, $order)));
+                $this->exports->add($f);
+            }
+            $this->exports->sort(function($f) { return $f->sort; });
         }
 
         // Update advanced sorting options for the queue
@@ -1002,6 +1119,7 @@ class CustomQueue extends VerySimpleModel {
             $move_children($this);
         }
         return $this->columns->saveAll()
+            && $this->exports->saveAll()
             && $this->sorts->saveAll();
     }
 
@@ -1968,6 +2086,39 @@ extends VerySimpleModel {
             $conditions[] = $json;
         }
         return array($condition_objects, $conditions);
+    }
+}
+
+class QueueExport
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_EXPORT_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'queue' => array(
+                'constraint' => array('queue_id' => 'CustomQueue.id'),
+            ),
+        ),
+        'select_related' => array('queue'),
+        'ordering' => array('sort'),
+    );
+
+
+    function getPath() {
+        return $this->path;
+    }
+
+    function getField() {
+        return $this->getPath();
+    }
+
+    function getHeading() {
+        return $this->heading;
+    }
+
+    static function create($vars=false) {
+        $inst = new static($vars);
+        return $inst;
     }
 }
 
