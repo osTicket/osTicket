@@ -515,7 +515,7 @@ function refer($tid, $target=null) {
               ':title' => sprintf(__('Ticket #%s: %s %s'),
                   $ticket->getNumber(),
                   __('Update'),
-                  $field->getlabel()
+                  $field->getLabel()
                   ),
               ':action' => sprintf('#tickets/%d/field/%s/edit',
                   $ticket->getId(), $field->getId())

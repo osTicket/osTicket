@@ -536,18 +536,14 @@ if($ticket) {
     if ($_REQUEST['a']=='open' &&
             $thisstaff->hasPerm(Ticket::PERM_CREATE, false))
         $inc = 'ticket-open.inc.php';
-    elseif($_REQUEST['a'] == 'export') {
-        $ts = strftime('%Y%m%d');
-        if (isset($queue) && $queue) {
-            // XXX: Check staff access?
-            if (!($query = $queue->getBasicQuery()))
-                $errors['err'] = __('Query token not found');
-            elseif (!Export::saveTickets($query, "tickets-$ts.csv", 'csv'))
-                $errors['err'] = __('Unable to dump query results.')
-                    .' '.__('Internal error occurred');
-        }
-    }
-    elseif ($queue) {
+    elseif ($_REQUEST['a'] == 'export' && $queue) {
+        // XXX: Check staff access?
+        $filename = sprintf('%s Tickets-%s', $queue->getName(),
+                strftime('%Y%m%d'));
+        if (!$queue->export($filename, 'csv'))
+            $errors['err'] = __('Unable to export results.')
+                .' '.__('Internal error occurred');
+    } elseif ($queue) {
         // XXX: Check staff access?
         $quick_filter = @$_REQUEST['filter'];
         $tickets = $queue->getQuery(false, $quick_filter);

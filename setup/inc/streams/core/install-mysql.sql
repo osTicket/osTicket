@@ -901,6 +901,17 @@ CREATE TABLE `%TABLE_PREFIX%queue_sorts` (
   PRIMARY KEY (`queue_id`, `sort_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_export`;
+CREATE TABLE `%TABLE_PREFIX%queue_export` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `queue_id` int(11) unsigned NOT NULL,
+  `path` varchar(64) NOT NULL DEFAULT '',
+  `heading` varchar(64) DEFAULT NULL,
+  `sort` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `queue_id` (`queue_id`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%translation`;
 CREATE TABLE `%TABLE_PREFIX%translation` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

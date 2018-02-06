@@ -40,7 +40,7 @@ class Export {
     #      SQL is exported, but for something like tickets, we will need to
     #      export attached messages, reponses, and notes, as well as
     #      attachments associated with each, ...
-    static function dumpTickets($sql, $how='csv') {
+    static function dumpTickets($sql, $target=array(), $how='csv') {
         // Add custom fields to the $sql statement
         $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
@@ -81,26 +81,7 @@ class Export {
             $S->get('junk');
 
         return self::dumpQuery($tickets,
-            array(
-                'number' =>         __('Ticket Number'),
-                'created' =>        __('Date Created'),
-                'cdata.subject' =>  __('Subject'),
-                'user.name' =>      __('From'),
-                'user.default_email.address' => __('From Email'),
-                'cdata.:priority.priority_desc' => __('Priority'),
-                'dept::getLocalName' => __('Department'),
-                'topic::getName' => __('Help Topic'),
-                'source' =>         __('Source'),
-                'status::getName' =>__('Current Status'),
-                'lastupdate' =>     __('Last Updated'),
-                'est_duedate' =>    __('Due Date'),
-                'isoverdue' =>      __('Overdue'),
-                'isanswered' =>     __('Answered'),
-                'staff::getName' => __('Agent Assigned'),
-                'team::getName' =>  __('Team Assigned'),
-                'thread_count' =>   __('Thread Count'),
-                'attachment_count' => __('Attachment Count'),
-            ) + $cdata,
+            $target,
             $how,
             array('modify' => function(&$record, $keys) use ($fields) {
                 foreach ($fields as $k=>$f) {
@@ -113,9 +94,9 @@ class Export {
             );
     }
 
-    static  function saveTickets($sql, $filename, $how='csv') {
+    static  function saveTickets($sql, $fields, $filename, $how='csv') {
         Http::download($filename, "text/$how");
-        self::dumpTickets($sql, $how);
+        self::dumpTickets($sql, $fields, $how);
         exit;
     }
 

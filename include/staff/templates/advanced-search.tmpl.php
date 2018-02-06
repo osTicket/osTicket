@@ -11,9 +11,11 @@ foreach (CustomQueue::queues() as  $q)
     $queues[$q->id] = $q->getFullName();
 asort($queues);
 $queues = array(0 => ('—'.__("My Searches").'—')) + $queues;
+$queue = $search;
+$qname = $search->getName() ?:  __('Advanced Ticket Search');
 ?>
 <div id="advanced-search" class="advanced-search">
-<h3 class="drag-handle"><?php echo __('Advanced Ticket Search');?></h3>
+<h3 class="drag-handle"><?php echo Format::htmlchars($qname); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
 
@@ -41,9 +43,10 @@ foreach ($queues as $id => $name) {
       <div class="error"><?php echo Format::htmlchars($errors['name']); ?></div>
     </div>
   </div>
-<ul class="tabs">
-    <li class="active"><a href="#criteria"><?php echo __('Criteria'); ?></a></li>
-    <li><a href="#columns"><?php echo __('Columns'); ?></a></li>
+<ul class="clean tabs">
+    <li class="active"><a href="#criteria"><i class="icon-search"></i> <?php echo __('Criteria'); ?></a></li>
+    <li><a href="#columns"><i class="icon-columns"></i> <?php echo __('Columns'); ?></a></li>
+    <li><a href="#fields"><i class="icon-download"></i> <?php echo __('Export'); ?></a></li>
 </ul>
 
 <div class="tab_content" id="criteria">
@@ -68,10 +71,13 @@ foreach ($queues as $id => $name) {
 
 <div class="tab_content hidden" id="columns">
     <?php
-    $queue = $search;
-    include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
+    include STAFFINC_DIR . "templates/queue-columns.tmpl.php";
+    ?>
 </div>
-
+<div class="tab_content hidden" id="fields">
+    <?php
+    include STAFFINC_DIR . "templates/queue-fields.tmpl.php";  ?>
+</div>
   <hr/>
   <div>
     <div class="buttons pull-right">

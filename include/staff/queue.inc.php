@@ -47,6 +47,8 @@ else {
       <?php echo __('Sort'); ?></a></li>
     <li><a href="#conditions-tab"><i class="icon-exclamation-sign"></i>
       <?php echo __('Conditions'); ?></a></li>
+    <li><a href="#export-columns"><i class="icon-download"></i>
+      <?php echo __('Export'); ?></a></li>
     <li><a href="#preview-tab"><i class="icon-eye-open"></i>
       <?php echo __('Preview'); ?></a></li>
   </ul>
@@ -115,7 +117,7 @@ else {
               echo 'selected="selected"'; ?>>— <?php echo __('None'); ?> —</option>
           <option value="::" <?php if ($queue->filter == "::")
               echo 'selected="selected"'; ?>>— <?php echo __('Inherit from parent');
-            if ($queue->parent 
+            if ($queue->parent
                 && ($qf = $queue->parent->getQuickFilterField()))
                 echo sprintf(' (%s)', $qf->getLabel()); ?> —</option>
 <?php foreach (CustomQueue::getSearchableFields('Ticket') as $path=>$f) {
@@ -139,7 +141,7 @@ else {
               echo 'selected="selected"'; ?>>— <?php echo __('None'); ?> —</option>
           <option value="::" <?php if ($queue->isDefaultSortInherited())
               echo 'selected="selected"'; ?>>— <?php echo __('Inherit from parent');
-            if ($queue->parent 
+            if ($queue->parent
                 && ($sort = $queue->parent->getDefaultSort()))
                 echo sprintf(' (%s)', $sort->getName()); ?> —</option>
 <?php foreach ($queue->getSortOptions() as $sort) { ?>
@@ -165,8 +167,17 @@ else {
     </div>
     <?php include STAFFINC_DIR . "templates/queue-columns.tmpl.php"; ?>
   </div>
-    
-    
+
+  <div class="hidden tab_content" id="export-columns">
+    <div>
+      <h3 class="title"><?php echo __("Manage Export fields this queue"); ?>
+        <div class="sub-title"><?php echo __(
+            'Add, and remove the fields in this list using the options below. Drag fields to reorder them.');
+            ?></div>
+      </h3>
+    </div>
+    <?php include STAFFINC_DIR . "templates/queue-fields.tmpl.php"; ?>
+  </div>
   <div class="hidden tab_content" id="sorting-tab">
     <h3 class="title"><?php echo __("Manage Queue Sorting"); ?>
       <div class="sub-title"><?php echo __(
