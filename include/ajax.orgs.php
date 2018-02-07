@@ -32,7 +32,7 @@ class OrgsAjaxAPI extends AjaxController {
         $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
 
-        if (strlen($q) < 3)
+        if (strlen(Format::searchable($q)) < 3)
             return $this->encode(array());
 
         $orgs = Organization::objects()
