@@ -130,7 +130,7 @@ class API {
 
         if(!preg_match('/^hostname:(?:[\w\-\*]+\.?)+$/i', $vars['ipaddr']) &&
             !preg_match('/^(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/i',$vars['ipaddr']) &&
-             !preg_match('/^(?:hostname:)?regex:.+$/i',$vars['ipaddr']))&&
+             !preg_match('/^(?:hostname:)?regex:.+$/i',$vars['ipaddr'])&&
             (!$id && !$vars['ipaddr'])){
                 $errors['ipaddr'] = __('Valid IP/Hostname is required');
             }
