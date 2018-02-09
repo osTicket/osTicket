@@ -249,7 +249,7 @@ $tickets->values(
             case 'Assigned':
                 $whichbadge = 'bg-primary';
                 break;
-            case 'Awaiting Submitter Reply':
+            case 'Awaiting Submitter Action':
                 $whichbadge = 'bg-success';
                 break;            
             case 'Unassigned':
@@ -258,7 +258,7 @@ $tickets->values(
             case 'Awaiting Implementation':
                 $whichbadge = 'bg-purple';
                 break;       
-            case 'Awaiting Agent Reply':
+            case 'Awaiting Agent Action':
                 $whichbadge = 'bg-danger';
                 break;                
             case 'Hold':
