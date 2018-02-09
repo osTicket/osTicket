@@ -70,7 +70,7 @@
                                         <i class="ti-light-bulb text-success"></i>
                                     </div>
                                     <div class="text-right">
-                                        <a href="tickets.php?queue=17&p=1"><h3 class="text-dark"><b class="counter"><?php echo $SuggestionAssignedTicket + $SuggestionImplementationTicket + $SuggestionAwaitingQuoteTickets ?></b></h3></a>
+                                        <a href="tickets.php?queue=17&p=1"><h3 class="text-dark"><b class="counter"><?php echo $SuggestionAssignedTicket + $SuggestionThridPartyTicketsTicket + $SuggestionAwaitingQuoteTickets ?></b></h3></a>
                                         <p class="text-muted mb-0">Open Suggestions</p>
                                     </div>
                                     <div class="clearfix"></div>
@@ -1172,7 +1172,7 @@ $('svg').height(700);
                                 FROM         ost_ticket
                                 WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
                                                          INTERVAL 12 WEEK) AND CURRENT_DATE ()
-                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
+                                AND ost_ticket.topic_id <> 12 and topic_id <> 14 AND topic_id <> 94
                                 GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
                                 
                                 Union all
@@ -1182,7 +1182,7 @@ $('svg').height(700);
                                 FROM         ost_ticket
                                 WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
                                                          INTERVAL 12 WEEK) AND CURRENT_DATE ()
-                                AND ost_ticket.topic_id <> 12 and topic_id <> 14
+                                AND ost_ticket.topic_id <> 12 and topic_id <> 14 AND topic_id <> 94
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
                                 UNION all 
@@ -1708,12 +1708,10 @@ $(function() {
 
 		var data = [
         ["Unassigned", <?php echo $UnassignedTickets; ?>], 
-        ["Assigned", <?php echo $AssignedTickets; ?>], 
         ["Held", <?php echo $HeldTickets; ?>], 
-        ["Agent Reply", <?php echo $ReplyTickets; ?>], 
-        ["Submitter Reply", <?php echo $TheirReplyTickets; ?>], 
-        ["Quote", <?php echo $AwaitingQuoteTickets; ?>], 
-        ["Implementation", <?php echo $ImplementationTickets; ?>]
+        ["Agent Action", <?php echo $ReplyTickets; ?>], 
+        ["Submitter Action", <?php echo $TheirReplyTickets; ?>], 
+        ["3rd Party", <?php echo $ThridPartyTicketsTickets; ?>]
                
         ];
 
@@ -1766,12 +1764,10 @@ $(function() {
 $(function() {
 
 		var data = [
-        ["Assigned", <?php echo $MyAssignedTickets; ?>], 
         ["Held", <?php echo $MyHeldTickets; ?>], 
-        ["Agent Reply", <?php echo $MyReplyTickets; ?>], 
-        ["Submitter Reply", <?php echo $MyTheirReplyTickets; ?>], 
-        ["Quote", <?php echo $MyAwaitingQuoteTickets; ?>], 
-        ["Implementation", <?php echo $MyImplementationTickets; ?>]
+        ["Agent Action", <?php echo $MyReplyTickets; ?>], 
+        ["Submitter Action", <?php echo $MyTheirReplyTickets; ?>], 
+        ["3rd PArty", <?php echo $MyThridPartyTickets; ?>]
                
         ];
 
@@ -1823,9 +1819,9 @@ $(function() {
 $(function() {
 
 		var data = [
-        ["Assigned", <?php echo $SuggestionAssignedTickets; ?>], 
-        ["Quote", <?php echo $SuggestionImplementationTickets; ?>], 
-        ["Implementation", <?php echo $SuggestionAwaitingQuoteTickets; ?>]
+        ["Agent Action", <?php echo $SuggestionAssignedTickets; ?>], 
+        ["3rd Party", <?php echo $SuggestionThridPartyTicketsTickets; ?>], 
+        
                
         ];
 
@@ -2128,7 +2124,7 @@ $sql="select distinct LASTNAME,OWNER_NAME from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
 	) a
 
 	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK
@@ -2144,7 +2140,7 @@ $sql="select CALENDARWEEK,CALENDARYEAR, count(LASTNAME) as COUNT,OWNER_NAME, LAS
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
 	) a
 
 	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK
@@ -2250,7 +2246,7 @@ $sql="select distinct LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
@@ -2266,7 +2262,7 @@ $sql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.topic_id <> 14 AND t.topic_id <> 12 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
@@ -2373,7 +2369,7 @@ $csql="select distinct LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH) and o.name is not null
+	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH) and o.name is not null
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
@@ -2389,7 +2385,7 @@ $csql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION fro
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH)
+	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION

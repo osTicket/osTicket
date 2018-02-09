@@ -150,61 +150,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                             </a>
                         </li>
                         
-                        <li class="list-inline-item dropdown notification-list  mr-0">
-                            <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
-                               aria-haspopup="false" aria-expanded="false" title="<?php echo __('Recent Replies'); ?>">
-                               
-                                <i class="mdi mdi-email noti-icon"></i>
-                                <span class="badge badge-pink noti-icon-badge"><?php echo $MyReplyTickets; ?></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-xlg" aria-labelledby="Preview">
-                               
-                               <!-- item-->
-                                <div class="dropdown-item noti-title">
-                                    <h5 class="font-16"><span class="badge badge-danger float-right"><?php echo $MyReplyTickets; ?></span>Recent Replies</h5>
-                                </div>
 
-                                 <?php
-                                $MyTheirReplyTicket = Ticket::objects()
-                                        ->filter(array('staff_id' => $thisstaff->staff_id)) //this staff
-                                        ->filter(array('status_id' => '7')) //Awaiting Submitter Reply
-                                        ->filter(array('topic_id__ne' => '12')) //open issue
-                                        ->filter(array('topic_id__ne' => '14')); //suggestion
-                                       
-                                        
-                                         foreach ($MyTheirReplyTicket as $cMyTheirReplyTicket) { 
-                                            $entryTypes = ThreadEntry::getTypes();
-                                            $entries = $cMyTheirReplyTicket->getThread()->getEntries();
-                                            $r++;
-                                            if ($r == 9){break;}
-                                            $i = 0;
-                                            foreach ($entries as $entry) {
-                                                if ($i == 1){break;}
-                                                $i = 0;
-                                                $ruser = $entry->getUser() ?: $entry->getStaff();
-                                                $name = $ruser ? $ruser->getName() : $entry->poster;
-                                                $i++;
-                                                ?>
-
-                                                <a href="tickets.php?id=<?php echo $cMyTheirReplyTicket->ticket_id;?>#reply" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-pink"><i class="mdi mdi-comment-account"></i></div>
-                                    <p class="notify-details"><?php echo $cMyTheirReplyTicket->{user}->name;?></p> <p class="notify-details "><?php echo Format::htmlchars($cMyTheirReplyTicket->getSubject());?> 
-                                
-                                    <small class="text-muted"><?php echo Format::datetime($entry->created);?></small></p>
-                                </a>
-                                    <?php }
-                                               
-                                } 
-                                
-                                if ($r > 8) {
-                                ?>                               
-                                <!-- All-->
-                                <a href="tickets.php?queue=37&p=1" class="dropdown-item notify-item notify-all">
-                                    View All
-                                </a>
-                                 <?php } ?>
-                            </div>
-                        </li>
                         <li class="list-inline-item dropdown notification-list mr-0">
                             <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
                                aria-haspopup="false" aria-expanded="false" title="<?php echo __('My Tickets'); ?>">
@@ -214,34 +160,25 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
                                 <!-- item-->
                                 <div class="dropdown-item noti-title">
-                                    <h5 class="font-16"><span class="badge badge-warning float-right"><?php echo $MyOpenTickets; ?></span>My Tickets</h5>
+                                    <h5 class="font-16"><a href="tickets.php?queue=31&p=1&l=0&s=0"><span class="badge badge-warning float-right"><?php echo $MyOpenTickets; ?></span></a>My Tickets</h5>
                                 </div>
 
                                 
-                                <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=11" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-primary"><?php echo $MyAssignedTickets; ?></div>
-                                    <p class="notify-details">Assigned<small class="text-muted">Assigned to Me</small></p>
-                                </a>
-                                <!-- item-->
+                                
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=7" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-danger"><?php echo $MyReplyTickets; ?></div>
-                                    <p class="notify-details">My Reply<small class="text-muted">Waiting on my reply</small></p>
+                                    <p class="notify-details">My Action<small class="text-muted">Waiting on my action</small></p>
                                 </a>                                <!-- item-->
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=6" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-success"><?php echo $MyTheirReplyTickets; ?></div>
-                                    <p class="notify-details">Their Reply<small class="text-muted">Waiting on their reply</small></p>
+                                    <p class="notify-details">Their Action<small class="text-muted">Waiting on their action</small></p>
                                 </a>
                                                                <!-- item-->
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=9" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-purple"><?php echo $MyImplementationTickets; ?></div>
-                                    <p class="notify-details">Implmentation<small class="text-muted">Awaiting Implmentation</small></p>
+                                    <p class="notify-details">3rd Party<small class="text-muted">Awaiting 3rd party</small></p>
                                 </a>
                                                                 <!-- item-->
-                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=10" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatpurple"><?php echo $MyAwaitingQuoteTickets; ?></div>
-                                    <p class="notify-details">Quote<small class="text-muted">Awaiting Quote</small></p>
-                                </a>
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=8" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-warning"><?php echo $MyHeldTickets; ?></div>
                                     <p class="notify-details">Held<small class="text-muted">Tickets on Hold</small></p>
@@ -262,7 +199,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
                                 <!-- item-->
                                 <div class="dropdown-item noti-title">
-                                    <h5 class="font-16"><span class="badge badge-danger float-right"><?php echo $BacklogTotal; ?></span>Backlog</h5>
+                                    <h5 class="font-16"><a href="tickets.php?queue=241&p=1&l=0&s=0"><span class="badge badge-danger float-right"><?php echo $BacklogTotal; ?></span></a>Backlog</h5>
                                 </div>
 
                                 <a href="/scp/tickets.php?queue=3&p=1&l=2&s=0" class="dropdown-item notify-item">
@@ -309,7 +246,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 
 
                                 <!-- All-->
-                                <a href="tickets.php?queue=3&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=241&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
 
@@ -325,7 +262,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                
                                <!-- item-->
                                 <div class="dropdown-item noti-title">
-                                    <h5 class="font-16"><span class="badge badge-primary float-right"><?php echo $UnassignedTickets; ?></span>Unassigned</h5>
+                                    <h5 class="font-16"><a href="tickets.php?queue=3&p=1&l=0&s=1"><span class="badge badge-primary float-right"><?php echo $UnassignedTickets; ?></span></a>Unassigned</h5>
                                 </div>
 
                             <?php

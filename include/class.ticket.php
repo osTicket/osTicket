@@ -1901,7 +1901,7 @@ static function formatTime($time) {
             return false;
 		
 		if ($statuschg == true)
-		$this->setStatusId(11);
+		$this->setStatusId(7);
         $this->onAssign($staff, $note, $alert);
         global $thisstaff;
         $data = array();
@@ -1965,7 +1965,7 @@ static function formatTime($time) {
         }
         if ($errors || !$this->save(true))
             return false;
-		$this->setStatusId(11);	
+		$this->setStatusId(7);	
         $this->logEvent('assigned', $evd);
         $this->onAssign($assignee, $form->getComments(), $alert);
         return true;
