@@ -1,3 +1,4 @@
+<div class="card-box">
 <?php if ($content) {
     list($title, $body) = $ost->replaceTemplateVariables(
         array($content->getName(), $content->getBody())); ?>
@@ -15,3 +16,4 @@ echo Format::display($body); ?>
 ); ?>
 </p>
 <?php } ?>
+</div>

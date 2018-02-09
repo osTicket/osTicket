@@ -1,8 +1,19 @@
-<h1><?php echo __('Manage Your Profile Information'); ?></h1>
-<p><?php echo __(
-'Use the forms below to update the information we have on file for your account'
-); ?>
-</p>
+<div class="subnav">
+
+    <div class="float-left subnavtitle">
+                          
+    Manage Your Profile Information                        
+    
+    </div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+   &nbsp;
+      </div>   
+   <div class="clearfix"></div> 
+</div>
+
+<div class="card-box">
+<div class="row">
+
 <form action="profile.php" method="post">
   <?php csrf_token(); ?>
 <table class="padded">
@@ -32,26 +43,8 @@ if ($acct = $thisclient->getAccount()) {
             <div class="error"><?php echo $errors['timezone']; ?></div>
         </td>
     </tr>
-<?php if ($cfg->getSecondaryLanguages()) { ?>
-    <tr>
-        <td class="text-nowrap">
-            <?php echo __('Preferred Language'); ?>:
-        </td>
-        <td>
-    <?php
-    $langs = Internationalization::getConfiguredSystemLanguages(); ?>
-            <select name="lang">
-                <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
-<?php foreach($langs as $l) {
-$selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
-                <option value="<?php echo $l['code']; ?>" <?php echo $selected;
-                    ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
-<?php } ?>
-            </select>
-            <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
-        </td>
-    </tr>
-<?php }
+
+<?php 
       if ($acct->isPasswdResetEnabled()) { ?>
 <tr>
     <td colspan="2">
@@ -98,3 +91,5 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
         window.location.href='index.php';"/>
 </p>
 </form>
+</div>
+</div>

@@ -896,9 +896,11 @@ form#save.ticket_open_content>table.ticket_open>tbody#dynamic-form>tr#open_ticke
 }
 form#save>table>tbody#dynamic-form>tr#open_ticket_dynamicformdata>td>div#requiredfield>span>span>span{
 	
-		background-color: #ffffcc !important;
+	background-color: #ffffcc !important;
 }
-
+.requiredfield{
+    background-color: #ffffcc !important;
+}
 html.js.cssanimations.fa-events-icons-ready > body > div#pjax-container > div.container-fluid > div.col-sm-12 > form#save > fieldset > div#dynamic-form > div > em > div {
     display: none;    
 }
@@ -1362,7 +1364,12 @@ div.ticketbuttonbar {
 }
 
 /* Response/Note tabs */
-
+.ClientReponseTabs {
+    margin-top: 10px !important;
+    margin-left: -30px !important;
+    margin-right: -30px !important;
+    margin-bottom: -20px !important;
+}
 #ReponseTabs .tab-content {
   color : 000;
   background-color: #ddd;
@@ -1564,7 +1571,7 @@ fieldset {
     background:#f8f8f8;
     border:2px solid #2a67ac;
     display:none;
-    z-index:7;
+    z-index:6;
     box-shadow: 0 5px 60px #001;
     border-radius: 5px;
     max-height: 72%;

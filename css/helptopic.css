@@ -3,6 +3,9 @@ div#client-helptopic>span.textbox.combo{
     width: 90%  !important;
     
 }
+.combo-p{
+    margin-top:-75px !important;
+}
 
 div#client-helptopic input:hover, select:hover, textarea:hover
 {
@@ -21,6 +24,7 @@ div#client-helptopic .textbox .textbox-text
 }
 
 .panel {
+  position:absolute;
   overflow: hidden;
   text-align: left;
   margin: 0;

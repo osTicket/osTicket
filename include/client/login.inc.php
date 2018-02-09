@@ -11,6 +11,7 @@ if ($content) {
     $body = __('To better serve you, we encourage our clients to register for an account and verify the email address we have on record.');
 }
 ?>
+<div class="card-box">
 <div class="row">
 	<div class="page-title">
 		<h1><?php echo Format::display($title); ?></h1>
@@ -75,12 +76,5 @@ if ($cfg && $cfg->isClientRegistrationEnabled()) {
 </div>
 </form>
 <div>
-<p>
-<?php
-if ($cfg->getClientRegistrationMode() != 'disabled'
-    || !$cfg->isClientLoginRequired()) {
-    echo sprintf(__('If this is your first time contacting us or you\'ve lost the ticket number, please %s open a new ticket %s'),
-        '<a href="open.php">', '</a>');
-} ?>
-</p>
+</div>
 </div>

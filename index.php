@@ -20,9 +20,9 @@ require_once INCLUDE_DIR . 'class.page.php';
 $section = 'home';
 require(CLIENTINC_DIR.'header.inc.php');
 ?>
-
+<div class="card-box">
 	<div class="clearfix"></div>
-<div id="landing_page" class="container">
+<div id="landing_page" >
     <div class="row">
         <div class="col-xs-12 col-md-8">
             
@@ -93,11 +93,14 @@ require(CLIENTINC_DIR.'header.inc.php');
                 </div>
             <?php } 
             if ($BUTTONS) { ?>
-                <a href="open.php" style="display:block" class="btn btn-success btn-lg btn-block">
+                <a href="login.php" style="display:block" class="btn btn-primary btn-sm btn-block">
+                    <?php echo __('Sign In');?>
+                </a>
+                <a href="open.php" style="display:block" class="btn btn-success btn-sm btn-block">
                     <?php echo __('Open a New Ticket');?>
                 </a>
                 <?php if ($cfg && !$cfg->isKnowledgebaseEnabled()) { ?>
-                    <a href="view.php" style="display:block" class="btn btn-success btn-lg btn-block">
+                    <a href="view.php" style="display:block" class="btn btn-success btn-sm btn-block">
                         <?php echo __('Check Ticket Status');?>
                     </a>
                 <?php } 
@@ -151,6 +154,7 @@ require(CLIENTINC_DIR.'header.inc.php');
             </div>
         <?php }
     } ?>
+</div>
 </div>
 </div>
 <?php require(CLIENTINC_DIR.'footer.inc.php'); ?>

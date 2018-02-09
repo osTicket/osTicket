@@ -36,7 +36,7 @@ $tickets = Ticket::objects();
 $qs = array();
 $status=null;
 $sortOptions=array('id'=>'number', 'subject'=>'cdata__subject',
-                    'status'=>'status__name', 'dept'=>'dept__name','date'=>'created');
+                    'status'=>'status__name', 'date'=>'closed','date'=>'created','topic'=>'topic__topic','assigned'=>'staff__lastname');
 $orderWays=array('DESC'=>'-','ASC'=>'');
 //Sorting options...
 $order_by=$order=null;
@@ -44,7 +44,7 @@ $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolo
 if($sort && $sortOptions[$sort])
     $order_by =$sortOptions[$sort];
 $order_by=$order_by ?: $sortOptions['date'];
-if ($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
+if ($_REQUEST['order'])
     $order = $orderWays[strtoupper($_REQUEST['order'])];
 else
     $order = $orderWays['DESC'];
@@ -56,17 +56,7 @@ if ($settings['topic_id']) {
     $basic_filter = $basic_filter->filter(array('topic_id' => $settings['topic_id']));
 }
 
-if ($settings['status'])
-    $status = strtolower($settings['status']);
-    switch ($status) {
-    default:
-        $status = 'open';
-    case 'open':
-    case 'closed':
-		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
-        $basic_filter->filter(array('status__state' => $status));
-        break;
-}
+
 
 // Add visibility constraints — use a union query to use multiple indexes,
 // use UNION without "ALL" (false as second parameter to union()) to imply
@@ -97,9 +87,24 @@ if ($settings['keywords']) {
     }
 }
 
-$tickets->distinct('ticket_id');
+
+if ($settings['status'])
+    $status = strtolower($settings['status']);
+    switch ($status) {
+    default:
+        $status = 'open';
+    case 'open':
+        $visability = array('status__state' => $status,'user_id' => $thisclient->getId());
+    case 'closed':
+		$results_type = ($status == 'closed') ? __('My Tickets / Closed') : __('My Tickets / Open');
+        $visability = array('status__state' => $status,'user_id' => $thisclient->getId());
+        break;
+}
+
+$tickets->filter($visability);
+
 TicketForm::ensureDynamicDataView();
-$total=$visibility->count();
+$total=$tickets->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total, $page, PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
@@ -114,37 +119,56 @@ if(!$results_type)
 $showing.=($status)?(' '.$results_type):' '.__('All Tickets');
 if($search)
     $showing=__('Search Results').": $showing";
+
+
 $negorder=$order=='-'?'ASC':'DESC'; //Negate the sorting
+
 $tickets->order_by($order.$order_by);
 $tickets->values(
-    'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
+    'ticket_id', 'number', 'created','closed','isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
-    'dept__name', 'dept__ispublic', 'user__default_email__address'
+    'dept__name', 'dept__ispublic', 'user__default_email__address', 'staff__firstname','staff__lastname','topic__topic'
 );
 ?>
 
-<div class="row ">
-	<div class="col-md-12" >
-	<form action="tickets.php" method="get" id="ticketSearchForm">
-		<div class="col-md-6">
-			<div class="input-group">   
+<div class="subnav">
+    <div class="float-left subnavtitle">
+    
+        <span ><a href="<?php echo $refresh_url; ?>" title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> </a> &nbsp;
+        <?php echo $results_type;  ?>
+    </div>
+    <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
+
+    <a class="btn btn-icon waves-effect waves-light btn-success" id="tickets-helptopic" data-placement="bottom" data-toggle="tooltip" title="" href="open.php" data-original-title="New Ticket">Open a New Ticket</a>
+               
+    </div>            
+    <div class="clearfix"></div>
+</div>
+<div class="card-box">
+<div class="row">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="float-left">
+			<?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
+			<div style="margin-left:-5px"><strong><a href="?clear" class="btn btn-sm btn-warning"> <?php echo __('Clear Search'); ?></a></strong></div>
+			<?php } ?>
+			</div>
+		
+    <div class="float-right">
+	<form class="form-inline" action="tickets.php" method="get" id="ticketSearchForm">
+		
+			<div class="input-group input-group-sm">   
 			   <input type="hidden" name="a"  value="search">
-				<input class="search form-control" type="search" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>" placeholder="Search Tickets">
+				<input class="form-control form-control-sm rlc-search basic-search" type="search" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>" placeholder="Search Tickets">
 				 <span class="input-group-btn">
 					<input class="btn btn-info" type="submit" value="<?php echo __('Search');?>">
 				 </span>
 			</div>
-			<div>
-			<?php if ($settings['keywords'] || $settings['topic_id'] || $_REQUEST['sort']) { ?>
-			<div style="margin-top:10px"><strong><a href="?clear" style="color:#777"><i class="icon-remove-circle"></i> <?php echo __('Clear all filters and sort'); ?></a></strong></div>
-			<?php } ?>
-			</div>
-		</div>
-		<div class="col-md-2 text-right">
+			
+		<div class="col-md-2 text-right hidden">
 			<h4 style="color: #337ab7;"><?php echo __('Help Topic'); ?>:</h4>
 		</div>
-		<div class="col-md-4">
-			<select name="topic_id" class="nowarn form-control" " onchange="javascript: this.form.submit(); ">
+		<div class="col-md-4 hidden">
+			<select name="topic_id" class="nowarn form-control"  onchange="javascript: this.form.submit(); ">
 				<option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
 		<?php foreach (Topic::getHelpTopics(true) as $id=>$name) {
 				$count = $thisclient->getNumTopicTickets($id);
@@ -160,61 +184,50 @@ $tickets->values(
 		</div>
 
 	</form>
+    
 	</div>
 </div>
 
-<div class="clearfix"></div>
-
-<div class="row">
-
-		<div class="col-xs-6 col-md-6">
-			<h2>
-				<a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>">
-				<i class="refresh icon-refresh"></i>
-				<?php echo __('Tickets'); ?>
-				</a>
-			</h2>
-		</div>
-		<div class="col-xs-6 col-md-6 text-right">
-			<h3 style="color: #337ab7;">
-			
-			<a class="action-button btn-lg <?php if ($status == 'open') echo 'active'; ?>"
-				href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-			<i class="icon-file-alt"></i> <?php echo sprintf('%s (%d)', _P('ticket-status', 'Open'), $thisclient->getNumOpenTickets()); ?>
-			</a>
-			
-	
-			<span style="color:lightgray">|</span>
-		
-			
-			<a class="action-button btn-lg <?php if ($status == 'closed') echo 'active'; ?>"
-				href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
-			<i class="icon-file-text"></i> <?php echo sprintf('%s (%d)', __('Closed'), $thisclient->getNumClosedTickets()); ?>
-			</a>
-			</h3>
-		</div>
-
-</div>
-<div class="row">
-<table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0" class="table table-striped table-hover table-condensed">
-    <caption><?php echo $showing; ?></caption>
+<div class="row subnavspacer">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="clear"></div>
+<div>
+<table id="ticketqueue" class="table table-striped table-hover table-condensed table-sm ">
+   
     <thead>
         <tr>
-            <th class="text-nowrap">
+            <th >
                 <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?></a>
             </th>
-            <th class="text-nowrap">
-                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
+            <th data-breakpoints="xs">
+            
+<?php   if ($settings['status'])
+    $status = strtolower($settings['status']);
+    switch ($status) {
+    default:
+         $whichdate = 'Created';
+    case 'open':
+         $whichdate  = 'Created';
+         break;
+    case 'closed':
+		 $whichdate  = 'Closed';
+            
+        break;
+}?>
+                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo $whichdate;?></a>
             </th>
-            <th class="text-nowrap">
+            <th data-breakpoints="xs">
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
             </th>
-            <th class="text-nowrap">
+            <th data-breakpoints="xs">
+                <a href="tickets.php?sort=topic&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Help Topic');?></a>
+            </th>
+            <th >
                 <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
             </th>
-            <th class="hidden-xs">
-                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
-            </th>
+            <th data-breakpoints="xs">
+                <a href="tickets.php?sort=assigned&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Assigned"><?php echo __('Assigned To');?></a>
+            </th>            
         </tr>
     </thead>
     <tbody>
@@ -223,32 +236,79 @@ $tickets->values(
      $defaultDept=Dept::getDefaultDeptName(); //Default public dept.
      if ($tickets->exists(true)) {
          foreach ($tickets as $T) {
+            
             $dept = $T['dept__ispublic']
                 ? Dept::getLocalById($T['dept_id'], 'name', $T['dept__name'])
                 : $defaultDept;
             $subject = $subject_field->display(
                 $subject_field->to_php($T['cdata__subject']) ?: $T['cdata__subject']
             );
-            $status = TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
+            $cstatus = TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
+            
+            switch ($cstatus){
+            case 'Assigned':
+                $whichbadge = 'bg-primary';
+                break;
+            case 'Awaiting Submitter Reply':
+                $whichbadge = 'bg-success';
+                break;            
+            case 'Unassigned':
+                $whichbadge = 'bg-flatred';
+                break;            
+            case 'Awaiting Implementation':
+                $whichbadge = 'bg-purple';
+                break;       
+            case 'Awaiting Agent Reply':
+                $whichbadge = 'bg-danger';
+                break;                
+            case 'Hold':
+                $whichbadge = 'badge-warning';
+                break; 
+            case 'Closed':
+                $whichbadge = 'bg-success';
+                break;  
+            case 'Auto-Closed':
+                $whichbadge = ' bg-flatgreenalt2';
+                break;                 
+            }
+                   
+            
             if (false) // XXX: Reimplement attachment count support
                 $subject.='  &nbsp;&nbsp;<span class="Icon file"></span>';
             $ticketNumber=$T['number'];
             if($T['isanswered'] && !strcasecmp($T['status__state'], 'open')) {
-                $subject="<b>$subject</b>";
-                $ticketNumber="<b>$ticketNumber</b>";
+                $subject="$subject";
+                $ticketNumber="$ticketNumber";
             }
+if ($settings['status'])
+    $status = strtolower($settings['status']);
+    switch ($status) {
+    default:
+         $whichdate = $T['created'];
+    case 'open':
+         $whichdate = $T['created'];
+         break;
+    case 'closed':
+		 $whichdate = $T['closed'];
+            
+        break;
+}
+           
+            
             ?>
             <tr id="<?php echo $T['ticket_id']; ?>">
-                <td class="text-nowrap">
-                <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
-                    href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
+                <td >
+                <a href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
-                <td class="text-nowrap">&nbsp;<?php echo Format::date($T['created']); ?></td>
-                <td class="text-nowrap">&nbsp;<?php echo $status; ?></td>
+                <td ><?php echo Format::date($whichdate); ?></td>
+                <td ><span class="badge label-table <?php echo $whichbadge ?>"><?php echo $cstatus; ?></span></td>
+                <td ><?php echo $T['topic__topic']; ?></td>
                 <td>
-                    <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
+                    <a  href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></a>
                 </td>
-                <td  class="hidden-xs">&nbsp;<span class="truncate"><?php echo $dept; ?></span></td>
+                <td>
+                    <a  href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $T['staff__lastname'].', '.$T['staff__firstname']; ?></a>
+                </td>
             </tr>
         <?php
         }
@@ -258,9 +318,30 @@ $tickets->values(
     ?>
     </tbody>
 </table>
-<?php
-if ($total) {
-    echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-}
-?>
+
 </div>
+<div class="row">
+<div class="col">
+    <div class="float-left">
+    <nav>
+    <ul class="pagination">   
+        <?php
+            echo $pageNav->getPageLinks();
+        ?>
+    </ul>
+    </nav>
+    </div>
+    
+   
+    <div class="float-right">
+          <span class="faded"><?php echo $pageNav->showing(); ?></span>
+    </div>  
+</div>
+</div>
+<script>
+
+jQuery(function($){
+	$('#ticketqueue').footable();
+});
+        
+</script>

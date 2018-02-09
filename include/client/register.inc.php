@@ -14,6 +14,7 @@ if (isset($user) && $user instanceof ClientCreateRequest) {
 $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
+<div class="card-box">
 <div class="row">
 	<div class="page-title">  
 	<h1><?php echo __('Account Registration'); ?></h1>
@@ -96,10 +97,11 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 <p>
     <input class="btn btn-success" type="submit" value="Register"/>
-    <input class="btn btn-default" type="button" value="Cancel" onclick="javascript:
+    <input class="btn btn-warning" type="button" value="Cancel" onclick="javascript:
         window.location.href='index.php';"/>
 </p>
 </form>
+</div>
 <?php if (!isset($info['timezone'])) { ?>
 <!-- Auto detect client's timezone where possible -->
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jstz.min.js"></script>

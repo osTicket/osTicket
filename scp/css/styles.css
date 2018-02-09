@@ -770,7 +770,7 @@ a:focus {
     position: -ms-sticky !important;
     position: sticky !important;
     top: 70px;
-    z-index: 5;
+    z-index: 6;
     min-height: 35px;
      /*margin-left: -10px;
     margin-right: -10px; */

@@ -126,6 +126,7 @@ $MyReplyTicket = Ticket::objects()
             $MyReplyTickets = $cMyReplyTicket["count"];
         }              
 
+        
 $MyTheirReplyTicket = Ticket::objects()
         ->filter(array('staff_id' => $thisstaff->staff_id)) //this staff
         ->filter(array('status_id' => '6')) //Awaiting Submitter Reply

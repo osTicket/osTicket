@@ -3,12 +3,12 @@
   position: absolute;
   top: 100%;
   /*left: 0;*/
-  z-index: 5001;
+  z-index: 7 !important;
   float: left;
   display: none;
   min-width: 160px;
   padding: 4px 0 2px;
-  margin: 0;
+  margin-top: -75px;
   list-style: none;
   background-color: #ffffff;
   border-color: #ccc;
