@@ -22,7 +22,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
             if (!is_array($_SESSION[':form-data']))
                 $_SESSION[':form-data'] = array();
             $_SESSION[':form-data'] = array_merge($_SESSION[':form-data'],
-                    Format::htmlchars($_GET));
+                    Format::htmlchars($_GET, true));
         }
 
         foreach ($topic->getForms() as $form) {
