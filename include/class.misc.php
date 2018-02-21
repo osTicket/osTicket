@@ -52,12 +52,14 @@ class Misc {
     }
 
     /* Helper used to generate ticket IDs */
-    function randNumber($len=6,$start=false,$end=false) {
+    function randNumber($len=6) {
+        $number = '';
+        for ($i=0; $i<$len; $i++) {
+            $min = ($i == 0) ? 1 : 0;
+            $number .= mt_rand($min, 9);
+        }
 
-        $start=(!$len && $start)?$start:str_pad(1,$len,"0",STR_PAD_RIGHT);
-        $end=(!$len && $end)?$end:str_pad(9,$len,"9",STR_PAD_RIGHT);
-
-        return mt_rand($start,$end);
+        return (int) $number;
     }
 
     /* misc date helpers...this will go away once we move to php 5 */
