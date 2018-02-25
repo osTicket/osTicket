@@ -1094,7 +1094,12 @@ class CustomQueue extends VerySimpleModel {
         return 0 === count($errors);
     }
 
+    function psave() {
+        return parent::save();
+    }
+
     function save($refetch=false) {
+
         $nopath = !isset($this->path);
         $path_changed = isset($this->dirty['parent_id']);
 
@@ -1166,7 +1171,7 @@ class CustomQueue extends VerySimpleModel {
 
     static function __create($vars) {
         $q = static::create($vars);
-        $q->save();
+        $q->psave();
         foreach ($vars['columns'] as $info) {
             $glue = new QueueColumnGlue($info);
             $glue->queue_id = $q->getId();
