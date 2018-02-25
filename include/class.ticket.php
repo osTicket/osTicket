@@ -2376,7 +2376,7 @@ implements RestrictedAccess, Threadable, Searchable {
             }
             break;
         case $referee instanceof Dept:
-            if ($this->getTeamId() == $referee->getId()) {
+            if ($this->getDeptId() == $referee->getId()) {
                 $errors['dept'] = sprintf(__('%s is already in %s'),
                         __('Ticket'),
                         __('the department')
@@ -2399,6 +2399,24 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->logEvent('referred', $evd);
 
         return true;
+    }
+
+    function systemReferral($emails) {
+
+        if (!$this->thread)
+            return;
+
+        foreach ($emails as $id) {
+            if ($id != $this->email_id
+                    && ($email=Email::lookup($id))
+                    && $this->getDeptId() != $email->getDeptId()
+                    && ($dept=Dept::lookup($email->getDeptId()))
+                    && $this->thread->refer($dept)
+                    )
+                $this->logEvent('referred',
+                            array('dept' => $dept->getId()));
+        }
+
     }
 
     //Change ownership
@@ -3745,6 +3763,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 $ticket->markUnAnswered(); //Leave the ticket as unanswred.
                 $autorespond = false;
         }
+
+
+        if ($vars['system_emails'])
+            $ticket->systemReferral($vars['system_emails']);
 
         // Check department's auto response settings
         // XXX: Dept. setting doesn't affect canned responses.

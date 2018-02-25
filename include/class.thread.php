@@ -311,7 +311,7 @@ implements Searchable {
             break;
         case $to instanceof Dept:
             // Refered to the dept
-            if ($this->getReferral($to->getId,
+            if ($this->getReferral($to->getId(),
                         ObjectModel::OBJECT_TYPE_DEPT))
                 return true;
             break;
@@ -1314,6 +1314,11 @@ implements TemplateVariable {
                  )
          ) {
             $seen = true;
+            if ($mailinfo['system_emails']
+                    && ($t = $entry->getThread()->getObject())
+                    && $t instanceof Ticket)
+                $t->systemReferral($mailinfo['system_emails']);
+
             return $entry;
         }
 
