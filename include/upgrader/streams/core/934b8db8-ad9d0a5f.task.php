@@ -30,7 +30,7 @@ class QueueSortCreator extends MigrationTask {
 
         foreach ($open->getChildren() as $q) {
             $q->flags |= CustomQueue::FLAG_INHERIT_SORTING;
-            $q->save();
+            $q->psave();
         }
 
         // Set default queue to 'open'
