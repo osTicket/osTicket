@@ -1314,6 +1314,11 @@ implements TemplateVariable {
                  )
          ) {
             $seen = true;
+            if ($mailinfo['system_emails']
+                    && ($t = $entry->getThread()->getObject())
+                    && $t instanceof Ticket)
+                $t->systemReferral($mailinfo['system_emails']);
+
             return $entry;
         }
 
