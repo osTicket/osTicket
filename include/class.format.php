@@ -521,10 +521,12 @@ class Format {
 
         // Set the desired timezone (caching since it will be mostly same
         // for most date formatting.
+        $timezone = Format::timezone($timezone, $cfg->getTimezone());
         if (isset($cache[$timezone]))
             $tz =  $cache[$timezone];
         else
-            $cache[$timezone] = $tz = new DateTimeZone($timezone ?: $cfg->getTimezone());
+            $cache[$timezone] = $tz = new DateTimeZone($timezone);
+
         $datetime->setTimezone($tz);
 
         // Formmating options
@@ -608,7 +610,7 @@ class Format {
         return $tz;
     }
 
-    function parseDatetime($date, $locale=null, $format=false) {
+    function parseDateTime($date, $locale=null, $format=false) {
         global $cfg;
 
         if (!$date)

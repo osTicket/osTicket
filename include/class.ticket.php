@@ -416,29 +416,35 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->duedate;
     }
 
-    function getSLADueDate() {
+    function getSLADueDate($datetime=null) {
         if ($sla = $this->getSLA()) {
-            $dt = new DateTime($this->getCreateDate());
-
+            $dt = new DateTime($datetime ?: $this->getReopenDate() ?: $this->getCreateDate());
             return $dt
                 ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
                 ->format('Y-m-d H:i:s');
         }
     }
 
-    function updateEstDueDate() {
-        $this->est_duedate = $this->getEstDueDate();
-        $this->save();
+    function updateEstDueDate($clearOverdue=true) {
+        $DueDate = $this->getEstDueDate();
+        $this->est_duedate = $this->getSLADueDate();
+        // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+        if ($this->isOverdue()
+            && $clearOverdue
+            && (!$DueDate // Duedate + SLA cleared
+                || Misc::db2gmtime($DueDate) > Misc::gmtime() //New due date in the future.
+        )) {
+             $this->isoverdue = 0;
+        }
+
+        return $this->save();
     }
 
     function getEstDueDate() {
-        // Real due date
-        if ($duedate = $this->getDueDate()) {
-            return $duedate;
-        }
-        // return sla due date (If ANY)
-        return $this->getSLADueDate();
+        // Real due date or  sla due date (If ANY)
+        return $this->getDueDate() ?: $this->getSLADueDate();
     }
+
 
     function getCloseDate() {
         return $this->closed;
@@ -934,8 +940,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Special fields
         switch ($fid) {
         case 'priority':
-            if (($a = $this->_answers['priority']))
+            if (($a = $this->getAnswer('priority')))
                 return $a->getField();
+
+            return TicketForm::getInstance()->getField('priority');
             break;
         case 'sla':
             return ChoiceField::init(array(
@@ -3232,11 +3240,12 @@ implements RestrictedAccess, Threadable, Searchable {
 
 
     function updateField($form, &$errors) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!($field = $form->getField('field')))
             return null;
 
+        $updateDuedate = false;
         if (!($changes = $field->getChanges()))
             $errors['field'] = sprintf(__('%s is already assigned this value'),
                     __($field->getLabel()));
@@ -3248,19 +3257,23 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 $val =  $field->getClean();
                 $fid = $field->get('name');
-                $this->{$fid} = $val;
 
-                if ($fid == 'duedate')
-                    $this->isoverdue = 0;
-
+                // Convert duedate to DB timezone.
+                if ($fid == 'duedate'
+                        && ($dt = Format::parseDateTime($val))) {
+                    $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
+                    $val = $dt->format('Y-m-d H:i:s');
+                }
                 $changes = array();
+                $this->{$fid} = $val;
                 foreach ($this->dirty as $F=>$old) {
                     switch ($F) {
+                    case 'sla_id':
+                    case 'duedate':
+                         $updateDuedate = true;
                     case 'topic_id':
                     case 'user_id':
                     case 'source':
-                    case 'duedate':
-                    case 'sla_id':
                         $changes[$F] = array($old, $this->{$F});
                     }
                 }
@@ -3275,8 +3288,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Record the changes
         $this->logEvent('edited', $changes);
-        // Log comments (if any)
 
+        // Log comments (if any)
         if (($comments = $form->getField('comments')->getClean())) {
             $title = sprintf(__('%s updated'), __($field->getLabel()));
             $_errors = array();
@@ -3284,6 +3297,15 @@ implements RestrictedAccess, Threadable, Searchable {
                     array('note' => $comments, 'title' => $title),
                     $_errors, $thisstaff, false);
         }
+
+        $this->lastupdate = SqlFunction::NOW();
+
+        if ($updateDuedate)
+            $this->updateEstDueDate();
+
+        $this->save();
+
+        Signal::send('model.updated', $this);
 
         return true;
     }

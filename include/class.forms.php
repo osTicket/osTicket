@@ -1952,7 +1952,7 @@ class DatetimeField extends FormField {
     function display($value) {
         global $cfg;
 
-        if (!$value || !($datetime = Format::parseDatetime($value)))
+        if (!$value || !($datetime = Format::parseDateTime($value)))
             return '';
 
         $config = $this->getConfiguration();
@@ -2067,14 +2067,14 @@ class DatetimeField extends FormField {
 
         $config = $this->getConfiguration();
         parent::validateEntry($value);
-        if (!$value || !($datetime = Format::parseDatetime($value)))
+        if (!$value || !($datetime = Format::parseDateTime($value)))
             return;
 
         // Parse value to DateTime object
-        $val = Format::parseDatetime($value);
+        $val = Format::parseDateTime($value);
         // Get configured min/max (if any)
-        $min = $this->getMinDatetime();
-        $max = $this->getMaxDatetime();
+        $min = $this->getMinDateTime();
+        $max = $this->getMaxDateTime();
 
         if (!$val) {
             $this->_errors[] = __('Enter a valid date');
@@ -2177,9 +2177,12 @@ class DatetimeField extends FormField {
         $name = $name ?: $this->get('name');
         $now = SqlFunction::NOW();
         $config = $this->getConfiguration();
-        $value = is_int($value)
-            ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value
-            : $value;
+
+       if (is_int($value))
+          $value = DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value;
+       elseif (is_string($value))
+           $value = Format::parseDateTime($value) ?: $value;
+
         switch ($method) {
         case 'equal':
             $l = clone $value;
@@ -2695,7 +2698,7 @@ class SLAField extends ChoiceField {
 
     function to_database($sla) {
         return ($sla instanceof SLA)
-            ? array($sla->getName(), $slas->getId())
+            ? array($sla->getName(), $sla->getId())
             : $sla;
     }
 
