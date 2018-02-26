@@ -4,7 +4,7 @@ if ($queue->parent) { ?>
   <tbody>
     <tr>
       <td colspan="3">
-        <input type="checkbox" name="inherit-fields" <?php
+        <input type="checkbox" name="inherit-exports" <?php
           if ($queue->inheritExport()) echo 'checked="checked"'; ?>
           onchange="javascript:$(this).closest('table').find('.if-not-inherited').toggle(!$(this).prop('checked'));" />
         <?php echo __('Inherit export fields from the parent queue'); ?>
@@ -19,7 +19,7 @@ if ($queue->parent) { ?>
   <tbody>
     <tr>
       <td colspan="3">
-        <input type="checkbox" name="inherit-fields" <?php
+        <input type="checkbox" name="inherit-exports" <?php
           if (count($queue->exports) == 0) echo 'checked="checked"';
           if ($queue instanceof SavedSearch) echo 'disabled="disabled"'; ?>
           onchange="javascript:$(this).closest('table').find('.if-not-inherited').toggle(!$(this).prop('checked'));" />
@@ -86,7 +86,6 @@ var Q = setInterval(function() {
   clearInterval(Q);
 
   var addField = function(field, info) {
-    console.log(field, info);
     if (!field) return;
 
     var i  = $('#fields tr.field-entry').length;
@@ -137,7 +136,7 @@ var Q = setInterval(function() {
     return false;
   });
 <?php
-    foreach ($queue->getExportFields() as $k => $v) {
+    foreach ($queue->getExportFields(false) as $k => $v) {
     echo sprintf('addField(%s, {name: %s, heading: %s});',
     JsonDataEncoder::encode($k),
     JsonDataEncoder::encode($v),
