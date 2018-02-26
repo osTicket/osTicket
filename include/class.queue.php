@@ -538,7 +538,8 @@ class CustomQueue extends VerySimpleModel {
                 'source' =>         __('Source'),
                 'status::getName' =>__('Current Status'),
                 'lastupdate' =>     __('Last Updated'),
-                'est_duedate' =>    __('Due Date'),
+                'est_duedate' =>    __('SLA Due Date'),
+                'duedate' =>        __('Due Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
                 'staff::getName' => __('Agent Assigned'),
@@ -547,30 +548,30 @@ class CustomQueue extends VerySimpleModel {
                 'attachment_count' => __('Attachment Count'),
                 ) + $cdata;
 
-
         return $fields;
     }
 
-    function getExportFields() {
+    function getExportFields($inherit=true) {
 
         $fields = array();
-        if ($this->parent_id
+        if ($inherit
+            && $this->parent_id
             && $this->hasFlag(self::FLAG_INHERIT_EXPORT)
             && $this->parent
         ) {
             $fields = $this->parent->getExportFields();
         }
         elseif (count($this->exports)) {
-            $fields = $this->exports;
+            foreach ($this->exports as $f)
+                $fields[$f->path] = $f->getHeading();
         }
         elseif ($this->isAQueue())
-            return  $this->getExportableFields();
+            $fields = $this->getExportableFields();
 
-        $_fields = array();
-        foreach ($fields as  $f)
-            $_fields[$f->path] = $f->getHeading();
+        if (!count($fields))
+            $fields = $this->getExportableFields();
 
-        return $_fields;
+        return $fields;
     }
 
     function getColumns($use_template=false) {
@@ -713,7 +714,7 @@ class CustomQueue extends VerySimpleModel {
         if (!($query=$this->getBasicQuery()))
             return false;
 
-        if (!($fields=$this->getFields()))
+        if (!($fields=$this->getExportFields()))
             return false;
 
         return Export::saveTickets($query, $fields, $filename, $format);
@@ -953,7 +954,7 @@ class CustomQueue extends VerySimpleModel {
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
             $this->parent_id > 0 && isset($vars['inherit-columns']));
         $this->setFlag(self::FLAG_INHERIT_EXPORT,
-            $this->parent_id > 0 && isset($vars['inherit-fields']));
+            $this->parent_id > 0 && isset($vars['inherit-exports']));
         $this->setFlag(self::FLAG_INHERIT_SORTING,
             $this->parent_id > 0 && isset($vars['inherit-sorting']));
 
@@ -1022,6 +1023,9 @@ class CustomQueue extends VerySimpleModel {
             }
             $this->exports->sort(function($f) { return $f->sort; });
         }
+
+        if (!count($this->exports) && $this->parent)
+            $this->hasFlag(self::FLAG_INHERIT_EXPORT);
 
         // Update advanced sorting options for the queue
         if (isset($vars['sorts']) && !$this->hasFlag(self::FLAG_INHERIT_SORTING)) {
