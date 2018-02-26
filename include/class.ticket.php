@@ -2282,8 +2282,8 @@ implements RestrictedAccess, Threadable, Searchable {
             } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
                 $errors['err'] = __('Permission denied');
             } else {
-                $this->staff_id = $assignee->getId();
                 $refer = $this->staff ?: null;
+                $this->staff_id = $assignee->getId();
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
                     $alert = false;
                     $evd['claim'] = true;
