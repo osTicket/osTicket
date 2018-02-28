@@ -335,10 +335,14 @@ class Format {
             'elements' => '*+iframe',
             'spec' =>
 <<<<<<< HEAD
+<<<<<<< HEAD
             'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo|player.vimeo)\.com/`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : ''),
 =======
             'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen',
 >>>>>>> format: Add Fullscreen to Embedded Videos
+=======
+            'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo|player.vimeo)\.com/`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : ''),
+>>>>>>> format: Fix Vimeo iFrames
         );
 
         return Format::html($html, $config);
