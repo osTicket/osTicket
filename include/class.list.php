@@ -436,6 +436,9 @@ class DynamicList extends VerySimpleModel implements CustomList {
         if (!parent::delete())
             return false;
 
+        if(!$this->getAllItems()->delete())
+            return false;
+
         if (($form = $this->getForm(false))) {
             $form->delete(false);
             $form->fields->delete();
