@@ -43,8 +43,11 @@ if (!$ticket) {
     $queue_id = null;
 
     // Search for user
-    if (isset($_GET['uid'])
-        && ($user = User::lookup($_GET['uid']))
+    if (isset($_GET['uid']))
+        $user = User::lookup($_GET['uid']);
+
+    if ($user
+            && $_GET['a'] !== 'open'
     ) {
         $criteria = [
             ['user__name', 'equal', $user->name],
