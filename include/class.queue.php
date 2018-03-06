@@ -611,7 +611,9 @@ class CustomQueue extends VerySimpleModel {
                 "id" => 2,
                 "heading" => "Created",
                 "primary" => 'created',
-                "width" => 100,
+                "filter" => 'date:full',
+                "truncate" =>'wrap',
+                "width" => 120,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
