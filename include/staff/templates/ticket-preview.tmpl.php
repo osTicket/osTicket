@@ -140,7 +140,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     foreach ($displayed as $stuff) {
         list($label, $v) = $stuff;
         echo '<tr>';
-        echo '<th width="20%">'.Format::htmlchars($label).':</th>';
+        echo '<th width="20%" style="white-space: nowrap;">'.Format::htmlchars($label).':</th>';
         echo '<td>'.$v.'</td>';
         echo '</tr>';
     }
