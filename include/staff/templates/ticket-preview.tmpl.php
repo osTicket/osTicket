@@ -116,6 +116,38 @@ echo sprintf(
 
 echo '
     </table>';
+?>
+<?php
+foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+    // Skip core fields shown earlier in the ticket preview
+    $answers = $form->getAnswers()->exclude(Q::any(array(
+        'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
+        'field__name__in' => array('subject', 'priority')
+    )));
+    $displayed = array();
+    foreach($answers as $a) {
+        if (!($v = $a->display()))
+            continue;
+        $displayed[] = array($a->getLocal('label'), $v);
+    }
+    if (count($displayed) == 0)
+        continue;
+
+    echo '<hr>';
+    echo '<table border="0" cellspacing="" cellpadding="1" width="100%" style="margin-bottom:0px;" class="ticket_info">';
+    echo '<tbody>';
+
+    foreach ($displayed as $stuff) {
+        list($label, $v) = $stuff;
+        echo '<tr>';
+        echo '<th width="20%">'.Format::htmlchars($label).':</th>';
+        echo '<td>'.$v.'</td>';
+        echo '</tr>';
+    }
+
+    echo '</tbody>';
+    echo '</table>';
+}
 echo '</div>'; // ticket preview content.
 ?>
 <div class="hidden tab_content" id="collab">
