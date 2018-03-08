@@ -106,6 +106,9 @@ class Http {
     }
 
     function download($filename, $type, $data=null, $disposition='attachment') {
+        if (strpos($type, 'image/') !== 0 || preg_match('/image\/.*\+.*/', $type))
+          $disposition='attachment';
+
         header('Pragma: private');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private', false);
