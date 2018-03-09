@@ -183,10 +183,12 @@ extends SessionBackend {
     function read($id) {
         try {
             $this->data = SessionData::objects()
-                ->filter(['session_id' => $id])
-                ->annotate(['age' => SqlFunction::NOW()->minus(new SqlField('session_expire'))])
-                ->one();
-            if ($this->data->age > 0) {
+              ->filter(['session_id' => $id])
+              ->annotate(array('is_expired' =>
+                new SqlExpr(new Q(array('session_expire__lt' => SqlFunction::NOW())))))
+              ->one();
+
+            if ($this->data->is_expired > 0) {
                 // session_expire is in the past. Pretend it is expired and
                 // reset the data. This will assist with CSRF issues
                 $this->data->session_data='';
