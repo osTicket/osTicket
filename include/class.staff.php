@@ -449,23 +449,27 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return isset($this->locale) ? $this->locale : 0;
     }
 
-    function getRole($dept=null, $useDefault=true) {
-        $deptId = is_object($dept) ? $dept->getId() : $dept;
-        if ($deptId && $deptId != $this->dept_id) {
-            if (isset($this->_roles[$deptId]))
-                return $this->_roles[$deptId];
-
-            if ($access = $this->dept_access->findFirst(array('dept_id' => $deptId)))
-                return $this->_roles[$deptId] = $access->role;
-
-            if (!$useDefault || !$this->usePrimaryRoleOnAssignment())
-                // View only access
-                return new Role(array());
-
-            // Fall through to primary role
+    function getRoles() {
+        if (!isset($this->_roles)) {
+            $this->_roles = array($this->dept_id => $this->role);
+            foreach($this->dept_access as $da)
+                $this->_roles[$da->dept_id] = $da->role;
         }
-        // For the primary department, use the primary role
-        return $this->role;
+
+        return $this->_roles;
+    }
+
+    function getRole($dept=null) {
+        $deptId = is_object($dept) ? $dept->getId() : $dept;
+        $roles = $this->getRoles();
+        if (isset($roles[$deptId]))
+            return $roles[$deptId];
+
+        if ($this->usePrimaryRoleOnAssignment())
+            return $this->role;
+
+        // View only access
+        return new Role(array());
     }
 
     function hasPerm($perm, $global=true) {
@@ -494,8 +498,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return TRUE;
     }
 
-    function isactive() {
+    function isActive() {
         return $this->isactive;
+    }
+
+    function getStatus() {
+        return $this->isActive() ? __('Active') : __('Locked');
     }
 
     function isVisible() {
@@ -507,7 +515,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function isAvailable() {
-        return ($this->isactive() && !$this->onVacation());
+        return ($this->isActive() && !$this->onVacation());
     }
 
     function showAssignedOnly() {
@@ -1172,6 +1180,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
         $this->permissions = $permissions->toJson();
         return true;
+    }
+
+    static function export($criteria=null, $filename='') {
+        include_once(INCLUDE_DIR.'class.error.php');
+
+        $agents = Staff::objects();
+        // Sort based on name formating
+        $agents = self::nsort($agents);
+        Export::agents($agents, $filename);
     }
 
 }

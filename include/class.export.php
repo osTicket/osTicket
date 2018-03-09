@@ -137,7 +137,7 @@ class Export {
                 'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
-            array('modify' => function(&$record, $keys) use ($fields) {
+            array('modify' => function(&$record, $keys, $obj) use ($fields) {
                 foreach ($fields as $k=>$f) {
                     if (($i = array_search($k, $keys)) !== false) {
                         $record[$i] = $f->export($f->to_php($record[$i]));
@@ -182,7 +182,7 @@ class Export {
                     '::getEmail' =>          __('Email'),
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -221,7 +221,7 @@ class Export {
                     'name'  =>  'Name',
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -239,6 +239,38 @@ class Export {
         return false;
     }
 
+    static function  agents($agents, $filename='', $how='csv') {
+
+        // Filename or stream to export agents to
+        $filename = $filename ?: sprintf('Agents-%s.csv',
+                strftime('%Y%m%d'));
+        Http::download($filename, "text/$how");
+        $depts = Dept::getDepartments();
+        echo self::dumpQuery($agents, array(
+                    '::getName'  =>  'Name',
+                    '::getUsername' => 'Username',
+                    '::getStatus' => 'Status',
+                    'permissions' => 'Permissions',
+                    '::getDept'  => 'Primary Department',
+                    ) + $depts,
+                $how,
+                array('modify' => function(&$record, $keys, $obj) use ($depts) {
+
+                   if (($i = array_search('permissions', $keys)))
+                       $record[$i] = implode(",", array_keys($obj->getPermission()->getInfo()));
+
+                    $roles = $obj->getRoles();
+                    foreach ($depts as $k => $v) {
+                        if (is_numeric($k) && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $roles[$k] ?: '';
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        exit;
+
+    }
 }
 
 class ResultSetExporter {
@@ -276,26 +308,32 @@ class ResultSetExporter {
         $this->_res->next();
 
         $record = array();
-
         foreach ($this->keys as $field) {
             list($field, $func) = explode('::', $field);
             $path = explode('.', $field);
+
             $current = $object;
             // Evaluate dotted ORM path
             if ($field) {
                 foreach ($path as $P) {
-                    $current = $current->{$P};
+                    if (isset($current->{$P}))
+                        $current = $current->{$P};
+                    else  {
+                        $current = $P;
+                        break;
+                    }
                 }
             }
             // Evalutate :: function call on target current
             if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
+
             $record[] = (string) $current;
         }
 
         if (isset($this->options['modify']) && is_callable($this->options['modify']))
-            $record = $this->options['modify']($record, $this->keys);
+            $record = $this->options['modify']($record, $this->keys, $object);
 
         return $record;
     }
@@ -321,17 +359,7 @@ class CsvResultsExporter extends ResultSetExporter {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
 
-        // Detect delimeter from the current locale settings. For locales
-        // which use comma (,) as the decimal separator, the semicolon (;)
-        // should be used as the field separator
-        $delimiter = ',';
-        if (class_exists('NumberFormatter')) {
-            $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
-                NumberFormatter::DECIMAL);
-            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
-            if ($s == ',')
-                $delimiter = ';';
-        }
+        $delimiter = Internationalization::getCSVDelimiter();
 
         // Output a UTF-8 BOM (byte order mark)
         fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));

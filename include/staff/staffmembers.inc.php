@@ -143,6 +143,12 @@ $agents->limit($pageNav->getLimit())->offset($pageNav->getStart());
                                 <?php echo __( 'Change Department'); ?>
                             </a>
                         </li>
+                        <li>
+                            <a class="no-pjax" href="staff.php?a=export">
+                                <i class="icon-download-alt icon-fixed-width"></i>
+                                <?php echo __( 'Export Agents'); ?>
+                            </a>
+                        </li>
                         <!-- TODO: Implement "Reset Access" mass action
                     <li><a class="dialog-first" href="#staff/reset-access">
                     <i class="icon-puzzle-piece icon-fixed-width"></i>
