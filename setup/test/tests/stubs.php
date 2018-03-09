@@ -136,6 +136,7 @@ class SqlFunction {
 
 class SqlExpression {
     static function plus() {}
+    static function minus() {}
     static function times() {}
     static function bitor() {}
     static function bitand() {}
@@ -149,6 +150,8 @@ class SqlInterval {
 
 class SqlAggregate {
     static function COUNT() {}
+    static function SUM() {}
+    static function MAX() {}
 }
 
 class Q {
