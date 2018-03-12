@@ -226,7 +226,7 @@ implements TemplateVariable, Searchable {
                 if (!$member->staff)
                     continue;
                 // Annoted the staff model with alerts and role
-                $extended[] = new AnnotatedModel($member->staff, array(
+                $extended[] = AnnotatedModel::wrap($member->staff, array(
                     'alerts'  => $member->isAlertsEnabled(),
                     'role_id' => $member->role_id,
                 ));
