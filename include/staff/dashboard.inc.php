@@ -75,7 +75,8 @@ $plots = $report->getPlotData();
     $date = str_ireplace('FROM_UNIXTIME(', '',$date);
     $date = str_ireplace(')', '',$date);
     $date = new DateTime('@'.$date);
-    $date->setTimeZone(new DateTimeZone($thisstaff->getTimezone()));
+    if ($thisstaff->getTimezone())
+      $date->setTimeZone(new DateTimeZone($thisstaff->getTimezone()));
     $range[] = $date->format('F j, Y');
   }
   echo __($range[0] . ' - ' . $range[1]);
