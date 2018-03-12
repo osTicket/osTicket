@@ -165,7 +165,7 @@ class OverviewReport {
             $stats = ThreadEvent::objects()
                 ->filter(array(
                         'annulled' => 0,
-                        'timestamp__range' => array($start, $stop),
+                        'timestamp__range' => array($start, $stop, true),
                         'thread__object_type' => 'T',
                    ))
                 ->aggregate(array(
