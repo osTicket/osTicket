@@ -41,15 +41,28 @@ class FilterAction extends VerySimpleModel {
         return $this->_config;
     }
 
-    function setConfiguration(&$errors=array(), $source=false) {
-        $config = array();
-        foreach ($this->getImpl()->getConfigurationForm($source ?: $_POST)
-                ->getFields() as $name=>$field) {
-            if (!$field->hasData())
-                continue;
+    function parseConfiguration($source, &$errors=array())
+    {
+      if (!$source)
+        return $this->getConfiguration();
+
+      $config = array();
+      foreach ($this->getImpl()->getConfigurationForm($source)
+              ->getFields() as $name=>$field) {
+          if (!$field->hasData())
+              continue;
+          if($field->to_php($field->getClean()))
             $config[$name] = $field->to_php($field->getClean());
-            $errors = array_merge($errors, $field->errors());
-        }
+          else
+            $config[$name] = $field->getClean();
+
+          $errors = array_merge($errors, $field->errors());
+      }
+      return $config;
+    }
+
+    function setConfiguration(&$errors=array(), $source=false) {
+        $config = $this->parseConfiguration($source ?: $_POST, $errors);
         if (count($errors) === 0)
             $this->set('configuration', JsonDataEncoder::encode($config));
         return count($errors) === 0;
@@ -63,6 +76,15 @@ class FilterAction extends VerySimpleModel {
             $this->_impl = $I;
         }
         return $this->_impl;
+    }
+
+    function setFilterFlag($actions, $flag, $bool) {
+        $errors = array();
+        foreach ($actions as $action) {
+          $filter = Filter::lookup($action->filter_id);
+          if ($flag == 'dept') $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, $bool);
+          if ($flag == 'topic') $filter->setFlag(Filter::FLAG_INACTIVE_HT, $bool);
+        }
     }
 
     function apply(&$ticket, array $info) {
@@ -273,19 +295,32 @@ class FA_RouteDepartment extends TriggerAction {
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
-        if ($config['dept_id'])
+        if ($config['dept_id']) {
+          $dept = Dept::lookup($config['dept_id']);
+
+          if ($dept->isActive())
             $ticket['deptId'] = $config['dept_id'];
+        }
     }
 
     function getConfigurationOptions() {
+      $depts = Dept::getDepartments(null, true, false);
+
+      if ($this->action->type == 'dept') {
+        $dept_id = json_decode($this->action->configuration, true);
+        $dept = Dept::lookup($dept_id['dept_id']);
+        if ($dept && !$dept->isActive())
+          $depts[$dept->getId()] = $dept->getName();
+      }
+
         return array(
-            'dept_id' => new ChoiceField(array(
+                'dept_id' => new ChoiceField(array(
                 'configuration' => array(
                     'prompt' => __('Unchanged'),
                     'data' => array('quick-add' => 'department'),
                 ),
                 'choices' =>
-                    Dept::getDepartments() +
+                    $depts +
                     array(':new:' => '— '.__('Add New').' —'),
                 'validators' => function($self, $clean) {
                     if ($clean === ':new:')
@@ -406,12 +441,24 @@ class FA_AssignTopic extends TriggerAction {
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
-        if ($config['topic_id'])
+        if ($config['topic_id']) {
+          $topic = Topic::lookup($config['topic_id']);
+
+          if ($topic->isActive())
             $ticket['topicId'] = $config['topic_id'];
+        }
     }
 
     function getConfigurationOptions() {
-        $choices = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        $choices = Topic::getHelpTopics(false, false);
+
+        if ($this->action->type == 'topic') {
+          $topic_id = json_decode($this->action->configuration, true);
+          $topic = Topic::lookup($topic_id['topic_id']);
+          if ($topic && !$topic->isActive())
+            $choices[$topic->getId()] = $topic->getName();
+        }
+
         return array(
             'topic_id' => new ChoiceField(array(
                 'configuration' => array('prompt' => __('Unchanged')),

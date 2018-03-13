@@ -295,6 +295,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `execorder` int(10) unsigned NOT NULL default '99',
   `isactive` tinyint(1) unsigned NOT NULL default '1',
+  `flags` int(10) unsigned DEFAULT '0',
   `status` int(11) unsigned NOT NULL DEFAULT '0',
   `match_all_rules` tinyint(1) unsigned NOT NULL default '0',
   `stop_onmatch` tinyint(1) unsigned NOT NULL default '0',
@@ -420,7 +421,6 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `topic_id` int(11) unsigned NOT NULL auto_increment,
   `topic_pid` int(10) unsigned NOT NULL default '0',
-  `isactive` tinyint(1) unsigned NOT NULL default '1',
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
   `flags` int(10) unsigned DEFAULT '0',

@@ -31,6 +31,8 @@ if($_POST){
             if(!$filter){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
             }elseif($filter->update($_POST,$errors)){
+                $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, false);
+                $filter->setFlag(Filter::FLAG_INACTIVE_HT, false);
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
@@ -116,6 +118,22 @@ if($_POST){
 $page='filters.inc.php';
 $tip_namespace = 'manage.filter';
 if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+  if($filter) {
+    foreach ($filter->getActions() as $A) {
+      if($A->type == 'dept')
+        $dept = Dept::lookup($A->parseConfiguration($_POST)['dept_id']);
+
+      if($A->type == 'topic')
+        $topic = Topic::lookup($A->parseConfiguration($_POST)['topic_id']);
+    }
+  }
+
+  if($dept && !$dept->isActive())
+    $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Ticket Filter'), __('Department'));
+
+  if($topic && !$topic->isActive())
+    $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Ticket Filter'), __('Help Topic'));
+
     $page='filter.inc.php';
 }
 

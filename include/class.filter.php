@@ -21,6 +21,9 @@ class Filter {
     var $id;
     var $ht;
 
+    const FLAG_INACTIVE_HT = 0x0001;
+    const FLAG_INACTIVE_DEPT  = 0x0002;
+
     static $match_types = array(
         /* @trans */ 'User Information' => array(
             array('name'      =>    /* @trans */ 'Name',
@@ -136,6 +139,15 @@ class Filter {
 
     function getHelpTopic() {
         return $this->ht['topic_id'];
+    }
+
+    public function setFlag($flag, $val) {
+        if ($val)
+            $this->ht['flags'] |= $flag;
+        else
+            $this->ht['flags'] &= ~$flag;
+        $vars['rules']= $this->getRules();
+        $this->update($this->ht, $errors);
     }
 
     function stopOnMatch() {
@@ -340,7 +352,7 @@ class Filter {
     }
 
     function update($vars,&$errors) {
-
+        $vars['flags'] = $this->ht['flags'];
         if(!Filter::save($this->getId(),$vars,$errors))
             return false;
 
@@ -457,6 +469,21 @@ class Filter {
     }
 
     function save($id,$vars,&$errors) {
+      if ($this) {
+        foreach ($this->getActions() as $A) {
+          if ($A->type == 'dept')
+              $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+
+          if ($A->type == 'topic')
+              $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+        }
+      }
+
+      if($dept && !$dept->isActive())
+        $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
+
+      if($topic && !$topic->isActive())
+        $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
 
         if(!$vars['execorder'])
             $errors['execorder'] = __('Order required');
@@ -487,6 +514,7 @@ class Filter {
 
         $sql=' updated=NOW() '
             .',isactive='.db_input($vars['isactive'])
+            .',flags='.db_input($vars['flags'])
             .',target='.db_input($vars['target'])
             .',name='.db_input($vars['name'])
             .',execorder='.db_input($vars['execorder'])
@@ -518,6 +546,29 @@ class Filter {
         return count($errors) == 0;
     }
 
+    function validate_actions($action) {
+
+      $config = json_decode($action->ht['configuration'], true);
+      if ($action->ht['type'] == 'dept') {
+        $dept = Dept::lookup($config['dept_id']);
+        if (!$dept || !$dept->isActive()) {
+          $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+          return $errors;
+        }
+      }
+
+      if ($action->ht['type'] == 'topic') {
+        $topic = Topic::lookup($config['topic_id']);
+        if (!$topic || !$topic->isActive()) {
+          $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+          return $errors;
+        }
+      }
+
+      return false;
+
+    }
+
     function save_actions($id, $vars, &$errors) {
         if (!is_array(@$vars['actions']))
             return;
@@ -540,11 +591,28 @@ class Filter {
                     'sort' => (int) $sort,
                 ));
                 $I->setConfiguration($errors, $vars);
+                $config = json_decode($I->ht['configuration'], true);
+
+                $invalid = self::validate_actions($I);
+                if ($invalid) {
+                  $errors['err'] = sprintf($invalid['err']);
+                  return;
+                }
+
                 $I->save();
                 break;
-            case 'I': # exiting filter action
+            case 'I': # existing filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
+
+                    $config = json_decode($I->ht['configuration'], true);
+
+                    $invalid = self::validate_actions($I);
+                    if ($invalid) {
+                      $errors['err'] = sprintf($invalid['err']);
+                      return;
+                    }
+
                     $I->sort = (int) $sort;
                     $I->save();
                 }
