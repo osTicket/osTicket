@@ -4,23 +4,64 @@
     $categories = Category::objects()
         ->exclude(Q::any(array(
             'ispublic'=>Category::VISIBILITY_PRIVATE,
-            'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+            Q::all(array(
+                    'faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+                    'children__ispublic' => Category::VISIBILITY_PRIVATE,
+                    'children__faqs__ispublished'=>FAQ::VISIBILITY_PRIVATE,
+                    ))
         )))
-        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
-        ->filter(array('faq_count__gt'=>0));
+        //->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs__ispublished')));
+        ->annotate(array('faq_count' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                        ->when(array(
+                                'faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
+                        ->otherwise(null)
+        )))
+        ->annotate(array('children_faq_count' => SqlAggregate::COUNT(
+                        SqlCase::N()
+                        ->when(array(
+                                'children__faqs__ispublished__gt'=> FAQ::VISIBILITY_PRIVATE), 1)
+                        ->otherwise(null)
+        )));
+
+       // ->filter(array('faq_count__gt' => 0));
     if ($categories->exists(true)) { ?>
         <div><?php echo __('Click on the category to browse FAQs.'); ?></div>
         <ul id="kb">
 <?php
-        foreach ($categories as $C) { ?>
+        foreach ($categories as $C) {
+            // Don't show subcategories with parents.
+            if (($p=$C->parent)
+                    && ($categories->findFirst(array(
+                                'category_id' => $p->getId()))))
+                continue;
+
+            $count = $C->faq_count + $C->children_faq_count;
+            ?>
             <li><i></i>
             <div style="margin-left:45px">
-            <h4><?php echo sprintf('<a href="faq.php?cid=%d">%s (%d)</a>',
-                $C->getId(), Format::htmlchars($C->getLocalName()), $C->faq_count); ?></h4>
+            <h4><?php echo sprintf('<a href="faq.php?cid=%d">%s %s</a>',
+                $C->getId(), Format::htmlchars($C->getFullName()),
+                $count ? "({$count})": ''
+                ); ?></h4>
             <div class="faded" style="margin:10px 0">
                 <?php echo Format::safe_html($C->getLocalDescriptionWithImages()); ?>
             </div>
-<?php       foreach ($C->faqs
+<?php
+            if (($subs=$C->getPublicSubCategories())) {
+                echo '<p/><div style="padding-bottom:15px;">';
+                foreach ($subs as $c) {
+                    echo sprintf('<div><i class="icon-folder-open"></i>
+                            <a href="faq.php?cid=%d">%s (%d)</a></div>',
+                            $c->getId(),
+                            $c->getLocalName(),
+                            $c->faq_count
+                            );
+                }
+                echo '</div>';
+            }
+
+            foreach ($C->faqs
                     ->exclude(array('ispublished'=>FAQ::VISIBILITY_PRIVATE))
                     ->limit(5) as $F) { ?>
                 <div class="popular-faq"><i class="icon-file-alt"></i>

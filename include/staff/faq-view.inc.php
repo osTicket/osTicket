@@ -29,7 +29,8 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
 
 <div id="breadcrumbs">
     <a href="kb.php"><?php echo __('All Categories');?></a>
-    &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php echo $category->getName(); ?></a>
+    &raquo; <a href="kb.php?cid=<?php echo $category->getId(); ?>"><?php
+    echo $category->getFullName(); ?></a>
     <span class="faded">(<?php echo $category->isPublic()?__('Public'):__('Internal'); ?>)</span>
 </div>
 

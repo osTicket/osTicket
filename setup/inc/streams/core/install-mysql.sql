@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
   `category_id` int(10) unsigned NOT NULL auto_increment,
+  `category_pid` int(10) unsigned DEFAULT NULL,
   `ispublic` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(125) default NULL,
   `description` TEXT NOT NULL,
