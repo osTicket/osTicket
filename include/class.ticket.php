@@ -3281,9 +3281,15 @@ implements RestrictedAccess, Threadable, Searchable {
                 // Convert duedate to DB timezone.
                 if ($fid == 'duedate'
                         && ($dt = Format::parseDateTime($val))) {
+                          // Make sure the due date is valid
+                          if (Misc::user2gmtime($val) <= Misc::user2gmtime())
+                              $errors['field']=__('Due date must be in the future');
                     $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
                     $val = $dt->format('Y-m-d H:i:s');
                 }
+                elseif ($fid == 'duedate' && !$val)
+                  $errors['field']=__('Invalid due date');
+
                 $changes = array();
                 $this->{$fid} = $val;
                 foreach ($this->dirty as $F=>$old) {
