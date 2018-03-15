@@ -157,24 +157,6 @@ class StaffNav {
                 case 'tasks':
                     $subnav[]=array('desc'=>__('Tasks'), 'href'=>'tasks.php', 'iconclass'=>'Ticket', 'droponly'=>true);
                     break;
-                case 'tickets':
-                    $subnav[]=array('desc'=>__('Tickets'),'href'=>'tickets.php','iconclass'=>'Ticket', 'droponly'=>true);
-                    if($staff) {
-                        if(($assigned=$staff->getNumAssignedTickets()))
-                            $subnav[]=array('desc'=>__('My&nbsp;Tickets')." ($assigned)",
-                                            'href'=>'tickets.php?status=assigned',
-                                            'iconclass'=>'assignedTickets',
-                                            'droponly'=>true);
-
-                        if ($staff->hasPerm(Ticket::PERM_CREATE, false))
-                            $subnav[]=array('desc'=>__('New Ticket'),
-                                            'title' => __('Open a New Ticket'),
-                                            'href'=>'tickets.php?a=open',
-                                            'iconclass'=>'newTicket',
-                                            'id' => 'new-ticket',
-                                            'droponly'=>true);
-                    }
-                    break;
                 case 'dashboard':
                     $subnav[]=array('desc'=>__('Dashboard'),'href'=>'dashboard.php','iconclass'=>'logs');
                     $subnav[]=array('desc'=>__('Agent Directory'),'href'=>'directory.php','iconclass'=>'teams');

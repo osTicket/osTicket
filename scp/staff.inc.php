@@ -78,7 +78,7 @@ if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
 //2) if not super admin..check system status and group status
 if(!$thisstaff->isAdmin()) {
     //Check for disabled staff or group!
-    if (!$thisstaff->isactive()) {
+    if (!$thisstaff->isActive()) {
         staffLoginPage(__('Access Denied. Contact Admin'));
         exit;
     }

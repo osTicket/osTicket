@@ -447,9 +447,6 @@ if ($redirect) {
     Http::redirect($redirect);
 }
 
-/*... Quick stats ...*/
-$stats = $thisstaff->getTicketsStats();
-
 // Clear advanced search upon request
 if (isset($_GET['clear_filter']))
     unset($_SESSION['advsearch']);
@@ -536,7 +533,13 @@ if($ticket) {
         $inc = 'ticket-open.inc.php';
     elseif ($_REQUEST['a'] == 'export' && $queue) {
         // XXX: Check staff access?
+<<<<<<< HEAD
         if (!$queue->export())
+=======
+        $filename = sprintf('%s Tickets-%s.csv', $queue->getName(),
+                strftime('%Y%m%d'));
+        if (!$queue->export($filename, 'csv'))
+>>>>>>> code cleanup
             $errors['err'] = __('Unable to export results.')
                 .' '.__('Internal error occurred');
     } elseif ($queue) {

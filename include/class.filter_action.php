@@ -79,11 +79,12 @@ class FilterAction extends VerySimpleModel {
     }
 
     function setFilterFlag($actions, $flag, $bool) {
-        $errors = array();
         foreach ($actions as $action) {
           $filter = Filter::lookup($action->filter_id);
-          if ($flag == 'dept') $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, $bool);
-          if ($flag == 'topic') $filter->setFlag(Filter::FLAG_INACTIVE_HT, $bool);
+          if ($filter) {
+            if ($flag == 'dept') $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, $bool);
+            if ($flag == 'topic') $filter->setFlag(Filter::FLAG_INACTIVE_HT, $bool);
+          }
         }
     }
 

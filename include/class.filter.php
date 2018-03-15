@@ -142,6 +142,8 @@ class Filter {
     }
 
     public function setFlag($flag, $val) {
+        $vars = array();
+        $errors = array();
         if ($val)
             $this->ht['flags'] |= $flag;
         else
@@ -547,7 +549,7 @@ class Filter {
     }
 
     function validate_actions($action) {
-
+      $errors = array();
       $config = json_decode($action->ht['configuration'], true);
       if ($action->ht['type'] == 'dept') {
         $dept = Dept::lookup($config['dept_id']);

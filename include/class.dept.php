@@ -741,8 +741,7 @@ implements TemplateVariable, Searchable {
         else
           FilterAction::setFilterFlag($filter_actions, 'dept', true);
 
-        switch ($vars['status'])
-        {
+        switch ($vars['status']) {
           case __('Active'):
             $this->setFlag(self::FLAG_ACTIVE, true);
             $this->setFlag(self::FLAG_ARCHIVED, false);

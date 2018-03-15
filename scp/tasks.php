@@ -197,21 +197,6 @@ if ($stats['closed']) {
                         ($_REQUEST['status']=='closed'));
 }
 
-if (isset($_SESSION['advsearch:tasks'])) {
-    // XXX: De-duplicate and simplify this code
-    $search = SavedSearch::create();
-    $form = $search->getFormFromSession('advsearch:tasks');
-    $form->loadState($_SESSION['advsearch:tasks']);
-    $tasks = Task::objects();
-    $tasks = $search->mangleQuerySet($tasks, $form);
-    $count = $tasks->count();
-    $nav->addSubMenu(array('desc' => __('Search').' ('.number_format($count).')',
-                           'title'=>__('Advanced Task Search'),
-                           'href'=>'tasks.php?status=search',
-                           'iconclass'=>'Ticket'),
-                        (!$_REQUEST['status'] || $_REQUEST['status']=='search'));
-}
-
 if ($thisstaff->hasPerm(TaskModel::PERM_CREATE, false)) {
     $nav->addSubMenu(array('desc'=>__('New Task'),
                            'title'=> __('Open a New Task'),
