@@ -9,7 +9,7 @@
 *
 * Finally, a flag field is added to the filter table
 */
-Help Topics
+-- Help Topics
 UPDATE `%TABLE_PREFIX%help_topic`
      SET `flags` = `flags` + 2
      WHERE `isactive` = 1;
@@ -23,8 +23,8 @@ UPDATE `%TABLE_PREFIX%department`
     WHERE `ispublic` = 1;
 
 -- Ticket Filters
-ALTER TABLE  `%TABLE_PREFIX%filter`
-    ADD  `flags` int(10) unsigned DEFAULT '0' AFTER  `isactive`;
+ALTER TABLE `%TABLE_PREFIX%filter`
+    ADD `flags` int(10) unsigned DEFAULT '0' AFTER  `isactive`;
 
  -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`

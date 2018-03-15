@@ -580,23 +580,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->stats = array();
     }
 
-    /* returns staff's quick stats - used on nav menu...etc && warnings */
-    function getTicketsStats() {
-
-        if(!$this->stats['tickets'])
-            $this->stats['tickets'] = Ticket::getStaffStats($this);
-
-        return  $this->stats['tickets'];
-    }
-
-    function getNumAssignedTickets() {
-        return ($stats=$this->getTicketsStats())?$stats['assigned']:0;
-    }
-
-    function getNumClosedTickets() {
-        return ($stats=$this->getTicketsStats())?$stats['closed']:0;
-    }
-
     function getTasksStats() {
 
         if (!$this->stats['tasks'])

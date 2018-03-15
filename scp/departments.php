@@ -102,6 +102,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             foreach ($depts as $d) {
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, true);
+                              $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
+                              FilterAction::setFilterFlag($filter_actions, 'dept', false);
                               if($d->save())
                                 $num++;
                             }
@@ -127,6 +129,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             foreach ($depts as $d) {
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
+                              $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
+                              FilterAction::setFilterFlag($filter_actions, 'dept', true);
                               if($d->save()) {
                                 $num++;
                                 //set dept_id to default for topics/emails using disabled dept
@@ -154,6 +158,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             foreach ($depts as $d) {
                               $d->setFlag(Dept::FLAG_ARCHIVED, true);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
+                              $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
+                              FilterAction::setFilterFlag($filter_actions, 'dept', true);
                               if($d->save()) {
                                 $num++;
                                 //set dept_id to default for topics/emails using archived dept
@@ -216,7 +222,7 @@ if ($_REQUEST['a'] && $_REQUEST['a'] == 'export') {
 } elseif ($dept || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
   if ($dept && ($pid=$dept->getParent()) && !$pid->isActive())
     $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Department'), __('Parent Department'));
-    
+
     $page='department.inc.php';
 }
 

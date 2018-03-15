@@ -985,7 +985,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 'label' => __('Due Date'),
                 'hint' => $hint,
                 'configuration' => array(
+                    'min' => Misc::gmtime(),
                     'time' => true,
+                    'gmt' => false,
                     'future' => true,
                     )
                 ));
@@ -3284,11 +3286,11 @@ implements RestrictedAccess, Threadable, Searchable {
                           // Make sure the due date is valid
                           if (Misc::user2gmtime($val) <= Misc::user2gmtime())
                               $errors['field']=__('Due date must be in the future');
-                    $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
-                    $val = $dt->format('Y-m-d H:i:s');
+                          else {
+                              $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
+                              $val = $dt->format('Y-m-d H:i:s');
+                          }
                 }
-                elseif ($fid == 'duedate' && !$val)
-                  $errors['field']=__('Invalid due date');
 
                 $changes = array();
                 $this->{$fid} = $val;
@@ -3370,46 +3372,6 @@ implements RestrictedAccess, Threadable, Searchable {
 	    ->count();
 
 	return ($num === 0);
-    }
-
-    /* Quick staff's tickets stats */
-    function getStaffStats($staff) {
-        global $cfg;
-
-        /* Unknown or invalid staff */
-        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
-            return null;
-
-        $visibility = $staff->getTicketsVisibility();
-
-        $blocks = Ticket::objects()
-            ->filter(Q::any($visibility))
-            ->filter(array('status__state' => 'open'))
-            ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id');
-
-        $stats = array();
-        $id = $staff->getId();
-        foreach ($blocks as $S) {
-            if ($showanswered || !$S['isanswered']) {
-                if (!($hideassigned && ($S['staff_id'] || $S['team_id'])))
-                    $stats['open'] += $S['count'];
-            }
-            else {
-                $stats['answered'] += $S['count'];
-            }
-            if ($S['isoverdue'])
-                $stats['overdue'] += $S['count'];
-            if ($S['staff_id'] == $id)
-                $stats['assigned'] += $S['count'];
-            elseif ($S['team_id']
-                    && $S['staff_id'] == 0
-                    && $teams
-                    && in_array($S['team_id'], $teams))
-                // Assigned to my team but uassigned to an agent
-                $stats['assigned'] += $S['count'];
-        }
-        return $stats;
     }
 
     /* Quick client's tickets stats

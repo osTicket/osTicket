@@ -132,6 +132,7 @@ class SqlFunction {
     static function LENGTH() {}
     static function COALESCE() {}
     static function DATEDIFF() {}
+    static function timestampdiff() {}
 }
 
 class SqlExpression {

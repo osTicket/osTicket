@@ -134,7 +134,7 @@ implements Searchable {
         $collaborators = $this->getCollaborators();
         $active = array();
         foreach ($collaborators as $c) {
-          if ($c->isactive())
+          if ($c->isActive())
             $active[] = $c;
         }
         return $active;
@@ -360,8 +360,8 @@ implements Searchable {
         if ($type && is_array($type)) {
           $visibility = Q::all(array('type__in' => $type));
 
-          if ($type['poster']) {
-            $visibility->add(array('poster__exact' => $type['poster']));
+          if ($type['user_id']) {
+            $visibility->add(array('user_id' => $type['user_id']));
             $visibility->ored = true;
           }
 
@@ -2019,7 +2019,7 @@ class ThreadEvent extends VerySimpleModel {
         $staff = $thisstaff->getId();
       else
         $staff = $ticket->getStaffId();
-        
+
         $inst = self::create(array(
             'staff_id' => $staff,
             'team_id' => $ticket->getTeamId(),

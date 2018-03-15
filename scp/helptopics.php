@@ -72,6 +72,8 @@ if($_POST){
                         foreach ($topics as $t) {
                           $t->setFlag(Topic::FLAG_ARCHIVED, false);
                           $t->setFlag(Topic::FLAG_ACTIVE, true);
+                          $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
+                          FilterAction::setFilterFlag($filter_actions, 'topic', false);
                           if($t->save())
                             $num++;
                         }
@@ -97,6 +99,8 @@ if($_POST){
                         foreach ($topics as $t) {
                           $t->setFlag(Topic::FLAG_ARCHIVED, false);
                           $t->setFlag(Topic::FLAG_ACTIVE, false);
+                          $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
+                          FilterAction::setFilterFlag($filter_actions, 'topic', true);
                           if($t->save()) {
                             $num++;
                             //remove topic_id for emails using disabled topic
@@ -124,6 +128,8 @@ if($_POST){
                         foreach ($topics as $t) {
                           $t->setFlag(Topic::FLAG_ARCHIVED, true);
                           $t->setFlag(Topic::FLAG_ACTIVE, false);
+                          $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
+                          FilterAction::setFilterFlag($filter_actions, 'topic', true);
                           if($t->save()) {
                             $num++;
                             //remove topic_id for emails using disabled topic
