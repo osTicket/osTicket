@@ -666,7 +666,10 @@ $(function() {
             }
         })
         .done(function() { })
-        .fail(function() { });
+        .fail(function() { })
+        .always(function() {
+            $('#overlay, #loading').hide();
+        });
      });
     <?php
     if ($ticket) { ?>
