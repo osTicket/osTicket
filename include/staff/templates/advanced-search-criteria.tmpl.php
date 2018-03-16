@@ -88,6 +88,24 @@ foreach ($matches as $path => $F) {
 <?php }
 } ?>
 </select>
+
+<div class="row">
+</br>
+  <label class="checkbox inline"><input id="save-search" type="checkbox" name="save-search"
+
+  onclick="javascript:
+    var form = $(this).closest('form');
+    form.attr('action', form.attr('action') + '/' + <?php echo
+      $search->id ?: "'create'"; ?>);">
+       <?php echo __('Save Search'); ?></label>
+     </br>
+     <input name="name" type="text" size="40" style="margin-top: 5px;"
+       value="<?php echo Format::htmlchars($search->getName()); ?>"
+       placeholder="<?php
+       echo __('Search Title'); ?>"/>
+     <div class="error"><?php echo Format::htmlchars($errors['name']); ?></div>
+</div>
+
 <script>
 $(function() {
   $('#search-add-new-field').on('change', function() {

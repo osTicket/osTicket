@@ -34,15 +34,6 @@ foreach ($queues as $id => $name) {
       </select>
     </div>
    </div>
-   <div class="flex row">
-    <div class="span12">
-      <input name="name" type="text" size="30"
-        value="<?php echo Format::htmlchars($search->getName()); ?>"
-        placeholder="<?php
-        echo __('Enter a title for the search queue'); ?>"/>
-      <div class="error"><?php echo Format::htmlchars($errors['name']); ?></div>
-    </div>
-  </div>
 <ul class="clean tabs">
     <li class="active"><a href="#criteria"><i class="icon-search"></i> <?php echo __('Criteria'); ?></a></li>
     <li><a href="#columns"><i class="icon-columns"></i> <?php echo __('Columns'); ?></a></li>
@@ -84,14 +75,6 @@ foreach ($queues as $id => $name) {
       <button class="button" type="submit" name="submit" value="search"
         id="do_search"><i class="icon-search"></i>
         <?php echo __('Search'); ?></button>
-      <button class="green button" type="submit" name="submit" value="save"
-        onclick="javascript:
-          var form = $(this).closest('form');
-          form.attr('action', form.attr('action') + '/' + <?php echo
-            $search->id ?: "'create'"; ?>);"
-        ><i class="icon-save"></i>
-        <?php echo __('Save'); ?>
-      </button>
     </div>
   </div>
 
