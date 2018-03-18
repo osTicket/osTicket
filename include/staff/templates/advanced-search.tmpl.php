@@ -51,7 +51,7 @@ foreach ($queues as $id => $name) {
 
 <div class="tab_content" id="criteria">
   <div class="flex row">
-    <div class="span12">
+    <div class="span12" style="overflow-y: scroll; height:100%;">
 <?php if ($parent) { ?>
       <div class="faded" style="margin-bottom: 1em">
       <div>
@@ -69,12 +69,14 @@ foreach ($queues as $id => $name) {
 
 </div>
 
-<div class="tab_content hidden" id="columns">
+<div class="tab_content hidden" id="columns" style="overflow-y: scroll;
+height:100%;">
     <?php
     include STAFFINC_DIR . "templates/queue-columns.tmpl.php";
     ?>
 </div>
-<div class="tab_content hidden" id="fields">
+<div class="tab_content hidden" id="fields" style="overflow-y: scroll;
+height:auto;">
     <?php
     include STAFFINC_DIR . "templates/queue-fields.tmpl.php";  ?>
 </div>

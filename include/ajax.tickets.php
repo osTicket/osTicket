@@ -1428,5 +1428,36 @@ function refer($tid, $target=null) {
 
         include STAFFINC_DIR . 'templates/task-view.tmpl.php';
     }
+
+
+    function export($id) {
+        global $thisstaff;
+
+        if (is_numeric($id))
+            $queue = SavedSearch::lookup($id);
+        else
+            $queue = AdhocSearch::load($id);
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$queue || !$queue->checkAccess($thisstaff))
+            Http::response(404, 'No such saved queue');
+
+        if ($_POST && is_array($_POST['fields'])) {
+            // Cache export preferences
+            $id = $queue->getId();
+            $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
+            $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
+            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
+
+            if ($queue->isSaved() && isset($_POST['save-changes']))
+               $queue->updateExports(array_flip($_POST['fields']));
+
+            Http::response(201, 'Export Ready');
+        }
+
+        include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
+
+    }
 }
 ?>

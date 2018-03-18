@@ -296,15 +296,24 @@ foreach ($tickets as $T) {
       <span class="faded pull-right"><?php echo $pageNav->showing(); ?></span>
 <?php
         echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
-        echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
-                Http::build_query(array(
-                        'a' => 'export', 'queue' => $_REQUEST['queue'],
-                        'status' => $_REQUEST['status'])),
-                __('Export'));
         ?>
+        <a href="#tickets/export/<?php echo $queue->getId(); ?>" id="queue-export" class="no-pjax"
+            ><?php echo __('Export'); ?></a>
         <i class="help-tip icon-question-sign" href="#export"></i>
     </div>
 <?php
     } ?>
-
 </form>
+<script type="text/javascript">
+$(function() {
+    $(document).on('click', 'a#queue-export', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'+$(this).attr('href').substr(1)
+        $.dialog(url, 201, function (xhr) {
+            window.location.href = '?a=export&queue=<?php echo $queue->getId(); ?>';
+            return false;
+         });
+        return false;
+    });
+});
+</script>
