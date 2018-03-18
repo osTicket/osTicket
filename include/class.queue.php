@@ -711,7 +711,7 @@ class CustomQueue extends VerySimpleModel {
         ));
     }
 
-    function export($filename, $format) {
+    function export($options=array()) {
 
         if (!($query=$this->getBasicQuery()))
             return false;
@@ -719,7 +719,31 @@ class CustomQueue extends VerySimpleModel {
         if (!($fields=$this->getExportFields()))
             return false;
 
-        return Export::saveTickets($query, $fields, $filename, $format);
+
+        $filename = sprintf('%s Tickets-%s.csv',
+                $this->getName(),
+                strftime('%Y%m%d'));
+        // See if we have cached export preference
+        if (isset($_SESSION['Export:Q'.$this->getId()])) {
+            $opts = $_SESSION['Export:Q'.$this->getId()];
+            if (isset($opts['fields']))
+                $fields = array_intersect_key($fields,
+                        array_flip($opts['fields']));
+            if (isset($opts['filename'])
+                    && ($parts = pathinfo($opts['filename']))) {
+                $filename = $opts['filename'];
+                if (strcasecmp($parts['extension'], 'csv') !=0)
+                    $filename ="$filename.csv";
+            }
+
+            if (isset($opts['delimiter']))
+                $options['delimiter'] = $opts['delimiter'];
+
+        }
+
+
+        return Export::saveTickets($query, $fields, $filename, 'csv',
+                $options);
     }
 
     /**
@@ -917,6 +941,59 @@ class CustomQueue extends VerySimpleModel {
         $this->clearFlag(self::FLAG_DISABLED);
     }
 
+    function updateExports($fields, $save=true) {
+
+        if (!$fields)
+            return false;
+
+        $order = array_keys($fields);
+        // Filter exportable fields
+        if (!($fields = array_intersect_key($this->getExportableFields(), $fields)))
+            return false;
+
+        $new = $fields;
+        foreach ($this->exports as $f) {
+            $key = $f->getPath();
+            if (!isset($fields[$key])) {
+                $this->exports->remove($f);
+                continue;
+            }
+
+            $info = $fields[$key];
+            if (is_array($info))
+                $heading = $info['heading'];
+            else
+                $heading = $info;
+
+            $f->set('heading', $heading);
+            $f->set('sort', array_search($key, $order)+1);
+            unset($new[$key]);
+        }
+
+        foreach ($new as $k => $field) {
+            if (is_array($field))
+                $heading = $field['heading'];
+            else
+                $heading = $field;
+
+            $f = QueueExport::create(array(
+                        'path' => $k,
+                        'heading' => $heading,
+                        'sort' => array_search($k, $order)+1));
+            $this->exports->add($f);
+        }
+
+        $this->exports->sort(function($f) { return $f->sort; });
+
+        if (!count($this->exports) && $this->parent)
+            $this->hasFlag(self::FLAG_INHERIT_EXPORT);
+
+        if ($save)
+            $this->exports->saveAll();
+
+        return true;
+    }
+
     function update($vars, &$errors=array()) {
         // Set basic search information
         if (!$vars['name'])
@@ -1001,29 +1078,7 @@ class CustomQueue extends VerySimpleModel {
         // Update export fields for the queue
         if (isset($vars['exports']) &&
                  !$this->hasFlag(self::FLAG_INHERIT_EXPORT)) {
-            $new = $vars['exports'];
-            $order = array_keys($new);
-            foreach ($this->exports as $f) {
-                $key = $f->getPath();
-                if (!isset($vars['exports'][$key])) {
-                    $this->exports->remove($f);
-                    continue;
-                }
-                $info = $vars['exports'][$key];
-                $f->set('heading', $info['heading']);
-                $f->set('sort',array_search($key, $order));
-                unset($new[$key]);
-            }
-
-            foreach($new as $k => $field) {
-                $f = QueueExport::create(array(
-                            //'queue_id' => $this->getId(),
-                            'path' => $k,
-                            'heading' => $field['heading'],
-                            'sort' => array_search($k, $order)));
-                $this->exports->add($f);
-            }
-            $this->exports->sort(function($f) { return $f->sort; });
+            $this->updateExports($vars['exports'], false);
         }
 
         if (!count($this->exports) && $this->parent)

@@ -652,6 +652,10 @@ class SavedSearch extends CustomQueue {
     // Override the ORM relationship to force no children
     private $children = false;
 
+    function isSaved() {
+        return true;
+    }
+
     static function forStaff(Staff $agent) {
         return static::objects()->filter(Q::any(array(
             'staff_id' => $agent->getId(),
@@ -679,8 +683,37 @@ class SavedSearch extends CustomQueue {
 
 class AdhocSearch
 extends SavedSearch {
+
+    function isSaved() {
+        return false;
+    }
+
+    function checkAccess($staff) {
+        return true;
+    }
+
     function getName() {
         return $this->title ?: $this->describeCriteria();
+    }
+
+    function load($key) {
+
+        if (strpos($key, 'adhoc') === 0)
+            list(, $key) = explode(',', $key, 2);
+
+        if (!$key
+                || !isset($_SESSION['advsearch'])
+                || !($config=$_SESSION['advsearch'][$key]))
+            return null;
+
+       $queue = new AdhocSearch(array(
+                   'id' => "adhoc,$key",
+                   'root' => 'T',
+                   'title' => __('Advanced Search'),
+                ));
+       $queue->config = $config;
+
+       return $queue;
     }
 }
 

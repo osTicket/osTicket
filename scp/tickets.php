@@ -102,13 +102,8 @@ if (!$ticket) {
             reset($_SESSION['advsearch']);
             $key = key($_SESSION['advsearch']);
         }
-        // XXX: De-duplicate and simplify this code
-        $queue = new AdhocSearch(array(
-            'id' => "adhoc,$key",
-            'root' => 'T',
-            'title' => __('Advanced Search'),
-        ));
-        $queue->config = $_SESSION['advsearch'][$key];
+
+        $queue = AdhocSearch::load($key);
     }
 
     // Make the current queue sticky
@@ -541,9 +536,7 @@ if($ticket) {
         $inc = 'ticket-open.inc.php';
     elseif ($_REQUEST['a'] == 'export' && $queue) {
         // XXX: Check staff access?
-        $filename = sprintf('%s Tickets-%s', $queue->getName(),
-                strftime('%Y%m%d'));
-        if (!$queue->export($filename, 'csv'))
+        if (!$queue->export())
             $errors['err'] = __('Unable to export results.')
                 .' '.__('Internal error occurred');
     } elseif ($queue) {

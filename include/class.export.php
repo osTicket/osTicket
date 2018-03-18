@@ -40,7 +40,8 @@ class Export {
     #      SQL is exported, but for something like tickets, we will need to
     #      export attached messages, reponses, and notes, as well as
     #      attachments associated with each, ...
-    static function dumpTickets($sql, $target=array(), $how='csv') {
+    static function dumpTickets($sql, $target=array(), $how='csv',
+            $options=array()) {
         // Add custom fields to the $sql statement
         $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
@@ -90,13 +91,15 @@ class Export {
                     }
                 }
                 return $record;
-            })
+            },
+            'delimiter' => @$options['delimiter'])
             );
     }
 
-    static  function saveTickets($sql, $fields, $filename, $how='csv') {
+    static  function saveTickets($sql, $fields, $filename, $how='csv',
+            $options=array()) {
         Http::download($filename, "text/$how");
-        self::dumpTickets($sql, $fields, $how);
+        self::dumpTickets($sql, $fields, $how, $options);
         exit;
     }
 
@@ -316,16 +319,17 @@ class ResultSetExporter {
 
 class CsvResultsExporter extends ResultSetExporter {
 
-    function dump() {
 
-        if (!$this->output)
-             $this->output = fopen('php://output', 'w');
+    function getDelimiter() {
+
+        if (isset($this->options['delimiter']))
+            return $this->options['delimiter'];
 
         // Detect delimeter from the current locale settings. For locales
         // which use comma (,) as the decimal separator, the semicolon (;)
         // should be used as the field separator
         $delimiter = ',';
-        if (class_exists('NumberFormatter')) {
+        if (!$this->options['delimiter'] && class_exists('NumberFormatter')) {
             $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
                 NumberFormatter::DECIMAL);
             $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
@@ -333,6 +337,17 @@ class CsvResultsExporter extends ResultSetExporter {
                 $delimiter = ';';
         }
 
+        return $delimiter;
+    }
+
+
+    function dump() {
+
+        if (!$this->output)
+             $this->output = fopen('php://output', 'w');
+
+
+        $delimiter = $this->getDelimiter();
         // Output a UTF-8 BOM (byte order mark)
         fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($this->output, $this->getHeaders(), $delimiter);
