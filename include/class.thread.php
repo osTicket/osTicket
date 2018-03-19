@@ -134,7 +134,7 @@ implements Searchable {
         $collaborators = $this->getCollaborators();
         $active = array();
         foreach ($collaborators as $c) {
-          if ($c->isactive())
+          if ($c->isActive())
             $active[] = $c;
         }
         return $active;
@@ -360,8 +360,8 @@ implements Searchable {
         if ($type && is_array($type)) {
           $visibility = Q::all(array('type__in' => $type));
 
-          if ($type['poster']) {
-            $visibility->add(array('poster__exact' => $type['poster']));
+          if ($type['user_id']) {
+            $visibility->add(array('user_id' => $type['user_id']));
             $visibility->ored = true;
           }
 
@@ -1837,6 +1837,12 @@ class ThreadEvent extends VerySimpleModel {
                 ),
                 'null' => true,
             ),
+            'topic' => array(
+                'constraint' => array(
+                    'topic_id' => 'Topic.topic_id',
+                ),
+                'null' => true,
+            ),
         ),
     );
 
@@ -1895,15 +1901,16 @@ class ThreadEvent extends VerySimpleModel {
         return $this->template(sprintf(
             __('%s by {somebody} {timestamp}'),
             $this->state
-        ));
+        ), $mode);
     }
 
-    function template($description) {
+    function template($description, $mode=self::MODE_STAFF) {
         global $thisstaff, $cfg;
 
         $self = $this;
+        $hideName = $cfg->hideStaffName();
         return preg_replace_callback('/\{(<(?P<type>([^>]+))>)?(?P<key>[^}.]+)(\.(?P<data>[^}]+))?\}/',
-            function ($m) use ($self, $thisstaff, $cfg) {
+            function ($m) use ($self, $thisstaff, $cfg, $hideName, $mode) {
                 switch ($m['key']) {
                 case 'assignees':
                     $assignees = array();
@@ -1919,7 +1926,10 @@ class ThreadEvent extends VerySimpleModel {
                     }
                     return implode('/', $assignees);
                 case 'somebody':
-                    $name = $self->getUserName();
+                    if ($hideName && $self->agent && $mode == self::MODE_CLIENT)
+                        $name = __('Staff');
+                    else
+                        $name = $self->getUserName();
                     if ($cfg->isAvatarsEnabled()
                             && ($avatar = $self->getAvatar()))
                         $name = $avatar.$name;
@@ -2003,11 +2013,27 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     static function forTicket($ticket, $state, $user=false) {
+      global $thisstaff;
+
+      if($thisstaff && !$ticket->getStaffId())
+        $staff = $thisstaff->getId();
+      else
+        $staff = $ticket->getStaffId();
+
         $inst = self::create(array(
-            'staff_id' => $ticket->getStaffId(),
+            'staff_id' => $staff,
             'team_id' => $ticket->getTeamId(),
             'dept_id' => $ticket->getDeptId(),
             'topic_id' => $ticket->getTopicId(),
+        ), $user);
+        return $inst;
+    }
+
+    static function forTask($task, $state, $user=false) {
+        $inst = self::create(array(
+            'staff_id' => $task->getStaffId(),
+            'team_id' => $task->getTeamId(),
+            'dept_id' => $task->getDeptId(),
         ), $user);
         return $inst;
     }
@@ -2055,8 +2081,8 @@ class ThreadEvents extends InstrumentedList {
         if ($object instanceof Ticket)
             // TODO: Use $object->createEvent() (nolint)
             $event = ThreadEvent::forTicket($object, $state, $user);
-        else
-            $event = ThreadEvent::create(false, $user);
+        elseif ($object instanceof Task)
+            $event = ThreadEvent::forTask($object, $state, $user);
 
         # Annul previous entries if requested (for instance, reopening a
         # ticket will annul an 'closed' entry). This will be useful to
@@ -2153,9 +2179,9 @@ class CloseEvent extends ThreadEvent {
 
     function getDescription($mode=self::MODE_STAFF) {
         if ($this->getData('status'))
-            return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'));
+            return $this->template(__('Closed by <b>{somebody}</b> with status of {<TicketStatus>data.status} {timestamp}'), $mode);
         else
-            return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'));
+            return $this->template(__('Closed by <b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 
@@ -2212,7 +2238,7 @@ class CollaboratorEvent extends ThreadEvent {
                 : 'somebody';
             break;
         }
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -2221,7 +2247,7 @@ class CreationEvent extends ThreadEvent {
     static $state = 'created';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Created by <b>{somebody}</b> {timestamp}'));
+        return $this->template(__('Created by <b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 
@@ -2303,7 +2329,7 @@ class EditEvent extends ThreadEvent {
             break;
         }
 
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -2321,7 +2347,7 @@ class ReopenEvent extends ThreadEvent {
     static $state = 'reopened';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Reopened by <b>{somebody}</b> {timestamp}'));
+        return $this->template(__('Reopened by <b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 
@@ -2829,6 +2855,7 @@ implements TemplateVariable {
 
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
+        $vars['pid'] = $this->getLastMessage()->id;
 
         if (!($resp = ResponseThreadEntry::add($vars, $errors)))
             return $resp;

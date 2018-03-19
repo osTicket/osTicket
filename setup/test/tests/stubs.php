@@ -132,10 +132,12 @@ class SqlFunction {
     static function LENGTH() {}
     static function COALESCE() {}
     static function DATEDIFF() {}
+    static function timestampdiff() {}
 }
 
 class SqlExpression {
     static function plus() {}
+    static function minus() {}
     static function times() {}
     static function bitor() {}
     static function bitand() {}
@@ -149,6 +151,8 @@ class SqlInterval {
 
 class SqlAggregate {
     static function COUNT() {}
+    static function SUM() {}
+    static function MAX() {}
 }
 
 class Q {

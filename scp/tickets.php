@@ -447,9 +447,6 @@ if ($redirect) {
     Http::redirect($redirect);
 }
 
-/*... Quick stats ...*/
-$stats = $thisstaff->getTicketsStats();
-
 // Clear advanced search upon request
 if (isset($_GET['clear_filter']))
     unset($_SESSION['advsearch']);

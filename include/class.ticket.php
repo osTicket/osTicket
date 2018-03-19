@@ -207,7 +207,9 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isReopenable() {
-        return $this->getStatus()->isReopenable();
+        return ($this->getStatus()->isReopenable()
+          && $this->getDept()->allowsReopen()
+        && $this->getTopic()->allowsReopen());
     }
 
     function isClosed() {
@@ -220,7 +222,7 @@ implements RestrictedAccess, Threadable, Searchable {
             return true;
 
         $warning = null;
-        if ($this->getMissingRequiredFields()) {
+        if (self::getMissingRequiredFields($this)) {
             $warning = sprintf(
                     __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
                     __('This ticket'),
@@ -983,7 +985,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 'label' => __('Due Date'),
                 'hint' => $hint,
                 'configuration' => array(
+                    'min' => Misc::gmtime(),
                     'time' => true,
+                    'gmt' => false,
                     'future' => true,
                     )
                 ));
@@ -1018,17 +1022,31 @@ implements RestrictedAccess, Threadable, Searchable {
         }
     }
 
-    function getMissingRequiredFields() {
+    static function getMissingRequiredFields($ticket) {
+        // Check for fields disabled by Help Topic
+        $disabled = array();
+        foreach ($ticket->entries as $entry) {
+            $extra = JsonDataParser::decode($entry->extra);
+            if (!empty($extra['disable']))
+                $disabled[] = $extra['disable'];
+        }
+        $disabled = !empty($disabled) ? call_user_func_array('array_merge', $disabled) : NULL;
 
-        return $this->getDynamicFields(array(
+        $criteria = array(
                     'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
                     'answers__field__flags__hasbit' => DynamicFormField::FLAG_CLOSE_REQUIRED,
                     'answers__value__isnull' => true,
-                    ));
+                    );
+
+        // If there are disabled fields then exclude them
+        if ($disabled)
+            array_push($criteria, Q::not(array('answers__field__id__in' => $disabled)));
+
+        return $ticket->getDynamicFields($criteria, $ticket);
     }
 
     function getMissingRequiredField() {
-        $fields = $this->getMissingRequiredFields();
+        $fields = self::getMissingRequiredFields($this);
         return $fields ? $fields[0] : null;
     }
 
@@ -1962,7 +1980,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 return new FormattedDate($this->getCloseDate());
             break;
         case 'last_update':
-            return new FormattedDate($this->last_update);
+            return new FormattedDate($this->lastupdate);
         case 'user':
             return $this->getOwner();
         default:
@@ -3068,7 +3086,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!parent::delete())
             return false;
 
-        $t->delete();
+        $this->logEvent('deleted');
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();
@@ -3143,6 +3161,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 && !array_key_exists($vars['source'], Ticket::getSources()))
             $errors['source'] = sprintf( __('Invalid source given - %s'),
                     Format::htmlchars($vars['source']));
+
+        $topic = Topic::lookup($vars['topicId']);
+        if($topic && !$topic->isActive())
+          $errors['topicId']= sprintf(__('%s selected must be active'), __('Help Topic'));
 
         // Validate dynamic meta-data
         $forms = DynamicFormEntry::forTicket($this->getId());
@@ -3261,9 +3283,15 @@ implements RestrictedAccess, Threadable, Searchable {
                 // Convert duedate to DB timezone.
                 if ($fid == 'duedate'
                         && ($dt = Format::parseDateTime($val))) {
-                    $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
-                    $val = $dt->format('Y-m-d H:i:s');
+                          // Make sure the due date is valid
+                          if (Misc::user2gmtime($val) <= Misc::user2gmtime())
+                              $errors['field']=__('Due date must be in the future');
+                          else {
+                              $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
+                              $val = $dt->format('Y-m-d H:i:s');
+                          }
                 }
+
                 $changes = array();
                 $this->{$fid} = $val;
                 foreach ($this->dirty as $F=>$old) {
@@ -3344,46 +3372,6 @@ implements RestrictedAccess, Threadable, Searchable {
 	    ->count();
 
 	return ($num === 0);
-    }
-
-    /* Quick staff's tickets stats */
-    function getStaffStats($staff) {
-        global $cfg;
-
-        /* Unknown or invalid staff */
-        if(!$staff || (!is_object($staff) && !($staff=Staff::lookup($staff))) || !$staff->isStaff())
-            return null;
-
-        $visibility = $staff->getTicketsVisibility();
-
-        $blocks = Ticket::objects()
-            ->filter(Q::any($visibility))
-            ->filter(array('status__state' => 'open'))
-            ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'isanswered', 'isoverdue','staff_id', 'team_id');
-
-        $stats = array();
-        $id = $staff->getId();
-        foreach ($blocks as $S) {
-            if ($showanswered || !$S['isanswered']) {
-                if (!($hideassigned && ($S['staff_id'] || $S['team_id'])))
-                    $stats['open'] += $S['count'];
-            }
-            else {
-                $stats['answered'] += $S['count'];
-            }
-            if ($S['isoverdue'])
-                $stats['overdue'] += $S['count'];
-            if ($S['staff_id'] == $id)
-                $stats['assigned'] += $S['count'];
-            elseif ($S['team_id']
-                    && $S['staff_id'] == 0
-                    && $teams
-                    && in_array($S['team_id'], $teams))
-                // Assigned to my team but uassigned to an agent
-                $stats['assigned'] += $S['count'];
-        }
-        return $stats;
     }
 
     /* Quick client's tickets stats
@@ -3744,6 +3732,10 @@ implements RestrictedAccess, Threadable, Searchable {
             elseif (!isset($vars['teamId']) && $topic->getTeamId())
                 $vars['teamId'] = $topic->getTeamId();
 
+            // Unset slaId if 0 to use the Help Topic SLA or Default SLA
+            if ($vars['slaId'] == 0)
+                unset($vars['slaId']);
+
             //set default sla.
             if (isset($vars['slaId']))
                 $vars['slaId'] = $vars['slaId'] ?: $cfg->getDefaultSLAId();
@@ -4033,11 +4025,12 @@ implements RestrictedAccess, Threadable, Searchable {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            $response = $ticket->postReply($vars, $errors, false);
+            $response = $ticket->postReply($vars, $errors,
+                    !isset($vars['alertuser']));
         }
 
         // Not assigned...save optional note if any
-        if (!$vars['assignId'] && $vars['note']) {
+        if (!$ticket->isAssigned() && $vars['note']) {
             if (!$cfg->isRichTextEnabled()) {
                 $vars['note'] = new TextThreadEntryBody($vars['note']);
             }
@@ -4055,7 +4048,15 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($msg=$tpl->getNewTicketNoticeMsgTemplate())
             && ($email=$dept->getEmail())
         ) {
-            $message = (string) $ticket->getLastMessage();
+           $attachments = array();
+           $message = $ticket->getLastMessage();
+           if ($cfg->emailAttachments()) {
+               $attachments = $message->getAttachments();
+               if ($response && $response->getNumAttachments())
+                 $attachments = $attachments->merge($response->getAttachments());
+           }
+
+            $message = (string) $message;
             if ($response) {
                 $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
                 $message .= $response->getBody();
@@ -4067,9 +4068,6 @@ implements RestrictedAccess, Threadable, Searchable {
                 $signature=$dept->getSignature();
             else
                 $signature='';
-
-            $attachments = ($cfg->emailAttachments() && $response)
-                ? $response->getAttachments() : array();
 
             $msg = $ticket->replaceVars($msg->asArray(),
                 array(

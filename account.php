@@ -77,6 +77,10 @@ elseif ($_POST) {
             '</strong></a>'));
         $errors['err'] = __('Unable to register account. See messages below');
     }
+    elseif (!$addr)
+        $errors['email'] = sprintf(__('%s is a required field'), $user_form->getField('email')->getLocal('label'));
+    elseif (!$user_form->getField('name')->getClean())
+        $errors['name'] = sprintf(__('%s is a required field'), $user_form->getField('name')->getLocal('label'));
     // Users created from ClientCreateRequest
     elseif (isset($_POST['backend']) && !($user = User::fromVars($user_form->getClean())))
         $errors['err'] = __('Unable to create local account. See messages below');

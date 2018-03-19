@@ -264,6 +264,14 @@ class Email extends VerySimpleModel {
         if(!$vars['name'])
             $errors['name']=__('Email name required');
 
+        $dept = Dept::lookup($vars['dept_id']);
+        if($dept && !$dept->isActive())
+          $errors['dept_id'] = '';
+
+        $topic = Topic::lookup($vars['topic_id']);
+        if($topic && !$topic->isActive())
+          $errors['topic_id'] = '';
+
         if($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth'])) {
             if(!$vars['userid'])
                 $errors['userid']=__('Username missing');

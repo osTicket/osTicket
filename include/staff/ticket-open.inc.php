@@ -248,7 +248,7 @@ if ($_POST)
                 <select name="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
-                    if($depts=Dept::getDepartments(array('dept_id' => $thisstaff->getDepts()))) {
+                    if($depts=Dept::getPublicDepartments()) {
                         foreach($depts as $id =>$name) {
                             if (!($role = $thisstaff->getRole($id))
                                 || !$role->hasPerm(Ticket::PERM_CREATE)
@@ -358,7 +358,7 @@ if ($_POST)
         <tr>
             <td colspan=2>
             <?php
-            if(($cannedResponses=Canned::getCannedResponses())) {
+            if($cfg->isCannedResponseEnabled() && ($cannedResponses=Canned::getCannedResponses())) {
                 ?>
                 <div style="margin-top:0.3em;margin-bottom:0.5em">
                     <?php echo __('Canned Response');?>:&nbsp;
@@ -466,13 +466,9 @@ print $response_form->getField('attachments')->render();
     <input type="submit" name="submit" value="<?php echo _P('action-button', 'Open');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
-        $('.richtext').each(function() {
-            var redactor = $(this).data('redactor');
-            if (redactor && redactor.opts.draftDelete)
-                redactor.deleteDraft();
-        });
-        window.location.href='tickets.php';
-    ">
+        $(this.form).find('textarea.richtext')
+          .redactor('draft.deleteDraft');
+        window.location.href='tickets.php'; " />
 </p>
 </form>
 <script type="text/javascript">

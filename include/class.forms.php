@@ -677,8 +677,8 @@ class FormField {
         # Validates a user-input into an instance of this field on a dynamic
         # form
         if ($this->get('required') && !$value && $this->hasData())
-            $this->_errors[] = $this->getLabel()
-                ? sprintf(__('%s is a required field'), $this->getLabel())
+            $this->_errors[] = $this->getLocal('label')
+                ? sprintf(__('%s is a required field'), $this->getLocal('label'))
                 : __('This is a required field');
 
         # Perform declared validators for the field
@@ -1486,6 +1486,39 @@ class TextareaField extends FormField {
         );
     }
 
+    function validateEntry($value) {
+        parent::validateEntry($value);
+        $config = $this->getConfiguration();
+        $validators = array(
+            '' =>       null,
+            'choices' => array(
+                function($val) {
+                    $val = str_replace('"', '', JsonDataEncoder::encode($val));
+                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[A-z0-9 _-]+$/";
+                    foreach (explode('\r\n', $val) as $v) {
+                        if (!preg_match($regex, $v))
+                            return false;
+                    }
+                    return true;
+                }, __('Each choice requires a key and has to be on a new line. (eg. key:value)')
+            ),
+        );
+        // Support configuration forms, as well as GUI-based form fields
+        $valid = $this->get('validator');
+        if (!$valid) {
+            $valid = $config['validator'];
+        }
+        if (!$value || !isset($validators[$valid]))
+            return;
+        $func = $validators[$valid];
+        $error = $func[1];
+        if ($config['validator-error'])
+            $error = $this->getLocal('validator-error', $config['validator-error']);
+        if (is_array($func) && is_callable($func[0]))
+            if (!call_user_func($func[0], $value))
+                $this->_errors[] = $error;
+    }
+
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1655,7 +1688,8 @@ class ChoiceField extends FormField {
         return array(
             'choices'  =>  new TextareaField(array(
                 'id'=>1, 'label'=>__('Choices'), 'required'=>false, 'default'=>'',
-                'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change'),
+                'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change.</br><b>Note:</b> If you have more than two choices, use a List instead.'),
+                'validator'=>'choices',
                 'configuration'=>array('html'=>false)
             )),
             'default' => new TextboxField(array(
@@ -1856,11 +1890,12 @@ class ChoiceField extends FormField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
+        $val = '"?'.implode('("|,|$)|"?', array_keys($value)).'("|,|$)';
         switch ($method) {
         case '!includes':
-            return Q::not(array("{$name}__in" => array_keys($value)));
+            return Q::not(array("{$name}__regex" => $val));
         case 'includes':
-            return new Q(array("{$name}__in" => array_keys($value)));
+            return new Q(array("{$name}__regex" => $val));
         default:
             return parent::getSearchQ($method, $value, $name);
         }
@@ -2610,10 +2645,47 @@ class DepartmentField extends ChoiceField {
     function getChoices($verbose=false) {
         global $cfg;
 
+        $selected = self::getWidget();
+        if($selected && $selected->value) {
+          if(is_array($selected->value)) {
+            foreach ($selected->value as $k => $v) {
+              $current_id = $k;
+              $current_name = $v;
+            }
+          }
+          else {
+            $current_id = $selected->value;
+            $current_name = Dept::getNameById($current_id);
+            $addNew = true;
+          }
+        }
+
+        $active_depts = array();
+        if($current_id)
+          $active_depts = Dept::objects()
+            ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
+            ->values('id', 'name');
+
         $choices = array();
-        if (($depts = Dept::getDepartments()))
-            foreach ($depts as $id => $name)
-                $choices[$id] = $name;
+        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
+          //create array w/queryset
+          $active = array();
+          foreach ($active_depts as $dept)
+            $active[$dept['id']] = $dept['name'];
+
+          //add selected dept to list
+          $active[$current_id] = $current_name;
+
+
+          foreach ($depts as $id => $name) {
+            $choices[$id] = $name;
+            if(!array_key_exists($id, $active) && $current_id)
+              unset($choices[$id]);
+          }
+
+        }
+        if($addNew)
+          $choices[':new:'] = '— '.__('Add New').' —';
 
         return $choices;
     }
@@ -3155,7 +3227,7 @@ class FileUploadField extends FormField {
 
         // Check MIME type - file ext. shouldn't be solely trusted.
         if ($type && $config['__mimetypes']
-                && in_array($type, $config['__mimetypes']))
+                && in_array($type, $config['__mimetypes'], true))
             return true;
 
         // Return true if all file types are allowed (.*)
@@ -4131,7 +4203,7 @@ class SectionBreakWidget extends Widget {
     function render($options=array()) {
         ?><div class="form-header section-break"><h3><?php
         echo Format::htmlchars($this->field->getLocal('label'));
-        ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
+        ?></h3><em><?php echo Format::display($this->field->getLocal('hint'));
         ?></em></div>
         <?php
     }

@@ -59,14 +59,27 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             <td>
                 <select name="pid">
                     <option value="">&mdash; <?php echo __('Top-Level Department'); ?> &mdash;</option>
-<?php foreach (Dept::getDepartments() as $id=>$name) {
-    if ($info['id'] && $id == $info['id'])
-        continue; ?>
-                    <option value="<?php echo $id; ?>" <?php
-                    if ($info['pid'] == $id) echo 'selected="selected"';
-                    ?>><?php echo $name; ?></option>
-<?php } ?>
-                </select>
+                    <?php
+                    if($info['pid'])
+                      $current_name = Dept::getNameById($info['pid']);
+                    if ($depts=Dept::getPublicDepartments())
+                    {
+                      if(!array_key_exists($info['pid'], $depts) && $info['pid'])
+                      {
+                        $depts[$info['pid']] = $current_name;
+                        $warn = sprintf(__('%s selected must be active'), __('Parent Department'));
+                      }
+                    foreach ($depts as $id=>$name) {
+                        $selected=($info['pid'] && $id==$info['pid'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                    }
+                  }
+                  ?>
+              </select>
+              <?php
+              if($warn) { ?>
+                  &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+              <?php } ?>
             </td>
         </tr>
         <tr>
@@ -82,6 +95,19 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         </tr>
         <tr>
             <td width="180" class="required">
+                <?php echo __('Status');?>:
+            </td>
+            <td>
+                <select name="status">
+                  <option value="Active"<?php echo ($info['status'] == __('Active'))?'selected="selected"':'';?>><?php echo __('Active'); ?></option>
+                  <option value="Disabled"<?php echo ($info['status'] == __('Disabled'))?'selected="selected"':'';?>><?php echo __('Disabled'); ?></option>
+                  <option value="Archived"<?php echo ($info['status'] == __('Archived'))?'selected="selected"':'';?>><?php echo __('Archived'); ?></option>
+                </select>
+                &nbsp;<span class="error">&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
                 <?php echo __('Type');?>:
             </td>
             <td>
@@ -93,6 +119,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Private');?></strong> <?php echo mb_convert_case(__('(internal)'), MB_CASE_TITLE);?>
                 </label>
                 &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
+                &nbsp;<span class="error"><?php echo $errors['ispublic']; ?></span>
             </td>
         </tr>
         <tr>
@@ -325,7 +352,17 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo sprintf(__('Agents who are primary members of %s'), __('this department')); ?>
                 </small></div>
             </td>
-        </tr>
+            <td>
+              <?php
+                echo sprintf(
+                    '<a class="no-pjax" href="departments.php?id=%d&a=export"</a>',
+                    $dept->getId());
+                    ?>
+              <span class="action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Export');?>">
+                  <i class="icon-download-alt icon-fixed-width"></i>
+              </span>
+            </td>
+          </tr>
         <?php
         if (!count($dept->members)) { ?>
         <tr><td colspan=2><em><?php

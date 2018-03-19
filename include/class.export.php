@@ -140,7 +140,7 @@ class Export {
                 'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
-            array('modify' => function(&$record, $keys) use ($fields) {
+            array('modify' => function(&$record, $keys, $obj) use ($fields) {
                 foreach ($fields as $k=>$f) {
                     if (($i = array_search($k, $keys)) !== false) {
                         $record[$i] = $f->export($f->to_php($record[$i]));
@@ -185,7 +185,7 @@ class Export {
                     '::getEmail' =>          __('Email'),
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -224,7 +224,7 @@ class Export {
                     'name'  =>  'Name',
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -242,6 +242,72 @@ class Export {
         return false;
     }
 
+    static function agents($agents, $filename='', $how='csv') {
+
+        // Filename or stream to export agents to
+        $filename = $filename ?: sprintf('Agents-%s.csv',
+                strftime('%Y%m%d'));
+        Http::download($filename, "text/$how");
+        $depts = Dept::getDepartments();
+        echo self::dumpQuery($agents, array(
+                    '::getName'  =>  'Name',
+                    '::getUsername' => 'Username',
+                    '::getStatus' => 'Status',
+                    'permissions' => 'Permissions',
+                    '::getDept'  => 'Primary Department',
+                    ) + $depts,
+                $how,
+                array('modify' => function(&$record, $keys, $obj) use ($depts) {
+
+                   if (($i = array_search('permissions', $keys)))
+                       $record[$i] = implode(",", array_keys($obj->getPermission()->getInfo()));
+
+                    $roles = $obj->getRoles();
+                    foreach ($depts as $k => $v) {
+                        if (is_numeric($k) && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $roles[$k] ?: '';
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        exit;
+
+    }
+
+static function departmentMembers($dept, $agents, $filename='', $how='csv') {
+    $primaryMembers = array();
+    foreach ($dept->getPrimaryMembers() as $agent) {
+      $primaryMembers[] = $agent->getId();
+    }
+
+    // Filename or stream to export depts' agents to
+    $filename = $filename ?: sprintf('%s-%s.csv', $dept->getName(),
+            strftime('%Y%m%d'));
+    Http::download($filename, "text/$how");
+    echo self::dumpQuery($agents, array(
+                '::getName'  =>  'Name',
+                '::getUsername' => 'Username',
+                2 => 'Access Type',
+                3 => 'Access Role',
+              ),
+            $how,
+            array('modify' => function(&$record, $keys, $obj) use ($dept, $primaries, $primaryMembers) {
+                $role = $obj->getRole($dept);
+
+                if (array_search($obj->getId(), $primaryMembers, true) === false)
+                  $type = 'Extended';
+                else {
+                  $type = 'Primary';
+                }
+
+                $record[2] = $type;
+                $record[3] = $role->name;
+                return $record;
+                })
+            );
+    exit;
+  }
 }
 
 class ResultSetExporter {
@@ -279,26 +345,32 @@ class ResultSetExporter {
         $this->_res->next();
 
         $record = array();
-
         foreach ($this->keys as $field) {
             list($field, $func) = explode('::', $field);
             $path = explode('.', $field);
+
             $current = $object;
             // Evaluate dotted ORM path
             if ($field) {
                 foreach ($path as $P) {
-                    $current = $current->{$P};
+                    if (isset($current->{$P}))
+                        $current = $current->{$P};
+                    else  {
+                        $current = $P;
+                        break;
+                    }
                 }
             }
             // Evalutate :: function call on target current
             if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
+
             $record[] = (string) $current;
         }
 
         if (isset($this->options['modify']) && is_callable($this->options['modify']))
-            $record = $this->options['modify']($record, $this->keys);
+            $record = $this->options['modify']($record, $this->keys, $object);
 
         return $record;
     }
@@ -325,21 +397,8 @@ class CsvResultsExporter extends ResultSetExporter {
         if (isset($this->options['delimiter']))
             return $this->options['delimiter'];
 
-        // Detect delimeter from the current locale settings. For locales
-        // which use comma (,) as the decimal separator, the semicolon (;)
-        // should be used as the field separator
-        $delimiter = ',';
-        if (!$this->options['delimiter'] && class_exists('NumberFormatter')) {
-            $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
-                NumberFormatter::DECIMAL);
-            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
-            if ($s == ',')
-                $delimiter = ';';
-        }
-
-        return $delimiter;
+        return Internationalization::getCSVDelimiter();
     }
-
 
     function dump() {
 

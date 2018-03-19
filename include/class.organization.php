@@ -277,13 +277,16 @@ implements TemplateVariable, Searchable {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
+            $vars += $entry->getFilterData();
+
+            // Add special `name` field in Org form
             if ($entry->getDynamicForm()->get('type') != 'O')
                 continue;
-            $vars += $entry->getFilterData();
-            // Add special `name` field
-            $f = $entry->getField('name');
-            $vars['field.'.$f->get('id')] = $this->getName();
+
+            if ($f = $entry->getField('name'))
+                $vars['field.'.$f->get('id')] = $this->getName();
         }
+
         return $vars;
     }
 
@@ -453,6 +456,12 @@ implements TemplateVariable, Searchable {
                 $u->setPrimaryContact(array_search($u->id, $vars['contacts']) !== false);
                 $u->save();
             }
+        } else {
+            $members = $this->allMembers();
+            $members->update(array(
+                'status' => SqlExpression::bitand(
+                    new SqlField('status'), ~User::PRIMARY_ORG_CONTACT)
+                ));
         }
 
         return $this->save();

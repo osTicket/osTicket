@@ -262,7 +262,18 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
-                    <td><?php echo ($S = $ticket->getStatus()) ? $S->display() : ''; ?></td>
+                    <?php
+                         if ($role->hasPerm(Ticket::PERM_CLOSE)) {?>
+                    <td>
+                      <a class="tickets-action" data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>"
+                          data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
+                          href="#statuses">
+                          <?php echo $ticket->getStatus(); ?>
+                      </a>
+                    </td>
+                      <?php } else { ?>
+                          <td><?php echo ($S = $ticket->getStatus()) ? $S->display() : ''; ?></td>
+                      <?php } ?>
                 </tr>
                 <tr>
                     <th><?php echo __('Priority');?>:</th>
@@ -575,7 +586,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     )));
     $displayed = array();
     foreach($answers as $a) {
-        $displayed[] = array($a->getLocal('label'), $a->display() ?: __('Enter'), $a->getLocal('id'));
+        $displayed[] = array($a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'));
     }
     if (count($displayed) == 0)
         continue;
@@ -587,7 +598,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     <tbody>
 <?php
     foreach ($displayed as $stuff) {
-        list($label, $v) = $stuff;
+        list($label, $v, $id) = $stuff;
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>

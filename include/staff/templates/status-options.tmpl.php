@@ -15,7 +15,7 @@ $actions= array(
 
 $states = array('open');
 if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(Ticket::PERM_CLOSE)
-        && (!$ticket || !$ticket->getMissingRequiredFields()))
+        && (!$ticket || !Ticket::getMissingRequiredFields($ticket)))
     $states = array_merge($states, array('closed'));
 
 $statusId = $ticket ? $ticket->getStatusId() : 0;

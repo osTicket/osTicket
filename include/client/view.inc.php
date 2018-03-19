@@ -145,9 +145,9 @@ echo $v;
 <br>
   <?php
     $email = $thisclient->getUserName();
-    $clientName = TicketUser::lookupByEmail($email)->getName()->name;
+    $clientId = TicketUser::lookupByEmail($email)->getId();
 
-    $ticket->getThread()->render(array('M', 'R', 'poster' => $clientName), array(
+    $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId), array(
                     'mode' => Thread::MODE_CLIENT,
                     'html-id' => 'ticketThread')
                 );
@@ -185,7 +185,8 @@ echo $attrs; ?>><?php echo $draft ?: $info['message'];
         print $attachments->render(array('client'=>true));
     } ?>
     </div>
-<?php if ($ticket->isClosed()) { ?>
+<?php
+  if ($ticket->isClosed() && $ticket->isReopenable()) { ?>
     <div class="warning-banner">
         <?php echo __('Ticket will be reopened on message post'); ?>
     </div>
