@@ -998,6 +998,11 @@ class CustomQueue extends VerySimpleModel {
         // Set basic search information
         if (!$vars['name'])
             $errors['name'] = __('A title is required');
+        elseif (($q=CustomQueue::lookup(array(
+                        'title' => $vars['name'],
+                        'parent_id' => $vars['parent_id'] ?: 0,
+                        'staff_id'  => $this->staff_id))))
+            $errors['name'] = __('Saved queue with same name exists');
 
         $this->title = $vars['name'];
         $this->parent_id = @$vars['parent_id'] ?: 0;
