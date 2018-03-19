@@ -35,14 +35,10 @@ class SearchAjaxAPI extends AjaxController {
         if ($search->parent_id) {
             $search->flags |= SavedSearch::FLAG_INHERIT_COLUMNS;
         }
-        if (isset($_SESSION[$context])) {
-            // Use the most recent search
-            if (!$key) {
-                reset($_SESSION[$context]);
-                $key = key($_SESSION[$context]);
-            }
+
+        if (isset($_SESSION[$context]) && $key && $_SESSION[$context][$key])
             $search->config = $_SESSION[$context][$key];
-        }
+
         $this->_tryAgain($search, $search->getForm());
     }
 
