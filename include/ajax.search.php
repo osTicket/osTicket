@@ -143,26 +143,38 @@ class SearchAjaxAPI extends AjaxController {
             -$size);
     }
 
-    function _tryAgain($search, $form, $errors=array()) {
+    function _tryAgain($search, $form, $errors=array(), $info=array()) {
         $matches = $search->getSupportedMatches();
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 
-    function saveSearch($id) {
+    function saveSearch($id=0) {
         global $thisstaff;
 
-        $search = SavedSearch::lookup($id);
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
-        elseif (!$search || !$search->checkAccess($thisstaff))
+
+        if ($id) { //  update
+            $search = SavedSearch::lookup($id);
+        } else { // new search
+            $search = SavedSearch::create(array('root' => 'T'));
+            $search->staff_id = $thisstaff->getId();
+        }
+
+        if (!$search || !$search->checkAccess($thisstaff))
             Http::response(404, 'No such saved search');
 
         if (false === $this->_saveSearch($search))
             return;
 
-        Http::response(200, $this->encode(array(
-            'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
-        )));
+        $info = array(
+                'msg' => sprintf('%s %s %s',
+                    __('Search'),
+                    $id ? __('updated') : __('created'),
+                    __('successfully')),
+                );
+
+        $this->_tryAgain($search, $search->getForm(), null, $info);
     }
 
     function _saveSearch(SavedSearch $search) {
@@ -180,22 +192,6 @@ class SearchAjaxAPI extends AjaxController {
         }
 
         return true;
-    }
-
-    function createSearch() {
-        global $thisstaff;
-
-        if (!$thisstaff)
-            Http::response(403, 'Agent login is required');
-
-        $search = SavedSearch::create(array('root' => 'T'));
-        $search->staff_id = $thisstaff->getId();
-        if (false === $this->_saveSearch($search))
-            return;
-
-        Http::response(200, $this->encode(array(
-            'redirect' => 'tickets.php?queue='.Format::htmlchars($search->id),
-        )));
     }
 
     function editColumn($column_id) {
@@ -241,6 +237,21 @@ class SearchAjaxAPI extends AjaxController {
         }
 
         include STAFFINC_DIR . 'templates/queue-sorting-edit.tmpl.php';
+    }
+
+    function getQueue($id) {
+        global $thisstaff;
+
+        $queue = SavedSearch::lookup($id);
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$queue || !$queue->checkAccess($thisstaff))
+            Http::response(404, 'No such queue');
+
+        Http::response(200, $this->encode(array(
+            'name' => $queue->getName(),
+            'criteria' => nl2br(Format::htmlchars($queue->describeCriteria())),
+        )));
     }
 
     function deleteQueue($id) {

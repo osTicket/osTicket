@@ -1,3 +1,4 @@
+<div style="overflow-y: auto; height:auto; max-height: 350px;">
 <table class="table">
 <?php
 if ($queue->parent) { ?>
@@ -38,7 +39,8 @@ $hidden_cols = $queue->inheritExport();
       <td><small>&nbsp;</small></td>
     </tr>
   </tbody>
-  <tbody class="sortable-rows if-not-inherited <?php if ($hidden_cols) echo 'hidden'; ?>">
+  <tbody class="sortable-rows if-not-inherited <?php if ($hidden_cols) echo
+  'hidden'; ?>" style="overflow-y: auto;">
     <tr id="field-template" class="hidden field-entry">
       <td nowrap>
         <i class="faded-more icon-sort"></i>
@@ -78,6 +80,7 @@ $hidden_cols = $queue->inheritExport();
     </td></tr>
   </tbody>
 </table>
+</div>
 <script>
 +function() {
 var Q = setInterval(function() {
