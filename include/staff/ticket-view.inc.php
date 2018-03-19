@@ -576,13 +576,17 @@ if($ticket->isOverdue())
 <br>
 <?php
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+    //Find fields to exclude if disabled by help topic
+    $disabled = Ticket::getMissingRequiredFields($ticket, true);
+
     // Skip core fields shown earlier in the ticket view
     // TODO: Rewrite getAnswers() so that one could write
     //       ->getAnswers()->filter(not(array('field__name__in'=>
     //           array('email', ...))));
     $answers = $form->getAnswers()->exclude(Q::any(array(
         'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
-        'field__name__in' => array('subject', 'priority')
+        'field__name__in' => array('subject', 'priority'),
+        'field__id__in' => $disabled,
     )));
     $displayed = array();
     foreach($answers as $a) {
