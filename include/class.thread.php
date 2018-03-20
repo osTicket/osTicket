@@ -2954,6 +2954,10 @@ abstract class ThreadEntryAction {
         return 'icon-' . $class::$icon;
     }
 
+    function getObJectId() {
+        return $this->entry->getThread()->getObjectId();
+    }
+
     function __construct(ThreadEntry $thread) {
         $this->entry = $thread;
     }
