@@ -14,7 +14,7 @@ if (!$user && $_GET['tid'] && ($entry = ThreadEntry::lookup($_GET['tid']))) {
     else
 
      $_SESSION[':form-data']['message'] = Format::htmlchars($entry->getBody());
-     if (($m= TicketForm::getInstance()->getField('subject'))) {
+     if (($m= TicketForm::getInstance()->getField('message'))) {
          $k = 'attach:'.$m->getId();
         foreach ($entry->getAttachments() as $a)
             if (!$a->inline && $a->file)
