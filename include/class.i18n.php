@@ -410,7 +410,7 @@ class Internationalization {
 
     static function getCSVDelimiter($locale='') {
 
-        if (!$locale)  // Prefer browser settings
+        if (!$locale && extension_loaded('intl'))  // Prefer browser settings
             $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
         // Detect delimeter from the current locale settings. For locales

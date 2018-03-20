@@ -144,7 +144,7 @@ class Validator {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
         $rfc822 = new Mail_RFC822();
-        if (!($mails = $rfc822->parseAddressList($email)) || PEAR::isError($mails))
+        if (!($mails = @$rfc822->parseAddressList($email)) || PEAR::isError($mails))
             return false;
 
         if (!$list && count($mails) > 1)

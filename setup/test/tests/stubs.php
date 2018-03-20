@@ -121,6 +121,7 @@ class finfo {
 
 class Locale {
     function getDisplayName() {}
+    function acceptFromHttp() {}
 }
 class IntlBreakIterator {
     static function createWordInstance() {}
