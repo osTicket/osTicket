@@ -1001,7 +1001,9 @@ class CustomQueue extends VerySimpleModel {
         elseif (($q=CustomQueue::lookup(array(
                         'title' => $vars['name'],
                         'parent_id' => $vars['parent_id'] ?: 0,
-                        'staff_id'  => $this->staff_id))))
+                        'staff_id'  => $this->staff_id)))
+                && $q->getId() != $this->id
+                )
             $errors['name'] = __('Saved queue with same name exists');
 
         $this->title = $vars['name'];
@@ -1155,6 +1157,8 @@ class CustomQueue extends VerySimpleModel {
                 'criteria' => $this->isolateCriteria($form->getClean()),
                 'conditions' => $conditions,
             ]);
+            // Clear currently set criteria.and conditions.
+             $this->criteria = $this->_conditions = null;
         }
 
         return 0 === count($errors);
@@ -1943,6 +1947,8 @@ extends VerySimpleModel {
         ) {
             return new LazyDisplayWrapper($field, $T);
         }
+
+         return new LazyDisplayWrapper($field, '');
     }
 
     function applyTruncate($text, $row) {

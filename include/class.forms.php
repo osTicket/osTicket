@@ -1890,7 +1890,9 @@ class ChoiceField extends FormField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
-        $val = '"?'.implode('("|,|$)|"?', array_keys($value)).'("|,|$)';
+        $val = $value;
+        if ($value && is_array($value))
+            $val = '"?'.implode('("|,|$)|"?', array_keys($value)).'("|,|$)';
         switch ($method) {
         case '!includes':
             return Q::not(array("{$name}__regex" => $val));
@@ -1905,7 +1907,7 @@ class ChoiceField extends FormField {
         switch ($method) {
         case 'includes':
             return __('%s includes %s' /* includes -> if a list includes a selection */);
-        case 'includes':
+        case '!includes':
             return __('%s does not include %s' /* includes -> if a list includes a selection */);
         default:
             return parent::describeSearchMethod($method);
@@ -2013,7 +2015,9 @@ class DatetimeField extends FormField {
     }
 
     function from_query($row, $name=false) {
-        return strtotime(parent::from_query($row, $name));
+        $value = parent::from_query($row, $name);
+        $timestamp = is_int($value) ? $value : (int) strtotime($value);
+        return ($timestamp > 0) ? $timestamp : '';
     }
 
     function format($timestamp, $timezone=false) {
