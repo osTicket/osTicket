@@ -999,10 +999,17 @@ class FormField {
             return __('%s not in (%s)');
         }
     }
+
     function describeSearch($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
         $desc = $this->describeSearchMethod($method);
-        $value = $this->toString($value);
-        return sprintf($desc, $name, $value);
+        switch ($method) {
+            case 'set':
+            case 'nset':
+                return sprintf($desc, $name);
+            default:
+                 return sprintf($desc, $name, $this->toString($value));
+        }
     }
 
     function addToQuery($query, $name=false) {
@@ -1935,6 +1942,18 @@ class DatetimeField extends FormField {
     var $min = null;
     var $max = null;
 
+    static function intervals($count=2, $i='') {
+        $intervals = array(
+            'i' => _N('minute', 'minutes', $count),
+            'h' => _N('hour', 'hours', $count),
+            'd' => _N('day','days', $count),
+            'w' => _N('week', 'weeks', $count),
+            'm' => _N('month', 'months', $count),
+        );
+
+        return $i ? $intervals[$i] : $intervals;
+    }
+
     // Get php DatateTime object of the field  - null if value is empty
     function getDateTime($value=null) {
         return Format::parseDateTime($value ?: $this->value);
@@ -2154,21 +2173,14 @@ class DatetimeField extends FormField {
     function getSearchMethodWidgets() {
         $config_notime = $config = $this->getConfiguration();
         $config_notime['time'] = false;
-        $nday_form = function() {
-            $intervals = array(
-                'i' => _N('minute', 'minutes', 5),
-                'h' => _N('hour', 'hours', 5),
-                'd' => _N('day','days', 5),
-                'w' => _N('week', 'weeks', 5),
-                'm' => _N('month', 'months', 5),
-            );
+        $nday_form = function($x=5) {
             return array(
                 'until' => new TextboxField(array(
                     'configuration' => array('validator'=>'number', 'size'=>4))
                 ),
                 'int' => new ChoiceField(array(
                     'default' => 'd',
-                    'choices' => $intervals,
+                    'choices' => self::intervals($x),
                 )),
             );
         };
@@ -2312,13 +2324,31 @@ class DatetimeField extends FormField {
     }
 
     function describeSearch($method, $value, $name=false) {
-        if ($method === 'between') {
-            $l = $this->toString($value['left']);
-            $r = $this->toString($value['right']);
-            $desc = $this->describeSearchMethod($method);
-            return sprintf($desc, $name, $l, $r);
+
+        $name = $name ?: $this->get('name');
+        $desc = $this->describeSearchMethod($method);
+        switch ($method) {
+            case 'between':
+                return sprintf($desc, $name,
+                        $this->toString($value['left']),
+                        $this->toString($value['right']));
+            case 'ndays':
+            case 'ndaysago':
+            case 'distfut':
+            case 'distpast':
+                $interval = sprintf('%s %s', $value['until'],
+                        self::intervals($value['until'], $value['int']));
+                return sprintf($desc, $name, $interval);
+                break;
+            case 'future':
+            case 'past':
+                return sprintf($desc, $name);
+            case 'before':
+            case 'after':
+                return sprintf($desc, $name, $this->toString($value));
+            default:
+                return parent::describeSearch($method, $value, $name);
         }
-        return parent::describeSearch($method, $value, $name);
     }
 
     function supportsQuickFilter() {
