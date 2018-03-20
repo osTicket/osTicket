@@ -909,6 +909,17 @@ class AgentSelectionField extends ChoiceField {
         return Staff::getStaffMembers();
     }
 
+    function toString($value) {
+        $choices =  $this->getChoices();
+        $selection = array();
+        foreach ($value as $k => $v)
+            if (isset($choices[$k]))
+                $selection[] = $choices[$k];
+
+        return $selection ?  implode(',', $selection) :
+            parent::toString($value);
+    }
+
     function applyOrderBy($query, $reverse=false, $name=false) {
         global $cfg;
 
