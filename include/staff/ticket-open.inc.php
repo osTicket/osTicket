@@ -6,6 +6,22 @@ if (!defined('OSTSCPINC') || !$thisstaff
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
+
+//  Use thread entry to seed the ticket
+if (!$user && $_GET['tid'] && ($entry = ThreadEntry::lookup($_GET['tid']))) {
+    if ($entry->user_id)
+       $user = User::lookup($entry->user_id);
+    else
+
+     $_SESSION[':form-data']['message'] = Format::htmlchars($entry->getBody());
+     if (($m= TicketForm::getInstance()->getField('message'))) {
+         $k = 'attach:'.$m->getId();
+        foreach ($entry->getAttachments() as $a)
+            if (!$a->inline && $a->file)
+                $_SESSION[':form-data'][$k][] = $a->file->getId();
+     }
+}
+
 if (!$info['topicId'])
     $info['topicId'] = $cfg->getDefaultTopicId();
 

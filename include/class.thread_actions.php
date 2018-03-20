@@ -136,7 +136,7 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
             )
             || ($T instanceof Ticket
                 && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
-               && $role->hasPerm(ThreadEntry::PERM_EDIT)
+                && $role->hasPerm(ThreadEntry::PERM_EDIT)
             )
         );
     }
@@ -430,6 +430,45 @@ class TEA_ResendThreadEntry extends TEA_EditAndResendThreadEntry {
     }
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_ResendThreadEntry');
+
+/* Create a new ticket from thread entry as description */
+class TEA_CreateTicket extends ThreadEntryAction {
+    static $id = 'create_ticket';
+    static $name = /* trans */ 'Create Ticket';
+    static $icon = 'plus';
+
+    function isVisible() {
+        global $thisstaff;
+
+        return $thisstaff && $thisstaff->hasPerm(Ticket::PERM_CREATE, false);
+    }
+
+    function getJsStub() {
+        return sprintf(<<<JS
+         window.location.href = '%s';
+JS
+        , $this->getCreateTicketUrl()
+        );
+    }
+
+    function trigger() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            return $this->trigger__get();
+        }
+    }
+
+    private function trigger__get() {
+        Http::redirect($this->getCreateTicketUrl());
+    }
+
+    private function getCreateTicketUrl() {
+        return sprintf('tickets.php?a=open&tid=%d', $this->entry->getId());
+    }
+}
+
+ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_CreateTicket');
+
 
 class TEA_CreateTask extends ThreadEntryAction {
     static $id = 'create_task';
