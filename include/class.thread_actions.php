@@ -135,7 +135,11 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
                 && $T->getDept()->getManagerId() == $thisstaff->getId()
             )
             || ($T instanceof Ticket
+<<<<<<< HEAD
                 && ($role = $T->getRole($thisstaff))
+=======
+                && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
+>>>>>>> Thread Entry Action: New Ticket
                 && $role->hasPerm(ThreadEntry::PERM_EDIT)
             )
         );
