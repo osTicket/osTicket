@@ -2837,7 +2837,7 @@ class FileUploadField extends FormField {
 
         // Check MIME type - file ext. shouldn't be solely trusted.
         if ($type && $config['__mimetypes']
-                && in_array($type, $config['__mimetypes']))
+                && in_array($type, $config['__mimetypes'], true))
             return true;
 
         // Return true if all file types are allowed (.*)
