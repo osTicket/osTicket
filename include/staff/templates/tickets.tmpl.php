@@ -24,21 +24,8 @@ if ($user) {
 $tickets->filter(array('ticket_id__in' => $filter));
 
 // Apply staff visibility
-if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
-    // -- Open and assigned to me
-    $visibility = array(
-        new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
-    );
-    // -- Routed to a department of mine
-    if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-        $visibility[] = new Q(array('dept_id__in' => $depts));
-    // -- Open and assigned to a team of mine
-    if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-        $visibility[] = new Q(array(
-            'team_id__in' => array_filter($teams), 'status__state'=>'open'
-        ));
-    $tickets->filter(Q::any($visibility));
-}
+if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING))
+    $tickets->filter($thisstaff->getTicketsVisibility());
 
 $tickets->constrain(array('lock' => array(
                 'lock__expire__gt' => SqlFunction::NOW())));

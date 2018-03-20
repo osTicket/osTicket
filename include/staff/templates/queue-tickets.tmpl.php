@@ -3,28 +3,10 @@
 // $tickets - <QuerySet> with all columns and annotations necessary to
 //      render the full page
 
-// For searches, some staff members may be able to see everything
-$view_all_tickets = $queue->ignoreVisibilityConstraints();
-
 // Impose visibility constraints
 // ------------------------------------------------------------
-if (!$view_all_tickets) {
-    // -- Open and assigned to me
-    $assigned = Q::any(array(
-        'staff_id' => $thisstaff->getId(),
-    ));
-    // -- Open and assigned to a team of mine
-    if ($teams = array_filter($thisstaff->getTeams()))
-        $assigned->add(array('team_id__in' => $teams));
-
-    $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
-
-    // -- Routed to a department of mine
-    if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-        $visibility->add(array('dept_id__in' => $depts));
-
-    $tickets->filter($visibility);
-}
+if (!($queue->ignoreVisibilityConstraints()))
+    $tickets->filter($thisstaff->getTicketsVisibility());
 
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
