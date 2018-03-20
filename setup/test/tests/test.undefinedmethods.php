@@ -36,6 +36,10 @@ function find_function_calls($scripts) {
         $lineno=0;
         foreach ($lines as $line) {
             $lineno++; $matches=array();
+            // Ignore what looks like within comments (#|/|*)
+            if (preg_match('/^(\s*?)(#|\/|\*)/m', $line))
+                continue;
+
             preg_match_all('/^.*\w+(?:-[>]|::)([a-zA-Z0-9_]+)\(.*/', $line, $matches,
                 PREG_SET_ORDER);
             foreach ($matches as $m)

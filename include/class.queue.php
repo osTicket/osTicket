@@ -362,7 +362,7 @@ class CustomQueue extends VerySimpleModel {
         if (function_exists('collator_create')) {
             $coll = Collator::create(Internationalization::getCurrentLanguage());
             $keys = array_map(function($a) use ($coll) {
-                return $coll->getSortKey($a[0]);
+                return $coll->getSortKey($a[0]); #nolint
             }, $fields);
         }
         else {
