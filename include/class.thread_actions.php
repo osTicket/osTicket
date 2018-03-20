@@ -135,7 +135,8 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
                 && $T->getDept()->getManagerId() == $thisstaff->getId()
             )
             || ($T instanceof Ticket
-                && $thisstaff->getRole($T->getDeptId())->hasPerm(ThreadEntry::PERM_EDIT)
+                && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
+               && $role->hasPerm(ThreadEntry::PERM_EDIT)
             )
         );
     }
@@ -469,14 +470,19 @@ JS
     private function trigger__get() {
 
         $vars = array(
-                'description' => Format::htmlchars($this->entry->getBody())
-                );
-        return $this->getTicketsAPI()->addTask($this->entry->getThread()->getObjectId(),
-            $vars);
+                'description' => Format::htmlchars($this->entry->getBody()));
+        if (($f= TaskForm::getInstance()->getField('description'))) {
+              $k = 'attach:'.$f->getId();
+              foreach ($this->entry->getAttachments() as $a)
+                  if (!$a->inline && $a->file)
+                      $vars[$k][] = $a->file->getId();
+        }
+
+        return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
     }
 
     private function trigger__post() {
-        return $this->getTicketsAPI()->addTask($this->entry->getThread()->getObjectId());
+        return $this->getTicketsAPI()->addTask($this->getObjectId());
     }
 
 }
