@@ -33,15 +33,7 @@ class ThreadAjaxAPI extends AjaxController {
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $tickets=array();
 
-        $visibility = Q::any(array(
-            'staff_id' => $thisstaff->getId(),
-            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
-        ));
-        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
-            $visibility->add(array('dept_id__in' => $depts));
-        }
-
-
+        $visibility = $thisstaff->getTicketsVisibility();
         $hits = Ticket::objects()
             ->filter(Q::any(array(
                 'number__startswith' => $_REQUEST['q'],

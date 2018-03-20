@@ -98,6 +98,12 @@ class Export {
 
     static  function saveTickets($sql, $fields, $filename, $how='csv',
             $options=array()) {
+       global $thisstaff;
+
+       if (!$thisstaff)
+               return null;
+
+       $sql->filter($thisstaff->getTicketsVisibility());
         Http::download($filename, "text/$how");
         self::dumpTickets($sql, $fields, $how, $options);
         exit;

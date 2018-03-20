@@ -369,23 +369,8 @@ class SearchAjaxAPI extends AjaxController {
 
         // Visibility contraints ------------------
         // TODO: Consider SavedSearch::ignoreVisibilityConstraints()
-
-        // -- Open and assigned to me
-        $assigned = Q::any(array(
-            'staff_id' => $thisstaff->getId(),
-        ));
-        // -- Open and assigned to a team of mine
-        if ($teams = array_filter($thisstaff->getTeams()))
-            $assigned->add(array('team_id__in' => $teams));
-
-        $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
-
-        // -- Routed to a department of mine
-        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-            $visibility->add(array('dept_id__in' => $depts));
-
+        $visibility = $thisstaff->getTicketsVisibility();
         $query->filter($visibility);
-
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
             if (count($Q->extra) || $Q->isWindowed()) {
