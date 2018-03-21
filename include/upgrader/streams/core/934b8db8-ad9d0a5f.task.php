@@ -21,6 +21,7 @@ class QueueSortCreator extends MigrationTask {
 
         // Re-insert old saved searches
         foreach ($old ?: array() as $row) {
+<<<<<<< HEAD
             // Only save entries with "valid" criteria
             if (!$row['title']
                     || !($config = JsonDataParser::parse($row['config'], true))
@@ -29,6 +30,8 @@ class QueueSortCreator extends MigrationTask {
 
             $row['config'] = JsonDataEncoder::encode(array(
                         'criteria' => $criteria, 'conditions' => array()));
+=======
+>>>>>>> Saved Searches : Save old records
             $row['root'] = 'T';
             CustomQueue::__create(array_intersect_key($row, array_flip(
                             array('staff_id', 'title', 'config', 'flags',
