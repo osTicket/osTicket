@@ -695,15 +695,15 @@ if ($errors['err'] && isset($_POST['a'])) {
             <?php
             }?>
            <tbody id="to_sec">
+           <?php
+           # XXX: Add user-to-name and user-to-email HTML ID#s
+           if ($addresses = Email::getAddresses(array('smtp' => true))){
+           ?>
            <tr>
                <td width="120">
                    <label><strong><?php echo __('From'); ?>:</strong></label>
                </td>
                <td>
-                   <?php
-                   # XXX: Add user-to-name and user-to-email HTML ID#s
-                   $addresses = Email::getAddresses();
-                   ?>
                    <select id="from_name" name="from_name">
                      <?php
                      $sql=' SELECT email_id, email, name, smtp_host '
@@ -719,6 +719,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                    </select>
                </td>
            </tr>
+           <?php } ?>
             <tr>
                 <td width="120">
                     <label><strong><?php echo __('To'); ?>:</strong></label>
