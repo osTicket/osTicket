@@ -123,7 +123,9 @@ class CustomQueue extends VerySimpleModel {
                 && !isset($this->criteria['conditions'])
             ) {
                 // TODO: Upgrade old ORM path names
-                $this->criteria = $this->isolateCriteria($this->criteria);
+                // Parse criteria out of JSON if any.
+                $this->criteria = self::isolateCriteria($this->criteria,
+                        $this->getRoot());
             }
         }
         $criteria = $this->criteria ?: array();
@@ -460,11 +462,13 @@ class CustomQueue extends VerySimpleModel {
      * field name being search, the method used for searhing, and the method-
      * specific data entered in the UI.
      */
-    function isolateCriteria($criteria, $root=null) {
-        $searchable = static::getSearchableFields($root ?: $this->getRoot());
-        $items = array();
+    static function isolateCriteria($criteria, $base='Ticket') {
+
         if (!is_array($criteria))
             return null;
+
+        $items = array();
+        $searchable = static::getSearchableFields($base);
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
                 list($name,) = explode('+', $k, 2);
@@ -477,9 +481,8 @@ class CustomQueue extends VerySimpleModel {
 
                 // Lookup the field to search this condition
                 list($label, $field) = $searchable[$name];
-
-                // Get the search method and value
-                $method = $v;
+                // Get the search method
+                $method = is_array($v) ? key($v) : $v;
                 // Not all search methods require a value
                 $value = $criteria["{$name}+{$method}"];
 
@@ -1154,7 +1157,8 @@ class CustomQueue extends VerySimpleModel {
         }
         else {
             $this->config = JsonDataEncoder::encode([
-                'criteria' => $this->isolateCriteria($form->getClean()),
+                'criteria' => self::isolateCriteria($form->getClean(),
+                    $this->getRoot()),
                 'conditions' => $conditions,
             ]);
             // Clear currently set criteria.and conditions.
@@ -1650,8 +1654,8 @@ class QueueColumnCondition {
      * field name being search, the method used for searhing, and the method-
      * specific data entered in the UI.
      */
-    static function isolateCriteria($criteria, $root='Ticket') {
-        $searchable = CustomQueue::getSearchableFields($root);
+    static function isolateCriteria($criteria, $base='Ticket') {
+        $searchable = CustomQueue::getSearchableFields($base);
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
                 list($name,) = explode('+', $k, 2);
