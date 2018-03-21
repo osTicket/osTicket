@@ -9,6 +9,11 @@
 ALTER TABLE `%TABLE_PREFIX%faq_category`
     ADD `category_pid` int(10) unsigned DEFAULT NULL AFTER  `category_id`;
 
+-- Phone Field `name` and `flags`
+UPDATE `%TABLE_PREFIX%form_field`
+    SET `flags` = `flags` + 262144
+    WHERE `type` = 'phone' AND `name` = 'phone' AND `form_id` = 1 AND `id` < 10;
+
  -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = 'e7dfe82131b906a14f6a13163943855f'
