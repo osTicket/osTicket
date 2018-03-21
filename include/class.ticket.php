@@ -1603,7 +1603,6 @@ implements RestrictedAccess, Threadable, Searchable {
             if(get_class($recipient) == 'Collaborator') {
               if ($recipient->isCc()) {
                 $collabsCc[] = $recipient->getEmail()->address;
-                $cnotice = $this->replaceVars($msg, array('recipient.name.first' => __('Collaborator'), 'recipient' => $recipient));
               }
               else
                 $collabsBcc[] = $recipient;
@@ -1614,11 +1613,14 @@ implements RestrictedAccess, Threadable, Searchable {
             }
          }
 
-         foreach ($collabsBcc as $recipient) {
-           $notice = $this->replaceVars($msg, array('recipient' => $recipient));
-           if ($posterEmail != $recipient->getEmail()->address)
-             $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
-                 $options);
+         //send bcc messages seperately for privacy
+         if ($collabsBcc) {
+           foreach ($collabsBcc as $recipient) {
+             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
+             if ($posterEmail != $recipient->getEmail()->address)
+               $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
+                   $options);
+           }
          }
 
         foreach ($collabsCc as $cc) {
@@ -1628,14 +1630,25 @@ implements RestrictedAccess, Threadable, Searchable {
             $collaborators[] = $cc;
         }
 
+        //the ticket user is a recipient
         if ($owner->getEmail()->address != $poster->getEmail()->address && !in_array($owner->getEmail()->address, $skip))
-          $collaborators[] = $owner->getEmail()->address;
+          $owner_recip = $owner->getEmail()->address;
 
         $collaborators['cc'] = $collaborators;
 
         //collaborator email sent out
-        $email->send('', $cnotice['subj'], $cnotice['body'], $attachments,
-            $options, $collaborators);
+        if ($collaborators['cc']) {
+          //say dear collaborator if the ticket user is not a recipient
+          if (!$owner_recip)
+            $cnotice = $this->replaceVars($msg, array('recipient.name.first' => __('Collaborator'), 'recipient' => $recipient));
+          //otherwise address email to ticket user
+          else
+            $cnotice = $this->replaceVars($msg, array('recipient' => $owner));
+
+          //if the ticket user is a recipient, put them in to address otherwise, cc all recipients
+          $email->send($owner_recip ? $owner_recip : '', $cnotice['subj'], $cnotice['body'], $attachments,
+              $options, $collaborators);
+        }
     }
 
     function onMessage($message, $autorespond=true, $reopen=true) {
