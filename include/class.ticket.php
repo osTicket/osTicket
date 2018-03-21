@@ -1022,15 +1022,21 @@ implements RestrictedAccess, Threadable, Searchable {
         }
     }
 
-    static function getMissingRequiredFields($ticket) {
+    //if ids passed, function returns only the ids of fields disabled by help topic
+    static function getMissingRequiredFields($ticket, $ids=false) {
         // Check for fields disabled by Help Topic
         $disabled = array();
-        foreach ($ticket->entries as $entry) {
-            $extra = JsonDataParser::decode($entry->extra);
+        foreach (($ticket->getTopic() ? $ticket->getTopic()->forms : $ticket->entries) as $f) {
+            $extra = JsonDataParser::decode($f->extra);
+
             if (!empty($extra['disable']))
                 $disabled[] = $extra['disable'];
         }
+
         $disabled = !empty($disabled) ? call_user_func_array('array_merge', $disabled) : NULL;
+
+        if ($ids)
+          return $disabled;
 
         $criteria = array(
                     'answers__field__flags__hasbit' => DynamicFormField::FLAG_ENABLED,
@@ -1042,7 +1048,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($disabled)
             array_push($criteria, Q::not(array('answers__field__id__in' => $disabled)));
 
-        return $ticket->getDynamicFields($criteria, $ticket);
+        return $ticket->getDynamicFields($criteria);
     }
 
     function getMissingRequiredField() {
