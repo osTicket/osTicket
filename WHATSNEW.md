@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 ## Major New Features
@@ -62,6 +63,19 @@ osTicket 1.11.0
 - Fix DatePicker on client side (#3625, #3817, #3804, 0fbc09a)
 - Add Custom Forms to Ticket Filter Data
 - Fix for LDAP/AD auth plugin (#4198, #3460, #3544, #3549)
+=======
+osTicket v1.10.2
+================
+### Performance and Security
+* Prevent Account Takeover (be0133b)
+* Prevent Agent Directory XSS (36651b9)
+* Httponly Cookies (5b2dfce)
+* File Upload Bypass (3eb1614)
+* Only allow image attachments to be opened in the browser window (4c79ff8)
+* Fix randNumber() (5b8b95a)
+* CSRF in users.inc.php URL (285a292)
+* AJAX Reflected XSS (e919d8a)
+>>>>>>> Add release notes for v1.10.2
 
 
 osTicket v1.10.1
