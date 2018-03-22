@@ -523,6 +523,10 @@ function refer($tid, $target=null) {
                           __($field->getLabel())
                           )
                       );
+
+              $impl = $field->getImpl();
+              if ($impl instanceof FileUploadField)
+                  $field->save();
               Http::response(201, $field->getClean());
           }
           $form->addErrors($errors);
