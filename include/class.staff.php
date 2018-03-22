@@ -559,7 +559,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $assigned->add(array('thread__referrals__agent__staff_id' => $this->getId()));
 
         // -- Open and assigned to a team of mine
-        if ($teams = array_filter($this->getTeams())) {
+        if (($teams = array_filter($this->getTeams()))) {
             $assigned->add(array('team_id__in' => $teams));
             $assigned->add(array('thread__referrals__team__team_id__in' => $teams));
         }
