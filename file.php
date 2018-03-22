@@ -26,20 +26,33 @@ if (!$_GET['key']
     Http::response(404, __('Unknown or invalid file'));
 }
 
-// Enforce security settings
-if ($cfg->isAuthRequiredForFiles() && !$thisclient) {
-    if (!($U = StaffAuthenticationBackend::getUser())) {
-        // Try and determine if a staff is viewing this page
-        if (strpos($_SERVER['HTTP_REFERRER'], ROOT_PATH .  'scp/') !== false) {
-            $_SESSION['_staff']['auth']['dest'] =
-                '/' . ltrim($_SERVER['REQUEST_URI'], '/');
-            Http::redirect(ROOT_PATH.'scp/login.php');
-        }
-        else {
-            require 'secure.inc.php';
-        }
+// Get the object type the file is attached to
+$type = '';
+if ($_GET['id']
+        && ($a=$file->attachments->findFirst(array(
+                    'id' => $_GET['id']))))
+    $type = $a->type;
+
+// Enforce security settings if enabled.
+if ($cfg->isAuthRequiredForFiles()
+        // FAQ & Page files allowed without login.
+        && !in_array($type, ['P', 'F'])
+        // Check user login
+        && !$thisuser
+        // Check staff login
+        && !StaffAuthenticationBackend::getUser()
+        ) {
+
+    // Try and determine if an agent is viewing the page / file
+    if (strpos($_SERVER['HTTP_REFERRER'], ROOT_PATH .  'scp/') !== false) {
+        $_SESSION['_staff']['auth']['dest'] =
+            '/' . ltrim($_SERVER['REQUEST_URI'], '/');
+        Http::redirect(ROOT_PATH.'scp/login.php');
+    } else {
+        require 'secure.inc.php';
     }
 }
+
 
 // Validate session access hash - we want to make sure the link is FRESH!
 // and the user has access to the parent ticket!!

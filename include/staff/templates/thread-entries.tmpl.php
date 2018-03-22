@@ -80,7 +80,8 @@ foreach (Attachment::objects()->filter(array(
                 if (!$A->inline)
                     continue;
                 $urls[strtolower($A->file->getKey())] = array(
-                    'download_url' => $A->file->getDownloadUrl(),
+                    'download_url' => $A->file->getDownloadUrl(['id' =>
+                        $A->getId()]),
                     'filename' => $A->getFilename(),
                 );
             }
