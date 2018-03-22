@@ -723,7 +723,33 @@ class AdvancedSearchForm extends SimpleForm {
 
 // Advanced search special fields
 
-class HelpTopicChoiceField extends ChoiceField {
+class AdvancedSearchSelectionField extends ChoiceField {
+
+    function getSearchQ($method, $value, $name=false) {
+
+
+        switch ($method) {
+            case 'includes':
+            case '!includes':
+                $Q = new Q();
+                if (count($value) > 1)
+                    $Q->add(array("{$name}__in" => array_keys($value)));
+                else
+                    $Q->add(array($name => key($value)));
+
+                if ($method == '!includes')
+                    $Q->negate();
+                return $Q;
+                break;
+            default:
+                return parent::getSearchQ($method, $value, $name);
+        }
+
+    }
+
+}
+
+class HelpTopicChoiceField extends AdvancedSearchSelectionField {
     function hasIdValue() {
         return true;
     }
@@ -734,7 +760,7 @@ class HelpTopicChoiceField extends ChoiceField {
 }
 
 require_once INCLUDE_DIR . 'class.dept.php';
-class DepartmentChoiceField extends ChoiceField {
+class DepartmentChoiceField extends AdvancedSearchSelectionField {
     var $_choices = null;
 
     function getChoices($verbose=false) {
@@ -763,6 +789,7 @@ class DepartmentChoiceField extends ChoiceField {
         );
     }
 }
+
 
 class AssigneeChoiceField extends ChoiceField {
     function getChoices($verbose=false) {
@@ -902,7 +929,7 @@ trait ZeroMeansUnset {
     }
 }
 
-class AgentSelectionField extends ChoiceField {
+class AgentSelectionField extends AdvancedSearchSelectionField {
     use ZeroMeansUnset;
 
     function getChoices($verbose=false) {
@@ -940,6 +967,17 @@ class AgentSelectionField extends ChoiceField {
     }
 }
 
+class DepartmentManagerSelectionField extends AgentSelectionField {
+
+    function getChoices($verbose=false) {
+        return Staff::getStaffMembers();
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'dept__manager_id');
+    }
+}
+
 class TeamSelectionField extends ChoiceField {
     use ZeroMeansUnset;
 
@@ -953,7 +991,7 @@ class TeamSelectionField extends ChoiceField {
     }
 }
 
-class TicketStateChoiceField extends ChoiceField {
+class TicketStateChoiceField extends AdvancedSearchSelectionField {
     function getChoices($verbose=false) {
         return array(
             'open' => __('Open'),
