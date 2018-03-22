@@ -208,13 +208,19 @@ implements TemplateVariable {
           }
           $member->setAlerts($alerts);
       }
-      if (!$errors && $dropped) {
+
+      if ($errors)
+          return false;
+
+      $this->members->saveAll();
+      if ($dropped) {
           $this->members
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();
           $this->members->reset();
       }
-      return !$errors;
+
+      return true;
     }
 
     function save($refetch=false) {
