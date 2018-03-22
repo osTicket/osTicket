@@ -455,14 +455,17 @@ class Format {
     }
 
 
-    function viewableImages($html, $script=false) {
+    function viewableImages($html, $options=array()) {
         $cids = $images = array();
+        $options +=array(
+                'deposition' => 'inline');
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
-        function($match) use ($script, $images) {
+        function($match) use ($options, $images) {
             if (!($file = AttachmentFile::lookup($match[1])))
                 return $match[0];
+
             return sprintf('"%s" data-cid="%s"',
-                $file->getDownloadUrl(false, 'inline', $script), $match[1]);
+                $file->getDownloadUrl($options), $match[1]);
         }, $html);
     }
 

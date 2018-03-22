@@ -4513,13 +4513,15 @@ class FreeTextWidget extends Widget {
         if (($attachments = $this->field->getFiles()) && count($attachments)) { ?>
             <section class="freetext-files">
             <div class="title"><?php echo __('Related Resources'); ?></div>
-            <?php foreach ($attachments as $attach) { ?>
+            <?php foreach ($attachments as $attach) {
+                $filename = Format::htmlchars($attach->getFilename());
+                ?>
                 <div class="file">
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
-                    target="_blank" download="<?php echo $attach->file->getDownloadUrl();
-                    ?>" class="truncate no-pjax">
+                    target="_blank" download="<?php echo $filename; ?>"
+                    class="truncate no-pjax">
                     <i class="icon-file"></i>
-                    <?php echo Format::htmlchars($attach->getFilename()); ?>
+                    <?php echo $filename; ?>
                 </a>
                 </div>
             <?php } ?>

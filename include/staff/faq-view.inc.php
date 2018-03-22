@@ -41,7 +41,8 @@ if ($thisstaff->hasPerm(FAQ::PERM_MANAGE)) { ?>
 <?php foreach ($attachments as $att) { ?>
 <div>
     <i class="icon-paperclip pull-left"></i>
-    <a target="_blank" href="<?php echo $att->file->getDownloadUrl(); ?>"
+    <a target="_blank" href="<?php echo $att->file->getDownloadUrl(['id' =>
+    $att->getId()]); ?>"
         class="attachment no-pjax">
         <?php echo Format::htmlchars($att->getFilename()); ?>
     </a>

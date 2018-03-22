@@ -208,7 +208,7 @@ foreach (AttachmentFile::objects()->filter(array(
     'attachments__inline' => true,
 )) as $file) {
     $urls[strtolower($file->getKey())] = array(
-        'download_url' => $file->getDownloadUrl(),
+        'download_url' => $file->getDownloadUrl(['type' => 'H']),
         'filename' => $file->name,
     );
 } ?>

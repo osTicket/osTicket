@@ -184,25 +184,31 @@ class AttachmentFile extends VerySimpleModel {
         exit();
     }
 
-    function getDownloadUrl($minage=false, $disposition=false, $handler=false) {
-        // XXX: Drop this when AttachmentFile goes to ORM
+    function getDownloadUrl($options=array()) {
+        // Add attachment ref id if object type is set
+        if (isset($options['type'])
+                && !isset($options['id'])
+                && ($a=$this->attachments->findFirst(array(
+                            'type' => $options['type']))))
+            $options['id'] = $a->getId();
+
         return static::generateDownloadUrl($this->getId(),
-            strtolower($this->getKey()), $this->getSignature(), $minage,
-            $disposition, $handler);
+                strtolower($this->getKey()), $this->getSignature(),
+                $options);
     }
 
-    static function generateDownloadUrl($id, $key, $hash, $minage=false,
-        $disposition=false, $handler=false
-    ) {
-        // Expire at the nearest midnight, allowing at least 12 hours access
-        $minage = $minage ?: 43200;
-        $gmnow = Misc::gmtime() + $minage;
+    static function generateDownloadUrl($id, $key, $hash, $options = array()) {
+
+        // Expire at the nearest midnight, allow at least12 hrs access
+        $minage = @$options['minage'] ?: 43200;
+        $gmnow = Misc::gmtime() +  $options['minage'];
         $expires = $gmnow + 86400 - ($gmnow % 86400);
 
         // Generate a signature based on secret content
         $signature = static::_genUrlSignature($id, $key, $hash, $expires);
 
-        $handler = $handler ?: ROOT_PATH . 'file.php';
+        // Handler / base url
+        $handler = @$options['handler'] ?: ROOT_PATH . 'file.php';
 
         // Return sanitized query string
         $args = array(
@@ -211,10 +217,13 @@ class AttachmentFile extends VerySimpleModel {
             'signature' => $signature,
         );
 
-        if ($disposition)
-            $args['disposition'] = $disposition;
+        if (isset($options['disposition']))
+            $args['disposition'] =  $options['disposition'];
 
-        return $handler . '?' . http_build_query($args);
+        if (isset($options['id']))
+            $args['id'] =  $options['id'];
+
+        return sprintf('%s?%s', $handler, http_build_query($args));
     }
 
     function verifySignature($signature, $expires) {
