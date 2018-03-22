@@ -2939,47 +2939,41 @@ implements RestrictedAccess, Threadable, Searchable {
         $user = $this->getOwner();
         if (($email=$email)
             && ($tpl = $dept->getTemplate())
-            && ($msg=$tpl->getReplyMsgTemplate())
-        ) {
+            && ($msg=$tpl->getReplyMsgTemplate())) {
+
             $msg = $this->replaceVars($msg->asArray(),
                 $variables + array('recipient' => $user)
             );
-            $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-          }
 
-          if ($vars['emailcollab'] == 1) {
+            $attachments = $cfg->emailAttachments() ? $response->getAttachments() : array();
             //Cc collaborators
-            if($vars['ccs']) {
-              $collabsCc = array();
-              $collabsCc[] = Collaborator::getCollabList($vars['ccs']);
-              $collabsCc['cc'] = $collabsCc;
-              $email->send($user, $msg['subj'], $msg['body'], $attachments,
+            $collabsCc = array();
+            if ($vars['ccs'] && $vars['emailcollab']) {
+                $collabsCc[] = Collaborator::getCollabList($vars['ccs']);
+                $collabsCc['cc'] = $collabsCc;
+            }
+
+            $email->send($user, $msg['subj'], $msg['body'], $attachments,
                     $options, $collabsCc);
-            }
-            else {
-              $email->send($user, $msg['subj'], $msg['body'], $attachments,
-                  $options);
-            }
 
             //Bcc Collaborators
-            if($vars['bccs']) {
-              foreach ($vars['bccs'] as $uid) {
-                $recipient = User::lookup($uid);
-                if (($bcctpl = $dept->getTemplate())
+            if ($vars['bccs']
+                    && $vars['emailcollab']
+                    && ($bcctpl = $dept->getTemplate())
                     && ($bccmsg=$bcctpl->getReplyMsgTemplate())) {
-                  $bccmsg = $this->replaceVars($bccmsg->asArray(), $variables +
-                      array('recipient' => $user, 'recipient.name.first' => $recipient->getName()->getFirst())
-                  );
+                foreach ($vars['bccs'] as $uid) {
+                    if (!($recipient = User::lookup($uid)))
+                        continue;
 
-                  $email->send($recipient, $bccmsg['subj'], $bccmsg['body'], $attachments,
-                      $options);
+                    $msg = $this->replaceVars($bccmsg->asArray(), $variables + array(
+                                'recipient' => $user,
+                                'recipient.name.first' =>
+                                $recipient->getName()->getFirst()));
+
+                    $email->send($recipient, $msg['subj'], $msg['body'], $attachments, $options);
                 }
-              }
             }
-          }
-          else
-            $email->send($user, $msg['subj'], $msg['body'], $attachments,
-                $options);
+        }
 
         return $response;
     }
