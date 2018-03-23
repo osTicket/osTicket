@@ -307,6 +307,7 @@ class Format {
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
 <<<<<<< HEAD
+<<<<<<< HEAD
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
             ),
             array('', '', '', '', '<html', '$4'),
@@ -315,6 +316,11 @@ class Format {
             ),
             array('', '', '', '', '<html', '$2 $3'),
 >>>>>>> issue: Drop Gmail "ltr" Attributes
+=======
+                  ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
+            ),
+            array('', '', '', '', '<html', '$4'),
+>>>>>>> issue: Outlook _MailEndCompose
             $html);
 
         // HtmLawed specific config only
