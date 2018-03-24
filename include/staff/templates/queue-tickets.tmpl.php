@@ -3,9 +3,10 @@
 // $tickets - <QuerySet> with all columns and annotations necessary to
 //      render the full page
 
+
 // Impose visibility constraints
 // ------------------------------------------------------------
-if (!($queue->ignoreVisibilityConstraints()))
+if (!$queue->ignoreVisibilityConstraints($thisstaff))
     $tickets->filter($thisstaff->getTicketsVisibility());
 
 // Make sure the cdata materialized view is available
