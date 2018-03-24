@@ -104,6 +104,7 @@ class Phar {
     function startBuffering() {}
     function stopBuffering() {}
     function setSignatureAlgorithm() {}
+    function compress() {}
 }
 
 class ZipArchive {
@@ -112,6 +113,10 @@ class ZipArchive {
     function getFromIndex() {}
     function setCommentName() {}
     function setExternalAttributesName() {}
+}
+
+class Spyc {
+    function YAMLLoad() {}
 }
 
 class finfo {
@@ -176,6 +181,7 @@ class NumberFormatter {
 
 class Collator {
     function setStrength() {}
+    function compare() {}
 }
 
 class Aws_Route53_Client {
@@ -189,4 +195,43 @@ class Memcache {
     function set() {}
     function get() {}
 }
+
+class Crypt_Hash {
+    function setKey() {}
+    function setIV() {}
+}
+
+class Crypt_AES {
+    function setKey() {}
+    function setIV() {}
+    function enableContinuousBuffer() {}
+}
+
+class PEAR {
+    function isError() {}
+    function mail() {}
+}
+
+class mail {
+    function factory() {}
+    function connect() {}
+    function disconnect() {}
+}
+
+class Mail_mime {
+    function headers() {}
+    function setTXTBody() {}
+    function setHTMLBody() {}
+    function addCc() {}
+}
+
+class mPDF {
+    function Output() {}
+}
+
+class HashPassword {
+    function CheckPassword() {}
+    function HashPassword() {}
+}
+
 ?>

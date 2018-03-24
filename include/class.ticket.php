@@ -3089,7 +3089,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $pdf = new Ticket2PDF($this, $psize, $notes);
         $name = 'Ticket-'.$this->getNumber().'.pdf';
-        Http::download($name, 'application/pdf', $pdf->Output($name, 'S'));
+        Http::download($name, 'application/pdf', $pdf->output($name, 'S'));
         //Remember what the user selected - for autoselect on the next print.
         $_SESSION['PAPER_SIZE'] = $psize;
         exit;

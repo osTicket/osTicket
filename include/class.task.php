@@ -995,7 +995,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $pdf = new Task2PDF($this, $options);
         $name = 'Task-'.$this->getNumber().'.pdf';
-        Http::download($name, 'application/pdf', $pdf->Output($name, 'S'));
+        Http::download($name, 'application/pdf', $pdf->output($name, 'S'));
         //Remember what the user selected - for autoselect on the next print.
         $_SESSION['PAPER_SIZE'] = $options['psize'];
         exit;
