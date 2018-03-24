@@ -139,7 +139,7 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock = $ticket->getLock(); //Ticket lock if any
-        $role = $thisstaff->getRole($ticket->getDeptId());
+        $role = $ticket->getRole($thisstaff);
         switch(strtolower($_POST['a'])):
         case 'reply':
             if (!$role || !$role->hasPerm(Ticket::PERM_REPLY)) {

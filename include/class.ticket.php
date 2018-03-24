@@ -248,7 +248,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$this->isOpen())
             return false;
 
-        if (!$to)
+        if (is_null($to))
             return ($this->getStaffId() || $this->getTeamId());
 
         switch (true) {
@@ -276,30 +276,36 @@ implements RestrictedAccess, Threadable, Searchable {
         return null !== $this->getLock();
     }
 
+    function getRole($staff) {
+        if (!$staff instanceof Staff)
+            return null;
+
+        return $staff->getRole($this->getDept(), $this->isAssigned($staff));
+    }
+
     function checkStaffPerm($staff, $perm=null) {
+
         // Must be a valid staff
-        if (!$staff instanceof Staff && !($staff=Staff::lookup($staff)))
+        if ((!$staff instanceof Staff) && !($staff=Staff::lookup($staff)))
             return false;
 
-        // Check access based on department or assignment
-        if (($staff->showAssignedOnly()
-            || !$staff->canAccessDept($this->getDeptId()))
-            // only open tickets can be considered assigned
-            && $this->isOpen()
-            && $staff->getId() != $this->getStaffId()
-            && !$staff->isTeamMember($this->getTeamId())
-            && !$this->thread->isReferred($staff)
-        ) {
+        // check department access first
+        if (!$staff->canAccessDept($this->getDept())
+                // no restrictions
+                && !$staff->isAccessLimited()
+                // check assignment
+                && !$this->isAssigned($staff)
+                // check referral
+                && !$this->thread->isReferred($staff))
             return false;
-        }
 
         // At this point staff has view access unless a specific permission is
         // requested
         if ($perm === null)
             return true;
 
-        // Permission check requested -- get role.
-        if (!($role=$staff->getRole($this->getDeptId())))
+        // Permission check requested -- get role if any
+        if (!($role=$this->getRole($staff)))
             return false;
 
         // Check permission based on the effective role
@@ -1243,7 +1249,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
 
-        if ($thisstaff && !($role = $thisstaff->getRole($this->getDeptId())))
+        if ($thisstaff && !($role=$this->getRole($thisstaff)))
             return false;
 
         if ($status && is_numeric($status))
@@ -1682,7 +1688,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     // Is agent on vacation ?
                     && $staff->isAvailable()
                     // Does the agent have access to dept?
-                    && $staff->canAccessDept($dept->getId()))
+                    && $staff->canAccessDept($dept))
                 $this->setStaffId($staff->getId());
             else
                 $this->setStaffId(0); // Clear assignment
@@ -3955,7 +3961,8 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 
         if ($vars['deptId']
-            && ($role = $thisstaff->getRole($vars['deptId']))
+            && ($dept=Dept::lookup($vars['deptId']))
+            && ($role = $thisstaff->getRole($dept))
             && !$role->hasPerm(Ticket::PERM_CREATE)
         ) {
             $errors['err'] = sprintf(__('You do not have permission to create a ticket in %s'), __('this department'));
@@ -4030,7 +4037,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['msgId']=$ticket->getLastMsgId();
 
         // Effective role for the department
-        $role = $thisstaff->getRole($ticket->getDeptId());
+        $role = $ticket->getRole($thisstaff);
 
         // post response - if any
         $response = null;

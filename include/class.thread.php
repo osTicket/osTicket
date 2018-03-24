@@ -284,7 +284,7 @@ implements Searchable {
 
     function isReferred($to=null, $strict=false) {
 
-        if (is_null($to))
+        if (is_null($to) || !$this->referrals)
             return ($this->referrals);
 
         switch (true) {
@@ -299,12 +299,12 @@ implements Searchable {
                 return false;
 
             // Referred to staff's department
-            if ($this->referrals->findFirst(array(
+            if ($to->getDepts() && $this->referrals->findFirst(array(
                             'object_id__in' => $to->getDepts(),
                             'object_type'   => ObjectModel::OBJECT_TYPE_DEPT)))
                 return true;
             // Referred to staff's  team
-            if ($this->referrals->findFirst(array(
+            if ($to->getTeams() && $this->referrals->findFirst(array(
                             'object_id__in' => $to->getTeams(),
                             'object_type'   => ObjectModel::OBJECT_TYPE_TEAM)))
                 return true;
