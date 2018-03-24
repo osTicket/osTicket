@@ -1,7 +1,7 @@
 <?php
 if (!defined('OSTSCPINC')
     || !$thisstaff || !$task
-    || !($role = $thisstaff->getRole($task->getDeptId())))
+    || !($role = $thisstaff->getRole($task->getDept())))
     die('Invalid path');
 
 global $cfg;

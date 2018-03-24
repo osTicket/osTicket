@@ -465,13 +465,26 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->_roles;
     }
 
+<<<<<<< HEAD
     function getRole($dept=null) {
 >>>>>>> Agents Access Export
         $deptId = is_object($dept) ? $dept->getId() : $dept;
+=======
+    function getRole($dept=null, $assigned=false) {
+
+        if (is_null($dept))
+            return $this->role;
+
+        if ((!$dept instanceof Dept) && !($dept=Dept::lookup($dept)))
+            return null;
+
+        $deptId = $dept->getId();
+>>>>>>> Roles: Cleanup how roles are fetched and checked
         $roles = $this->getRoles();
         if (isset($roles[$deptId]))
             return $roles[$deptId];
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             if (!$useDefault || !$this->usePrimaryRoleOnAssignment())
@@ -479,6 +492,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 return new Role(array());
 =======
         if ($this->usePrimaryRoleOnAssignment())
+=======
+        // Default to primary role.
+        if ($assigned && $this->usePrimaryRoleOnAssignment())
+>>>>>>> Roles: Cleanup how roles are fetched and checked
             return $this->role;
 >>>>>>> Agents Access Export
 =======
@@ -552,8 +569,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return ($teamId && in_array($teamId, $this->getTeams()));
     }
 
-    function canAccessDept($deptId) {
-        return ($deptId && in_array($deptId, $this->getDepts()) && !$this->isAccessLimited());
+    function canAccessDept($dept) {
+
+        if (!$dept instanceof Dept)
+            return false;
+
+        return (!$this->isAccessLimited()
+                && in_array($dept->getId(), $this->getDepts()));
     }
 
     function getTeams() {

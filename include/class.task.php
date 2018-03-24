@@ -267,7 +267,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return false;
 
         // Check access based on department or assignment
-        if (!$staff->canAccessDept($this->getDeptId())
+        if (!$staff->canAccessDept($this->getDept())
                 && $this->isOpen()
                 && $staff->getId() != $this->getStaffId()
                 && !$staff->isTeamMember($this->getTeamId()))
@@ -279,7 +279,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return true;
 
         // Permission check requested -- get role.
-        if (!($role=$staff->getRole($this->getDeptId())))
+        if (!($role=$staff->getRole($this->getDept)))
             return false;
 
         // Check permission based on the effective role
@@ -1330,7 +1330,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $task->logEvent('created', null, $thisstaff);
 
         // Get role for the dept
-        $role = $thisstaff->getRole($task->dept_id);
+        $role = $thisstaff->getRole($task->getDept());
         // Assignment
         $assignee = $vars['internal_formdata']['assignee'];
         if ($assignee

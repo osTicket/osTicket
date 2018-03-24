@@ -1,5 +1,10 @@
 <?php
 global $thisstaff, $ticket;
+
+$role = $ticket ? $ticket->getRole($thisstaff) : $thisstaff->getRole();
+if ($role && !$role->hasPerm(Ticket::PERM_CLOSE))
+    return;
+
 // Map states to actions
 $actions= array(
         'closed' => array(
@@ -15,6 +20,7 @@ $actions= array(
 
 $states = array('open');
 <<<<<<< HEAD
+<<<<<<< HEAD
 if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(Ticket::PERM_CLOSE)
         && (!$ticket || !$ticket->getMissingRequiredFields()))
 =======
@@ -22,6 +28,10 @@ if ($thisstaff->getRole($ticket ? $ticket->getDeptId() : null)->hasPerm(TicketMo
         && (!$ticket || !Ticket::getMissingRequiredFields($ticket)))
 >>>>>>> issue: Check Missing Required Fields
     $states = array_merge($states, array('closed'));
+=======
+if (!$ticket || $ticket->isCloseable())
+    $states[] = 'closed';
+>>>>>>> Roles: Cleanup how roles are fetched and checked
 
 $statusId = $ticket ? $ticket->getStatusId() : 0;
 $nextStatuses = array();
