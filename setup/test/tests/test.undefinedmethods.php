@@ -4,8 +4,12 @@ require_once "class.test.php";
 class UndefinedMethods extends Test {
     var $name = "Access to undefined object methods";
 
-    function testFindShortOpen() {
-        $scripts = $this->getAllScripts(false);
+    function ignore3rdparty() {
+        return false;
+    }
+
+    function testUndefinedMethods() {
+        $scripts = $this->getAllScripts();
         $function_defs = array();
         foreach ($scripts as $s) {
             $matches = array();

@@ -45,6 +45,10 @@ class mPDFWithLocalImages extends mPDF {
         );
         return call_user_func_array(array('parent', 'WriteHtml'), $args);
     }
+
+    function output($name, $dest) {
+        return parent::Output($name, $dest);
+    }
 }
 
 class Ticket2PDF extends mPDFWithLocalImages
