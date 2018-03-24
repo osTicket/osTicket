@@ -869,13 +869,13 @@ class CustomQueue extends VerySimpleModel {
             || $this->hasFlag(self::FLAG_PUBLIC);
     }
 
-    function ignoreVisibilityConstraints() {
-        global $thisstaff;
-
-        // For saved searches (not queues), staff can have a permission to
+    function ignoreVisibilityConstraints(Staff $agent) {
+        // For saved searches (not queues), some staff can have a permission to
         // see all records
-        return !$this->isAQueue()
-            && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
+        return ($this->isPrivate()
+                && $this->checkAccess($agent)
+                && !$this->isASubQueue()
+                && $agent->hasPerm(SearchBackend::PERM_EVERYTHING));
     }
 
     function inheritCriteria() {
@@ -912,6 +912,11 @@ class CustomQueue extends VerySimpleModel {
         if ($this->parent)
             $base = sprintf("%s / %s", $this->parent->getFullName(), $base);
         return $base;
+    }
+
+    function isASubQueue() {
+        return $this->parent ? $this->parent->isASubQueue() :
+            $this->isAQueue();
     }
 
     function isAQueue() {
