@@ -211,7 +211,9 @@ class OverviewReport {
             $headers = array(__('Help Topic'));
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
+            $topics = Topic::getHelpTopics();
             $stats = $stats
+<<<<<<< HEAD
 <<<<<<< HEAD
                 ->values('topic_id', 'topic__topic')
                 ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0));
@@ -219,6 +221,10 @@ class OverviewReport {
                 ->values('topic_id', 'topic__topic', 'topic__flags')
                 ->filter(array('topic_id__gt' => 0));
 >>>>>>> bug fixes v2
+=======
+                ->values('topic_id', 'topic__topic', 'topic__flags')
+                ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0, 'topic_id__in' => array_keys($topics)));
+>>>>>>> make sure dashboard stats dont include deleted topics/agents
             $times = $times
                 ->values('topic_id')
                 ->filter(array('topic_id__gt' => 0));
@@ -228,7 +234,10 @@ class OverviewReport {
             $header = function($row) { return new AgentsName(array(
                 'first' => $row['staff__firstname'], 'last' => $row['staff__lastname'])); };
             $pk = 'staff_id';
-            $stats = $stats->values('staff_id', 'staff__firstname', 'staff__lastname');
+            $staff = Staff::getStaffMembers();
+            $stats = $stats
+                ->values('staff_id', 'staff__firstname', 'staff__lastname')
+                ->filter(array('staff_id__in' => array_keys($staff)));
             $times = $times->values('staff_id');
             $depts = $thisstaff->getManagedDepartments();
             if ($thisstaff->hasPerm(ReportModel::PERM_AGENTS))
