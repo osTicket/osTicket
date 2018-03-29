@@ -607,7 +607,14 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
               <a class="ticket-action" id="inline-update" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
                   data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
                   href="#tickets/<?php echo $ticket->getId(); ?>/field/<?php echo $id; ?>/edit">
-                  <?php echo $v; ?>
+                  <?php
+                    if (strlen($v) > 200) {
+                      echo Format::truncate($v, 200);
+                      echo "<br><i class=\"icon-edit\"></i>";
+                    }
+                    else
+                      echo $v;
+                  ?>
               </a>
             <?php } else {
                 echo $v;
