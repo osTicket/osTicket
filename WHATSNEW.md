@@ -1,3 +1,16 @@
+osTicket v1.10.2
+================
+### Performance and Security
+- Prevent Account Takeover (be0133b)
+- Prevent Agent Directory XSS (36651b9)
+- Httponly Cookies (5b2dfce)
+- File Upload Bypass (3eb1614)
+- Only allow image attachments to be opened in the browser window (4c79ff8)
+- Fix randNumber() (5b8b95a)
+- CSRF in users.inc.php URL (285a292)
+- AJAX Reflected XSS (e919d8a)
+
+
 osTicket v1.10.1
 ================
 ### Enhancements
