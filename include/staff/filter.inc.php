@@ -242,7 +242,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     $existing[] = $A->type;
                     if($A->type == 'dept') {
                       $errors['topic_id'] = '';
-                      // $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                       $dept_config = $A->parseConfiguration($_POST);
                       $dept = Dept::lookup($dept_config['dept_id']);
                       if($dept && !$dept->isActive())
