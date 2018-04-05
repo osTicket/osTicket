@@ -473,18 +473,22 @@ class Filter {
     function save($id,$vars,&$errors) {
       if ($this) {
         foreach ($this->getActions() as $A) {
-          if ($A->type == 'dept')
-              $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+          if ($A->type == 'dept') {
+            $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+            $dept_action = $A->getId();
+          }
 
-          if ($A->type == 'topic')
-              $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+          if ($A->type == 'topic') {
+            $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+            $topic_action = $A->getId();
+          }
         }
       }
 
-      if($dept && !$dept->isActive())
+      if($dept && !$dept->isActive() && !in_array('D' . $dept_action,$vars['actions']))
         $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
 
-      if($topic && !$topic->isActive())
+      if($topic && !$topic->isActive() && !in_array('D' . $topic_action,$vars['actions']))
         $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
 
         if(!$vars['execorder'])
