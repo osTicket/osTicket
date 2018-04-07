@@ -136,7 +136,7 @@ class SearchAjaxAPI extends AjaxController {
 
         $search->config = JsonDataEncoder::encode($form->getState());
         if (isset($_POST['name']))
-            $search->title = $_POST['name'];
+            $search->title = Format::htmlchars($_POST['name']);
         elseif ($search->__new__)
             Http::response(400, 'A name is required');
         if (!$search->save()) {
