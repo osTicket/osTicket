@@ -110,10 +110,10 @@ if (!$ticket) {
     $_SESSION[$queue_key] = $queue_id;
 
     if ((int) $queue_id && !$queue) {
-        $queue = CustomQueue::lookup($queue_id);
+        $queue = SavedQueue::lookup($queue_id);
     }
     if (!$queue) {
-        $queue = CustomQueue::lookup($cfg->getDefaultTicketQueueId());
+        $queue = SavedQueue::lookup($cfg->getDefaultTicketQueueId());
     }
 
     // Set the queue_id for navigation to turn a top-level item bold
@@ -456,7 +456,7 @@ $nav->setTabActive('tickets');
 $nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
 
 // Fetch ticket queues organized by root and sub-queues
-$queues = CustomQueue::queues()
+$queues = SavedQueue::queues()
     ->filter(Q::any(array(
         'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
         'staff_id' => $thisstaff->getId(),

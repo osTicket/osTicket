@@ -2084,8 +2084,12 @@ implements RestrictedAccess, Threadable, Searchable {
                 'label' => __('Create Date'),
                 'configuration' => array('fromdb' => true),
             )),
-            'est_duedate' => new DatetimeField(array(
+            'duedate' => new DatetimeField(array(
                 'label' => __('Due Date'),
+                'configuration' => array('fromdb' => true),
+            )),
+            'est_duedate' => new DatetimeField(array(
+                'label' => __('SLA Due Date'),
                 'configuration' => array('fromdb' => true),
             )),
             'reopened' => new DatetimeField(array(
@@ -2120,9 +2124,20 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'isoverdue' => new BooleanField(array(
                 'label' => __('Overdue'),
+                'descsearchmethods' => array(
+                    'set' => '%s',
+                    'nset' => 'Not %s'
+                    ),
             )),
             'isanswered' => new BooleanField(array(
                 'label' => __('Answered'),
+                'descsearchmethods' => array(
+                    'set' => '%s',
+                    'nset' => 'Not %s'
+                    ),
+            )),
+            'isassigned' => new AssignedField(array(
+                        'label' => __('Assigned'),
             )),
             'ip_address' => new TextboxField(array(
                 'label' => __('IP Address'),

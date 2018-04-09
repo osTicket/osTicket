@@ -359,7 +359,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $depts = array();
             if (($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))
-                    $depts[] = $id;
+                    $depts[] = (int) $id;
             }
 
             /* ORM method — about 2.0ms slower
@@ -491,6 +491,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return false;
     }
 
+    function canSearchEverything() {
+        return $this->hasPerm(SearchBackend::PERM_EVERYTHING);
+    }
+
     function canManageTickets() {
         return $this->hasPerm(Ticket::PERM_DELETE, false)
                 || $this->hasPerm(Ticket::PERM_TRANSFER, false)
@@ -556,7 +560,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (!isset($this->_teams)) {
             $this->_teams = array();
             foreach ($this->teams as $team)
-                 $this->_teams[] = $team->team_id;
+                 $this->_teams[] = (int) $team->team_id;
         }
 
         return $this->_teams;
@@ -586,6 +590,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
 
         return $visibility;
+    }
+
+    function applyVisibility($query) {
+        return $query->filter($this->getTicketsVisibility());
     }
 
     /* stats */

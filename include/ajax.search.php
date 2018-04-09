@@ -28,8 +28,9 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = new SavedSearch(array(
+        $search = new AdhocSearch(array(
             'root' => 'T',
+            'staff_id' => $thisstaff->getId(),
             'parent_id' => @$_GET['parent_id'] ?: 0,
         ));
         if ($search->parent_id) {
@@ -39,7 +40,7 @@ class SearchAjaxAPI extends AjaxController {
         if (isset($_SESSION[$context]) && $key && $_SESSION[$context][$key])
             $search->config = $_SESSION[$context][$key];
 
-        $this->_tryAgain($search, $search->getForm());
+        $this->_tryAgain($search);
     }
 
     function editSearch($id) {
@@ -51,7 +52,7 @@ class SearchAjaxAPI extends AjaxController {
         elseif (!$search || !$search->checkAccess($thisstaff))
             Http::response(404, 'No such saved search');
 
-        $this->_tryAgain($search, $search->getForm());
+        $this->_tryAgain($search);
     }
 
     function addField($name) {
@@ -60,7 +61,9 @@ class SearchAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, 'Agent login required');
 
-        $search = new SavedSearch(array('root'=>'T'));
+        $search = new SavedSearch(array(
+                    'root'=>'T'
+                    ));
         $searchable = $search->getSupportedMatches();
         if (!($F = $searchable[$name]))
             Http::response(404, 'No such field: ', print_r($name, true));
@@ -82,7 +85,15 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function doSearch() {
-        $search = new SavedSearch(array('root' => 'T'));
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+
+        $search = new AdhocSearch(array(
+                    'root' => 'T',
+                    'staff_id' => $thisstaff->getId()));
+
         $form = $search->getForm($_POST);
         if (false === $this->_setupSearch($search, $form)) {
             return;
@@ -139,9 +150,26 @@ class SearchAjaxAPI extends AjaxController {
             -$size);
     }
 
-    function _tryAgain($search, $form, $errors=array(), $info=array()) {
-        $matches = $search->getSupportedMatches();
+    function _tryAgain($search, $form=null, $errors=array(), $info=array()) {
+        if (!$form)
+            $form = $search->getForm();
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
+    }
+
+    function createSearch() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+
+
+        $search = SavedSearch::create(array(
+                    'title' => __('Add Queue'),
+                    'root' => 'T',
+                    'staff_id' => $thisstaff->getId(),
+                    'parent_id' =>  $_GET['pid'],
+                    ));
+        $this->_tryAgain($search);
     }
 
     function saveSearch($id=0) {
@@ -151,14 +179,15 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(403, 'Agent login is required');
 
         if ($id) { //  update
-            $search = SavedSearch::lookup($id);
+            if (!($search = SavedSearch::lookup($id))
+                    || !$search->checkAccess($thisstaff))
+                Http::response(404, 'No such saved search');
         } else { // new search
-            $search = SavedSearch::create(array('root' => 'T'));
-            $search->staff_id = $thisstaff->getId();
+            $search = SavedSearch::create(array(
+                        'root' => 'T',
+                        'staff_id' => $thisstaff->getId()
+                        ));
         }
-
-        if (!$search || !$search->checkAccess($thisstaff))
-            Http::response(404, 'No such saved search');
 
         if (false === $this->_saveSearch($search))
             return;
@@ -169,16 +198,23 @@ class SearchAjaxAPI extends AjaxController {
                     $id ? __('updated') : __('created'),
                     __('successfully')),
                 );
-
-        $this->_tryAgain($search, $search->getForm(), null, $info);
+        $this->_tryAgain($search, null, null, $info);
     }
 
     function _saveSearch(SavedSearch $search) {
+
+        // Validate the form.
         $form = $search->getForm($_POST);
+        if ($this->_hasErrors($search, $form))
+            return false;
+
         $errors = array();
         if (!$search->update($_POST, $errors)
-            || !$search->save(true)
-        ) {
+                || !$search->save(true)) {
+
+            $form->addError(sprintf(
+                        __('Unable to update %s. Correct error(s) below and try again.'),
+                        __('queue')));
             $this->_tryAgain($search, $form, $errors);
             return false;
         }
@@ -352,43 +388,15 @@ class SearchAjaxAPI extends AjaxController {
     function collectQueueCounts($ids=null) {
         global $thisstaff;
 
-        if (!$thisstaff) {
+        if (!$thisstaff)
             Http::response(403, 'Agent login is required');
-        }
 
-        $queues = CustomQueue::objects()
-            ->filter(Q::any(array(
-                'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
-                'staff_id' => $thisstaff->getId(),
-            )));
-
+        $criteria = array();
         if ($ids && is_array($ids))
-            $queues->filter(array('id__in' => $ids));
+            $criteria = array('id__in' => $ids);
 
-        $query = Ticket::objects();
-
-        // Visibility contraints ------------------
-        // TODO: Consider SavedSearch::ignoreVisibilityConstraints()
-        $visibility = $thisstaff->getTicketsVisibility();
-        $query->filter($visibility);
-        foreach ($queues as $queue) {
-            $Q = $queue->getBasicQuery();
-            if (count($Q->extra) || $Q->isWindowed()) {
-                // XXX: This doesn't work
-                $query->annotate(array(
-                    'q'.$queue->id => $Q->values_flat()
-                        ->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')))
-                ));
-            }
-            else {
-                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
-                $query->aggregate(array(
-                    'q'.$queue->id => SqlAggregate::COUNT($expr, true)
-                ));
-            }
-        }
-
+        $counts = SavedQueue::ticketsCount($thisstaff, $criteria, 'q');
         Http::response(200, false, 'application/json');
-        return $this->encode($query->values()->one());
+        return $this->encode($counts);
     }
 }

@@ -1650,6 +1650,15 @@ class BooleanField extends FormField {
         );
     }
 
+    function describeSearchMethod($method) {
+
+        $methods = $this->get('descsearchmethods');
+        if (isset($methods[$method]))
+            return $methods[$method];
+
+        return parent::describeSearchMethod($method);
+    }
+
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
