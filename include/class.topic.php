@@ -191,8 +191,7 @@ implements TemplateVariable, Searchable {
         return $this->isActive();
     }
 
-    function isActive()
-    {
+    function isActive() {
       return !!($this->flags & self::FLAG_ACTIVE);
     }
 
