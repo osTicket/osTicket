@@ -526,7 +526,7 @@ class Filter {
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
             .',match_all_rules='.db_input($vars['match_all_rules'])
-            .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
+            .',stop_onmatch='.db_input($vars['stop_onmatch'])
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
