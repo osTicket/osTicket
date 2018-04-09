@@ -506,7 +506,7 @@ var scp_prep = function() {
   // Auto fetch queue counts
   $(function() {
     var fired = false;
-    $('li.top-queue.item').hover(function() {
+    $('#customQ_nav li.item').hover(function() {
       if (fired) return;
       fired = true;
       $.ajax({
