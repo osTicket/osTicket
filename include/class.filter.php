@@ -473,18 +473,22 @@ class Filter {
     function save($id,$vars,&$errors) {
       if ($this) {
         foreach ($this->getActions() as $A) {
-          if ($A->type == 'dept')
-              $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+          if ($A->type == 'dept') {
+            $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+            $dept_action = $A->getId();
+          }
 
-          if ($A->type == 'topic')
-              $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+          if ($A->type == 'topic') {
+            $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+            $topic_action = $A->getId();
+          }
         }
       }
 
-      if($dept && !$dept->isActive())
+      if($dept && !$dept->isActive() && !in_array('D' . $dept_action,$vars['actions']))
         $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
 
-      if($topic && !$topic->isActive())
+      if($topic && !$topic->isActive() && !in_array('D' . $topic_action,$vars['actions']))
         $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
 
         if(!$vars['execorder'])
@@ -522,7 +526,7 @@ class Filter {
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
             .',match_all_rules='.db_input($vars['match_all_rules'])
-            .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
+            .',stop_onmatch='.db_input($vars['stop_onmatch'])
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
