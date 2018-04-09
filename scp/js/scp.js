@@ -711,7 +711,9 @@ $.dialog = function (url, codes, cb, options) {
                         }
                         catch (e) { }
                         $('div.body', $popup).html(resp);
-                        $popup.effect('shake');
+                        if ($('#msg_error, .error-banner', $popup).length) {
+                            $popup.effect('shake');
+                        }
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
                         $('div.tab_content[id] div.error:not(:empty)', $popup).each(function() {
                           var div = $(this).closest('.tab_content');

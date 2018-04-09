@@ -139,6 +139,7 @@ class Bootstrap {
         define('QUEUE_SORT_TABLE', $prefix.'queue_sort');
         define('QUEUE_SORTING_TABLE', $prefix.'queue_sorts');
         define('QUEUE_EXPORT_TABLE', $prefix.'queue_export');
+        define('QUEUE_CONFIG_TABLE', $prefix.'queue_config');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');

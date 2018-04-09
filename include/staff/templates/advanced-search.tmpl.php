@@ -1,11 +1,15 @@
 <?php
+global $thisstaff;
+
 $parent_id = $_REQUEST['parent_id'] ?: $search->parent_id;
 if ($parent_id
-    && (!($parent = CustomQueue::lookup($parent_id)))
+    && is_numeric($parent_id)
+    && (!($parent = SavedQueue::lookup($parent_id)))
 ) {
     $parent_id = 0;
 }
 
+$editable = $search->checkOwnership($thisstaff);
 $queues = array();
 foreach (CustomQueue::queues() as  $q)
     $queues[$q->id] = $q->getFullName();
@@ -26,10 +30,21 @@ if ($info['error']) {
     echo sprintf('<p id="msg_warning">%s</p>', $info['warn']);
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
-} ?>
-<form action="#tickets/search" method="post" name="search" id="advsearch"
+}
+
+// Form action
+$action = '#tickets/search';
+if ($search->isSaved() && $search->getId())
+    $action .= sprintf('/%s/save', $search->getId());
+elseif (!$search instanceof AdhocSearch)
+    $action .= '/save';
+?>
+<form action="<?php echo $action; ?>" method="post" name="search" id="advsearch"
     class="<?php echo ($search->isSaved() || $parent) ? 'savedsearch' : 'adhocsearch'; ?>">
   <input type="hidden" name="id" value="<?php echo $search->getId(); ?>">
+<?php
+if ($editable) {
+    ?>
   <div class="flex row">
     <div class="span12">
       <select id="parent" name="parent_id" >
@@ -43,10 +58,16 @@ foreach ($queues as $id => $name) {
       </select>
     </div>
    </div>
+<?php
+} ?>
 <ul class="clean tabs">
     <li class="active"><a href="#criteria"><i class="icon-search"></i> <?php echo __('Criteria'); ?></a></li>
     <li><a href="#columns"><i class="icon-columns"></i> <?php echo __('Columns'); ?></a></li>
-    <li><a href="#fields"><i class="icon-download"></i> <?php echo __('Export'); ?></a></li>
+    <?php
+    if ($search->isSaved()) { ?>
+    <li><a href="#settings"><i class="icon-cog"></i> <?php echo __('Settings'); ?></a></li>
+    <?php
+    } ?>
 </ul>
 
 <div class="tab_content" id="criteria">
@@ -68,51 +89,80 @@ foreach ($queues as $id => $name) {
       </div>
       </div>
       <input type="hidden" name="a" value="search">
-      <?php include STAFFINC_DIR . 'templates/advanced-search-criteria.tmpl.php'; ?>
+     <?php
+        include STAFFINC_DIR . 'templates/advanced-search-criteria.tmpl.php';
+     ?>
     </div>
   </div>
 
 </div>
 
-<div class="tab_content hidden" id="columns" style="overflow-y: auto;
-height:auto;">
+<div class="tab_content hidden" id="columns">
     <?php
     include STAFFINC_DIR . "templates/queue-columns.tmpl.php";
     ?>
 </div>
-<div class="tab_content hidden" id="fields">
+<?php
+if ($search->isSaved()) { ?>
+<div class="tab_content hidden" id="settings">
     <?php
-    include STAFFINC_DIR . "templates/queue-fields.tmpl.php";  ?>
+    include STAFFINC_DIR . "templates/savedqueue-settings.tmpl.php";
+    ?>
 </div>
-   <?php
-   $save = (($parent && !$search->isSaved()) || $errors); ?>
+<?php
+} else { // Not saved.
+    $save = (($parent && !$search->isSaved()) || isset($_POST['queue-name']));
+?>
+<div>
   <div style="margin-top:10px;"><a href="#"
     id="save"><i class="icon-caret-<?php echo $save ? 'down' : 'right';
     ?>"></i>&nbsp;<span><?php echo __('Save Search'); ?></span></a></div>
   <div id="save-changes" class="<?php echo $save ? '' : 'hidden'; ?>" style="padding:5px; border-top: 1px dotted #777;">
-      <div><input name="name" type="text" size="40"
-        value="<?php echo $search->isSaved() ? Format::htmlchars($search->getName()) : ''; ?>"
+      <div><input name="queue-name" type="text" size="40"
+        value="<?php echo Format::htmlchars($search->isSaved() ? $search->getName() :
+        $_POST['queue-name']); ?>"
         placeholder="<?php echo __('Search Title'); ?>">
+        <?php
+        if ($search instanceof AdhocSearch && !$search->isSaved()) { ?>
         <span class="buttons">
-             <button class="button" type="button" name="save"
+             <button class="save button" type="button"  name="save-search"
              value="save"><i class="icon-save"></i>  <?php echo $search->id
              ? __('Save Changes') : __('Save'); ?></button>
         </span>
+        <?php
+        } ?>
         </div>
-      <div class="error" id="name-error"><?php echo Format::htmlchars($errors['name']); ?></div>
+      <div class="error" id="name-error"><?php echo
+      Format::htmlchars($errors['queue-name']); ?></div>
   </div>
+ </div>
+<?php
+} ?>
   <hr/>
  <div>
   <p class="full-width">
     <span class="buttons pull-left">
-        <input type="reset"  id="reset"  value="<?php echo __('Reset'); ?>">
-        <input type="button" name="cancel" class="close"
-        value="<?php echo __('Cancel'); ?>">
+        <input type="button"  name="cancel"  class="close" value="<?php echo __('Cancel'); ?>">
+        <?php
+        if ($search->isSaved()) { ?>
+        <input type="button" name="done" class="done" value="<?php echo
+            __('Done'); ?>" >
+        <?php
+        } ?>
     </span>
     <span class="buttons pull-right">
+      <?php
+      if (!$search instanceof AdhocSearch) { ?>
+      <button class="save button" type="submit" name="save" value="save"
+        id="do_save"><i class="icon-save"></i>
+        <?php echo __('Save'); ?></button>
+      <?php
+      } else { ?>
       <button class="button" type="submit" name="submit" value="search"
         id="do_search"><i class="icon-search"></i>
         <?php echo __('Search'); ?></button>
+      <?php
+      } ?>
     </span>
    </p>
  </div>
@@ -185,32 +235,45 @@ height:auto;">
         return false;
     });
 
-    $('form.savedsearch').on('keyup change paste', 'input, select, textarea', function() {
-       var form = $(this).closest('form');
-       $this = $('#save-changes', form);
-       if ($this.is(":hidden"))
-           $this.fadeIn();
-        $('a#save').find('i').removeClass('icon-caret-right').addClass('icon-caret-down');
-        $('button[name=save]', form).addClass('save pending');
-        $('div.error', form).html('');
+    $('form#advsearch').on('keyup change paste', 'input, select, textarea', function() {
+
+        var form = $(this).closest('form');
+        $this = $('#save-changes', form);
+        $('button.save', form).addClass('save pending');
+        $('div.error, div.error-banner', form).html('').hide();
      });
 
     $(document).on('click', 'form#advsearch input#reset', function(e) {
         var f = $(this).closest('form');
-        $('button[name=save]', f).removeClass('save pending');
+        $('button.save', f).removeClass('save pending');
         $('div#save-changes', f).hide();
     });
 
-    $('button[name=save]').click(function() {
+    $('button[name=save-search]').click(function() {
         var $form = $(this).closest('form');
         var id = parseInt($('input[name=id]', $form).val(), 10) || 0;
-        var action = '#tickets/search';
-        if (id > 0)
-            action = action + '/'+id;
+        var name = $('input[name=queue-name]', $form).val();
+        if (name.length) {
+            var action = '#tickets/search';
+            if (id > 0)
+                action = action + '/'+id;
+            $form.prop('action', action+'/save');
+            $form.submit();
+        } else {
+            $('div#name-error', $form).html('<?php echo __('Name required');
+                    ?>').show();
+        }
 
-        $form.prop('action', action+'/save');
-        $form.submit();
+        return false;
     });
 
+    $('input.done').click(function() {
+        var $form = $(this).closest('form');
+        var id = parseInt($('input[name=id]', $form).val(), 10) || 0;
+        if ($('button.save', $form).hasClass('pending'))
+            alert('Unsaved Changes - save or cancel to discard!');
+        else
+            window.location.href = 'tickets.php?queue='+id;
+    });
 }();
 </script>
