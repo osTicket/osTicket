@@ -210,6 +210,18 @@ class Installer extends SetupWizard {
             return false;
         }
 
+        // Extended Access
+        foreach (Dept::objects()
+                ->filter(Q::not(array('id' => $dept_id)))
+                ->values_flat('id') as $row) {
+            $da = new StaffDeptAccess(array(
+                        'dept_id' => $row[0],
+                        'role_id' => $role_id
+                        ));
+            $staff->dept_access->add($da);
+        }
+        $staff->dept_access->saveAll();
+
         // Create default emails!
         $email = $vars['email'];
         list(,$domain) = explode('@', $vars['email']);
