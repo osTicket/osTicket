@@ -788,7 +788,7 @@ class SavedQueue extends CustomQueue {
     }
 
     function getStandardColumns() {
-        return parent::getColumns(($this->parent));
+        return parent::getColumns(is_null($this->parent));
     }
 
     function getColumns($use_template=false) {

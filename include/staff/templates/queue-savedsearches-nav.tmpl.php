@@ -18,7 +18,6 @@
       <!-- Start Dropdown and child queues -->
       <?php foreach ($searches->findAll(array(
             'staff_id' => $thisstaff->getId(),
-            'parent_id' => 0,
             Q::not(array(
                 'flags__hasbit' => CustomQueue::FLAG_PUBLIC
             ))
