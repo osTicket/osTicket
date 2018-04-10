@@ -152,18 +152,8 @@ if ($_POST)
                 <tr class="no_border" id="ccRow">
                   <td width="160"><?php echo __('Cc'); ?>:</td>
                   <td>
-                      <select name="ccs[]" id="cc_users_open" multiple="multiple"
+                      <select class="collabSelections" name="ccs[]" id="cc_users_open" multiple="multiple"
                           data-placeholder="<?php echo __('Select Contacts'); ?>">
-                          <option value=""></option>
-                          <?php
-                          $users = User::objects();
-                          foreach ($users as $u) {
-                            if($user && $u->id != $user->getId()) {
-                          ?>
-                          <option value="<?php echo $u->id; ?>"
-                              ><?php echo $u->getName(); ?>
-                          </option>
-                              <?php } } ?>
                       </select>
                       <br/><span class="error"><?php echo $errors['ccs']; ?></span>
                   </td>
@@ -171,18 +161,8 @@ if ($_POST)
                 <tr class="no_border" id="bccRow">
                   <td width="160"><?php echo __('Bcc'); ?>:</td>
                   <td>
-                      <select name="bccs[]" id="bcc_users_open" multiple="multiple"
+                      <select class="collabSelections" name="bccs[]" id="bcc_users_open" multiple="multiple"
                           data-placeholder="<?php echo __('Select Contacts'); ?>">
-                          <option value=""></option>
-                          <?php
-                          $users = User::objects();
-                          foreach ($users as $u) {
-                            if($user && $u->id != $user->getId()) {
-                          ?>
-                          <option value="<?php echo $u->id; ?>"
-                              ><?php echo $u->getName(); ?>
-                          </option>
-                              <?php } } ?>
                       </select>
                       <br/><span class="error"><?php echo $errors['ccs']; ?></span>
                   </td>
@@ -534,9 +514,33 @@ $(function() {
         $('div#org-profile').fadeIn();
         return false;
     });
-    $("#cc_users_open").select2({width: '300px'});
-    $("#bcc_users_open").select2({width: '300px'});
-});
+
+    $('.collabSelections').select2({
+      width: '350px',
+      minimumInputLength: 3,
+      ajax: {
+        url: "ajax.php/users/local",
+        dataType: 'json',
+        data: function (params) {
+          return {
+            q: params.term,
+          };
+        },
+        processResults: function (data) {
+          return {
+            results: $.map(data, function (item) {
+              return {
+                text: item.name,
+                slug: item.slug,
+                id: item.id
+              }
+            })
+          };
+        }
+      }
+    });
+
+  });
 
 $(document).ready(function () {
     $('#emailcollab').on('change', function(){
