@@ -1,16 +1,18 @@
 <?php
 $qs = array();
-$select = 'SELECT user.*, email.address as email ';
+$select = 'SELECT user.*, email.address as email, account.status as status, account.id as account_id ';
 
 $from = 'FROM '.USER_TABLE.' user '
-      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) ';
+      . 'LEFT JOIN '.USER_EMAIL_TABLE.' email ON (user.id = email.user_id) '
+      . 'LEFT JOIN '.USER_ACCOUNT_TABLE.' account ON (user.id = account.user_id) ';
 
 $where = ' WHERE user.org_id='.db_input($org->getId());
 
 $sortOptions = array('name' => 'user.name',
                      'email' => 'email.address',
                      'create' => 'user.created',
-                     'update' => 'user.updated');
+                     'update' => 'user.updated',
+                     'status' => 'account.status');
 $orderWays = array('DESC'=>'DESC','ASC'=>'ASC');
 $sort= ($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])]) ? strtolower($_REQUEST['sort']) : 'name';
 //Sorting options...
@@ -80,9 +82,9 @@ if ($num) { ?>
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
-            <th width="38%"><?php echo __('Name'); ?></th>
-            <th width="35%"><?php echo __('Email'); ?></th>
-            <th width="8%"><?php echo __('Status'); ?></th>
+            <th width="30%"><?php echo __('Name'); ?></th>
+            <th width="33%"><?php echo __('Email'); ?></th>
+            <th width="18%"><?php echo __('Status'); ?></th>
             <th width="15%"><?php echo __('Created'); ?></th>
         </tr>
     </thead>
@@ -93,7 +95,10 @@ if ($num) { ?>
             while ($row = db_fetch_array($res)) {
 
                 $name = new UsersName($row['name']);
-                $status = 'Active';
+                if (!$row['account_id'])
+                    $status = __('Guest');
+                else
+                    $status = new UserAccountStatus($row['status']);
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
                     $sel=true;
