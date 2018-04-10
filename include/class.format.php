@@ -306,8 +306,9 @@ class Format {
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
+                  ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
             ),
-            array('', '', '', '', '<html'),
+            array('', '', '', '', '<html', '$4'),
             $html);
 
         // HtmLawed specific config only
