@@ -789,20 +789,18 @@ if ($errors['err'] && isset($_POST['a'])) {
              <tr>
                  <td width="160"><b><?php echo __('Cc'); ?>:</b></td>
                  <td>
-                     <select name="ccs[]" id="cc_users" multiple="multiple"
+                     <select class="collabSelections" name="ccs[]" id="cc_users" multiple="multiple"
                          data-placeholder="<?php echo __('Select Contacts'); ?>">
-                         <option value=""></option>
-                         <option value="NEW">&mdash; <?php echo __('Add New');?> &mdash;</option>
                          <?php
-                         $users = User::objects();
-                         foreach ($users as $u) {
-                           if($u->id != $ticket->user_id && !in_array($u->getId(), $bcc_cids)) {
+                         foreach ($cc_cids as $u) {
+                           if($u != $ticket->user_id && !in_array($u, $bcc_cids)) {
+                             ?>
+                             <option value="<?php echo $u; ?>" <?php
+                             if (in_array($u, $cc_cids))
+                             echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
+                           </option>
+                         <?php } } ?>
                          ?>
-                         <option value="<?php echo $u->id; ?>" <?php
-                            if (in_array($u->getId(), $cc_cids))
-                              echo 'selected="selected"'; ?>><?php echo $u->getName(); ?>
-                         </option>
-                             <?php } } ?>
                      </select>
                      <br/><span class="error"><?php echo $errors['ccs']; ?></span>
                  </td>
@@ -810,20 +808,18 @@ if ($errors['err'] && isset($_POST['a'])) {
              <tr>
                <td width="160"><b><?php echo __('Bcc'); ?>:</b></td>
                <td>
-                   <select name="bccs[]" id="bcc_users" multiple="multiple"
+                   <select class="collabSelections" name="bccs[]" id="bcc_users" multiple="multiple"
                        data-placeholder="<?php echo __('Select Contacts'); ?>">
-                       <option value=""></option>
-                       <option value="NEW">&mdash; <?php echo __('Add New');?> &mdash;</option>
                        <?php
-                       $users = User::objects();
-                       foreach ($users as $u) {
-                         if($u->id != $ticket->user_id && !in_array($u->getId(), $cc_cids)) {
+                       foreach ($bcc_cids as $u) {
+                         if($u != $ticket->user_id && !in_array($u, $cc_cids)) {
+                           ?>
+                           <option value="<?php echo $u; ?>" <?php
+                           if (in_array($u, $bcc_cids))
+                           echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
+                         </option>
+                       <?php } } ?>
                        ?>
-                       <option value="<?php echo $u->id; ?>" <?php
-                           if (in_array($u->getId(), $bcc_cids))
-                           echo 'selected="selected"'; ?>><?php echo $u->getName(); ?>
-                       </option>
-                           <?php } } ?>
                    </select>
                    <br/><span class="error"><?php echo $errors['bccs']; ?></span>
                </td>
@@ -1193,76 +1189,72 @@ $(function() {
 });
 
 $(function() {
-    $("#cc_users").select2({width: '350px'});
-    $("#bcc_users").select2({width: '350px'});
-});
+  $('.collabSelections').on("select2:select", function(e) {
+    var el = $(this);
+    var tid = <?php echo $ticket->getThreadId(); ?>;
+    var target = e.currentTarget.id;
+    var addTo = (target == 'cc_users') ? 'addcc' : 'addbcc';
 
-$(function() {
-   $('#cc_users').on("select2:select", function(e) {
-     var el = $(this);
-     var tid = <?php echo $ticket->getThreadId(); ?>;
-
-    if(el.val().includes("NEW")) {
-      $("li[title='— Add New —']").remove();
-      var url = 'ajax.php/thread/' + tid + '/add-collaborator' ;
-       $.userLookup(url, function(user) {
-         e.preventDefault();
-          if($('.dialog#confirm-action').length) {
-              $('.dialog#confirm-action #action').val('addcc');
-              $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
-              $('#overlay').show();
-          }
-       });
-          var arr = el.val();
-          var removeStr = "NEW";
-
-          arr.splice($.inArray(removeStr, arr),1);
-          $(this).val(arr);
-     }
-  });
-
-  $('#bcc_users').on("select2:select", function(e) {
-      var el = $(this);
-      var tid = <?php echo $ticket->getThreadId(); ?>;
-
-      if(el.val().includes("NEW")) {
-        $("li[title='— Add New —']").remove();
-        var url = 'ajax.php/thread/' + tid + '/add-collaborator' ;
-         $.userLookup(url, function(user) {
-            e.preventDefault();
-            if($('.dialog#confirm-action').length) {
-                $('.dialog#confirm-action #action').val('addbcc');
-                $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
-                $('#overlay').show();
-            }
-         });
+   if(el.val().includes("NEW")) {
+     $("li[title='— Add New —']").remove();
+     var url = 'ajax.php/thread/' + tid + '/add-collaborator' ;
+      $.userLookup(url, function(user) {
+        e.preventDefault();
+         if($('.dialog#confirm-action').length) {
+             $('.dialog#confirm-action #action').val(addTo);
+             $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
+             $('#overlay').show();
+         }
+      });
          var arr = el.val();
          var removeStr = "NEW";
 
          arr.splice($.inArray(removeStr, arr),1);
          $(this).val(arr);
-      }
-  });
-
-  $('#cc_users').on("select2:unselecting", function(e) {
-      var confirmation = confirm(__("Are you sure you want to remove the collaborator from receiving this reply?"));
-      if (confirmation == false) {
-        $('#cc_users').on("select2:opening", function(e) {
-          return false;
-        });
-        return false;
-      }
-
+    }
  });
 
- $('#bcc_users').on("select2:unselecting", function(e) {
+ $('.collabSelections').on("select2:unselecting", function(e) {
+   var el = $(this);
+   var target = '#' + e.currentTarget.id;
      var confirmation = confirm(__("Are you sure you want to remove the collaborator from receiving this reply?"));
      if (confirmation == false) {
-         $('#bcc_users').on("select2:opening", function(e) {
-           return false;
-         });
+       $(target).on("select2:opening", function(e) {
          return false;
+       });
+       return false;
+     }
+
+});
+
+ $('.collabSelections').select2({
+   width: '350px',
+   minimumInputLength: 3,
+   ajax: {
+     url: "ajax.php/users/local",
+     dataType: 'json',
+     data: function (params) {
+       if (!params) {
+         params.term = 'test';
        }
+       return {
+         q: params.term,
+       };
+     },
+     processResults: function (data) {
+       data[0] = {name: "\u2014 Add New \u2014", id: "NEW"};
+       return {
+         results: $.map(data, function (item) {
+           return {
+             text: item.name,
+             slug: item.slug,
+             id: item.id
+           }
+         })
+       };
+     }
+   }
  });
+
 });
 </script>
