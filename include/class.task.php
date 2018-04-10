@@ -279,7 +279,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return true;
 
         // Permission check requested -- get role.
-        if (!($role=$staff->getRole($this->getDept)))
+        if (!($role=$staff->getRole($this->getDept())))
             return false;
 
         // Check permission based on the effective role
