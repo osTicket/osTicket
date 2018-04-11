@@ -2850,7 +2850,12 @@ class FileUploadField extends FormField {
         return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
-    function getFiles() {
+    function getFiles($draft_id=null) {
+        if ($draft_id && !empty($draft_id)) {
+            $attachments = GenericAttachments::forIdAndType($draft_id, 'D')
+                ->filter(array('inline' => '0'));
+            return $attachments ?: array();
+        }
         if (!isset($this->attachments) && ($a = $this->getAnswer())
             && ($e = $a->getEntry()) && ($e->get('id'))
         ) {
@@ -3882,7 +3887,10 @@ class FileUploadWidget extends Widget {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
-        $attachments = $this->field->getFiles();
+        // Get Attachments
+        $attachments = ($options['draft_id']) ?
+            $this->field->getFiles($options['draft_id']) :
+            $this->field->getFiles();
         $mimetypes = array_filter($config['__mimetypes'],
             function($t) { return strpos($t, '/') !== false; }
         );
@@ -3923,7 +3931,9 @@ class FileUploadWidget extends Widget {
         </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
-          url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
+          url: '<?php echo (($options['draft_id']) ?
+            'ajax.php/form/draft/'.$options['draft_id'].'/upload/'.$this->field->get('id') :
+            'ajax.php/form/upload/'.$this->field->get('id')); ?>',
           link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
           fallback_id: 'file-<?php echo $id; ?>',
@@ -3934,7 +3944,24 @@ class FileUploadWidget extends Widget {
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
           maxfilesize: <?php echo $maxfilesize; ?>,
           name: '<?php echo $name; ?>[]',
-          files: <?php echo JsonDataEncoder::encode($files); ?>
+          files: <?php echo JsonDataEncoder::encode($files); ?>,
+          dropCallback: function(filenode) {
+            var draftID = document.getElementById('response').dataset.draftId;
+            if (typeof draftID !== 'undefined') {
+              var fileID = filenode.find('input').val();
+              fileID = fileID.substring(0, fileID.indexOf(',') != -1 ?
+                  fileID.indexOf(',') : fileID.length);
+              $.ajax({
+                'url': 'ajax.php/draft/'+draftID+'/file/'+fileID,
+                'type': 'delete',
+                'dataType': 'json',
+                'success': function(json) {
+                  if(!json.success)
+                    return;
+                }
+              });
+            }
+          }
         });});
         </script>
 <?php

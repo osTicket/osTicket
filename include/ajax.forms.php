@@ -396,6 +396,22 @@ class DynamicFormsAjaxAPI extends AjaxController {
         );
     }
 
+    // Attach Files To Draft
+    function attachToDraft($draft_id, $files) {
+        $field = new FileUploadField();
+        $id = $field->ajaxUpload($thisstaff ? true : false);
+        $a = new Attachment(array(
+            'object_id' => $draft_id,
+            'type' => 'D',
+            'file_id' => $id
+        ));
+        $a->save();
+
+        return JsonDataEncoder::encode(
+            array('id' => $id)
+        );
+    }
+
     function getAllFields($id) {
         global $thisstaff;
 

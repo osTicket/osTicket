@@ -1230,3 +1230,13 @@ window.relativeAdjust = setInterval(function() {
   });
 }, 20000);
 
+// Save pasted image/text to draft
+$(document).on('paste drag drop', '.redactor-editor', function() {
+    var redactor = $('.richtext').data('redactor');
+    if (redactor.opts.draftId) {
+        setTimeout(function() {
+            redactor.autosave.html += '<br>';
+            redactor.autosave.load();
+        }, 100);
+    }
+});

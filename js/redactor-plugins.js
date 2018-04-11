@@ -1061,6 +1061,28 @@ RedactorPlugins.imagepaste = function() {
         // image for text character counting. Additionally, Redactor will
         // strip the zero-width space when saving
         $(document.createTextNode("\u200b")).insertAfter($(image));
+
+        // Reset draft things
+        if(json.draft_id) {
+            // Set data-draft-id
+            var area = this.$box.find('textarea');
+            area[0].dataset.draftId = json.draft_id;
+            // Set Dropzone URL
+            $('.dropzone').data('dropbox').options.url =
+                'ajax.php/form/draft/' + json.draft_id + '/upload/attach';
+            // Update all opts
+            this.opts.autosave = 'ajax.php/draft/' + json.draft_id;
+            this.opts.clipboardUploadUrl =
+                this.opts.imageUpload = this.opts.autosave + '/attach';
+            this.opts.draftId = json.draft_id;
+        }
+
+        // Update draft to include image
+        if (this.opts.draftId) {
+            this.autosave.html += '<br>';
+            this.autosave.load();
+        }
+
         bail();
       };
 

@@ -326,6 +326,38 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(404, "Draft not found");
 
         $draft->delete();
+
+        // Delete the attachments
+        $attachments = Attachment::objects()
+            ->filter(array(
+                'object_id' => $id,
+                'type' => 'D',
+            ));
+
+        if ($attachments)
+            $attachments->delete();
+    }
+
+    function deleteDraftFile($draft_id=null, $file_id=null) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, __('Login required for draft edits'));
+        elseif (!($draft = Draft::lookup($draft_id)))
+            Http::response(205, __('Draft not found. Create one first'));
+        elseif ($draft->getStaffId() != $thisstaff->getId())
+            Http::response(404, __('Draft not found'));
+        elseif (!$file_id)
+            Http::response(400, __('Invalid data sent'));
+
+        $attachment = Attachment::objects()
+            ->filter(array(
+                'object_id' => $draft_id,
+                'type' => 'D',
+                'file_id' => $file_id
+            ));
+
+        $attachment->delete();
     }
 
     function getFileList() {

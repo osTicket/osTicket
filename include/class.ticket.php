@@ -605,6 +605,23 @@ implements RestrictedAccess, Threadable {
 
     }
 
+    // Get Draft
+    // If there is no draft and autocreate == true then create/return new draft.
+    function getDraft($namespace, $staff_id, $response, $autocreate=true) {
+        if ($draft = Draft::lookupByNamespaceAndStaff($namespace.'.'.$this->getId(), $staff_id))
+            return $draft;
+
+        if ($autocreate == true) {
+            $vars['body'] = $response;
+            $vars['namespace'] = $namespace.'.'.$this->getId();
+            $vars['staff_id'] = $staff_id;
+            $draft = Draft::create($vars);
+            $draft->save();
+        }
+
+        return $draft;
+    }
+
     function getLock() {
         $lock = $this->lock;
         if ($lock && !$lock->isExpired())

@@ -15,6 +15,8 @@ $staff = $ticket->getStaff(); //Assigned or closed by..
 $user  = $ticket->getOwner(); //Ticket User (EndUser)
 $team  = $ticket->getTeam();  //Assigned team.
 $sla   = $ticket->getSLA();
+// Get Draft
+$draft = $ticket->getDraft('ticket.response', $thisstaff->getId(), $info['response']);
 $lock  = $ticket->getLock();  //Ticket lock obj
 if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
@@ -654,13 +656,16 @@ if ($errors['err'] && isset($_POST['a'])) {
                         ); ?>"
                         rows="9" wrap="soft"
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> draft draft-delete" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
-    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
+                            ?> draft draft-delete"
+                        data-draft-namespace="ticket.response" data-draft-object-id="<?php echo $ticket->getId(); ?>"
+                        data-draft-original="" data-draft-id="<?php echo $draft->getId(); ?>">
+                    <?php
+                        echo $_POST ? $info['response'] : Format::htmlchars(Format::viewableImages($draft->getBody()));
                     ?></textarea>
                 <div id="reply_form_attachments" class="attachments">
                 <?php
-                    print $response_form->getField('attachments')->render();
+                    // Get Draft Attachments
+                    print $response_form->getField('attachments')->render(array('draft_id' => $draft->getId()));
                 ?>
                 </div>
                 </td>
