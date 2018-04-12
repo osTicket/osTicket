@@ -1151,22 +1151,8 @@ class AssigneeChoiceField extends ChoiceField {
     }
 
     function applyOrderBy($query, $reverse=false, $name=false) {
-        global $cfg;
-
         $reverse = $reverse ? '-' : '';
-        switch ($cfg->getAgentNameFormat()) {
-        case 'last':
-        case 'lastfirst':
-        case 'legal':
-            $query->order_by("{$reverse}staff__lastname",
-                "{$reverse}staff__firstname",  "{$reverse}team__name");
-            break;
-        default:
-            $query->order_by("{$reverse}staff__firstname",
-                "{$reverse}staff__lastname", "{$reverse}team__name");
-        }
-
-        return $query;
+        return Staff::nsort($query, $reverse);
     }
 }
 
@@ -1241,22 +1227,8 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 
 
     function applyOrderBy($query, $reverse=false, $name=false) {
-        global $cfg;
-
         $reverse = $reverse ? '-' : '';
-        switch ($cfg->getAgentNameFormat()) {
-        case 'last':
-        case 'lastfirst':
-        case 'legal':
-            $query->order_by("{$reverse}staff__lastname",
-                "{$reverse}staff__firstname");
-            break;
-
-        default:
-            $query->order_by("{$reverse}staff__firstname",
-                "{$reverse}staff__lastname");
-        }
-        return $query;
+        return Staff::nsort($query, $reverse);
     }
 }
 
