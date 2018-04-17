@@ -1,6 +1,6 @@
 <?php
 global $cfg;
-$entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note', 'B' => 'bccmessage');
+$entryTypes = ThreadEntry::getTypes();
 $user = $entry->getUser() ?: $entry->getStaff();
 if ($entry->staff && $cfg->hideStaffName())
     $name = __('Staff');
@@ -11,13 +11,14 @@ if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
 ?>
 <?php
-  if ($entryTypes[$entry->type] == 'note') {
-    $entryTypes[$entry->type] = 'bccmessage';
+$type = $entryTypes[$entry->type];
+if ($type == 'note') {
+    $type =  'bccmessage';
     $entry->type = 'B';
-  }
+}
 ?>
 
-<div class="thread-entry <?php echo $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+<div class="thread-entry <?php echo $type; ?> <?php if ($avatar) echo 'avatar'; ?>">
 <?php if ($avatar) { ?>
     <span class="<?php echo ($entry->type == 'M' || $entry->type == 'B') ? 'pull-left' : 'pull-right'; ?> avatar">
 <?php echo $avatar; ?>

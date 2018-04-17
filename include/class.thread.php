@@ -778,6 +778,18 @@ implements TemplateVariable {
         ),
     );
 
+    // Thread entry types
+    static protected $types = array(
+            'M' => 'message',
+            'R' => 'response',
+            'N' => 'note',
+            'B' => 'bccmessage',
+    );
+
+    function getTypeName() {
+      return self::$types[$this->type];
+    }
+
     function postEmail($mailinfo) {
         global $ost;
 
@@ -1719,6 +1731,10 @@ implements TemplateVariable {
 
     static function getPermissions() {
         return self::$perms;
+    }
+
+    static function getTypes() {
+        return self::$types;
     }
 }
 

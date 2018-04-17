@@ -1197,7 +1197,7 @@ $(function() {
 
    if(el.val().includes("NEW")) {
      $("li[title='— Add New —']").remove();
-     var url = 'ajax.php/thread/' + tid + '/add-collaborator' ;
+     var url = 'ajax.php/thread/' + tid + '/add-collaborator/' + addTo ;
       $.userLookup(url, function(user) {
         e.preventDefault();
          if($('.dialog#confirm-action').length) {
