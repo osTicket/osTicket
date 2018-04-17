@@ -106,6 +106,9 @@ $hidden_cols = $queue->inheritColumns() || $queue->useStandardColumns();
 </div>
 <script>
 +function() {
+$('[name=inherit-columns]').on('click', function() {
+    $('.standard-columns').toggle();
+});
 var Q = setInterval(function() {
   if ($('#append-column').length == 0)
     return;
