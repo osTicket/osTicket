@@ -211,7 +211,7 @@ class OverviewReport {
             $headers = array(__('Help Topic'));
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
-            $topics = Topic::getHelpTopics();
+            $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
             $stats = $stats
                 ->values('topic_id', 'topic__topic', 'topic__flags')
                 ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0, 'topic_id__in' => array_keys($topics)));

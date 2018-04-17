@@ -207,9 +207,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isReopenable() {
-        return ($this->getStatus()->isReopenable()
-          && $this->getDept()->allowsReopen()
-        && $this->getTopic()->allowsReopen());
+        return ($this->getStatus()->isReopenable() && $this->getDept()->allowsReopen()
+        && ($this->getTopic() ? $this->getTopic()->allowsReopen() : null));
     }
 
     function isClosed() {
@@ -968,7 +967,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         'name' => "{$fid}_id",
                         'label' => __('Help Topic'),
                         'default' => $this->getTopicId(),
-                        'choices' => Topic::getHelpTopics()
+                        'choices' => Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED)
                         ));
             break;
         case 'source':
