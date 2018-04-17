@@ -211,7 +211,7 @@ class OverviewReport {
             $headers = array(__('Help Topic'));
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
-            $topics = Topic::getHelpTopics();
+            $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
             $stats = $stats
 <<<<<<< HEAD
 <<<<<<< HEAD
