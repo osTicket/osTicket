@@ -819,6 +819,10 @@ class CustomQueue extends VerySimpleModel {
         return !$this->isAQueue() && !$this->hasFlag(self::FLAG_PUBLIC);
     }
 
+    function isTeamVisible() {
+        return $this->hasFlag(self::FLAG_VISIBLE_TEAM);
+    }
+
     protected function hasFlag($flag) {
         return ($this->flags & $flag) !== 0;
     }

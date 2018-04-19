@@ -357,6 +357,11 @@ a time {
     color:#000;
 }
 
+#sub_nav > li > a.no-icon,
+#customQ_nav .jb-overflowmenu-menu-primary li.item > a.no-icon {
+    padding-left: 0;
+}
+
 #customQ_nav .jb-overflowmenu-menu-primary li.item:hover {
     padding:2px 5px 3px;
     color:#E65524;

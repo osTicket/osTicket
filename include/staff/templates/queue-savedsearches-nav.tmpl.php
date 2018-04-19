@@ -11,7 +11,8 @@
   if (!isset($_SESSION['advsearch']))
       $href = 'href="#" data-dialog="ajax.php/tickets/search"';
 ?>
-  <a <?php echo $href; ?>><i class="icon-sort-down pull-right"></i><?php echo __('Search');
+  <a <?php echo $href; ?> class="no-icon"><i class="icon-search icon-fixed-width"></i>
+    <i class="icon-sort-down pull-right"></i><?php echo __('Search');
   ?></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">

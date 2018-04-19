@@ -19,10 +19,11 @@ global $thisstaff;
   <a class="truncate <?php if ($selected) echo ' active'; ?>" href="<?php echo $queue->getHref();
     ?>" title="<?php echo Format::htmlchars($q->getName()); ?>">
       <?php
+        if ($q->isTeamVisible()) { ?><i class="icon-group"></i> <?php }
         echo Format::htmlchars($q->getName()); ?>
       <?php
         if ($hasChildren) { ?>
-            <i class="icon-caret-down"></i>
+            <i class="icon-caret-right"></i>
       <?php } ?>
     </a>
 
