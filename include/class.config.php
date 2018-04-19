@@ -420,6 +420,10 @@ class OsticketConfig extends Config {
         return rtrim($this->getUrl(),'/');
     }
 
+    function getOpsGenieKey() {
+        return $this->get('OpsGenie_API_Key');
+    }
+    
     function getPageSize() {
         return $this->get('max_page_size');
     }

@@ -406,6 +406,11 @@ static function formatTime($time) {
     function getDueDate() {
         return $this->duedate;
     }
+    
+    function getOpsGenieId() {
+        return $this->opsgenie_id;
+    }
+           
     function getSLADueDate() {
         if ($sla = $this->getSLA()) {
             $dt = new DateTime($this->getCreateDate());
@@ -1437,7 +1442,7 @@ static function formatTime($time) {
         }
     }
     function onAssign($assignee, $comments, $alert=true) {
-        global $cfg, $thisstaff;
+        global $ost,$cfg, $thisstaff;
         if ($this->isClosed())
             $this->reopen(); //Assigned tickets must be open - otherwise why assign?
         // Assignee must be an object of type Staff or Team
@@ -1446,6 +1451,42 @@ static function formatTime($time) {
         $user_comments = (bool) $comments;
         $comments = $comments ?: _S('Ticket Assignment');
         $assigner = $thisstaff ?: _S('SYSTEM (Auto Assignment)');
+     
+        if ($this->getOwner()->getOrgId() == 12) {
+         /* -------------------- OpsGenie ------------------------ */
+        $ticketnumber = $this->number;
+        $url = "https://api.opsgenie.com/v2/alerts/".$ticketnumber."/close?identifierType=alias";
+        $aParameter = array(
+        'note' => 'Close issued by assignment in Support to '.$assignee->getName(),
+        
+        );
+
+        $params = json_encode($aParameter); //convert param to json string
+
+        //headers to be sent optional if no header required skip this and remove curlopt_httpheader thing from curl call
+        $aHeaders = array(
+                'Content-Type'=>'Content-Type:application/json',
+                'Authorization'=>'Authorization:GenieKey '.$ost->getConfig()->getOpsGenieKey(),
+            );
+
+        $c = curl_init();
+
+        curl_setopt($c, CURLOPT_USERAGENT,  'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0'); // empty user agents probably not accepted
+        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($c, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($c, CURLOPT_AUTOREFERER,    1);
+        curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
+
+        curl_setopt($c, CURLOPT_HTTPHEADER, $aHeaders);
+
+        curl_setopt($c, CURLOPT_URL, $url );
+        curl_setopt($c, CURLOPT_REFERER, $url);
+        curl_setopt($c, CURLOPT_POST, true);
+        curl_setopt($c,CURLOPT_POSTFIELDS,$params);
+
+        $sResponse = curl_exec($c);       
+        }
+        
         //Log an internal note - no alerts on the internal note.
         if ($user_comments) {
             if ($assignee instanceof Staff
@@ -1507,6 +1548,7 @@ static function formatTime($time) {
                 $sentlist[] = $staff->getEmail();
             }
         }
+        
         return true;
     }
    function onOverdue($whine=true, $comments="") {
@@ -2016,7 +2058,7 @@ static function formatTime($time) {
         $this->logEvent('edited', array('owner' => $user->getId()));
         return true;
     }
-   
+
     function topic(TopicForm $form, &$errors, $alert=true) {
         global $thisstaff, $cfg;
         $ctopic = $this->getTopic(); // Current department
@@ -2234,7 +2276,7 @@ static function formatTime($time) {
     }
     /* public */
     function postReply($vars, &$errors, $alert=true, $claim=true) {
-		global $thisstaff, $cfg;
+		global $ost,$thisstaff, $cfg;
 		if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
         if (!$vars['staffId'] && $thisstaff)
@@ -2269,8 +2311,41 @@ static function formatTime($time) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
         $this->lastrespondent = $response->staff;
-		
-			
+        
+        if ($this->getOwner()->getOrgId() == 12) {
+		/* -------------------- OpsGenie ------------------------ */
+        $ticketnumber = $this->number;
+        $url = "https://api.opsgenie.com/v2/alerts/".$ticketnumber."/close?identifierType=alias";
+        $aParameter = array(
+        'note' => 'Close issued by assignment in Support to '.$this->getStaff(),//Staff::getName($this->getStaffId()),
+        
+        );
+
+        $params = json_encode($aParameter); //convert param to json string
+
+        //headers to be sent optional if no header required skip this and remove curlopt_httpheader thing from curl call
+        $aHeaders = array(
+                'Content-Type'=>'Content-Type:application/json',
+                'Authorization'=>'Authorization:GenieKey '.$ost->getConfig()->getOpsGenieKey(),
+            );
+
+        $c = curl_init();
+
+        curl_setopt($c, CURLOPT_USERAGENT,  'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0'); // empty user agents probably not accepted
+        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($c, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($c, CURLOPT_AUTOREFERER,    1);
+        curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
+
+        curl_setopt($c, CURLOPT_HTTPHEADER, $aHeaders);
+
+        curl_setopt($c, CURLOPT_URL, $url );
+        curl_setopt($c, CURLOPT_REFERER, $url);
+        curl_setopt($c, CURLOPT_POST, true);
+        curl_setopt($c,CURLOPT_POSTFIELDS,$params);
+
+        $sResponse = curl_exec($c);       
+		}	
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
         /* email the user??  - if disabled - then bail out */
         if (!$alert)
@@ -3038,11 +3113,12 @@ static function formatTime($time) {
             $duedate_datetime = date("Y-m-d H:i:s", strtotime($vars['duedate']));
             $ticket->duedate = $duedate_datetime;
         }
-            
+         
         if (!$ticket->save())
             return null;
         if (!($thread = TicketThread::create($ticket->getId())))
             return null;
+        
         /* -------------------- POST CREATE ------------------------ */
         // Save the (common) dynamic form
         // Ensure we have a subject
@@ -3119,8 +3195,12 @@ static function formatTime($time) {
                     $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
             }
         }
+        
+       
         // Update the estimated due date in the database
         $ticket->updateEstDueDate();
+        
+        
         /**********   double check auto-response  ************/
         //Override auto responder if the FROM email is one of the internal emails...loop control.
         if($autorespond && (Email::getIdByEmail($ticket->getEmail())))
@@ -3156,6 +3236,51 @@ static function formatTime($time) {
         ) {
             $ticket->onOpenLimit($autorespond && strcasecmp($origin, 'staff'));
         }
+        
+        if ($ticket->getOwner()->getOrgId() == 12) {
+        /* -------------------- OpsGenie ------------------------ */
+        $url = "https://api.opsgenie.com/v2/alerts";
+        $aParameter = array(
+        'message' => 'New Support Ticket from '.$ticket->getName(),
+        'alias' => $ticket->getNumber(),
+        'details' => array( 'From' => ''.$ticket->getName(),
+                            'Subject' => (string) $ticket->getSubject(),
+                           'Detail'=>(string) $ticket->getLastMessage(),
+                           'Ticket Number' => '[#'.$ticket->getNumber().']'.$ost->getConfig()->getUrl().'scp/tickets.php?id='.$ticket->getId(),
+                                              
+                                                     
+                           ),
+        'description' => $ticket->getSubject(),
+        'note' => 'New ticket created in Support',
+        'action' => 'create',
+        'priority' => 'P1');
+
+        $params = json_encode($aParameter); //convert param to json string
+
+        //headers to be sent optional if no header required skip this and remove curlopt_httpheader thing from curl call
+        $aHeaders = array(
+                'Content-Type'=>'Content-Type:application/json',
+                'Authorization'=>'Authorization:GenieKey '.$ost->getConfig()->getOpsGenieKey(),
+            );
+
+        $c = curl_init();
+
+        curl_setopt($c, CURLOPT_USERAGENT,  'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:11.0) Gecko/20100101 Firefox/11.0'); // empty user agents probably not accepted
+        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($c, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($c, CURLOPT_AUTOREFERER,    1);
+        curl_setopt($c, CURLOPT_SSL_VERIFYPEER, 0);
+
+        curl_setopt($c, CURLOPT_HTTPHEADER, $aHeaders);
+
+        curl_setopt($c, CURLOPT_URL, $url );
+        curl_setopt($c, CURLOPT_REFERER, $url);
+        curl_setopt($c, CURLOPT_POST, true);
+        curl_setopt($c,CURLOPT_POSTFIELDS,$params);
+
+        $sResponse = curl_exec($c);
+        }
+        
         // Fire post-create signal (for extra email sending, searching)
         Signal::send('ticket.created', $ticket);
         /* Phew! ... time for tea (KETEPA) */
@@ -3203,7 +3328,7 @@ static function formatTime($time) {
         $tform = TicketForm::objects()->one()->getForm($create_vars);
         $create_vars['cannedattachments']
             = $tform->getField('message')->getWidget()->getAttachments()->getClean();
-        
+       
     if ($vars['response']) {$alertstaff = false; } else {$alertstaff = true;}
            
         if (!($ticket=self::create($create_vars, $errors, 'staff', false, $alertstaff)))
@@ -3266,7 +3391,15 @@ static function formatTime($time) {
             $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
+        
+        
+        
+        
+        
+        
         return $ticket;
+        
+     
     }
     static function checkOverdue() {
         /*

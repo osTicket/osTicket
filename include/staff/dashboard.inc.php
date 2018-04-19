@@ -1654,7 +1654,8 @@ $(function() {
         ["SS", <?php echo $BacklogTickets["SS"]; ?>], 
         ["TNN1", <?php echo $BacklogTickets["TNN1"]; ?>], 
         ["TNN2", <?php echo $BacklogTickets["TNN2"]; ?>], 
-        ["TNS", <?php echo $BacklogTickets["TNS"]; ?>]
+        ["TNS", <?php echo $BacklogTickets["TNS"]; ?>],
+        ["VIP", <?php echo $BacklogTickets["VIP"]; ?>]
        
         ];
 
