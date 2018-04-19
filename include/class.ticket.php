@@ -1648,10 +1648,18 @@ implements RestrictedAccess, Threadable, Searchable {
         $collaborators['cc'] = $collaborators;
 
         //collaborator email sent out
-        if ($collaborators['cc']) {
+        if ($collaborators['cc']  || $owner_recip) {
           //say dear collaborator if the ticket user is not a recipient
-          if (!$owner_recip)
-            $cnotice = $this->replaceVars($msg, array('recipient.name.first' => __('Collaborator'), 'recipient' => $recipient));
+          if (!$owner_recip) {
+            $nameFormats = array_keys(PersonsName::allFormats());
+            $names = array();
+            foreach ($nameFormats as $key => $value) {
+              $names['recipient.name.' . $value] = __('Collaborator');
+            }
+            $names = array_merge($names, array('recipient' => $recipient));
+            $cnotice = $this->replaceVars($msg, $names);
+          }
+
           //otherwise address email to ticket user
           else
             $cnotice = $this->replaceVars($msg, array('recipient' => $owner));
@@ -2970,7 +2978,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $collabsCc = array();
             if ($vars['ccs'] && $vars['emailcollab']) {
                 $collabsCc[] = Collaborator::getCollabList($vars['ccs']);
-                $collabsCc['cc'] = $collabsCc;
+                $collabsCc['cc'] = $collabsCc[0];
             }
 
             $email->send($user, $msg['subj'], $msg['body'], $attachments,
@@ -2985,10 +2993,9 @@ implements RestrictedAccess, Threadable, Searchable {
                     if (!($recipient = User::lookup($uid)))
                         continue;
 
-                    $msg = $this->replaceVars($bccmsg->asArray(), $variables + array(
-                                'recipient' => $user,
-                                'recipient.name.first' =>
-                                $recipient->getName()->getFirst()));
+                    $extraVars = UsersName::getNameFormats($recipient, 'recipient');
+                    $extraVars = array_merge($extraVars, array('recipient' => $user));
+                    $msg = $this->replaceVars($bccmsg->asArray(), $variables + $extraVars);
 
                     $email->send($recipient, $msg['subj'], $msg['body'], $attachments, $options);
                 }
@@ -4129,15 +4136,13 @@ implements RestrictedAccess, Threadable, Searchable {
                       && ($bccmsg=$tpl->getNewTicketNoticeMsgTemplate())
                       && ($email=$dept->getEmail())
                   )
-                  $bccmsg = $ticket->replaceVars($bccmsg->asArray(),
-                      array(
-                          'message'   => $message,
-                          'signature' => $signature,
-                          'response'  => ($response) ? $response->getBody() : '',
-                          'recipient' => $ticket->getOwner(),
-                          'recipient.name.first' => $recipient->getName()->getFirst(),
-                      )
-                  );
+                  $extraVars = UsersName::getNameFormats($recipient, 'recipient');
+                  $extraVars = array_merge($extraVars, array(
+                    'message'   => $message,
+                    'signature' => $signature,
+                    'response'  => ($response) ? $response->getBody() : '',
+                    'recipient' => $ticket->getOwner()));
+                  $bccmsg = $ticket->replaceVars($bccmsg->asArray(), $extraVars);
 
                   $email->send($recipient, $bccmsg['subj'], $bccmsg['body'], $attachments,
                       $options);

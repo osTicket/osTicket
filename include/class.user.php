@@ -813,6 +813,16 @@ implements TemplateVariable {
         return $this;
     }
 
+    function getNameFormats($user, $type) {
+      $nameFormats = array();
+
+      foreach (PersonsName::allFormats() as $format => $func) {
+          $nameFormats[$type . '.name.' . $format] = $user->getName()->$func[1]();
+      }
+
+      return $nameFormats;
+    }
+
     function asVar() {
         return $this->__toString();
     }
