@@ -306,9 +306,15 @@ class Format {
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
+<<<<<<< HEAD
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
             ),
             array('', '', '', '', '<html', '$4'),
+=======
+                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
+            ),
+            array('', '', '', '', '<html', '$2 $3'),
+>>>>>>> issue: Drop Gmail "ltr" Attributes
             $html);
 
         // HtmLawed specific config only
