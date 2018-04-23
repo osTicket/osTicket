@@ -306,8 +306,9 @@ class Format {
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
+                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
             ),
-            array('', '', '', '', '<html'),
+            array('', '', '', '', '<html', '$2 $3'),
             $html);
 
         // HtmLawed specific config only
