@@ -307,8 +307,9 @@ class Format {
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
+                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
             ),
-            array('', '', '', '', '<html', '$4'),
+            array('', '', '', '', '<html', '$4', '$2 $3'),
             $html);
 
         // HtmLawed specific config only
