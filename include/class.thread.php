@@ -299,12 +299,12 @@ implements Searchable {
                 return false;
 
             // Referred to staff's department
-            if ($to->getDepts() && $this->referrals->findFirst(array(
+            if ($to->getDepts() && $this->referrals->filter(array(
                             'object_id__in' => $to->getDepts(),
                             'object_type'   => ObjectModel::OBJECT_TYPE_DEPT)))
                 return true;
             // Referred to staff's  team
-            if ($to->getTeams() && $this->referrals->findFirst(array(
+            if ($to->getTeams() && $this->referrals->filter(array(
                             'object_id__in' => $to->getTeams(),
                             'object_type'   => ObjectModel::OBJECT_TYPE_TEAM)))
                 return true;
@@ -777,6 +777,18 @@ implements TemplateVariable {
             'desc'  => /* @trans */ 'Ability to edit thread items of other agents',
         ),
     );
+
+    // Thread entry types
+    static protected $types = array(
+            'M' => 'message',
+            'R' => 'response',
+            'N' => 'note',
+            'B' => 'bccmessage',
+    );
+
+    function getTypeName() {
+      return self::$types[$this->type];
+    }
 
     function postEmail($mailinfo) {
         global $ost;
@@ -1719,6 +1731,10 @@ implements TemplateVariable {
 
     static function getPermissions() {
         return self::$perms;
+    }
+
+    static function getTypes() {
+        return self::$types;
     }
 }
 
