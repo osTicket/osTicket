@@ -1195,7 +1195,7 @@ $(function() {
     var target = e.currentTarget.id;
     var addTo = (target == 'cc_users') ? 'addcc' : 'addbcc';
 
-   if(el.val().includes("NEW")) {
+   if(el.val().indexOf("NEW") > -1) {
      $("li[title='— Add New —']").remove();
      var url = 'ajax.php/thread/' + tid + '/add-collaborator/' + addTo ;
       $.userLookup(url, function(user) {
