@@ -20,7 +20,7 @@ require('admin.inc.php');
 $nav->setTabActive('settings', 'settings.php?t='.urlencode($_GET['t']));
 $errors = array();
 
-if ($_REQUEST['id']) {
+if ($_REQUEST['id'] && is_numeric($_REQUEST['id'])) {
     $queue = CustomQueue::lookup($_REQUEST['id']);
 }
 
@@ -43,11 +43,14 @@ if ($_POST) {
     case 'create':
         $queue = CustomQueue::create(array(
             'flags' => CustomQueue::FLAG_PUBLIC,
-            'root' => $_POST['root'] ?: 'Ticket'
+            'staff_id' => 0,
+            'title' => $_POST['queue-name'],
+            'root' => $_POST['root'] ?: 'T'
         ));
 
         if ($queue->update($_POST, $errors) && $queue->save(true)) {
-            $msg = sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
+            $msg = sprintf(__('Successfully added %s'),
+                    Format::htmlchars($queue->getName()));
         }
         elseif (!$errors['err']) {
             $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),

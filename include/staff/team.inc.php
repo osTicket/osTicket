@@ -231,7 +231,7 @@ $(document).on('click', 'a.drop-membership', function() {
 });
 
 <?php
-if ($team) {
+if ($team && $team->members) {
     foreach ($team->members->sort(function($a) { return $a->staff->getName(); }) as $member) {
         echo sprintf('addMember(%d, %s, %d, %s);',
             $member->staff_id,

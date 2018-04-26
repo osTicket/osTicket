@@ -57,11 +57,11 @@ else {
     <table class="table">
       <td style="width:60%; vertical-align:top">
         <div><strong><?php echo __('Queue Name'); ?>:</strong></div>
-        <input type="text" name="name" value="<?php
+        <input type="text" name="queue-name" value="<?php
           echo Format::htmlchars($queue->getName()); ?>"
           style="width:100%" />
-
         <br/>
+        <div class="error"><?php echo $errors['queue-name']; ?></div>
         <br/>
         <div><strong><?php echo __("Queue Search Criteria"); ?></strong></div>
         <label class="checkbox" style="line-height:1.3em">
@@ -120,10 +120,8 @@ else {
             if ($queue->parent
                 && ($qf = $queue->parent->getQuickFilterField()))
                 echo sprintf(' (%s)', $qf->getLabel()); ?> —</option>
-<?php foreach (CustomQueue::getSearchableFields('Ticket') as $path=>$f) {
+<?php foreach ($queue->getSupportedFilters() as $path => $f) {
         list($label, $field) = $f;
-        if (!$field->supportsQuickFilter())
-          continue;
 ?>
           <option value="<?php echo $path; ?>"
             <?php if ($path == $queue->filter) echo 'selected="selected"'; ?>
@@ -314,8 +312,8 @@ var Q = setInterval(function() {
 }();
 </script>
         </table>
-    </div>    
-    
+    </div>
+
     <div class="hidden tab_content" id="preview-tab">
     <div id="preview">
     </div>
@@ -339,7 +337,7 @@ var Q = setInterval(function() {
 
   <div class="hidden tab_content" id="conditions-tab">
     <div style="margin-bottom: 15px"><?php echo __("Conditions are used to change the view of the data in a row based on some conditions of the data. For instance, a column might be shown bold if some condition is met.");
-      ?> <?php echo __("These conditions apply to an entire row in the queue."); 
+      ?> <?php echo __("These conditions apply to an entire row in the queue.");
     ?></div>
     <div class="conditions">
 <?php

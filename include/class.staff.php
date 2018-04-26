@@ -359,7 +359,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $depts = array();
             if (($res=db_query($sql)) && db_num_rows($res)) {
                 while(list($id)=db_fetch_row($res))
-                    $depts[] = $id;
+                    $depts[] = (int) $id;
             }
 
             /* ORM method — about 2.0ms slower
@@ -459,13 +459,21 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->_roles;
     }
 
-    function getRole($dept=null) {
-        $deptId = is_object($dept) ? $dept->getId() : $dept;
+    function getRole($dept=null, $assigned=false) {
+
+        if (is_null($dept))
+            return $this->role;
+
+        if ((!$dept instanceof Dept) && !($dept=Dept::lookup($dept)))
+            return null;
+
+        $deptId = $dept->getId();
         $roles = $this->getRoles();
         if (isset($roles[$deptId]))
             return $roles[$deptId];
 
-        if ($this->usePrimaryRoleOnAssignment())
+        // Default to primary role.
+        if ($assigned && $this->usePrimaryRoleOnAssignment())
             return $this->role;
 
         // View only access
@@ -481,6 +489,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             if ($da->role->hasPerm($perm))
                 return true;
         return false;
+    }
+
+    function canSearchEverything() {
+        return $this->hasPerm(SearchBackend::PERM_EVERYTHING);
     }
 
     function canManageTickets() {
@@ -534,8 +546,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return ($teamId && in_array($teamId, $this->getTeams()));
     }
 
-    function canAccessDept($deptId) {
-        return ($deptId && in_array($deptId, $this->getDepts()) && !$this->isAccessLimited());
+    function canAccessDept($dept) {
+
+        if (!$dept instanceof Dept)
+            return false;
+
+        return (!$this->isAccessLimited()
+                && in_array($dept->getId(), $this->getDepts()));
     }
 
     function getTeams() {
@@ -543,7 +560,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (!isset($this->_teams)) {
             $this->_teams = array();
             foreach ($this->teams as $team)
-                 $this->_teams[] = $team->team_id;
+                 $this->_teams[] = (int) $team->team_id;
         }
 
         return $this->_teams;
@@ -559,7 +576,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $assigned->add(array('thread__referrals__agent__staff_id' => $this->getId()));
 
         // -- Open and assigned to a team of mine
-        if ($teams = array_filter($this->getTeams())) {
+        if (($teams = array_filter($this->getTeams()))) {
             $assigned->add(array('team_id__in' => $teams));
             $assigned->add(array('thread__referrals__team__team_id__in' => $teams));
         }
@@ -573,6 +590,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
 
         return $visibility;
+    }
+
+    function applyVisibility($query) {
+        return $query->filter($this->getTicketsVisibility());
     }
 
     /* stats */

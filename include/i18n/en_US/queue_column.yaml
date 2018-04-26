@@ -92,7 +92,8 @@
 
 - id: 9
   name: "Due Date"
-  primary: "est_duedate"
+  primary: "duedate"
+  secondary: "est_duedate"
   filter: "date:human"
   truncate: "wrap"
   annotations: "[]"

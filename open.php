@@ -82,7 +82,8 @@ if ($ticket
     echo Format::viewableImages(
         $ticket->replaceVars(
             $page->getLocalBody()
-        )
+        ),
+        ['type' => 'P']
     );
 }
 else {

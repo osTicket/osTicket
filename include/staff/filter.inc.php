@@ -240,18 +240,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 if ($filter) { foreach ($filter->getActions() as $A) {
                     $_warn = '';
                     $existing[] = $A->type;
+                    $config = JsonDataParser::parse($A->configuration);
                     if($A->type == 'dept') {
                       $errors['topic_id'] = '';
-                      // $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
-                      $dept_config = $A->parseConfiguration($_POST);
-                      $dept = Dept::lookup($dept_config['dept_id']);
+                      $dept = Dept::lookup($config['dept_id']);
                       if($dept && !$dept->isActive())
                         $_warn = sprintf(__('%s must be active'), __('Department'));
                     }
                     elseif($A->type == 'topic') {
                       $errors['dept_id'] = '';
-                      $topic_config = $A->parseConfiguration($_POST);
-                      $topic = Topic::lookup($topic_config['topic_id']);
+                      $topic = Topic::lookup($config['topic_id']);
                       if($topic && !$topic->isActive())
                         $_warn = sprintf(__('%s must be active'), __('Help Topic'));
                     }

@@ -21,10 +21,18 @@ class QueueSortCreator extends MigrationTask {
 
         // Re-insert old saved searches
         foreach ($old ?: array() as $row) {
+            // Only save entries with "valid" criteria
+            if (!$row['title']
+                    || !($config = JsonDataParser::parse($row['config'], true))
+                    || !($criteria = CustomQueue::isolateCriteria($criteria)))
+                continue;
+
+            $row['config'] = JsonDataEncoder::encode(array(
+                        'criteria' => $criteria, 'conditions' => array()));
             $row['root'] = 'T';
             CustomQueue::__create(array_intersect_key($row, array_flip(
                             array('staff_id', 'title', 'config', 'flags',
-                                'created', 'updated'))));
+                                'root', 'created', 'updated'))));
         }
 
         $columns = $i18n->getTemplate('queue_sort.yaml')->getData();

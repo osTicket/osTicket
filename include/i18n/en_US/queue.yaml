@@ -75,7 +75,7 @@
   parent_id: 1
   flags: 0x03
   root: T
-  sort: 4
+  sort: 2
   config: '[["isanswered","set",null]]'
   columns:
     - column_id: 1
@@ -113,8 +113,6 @@
     - sort_id: 2
     - sort_id: 3
     - sort_id: 4
-
-
 
 - id: 3
   title: My Tickets
@@ -205,55 +203,12 @@
     - sort_id: 1
     - sort_id: 2
 
-- title: Unassigned
-  parent_id: 1
-  flags: 0x2b
-  root: T
-  sort: 1
-  config: '[["assignee","!assigned",null]]'
-  columns:
-    - column_id: 1
-      bits: 1
-      sort: 1
-      sort: 1
-      width: 100
-      heading: Ticket
-    - column_id: 10
-      bits: 1
-      sort: 1
-      sort: 2
-      width: 150
-      heading: Last Update
-    - column_id: 3
-      bits: 1
-      sort: 1
-      sort: 3
-      width: 300
-      heading: Subject
-    - column_id: 4
-      bits: 1
-      sort: 1
-      sort: 4
-      width: 185
-      heading: From
-    - column_id: 5
-      bits: 1
-      sort: 1
-      sort: 5
-      width: 85
-      heading: Priority
-    - column_id: 11
-      bits: 1
-      sort: 1
-      sort: 6
-      width: 160
-      heading: Department
-
-- title: Assigned
+- id: 5
+  title: Assigned
   parent_id: 1
   flags: 0x03
   root: T
-  sort: 2
+  sort: 3
   config: '[["assignee","assigned",null]]'
   columns:
     - column_id: 1
@@ -287,11 +242,12 @@
       width: 160
       heading: Assigned To
 
-- title: Overdue
+- id: 6
+  title: Overdue
   parent_id: 1
   flags: 0x2b
   root: T
-  sort: 3
+  sort: 4
   sort_id: 4
   config: '[["isoverdue","set",null]]'
   columns:
@@ -300,7 +256,7 @@
       sort: 1
       width: 100
       heading: Ticket
-    - column_id: 10
+    - column_id: 9
       bits: 1
       sort: 1
       sort: 9
@@ -330,18 +286,3 @@
       sort: 6
       width: 160
       heading: Assigned To
-
-- title: Personal Tickets
-  parent_id: 3
-  flags: 0x2b
-  root: T
-  sort: 1
-  config: '{"criteria":[["assignee","includes",{"M":"Me"}]]}'
-
-- title: Teams Tickets
-  parent_id: 3
-  flags: 0x2b
-  root: T
-  sort: 2
-  config: '{"criteria":[["team_id","set",null]],"conditions":[]}'
-  filter: team_id

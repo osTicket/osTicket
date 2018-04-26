@@ -107,7 +107,7 @@ implements TemplateVariable, Searchable {
             'name' => new TextboxField(array(
                 'label' => __('Name'),
             )),
-            'manager' => new AgentSelectionField(array(
+            'manager' => new DepartmentManagerSelectionField(array(
                 'label' => __('Manager'),
             )),
         );

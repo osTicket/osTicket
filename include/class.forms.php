@@ -1650,6 +1650,15 @@ class BooleanField extends FormField {
         );
     }
 
+    function describeSearchMethod($method) {
+
+        $methods = $this->get('descsearchmethods');
+        if (isset($methods[$method]))
+            return $methods[$method];
+
+        return parent::describeSearchMethod($method);
+    }
+
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
@@ -2690,15 +2699,12 @@ class DepartmentField extends ChoiceField {
           else {
             $current_id = $selected->value;
             $current_name = Dept::getNameById($current_id);
-            $addNew = true;
           }
         }
 
-        $active_depts = array();
-        if($current_id)
-          $active_depts = Dept::objects()
-            ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
-            ->values('id', 'name');
+        $active_depts = Dept::objects()
+          ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
+          ->values('id', 'name');
 
         $choices = array();
         if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
@@ -2708,18 +2714,17 @@ class DepartmentField extends ChoiceField {
             $active[$dept['id']] = $dept['name'];
 
           //add selected dept to list
-          $active[$current_id] = $current_name;
-
+          if($current_id)
+            $active[$current_id] = $current_name;
+          else
+            return $active;
 
           foreach ($depts as $id => $name) {
             $choices[$id] = $name;
             if(!array_key_exists($id, $active) && $current_id)
-              unset($choices[$id]);
+                unset($choices[$id]);
           }
-
         }
-        if($addNew)
-          $choices[':new:'] = '— '.__('Add New').' —';
 
         return $choices;
     }
@@ -3933,6 +3938,8 @@ class ChoicesWidget extends Widget {
                         $values[$v] = $choices[$v];
                     elseif (($i=$this->field->lookupChoice($v)))
                         $values += $i;
+                    elseif (!$k && $v)
+                      return $v;
                 }
             }
         }
@@ -4513,13 +4520,15 @@ class FreeTextWidget extends Widget {
         if (($attachments = $this->field->getFiles()) && count($attachments)) { ?>
             <section class="freetext-files">
             <div class="title"><?php echo __('Related Resources'); ?></div>
-            <?php foreach ($attachments as $attach) { ?>
+            <?php foreach ($attachments as $attach) {
+                $filename = Format::htmlchars($attach->getFilename());
+                ?>
                 <div class="file">
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
-                    target="_blank" download="<?php echo $attach->file->getDownloadUrl();
-                    ?>" class="truncate no-pjax">
+                    target="_blank" download="<?php echo $filename; ?>"
+                    class="truncate no-pjax">
                     <i class="icon-file"></i>
-                    <?php echo Format::htmlchars($attach->getFilename()); ?>
+                    <?php echo $filename; ?>
                 </a>
                 </div>
             <?php } ?>
@@ -4914,7 +4923,7 @@ class ReferralForm extends Form {
                               ),
                             )
                 ),
-            'dept' => new ChoiceField(array(
+            'dept' => new DepartmentField(array(
                     'id'=>4,
                     'label' => '',
                     'flags' => hexdec(0X450F3),

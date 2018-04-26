@@ -1737,7 +1737,8 @@ implements ArrayAccess {
     function sort($key=false, $reverse=false) {
         // Fetch all records into the cache
         $this->asArray();
-        return parent::sort($key, $reverse);
+        parent::sort($key, $reverse);
+        return $this;
     }
 
     /**

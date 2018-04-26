@@ -120,11 +120,12 @@ $tip_namespace = 'manage.filter';
 if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
   if($filter) {
     foreach ($filter->getActions() as $A) {
+      $config = JsonDataParser::parse($A->configuration);
       if($A->type == 'dept')
-        $dept = Dept::lookup($A->parseConfiguration($_POST)['dept_id']);
+        $dept = Dept::lookup($config['dept_id']);
 
       if($A->type == 'topic')
-        $topic = Topic::lookup($A->parseConfiguration($_POST)['topic_id']);
+        $topic = Topic::lookup($config['topic_id']);
     }
   }
 

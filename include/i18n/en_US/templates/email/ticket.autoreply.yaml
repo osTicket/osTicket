@@ -33,7 +33,7 @@ body: |
     <hr>
     <div style="color: rgb(127, 127, 127); font-size: small;"><em>We hope
     this response has sufficiently answered your questions.  If you wish to
-    provide additional comments or informatione, please reply to this email
+    provide additional comments or information, please reply to this email
     or <a href="%{recipient.ticket_link}"><span
     style="color: rgb(84, 141, 212);" >login to your account</span></a> for
     a complete archive of your support requests.</em></div>

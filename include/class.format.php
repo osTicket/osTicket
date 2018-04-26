@@ -306,8 +306,10 @@ class Format {
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
                   ':<html[^>]+:i',              # drop html attributes
+                  ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
+                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
             ),
-            array('', '', '', '', '<html'),
+            array('', '', '', '', '<html', '$4', '$2 $3'),
             $html);
 
         // HtmLawed specific config only
@@ -455,14 +457,17 @@ class Format {
     }
 
 
-    function viewableImages($html, $script=false) {
+    function viewableImages($html, $options=array()) {
         $cids = $images = array();
+        $options +=array(
+                'deposition' => 'inline');
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
-        function($match) use ($script, $images) {
+        function($match) use ($options, $images) {
             if (!($file = AttachmentFile::lookup($match[1])))
                 return $match[0];
+
             return sprintf('"%s" data-cid="%s"',
-                $file->getDownloadUrl(false, 'inline', $script), $match[1]);
+                $file->getDownloadUrl($options), $match[1]);
         }, $html);
     }
 

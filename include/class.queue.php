@@ -28,6 +28,7 @@ class CustomQueue extends VerySimpleModel {
             ),
             'columns' => array(
                 'reverse' => 'QueueColumnGlue.queue',
+                'constrain' => array('staff_id' =>'QueueColumnGlue.staff_id'),
                 'broker' => 'QueueColumnListBroker',
             ),
             'sorts' => array(
@@ -111,6 +112,10 @@ class CustomQueue extends VerySimpleModel {
         return $this->path ?: $this->buildPath();
     }
 
+    function criteriaRequired() {
+        return true;
+    }
+
     function getCriteria($include_parent=false) {
         if (!isset($this->criteria)) {
             $old = @$this->config[0] === '{';
@@ -123,7 +128,9 @@ class CustomQueue extends VerySimpleModel {
                 && !isset($this->criteria['conditions'])
             ) {
                 // TODO: Upgrade old ORM path names
-                $this->criteria = $this->isolateCriteria($this->criteria);
+                // Parse criteria out of JSON if any.
+                $this->criteria = self::isolateCriteria($this->criteria,
+                        $this->getRoot());
             }
         }
         $criteria = $this->criteria ?: array();
@@ -162,38 +169,40 @@ class CustomQueue extends VerySimpleModel {
      * Parameters:
      * $search - <array> Request parameters ($_POST) used to update the
      *      search beyond the current configuration of the search criteria
+     * $searchables - search fields - default to current if not provided
      */
-    function getForm($source=null) {
-        $searchable = $this->getCurrentSearchFields($source);
-        $fields = array(
-            ':keywords' => new TextboxField(array(
-                'id' => 3001,
-                'configuration' => array(
-                    'size' => 40,
-                    'length' => 400,
-                    'autofocus' => true,
-                    'classes' => 'full-width headline',
-                    'placeholder' => __('Keywords — Optional'),
-                ),
-            )),
-        );
-        foreach ($searchable as $path=>$field) {
-            $fields = array_merge($fields, static::getSearchField($field, $path));
+    function getForm($source=null, $searchable=null) {
+        $fields = array();
+        $validator = false;
+        if (!isset($searchable)) {
+            $searchable = $this->getCurrentSearchFields($source);
+            $validator = true;
+            $fields = array(
+                ':keywords' => new TextboxField(array(
+                    'id' => 3001,
+                    'configuration' => array(
+                        'size' => 40,
+                        'length' => 400,
+                        'autofocus' => true,
+                        'classes' => 'full-width headline',
+                        'placeholder' => __('Keywords — Optional'),
+                    ),
+                )),
+            );
         }
 
+        foreach ($searchable as $path=>$field)
+            $fields = array_merge($fields, static::getSearchField($field, $path));
+
         $form = new AdvancedSearchForm($fields, $source);
-        $form->addValidator(function($form) {
-            $selected = 0;
-            foreach ($form->getFields() as $F) {
-                if (substr($F->get('name'), -7) == '+search' && $F->getClean())
-                    $selected += 1;
-                // Consider keyword searches
-                elseif ($F->get('name') == ':keywords' && $F->getClean())
-                    $selected += 1;
-            }
-            if (!$selected)
-                $form->addError(__('No fields selected for searching'));
-        });
+
+        // Field selection validator
+        if ($this->criteriaRequired()) {
+            $form->addValidator(function($form) {
+                    if (!$form->getNumFieldsSelected())
+                        $form->addError(__('No fields selected for searching'));
+                });
+        }
 
         // Load state from current configuraiton
         if (!$source) {
@@ -233,7 +242,7 @@ class CustomQueue extends VerySimpleModel {
      *      to contain a list extra fields by ORM path, of newly added
      *      fields not yet saved in this object's getCriteria().
      */
-    function getCurrentSearchFields($source=array()) {
+    function getCurrentSearchFields($source=array(), $criteria=array()) {
         static $basic = array(
             'Ticket' => array(
                 'status__state',
@@ -255,7 +264,7 @@ class CustomQueue extends VerySimpleModel {
                     $core[$path] = $all[$path];
 
         // Add others from current configuration
-        foreach ($this->getCriteria() as $C) {
+        foreach ($criteria ?: $this->getCriteria() as $C) {
             list($path) = $C;
             if (isset($all[$path]))
                 $core[$path] = $all[$path];
@@ -267,6 +276,27 @@ class CustomQueue extends VerySimpleModel {
                     $core[$path] = $all[$path];
 
         return $core;
+    }
+
+    /**
+    * Fetch all supported ORM fields filterable by this search object.
+    */
+    function getSupportedFilters() {
+        return static::getFilterableFields($this->getRoot());
+    }
+
+
+    /**
+     * Get get supplemental matches for public queues.
+     *
+     */
+
+    function getSupplementalMatches() {
+        return array();
+    }
+
+    function getSupplementalCriteria() {
+        return array();
     }
 
     /**
@@ -374,6 +404,20 @@ class CustomQueue extends VerySimpleModel {
         return $fields;
     }
 
+  /**
+     * Fetch all searchable fileds, for the base object  which support quick filters.
+     */
+    function getFilterableFields($object) {
+        $filters = array();
+        foreach (static::getSearchableFields($object) as $p => $f) {
+            list($label, $field) = $f;
+            if ($field && $field->supportsQuickFilter())
+                $filters[$p] = $f;
+        }
+
+        return $filters;
+    }
+
     /**
      * Fetch the FormField instances used when for configuring a searchable
      * field in the user interface. This is the glue between a field
@@ -460,11 +504,13 @@ class CustomQueue extends VerySimpleModel {
      * field name being search, the method used for searhing, and the method-
      * specific data entered in the UI.
      */
-    function isolateCriteria($criteria, $root=null) {
-        $searchable = static::getSearchableFields($root ?: $this->getRoot());
-        $items = array();
+    static function isolateCriteria($criteria, $base='Ticket') {
+
         if (!is_array($criteria))
             return null;
+
+        $items = array();
+        $searchable = static::getSearchableFields($base);
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
                 list($name,) = explode('+', $k, 2);
@@ -477,9 +523,8 @@ class CustomQueue extends VerySimpleModel {
 
                 // Lookup the field to search this condition
                 list($label, $field) = $searchable[$name];
-
-                // Get the search method and value
-                $method = $v;
+                // Get the search method
+                $method = is_array($v) ? key($v) : $v;
                 // Not all search methods require a value
                 $value = $criteria["{$name}+{$method}"];
 
@@ -572,6 +617,10 @@ class CustomQueue extends VerySimpleModel {
             $fields = $this->getExportableFields();
 
         return $fields;
+    }
+
+    function getStandardColumns() {
+        return $this->getColumns();
     }
 
     function getColumns($use_template=false) {
@@ -818,6 +867,7 @@ class CustomQueue extends VerySimpleModel {
      * array retrieved in ::getSearchFields()
      */
     function describeField($info, $name=false) {
+        $name = $name ?: $info['field']->get('label');
         return $info['field']->describeSearch($info['method'], $info['value'], $name);
     }
 
@@ -862,17 +912,25 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function checkAccess(Staff $agent) {
-        return $agent->getId() == $this->staff_id
-            || $this->hasFlag(self::FLAG_PUBLIC);
+        return $this->isPublic() || $this->checkOwnership($agent);
     }
 
-    function ignoreVisibilityConstraints() {
-        global $thisstaff;
+    function checkOwnership(Staff $agent) {
 
-        // For saved searches (not queues), staff can have a permission to
+        return ($agent->getId() == $this->staff_id &&
+                !$this->isAQueue());
+    }
+
+    function isOwner(Staff $agent) {
+        return $agent && $this->isPrivate() && $this->checkOwnership($agent);
+    }
+
+    function ignoreVisibilityConstraints(Staff $agent) {
+        // For saved searches (not queues), some staff can have a permission to
         // see all records
-        return !$this->isAQueue()
-            && $thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING);
+        return (!$this->isASubQueue()
+                && $this->isOwner($agent)
+                && $agent->canSearchEverything());
     }
 
     function inheritCriteria() {
@@ -881,6 +939,10 @@ class CustomQueue extends VerySimpleModel {
 
     function inheritColumns() {
         return $this->hasFlag(self::FLAG_INHERIT_COLUMNS);
+    }
+
+    function useStandardColumns() {
+        return !count($this->columns);
     }
 
     function inheritExport() {
@@ -911,12 +973,22 @@ class CustomQueue extends VerySimpleModel {
         return $base;
     }
 
+    function isASubQueue() {
+        return $this->parent ? $this->parent->isASubQueue() :
+            $this->isAQueue();
+    }
+
     function isAQueue() {
         return $this->hasFlag(self::FLAG_QUEUE);
     }
 
     function isPrivate() {
-        return !$this->isAQueue() && !$this->hasFlag(self::FLAG_PUBLIC);
+        return !$this->isAQueue() && !$this->isPublic() &&
+            $this->staff_id;
+    }
+
+    function isPublic() {
+        return $this->hasFlag(self::FLAG_PUBLIC);
     }
 
     protected function hasFlag($flag) {
@@ -995,18 +1067,19 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function update($vars, &$errors=array()) {
+
         // Set basic search information
-        if (!$vars['name'])
-            $errors['name'] = __('A title is required');
+        if (!$vars['queue-name'])
+            $errors['queue-name'] = __('A title is required');
         elseif (($q=CustomQueue::lookup(array(
-                        'title' => $vars['name'],
+                        'title' => $vars['queue-name'],
                         'parent_id' => $vars['parent_id'] ?: 0,
                         'staff_id'  => $this->staff_id)))
                 && $q->getId() != $this->id
                 )
-            $errors['name'] = __('Saved queue with same name exists');
+            $errors['queue-name'] = __('Saved queue with same name exists');
 
-        $this->title = $vars['name'];
+        $this->title = $vars['queue-name'];
         $this->parent_id = @$vars['parent_id'] ?: 0;
         if ($this->parent_id && !$this->parent)
             $errors['parent_id'] = __('Select a valid queue');
@@ -1038,7 +1111,7 @@ class CustomQueue extends VerySimpleModel {
         $this->setFlag(self::FLAG_INHERIT_CRITERIA,
             $this->parent_id > 0 && isset($vars['inherit']));
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
-            $this->parent_id > 0 && isset($vars['inherit-columns']));
+            isset($vars['inherit-columns']));
         $this->setFlag(self::FLAG_INHERIT_EXPORT,
             $this->parent_id > 0 && isset($vars['inherit-exports']));
         $this->setFlag(self::FLAG_INHERIT_SORTING,
@@ -1049,37 +1122,17 @@ class CustomQueue extends VerySimpleModel {
             // No columns -- imply column inheritance
             $this->setFlag(self::FLAG_INHERIT_COLUMNS);
         }
-        if (isset($vars['columns']) && !$this->hasFlag(self::FLAG_INHERIT_COLUMNS)) {
-            $new = $vars['columns'];
-            $order = array_keys($new);
-            foreach ($this->columns as $col) {
-                $key = $col->column_id;
-                if (!isset($vars['columns'][$key])) {
-                    $this->columns->remove($col);
-                    continue;
-                }
-                $info = $vars['columns'][$key];
-                $col->set('sort', array_search($key, $order));
-                $col->set('heading', $info['heading']);
-                $col->set('width', $info['width']);
-                $col->setSortable($info['sortable']);
-                unset($new[$key]);
-            }
-            // Add new columns
-            foreach ($new as $info) {
-                $glue = new QueueColumnGlue(array(
-                    'column_id' => $info['column_id'],
-                    'sort' => array_search($info['column_id'], $order),
-                    'heading' => $info['heading'],
-                    'width' => $info['width'] ?: 100,
-                    'bits' => $info['sortable'] ?  QueueColumn::FLAG_SORTABLE : 0,
-                ));
-                $glue->queue = $this;
-                $this->columns->add(
-                    QueueColumn::lookup($info['column_id']), $glue);
-            }
-            // Re-sort the in-memory columns array
-            $this->columns->sort(function($c) { return $c->sort; });
+
+
+        if ($this->getId()
+                && isset($vars['columns'])
+                && !$this->hasFlag(self::FLAG_INHERIT_COLUMNS)) {
+
+
+            if ($this->columns->update($vars['columns'], $errors, array(
+                                'queue_id' => $this->getId(),
+                                'staff_id' => $this->staff_id)))
+                $this->columns->reset();
         }
 
         // Update export fields for the queue
@@ -1154,7 +1207,8 @@ class CustomQueue extends VerySimpleModel {
         }
         else {
             $this->config = JsonDataEncoder::encode([
-                'criteria' => $this->isolateCriteria($form->getClean()),
+                'criteria' => self::isolateCriteria($form->getClean(),
+                    $this->getRoot()),
                 'conditions' => $conditions,
             ]);
             // Clear currently set criteria.and conditions.
@@ -1228,13 +1282,10 @@ class CustomQueue extends VerySimpleModel {
 
 
     static function create($vars=false) {
-        global $thisstaff;
 
         $queue = new static($vars);
         $queue->created = SqlFunction::NOW();
         $queue->setFlag(self::FLAG_QUEUE);
-        if ($thisstaff)
-            $queue->staff_id = $thisstaff->getId();
 
         return $queue;
     }
@@ -1650,8 +1701,8 @@ class QueueColumnCondition {
      * field name being search, the method used for searhing, and the method-
      * specific data entered in the UI.
      */
-    static function isolateCriteria($criteria, $root='Ticket') {
-        $searchable = CustomQueue::getSearchableFields($root);
+    static function isolateCriteria($criteria, $base='Ticket') {
+        $searchable = CustomQueue::getSearchableFields($base);
         foreach ($criteria as $k=>$v) {
             if (substr($k, -7) === '+method') {
                 list($name,) = explode('+', $k, 2);
@@ -2166,6 +2217,71 @@ extends VerySimpleModel {
     }
 }
 
+
+class QueueConfig
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => QUEUE_CONFIG_TABLE,
+        'pk' => array('queue_id', 'staff_id'),
+        'joins' => array(
+            'queue' => array(
+                'constraint' => array(
+                    'queue_id' => 'CustomQueue.id'),
+            ),
+            'staff' => array(
+                'constraint' => array(
+                    'staff_id' => 'Staff.staff_id',
+                )
+            ),
+            'columns' => array(
+                'reverse' => 'QueueColumnGlue.config',
+                'constrain' => array('staff_id' =>'QueueColumnGlue.staff_id'),
+                'broker' => 'QueueColumnListBroker',
+            ),
+        ),
+    );
+
+    function getSettings() {
+        return JsonDataParser::decode($this->setting);
+    }
+
+
+    function update($vars, &$errors) {
+
+        // settings of interest
+        $setting = array(
+                'sort_id' => (int) $vars['sort_id'],
+                'filter' => $vars['filter'],
+                'inherit-columns' => isset($vars['inherit-columns']),
+                'criteria' => $vars['criteria'] ?: array(),
+                );
+
+        if (!$setting['inherit-columns'] && $vars['columns']) {
+            if (!$this->columns->update($vars['columns'], $errors, array(
+                                'queue_id' => $this->queue_id,
+                                'staff_id' => $this->staff_id)))
+                $setting['inherit-columns'] = true;
+            $this->columns->reset();
+        }
+
+        $this->setting =  JsonDataEncoder::encode($setting);
+
+        return $this->save();
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+
+    static function create($vars=false) {
+        $inst = new static($vars);
+        return $inst;
+    }
+}
+
+
 class QueueExport
 extends VerySimpleModel {
     static $meta = array(
@@ -2203,16 +2319,23 @@ class QueueColumnGlue
 extends VerySimpleModel {
     static $meta = array(
         'table' => QUEUE_COLUMN_TABLE,
-        'pk' => array('queue_id', 'column_id'),
+        'pk' => array('queue_id', 'staff_id', 'column_id'),
         'joins' => array(
             'column' => array(
                 'constraint' => array('column_id' => 'QueueColumn.id'),
             ),
             'queue' => array(
-                'constraint' => array('queue_id' => 'CustomQueue.id'),
+                'constraint' => array(
+                    'queue_id' => 'CustomQueue.id',
+                    'staff_id' => 'CustomQueue.staff_id'),
+            ),
+            'config' => array(
+                'constraint' => array(
+                    'queue_id' => 'QueueConfig.queue_id',
+                    'staff_id' => 'QueueConfig.staff_id'),
             ),
         ),
-        'select_related' => array('column', 'queue'),
+        'select_related' => array('column'),
         'ordering' => array('sort'),
     );
 }
@@ -2243,6 +2366,44 @@ extends InstrumentedList {
         $anno = AnnotatedModel::wrap($column, $glue);
         parent::add($anno, false);
         return $anno;
+    }
+
+    function update($columns, &$errors, $options=array()) {
+
+
+        $new = $columns;
+        $order = array_keys($new);
+        foreach ($this as $col) {
+            $key = $col->column_id;
+            if (!isset($columns[$key])) {
+                $this->remove($col);
+                continue;
+            }
+            $info = $columns[$key];
+            $col->set('sort', array_search($key, $order));
+            $col->set('heading', $info['heading']);
+            $col->set('width', $info['width']);
+            $col->setSortable($info['sortable']);
+            unset($new[$key]);
+        }
+        // Add new columns
+        foreach ($new as $info) {
+            $glue = new QueueColumnGlue(array(
+                'staff_id' => $options['staff_id'] ?: 0 ,
+                'queue_id' => $options['queue_id'] ?: 0,
+                'column_id' => $info['column_id'],
+                'sort' => array_search($info['column_id'], $order),
+                'heading' => $info['heading'],
+                'width' => $info['width'] ?: 100,
+                'bits' => $info['sortable'] ?  QueueColumn::FLAG_SORTABLE : 0,
+            ));
+
+            $this->add(QueueColumn::lookup($info['column_id']), $glue);
+        }
+        // Re-sort the in-memory columns array
+        $this->sort(function($c) { return $c->sort; });
+
+        return $this->saveAll();
     }
 }
 

@@ -523,6 +523,10 @@ function refer($tid, $target=null) {
                           __($field->getLabel())
                           )
                       );
+
+              $impl = $field->getImpl();
+              if ($impl instanceof FileUploadField)
+                  $field->save();
               Http::response(201, $field->getClean());
           }
           $form->addErrors($errors);
@@ -938,7 +942,7 @@ function refer($tid, $target=null) {
                 || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown ticket #');
 
-        $role = $thisstaff->getRole($ticket->getDeptId());
+        $role = $ticket->getRole($thisstaff);
 
         $info = array();
         $state = null;
@@ -991,7 +995,7 @@ function refer($tid, $target=null) {
         elseif ($status->getId() == $ticket->getStatusId())
             $errors['err'] = sprintf(__('Ticket already set to %s status'),
                     __($status->getName()));
-        elseif (($role = $thisstaff->getRole($ticket->getDeptId()))) {
+        elseif (($role = $ticket->getRole($thisstaff))) {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':

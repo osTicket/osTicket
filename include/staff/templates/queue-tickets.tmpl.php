@@ -3,9 +3,10 @@
 // $tickets - <QuerySet> with all columns and annotations necessary to
 //      render the full page
 
+
 // Impose visibility constraints
 // ------------------------------------------------------------
-if (!($queue->ignoreVisibilityConstraints()))
+if (!$queue->ignoreVisibilityConstraints($thisstaff))
     $tickets->filter($thisstaff->getTicketsVisibility());
 
 // Make sure the cdata materialized view is available
@@ -121,62 +122,37 @@ return false;">
             <div class="pull-left flush-left">
                 <h2><a href="<?php echo $refresh_url; ?>"
                     title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
-                    $queue->getName(); ?></a></h2>
+                    $queue->getName(); ?></a>
+                    <?php
+                    if (($crit=$queue->getSupplementalCriteria()))
+                        echo sprintf('<i class="icon-filter"
+                                data-placement="bottom" data-toggle="tooltip"
+                                title="%s"></i>&nbsp;',
+                                Format::htmlchars($queue->describeCriteria($crit)));
+                    ?>
+                </h2>
             </div>
             <div class="configureQ">
                 <i class="icon-cog"></i>
                 <div class="noclick-dropdown anchor-left">
                     <ul>
-<?php
-if ($queue->isPrivate()) { ?>
                         <li>
                             <a class="no-pjax" href="#"
                               data-dialog="ajax.php/tickets/search/<?php echo
                               urlencode($queue->getId()); ?>"><i
-                            class="icon-fixed-width icon-save"></i>
-                            <?php echo __('Edit'); ?></a>
-                        </li>
-<?php }
-else {
-    if ($thisstaff->isAdmin()) { ?>
-                        <li>
-                            <a class="no-pjax"
-                            href="queues.php?id=<?php echo $queue->id; ?>"><i
                             class="icon-fixed-width icon-pencil"></i>
                             <?php echo __('Edit'); ?></a>
                         </li>
-<?php }
-# Anyone has permission to create personal sub-queues
-?>
                         <li>
                             <a class="no-pjax" href="#"
-                              data-dialog="ajax.php/tickets/search?parent_id=<?php
-                              echo $queue->id; ?>"><i
+                              data-dialog="ajax.php/tickets/search/create?pid=<?php
+                              echo $queue->getId(); ?>"><i
                             class="icon-fixed-width icon-plus-sign"></i>
-                            <?php echo __('Add Personal Queue'); ?></a>
-                        </li>
-<?php
-}
-if ($thisstaff->isAdmin()) { ?>
-                        <li>
-                            <a class="no-pjax"
-                            href="queues.php?a=sub&amp;id=<?php echo $queue->id; ?>"><i
-                            class="icon-fixed-width icon-level-down"></i>
                             <?php echo __('Add Sub Queue'); ?></a>
                         </li>
-                        <li>
-                            <a class="no-pjax"
-                            href="queues.php?a=clone&amp;id=<?php echo $queue->id; ?>"><i
-                            class="icon-fixed-width icon-copy"></i>
-                            <?php echo __('Clone'); ?></a>
-                        </li>
-<?php }
-if (
-    $queue->id > 0
-    && (
-        ($thisstaff->isAdmin() && $queue->parent_id)
-        || $queue->isPrivate()
-)) { ?>
+<?php
+
+if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
                         <li class="danger">
                             <a class="no-pjax confirm-action" href="#"
                                 data-dialog="ajax.php/queue/<?php

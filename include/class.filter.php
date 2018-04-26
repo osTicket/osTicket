@@ -471,20 +471,28 @@ class Filter {
     }
 
     function save($id,$vars,&$errors) {
+      //get current filter actions (they're validated before saving)
+      self::save_actions($id, $vars, $errors);
+
       if ($this) {
         foreach ($this->getActions() as $A) {
-          if ($A->type == 'dept')
-              $dept = Dept::lookup($A->parseConfiguration($vars)['dept_id']);
+          $config = JsonDataParser::parse($A->configuration);
+          if ($A->type == 'dept') {
+            $dept = Dept::lookup($config['dept_id']);
+            $dept_action = $A->getId();
+          }
 
-          if ($A->type == 'topic')
-              $topic = Topic::lookup($A->parseConfiguration($vars)['topic_id']);
+          if ($A->type == 'topic') {
+            $topic = Topic::lookup($config['topic_id']);
+            $topic_action = $A->getId();
+          }
         }
       }
 
-      if($dept && !$dept->isActive())
+      if($dept && !$dept->isActive() && (is_array($vars['actions']) && !in_array('D' . $dept_action,$vars['actions'])))
         $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
 
-      if($topic && !$topic->isActive())
+      if($topic && !$topic->isActive() && (is_array($vars['actions']) && !in_array('D' . $topic_action,$vars['actions'])))
         $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
 
         if(!$vars['execorder'])
@@ -522,7 +530,7 @@ class Filter {
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
             .',match_all_rules='.db_input($vars['match_all_rules'])
-            .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
+            .',stop_onmatch='.db_input($vars['stop_onmatch'])
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
         if($id) {
@@ -543,7 +551,6 @@ class Filter {
         # Don't care about errors stashed in $xerrors
         $xerrors = array();
         self::save_rules($id,$vars,$xerrors);
-        self::save_actions($id, $vars, $errors);
 
         return count($errors) == 0;
     }
@@ -551,20 +558,31 @@ class Filter {
     function validate_actions($action) {
       $errors = array();
       $config = json_decode($action->ht['configuration'], true);
-      if ($action->ht['type'] == 'dept') {
-        $dept = Dept::lookup($config['dept_id']);
-        if (!$dept || !$dept->isActive()) {
-          $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
-          return $errors;
-        }
-      }
+      switch ($action->ht['type']) {
+        case 'dept':
+          $dept = Dept::lookup($config['dept_id']);
+          if (!$dept || !$dept->isActive()) {
+            $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+            return $errors;
+          }
+          break;
 
-      if ($action->ht['type'] == 'topic') {
-        $topic = Topic::lookup($config['topic_id']);
-        if (!$topic || !$topic->isActive()) {
-          $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
-          return $errors;
-        }
+        case 'topic':
+          $topic = Topic::lookup($config['topic_id']);
+          if (!$topic || !$topic->isActive()) {
+            $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+            return $errors;
+          }
+          break;
+
+        default:
+          foreach ($config as $key => $value) {
+            if (!$value) {
+              $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
+              return $errors;
+            }
+          }
+          break;
       }
 
       return false;
@@ -593,7 +611,6 @@ class Filter {
                     'sort' => (int) $sort,
                 ));
                 $I->setConfiguration($errors, $vars);
-                $config = json_decode($I->ht['configuration'], true);
 
                 $invalid = self::validate_actions($I);
                 if ($invalid) {
@@ -606,8 +623,6 @@ class Filter {
             case 'I': # existing filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
-
-                    $config = json_decode($I->ht['configuration'], true);
 
                     $invalid = self::validate_actions($I);
                     if ($invalid) {

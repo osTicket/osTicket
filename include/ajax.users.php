@@ -73,12 +73,16 @@ class UsersAjaxAPI extends AjaxController {
                     return $this->search($type, $fulltext);
                 }
             } else {
-                $users->filter(Q::any(array(
+                $filter = Q::any(array(
                     'emails__address__contains' => $q,
                     'name__contains' => $q,
                     'org__name__contains' => $q,
-                    'cdata__phone__contains' => $q,
-                )));
+                    'account__username__contains' => $q,
+                ));
+                if (UserForm::getInstance()->getField('phone'))
+                    $filter->add(array('cdata__phone__contains' => $q));
+
+                $users->filter($filter);
             }
 
             // Omit already-imported remote users

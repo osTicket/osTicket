@@ -65,7 +65,7 @@ if(($users=$thread->getCollaborators())) {?>
     ?>
     <td>
       <div><a class="collaborator" id="addcollaborator"
-          href="#thread/<?php echo $thread->getId(); ?>/add-collaborator"
+          href="#thread/<?php echo $thread->getId(); ?>/add-collaborator/addcc"
           ><i class="icon-plus-sign"></i> <?php echo __('Add Collaborator'); ?></a></div>
     </td>
     </table>

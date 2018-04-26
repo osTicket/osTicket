@@ -41,8 +41,7 @@ class FilterAction extends VerySimpleModel {
         return $this->_config;
     }
 
-    function parseConfiguration($source, &$errors=array())
-    {
+    function parseConfiguration($source, &$errors=array()) {
       if (!$source)
         return $this->getConfiguration();
 
