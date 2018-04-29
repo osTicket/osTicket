@@ -1,10 +1,9 @@
 <?php
 // Calling conventions
 // $q - <CustomQueue> object for this navigation entry
+// $children - <Array<CustomQueue>> all direct children of this queue
 $queue = $q;
-$children = !$queue instanceof SavedSearch ? $queue->getPublicChildren() : array();
-$subq_searches = !$queue instanceof SavedSearch ? $queue->getMyChildren() : array();
-$hasChildren = count($children) + count($subq_searches) > 0;
+$hasChildren = count($children) > 0;
 $selected = $_REQUEST['queue'] == $q->getId();
 global $thisstaff;
 ?>
@@ -27,24 +26,30 @@ global $thisstaff;
     </a>
 
     <?php
-    $closure_include = function($q) use ($thisstaff, $ost, $cfg) {
+    $closure_include = function($q, $children) {
         global $thisstaff, $ost, $cfg;
         include __FILE__;
     };
     if ($hasChildren) { ?>
     <ul class="subMenuQ">
     <?php
-    foreach ($children as $q)
-        $closure_include($q);
+    foreach ($children as $_) {
+        list($q, $childs) = $_;
+        if (!$q->isPrivate())
+          $closure_include($q, $childs);
+    }
 
     // Include personal sub-queues
     $first_child = true;
-    foreach ($subq_searches as $q) {
-      if ($first_child) {
+    foreach ($children as $_) {
+      list($q, $childs) = $_;
+      if ($q->isPrivate()) {
+        if ($first_child) {
           $first_child = false;
           echo '<li class="personalQ"></li>';
+        }
+        $closure_include($q, $childs);
       }
-      $closure_include($q);
     } ?>
     </ul>
 <?php
