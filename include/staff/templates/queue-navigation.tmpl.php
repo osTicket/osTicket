@@ -4,6 +4,7 @@
 // $q - <CustomQueue> object for this navigation entry
 // $selected - <bool> true if this queue is currently active
 // $child_selected - <bool> true if the selected queue is a descendent
+$childs = $children;
 $this_queue = $q;
 $selected = $_REQUEST['queue'] == $this_queue->getId();
 ?>
@@ -27,11 +28,16 @@ $selected = $_REQUEST['queue'] == $this_queue->getId();
       </li>
 
       <!-- Start Dropdown and child queues -->
-      <?php foreach ($this_queue->getPublicChildren() as $q) {
-          include 'queue-subnavigation.tmpl.php';
+      <?php foreach ($childs as $_) {
+          list($q, $children) = $_;
+          if (!$q->isPrivate())
+              include 'queue-subnavigation.tmpl.php';
       }
       $first_child = true;
-      foreach ($this_queue->getMyChildren() as $q) {
+      foreach ($childs as $_) {
+        list($q, $children) = $_;
+        if (!$q->isPrivate())
+            continue;
         if ($first_child) {
             $first_child = false;
             echo '<li class="personalQ"></li>';
