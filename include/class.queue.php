@@ -1265,6 +1265,44 @@ class CustomQueue extends VerySimpleModel {
             && $this->sorts->saveAll();
     }
 
+    /**
+     * Fetch a tree-organized listing of the queues. Each queue is listed in
+     * the tree exactly once, and every visible queue is represented. The
+     * returned structure is an array where the items are two-item arrays
+     * where the first item is a CustomQueue object an the second is a list
+     * of the children using the same pattern (two-item arrays of a CustomQueue
+     * and its children). Visually:
+     *
+     * [ [ $queue, [ [ $child, [] ], [ $child, [] ] ], [ $queue, ... ] ]
+     *
+     * Parameters:
+     * $staff - <Staff> staff object which should be used to determine
+     *      visible queues.
+     * $pid - <int> parent_id of root queue. Default is zero (top-level)
+     */
+    static function getHierarchicalQueues(Staff $staff, $pid=0) {
+        $all = static::objects()
+            ->filter(Q::any(array(
+                'flags__hasbit' => self::FLAG_PUBLIC,
+                'flags__hasbit' => static::FLAG_QUEUE,
+                'staff_id' => $staff->getId(),
+            )))
+            ->exclude(['flags__hasbit' => self::FLAG_DISABLED])
+            ->asArray();
+
+        // Find all the queues with a given parent
+        $for_parent = function($pid) use ($all, &$for_parent) {
+            $results = [];
+            foreach (new \ArrayIterator($all) as $q) {
+                if ($q->parent_id == $pid)
+                    $results[] = [ $q, $for_parent($q->getId()) ];
+            }
+            return $results;
+        };
+
+        return $for_parent($pid);
+    }
+
     static function getOrmPath($name, $query=null) {
         // Special case for custom data `__answers!id__value`. Only add the
         // join and constraint on the query the first pass, when the query

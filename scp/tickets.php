@@ -445,19 +445,14 @@ $nav->setTabActive('tickets');
 $nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
 
 // Fetch ticket queues organized by root and sub-queues
-$queues = SavedQueue::queues()
-    ->filter(Q::any(array(
-        'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
-        'staff_id' => $thisstaff->getId(),
-    )))
-    ->exclude(['flags__hasbit' => CustomQueue::FLAG_DISABLED])
-    ->getIterator();
+$queues = CustomQueue::getHierarchicalQueues($thisstaff);
 
 // Start with all the top-level (container) queues
-foreach ($queues->findAll(array('parent_id' => 0))
-as $q) {
-    $nav->addSubMenu(function() use ($q, $queue) {
-        $selected = false;
+foreach ($queues as $_) {
+    list($q, $children) = $_;
+    if ($q->isPrivate())
+        continue;
+    $nav->addSubMenu(function() use ($q, $queue, $children) {
         // A queue is selected if it is the one being displayed. It is
         // "child" selected if its ID is in the path of the one selected
         $child_selected = $queue
