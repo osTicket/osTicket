@@ -155,7 +155,8 @@ abstract class SessionBackend {
         // Last chance session update
         $i = new ArrayObject(array('touched' => false));
         Signal::send('session.close', null, $i);
-        return $this->update($id, $i['touched'] ? session_encode() : $data);
+        $this->update($id, $i['touched'] ? session_encode() : $data);
+        return TRUE;
     }
 
     function cleanup() {
@@ -221,7 +222,8 @@ extends SessionBackend {
     }
 
     function destroy($id){
-        return SessionData::objects()->filter(['session_id' => $id])->delete();
+        SessionData::objects()->filter(['session_id' => $id])->delete();
+        return true;
     }
 
     function cleanup() {
@@ -304,6 +306,7 @@ extends SessionBackend {
             if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
                 $this->memcache->set($key, $data, 0, $this->getTTL());
         }
+        return true;
     }
 
     function destroy($id) {
@@ -314,6 +317,7 @@ extends SessionBackend {
             $this->memcache->replace($key, '', 0, 1);
             $this->memcache->delete($key, 0);
         }
+        return true;
     }
 
     function gc($maxlife) {
