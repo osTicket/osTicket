@@ -1040,16 +1040,21 @@ class CustomQueue extends VerySimpleModel {
      * $pid - <int> parent_id of root queue. Default is zero (top-level)
      */
     static function getHierarchicalQueues(Staff $staff, $pid=0) {
+        $criteria = Q::any(array(
+            'flags__hasbit' => self::FLAG_PUBLIC,
+            'flags__hasbit' => static::FLAG_QUEUE,
+            'staff_id' => $staff->getId(),
+        ));
+
+        if (($teams = $staff->getTeams())) {
+            $criteria->add(Q::all(array(
+                'flags__hasbit' => self::FLAG_VISIBLE_TEAM,
+                'staff_id__in' => $teams,
+            )));
+        }
+
         $all = static::objects()
-            ->filter(Q::any(array(
-                'flags__hasbit' => self::FLAG_PUBLIC,
-                'flags__hasbit' => static::FLAG_QUEUE,
-                'staff_id' => $staff->getId(),
-                Q::all(array(
-                    'flags__hasbit' => self::FLAG_VISIBLE_TEAM,
-                    'staff_id__in' => $staff->getTeams(),
-                ))
-            )))
+            ->filter($criteria)
             ->exclude(['flags__hasbit' => self::FLAG_DISABLED])
             ->asArray();
 
