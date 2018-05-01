@@ -58,7 +58,7 @@ $hidden_cols = $queue->inheritColumns() || $queue->useStandardColumns();
         </div>
 <?php }
       else { ?>
-        <input type="text" style="border:none;background:transparent" data-name="name" />
+        <input readonly type="text" style="border:none;background:transparent" data-name="name" />
 <?php } ?>
       </td>
       <td>
