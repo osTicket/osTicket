@@ -57,7 +57,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <td class="multi-line <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
-                <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
+                <?php echo Format::htmlchars(__($field->getLocal('label'))); ?>:</td>
                 <td><div style="position:relative"><?php
             }
             $field->render($options); ?>
