@@ -15,6 +15,10 @@ if (!($qf_field = $queue->getQuickFilterField($quick_filter)))
     return;
 
 $choices = $qf_field->getQuickFilterChoices();
+
+//remove future options for datetime fields that can't be in the future
+if (in_array($qf_field->getLabel(), DatetimeField::getPastPresentLabels()))
+  unset($choices['m'], $choices['n7'], $choices['n30']);
 ?>
 <span class="action-button muted" data-dropdown="#quickfilter-dropdown">
   <i class="icon-caret-down pull-right"></i>

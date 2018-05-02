@@ -2003,6 +2003,11 @@ class DatetimeField extends FormField {
         return $this->max;
     }
 
+    function getPastPresentLabels() {
+      return array(__('Create Date'), __('Reopen Date'),
+                    __('Close Date'), __('Last Update'));
+    }
+
     function to_database($value) {
         // Store time in format given by Date Picker (DateTime::W3C)
         return $value;
@@ -2401,11 +2406,11 @@ class DatetimeField extends FormField {
             ]);
         case 'n7':
             return $query->filter([
-                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(7))),
+                "{$name}__range" => array($now, $now->plus(SqlInterval::DAY(7))),
             ]);
         case 'n30':
             return $query->filter([
-                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(30))),
+                "{$name}__range" => array($now, $now->plus(SqlInterval::DAY(30))),
             ]);
         case 'g':
             $midnight -= 86400;
