@@ -1443,7 +1443,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         if (!is_array($annotations))
             $annotations = func_get_args();
         foreach ($annotations as $name=>$A) {
-            if ($A instanceof SqlAggregate) {
+            if ($A instanceof SqlFunction) {
                 if (is_int($name))
                     $name = $A->getFieldName();
                 $A->setAlias($name);
