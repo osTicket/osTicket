@@ -441,6 +441,11 @@ class CustomQueue extends VerySimpleModel {
             ),
         ));
         $methods = $field->getSearchMethods();
+
+        //remove future options for datetime fields that can't be in the future
+        if (in_array($field->getLabel(), DateTimeField::getPastPresentLabels()))
+          unset($methods['ndays'], $methods['future'], $methods['distfut']);
+
         $pieces["{$name}+method"] = new ChoiceField(array(
             'choices' => $methods,
             'default' => key($methods),
