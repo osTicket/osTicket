@@ -2072,18 +2072,41 @@ extends VerySimpleModel {
     }
 
     function applySort($query, $reverse=false) {
-	$root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
+	    $root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
         $fields = CustomQueue::getSearchableFields($root);
+
+        $keys = array();
         if ($primary = $fields[$this->primary]) {
             list(,$field) = $primary;
-            $query = $field->applyOrderBy($query, $reverse,
-                CustomQueue::getOrmPath($this->primary, $query));
+            $keys[] = array(CustomQueue::getOrmPath($this->primary, $query),
+                    $field);
         }
+
         if ($secondary = $fields[$this->secondary]) {
             list(,$field) = $secondary;
-            $query = $field->applyOrderBy($query, $reverse,
-                CustomQueue::getOrmPath($this->secondary, $query));
+            $keys[] = array(CustomQueue::getOrmPath($this->secondary,
+                        $query), $field);
         }
+
+        if (count($keys) > 1) {
+            $fields = array();
+            foreach ($keys as $key) {
+                list($path, $field) = $key;
+                $fields[] = new SqlField($path);
+            }
+
+            $alias = sprintf('C%d', $this->getId());
+            $expr = call_user_func_array(array('SqlFunction', 'COALESCE'),
+                    $fields);
+            $query->annotate(array($alias => $expr));
+
+            $reverse = $reverse ? '-' : '';
+            $query = $query->order_by("{$reverse}{$alias}");
+        } else {
+            list($path, $field) = $keys[0];
+            $query = $field->applyOrderBy($query, $reverse, $path);
+        }
+
         return $query;
     }
 
