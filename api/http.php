@@ -24,6 +24,9 @@ require_once INCLUDE_DIR."class.dispatcher.php";
 
 $dispatcher = patterns('',
         url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
+        url_get("^/threads\.(?P<format>xml|json)$", array('api.threads.php:ThreadApiController','report')),
+        url_get("^/thread\.(?P<format>xml|json)/(?P<id>\d+)$", array('api.threads.php:ThreadApiController','get')),
+        url_get("^/thread\.(?P<format>xml|json)/(?P<id>\d+)/entries$", array('api.threads.php:ThreadApiController','getEntries')),
         url('^/tasks/', patterns('',
                 url_post("^cron$", array('api.cron.php:CronApiController', 'execute'))
          ))
