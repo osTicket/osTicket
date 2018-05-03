@@ -1,18 +1,18 @@
 <?php
 /*********************************************************************
-    class.ostsession.php
+class.ostsession.php
 
-    Custom osTicket session handler.
+Custom osTicket session handler.
 
-    Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
-    http://www.osticket.com
+Peter Rotich <peter@osticket.com>
+Copyright (c)  2006-2013 osTicket
+http://www.osticket.com
 
-    Released under the GNU General Public License WITHOUT ANY WARRANTY.
-    See LICENSE.TXT for details.
+Released under the GNU General Public License WITHOUT ANY WARRANTY.
+See LICENSE.TXT for details.
 
-    vim: expandtab sw=4 ts=4 sts=4:
-**********************************************************************/
+vim: expandtab sw=4 ts=4 sts=4:
+ **********************************************************************/
 
 class osTicketSession {
     static $backends = array(
@@ -47,13 +47,13 @@ class osTicketSession {
         // http://stackoverflow.com/a/1188145
         $domain = null;
         if (isset($_SERVER['HTTP_HOST'])
-                && strpos($_SERVER['HTTP_HOST'], '.') !== false
-                && !Validator::is_ip($_SERVER['HTTP_HOST']))
+            && strpos($_SERVER['HTTP_HOST'], '.') !== false
+            && !Validator::is_ip($_SERVER['HTTP_HOST']))
             // Remote port specification, as it will make an invalid domain
             list($domain) = explode(':', $_SERVER['HTTP_HOST']);
 
         session_set_cookie_params($ttl, ROOT_PATH, $domain,
-            osTicket::is_https(), true);
+            osTicket::is_https());
 
         if (!defined('SESSION_BACKEND'))
             define('SESSION_BACKEND', 'db');
@@ -72,14 +72,7 @@ class osTicketSession {
 
         if ($this->backend instanceof SessionBackend) {
             // Set handlers.
-            session_set_save_handler(
-                array($this->backend, 'open'),
-                array($this->backend, 'close'),
-                array($this->backend, 'read'),
-                array($this->backend, 'write'),
-                array($this->backend, 'destroy'),
-                array($this->backend, 'gc')
-            );
+            session_set_save_handler($this->backend, true);
         }
 
         // Start the session.
@@ -131,7 +124,7 @@ class osTicketSession {
     }
 }
 
-abstract class SessionBackend {
+abstract class SessionBackend implements SessionHandlerInterface {
     var $isnew = false;
     var $ttl;
 
@@ -169,7 +162,7 @@ abstract class SessionBackend {
 }
 
 class SessionData
-extends VerySimpleModel {
+    extends VerySimpleModel {
     static $meta = array(
         'table' => SESSION_TABLE,
         'pk' => array('session_id'),
@@ -177,7 +170,7 @@ extends VerySimpleModel {
 }
 
 class DbSessionBackend
-extends SessionBackend {
+    extends SessionBackend {
     var $data = null;
 
     function read($id) {
@@ -193,8 +186,11 @@ extends SessionBackend {
         }
         catch (OrmException $e) {
             return false;
+        } catch (Exception $e) {
+            echo "except";
         }
-        return $this->data->session_data;
+
+        return $this->data->session_data ?: '';
     }
 
     function update($id, $data){
@@ -236,7 +232,7 @@ extends SessionBackend {
 }
 
 class MemcacheSessionBackend
-extends SessionBackend {
+    extends SessionBackend  {
     var $memcache;
     var $servers = array();
 
@@ -302,7 +298,7 @@ extends SessionBackend {
             list($host, $port) = $S;
             $this->memcache->pconnect($host, $port);
             if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
-                $this->memcache->set($key, $data, 0, $this->getTTL());
+            $this->memcache->set($key, $data, 0, $this->getTTL());
         }
     }
 
@@ -328,5 +324,3 @@ class FallbackSessionBackend {
         // the session.save_path
     }
 }
-
-?>
