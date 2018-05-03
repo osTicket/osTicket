@@ -43,9 +43,9 @@ class TaskApiController extends ApiController {
 
     function reportTasks($filter) {
         if (count($filter) == 0)
-            return TaskModel::objects()->all();
+            return TaskModel::objects()->values()->all();
         else
-            return TaskModel::objects()->filter($filter)->all();
+            return TaskModel::objects()->filter($filter)->values()->all();
     }
 
 }
