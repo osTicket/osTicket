@@ -43,9 +43,52 @@ class TaskApiController extends ApiController {
 
     function reportTasks($filter) {
         if (count($filter) == 0)
-            return TaskModel::objects()->values()->all();
+            return Task::objects()->values()->all();
         else
-            return TaskModel::objects()->filter($filter)->values()->all();
+            return Task::objects()->filter($filter)->values()->all();
+    }
+
+    function get($format, $id) {
+
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        $task = Task::objects()->filter(array('id__exact' => $id))->values()->one();
+
+        $encoder = null;
+        $contentType = null;
+        switch(strtolower($format)) {
+            case 'json':
+                $encoder = new JsonDataEncoder();
+                $contentType = 'application/json';
+                break;
+            default:
+                $this->exerr(415, __('Unsupported response format'));
+        }
+
+        Http::response(200,  $encoder->encode($task), $contentType);
+        exit;
+    }
+
+    function getTitle($format, $id) {
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        $title = TaskCData::objects()->filter(array('task_id__exact' => $id))->values('title')->one();
+
+        $encoder = null;
+        $contentType = null;
+        switch(strtolower($format)) {
+            case 'json':
+                $encoder = new JsonDataEncoder();
+                $contentType = 'application/json';
+                break;
+            default:
+                $this->exerr(415, __('Unsupported response format'));
+        }
+
+        Http::response(200,  $encoder->encode($title), $contentType);
+        exit;
     }
 
 }
