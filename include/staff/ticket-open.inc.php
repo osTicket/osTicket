@@ -15,9 +15,12 @@ if (!$user && $_GET['tid'] && ($entry = ThreadEntry::lookup($_GET['tid']))) {
 
      if (($m= TicketForm::getInstance()->getField('message'))) {
          $k = 'attach:'.$m->getId();
-        foreach ($entry->getAttachments() as $a)
-            if (!$a->inline && $a->file)
-                $_SESSION[':form-data'][$k][] = $a->file->getId();
+         unset($_SESSION[':form-data'][$k]);
+        foreach ($entry->getAttachments() as $a) {
+          if (!$a->inline && $a->file) {
+            $_SESSION[':form-data'][$k][] = $a->file->getId();
+          }
+        }
      }
 }
 

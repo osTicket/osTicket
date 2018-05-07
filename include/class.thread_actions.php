@@ -512,9 +512,11 @@ JS
                 'description' => Format::htmlchars($this->entry->getBody()));
         if (($f= TaskForm::getInstance()->getField('description'))) {
               $k = 'attach:'.$f->getId();
+              unset($_SESSION[':form-data'][$k]);
               foreach ($this->entry->getAttachments() as $a)
-                  if (!$a->inline && $a->file)
-                      $vars[$k][] = $a->file->getId();
+                  if (!$a->inline && $a->file) {
+                    $_SESSION[':form-data'][$k][] = $a->file->getId();
+                  }
         }
 
         return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
