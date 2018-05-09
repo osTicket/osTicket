@@ -524,8 +524,7 @@ function refer($tid, $target=null) {
                           )
                       );
 
-              $impl = $field->getImpl();
-              if ($impl instanceof FileUploadField)
+              if ($field instanceof FileUploadField)
                   $field->save();
               Http::response(201, $field->getClean());
           }

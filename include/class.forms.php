@@ -2003,6 +2003,11 @@ class DatetimeField extends FormField {
         return $this->max;
     }
 
+    function getPastPresentLabels() {
+      return array(__('Create Date'), __('Reopen Date'),
+                    __('Close Date'), __('Last Update'));
+    }
+
     function to_database($value) {
         // Store time in format given by Date Picker (DateTime::W3C)
         return $value;
@@ -2401,11 +2406,11 @@ class DatetimeField extends FormField {
             ]);
         case 'n7':
             return $query->filter([
-                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(7))),
+                "{$name}__range" => array($now, $now->plus(SqlInterval::DAY(7))),
             ]);
         case 'n30':
             return $query->filter([
-                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(30))),
+                "{$name}__range" => array($now, $now->plus(SqlInterval::DAY(30))),
             ]);
         case 'g':
             $midnight -= 86400;
@@ -4361,6 +4366,12 @@ class FileUploadWidget extends Widget {
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = $F = array();
         $new = array_fill_keys($this->field->getClean(), 1);
+
+        //get file ids stored in session when creating tickets/tasks from thread
+        if (!$new && is_array($_SESSION[':form-data'])
+                  && array_key_exists($this->field->get('name'), $_SESSION[':form-data']))
+          $new = array_fill_keys($_SESSION[':form-data'][$this->field->get('name')], 1);
+
         foreach ($attachments as $a) {
             $F[] = $a->file;
             unset($new[$a->file_id]);
@@ -4443,6 +4454,12 @@ class FileUploadWidget extends Widget {
         // New files uploaded in this session are allowed
         if (isset($_SESSION[':uploadedFiles']))
             $allowed += $_SESSION[':uploadedFiles'];
+
+        // Files attached to threads where we are creating tasks/tickets are allowed
+        if (isset($_SESSION[':form-data'][$this->field->get('name')])) {
+          foreach ($_SESSION[':form-data'][$this->field->get('name')] as $key => $value)
+            $allowed[$value] = 1;
+        }
 
         // Canned attachments initiated by this session
         if (isset($_SESSION[':cannedFiles']))
