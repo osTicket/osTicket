@@ -2094,6 +2094,8 @@ extends VerySimpleModel {
                 list($path, $field) = $key;
                 $fields[] = new SqlField($path);
             }
+            // Force nulls to the buttom.
+            $fields[] = 'zzz';
 
             $alias = sprintf('C%d', $this->getId());
             $expr = call_user_func_array(array('SqlFunction', 'COALESCE'),
