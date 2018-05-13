@@ -2297,7 +2297,7 @@ class PriorityField extends ChoiceField {
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
-        'priority' => array(__('Priority Level'), PriorityField),
+        'priority' => array(__('Priority Level'), 'PriorityField'),
     );
 });
 
@@ -2401,7 +2401,7 @@ class DepartmentField extends ChoiceField {
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
-        'department' => array(__('Department'), DepartmentField),
+        'department' => array(__('Department'), 'DepartmentField'),
     );
 });
 
@@ -2522,7 +2522,7 @@ class AssigneeField extends ChoiceField {
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
     return array(
-        'assignee' => array(__('Assignee'), AssigneeField),
+        'assignee' => array(__('Assignee'), 'AssigneeField'),
     );
 });
 
@@ -2612,7 +2612,7 @@ class TicketStateField extends ChoiceField {
 }
 FormField::addFieldTypes('Dynamic Fields', function() {
     return array(
-        'state' => array('Ticket State', TicketStateField, false),
+        'state' => array('Ticket State', 'TicketStateField', false),
     );
 });
 
@@ -2671,7 +2671,7 @@ class TicketFlagField extends ChoiceField {
 
 FormField::addFieldTypes('Dynamic Fields', function() {
     return array(
-        'flags' => array('Ticket Flags', TicketFlagField, false),
+        'flags' => array('Ticket Flags', 'TicketFlagField', false),
     );
 });
 
