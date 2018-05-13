@@ -522,7 +522,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         foreach (DynamicList::objects() as $list) {
             $selections['list-'.$list->id] =
                 array($list->getPluralName(),
-                    SelectionField, $list->get('id'));
+                    'SelectionField', $list->get('id'));
         }
         return $selections;
     }
