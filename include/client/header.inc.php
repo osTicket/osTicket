@@ -6,6 +6,7 @@ $signin_url = ROOT_PATH . "login.php"
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
 header("Content-Type: text/html; charset=UTF-8");
+header("X-Frame-Options: SAMEORIGIN");
 if (($lang = Internationalization::getCurrentLanguage())) {
     $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
     $langs = Internationalization::rfc1766($langs);

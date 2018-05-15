@@ -136,8 +136,8 @@ class MailFetcher {
         // Disable Kerberos and NTLM authentication if it happens to be
         // supported locally or remotely
         if (version_compare(PHP_VERSION, '5.3.2', '>='))
-            $args += array(NULL, 0, array(
-                'DISABLE_AUTHENTICATOR' => array('GSSAPI', 'NTLM')));
+            $args = array_merge($args, array(NULL, 0, array(
+                'DISABLE_AUTHENTICATOR' => array('GSSAPI', 'NTLM'))));
 
         $this->mbox = @call_user_func_array('imap_open', $args);
 

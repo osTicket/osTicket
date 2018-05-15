@@ -1801,15 +1801,22 @@ extends CachedResultSet {
 
 class ModelInstanceManager
 implements IteratorAggregate {
-    var $queryset;
     var $model;
     var $map;
+    var $resource;
+    var $annnotations;
+    var $defer;
 
     static $objectCache = array();
 
     function __construct(QuerySet $queryset) {
-        $this->queryset = $queryset;
         $this->model = $queryset->model;
+        $this->resource = $queryset->getQuery();
+        $cache = !$queryset->hasOption(QuerySet::OPT_NOCACHE);
+        $this->resource->setBuffered($cache);
+        $this->map = $this->resource->getMap();
+        $this->annotations = $queryset->annotations;
+        $this->defer = $queryset->defer;
     }
 
     function cache($model) {
@@ -1864,7 +1871,7 @@ implements IteratorAggregate {
                 return null;
             }
         }
-        $annotations = $this->queryset->annotations;
+        $annotations = $this->annotations;
         $extras = array();
         // For annotations, drop them from the $fields list and add them to
         // an $extras list. The fields passed to the root model should only
@@ -1883,7 +1890,7 @@ implements IteratorAggregate {
             // Construct and cache the object
             $m = $modelClass::__hydrate($fields);
             // XXX: defer may refer to fields not in this model
-            $m->__deferred__ = $this->queryset->defer;
+            $m->__deferred__ = $this->defer;
             $m->__onload();
             if ($cache)
                 $this->cache($m);
@@ -1953,10 +1960,6 @@ implements IteratorAggregate {
     }
 
     function getIterator() {
-        $this->resource = $this->queryset->getQuery();
-        $this->map = $this->resource->getMap();
-        $cache = !$this->queryset->hasOption(QuerySet::OPT_NOCACHE);
-        $this->resource->setBuffered($cache);
         $func = ($this->map) ? 'getRow' : 'getArray';
         $func = array($this->resource, $func);
 
