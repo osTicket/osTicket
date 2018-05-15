@@ -1,3 +1,19 @@
+osTicket v1.10.3
+================
+### Enhancements
+* issue: Org. User Account Status (#4219)
+* upgrader: Flush Cache On Upgrade (#4227)
+* issue: Outlook _MailEndCompose (#4206)
+* issue: Files - deleteOrphans() (#4253)
+* issue: Fix imap_open Disable Authenticator (#4195)
+* Check permissions before displaying Close Task (#4177)
+
+### Performance and Security
+* issue: Information Page Performance (#4275)
+* issue: Prevent Click Jacking (#4266)
+* orm: queryset: Fix circular reference error (#4247)
+
+
 osTicket v1.10.2
 ================
 ### Performance and Security
