@@ -3007,8 +3007,9 @@ abstract class ThreadEntryAction {
      *      `#` in the url
      */
     function getAjaxUrl($dialog=false) {
-        return sprintf('%stickets/%d/thread/%d/%s',
+        return sprintf('%s%s/%d/thread/%d/%s',
             $dialog ? '#' : 'ajax.php/',
+            $this->entry->getThread()->getObjectType() == 'T' ? 'tickets' : 'tasks',
             $this->entry->getThread()->getObjectId(),
             $this->entry->getId(),
             static::getId()
@@ -3017,6 +3018,10 @@ abstract class ThreadEntryAction {
 
     function getTicketsAPI() {
         return new TicketsAjaxAPI();
+    }
+
+    function getTasksAPI() {
+        return new TasksAjaxAPI();
     }
 }
 

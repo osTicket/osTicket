@@ -3886,6 +3886,56 @@ implements RestrictedAccess, Threadable, Searchable {
             $message->save();
         }
 
+        //check to see if ticket was created from a thread
+        if ($_SESSION[':form-data']['ticket'] || $_SESSION[':form-data']['task']) {
+          $oldTicket = $_SESSION[':form-data']['ticket'];
+          $oldTask = $_SESSION[':form-data']['task'];
+
+          //add internal note to new ticket.
+          //New ticket should have link to old task/ticket:
+          $link = sprintf('<a href="%s.php?id=%d#entry-%d"><b>#%s</b></a>',
+              $oldTicket ? 'tickets' : 'tasks',
+              $oldTicket ? $oldTicket->getId() : $oldTask->getId(),
+              $_SESSION[':form-data']['eid'],
+              $oldTicket ? $oldTicket->getNumber() : $oldTask->getNumber());
+
+          $note = array(
+                  'title' => __('Ticket Created From Thread'),
+                  'body' => sprintf(__('This Ticket was created from %s '. $link),
+                            $oldTicket ? 'Ticket' : 'Task')
+                  );
+
+          $ticket->logNote($note['title'], $note['body'], $thisstaff);
+
+          //add internal note to referenced ticket/task
+          // Old ticket/task should have link to new ticket
+          $ticketLink = sprintf('<a href="tickets.php?id=%d"><b>#%s</b></a>',
+              $ticket->getId(),
+              $ticket->getNumber());
+
+          $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
+              $_SESSION[':form-data']['eid'],
+              $_SESSION[':form-data']['eid'],
+              Format::datetime($_SESSION[':form-data']['timestamp']));
+
+          $ticketNote = array(
+              'title' => __('Ticket Created From Thread'),
+              'body' => __('Ticket ' . $ticketLink).
+              '<br /> Thread Entry ID: ' . $entryLink);
+
+          $taskNote = array(
+              'title' => __('Ticket Created From Thread'),
+              'note' => __('Ticket ' . $ticketLink).
+              '<br /> Thread Entry ID: ' . $entryLink);
+
+          if ($oldTicket)
+            $oldTicket->logNote($ticketNote['title'], $ticketNote['body'], $thisstaff);
+          elseif ($oldTask)
+            $oldTask->postNote($taskNote, $errors, $thisstaff);
+
+          unset($_SESSION[':form-data']);
+        }
+
         // Configure service-level-agreement for this ticket
         $ticket->selectSLAId($vars['slaId']);
 

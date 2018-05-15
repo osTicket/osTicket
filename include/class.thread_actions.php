@@ -489,10 +489,11 @@ $.dialog(url, [201], function(xhr, resp) {
     if (!!redirect)
         $.pjax({url: redirect, container: '#pjax-container'});
     else
-        $.pjax({url: 'tickets.php?id=%d#tasks', container: '#pjax-container'});
+        $.pjax({url: '%s.php?id=%d#tasks', container: '#pjax-container'});
 });
 JS
         , $this->getAjaxUrl(),
+        $this->entry->getThread()->getObjectType() == 'T' ? 'tickets' : 'tasks',
         $this->entry->getThread()->getObjectId()
         );
     }
@@ -507,9 +508,14 @@ JS
     }
 
     private function trigger__get() {
-
         $vars = array(
                 'description' => Format::htmlchars($this->entry->getBody()));
+
+        $_SESSION[':form-data']['tid'] = $this->entry->getThread()->getObJectId();
+        $_SESSION[':form-data']['eid'] = $this->entry->getId();
+        $_SESSION[':form-data']['timestamp'] = $this->entry->getCreateDate();
+        $_SESSION[':form-data']['type'] = $this->entry->getThread()->object_type;
+
         if (($f= TaskForm::getInstance()->getField('description'))) {
               $k = 'attach:'.$f->getId();
               unset($_SESSION[':form-data'][$k]);
@@ -519,11 +525,18 @@ JS
                   }
         }
 
-        return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
+        if ($this->entry->getThread()->getObjectType()  == 'T')
+          return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars); //TasksAjaxAPI
+        else
+          return $this->getTasksAPI()->add($this->getObjectId(), $vars);
+
     }
 
     private function trigger__post() {
-        return $this->getTicketsAPI()->addTask($this->getObjectId());
+      if ($this->entry->getThread()->getObjectType()  == 'T')
+        return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
+      else
+        return $this->getTasksAPI()->add($this->getObjectId(), $vars);
     }
 
 }
