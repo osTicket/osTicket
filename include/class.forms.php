@@ -46,8 +46,11 @@ class Form {
         $this->_source = ($source) ? $source : $_POST;
     }
 
-    function getId() {
-        return static::$id;
+    function getFormId() {
+        return @$this->id ?: static::$id;
+    }
+    function setId($id) {
+        $this->id = $id;
     }
 
     function data($source) {
@@ -210,7 +213,7 @@ class Form {
     function emitJavascript($options=array()) {
 
         // Check if we need to emit javascript
-        if (!($fid=$this->getId()))
+        if (!($fid=$this->getFormId()))
             return;
         ?>
         <script type="text/javascript">
@@ -915,9 +918,9 @@ class FormField {
         return array(
             'set' => null,
             'nset' => null,
-            'equal' => array('TextboxField', array()),
-            'nequal' => array('TextboxField', array()),
-            'contains' => array('TextboxField', array()),
+            'equal' => array('TextboxField', array('configuration' => array('size' => 40))),
+            'nequal' => array('TextboxField', array('configuration' => array('size' => 40))),
+            'contains' => array('TextboxField', array('configuration' => array('size' => 40))),
             'match' => array('TextboxField', array(
                 'placeholder' => __('Valid regular expression'),
                 'configuration' => array('size'=>30),
@@ -998,7 +1001,54 @@ class FormField {
         return sprintf($desc, $name, $value);
     }
 
+    function addToQuery($query, $name=false) {
+        return $query->values($name ?: $this->get('name'));
+    }
+
+    /**
+     * Similary to to_php() and parse(), except a row from a queryset is
+     * passed. The value returned should be what would be retured from
+     * parse() or to_php()
+     */
+    function from_query($row, $name=false) {
+        return $row[$name ?: $this->get('name')];
+    }
+
+    /**
+     * If the field can be used in a quick filter. To be used, it should
+     * also implement getQuickFilterChoices() which should return a list of
+     * choices to appear in a quick filter drop-down
+     */
+    function supportsQuickFilter() {
+        return false;
+    }
+
+    /**
+     * Fetch a keyed array of quick filter choices. The keys should be
+     * passed later to ::applyQuickFilter() to apply the quick filter to a
+     * query. The values should be localized titles for the choices.
+     */
+    function getQuickFilterChoices() {
+        return array();
+    }
+
+    /**
+     * Apply a quick filter selection of this field to the query. The
+     * modified query should be returned. Optionally, the orm path / field
+     * name can be passed.
+     */
+    function applyQuickFilter($query, $choice, $name=false) {
+        return $query;
+    }
+
     function getLabel() { return $this->get('label'); }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        if ($reverse)
+            $col = '-' . $col;
+        return $query->order_by($col);
+    }
 
     /**
      * getImpl
@@ -1042,12 +1092,25 @@ class FormField {
         $this->getWidget()->value = $value;
     }
 
+    /**
+     * Fetch a pseudo-random id for this form field. It is used when
+     * rendering the widget in the @name attribute emitted in the resulting
+     * HTML. The form element is based on the form id, field id and name,
+     * and the current user's session id. Therefor, the same form fields
+     * will yield differing names for different users. This is used to ward
+     * off bot attacks as it makes it very difficult to predict and
+     * correlate the form names to the data they represent.
+     */
     function getFormName() {
-        if (is_numeric($this->get('id')))
+        $default = $this->get('name') ?: $this->get('id');
+        if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
+            return substr(md5(
+                session_id() . '-form-field-id-' . $fid . $default), -14);
+        elseif (is_numeric($this->get('id')))
             return substr(md5(
                 session_id() . '-field-id-'.$this->get('id')), -16);
-        else
-            return $this->get('name') ?: $this->get('id');
+
+        return $default;
     }
 
     function setForm($form) {
@@ -1173,17 +1236,6 @@ class FormField {
         return null;
     }
 
-    /**
-     * Indicates if the field provides for searching for something other
-     * than keywords. For instance, textbox fields can have hits by keyword
-     * searches alone, but selection fields should provide the option to
-     * match a specific value or set of values and therefore need to
-     * participate on any search builder.
-     */
-    function hasSpecialSearch() {
-        return true;
-    }
-
     function getConfigurationForm($source=null) {
         if (!$this->_cform) {
             $type = static::getFieldType($this->get('type'));
@@ -1292,10 +1344,6 @@ class TextboxField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function validateEntry($value) {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
@@ -1379,10 +1427,6 @@ class TextareaField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1432,10 +1476,6 @@ class PhoneField extends FormField {
                     'us'=>__('United States')),
             )),
         );
-    }
-
-    function hasSpecialSearch() {
-        return false;
     }
 
     function validateEntry($value) {
@@ -1528,6 +1568,23 @@ class BooleanField extends FormField {
         default:
             return parent::getSearchQ($method, $value, $name);
         }
+    }
+
+    function supportsQuickFilter() {
+        return true;
+    }
+
+    function getQuickFilterChoices() {
+        return array(
+            true => __('Checked'),
+            false => __('Not Checked'),
+        );
+    }
+
+    function applyQuickFilter($query, $qf_value, $name=false) {
+        return $query->filter(array(
+            $name ?: $this->get('name') => (int) $qf_value,
+        ));
     }
 }
 
@@ -1760,6 +1817,20 @@ class ChoiceField extends FormField {
             return parent::describeSearchMethod($method);
         }
     }
+
+    function supportsQuickFilter() {
+        return true;
+    }
+
+    function getQuickFilterChoices() {
+        return $this->getChoices();
+    }
+
+    function applyQuickFilter($query, $qf_value, $name=false) {
+        return $query->filter(array(
+            $name ?: $this->get('name') => $qf_value,
+        ));
+    }
 }
 
 class DatetimeField extends FormField {
@@ -1819,6 +1890,10 @@ class DatetimeField extends FormField {
         return $value;
     }
 
+    function from_query($row, $name=false) {
+        return strtotime(parent::from_query($row, $name));
+    }
+
     function display($value) {
         global $cfg;
 
@@ -1862,6 +1937,17 @@ class DatetimeField extends FormField {
     }
 
     function toString($value) {
+        if (is_array($value) && isset($value['until'])) {
+            $n = $value['until'];
+            $intervals = array(
+                'i' => _N('minute', 'minutes', $n),
+                'h' => _N('hour', 'hours', $n),
+                'd' => _N('day', 'days', $n),
+                'w' => _N('week', 'weeks', $n),
+                'm' => _N('month', 'months', $n),
+            );
+            return sprintf('%d %s', $n, $intervals[$value['int'] ?: 'd']);
+        }
 
         $timestamp = is_int($value) ? $value : (int) strtotime($value);
         if ($timestamp <= 0)
@@ -1939,8 +2025,8 @@ class DatetimeField extends FormField {
         // Parse value to DateTime object
         $val = Format::parseDatetime($value);
         // Get configured min/max (if any)
-        $min = $this->getMinDatetime();
-        $max = $this->getMaxDatetime();
+        $min = $this->getMinDateTime();
+        $max = $this->getMaxDateTime();
 
         if (!$val) {
             $this->_errors[] = __('Enter a valid date');
@@ -1971,15 +2057,39 @@ class DatetimeField extends FormField {
             'between' =>    __('between'),
             'ndaysago' =>   __('in the last n days'),
             'ndays' =>      __('in the next n days'),
+            'future' =>     __('in the future'),
+            'past' =>       __('in the past'),
+            'distfut' =>    __('more than n days from now'),
+            'distpast' =>   __('more than n days ago'),
         );
     }
 
     function getSearchMethodWidgets() {
         $config_notime = $config = $this->getConfiguration();
         $config_notime['time'] = false;
+        $nday_form = function() {
+            $intervals = array(
+                'i' => _N('minute', 'minutes', 5),
+                'h' => _N('hour', 'hours', 5),
+                'd' => _N('day','days', 5),
+                'w' => _N('week', 'weeks', 5),
+                'm' => _N('month', 'months', 5),
+            );
+            return array(
+                'until' => new TextboxField(array(
+                    'configuration' => array('validator'=>'number', 'size'=>4))
+                ),
+                'int' => new ChoiceField(array(
+                    'default' => 'd',
+                    'choices' => $intervals,
+                )),
+            );
+        };
         return array(
             'set' => null,
             'nset' => null,
+            'past' => null,
+            'future' => null,
             'equal' => array('DatetimeField', array(
                 'configuration' => $config_notime,
             )),
@@ -2001,31 +2111,23 @@ class DatetimeField extends FormField {
                     'right' => new DatetimeField(),
                 ),
             )),
-            'ndaysago' => array('InlineformField', array(
-                'form' => array(
-                    'until' => new TextboxField(array(
-                        'configuration' => array('validator'=>'number', 'size'=>4))
-                    ),
-                    'text' => new FreeTextField(array(
-                        'configuration' => array('content' => 'days'))
-                    ),
-                ),
-            )),
-            'ndays' => array('InlineformField', array(
-                'form' => array(
-                    'until' => new TextboxField(array(
-                        'configuration' => array('validator'=>'number', 'size'=>4))
-                    ),
-                    'text' => new FreeTextField(array(
-                        'configuration' => array('content' => 'days'))
-                    ),
-                ),
-            )),
+            'ndaysago' => array('InlineformField', array('form'=>$nday_form())),
+            'ndays' => array('InlineformField', array('form'=>$nday_form())),
+            'distfut' => array('InlineformField', array('form'=>$nday_form())),
+            'distpast' => array('InlineformField', array('form'=>$nday_form())),
         );
     }
 
     function getSearchQ($method, $value, $name=false) {
+        static $intervals = array(
+            'm' => 'MONTH',
+            'w' => 'WEEK',
+            'd' => 'DAY',
+            'h' => 'HOUR',
+            'i' => 'MINUTE',
+        );
         $name = $name ?: $this->get('name');
+        $now = SqlFunction::NOW();
         $config = $this->getConfiguration();
         $value = is_int($value)
             ? DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value
@@ -2045,8 +2147,12 @@ class DatetimeField extends FormField {
                 "{$name}__lt" => $l,
                 "{$name}__gte" => $r,
             ));
+        case 'future':
+            $value = $now;
         case 'after':
             return new Q(array("{$name}__gte" => $value));
+        case 'past':
+            $value = $now;
         case 'before':
             return new Q(array("{$name}__lt" => $value));
         case 'between':
@@ -2061,16 +2167,29 @@ class DatetimeField extends FormField {
                 "{$name}__lte" => $value['right'],
             ));
         case 'ndaysago':
-            $now = Misc::gmtime();
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
-                "{$name}__lt" => $now,
-                "{$name}__gte" => SqlExpression::minus($now, SqlInterval::DAY($value['until'])),
+                "{$name}__range" => array($now->minus($interval), $now),
             ));
         case 'ndays':
-            $now = Misc::gmtime();
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
             return new Q(array(
-                "{$name}__gt" => $now,
-                "{$name}__lte" => SqlExpression::plus($now, SqlInterval::DAY($value['until'])),
+                "{$name}__range" => array($now, $now->plus($interval)),
+            ));
+        // Distant past and future ranges
+        case 'distpast':
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
+            return new Q(array(
+                "{$name}__lte" => $now->minus($interval),
+            ));
+        case 'distfut':
+            $int = $intervals[$value['int'] ?: 'd'] ?: 'DAY';
+            $interval = new SqlInterval($int, $value['until']);
+            return new Q(array(
+                "{$name}__gte" => $now->plus($interval),
             ));
         default:
             return parent::getSearchQ($method, $value, $name);
@@ -2087,8 +2206,16 @@ class DatetimeField extends FormField {
             return __('%1$s in the next %2$s' /* occurs within a window (like 3 days) */);
         case 'ndaysago':
             return __('%1$s in the last %2$s' /* occurs within a recent window (like 3 days) */);
+        case 'distfut':
+            return __('%1$s after %2$s from now' /* occurs after a window (like 3 days) */);
+        case 'distpast':
+            return __('%1$s before %2$s ago' /* occurs previous to a window (like 3 days) */);
         case 'between':
             return __('%1$s between %2$s and %3$s');
+        case 'future':
+            return __('%1$s is in the future');
+        case 'past':
+            return __('%1$s is in the past');
         default:
             return parent::describeSearchMethod($method);
         }
@@ -2102,6 +2229,66 @@ class DatetimeField extends FormField {
             return sprintf($desc, $name, $l, $r);
         }
         return parent::describeSearch($method, $value, $name);
+    }
+
+    function supportsQuickFilter() {
+        return true;
+    }
+
+    function getQuickFilterChoices() {
+        return array(
+            'h' => __('Today'),
+            'm' => __('Tomorrow'),
+            'g' => __('Yesterday'),
+            'l7' => __('Last 7 days'),
+            'l30' => __('Last 30 days'),
+            'n7' => __('Next 7 days'),
+            'n30' => __('Next 30 days'),
+            /* Ugh. These boundaries are so difficult in SQL
+            'w' =>  __('This Week'),
+            'm' =>  __('This Month'),
+            'lw' => __('Last Week'),
+            'lm' => __('Last Month'),
+            'nw' => __('Next Week'),
+            'nm' => __('Next Month'),
+            */
+        );
+    }
+
+    function applyQuickFilter($query, $qf_value, $name=false) {
+        $name = $name ?: $this->get('name');
+        $now = SqlFunction::NOW();
+        $midnight = Misc::dbtime(time() - (time() % 86400));
+        switch ($qf_value) {
+        case 'l7':
+            return $query->filter([
+                "{$name}__range" => array($now->minus(SqlInterval::DAY(7)), $now),
+            ]);
+        case 'l30':
+            return $query->filter([
+                "{$name}__range" => array($now->minus(SqlInterval::DAY(30)), $now),
+            ]);
+        case 'n7':
+            return $query->filter([
+                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(7))),
+            ]);
+        case 'n30':
+            return $query->filter([
+                "{$name}__range" => array($now, $now->minus(SqlInterval::DAY(30))),
+            ]);
+        case 'g':
+            $midnight -= 86400;
+             // Fall through to the today case
+        case 'm':
+            if ($qf_value === 'm') $midnight += 86400;
+             // Fall through to the today case
+        case 'h':
+            $midnight = DateTime::createFromFormat('U', $midnight);
+            return $query->filter([
+                "{$name}__range" => array($midnight,
+                    SqlExpression::plus($midnight, SqlInterval::DAY(1))),
+            ]);
+        }
     }
 }
 
@@ -2133,10 +2320,6 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
-    function hasSpecialSearch() {
-        return false;
-    }
-
     function getMedia() {
         $config = $this->getConfiguration();
         $media = parent::getMedia() ?: array();
@@ -2244,11 +2427,14 @@ class PriorityField extends ChoiceField {
             : $prio;
     }
 
-    function display($prio) {
+    function display($prio, &$styles=null) {
         if (!$prio instanceof Priority)
             return parent::display($prio);
-        return sprintf('<span style="padding: 2px; background-color: %s">%s</span>',
-            $prio->getColor(), Format::htmlchars($prio->getDesc()));
+        if (is_array($styles))
+            $styles += array(
+                'background-color' => $prio->getColor()
+            );
+        return Format::htmlchars($prio->getDesc());
     }
 
     function toString($value) {
@@ -2293,6 +2479,20 @@ class PriorityField extends ChoiceField {
         if (!isset($config['default']))
             $config['default'] = $cfg->getDefaultPriorityId();
         return $config;
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        if ($query->model == 'Ticket' && $name == 'cdata__priority') {
+            // Order by the priority urgency field
+            $col = 'cdata__:priority__priority_urgency';
+            $reverse = !$reverse;
+        }
+        else {
+            $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        }
+        if ($reverse)
+            $col = "-$col";
+        return $query->order_by($col);
     }
 }
 FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
@@ -2753,10 +2953,6 @@ class FileUploadField extends FormField {
         );
     }
 
-    function hasSpecialSearch() {
-        return false;
-    }
-
     /**
      * Called from the ajax handler for async uploads via web clients.
      */
@@ -3037,6 +3233,10 @@ class FileFieldAttachments {
     }
 }
 
+class ColorChoiceField extends FormField {
+    static $widget = 'ColorPickerWidget';
+}
+
 class InlineFormData extends ArrayObject {
     var $_form;
 
@@ -3100,6 +3300,8 @@ class InlineFormField extends FormField {
         $form = $this->get('form');
         if (is_array($form)) {
             $form = new SimpleForm($form, $data ?: $this->value ?: $this->getSource());
+            // Ensure unique, but predictable form and field IDs
+            $form->setId(sprintf('%u', crc32($this->get('name')) >> 1));
         }
         return $form;
     }
@@ -4076,7 +4278,7 @@ class FreeTextWidget extends Widget {
             echo Format::viewableImages($config['content']); ?></div>
         </div>
         <?php
-        if (($attachments=$this->field->getFiles())) { ?>
+        if (($attachments = $this->field->getFiles()) && count($attachments)) { ?>
             <section class="freetext-files">
             <div class="title"><?php echo __('Related Resources'); ?></div>
             <?php foreach ($attachments as $attach) { ?>
@@ -4091,6 +4293,24 @@ class FreeTextWidget extends Widget {
             <?php } ?>
         </section>
         <?php }
+    }
+}
+
+class ColorPickerWidget extends Widget {
+    static $media = array(
+        'css' => array(
+            'css/spectrum.css',
+        ),
+        'js' => array(
+            'js/spectrum.js',
+        ),
+    );
+
+    function render($options=array()) {
+        ?><input type="color"
+            id="<?php echo $this->id; ?>"
+            name="<?php echo $this->name; ?>"
+            value="<?php echo Format::htmlchars($this->value); ?>"/><?php
     }
 }
 
@@ -4186,7 +4406,7 @@ class VisibilityConstraint {
             else {
                 @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
-                $wval = $field->getClean();
+                $wval = $field ? $field->getClean() : null;
                 switch ($op) {
                 case 'eq':
                 case null:

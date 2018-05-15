@@ -41,12 +41,14 @@ class TicketsAjaxAPI extends AjaxController {
             $visibility->add(array('dept_id__in' => $depts));
         }
 
-        $hits = TicketModel::objects()
+        $hits = Ticket::objects()
             ->filter($visibility)
             ->values('user__default_email__address')
             ->annotate(array(
                 'number' => new SqlCode('null'),
-                'tickets' => SqlAggregate::COUNT('ticket_id', true)))
+                'tickets' => SqlAggregate::COUNT('ticket_id', true),
+            ))
+            ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
 
         $q = $_REQUEST['q'];
@@ -55,18 +57,17 @@ class TicketsAjaxAPI extends AjaxController {
             return $this->encode(array());
 
         global $ost;
-        $hits = $ost->searcher->find($q, $hits)
-            ->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+        $hits = $ost->searcher->find($q, $hits, false);
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
-            $hits = TicketModel::objects()
+            $hits = Ticket::objects()
                 ->values('user__default_email__address', 'number')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
-                    '__relevance__' => new SqlCode(1)
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
+                ->order_by('number')
                 ->limit($limit)
                 ->union($hits);
         }
@@ -594,7 +595,7 @@ class TicketsAjaxAPI extends AjaxController {
                     $depts = array();
                     $tids = $_POST['tids'] ?: array_filter(explode(',', $_REQUEST['tids']));
                     if ($tids) {
-                        $tickets = TicketModel::objects()
+                        $tickets = Ticket::objects()
                             ->distinct('dept_id')
                             ->filter(array('ticket_id__in' => $tids));
 
@@ -830,7 +831,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$role->hasPerm(TicketModel::PERM_CLOSE))
+                if (!$role->hasPerm(Ticket::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
 
@@ -840,7 +841,7 @@ class TicketsAjaxAPI extends AjaxController {
 
                 break;
             case 'delete':
-                if (!$role->hasPerm(TicketModel::PERM_DELETE))
+                if (!$role->hasPerm(Ticket::PERM_DELETE))
                     Http::response(403, 'Access denied');
                 $state = 'deleted';
                 break;
@@ -877,18 +878,18 @@ class TicketsAjaxAPI extends AjaxController {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$role->hasPerm(TicketModel::PERM_CLOSE)
-                            && !$role->hasPerm(TicketModel::PERM_CREATE))
+                    if (!$role->hasPerm(Ticket::PERM_CLOSE)
+                            && !$role->hasPerm(Ticket::PERM_CREATE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$role->hasPerm(TicketModel::PERM_CLOSE))
+                    if (!$role->hasPerm(Ticket::PERM_CLOSE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$role->hasPerm(TicketModel::PERM_DELETE))
+                    if (!$role->hasPerm(Ticket::PERM_DELETE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to archive/delete tickets'));
                     break;
@@ -948,12 +949,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
+                if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
+                if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                     Http::response(403, 'Access denied');
 
                 $state = 'deleted';
@@ -987,18 +988,18 @@ class TicketsAjaxAPI extends AjaxController {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false)
-                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+                    if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false)
+                            && !$thisstaff->hasPerm(Ticket::PERM_CREATE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
+                    if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
+                    if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to archive/delete tickets'));
                     break;

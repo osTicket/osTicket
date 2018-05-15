@@ -36,10 +36,13 @@ require_once(INCLUDE_DIR.'class.collaborator.php');
 require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 
-class TicketModel extends VerySimpleModel {
+class Ticket extends VerySimpleModel
+implements RestrictedAccess, Threadable, Searchable {
     static $meta = array(
         'table' => TICKET_TABLE,
         'pk' => array('ticket_id'),
+        'select_related' => array('topic', 'staff', 'user', 'team', 'dept',
+            'sla', 'thread', 'user__default_email', 'status'),
         'joins' => array(
             'user' => array(
                 'constraint' => array('user_id' => 'User.id')
@@ -100,7 +103,6 @@ class TicketModel extends VerySimpleModel {
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
 
-
     static protected $perms = array(
             self::PERM_CREATE => array(
                 'title' =>
@@ -154,104 +156,6 @@ class TicketModel extends VerySimpleModel {
             /* @trans */ 'Other',
             );
 
-    function getId() {
-        return $this->ticket_id;
-    }
-
-    function getEffectiveDate() {
-         return Format::datetime(max(
-             strtotime($this->thread->lastmessage),
-             strtotime($this->closed),
-             strtotime($this->reopened),
-             strtotime($this->created)
-         ));
-    }
-
-    static function registerCustomData(DynamicForm $form) {
-        if (!isset(static::$meta['joins']['cdata+'.$form->id])) {
-            $cdata_class = <<<EOF
-class DynamicForm{$form->id} extends DynamicForm {
-    static function getInstance() {
-        static \$instance;
-        if (!isset(\$instance))
-            \$instance = static::lookup({$form->id});
-        return \$instance;
-    }
-}
-class TicketCdataForm{$form->id}
-extends VerySimpleModel {
-    static \$meta = array(
-        'view' => true,
-        'pk' => array('ticket_id'),
-        'joins' => array(
-            'ticket' => array(
-                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
-            ),
-        )
-    );
-    static function getQuery(\$compiler) {
-        return '('.DynamicForm{$form->id}::getCrossTabQuery('T', 'ticket_id').')';
-    }
-}
-EOF;
-            eval($cdata_class);
-            $join = array(
-                'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
-                'list' => true,
-            );
-            // This may be necessary if the model has already been inspected
-            if (static::$meta instanceof ModelMeta)
-                static::$meta->addJoin('cdata+'.$form->id, $join);
-            else {
-                static::$meta['joins']['cdata+'.$form->id] = array(
-                    'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
-                    'list' => true,
-                );
-            }
-        }
-    }
-
-    static function getPermissions() {
-        return self::$perms;
-    }
-
-    static function getSources() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$sources as $k=>$v)
-                static::$sources[$k] = __($v);
-        }
-
-        return static::$sources;
-    }
-}
-
-RolePermission::register(/* @trans */ 'Tickets', TicketModel::getPermissions(), true);
-
-class TicketCData extends VerySimpleModel {
-    static $meta = array(
-        'table' => TICKET_CDATA_TABLE,
-        'pk' => array('ticket_id'),
-        'joins' => array(
-            'ticket' => array(
-                'constraint' => array('ticket_id' => 'TicketModel.ticket_id'),
-            ),
-            ':priority' => array(
-                'constraint' => array('priority' => 'Priority.priority_id'),
-                'null' => true,
-            ),
-        ),
-    );
-}
-
-class Ticket extends TicketModel
-implements RestrictedAccess, Threadable {
-
-    static $meta = array(
-        'select_related' => array('topic', 'staff', 'user', 'team', 'dept', 'sla', 'thread',
-            'user__default_email'),
-    );
-
     var $lastMsgId;
     var $last_message;
 
@@ -262,10 +166,6 @@ implements RestrictedAccess, Threadable {
     var $active_collaborators;
     var $recipients;
     var $lastrespondent;
-
-    function __onload() {
-        $this->loadDynamicData();
-    }
 
     function loadDynamicData($force=false) {
         if (!isset($this->_answers) || $force) {
@@ -282,6 +182,16 @@ implements RestrictedAccess, Threadable {
             }
         }
         return $this->_answers;
+    }
+
+    function getAnswer($field, $form=null) {
+        // TODO: Prefer CDATA ORM relationship if already loaded
+        $this->loadDynamicData();
+        return $this->_answers[$field];
+    }
+
+    function getId() {
+        return $this->ticket_id;
     }
 
     function hasState($state) {
@@ -455,7 +365,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getSubject() {
-        return (string) $this->_answers['subject'];
+        return (string) $this->getAnswer('subject');
     }
 
     /* Help topic title  - NOT object -> $topic */
@@ -556,7 +466,7 @@ implements RestrictedAccess, Threadable {
     function getPriorityId() {
         global $cfg;
 
-        if (($a = $this->_answers['priority'])
+        if (($a = $this->getAnswer('priority'))
             && ($b = $a->getValue())
         ) {
             return $b->getId();
@@ -565,7 +475,7 @@ implements RestrictedAccess, Threadable {
     }
 
     function getPriority() {
-        if (($a = $this->_answers['priority']) && ($b = $a->getValue()))
+        if (($a = $this->getAnswer('priority')) && ($b = $a->getValue()))
             return $b->getDesc();
         return '';
     }
@@ -1181,12 +1091,12 @@ implements RestrictedAccess, Threadable {
         if ($role && $this->getStatusId()) {
             switch ($status->getState()) {
             case 'closed':
-                if (!($role->hasPerm(TicketModel::PERM_CLOSE)))
+                if (!($role->hasPerm(Ticket::PERM_CLOSE)))
                     return false;
                 break;
             case 'deleted':
                 // XXX: intercept deleted status and do hard delete
-                if ($role->hasPerm(TicketModel::PERM_DELETE))
+                if ($role->hasPerm(Ticket::PERM_DELETE))
                     return $this->delete($comments);
                 // Agent doesn't have permission to delete  tickets
                 return false;
@@ -1882,11 +1792,11 @@ implements RestrictedAccess, Threadable {
         case 'user':
             return $this->getOwner();
         default:
-            if (isset($this->_answers[$tag]))
+            if ($a = $this->getAnswer($tag))
                 // The answer object is retrieved here which will
                 // automatically invoke the toString() method when the
                 // answer is coerced into text
-                return $this->_answers[$tag];
+                return $a;
         }
     }
 
@@ -1945,6 +1855,78 @@ implements RestrictedAccess, Threadable {
 
         $extra = VariableReplacer::compileFormScope(TicketForm::getInstance());
         return $base + $extra;
+    }
+
+    // Searchable interface
+    static function getSearchableFields() {
+        $base = array(
+            'number' => new TextboxField(array(
+                'label' => __('Ticket Number')
+            )),
+            'created' => new DatetimeField(array(
+                'label' => __('Create Date'),
+                'configuration' => array('fromdb' => true),
+            )),
+            'est_duedate' => new DatetimeField(array(
+                'label' => __('Due Date'),
+                'configuration' => array('fromdb' => true),
+            )),
+            'reopened' => new DatetimeField(array(
+                'label' => __('Reopen Date'),
+                'configuration' => array('fromdb' => true),
+            )),
+            'closed' => new DatetimeField(array(
+                'label' => __('Close Date'),
+                'configuration' => array('fromdb' => true),
+            )),
+            'lastupdate' => new DatetimeField(array(
+                'label' => __('Last Update'),
+                'configuration' => array('fromdb' => true),
+            )),
+            'assignee' => new AssigneeChoiceField(array(
+                'label' => __('Assignee'),
+            )),
+            'staff_id' => new AgentSelectionField(array(
+                'label' => __('Assigned Staff'),
+            )),
+            'team_id' => new TeamSelectionField(array(
+                'label' => __('Assigned Team'),
+            )),
+            'dept_id' => new DepartmentChoiceField(array(
+                'label' => __('Department'),
+            )),
+            'topic_id' => new HelpTopicChoiceField(array(
+                'label' => __('Help Topic'),
+            )),
+            'source' => new TicketSourceChoiceField(array(
+                'label' => __('Ticket Source'),
+            )),
+            'isoverdue' => new BooleanField(array(
+                'label' => __('Overdue'),
+            )),
+            'isanswered' => new BooleanField(array(
+                'label' => __('Answered'),
+            )),
+            'ip_address' => new TextboxField(array(
+                'label' => __('IP Address'),
+                'configuration' => array('validator' => 'ip'),
+            )),
+        );
+        $tform = TicketForm::getInstance();
+        foreach ($tform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
+    }
+
+    static function supportsCustomData() {
+        return true;
     }
 
     //Replace base variables.
@@ -2256,7 +2238,7 @@ implements RestrictedAccess, Threadable {
         if (!$user
             || ($user->getId() == $this->getOwnerId())
             || !($this->checkStaffPerm($thisstaff,
-                TicketModel::PERM_EDIT))
+                Ticket::PERM_EDIT))
         ) {
             return false;
         }
@@ -2745,7 +2727,7 @@ implements RestrictedAccess, Threadable {
 
         if (!$cfg
             || !($this->checkStaffPerm($thisstaff,
-                TicketModel::PERM_EDIT))
+                Ticket::PERM_EDIT))
         ) {
             return false;
         }
@@ -3524,7 +3506,7 @@ implements RestrictedAccess, Threadable {
 
         if ($vars['deptId']
             && ($role = $thisstaff->getRole($vars['deptId']))
-            && !$role->hasPerm(TicketModel::PERM_CREATE)
+            && !$role->hasPerm(Ticket::PERM_CREATE)
         ) {
             $errors['err'] = sprintf(__('You do not have permission to create a ticket in %s'), __('this department'));
             return false;
@@ -3549,8 +3531,8 @@ implements RestrictedAccess, Threadable {
         // department
         if ($vars['assignId'] && !(
             $role
-            ? $role->hasPerm(TicketModel::PERM_ASSIGN)
-            : $thisstaff->hasPerm(TicketModel::PERM_ASSIGN, false)
+            ? $role->hasPerm(Ticket::PERM_ASSIGN)
+            : $thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)
         )) {
             $errors['assignId'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
         }
@@ -3573,7 +3555,7 @@ implements RestrictedAccess, Threadable {
 
         // post response - if any
         $response = null;
-        if($vars['response'] && $role->hasPerm(TicketModel::PERM_REPLY)) {
+        if($vars['response'] && $role->hasPerm(Ticket::PERM_REPLY)) {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
@@ -3674,5 +3656,88 @@ implements RestrictedAccess, Threadable {
 
         require STAFFINC_DIR.'templates/tickets-actions.tmpl.php';
     }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        switch (true) {
+        case ($thisstaff instanceof Staff):
+            return ROOT_PATH . sprintf('scp/tickets.php?id=%s', $id);
+        }
+    }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
+
+    static function getSources() {
+        static $translated = false;
+        if (!$translated) {
+            foreach (static::$sources as $k=>$v)
+                static::$sources[$k] = __($v);
+        }
+
+        return static::$sources;
+    }
+
+    static function registerCustomData(DynamicForm $form) {
+        if (!isset(static::$meta['joins']['cdata+'.$form->id])) {
+            $cdata_class = <<<EOF
+class DynamicForm{$form->id} extends DynamicForm {
+    static function getInstance() {
+        static \$instance;
+        if (!isset(\$instance))
+            \$instance = static::lookup({$form->id});
+        return \$instance;
+    }
 }
-?>
+class TicketCdataForm{$form->id}
+extends VerySimpleModel {
+    static \$meta = array(
+        'view' => true,
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'Ticket.ticket_id'),
+            ),
+        )
+    );
+    static function getQuery(\$compiler) {
+        return '('.DynamicForm{$form->id}::getCrossTabQuery('T', 'ticket_id').')';
+    }
+}
+EOF;
+            eval($cdata_class);
+            $join = array(
+                'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
+                'list' => true,
+            );
+            // This may be necessary if the model has already been inspected
+            if (static::$meta instanceof ModelMeta)
+                static::$meta->addJoin('cdata+'.$form->id, $join);
+            else {
+                static::$meta['joins']['cdata+'.$form->id] = array(
+                    'constraint' => array('ticket_id' => 'TicketCdataForm'.$form->id.'.ticket_id'),
+                    'list' => true,
+                );
+            }
+        }
+    }
+}
+RolePermission::register(/* @trans */ 'Tickets', Ticket::getPermissions(), true);
+
+class TicketCData extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('ticket_id'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'Ticket.ticket_id'),
+            ),
+            ':priority' => array(
+                'constraint' => array('priority' => 'Priority.priority_id'),
+                'null' => true,
+            ),
+        ),
+    );
+}
+TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';

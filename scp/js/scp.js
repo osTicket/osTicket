@@ -163,8 +163,8 @@ var scp_prep = function() {
 
     $('form.save, form:has(table.list)').submit(function() {
         $(window).unbind('beforeunload');
-        $('#overlay, #loading').show();
-        return true;
+        $.toggleOverlay(true);
+        $('#loading').show();
      });
 
     $('select#tpl_options').change(function() {
@@ -475,6 +475,52 @@ var scp_prep = function() {
   $('.attached.input input')
     .on('focus', function() { $(this).parent().addClass('focus'); })
     .on('blur', function() { $(this).parent().removeClass('focus'); })
+
+  $(function() {
+    // whenever we hover over a menu item that has a submenu
+    $('.subQ').on('mouseover', function() {
+      var $menuItem = $(this),
+          $submenuWrapper = $('> .subMenuQ', $menuItem);
+
+      // grab the menu item's position relative to its positioned parent
+      var menuItemPos = $menuItem.position();
+
+      // place the submenu in the correct position relevant to the menu item
+      $submenuWrapper.css({
+        top: menuItemPos.top - 1,
+        left: menuItemPos.left + Math.round($menuItem.outerWidth())
+      });
+    });
+    // Ensure the "new ticket" link is never in the drop-down menu
+    $('#new-ticket').parent('li').addClass('primary-only');
+    $('#customQ_nav').overflowmenu({
+      guessHeight: false,
+      // items: 'li.top-queue',
+      change: function( e, ui ) {
+        var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
+        handle.toggle( ui.secondary.children().length > 0 );
+      }
+    });
+  });
+
+  // Auto fetch queue counts
+  $(function() {
+    var fired = false;
+    $('li.top-queue.item').hover(function() {
+      if (fired) return;
+      fired = true;
+      $.ajax({
+        url: 'ajax.php/queue/counts',
+        dataType: 'json',
+        success: function(json) {
+          $('li > span.queue-count').each(function(i, e) {
+            var $e = $(e);
+            $e.text(json['q' + $e.data('queueId')]);
+          });
+        }
+      });
+    });
+  });
 };
 
 $(document).ready(scp_prep);
@@ -945,7 +991,7 @@ $(document).on('click.tab', 'ul.tabs > li > a', function(e) {
         $ul.children('li.active').removeClass('active');
         $(this).closest('li').addClass('active');
         $container.children('.tab_content').hide();
-        $tab.fadeIn('fast');
+        $tab.fadeIn('fast').show();
         return false;
     }
 
@@ -1228,3 +1274,51 @@ window.relativeAdjust = setInterval(function() {
   });
 }, 20000);
 
+// Add 'afterShow' event to jQuery elements,
+// thanks http://stackoverflow.com/a/1225238/1025836
+(function ($) {
+    var _oldShow = $.fn.show;
+
+    $.fn.show = function (/*speed, easing, callback*/) {
+        var argsArray = Array.prototype.slice.call(arguments),
+            duration = argsArray[0],
+            easing,
+            callback,
+            callbackArgIndex;
+
+        // jQuery recursively calls show sometimes; we shouldn't
+        //  handle such situations. Pass it to original show method.
+        if (!this.selector) {
+            _oldShow.apply(this, argsArray);
+            return this;
+        }
+
+        if (argsArray.length === 2) {
+            if ($.isFunction(argsArray[1])) {
+                callback = argsArray[1];
+                callbackArgIndex = 1;
+            } else {
+                easing = argsArray[1];
+            }
+        } else if (argsArray.length === 3) {
+            easing = argsArray[1];
+            callback = argsArray[2];
+            callbackArgIndex = 2;
+        }
+        return $(this).each(function () {
+            var obj = $(this),
+                oldCallback = callback,
+                newCallback = function () {
+                    if ($.isFunction(oldCallback)) {
+                        oldCallback.apply(obj);
+                    }
+                };
+            if (callback) {
+                argsArray[callbackArgIndex] = newCallback;
+            }
+            obj.trigger('beforeShow');
+            _oldShow.apply(obj, argsArray);
+            obj.trigger('afterShow');
+        });
+    };
+})(jQuery);

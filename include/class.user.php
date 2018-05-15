@@ -16,8 +16,9 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
-require_once INCLUDE_DIR . 'class.organization.php';
 require_once INCLUDE_DIR . 'class.variable.php';
+require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR . 'class.organization.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -46,7 +47,7 @@ class UserModel extends VerySimpleModel {
             ),
             'tickets' => array(
                 'null' => true,
-                'reverse' => 'TicketModel.user',
+                'reverse' => 'Ticket.user',
             ),
             'account' => array(
                 'list' => false,
@@ -65,12 +66,12 @@ class UserModel extends VerySimpleModel {
                 'constraint' => array('id' => 'UserCdata.user_id'),
                 'null' => true,
             ),
-            'cdata_entry' => array(
+            'entries' => array(
                 'constraint' => array(
                     'id' => 'DynamicFormEntry.object_id',
                     "'U'" => 'DynamicFormEntry.object_type',
                 ),
-                'null' => true,
+                'list' => true,
             ),
         )
     );
@@ -191,7 +192,7 @@ class UserCdata extends VerySimpleModel {
 }
 
 class User extends UserModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     var $_entries;
     var $_forms;
@@ -268,10 +269,13 @@ implements TemplateVariable {
         return new EmailAddress($this->default_email->address);
     }
 
-    function getAvatar() {
+    function getAvatar($size=null) {
         global $cfg;
         $source = $cfg->getClientAvatarSource();
-        return $source->getAvatar($this);
+        $avatar = $source->getAvatar($this);
+        if (isset($size))
+            $avatar->setSize($size);
+        return $avatar;
     }
 
     function getFullName() {
@@ -360,6 +364,28 @@ implements TemplateVariable {
         );
         $extra = VariableReplacer::compileFormScope(UserForm::getInstance());
         return $base + $extra;
+    }
+
+    static function getSearchableFields() {
+        $uform = UserForm::getUserForm();
+        $base = array();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            # XXX: email in the model corresponds to `emails__address` ORM path
+            if ($fname == 'email')
+                $fname = 'emails__address';
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
+    }
+
+    static function supportsCustomData() {
+        return true;
     }
 
     function addDynamicData($data) {
@@ -598,6 +624,15 @@ implements TemplateVariable {
     static function getNameById($id) {
         if ($user = static::lookup($id))
             return $user->getName();
+    }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('scp/users.php?id=%s', $id);
     }
 }
 

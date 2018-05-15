@@ -28,7 +28,7 @@ $action = $info[':action'] ?: ('#');
 <div style="display:block; margin:5px;">
 <form class="mass-action" method="post"
     name="assign"
-    id="<?php echo $form->getId(); ?>"
+    id="<?php echo $form->getFormId(); ?>"
     action="<?php echo $action; ?>">
     <table width="100%">
         <?php
