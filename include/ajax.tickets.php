@@ -1348,8 +1348,42 @@ function refer($tid, $target=null) {
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
-                if (($task=Task::create($vars, $errors)))
-                    Http::response(201, $task->getId());
+                if (($task=Task::create($vars, $errors))) {
+
+                  if ($_SESSION[':form-data']['eid']) {
+                    //add internal note to ticket:
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%d</b></a>',
+                        $task->getId(),
+                        $task->getId());
+
+                    $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
+                        $_SESSION[':form-data']['eid'],
+                        $_SESSION[':form-data']['eid'],
+                        Format::datetime($_SESSION[':form-data']['timestamp']));
+
+                    $note = array(
+                            'title' => __('Task Created From Thread'),
+                            'body' => __('Task ' . $taskLink .
+                            '<br /> Thread Entry ID: ' . $entryLink)
+                            );
+
+                  $ticket->logNote($note['title'], $note['body'], $thisstaff);
+
+                    //add internal note to task:
+                    $ticketLink = sprintf('<a href="tickets.php?id=%d"><b>#%s</b></a>',
+                        $ticket->getId(),
+                        $ticket->getNumber());
+
+                    $note = array(
+                            'title' => __('Task Created From Thread'),
+                            'note' => __('This Task was created from Ticket ' . $ticketLink));
+
+                    $task->postNote($note, $errors, $thisstaff);
+                  }
+                    unset($_SESSION[':form-data']);
+                  }
+
+                  Http::response(201, $task->getId());
             }
 
             $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));

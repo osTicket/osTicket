@@ -9,7 +9,17 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 //  Use thread entry to seed the ticket
 if (!$user && $_GET['tid'] && ($entry = ThreadEntry::lookup($_GET['tid']))) {
+    if ($entry->getThread()->getObjectType() == 'T')
+      $oldTicket = Ticket::lookup($entry->getThread()->getObjectId());
+    if ($entry->getThread()->getObjectType() == 'A')
+      $oldTask = Task::lookup($entry->getThread()->getObjectId());
+
     $_SESSION[':form-data']['message'] = Format::htmlchars($entry->getBody());
+    $_SESSION[':form-data']['ticket'] = $oldTicket;
+    $_SESSION[':form-data']['task'] = $oldTask;
+    $_SESSION[':form-data']['eid'] = $entry->getId();
+    $_SESSION[':form-data']['timestamp'] = $entry->getCreateDate();
+
     if ($entry->user_id)
        $user = User::lookup($entry->user_id);
 

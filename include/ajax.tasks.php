@@ -19,6 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
 require_once(INCLUDE_DIR.'class.task.php');
+include_once INCLUDE_DIR . 'class.thread_actions.php';
 
 class TasksAjaxAPI extends AjaxController {
 
@@ -57,8 +58,34 @@ class TasksAjaxAPI extends AjaxController {
         return $this->json_encode($tasks);
     }
 
-    function add() {
+    function triggerThreadAction($task_id, $thread_id, $action) {
+        $thread = ThreadEntry::lookup($thread_id);
+        if (!$thread)
+            Http::response(404, 'No such task thread entry');
+        if ($thread->getThread()->getObjectId() != $task_id)
+            Http::response(404, 'No such task thread entry');
+
+        $valid = false;
+        foreach ($thread->getActions() as $group=>$list) {
+            foreach ($list as $name=>$A) {
+                if ($A->getId() == $action) {
+                    $valid = true; break;
+                }
+            }
+        }
+
+        if (!$valid)
+          Http::response(400, 'Not a valid action for this thread');
+
+
+        $thread->triggerAction($action);
+    }
+
+    function add($tid=0, $vars=array()) {
         global $thisstaff;
+
+        if ($tid)
+          $originalTask = Task::lookup($tid);
 
         $info=$errors=array();
         if ($_POST) {
@@ -86,11 +113,53 @@ class TasksAjaxAPI extends AjaxController {
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
-                if (($task=Task::create($vars, $errors)))
-                    Http::response(201, $task->getId());
+                if (($task=Task::create($vars, $errors))) {
+                  if ($_SESSION[':form-data']['eid']) {
+                    //add internal note to original task:
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%d</b></a>',
+                        $task->getId(),
+                        $task->getId());
+
+                    $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
+                        $_SESSION[':form-data']['eid'],
+                        $_SESSION[':form-data']['eid'],
+                        Format::datetime($_SESSION[':form-data']['timestamp']));
+
+                    $note = array(
+                            'title' => __('Task Created From Thread'),
+                            'note' => __('Task ' . $taskLink .
+                            '<br /> Thread Entry ID: ' . $entryLink)
+                            );
+
+                    $originalTask->postNote($note, $errors, $thisstaff);
+
+                    //add internal note to new task:
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
+                        $originalTask->getId(),
+                        $originalTask->getNumber());
+
+                    $note = array(
+                            'title' => __('Task Created From Thread'),
+                            'note' => __('This Task was created from Task ' . $taskLink));
+
+                    $task->postNote($note, $errors, $thisstaff);
+
+                    unset($_SESSION[':form-data']);
+                  }
+
+                  Http::response(201, $task->getId());
+                }
+              }
+              $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
             }
 
-            $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
+        if ($originalTask) {
+          $info['action'] = sprintf('#tasks/%d/add', $originalTask->getId());
+          $info['title'] = sprintf(
+                  __( 'Task #%1$s: %2$s'),
+                  $originalTask->getNumber(),
+                  __('Add New Task')
+                  );
         }
 
         include STAFFINC_DIR . 'templates/task.tmpl.php';
