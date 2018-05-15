@@ -3803,7 +3803,7 @@ class SectionBreakWidget extends Widget {
     function render($options=array()) {
         ?><div class="form-header section-break"><h3><?php
         echo Format::htmlchars($this->field->getLocal('label'));
-        ?></h3><em><?php echo Format::htmlchars($this->field->getLocal('hint'));
+        ?></h3><em><?php echo Format::display($this->field->getLocal('hint'));
         ?></em></div>
         <?php
     }
