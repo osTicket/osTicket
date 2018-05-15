@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 ## Major New Features
@@ -64,6 +65,24 @@ osTicket 1.11.0
 - Add Custom Forms to Ticket Filter Data
 - Fix for LDAP/AD auth plugin (#4198, #3460, #3544, #3549)
 =======
+=======
+osTicket v1.10.3
+================
+### Enhancements
+* issue: Org. User Account Status (#4219)
+* upgrader: Flush Cache On Upgrade (#4227)
+* issue: Outlook _MailEndCompose (#4206)
+* issue: Files - deleteOrphans() (#4253)
+* issue: Fix imap_open Disable Authenticator (#4195)
+* Check permissions before displaying Close Task (#4177)
+
+### Performance and Security
+* issue: Information Page Performance (#4275)
+* issue: Prevent Click Jacking (#4266)
+* orm: queryset: Fix circular reference error (#4247)
+
+
+>>>>>>> Add release notes for v1.10.3
 osTicket v1.10.2
 ================
 ### Performance and Security
