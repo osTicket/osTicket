@@ -362,6 +362,10 @@ class StreamUpgrader extends SetupWizard {
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 300; //Apache/IIS defaults.
 
+        // Drop any model meta cache to ensure model changes do not cause
+        // crashes
+        ModelMeta::flushModelCache();
+
         // Apply up to five patches at a time
         foreach (array_slice($patches, 0, 5) as $patch) {
             //TODO: check time used vs. max execution - break if need be

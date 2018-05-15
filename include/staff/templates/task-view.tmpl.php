@@ -154,7 +154,7 @@ if ($task->isOverdue())
                             echo __('Reopen');?> </a>
                     </li>
                     <?php
-                    } else {
+                    } elseif ($canClose) {
                     ?>
                     <li>
                         <a class="no-pjax task-action"
@@ -212,7 +212,7 @@ if ($task->isOverdue())
                                 echo __('Reopen');?> </a>
                         </li>
                         <?php
-                        } else {
+                        } elseif ($canClose) {
                         ?>
                         <li>
                             <a class="no-pjax task-action"

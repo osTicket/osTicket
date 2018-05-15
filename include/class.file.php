@@ -635,7 +635,7 @@ class AttachmentFile extends VerySimpleModel {
             ->filter(array(
                 'attachments__object_id__isnull' => true,
                 'ft' => 'T',
-                'created__gt' => new DateTime('now -1 day'),
+                'created__lt' => SqlFunction::NOW()->minus(SqlInterval::DAY(1)),
             ));
 
         foreach ($files as $f) {
