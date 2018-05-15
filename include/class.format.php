@@ -609,7 +609,7 @@ class Format {
         return $tz;
     }
 
-    function parseDatetime($date, $locale=null, $format=false) {
+    function parseDateTime($date, $locale=null, $format=false) {
         global $cfg;
 
         if (!$date)
