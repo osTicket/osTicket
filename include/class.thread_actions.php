@@ -526,7 +526,7 @@ JS
         }
 
         if ($this->entry->getThread()->getObjectType()  == 'T')
-          return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars); //TasksAjaxAPI
+          return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
         else
           return $this->getTasksAPI()->add($this->getObjectId(), $vars);
 
@@ -534,9 +534,9 @@ JS
 
     private function trigger__post() {
       if ($this->entry->getThread()->getObjectType()  == 'T')
-        return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
+        return $this->getTicketsAPI()->addTask($this->getObjectId());
       else
-        return $this->getTasksAPI()->add($this->getObjectId(), $vars);
+        return $this->getTasksAPI()->add($this->getObjectId());
     }
 
 }
