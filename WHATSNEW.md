@@ -1,8 +1,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
+=======
+osTicket 1.11.0-rc.1
+====================
+>>>>>>> Add release notes for v1.11.0-rc.1
 ## Major New Features
+- Create Ticket or Task from Thread Entry
 - Custom Columns/Custom Queues
 - Inline Edit
 - Ticket Referral
@@ -13,6 +19,8 @@ osTicket 1.11.0
 - Nested Knowledgebase Categories
 
 ### Enhancements
+- Fix Custom Department Field (#3976)
+- Remove Future Search/Filter Criteria if Invalid
 - Dashboard Statistics
 - Fix Vimeo iFrames
 - Fix randNumber()
