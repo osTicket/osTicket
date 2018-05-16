@@ -126,7 +126,7 @@ class TasksAjaxAPI extends AjaxController {
                         Format::datetime($_SESSION[':form-data']['timestamp']));
 
                     $note = array(
-                            'title' => __('Task Created From Thread'),
+                            'title' => __('Task Created From Thread Entry'),
                             'note' => __('Task ' . $taskLink .
                             '<br /> Thread Entry ID: ' . $entryLink)
                             );
@@ -139,7 +139,7 @@ class TasksAjaxAPI extends AjaxController {
                         $originalTask->getNumber());
 
                     $note = array(
-                            'title' => __('Task Created From Thread'),
+                            'title' => __('Task Created From Thread Entry'),
                             'note' => __('This Task was created from Task ' . $taskLink));
 
                     $task->postNote($note, $errors, $thisstaff);
