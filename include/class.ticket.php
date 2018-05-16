@@ -1564,6 +1564,7 @@ implements RestrictedAccess, Threadable, Searchable {
             || !($dept=$this->getDept())
             || !($tpl=$dept->getTemplate())
             || !($msg=$tpl->getActivityNoticeMsgTemplate())
+            || !($bccmsg=$tpl->getActivityNoticeBCCMsgTemplate())
             || !($email=$dept->getEmail())
         ) {
             return;
@@ -1593,6 +1594,7 @@ implements RestrictedAccess, Threadable, Searchable {
         );
 
         $msg = $this->replaceVars($msg->asArray(), $vars);
+        $bccmsg = $this->replaceVars($bccmsg->asArray(), $vars);
 
         $attachments = $cfg->emailAttachments()?$entry->getAttachments():array();
         $options = array('thread' => $entry);
@@ -1627,7 +1629,7 @@ implements RestrictedAccess, Threadable, Searchable {
          //send bcc messages seperately for privacy
          if ($collabsBcc) {
            foreach ($collabsBcc as $recipient) {
-             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
+             $notice = $this->replaceVars($bccmsg, array('recipient' => $recipient));
              if ($posterEmail != $recipient->getEmail()->address)
                $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                    $options);
@@ -2988,7 +2990,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($vars['bccs']
                     && $vars['emailcollab']
                     && ($bcctpl = $dept->getTemplate())
-                    && ($bccmsg=$bcctpl->getReplyMsgTemplate())) {
+                    && ($bccmsg=$bcctpl->getReplyBCCMsgTemplate())) {
                 foreach ($vars['bccs'] as $uid) {
                     if (!($recipient = User::lookup($uid)))
                         continue;
@@ -4183,7 +4185,7 @@ implements RestrictedAccess, Threadable, Searchable {
               if ($collabsBcc) {
                 foreach ($collabsBcc as $recipient) {
                   if (($tpl=$dept->getTemplate())
-                      && ($bccmsg=$tpl->getNewTicketNoticeMsgTemplate())
+                      && ($bccmsg=$tpl->getNewTicketNoticeBCCMsgTemplate())
                       && ($email=$dept->getEmail())
                   )
                   $extraVars = UsersName::getNameFormats($recipient, 'recipient');

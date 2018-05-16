@@ -60,6 +60,14 @@ class EmailTemplateGroup {
                 'ticket', 'signature', 'recipient', 'staff', 'message',
             ),
         ),
+        'ticket.notice.bcc'=>array(
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Ticket Notice (BCC)',
+            'desc'=>/* @trans */ 'Notice sent to BCCd users, if enabled, on new ticket created by an agent on behalf of a user (e.g phone calls).',
+            'context' => array(
+                'ticket', 'signature', 'recipient', 'staff', 'message',
+            ),
+        ),
         'ticket.overlimit'=>array(
             'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Overlimit Notice',
@@ -76,10 +84,26 @@ class EmailTemplateGroup {
                 'ticket', 'signature', 'response', 'staff', 'poster', 'recipient',
             ),
         ),
+        'ticket.reply.bcc'=>array(
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'Response/Reply Template (BCC)',
+            'desc'=>/* @trans */ 'Template used on ticket response/reply',
+            'context' => array(
+                'ticket', 'signature', 'response', 'staff', 'poster', 'recipient',
+            ),
+        ),
         'ticket.activity.notice'=>array(
             'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Activity Notice',
             'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)',
+            'context' => array(
+                'ticket', 'signature', 'message', 'poster', 'recipient',
+            ),
+        ),
+        'ticket.activity.notice.bcc'=>array(
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Activity Notice (BCC)',
+            'desc'=>/* @trans */ 'Template used to notify BCCd collaborators on ticket activity',
             'context' => array(
                 'ticket', 'signature', 'message', 'poster', 'recipient',
             ),
@@ -309,6 +333,10 @@ class EmailTemplateGroup {
         return $this->getMsgTemplate('ticket.notice');
     }
 
+    function getNewTicketNoticeBCCMsgTemplate() {
+        return $this->getMsgTemplate('ticket.notice.bcc');
+    }
+
     function getNewMessageAutorepMsgTemplate() {
         return $this->getMsgTemplate('message.autoresp');
     }
@@ -325,8 +353,16 @@ class EmailTemplateGroup {
         return $this->getMsgTemplate('ticket.reply');
     }
 
+    function getReplyBCCMsgTemplate() {
+        return $this->getMsgTemplate('ticket.reply.bcc');
+    }
+
     function  getActivityNoticeMsgTemplate() {
         return $this->getMsgTemplate('ticket.activity.notice');
+    }
+
+    function  getActivityNoticeBCCMsgTemplate() {
+        return $this->getMsgTemplate('ticket.activity.notice.bcc');
     }
 
     function getOverlimitMsgTemplate() {
