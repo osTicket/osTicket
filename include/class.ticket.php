@@ -3887,20 +3887,19 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         //check to see if ticket was created from a thread
-        if ($_SESSION[':form-data']['ticket'] || $_SESSION[':form-data']['task']) {
-          $oldTicket = $_SESSION[':form-data']['ticket'];
-          $oldTask = $_SESSION[':form-data']['task'];
+        if ($_SESSION[':form-data']['ticketId'] || $_SESSION[':form-data']['taskId']) {
+          $oldTicket = Ticket::lookup($_SESSION[':form-data']['ticketId']);
+          $oldTask = Task::lookup($_SESSION[':form-data']['taskId']);
 
           //add internal note to new ticket.
           //New ticket should have link to old task/ticket:
-          $link = sprintf('<a href="%s.php?id=%d#entry-%d"><b>#%s</b></a>',
+          $link = sprintf('<a href="%s.php?id=%d"><b>#%s</b></a>',
               $oldTicket ? 'tickets' : 'tasks',
               $oldTicket ? $oldTicket->getId() : $oldTask->getId(),
-              $_SESSION[':form-data']['eid'],
               $oldTicket ? $oldTicket->getNumber() : $oldTask->getNumber());
 
           $note = array(
-                  'title' => __('Ticket Created From Thread'),
+                  'title' => __('Ticket Created From Thread Entry'),
                   'body' => sprintf(__('This Ticket was created from %s '. $link),
                             $oldTicket ? 'Ticket' : 'Task')
                   );
@@ -3919,12 +3918,12 @@ implements RestrictedAccess, Threadable, Searchable {
               Format::datetime($_SESSION[':form-data']['timestamp']));
 
           $ticketNote = array(
-              'title' => __('Ticket Created From Thread'),
+              'title' => __('Ticket Created From Thread Entry'),
               'body' => __('Ticket ' . $ticketLink).
               '<br /> Thread Entry ID: ' . $entryLink);
 
           $taskNote = array(
-              'title' => __('Ticket Created From Thread'),
+              'title' => __('Ticket Created From Thread Entry'),
               'note' => __('Ticket ' . $ticketLink).
               '<br /> Thread Entry ID: ' . $entryLink);
 
@@ -4142,7 +4141,8 @@ implements RestrictedAccess, Threadable, Searchable {
            $attachments = array();
            $message = $ticket->getLastMessage();
            if ($cfg->emailAttachments()) {
-               $attachments = $message->getAttachments();
+               if ($message)
+                 $attachments = $message->getAttachments();
                if ($response && $response->getNumAttachments())
                  $attachments = $attachments->merge($response->getAttachments());
            }

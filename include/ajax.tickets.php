@@ -1362,7 +1362,7 @@ function refer($tid, $target=null) {
                         Format::datetime($_SESSION[':form-data']['timestamp']));
 
                     $note = array(
-                            'title' => __('Task Created From Thread'),
+                            'title' => __('Task Created From Thread Entry'),
                             'body' => __('Task ' . $taskLink .
                             '<br /> Thread Entry ID: ' . $entryLink)
                             );
@@ -1375,7 +1375,7 @@ function refer($tid, $target=null) {
                         $ticket->getNumber());
 
                     $note = array(
-                            'title' => __('Task Created From Thread'),
+                            'title' => __('Task Created From Thread Entry'),
                             'note' => __('This Task was created from Ticket ' . $ticketLink));
 
                     $task->postNote($note, $errors, $thisstaff);
