@@ -10,13 +10,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 //  Use thread entry to seed the ticket
 if (!$user && $_GET['tid'] && ($entry = ThreadEntry::lookup($_GET['tid']))) {
     if ($entry->getThread()->getObjectType() == 'T')
-      $oldTicket = Ticket::lookup($entry->getThread()->getObjectId());
+      $oldTicketId = $entry->getThread()->getObjectId();
     if ($entry->getThread()->getObjectType() == 'A')
-      $oldTask = Task::lookup($entry->getThread()->getObjectId());
+      $oldTaskId = $entry->getThread()->getObjectId();
 
     $_SESSION[':form-data']['message'] = Format::htmlchars($entry->getBody());
-    $_SESSION[':form-data']['ticket'] = $oldTicket;
-    $_SESSION[':form-data']['task'] = $oldTask;
+    $_SESSION[':form-data']['ticketId'] = $oldTicketId;
+    $_SESSION[':form-data']['taskId'] = $oldTaskId;
     $_SESSION[':form-data']['eid'] = $entry->getId();
     $_SESSION[':form-data']['timestamp'] = $entry->getCreateDate();
 
@@ -349,7 +349,7 @@ if ($_POST)
         <tbody id="dynamic-form">
         <?php
             foreach ($forms as $form) {
-                print $form->getForm()->getMedia();
+                print $form->getForm($_SESSION[':form-data'])->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
             }
         ?>
