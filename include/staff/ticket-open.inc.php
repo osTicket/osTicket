@@ -6,6 +6,8 @@ if (!defined('OSTSCPINC') || !$thisstaff
 $info=array();
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
+if ($_SESSION[':form-data'] && !$_GET['tid'])
+  unset($_SESSION[':form-data']);
 
 //  Use thread entry to seed the ticket
 if (!$user && $_GET['tid'] && ($entry = ThreadEntry::lookup($_GET['tid']))) {

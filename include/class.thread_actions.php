@@ -511,6 +511,9 @@ JS
         $vars = array(
                 'description' => Format::htmlchars($this->entry->getBody()));
 
+        if ($_SESSION[':form-data'])
+          unset($_SESSION[':form-data']);
+
         $_SESSION[':form-data']['tid'] = $this->entry->getThread()->getObJectId();
         $_SESSION[':form-data']['eid'] = $this->entry->getId();
         $_SESSION[':form-data']['timestamp'] = $this->entry->getCreateDate();
