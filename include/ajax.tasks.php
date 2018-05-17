@@ -86,6 +86,8 @@ class TasksAjaxAPI extends AjaxController {
 
         if ($tid)
           $originalTask = Task::lookup($tid);
+        else
+          unset($_SESSION[':form-data']);
 
         $info=$errors=array();
         if ($_POST) {
@@ -116,9 +118,9 @@ class TasksAjaxAPI extends AjaxController {
                 if (($task=Task::create($vars, $errors))) {
                   if ($_SESSION[':form-data']['eid']) {
                     //add internal note to original task:
-                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%d</b></a>',
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
                         $task->getId(),
-                        $task->getId());
+                        $task->getNumber());
 
                     $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
                         $_SESSION[':form-data']['eid'],
@@ -143,8 +145,6 @@ class TasksAjaxAPI extends AjaxController {
                             'note' => __('This Task was created from Task ' . $taskLink));
 
                     $task->postNote($note, $errors, $thisstaff);
-
-                    unset($_SESSION[':form-data']);
                   }
 
                   Http::response(201, $task->getId());

@@ -162,7 +162,7 @@ var thread = {
         // unless referring to thread entry on current page
         $('div.thread-body a', $container).each(function() {
           var str = this.toString();
-          if (!str.includes('#entry-'))
+          if (str.indexOf('#entry-') == -1)
             $(this).attr('target', '_blank');
         });
 

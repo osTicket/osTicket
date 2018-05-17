@@ -1352,9 +1352,9 @@ function refer($tid, $target=null) {
 
                   if ($_SESSION[':form-data']['eid']) {
                     //add internal note to ticket:
-                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%d</b></a>',
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
                         $task->getId(),
-                        $task->getId());
+                        $task->getNumber());
 
                     $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
                         $_SESSION[':form-data']['eid'],
@@ -1380,8 +1380,7 @@ function refer($tid, $target=null) {
 
                     $task->postNote($note, $errors, $thisstaff);
                   }
-                    unset($_SESSION[':form-data']);
-                  }
+                }
 
                   Http::response(201, $task->getId());
             }

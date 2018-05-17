@@ -3933,8 +3933,6 @@ implements RestrictedAccess, Threadable, Searchable {
             $oldTicket->logNote($ticketNote['title'], $ticketNote['body'], $thisstaff);
           elseif ($oldTask)
             $oldTask->postNote($taskNote, $errors, $thisstaff);
-
-          unset($_SESSION[':form-data']);
         }
 
         // Configure service-level-agreement for this ticket
