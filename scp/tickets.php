@@ -152,6 +152,12 @@ if($_POST && !$errors):
                 if(!$vars['response'])
                     $errors['response']=__('Response required');
 
+                //do not post a thread entry if response intended for only bccs and there are no bccs
+                if (is_null($vars['bccs']) && $vars['emailreply'] == 'reply-bcc') {
+                  $vars['emailreply'] = 'reply-bcc';
+                  $errors['bccs']=sprintf(__('Please add a %s'), 'BCC Recipient');
+                }
+
                 if ($cfg->getLockTime()) {
                     if (!$lock) {
                         $errors['err'] = sprintf('%s %s', __('This action requires a lock.'), __('Please try again!'));

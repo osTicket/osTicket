@@ -366,6 +366,9 @@ implements Searchable {
           }
 
           $entries->filter($visibility);
+
+          if ($type['hideBCC'])
+            $entries->exclude(array('flags__hasbit' => ThreadEntry::FLAG_REPLY_BCC));
         }
 
         if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
@@ -760,6 +763,10 @@ implements TemplateVariable {
     const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
     const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
     const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
+    const FLAG_REPLY_ALL                = 0x00100;  // Agent response, reply all
+    const FLAG_REPLY_USER               = 0x00200;  // Agent response, reply to User
+    const FLAG_REPLY_COLLAB             = 0x00400;  // Agent response, reply to Collaborators
+    const FLAG_REPLY_BCC                = 0x00800;  // Agent response, reply to BCC
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -1476,6 +1483,26 @@ implements TemplateVariable {
         return $entry;
     }
 
+    function setReplyFlag($entry, $replyType) {
+      switch ($replyType) {
+        case 'reply-all':
+          return $entry->flags |= ThreadEntry::FLAG_REPLY_ALL;
+          break;
+
+        case 'reply-user':
+          return $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
+          break;
+
+        case 'reply-collab':
+          return $entry->flags |= ThreadEntry::FLAG_REPLY_COLLAB;
+          break;
+
+        case 'reply-bcc':
+          return $entry->flags |= ThreadEntry::FLAG_REPLY_BCC;
+          break;
+      }
+    }
+
     //new entry ... we're trusting the caller to check validity of the data.
     static function create($vars=false) {
         global $cfg;
@@ -1520,7 +1547,7 @@ implements TemplateVariable {
         $ticketUser = Ticket::objects()->filter(array('ticket_id'=>$ticket[0]))->values_flat('user_id')->first();
 
         //User
-        if ($ticketUser) {
+        if ($ticketUser && (Ticket::checkReply('user', $vars['emailreply']) || $vars['do'] == 'create')) {
           $uEmail = UserEmailModel::objects()->filter(array('user_id'=>$ticketUser[0]))->values_flat('address')->first();
           $u = array();
           $u[$ticketUser[0]] = $uEmail[0];
@@ -1530,19 +1557,22 @@ implements TemplateVariable {
         if (Collaborator::getIdByUserId($vars['userId'], $vars['threadId']))
           $entry->flags |= ThreadEntry::FLAG_COLLABORATOR;
 
+        //add reply type flag
+        self::setReplyFlag($entry, $vars['emailreply']);
+
         //Cc collaborators
-        if($vars['ccs'] && $vars['emailcollab'] == 1) {
+        if ($vars['ccs'] && (Ticket::checkReply('cc', $vars['emailreply']) || $vars['do'] == 'create')) {
           $cc = Collaborator::getCollabList($vars['ccs']);
           $recipients['cc'] = $cc;
         }
 
         //Bcc Collaborators
-        if($vars['bccs'] && $vars['emailcollab'] == 1) {
+        if($vars['bccs'] && (Ticket::checkReply('bcc', $vars['emailreply']) || $vars['do'] == 'create')) {
           $bcc = Collaborator::getCollabList($vars['bccs']);
           $recipients['bcc'] = $bcc;
         }
 
-        if (($vars['do'] == 'create' || $vars['emailreply'] == 1) && $recipients)
+        if (($vars['do'] == 'create' || $vars['emailreply'] != '0') && $recipients)
           $entry->recipients = json_encode($recipients);
 
         if ($entry->format == 'html')

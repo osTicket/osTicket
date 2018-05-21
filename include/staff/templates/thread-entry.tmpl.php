@@ -58,6 +58,18 @@ if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'N') {
         if ($entry->flags & ThreadEntry::FLAG_RESENT) { ?>
             <span class="label label-bare"><?php echo __('Resent'); ?></span>
 <?php   }
+        if ($entry->flags & ThreadEntry::FLAG_REPLY_ALL) { ?>
+            <span class="label label-bare"><?php echo __('Reply All'); ?></span>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_REPLY_USER) { ?>
+            <span class="label label-bare"><?php echo __('Reply to User'); ?></span>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_REPLY_COLLAB) { ?>
+            <span class="label label-bare"><?php echo __('Reply to Collaborator'); ?></span>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_REPLY_BCC) { ?>
+            <span class="label label-bare"><?php echo __('Reply to BCC'); ?></span>
+<?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'B') { ?>
             <span class="label label-bare"><?php echo __('Bcc Collaborator'); ?></span>
 <?php   }

@@ -147,7 +147,7 @@ echo $v;
     $email = $thisclient->getUserName();
     $clientId = TicketUser::lookupByEmail($email)->getId();
 
-    $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId), array(
+    $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId, 'hideBCC' => !$viewThreads), array(
                     'mode' => Thread::MODE_CLIENT,
                     'html-id' => 'ticketThread')
                 );
