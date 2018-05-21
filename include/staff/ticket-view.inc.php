@@ -738,21 +738,36 @@ if ($errors['err'] && isset($_POST['a'])) {
            <?php } ?>
             <tr>
                 <td width="120">
-                    <label><strong><?php echo __('To'); ?>:</strong></label>
+                    <label><strong><?php echo __('Reply To'); ?>:</strong></label>
                 </td>
                 <td>
                     <?php
-                    # XXX: Add user-to-name and user-to-email HTML ID#s
-                    $to =sprintf('%s &lt;%s&gt;',
-                            Format::htmlchars($ticket->getName()),
-                            $ticket->getReplyToEmail());
-                    $emailReply = (!isset($info['emailreply']) || $info['emailreply']);
+                    //see who sent the last message and decide which option to select.
+                    $lastUser = $ticket->getLastUserRespondent();
+
+                    if ($ticket->getOwnerId() == $lastUser->getId())
+                      $ticketUser = true;
+                    else {
+                      $collabs = $ticket->getThread()->getCollaborators();
+                      foreach ($collabs as $collab) {
+                        if ($collab->getUserId() == $lastUser->getId() && $collab->isCc())
+                          $ccUser = true;
+                        elseif ($collab->getUserId() == $lastUser->getId() && !$collab->isCc())
+                          $bccUser = true;
+                      }
+                    }
+                    if ($ticketUser || $ccUser || $bccUser)
+                      $emailReply = true;
                     ?>
                     <select id="emailreply" name="emailreply">
-                        <option value="1" <?php echo $emailReply ?  'selected="selected"' : ''; ?>><?php echo $to; ?></option>
+                        <option value="reply-all"><?php echo __('Reply All'); ?></option>
+                        <option value="reply-user"><?php echo __('Reply to User'); ?></option>
+                        <option value="reply-collab" <?php echo ($ccUser || $ticketUser ) ?  'selected="selected"' : ''; ?>><?php echo __('Reply to Collaborators'); ?></option>
+                        <option value="reply-bcc" <?php echo $bccUser || $errors['bccs'] ?  'selected="selected"' : ''; ?>><?php echo __('Reply to BCC'); ?></option>
                         <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
                         >&mdash; <?php echo __('Do Not Email Reply'); ?> &mdash;</option>
                     </select>
+                    <i class="help-tip icon-question-sign" href="#reply_types"></i>
                 </td>
             </tr>
             </tbody>
@@ -761,18 +776,12 @@ if ($errors['err'] && isset($_POST['a'])) {
                 ?>
             <tbody id="cc_sec"
                 style="display:<?php echo $emailReply?  'table-row-group':'none'; ?>;">
-             <tr>
-                <td width="120">
-                    <label><strong><?php echo __('Collaborators'); ?>:</strong></label>
+             <tr id="user-row">
+                <td width="120" style="padding-left:20px;">
+                    <label><?php echo __('User'); ?></label>
                 </td>
                 <td>
-                    <input type='checkbox' value='1' name="emailcollab"
-                    id="t<?php echo $ticket->getThreadId(); ?>-emailcollab"
-                        <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
-                        style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
-                        >
-                    <?php
-                   ?>
+                  <label><?php echo User::lookup($ticket->user_id); ?></label>
                 </td>
              </tr>
              <?php $collaborators = $ticket->getThread()->getCollaborators();
@@ -786,8 +795,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                 }
              }
             ?>
-             <tr>
-                 <td width="160"><b><?php echo __('Cc'); ?>:</b></td>
+             <tr id="cc-row">
+                 <td width="160" style="padding-left:20px;"><?php echo __('Cc'); ?></td>
                  <td>
                      <select class="collabSelections" name="ccs[]" id="cc_users" multiple="multiple"
                          data-placeholder="<?php echo __('Select Contacts'); ?>">
@@ -805,8 +814,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                      <br/><span class="error"><?php echo $errors['ccs']; ?></span>
                  </td>
              </tr>
-             <tr>
-               <td width="160"><b><?php echo __('Bcc'); ?>:</b></td>
+             <tr id="bcc-row">
+               <td width="160" style="padding-left:20px;"><?php echo __('Bcc'); ?></td>
                <td>
                    <select class="collabSelections" name="bccs[]" id="bcc_users" multiple="multiple"
                        data-placeholder="<?php echo __('Select Contacts'); ?>">
@@ -1162,6 +1171,10 @@ $(function() {
         });
     });
 
+    $("#emailreply").ready(function(){
+     checkReply();
+    });
+
     // Post Reply or Note action buttons.
     $('a.post-response').click(function (e) {
         var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
@@ -1186,6 +1199,40 @@ $(function() {
         return false;
     });
 
+    $('#emailreply').on('change', function(){
+     checkReply();
+    });
+
+    function checkReply() {
+      var value = $("#emailreply").val();
+      switch (value) {
+        case "reply-all":
+          $('#user-row').show();
+          $('#cc-row').show();
+          $('#bcc-row').show();
+          break;
+        case "reply-user":
+          $('#user-row').show();
+          $('#cc-row').hide();
+          $('#bcc-row').hide();
+          break;
+        case "reply-collab":
+          $('#user-row').show();
+          $('#cc-row').show();
+          $('#bcc-row').hide();
+          break;
+        case "reply-bcc":
+          $('#user-row').hide();
+          $('#cc-row').hide();
+          $('#bcc-row').show();
+          break;
+        default:
+          $('#user-row').show();
+          $('#cc-row').show();
+          $('#bcc-row').hide();
+          break;
+      }
+    }
 });
 
 $(function() {

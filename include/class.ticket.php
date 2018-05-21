@@ -166,6 +166,7 @@ implements RestrictedAccess, Threadable, Searchable {
     var $active_collaborators;
     var $recipients;
     var $lastrespondent;
+    var $lastuserrespondent;
 
     function loadDynamicData($force=false) {
         if (!isset($this->_answers) || $force) {
@@ -710,6 +711,26 @@ implements RestrictedAccess, Threadable, Searchable {
                 ?: false;
         }
         return $this->lastrespondent;
+    }
+
+    function getLastUserRespondent() {
+        if (!isset($this->$lastuserrespondent)) {
+            if (!$this->thread || !$this->thread->entries)
+                return $this->$lastuserrespondent = false;
+            $this->$lastuserrespondent = User::objects()
+                ->filter(array(
+                'id' => $this->thread->entries
+                    ->filter(array(
+                        'user_id__gt' => 0,
+                    ))
+                    ->values_flat('user_id')
+                    ->order_by('-id')
+                    ->limit(1)
+                ))
+                ->first()
+                ?: false;
+        }
+        return $this->$lastuserrespondent;
     }
 
     function getLastMessageDate() {
@@ -1365,7 +1386,18 @@ implements RestrictedAccess, Threadable, Searchable {
         return false;
     }
 
+    function checkReply($userType, $replyType) {
+      if ($userType == 'cc' && ($replyType == 'reply-all' || $replyType == 'reply-collab'))
+        return true;
 
+      if ($userType == 'bcc' && ($replyType == 'reply-all' || $replyType == 'reply-bcc'))
+        return true;
+
+      if ($userType == 'user' && ($replyType == 'reply-all' || $replyType == 'reply-user' || $replyType == 'reply-collab'))
+        return true;
+
+      return false;
+    }
 
 
     function setAnsweredState($isanswered) {
@@ -2978,17 +3010,18 @@ implements RestrictedAccess, Threadable, Searchable {
             $attachments = $cfg->emailAttachments() ? $response->getAttachments() : array();
             //Cc collaborators
             $collabsCc = array();
-            if ($vars['ccs'] && $vars['emailcollab']) {
+            if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'])) {
                 $collabsCc[] = Collaborator::getCollabList($vars['ccs']);
                 $collabsCc['cc'] = $collabsCc[0];
             }
 
-            $email->send($user, $msg['subj'], $msg['body'], $attachments,
-                    $options, $collabsCc);
+            if (Ticket::checkReply('user', $vars['emailreply']))
+              $email->send($user, $msg['subj'], $msg['body'], $attachments,
+                      $options, $collabsCc);
 
             //Bcc Collaborators
             if ($vars['bccs']
-                    && $vars['emailcollab']
+                    && (Ticket::checkReply('bcc', $vars['emailreply']))
                     && ($bcctpl = $dept->getTemplate())
                     && ($bccmsg=$bcctpl->getReplyBCCMsgTemplate())) {
                 foreach ($vars['bccs'] as $uid) {
