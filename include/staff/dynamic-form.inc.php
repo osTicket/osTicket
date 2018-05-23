@@ -137,14 +137,14 @@ if ($form && count($langs) > 1) { ?>
     </thead>
     <tbody>
     <?php
-        $ftypes = FormField::allTypes();
+        $ftypes = DynamicFormField::allTypes();
         foreach ($uform->getFields() as $f) {
             if (!$f->isVisibleToUsers()) continue;
         ?>
         <tr>
             <td></td>
             <td><?php echo $f->get('label'); ?></td>
-            <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
+            <td><?php $t=DynamicFormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
             <td><?php echo $f->getVisibilityDescription(); ?></td>
             <td><?php echo $f->get('name'); ?></td>
             <td><input type="checkbox" disabled="disabled"/></td></tr>
@@ -179,8 +179,7 @@ if ($form && count($langs) > 1) { ?>
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
-        $fi = $f->getImpl();
-        $ferrors = $f->errors(); ?>
+        $ferrors = $f->getValidationErrors(); ?>
         <tr>
             <td align="center"><i class="icon-sort"></i></td>
             <td><input type="text" size="32" name="label-<?php echo $id; ?>"
@@ -191,8 +190,8 @@ if ($form && count($langs) > 1) { ?>
                 </font>
             </td>
             <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
-                if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
-                <?php foreach (FormField::allTypes() as $group=>$types) {
+                if (!$f->isChangeable()) echo 'disabled="disabled"'; ?>>
+                <?php foreach (DynamicFormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
@@ -243,7 +242,7 @@ if ($form && count($langs) > 1) { ?>
             <td><input type="text" size="32" name="label-new-<?php echo $i; ?>"
                 value="<?php echo $info["label-new-$i"]; ?>"/></td>
             <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
-                <?php foreach (FormField::allTypes() as $group=>$types) {
+                <?php foreach (DynamicFormField::allTypes() as $group=>$types) {
                     ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>

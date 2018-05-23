@@ -73,7 +73,7 @@ class DynamicForm extends VerySimpleModel {
         if (!$this->_fields) {
             $this->_fields = new ListObject();
             foreach ($this->getDynamicFields() as $f)
-                $this->_fields->append($f->getImpl($f));
+                $this->_fields->append($f);
         }
         return $this->_fields;
     }
@@ -382,14 +382,14 @@ class DynamicForm extends VerySimpleModel {
             if ($exclude && in_array($f->get('name'), $exclude))
                 continue;
 
-            $impl = $f->getImpl($f);
-            if (!$impl->hasData() || $impl->isPresentationOnly())
+            if (!$f->hasData() || $f->isPresentationOnly())
                 continue;
 
             $id = $f->get('id');
             $name = ($f->get('name')) ? $f->get('name')
                 : 'field_'.$id;
 
+            $impl = $f->getField();
             if ($impl instanceof ChoiceField || $impl instanceof SelectionField) {
                 $fields[] = sprintf(
                     'MAX(CASE WHEN field.id=\'%1$s\' THEN REPLACE(REPLACE(REPLACE(REPLACE(coalesce(ans.value_id, ans.value), \'{\', \'\'), \'}\', \'\'), \'"\', \'\'), \':\', \',\') ELSE NULL END) as `%2$s`',
@@ -448,7 +448,7 @@ Filter::addSupportedMatches(/* @trans */ 'User Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = __('User').' / '.$f->getLabel();
-        if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+        if ($f->hasSubFields()) {
             foreach ($fi->getSubFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('User').' / '.$f->getLabel().' / '.$p->getLabel();
@@ -492,7 +492,7 @@ Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
         if (!$f->hasData())
             continue;
         $matches['field.'.$f->get('id')] = __('Ticket').' / '.$f->getLabel();
-        if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+        if ($f->hasSubFields()) {
             foreach ($fi->getSubFields() as $p) {
                 $matches['field.'.$f->get('id').'.'.$p->get('id')]
                     = __('Ticket').' / '.$f->getLabel().' / '.$p->getLabel();
@@ -531,7 +531,7 @@ Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
             if (!$f->hasData())
                 continue;
             $matches['field.'.$f->get('id')] = $form->getTitle().' / '.$f->getLabel();
-            if (($fi = $f->getImpl()) && $fi->hasSubFields()) {
+            if ($f->hasSubFields()) {
                 foreach ($fi->getSubFields() as $p) {
                     $matches['field.'.$f->get('id').'.'.$p->get('id')]
                         = $form->getTitle().' / '.$f->getLabel().' / '.$p->getLabel();
@@ -544,8 +544,27 @@ Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
 
 require_once(INCLUDE_DIR . "class.json.php");
 
-class DynamicFormField extends VerySimpleModel {
+/**
+ * Override default newInstance method to return a specific field type based
+ * on the data in the record.
+ */
+class DynamicFormFieldMeta extends ModelMeta {
+    function newInstance($props=false) {
+        if (!isset($props['type']))
+            return parent::newInstance($props);
 
+        list(,$class) = DynamicFormField::getFieldType($props['type']);
+        $rc = new ReflectionClass($class);
+        $instance = $rc->newInstanceWithoutConstructor();
+        $instance->ht = $props;
+        return $instance;
+    }
+}
+
+class DynamicFormField extends VerySimpleModel {
+    static $delegate;
+
+    static $metaclass = 'DynamicFormFieldMeta';
     static $meta = array(
         'table' => FORM_FIELD_TABLE,
         'ordering' => array('sort'),
@@ -563,7 +582,11 @@ class DynamicFormField extends VerySimpleModel {
     );
 
     var $_field;
+    var $_rfield;
+    var $_cform;
+    var $answer;
     var $_disabled = false;
+    var $_errors;
 
     const FLAG_ENABLED          = 0x00001;
     const FLAG_EXT_STORED       = 0x00002; // Value stored outside of form_entry_value
@@ -592,29 +615,45 @@ class DynamicFormField extends VerySimpleModel {
 
     const MASK_AGENT_FULL       = 0x7000;
 
-    // Multiple inheritance -- delegate methods not defined here to the
-    // forms API FormField instance
-    function __call($what, $args) {
-        return call_user_func_array(
-            array($this->getField(), $what), $args);
+    static $types = array(
+        /* @trans */ 'Basic Fields' => array(
+            'text'  => array(   /* @trans */ 'Short Answer', 'DynamicTextboxField'),
+            'memo' => array(    /* @trans */ 'Long Answer', 'DynamicTextareaField'),
+            'thread' => array(  /* @trans */ 'Thread Entry', 'DynamicThreadEntryField', false),
+            'datetime' => array(/* @trans */ 'Date and Time', 'DynamicDatetimeField'),
+            'timezone' => array(/* @trans */ 'Timezone', 'DynamicTimezoneField'),
+            'phone' => array(   /* @trans */ 'Phone Number', 'DynamicPhoneField'),
+            'bool' => array(    /* @trans */ 'Checkbox', 'DynamicBooleanField'),
+            'choices' => array( /* @trans */ 'Choices', 'DynamicChoiceField'),
+            'files' => array(   /* @trans */ 'File Upload', 'DynamicFileUploadField'),
+            'break' => array(   /* @trans */ 'Section Break', 'DynamicSectionBreakField'),
+            'info' => array(    /* @trans */ 'Information', 'DynamicFreeTextField'),
+        ),
+    );
+    static $more_types = array();
+
+    static function addFieldTypes($group, $callable) {
+        static::$more_types[$group][] = $callable;
     }
 
-    /**
-     * Fetch a forms API FormField instance which represents this designable
-     * DynamicFormField.
-     */
-    function getField() {
-        global $thisstaff;
+    static function allTypes() {
+        if (static::$more_types) {
+            foreach (static::$more_types as $group => $entries)
+                foreach ($entries as $c)
+                    static::$types[$group] = array_merge(
+                            static::$types[$group] ?: array(), call_user_func($c));
 
-        // Finagle the `required` flag for the FormField instance
-        $ht = $this->ht;
-        $ht['required'] = ($thisstaff) ? $this->isRequiredForStaff()
-            : $this->isRequiredForUsers();
-
-        if (!isset($this->_field))
-            $this->_field = new FormField($ht);
-        return $this->_field;
+            static::$more_types = array();
+        }
+        return static::$types;
     }
+
+    static function getFieldType($type) {
+        foreach (static::allTypes() as $group=>$types)
+            if (isset($types[$type]))
+                return $types[$type];
+    }
+
 
     function getForm() { return $this->form; }
     function getFormId() { return $this->form_id; }
@@ -650,7 +689,7 @@ class DynamicFormField extends VerySimpleModel {
             return false;
 
         // See if field impl. need to save or override anything
-        $config = $this->getImpl()->to_config($config);
+        $config = $this->getField()->to_config($config);
         $this->set('configuration', JsonDataEncoder::encode($config));
         $this->set('hint', Format::sanitize($vars['hint']));
 
@@ -689,6 +728,52 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     /**
+     * isStorable
+     *
+     * Indicate if this field data is storable locally (default).Some field's data
+     * might beed to be stored elsewhere for optimization reasons at the
+     * application level.
+     *
+     */
+
+    function isStorable() {
+        return (($this->get('flags') & self::FLAG_EXT_STORED) == 0);
+    }
+
+    /**
+     * If the [Config] button should be shown to allow for the configuration
+     * of this field
+     */
+    function isConfigurable() {
+        return true;
+    }
+
+    function getConfigurationForm($source=null) {
+        if (!$this->_cform) {
+            $config = $this->getConfiguration();
+            $this->_cform = new SimpleForm($this->getConfigurationOptions(), $source);
+            if (!$source) {
+                foreach ($this->_cform->getFields() as $name=>$f) {
+                    if ($config && isset($config[$name]))
+                        $f->setValue($config[$name]);
+                    elseif ($f->get('default'))
+                        $f->setValue($f->get('default'));
+                }
+            }
+        }
+        return $this->_cform;
+    }
+
+
+    /**
+     * Indicates if the field places data in the `value_id` column. This
+     * is currently used by the materialized view system
+     */
+    function hasIdValue() {
+        return false;
+    }
+
+    /**
      * Describes the current visibility settings for this field. Returns a
      * comma-separated, localized list of flag descriptions.
      */
@@ -697,8 +782,6 @@ class DynamicFormField extends VerySimpleModel {
 
         if (!$this->hasFlag(self::FLAG_ENABLED))
             return __('Disabled');
-
-        $impl = $this->getImpl();
 
         $hints = array();
         $VIEW = self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW;
@@ -711,7 +794,7 @@ class DynamicFormField extends VerySimpleModel {
         elseif (~$F & self::FLAG_AGENT_VIEW) {
             $hints[] = __('For EndUsers Only');
         }
-        if ($impl->hasData()) {
+        if ($this->hasData()) {
             if ($F & (self::FLAG_CLIENT_REQUIRED | self::FLAG_AGENT_REQUIRED)) {
                 $hints[] = __('Required');
             }
@@ -845,26 +928,100 @@ class DynamicFormField extends VerySimpleModel {
      * field of a custom form. The latter would be isValidEntry()
      */
     function isValid() {
-        if (count($this->errors()))
-            return false;
-        if (!$this->get('label'))
-            $this->addError(
-                __("Label is required for custom form fields"), "label");
-        if (($this->isRequiredForStaff() || $this->isRequiredForUsers())
-            && !$this->get('name')
-        ) {
-            $this->addError(
-                __("Variable name is required for required fields"
-                /* `required` is a visibility setting fields */
-                /* `variable` is used for automation. Internally it's called `name` */
-                ), "name");
+        if (!isset($this->_errors)) {
+            $this->_errors = array();
+            if (!$this->get('label'))
+                $this->addError(
+                    __("Label is required for custom form fields"), "label");
+            if (($this->isRequiredForStaff() || $this->isRequiredForUsers())
+                && !$this->get('name')
+            ) {
+                $this->addError(
+                    __("Variable name is required for required fields"
+                    /* `required` is a visibility setting fields */
+                    /* `variable` is used for automation. Internally it's called `name` */
+                    ), "name");
+            }
+            if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
+                $this->addError(__(
+                    'Invalid character in variable name. Please use letters and numbers only.'
+                ), 'name');
         }
-        if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
-            $this->addError(__(
-                'Invalid character in variable name. Please use letters and numbers only.'
-            ), 'name');
-        return count($this->errors()) == 0;
+        return count($this->_errors) === 0;
     }
+
+    function addError($message, $field) {
+        $this->_errors[$field][] = $message;
+    }
+
+    function getValidationErrors() {
+        return $this->_errors;
+    }
+
+    function getSelectName() {
+        $name = $this->get('name') ?: 'field_'.$this->get('id');
+        if ($this->hasIdValue())
+            $name .= '_id';
+
+        return $name;
+    }
+
+    /**
+     * getImpl
+     *
+     * Magic method that will return an implementation instance of this
+     * field based on the simple text value of the 'type' value of this
+     * field instance. The list of registered fields is determined by the
+     * global get_dynamic_field_types() function. The data from this model
+     * will be used to initialize the returned instance.
+     *
+     * For instance, if the value of this field is 'text', a TextField
+     * instance will be returned.
+     */
+    function getImpl($parent=null, $ht=false) {
+        // Allow registration with ::addFieldTypes and delayed calling
+        if (!isset(static::$delegate))
+            throw new Exception(sprintf(
+                '%s: Field *must* specify a delegate',
+                get_class()));
+
+        $clazz = static::$delegate;
+        $inst = new $clazz($ht ?: $this->ht);
+        $inst->parent = $parent ?: $this;
+        $inst->setForm($this->form);
+        return $inst;
+    }
+
+    // Multiple inheritance -- delegate methods not defined here to the
+    // forms API FormField instance
+    function __call($what, $args) {
+        $field = $this->getField();
+        if (isset($this->_widget))
+            $this->_widget = $field->getWidget();
+        return call_user_func_array(array($field, $what), $args);
+    }
+
+    /**
+     * Fetch a forms API FormField instance which represents this designable
+     * DynamicFormField.
+     */
+    function getField() {
+        global $thisstaff;
+
+        if (!isset($this->_field)) {
+            // Finagle the `required` flag for the FormField instance
+            $ht = $this->ht;
+            $ht['required'] = ($thisstaff) ? $this->isRequiredForStaff()
+                : $this->isRequiredForUsers();
+
+            $this->_field = $this->getImpl($this, $ht);
+            $this->_field->getWidget();
+        }
+        return $this->_field;
+    }
+
+    function getAnswer() { return $this->answer; }
+    function setAnswer($ans) { $this->answer = $ans; }
 
     function delete() {
         $values = $this->answers->count();
@@ -877,7 +1034,7 @@ class DynamicFormField extends VerySimpleModel {
         // won't be available for new form submittals.
         $this->set('form_id', 0);
 
-        $impl = $this->getImpl();
+        $impl = $this->getField();
 
         // Trigger db_clean so the field can do house cleaning
         $impl->db_cleanup(true);
@@ -1017,7 +1174,6 @@ class DynamicFormEntry extends VerySimpleModel {
             // Get all dynamic fields associated with the form
             // even when stored elsewhere -- important during validation
             foreach ($this->getDynamicFields() as $f) {
-                $f = $f->getImpl($f);
                 $this->_fields[$f->get('id')] = $f;
                 $f->isnew = true;
             }
@@ -1102,7 +1258,6 @@ class DynamicFormEntry extends VerySimpleModel {
     function getClean() {
         return $this->getForm()->getClean();
     }
-
     /**
      * Compile a list of data used by the filtering system to match dynamic
      * content in this entry. This returs an array of `field.<id>` =>
@@ -1291,9 +1446,7 @@ class DynamicFormEntry extends VerySimpleModel {
         if ($data)
             $inst->setSource($data);
         foreach ($inst->getDynamicFields() as $field) {
-            if (!($impl = $field->getImpl($field)))
-                continue;
-            if (!$impl->hasData() || !$impl->isStorable())
+            if (!$field->hasData() || !$field->isStorable())
                 continue;
             $a = new DynamicFormEntryAnswer(
                 array('field'=>$field, 'entry'=>$inst));
@@ -1341,14 +1494,13 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 
     function getField() {
         if (!isset($this->_field)) {
-            $this->_field = $this->field->getImpl($this->field);
+            $this->_field = $this->field;
             $this->_field->setAnswer($this);
         }
         return $this->_field;
     }
 
     function getValue() {
-
         if (!isset($this->_value)) {
             //XXX: We're settting the value here to avoid infinite loop
             $this->_value = false;
@@ -1356,7 +1508,6 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
                 $this->_value = $this->getField()->to_php(
                         $this->get('value'), $this->get('value_id'));
         }
-
         return $this->_value;
     }
 
@@ -1432,6 +1583,115 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 }
 
+abstract class AbstractCustomField extends DynamicFormField {
+    function getWidget($widgetClass=false, $delegate=false) {
+        return $this->getField()->getWidget($widgetClass, $this);
+    }
+
+    function getValue() {
+        if (($a = $this->getAnswer())
+            && $a instanceof DynamicFormEntryAnswer
+        ) {
+            return $a->getValue();
+        }
+    }
+}
+
+class DynamicTextboxField extends AbstractCustomField {
+    static $delegate = 'TextboxField';
+}
+
+class DynamicTextareaField extends AbstractCustomField {
+    static $delegate = 'TextareaField';
+}
+
+class DynamicThreadEntryField extends AbstractCustomField {
+    static $delegate = 'ThreadEntryField';
+}
+
+class DynamicDatetimeField extends AbstractCustomField {
+    static $delegate = 'DatetimeField';
+}
+
+class DynamicTimezoneField extends AbstractCustomField {
+    static $delegate = 'TimezoneField';
+}
+
+class DynamicPhoneField extends AbstractCustomField {
+    static $delegate = 'PhoneField';
+}
+
+class DynamicBooleanField extends AbstractCustomField {
+    static $delegate = 'BooleanField';
+}
+
+class DynamicChoiceField extends AbstractCustomField {
+    static $delegate = 'ChoiceField';
+
+    function to_php($value) {
+        $value = $this->getField()->to_php($value);
+
+        // CDATA table may be built with comma-separated key,value,key,value
+        if (is_string($value) && strpos($value, ',') && $value[0] != "{") {
+            $values = array();
+            $choices = $this->getChoices();
+            $vals = explode(',', $value);
+            foreach ($vals as $V) {
+                if (isset($choices[$V]))
+                    $values[$V] = $choices[$V];
+            }
+            if (array_filter($values))
+                $value = $values;
+            elseif($vals)
+                list($value) = $vals;
+        }
+        return $value;
+    }
+
+    function getChoices($verbose=false) {
+        // Add old selections if no longer available
+        // This is necessary so choices made previously can be
+        // retained
+        $choices = array();
+        $values = ($a = $this->getAnswer()) ? $a->getValue() : array();
+        if ($values && is_array($values)) {
+            foreach ($values as $k => $v) {
+                if (!isset($choices[$k])) {
+                    if ($verbose) $v .= ' (retired)';
+                    $choices[$k] = $v;
+                }
+            }
+        }
+        return $choices;
+    }
+}
+
+class DynamicFileUploadField extends AbstractCustomField {
+    static $delegate = 'FileUploadField';
+
+    function getFiles() {
+        if (!isset($this->attachments)
+            && ($a = $this->getAnswer())
+            && ($e = $a->getEntry()) && ($e->get('id'))
+        ) {
+            $this->attachments = GenericAttachments::forIdAndType(
+                // Combine the field and entry ids to make the key
+                sprintf('%u', abs(crc32('E'.$this->get('id').$e->get('id')))),
+                'E');
+        }
+        return $this->attachments ?: array();
+    }
+
+}
+
+class DynamicSectionBreakField extends AbstractCustomField {
+    static $delegate = 'SectionBreakField';
+}
+
+class DynamicFreeTextField extends AbstractCustomField {
+    static $delegate = 'FreeTextField';
+}
+
 class SelectionField extends FormField {
     static $widget = 'ChoicesWidget';
 
@@ -1447,14 +1707,14 @@ class SelectionField extends FormField {
         return $this->_list;
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $delegate=false) {
         $config = $this->getConfiguration();
         if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
         elseif ($config['widget'] == 'textbox')
             $widgetClass = 'TextboxSelectionWidget';
 
-        return parent::getWidget($widgetClass);
+        return parent::getWidget($widgetClass, $delegate);
     }
 
     function display($value) {
@@ -1820,9 +2080,12 @@ class SelectionField extends FormField {
     }
 }
 
+class DynamicSelectionField extends AbstractCustomField {
+    static $delegate = 'SelectionField';
+}
+
 class TypeaheadSelectionWidget extends ChoicesWidget {
     function render($options=array()) {
-
         if ($options['mode'] == 'search')
             return parent::render($options);
 
@@ -1913,4 +2176,511 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         return parent::getValue();
     }
 }
-?>
+
+class PriorityField extends ChoiceField {
+    function getValue() {
+        $value = parent::getValue();
+        if ($value instanceof Priority)
+            $value = $value->getId();
+
+        return $value;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        $sql = 'SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE
+              .' ORDER BY priority_urgency DESC';
+        $choices = array('' => '— '.__('Default').' —');
+        if (!($res = db_query($sql)))
+            return $choices;
+
+        while ($row = db_fetch_row($res))
+            $choices[$row[0]] = $row[1];
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if ($value instanceof Priority)
+            return $value;
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        elseif (is_array($value))
+            list($value, $id) = $value;
+        elseif ($id === false)
+            $id = $value;
+        if ($id)
+            return Priority::lookup($id);
+    }
+
+    function to_database($prio) {
+        return ($prio instanceof Priority)
+            ? array($prio->getDesc(), $prio->getId())
+            : $prio;
+    }
+
+    function getDisplayStyles($prio) {
+        return array(
+            'background-color' => $prio->getColor()
+        );
+    }
+
+    function display($prio) {
+        if (!$prio instanceof Priority)
+            return parent::display($prio);
+        return Format::htmlchars($prio->getDesc());
+    }
+
+    function toString($value) {
+        return ($value instanceof Priority) ? $value->getDesc() : $value;
+    }
+
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
+    }
+
+    function searchable($value) {
+        // Priority isn't searchable this way
+        return null;
+    }
+
+    function getKeys($value) {
+        return ($value instanceof Priority) ? array($value->getId()) : null;
+    }
+
+    function getConfigurationOptions() {
+        $choices = $this->getChoices();
+        $choices[''] = __('System Default');
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+            'default' => new ChoiceField(array(
+                'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
+                'choices' => $choices,
+                'hint'=>__('Default selection for this field'),
+                'configuration'=>array('size'=>20, 'length'=>40),
+            )),
+        );
+    }
+
+    function getConfiguration() {
+        global $cfg;
+
+        $config = parent::getConfiguration();
+        if (!isset($config['default']))
+            $config['default'] = $cfg->getDefaultPriorityId();
+        return $config;
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        if ($query->model == 'Ticket' && $name == 'cdata__priority') {
+            // Order by the priority urgency field
+            $col = 'cdata__:priority__priority_urgency';
+            $reverse = !$reverse;
+        }
+        else {
+            $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
+        }
+        if ($reverse)
+            $col = "-$col";
+        return $query->order_by($col);
+    }
+}
+
+class DynamicPriorityField extends AbstractCustomField {
+    static $delegate = 'PriorityField';
+}
+DynamicFormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'priority' => array(__('Priority Level'), DynamicPriorityField),
+    );
+});
+
+class DepartmentField extends ChoiceField {
+    function getValue() {
+        $value = parent::getValue();
+        if ($value instanceof Dept)
+            $value = $value->getId();
+
+        return $value;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        global $cfg;
+
+        $choices = array();
+        if (($depts = Dept::getDepartments()))
+            foreach ($depts as $id => $name)
+                $choices[$id] = $name;
+
+        return $choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        return $id;
+    }
+
+    function to_database($dept) {
+        return ($dept instanceof Dept)
+            ? array($dept->getName(), $dept->getId())
+            : $dept;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+
+class DynamicDepartmentField extends AbstractCustomField {
+    static $delegate = 'DepartmentField';
+}
+DynamicFormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'department' => array(__('Department'), DynamicDepartmentField),
+    );
+});
+
+class AssigneeField extends ChoiceField {
+    var $_choices = null;
+    var $_criteria = null;
+
+    function getValue() {
+        $value = parent::getValue();
+        if (is_object($value))
+            $value = $value->getId();
+
+        return $value;
+    }
+
+    function getCriteria() {
+        if (!isset($this->_criteria)) {
+            $this->_criteria = array('available' => true);
+            if (($c=parent::getCriteria()))
+                $this->_criteria = array_merge($this->_criteria, $c);
+        }
+
+        return $this->_criteria;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function setChoices($choices) {
+        $this->_choices = $choices;
+    }
+
+    function getChoices($verbose=false) {
+        global $cfg;
+
+        if (!isset($this->_choices)) {
+            $config = $this->getConfiguration();
+            $choices = array(
+                    __('Agents') => new ArrayObject(),
+                    __('Teams') => new ArrayObject());
+            $A = current($choices);
+            $criteria = $this->getCriteria();
+            $agents = array();
+            if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
+                if (($members = $dept->getAvailableMembers()))
+                    foreach ($members as $member)
+                        $agents[$member->getId()] = $member;
+            } else {
+                $agents = Staff::getStaffMembers($criteria);
+            }
+
+            foreach ($agents as $id => $name)
+                $A['s'.$id] = $name;
+
+            next($choices);
+            $T = current($choices);
+            if (($teams = Team::getActiveTeams()))
+                foreach ($teams as $id => $name)
+                    $T['t'.$id] = $name;
+
+            $this->_choices = $choices;
+        }
+
+        return $this->_choices;
+    }
+
+    function __getValue() {
+
+        if (($value = parent::getValue()) && ($id=$this->getClean()))
+           return $value[$id];
+    }
+
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+
+        if ($id[0] == 's')
+            return Staff::lookup(substr($id, 1));
+        elseif ($id[0] == 't')
+            return Team::lookup(substr($id, 1));
+
+        return $id;
+    }
+
+
+    function to_database($value) {
+        return (is_object($value))
+            ? array($value->getName(), $value->getId())
+            : $value;
+    }
+
+    function toString($value) {
+        return (string) $value;
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=>__('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+
+class DynamicAssigneeField extends AbstractCustomField {
+    static $delegate = 'AssigneeField';
+}
+DynamicFormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
+    return array(
+        'assignee' => array(__('Assignee'), DynamicAssigneeField),
+    );
+});
+
+class TicketStateField extends ChoiceField {
+
+    static $_states = array(
+            'open' => array(
+                'name' => /* @trans, @context "ticket state name" */ 'Open',
+                'verb' => /* @trans, @context "ticket state action" */ 'Open'
+                ),
+            'closed' => array(
+                'name' => /* @trans, @context "ticket state name" */ 'Closed',
+                'verb' => /* @trans, @context "ticket state action" */ 'Close'
+                )
+            );
+    // Private states
+    static $_privatestates = array(
+            'archived' => array(
+                'name' => /* @trans, @context "ticket state name" */ 'Archived',
+                'verb' => /* @trans, @context "ticket state action" */ 'Archive'
+                ),
+            'deleted'  => array(
+                'name' => /* @trans, @context "ticket state name" */ 'Deleted',
+                'verb' => /* @trans, @context "ticket state action" */ 'Delete'
+                )
+            );
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function isChangeable() {
+        return false;
+    }
+
+    function getChoices($verbose=false) {
+        static $_choices;
+
+        $states = static::$_states;
+        if ($this->options['private_too'])
+            $states += static::$_privatestates;
+
+        if (!isset($_choices)) {
+            // Translate and cache the choices
+            foreach ($states as $k => $v)
+                $_choices[$k] =  _P('ticket state name', $v['name']);
+
+            $this->ht['default'] =  '';
+        }
+
+        return $_choices;
+    }
+
+    function getChoice($state) {
+
+        if ($state && is_array($state))
+            $state = key($state);
+
+        if (isset(static::$_states[$state]))
+            return _P('ticket state name', static::$_states[$state]['name']);
+
+        if (isset(static::$_privatestates[$state]))
+            return _P('ticket state name', static::$_privatestates[$state]['name']);
+
+        return $state;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=> __('Prompt'), 'required'=>false, 'default'=>'',
+                'hint'=> __('Leading text shown before a value is selected'),
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+
+    static function getVerb($state) {
+
+        if (isset(static::$_states[$state]))
+            return _P('ticket state action', static::$_states[$state]['verb']);
+
+        if (isset(static::$_privatestates[$state]))
+            return _P('ticket state action', static::$_privatestates[$state]['verb']);
+    }
+}
+
+class DynamicTicketStateField extends AbstractCustomField {
+    static $delegate = 'TicketStateField';
+}
+DynamicFormField::addFieldTypes('Dynamic Fields', function() {
+    return array(
+        'state' => array('Ticket State', DynamicTicketStateField, false),
+    );
+});
+
+class TicketFlagField extends ChoiceField {
+
+    // Supported flags (TODO: move to configurable custom list)
+    static $_flags = array(
+            'onhold' => array(
+                'flag' => 1,
+                'name' => 'Onhold',
+                'states' => array('open'),
+                ),
+            'overdue' => array(
+                'flag' => 2,
+                'name' => 'Overdue',
+                'states' => array('open'),
+                ),
+            'answered' => array(
+                'flag' => 4,
+                'name' => 'Answered',
+                'states' => array('open'),
+                )
+            );
+
+    var $_choices;
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function isChangeable() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        $this->ht['default'] =  '';
+
+        if (!$this->_choices) {
+            foreach (static::$_flags as $k => $v)
+                $this->_choices[$k] = $v['name'];
+        }
+
+        return $this->_choices;
+    }
+
+    function getConfigurationOptions() {
+        return array(
+            'prompt' => new TextboxField(array(
+                'id'=>2, 'label'=>'Prompt', 'required'=>false, 'default'=>'',
+                'hint'=>'Leading text shown before a value is selected',
+                'configuration'=>array('size'=>40, 'length'=>40),
+            )),
+        );
+    }
+}
+
+class DynamicTicketFlagField extends AbstractCustomField {
+    static $delegate = 'TicketFlagField';
+}
+DynamicFormField::addFieldTypes('Dynamic Fields', function() {
+    return array(
+        'flags' => array('Ticket Flags', DynamicTicketFlagField, false),
+    );
+});
+
+class InlineDynamicFormField extends FormField {
+    function getInlineForm($data=false) {
+        if (!isset($this->_iform) || $data) {
+            $config = $this->getConfiguration();
+            $this->_iform = DynamicForm::lookup($config['form']);
+            if ($data)
+                $this->_iform = $this->_iform->getForm($data);
+        }
+        return $this->_iform;
+    }
+
+    function getConfigurationOptions() {
+        $forms = DynamicForm::objects()->filter(array('type'=>'G'))
+            ->values_flat('id', 'title');
+        $choices = array();
+        foreach ($forms as $row) {
+            list($id, $title) = $row;
+            $choices[$id] = $title;
+        }
+        return array(
+            'form' => new ChoiceField(array(
+                'id'=>2, 'label'=>'Inline Form', 'required'=>true,
+                'default'=>'', 'choices'=>$choices
+            )),
+        );
+    }
+}
+

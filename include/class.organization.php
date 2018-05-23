@@ -197,7 +197,7 @@ implements TemplateVariable {
                         && $form->get('type') == 'O' ) {
                     foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
-                            $f->value = $this->getName();
+                            $f->setValue($this->getName());
                     }
                 }
 

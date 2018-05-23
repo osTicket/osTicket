@@ -32,7 +32,7 @@
             echo $f->get('id'); ?>" <?php
             if ($f->isEnabled()) echo 'checked="checked"'; ?>/></td>
         <td><?php echo $f->get('label'); ?></td>
-        <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
+        <td><?php $t=DynamicFormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
         <td><?php echo $f->getVisibilityDescription(); ?></td>
         <td><?php echo $f->get('name'); ?></td>
     </tr>

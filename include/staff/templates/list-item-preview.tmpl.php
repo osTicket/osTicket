@@ -17,7 +17,7 @@ if ($item->hasProperties()) { ?>
         ?>
             <tr><td style="width:30%;"><?php echo
                 Format::htmlchars($f->get('label')); ?>:</td>
-            <td><?php echo $f->display($f->value); ?></td>
+            <td><?php echo $f->display($f->getValue()); ?></td>
             </tr>
         <?php }
         ?>

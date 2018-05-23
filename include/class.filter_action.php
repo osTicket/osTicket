@@ -142,9 +142,9 @@ abstract class TriggerAction {
             if (!$source) {
                 foreach ($this->_cform->getFields() as $name=>$f) {
                     if ($config && isset($config[$name]))
-                        $f->value = $config[$name];
+                        $f->setValue($config[$name]);
                     elseif ($f->get('default'))
-                        $f->value = $f->get('default');
+                        $f->setValue($f->get('default'));
                 }
             }
         }

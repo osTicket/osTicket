@@ -407,9 +407,9 @@ implements TemplateVariable {
                         && $form->get('type') == 'U' ) {
                     foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
-                            $f->value = $this->getFullName();
+                            $f->setValue($this->getFullName());
                         elseif ($f->get('name') == 'email')
-                            $f->value = $this->getEmail();
+                            $f->setValue($this->getEmail());
                     }
                 }
 

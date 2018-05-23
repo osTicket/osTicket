@@ -74,7 +74,7 @@ class SearchAjaxAPI extends AjaxController {
         $form = new SimpleForm($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
-            $F->value = true;
+            $F->setValue(true);
 
         ob_start();
         include STAFFINC_DIR . 'templates/advanced-search-field.tmpl.php';

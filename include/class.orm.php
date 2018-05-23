@@ -287,6 +287,7 @@ class ModelMeta implements ArrayAccess {
 }
 
 class VerySimpleModel {
+    static $metaclass = 'ModelMeta';
     static $meta = array(
         'table' => false,
         'ordering' => false,
@@ -482,7 +483,8 @@ class VerySimpleModel {
         if (!static::$meta instanceof ModelMeta
             || get_called_class() != static::$meta->model
         ) {
-            static::$meta = new ModelMeta(get_called_class());
+            $class = static::$metaclass;
+            static::$meta = new $class(get_called_class());
         }
         $M = static::$meta;
         return ($key) ? $M->offsetGet($key) : $M;
