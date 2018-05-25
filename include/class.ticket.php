@@ -4161,7 +4161,6 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         if (!$cfg->notifyONNewStaffTicket()
-            || !isset($vars['alertuser'])
             || !($dept=$ticket->getDept())
         ) {
             return $ticket; //No alerts.
@@ -4208,12 +4207,15 @@ implements RestrictedAccess, Threadable, Searchable {
             );
 
             //ticket created on user's behalf
-            if($vars['emailcollab'] == 1) {
-
+            if (Ticket::checkReply('cc', $vars['emailreply'])) {
               $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                   $options, $collabsCc);
+            }
+            elseif (Ticket::checkReply('user', $vars['emailreply']))
+              $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
+                  $options);
 
-              if ($collabsBcc) {
+              if ($collabsBcc && Ticket::checkReply('bcc', $vars['emailreply'])) {
                 foreach ($collabsBcc as $recipient) {
                   if (($tpl=$dept->getTemplate())
                       && ($bccmsg=$tpl->getNewTicketNoticeBCCMsgTemplate())
@@ -4231,10 +4233,7 @@ implements RestrictedAccess, Threadable, Searchable {
                       $options);
                 }
               }
-            }
-            else
-              $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
-                  $options);
+
         }
         return $ticket;
     }

@@ -84,7 +84,7 @@ reply_types:
           This reply is sent to the User and the Collaborators (CC and BCC) you choose to include.</br>
         <b>Reply to User:</b>
           This reply is sent to the User only, no Collaborators.</br>
-        <b>Reply to Collaborators:</b>
+        <b>Reply to CC + User:</b>
           This reply is sent to only the User and CC'd Collaborators</br>
         <b>Reply to BCC:</b>
           This is sent only to the BCC'd Collaborators.

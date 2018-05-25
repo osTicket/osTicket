@@ -1547,7 +1547,7 @@ implements TemplateVariable {
         $ticketUser = Ticket::objects()->filter(array('ticket_id'=>$ticket[0]))->values_flat('user_id')->first();
 
         //User
-        if ($ticketUser && (Ticket::checkReply('user', $vars['emailreply']) || $vars['do'] == 'create')) {
+        if ($ticketUser && Ticket::checkReply('user', $vars['emailreply'])) {
           $uEmail = UserEmailModel::objects()->filter(array('user_id'=>$ticketUser[0]))->values_flat('address')->first();
           $u = array();
           $u[$ticketUser[0]] = $uEmail[0];
@@ -1561,18 +1561,18 @@ implements TemplateVariable {
         self::setReplyFlag($entry, $vars['emailreply']);
 
         //Cc collaborators
-        if ($vars['ccs'] && (Ticket::checkReply('cc', $vars['emailreply']) || $vars['do'] == 'create')) {
+        if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'])) {
           $cc = Collaborator::getCollabList($vars['ccs']);
           $recipients['cc'] = $cc;
         }
 
         //Bcc Collaborators
-        if($vars['bccs'] && (Ticket::checkReply('bcc', $vars['emailreply']) || $vars['do'] == 'create')) {
+        if($vars['bccs'] && Ticket::checkReply('bcc', $vars['emailreply'])) {
           $bcc = Collaborator::getCollabList($vars['bccs']);
           $recipients['bcc'] = $bcc;
         }
 
-        if (($vars['do'] == 'create' || $vars['emailreply'] != '0') && $recipients)
+        if ($vars['emailreply'] != '0' && $recipients)
           $entry->recipients = json_encode($recipients);
 
         if ($entry->format == 'html')
