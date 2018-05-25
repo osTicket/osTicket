@@ -3947,20 +3947,19 @@ implements RestrictedAccess, Threadable, Searchable {
               $ticket->getId(),
               $ticket->getNumber());
 
-          $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
-              $_SESSION[':form-data']['eid'],
+          $entryLink = sprintf('<a href="#entry-%d"><b>%s</b></a>',
               $_SESSION[':form-data']['eid'],
               Format::datetime($_SESSION[':form-data']['timestamp']));
 
           $ticketNote = array(
               'title' => __('Ticket Created From Thread Entry'),
               'body' => __('Ticket ' . $ticketLink).
-              '<br /> Thread Entry ID: ' . $entryLink);
+              '<br /> Thread Entry: ' . $entryLink);
 
           $taskNote = array(
               'title' => __('Ticket Created From Thread Entry'),
               'note' => __('Ticket ' . $ticketLink).
-              '<br /> Thread Entry ID: ' . $entryLink);
+              '<br /> Thread Entry: ' . $entryLink);
 
           if ($oldTicket)
             $oldTicket->logNote($ticketNote['title'], $ticketNote['body'], $thisstaff);
