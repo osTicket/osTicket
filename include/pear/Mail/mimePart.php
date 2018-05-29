@@ -292,6 +292,7 @@ class Mail_mimePart
         }
 
         // Assign stuff to member variables
+        $this->subparts = array();
         $this->encoded  = array();
         $this->headers  = $headers;
         $this->body     = $body;
