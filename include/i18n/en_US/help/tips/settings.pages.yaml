@@ -75,3 +75,9 @@ upload_a_new_backdrop:
         data. Therefore, to speed load times, it is recommended that you keep your
         image relatively small (under a megabyte). Note also that the PHP
         max upload settings apply.
+
+randomize_background:
+    title: Randomize Backdrops
+    content: >
+        You may opt to randomize the backdrop. This will automatically select one
+        of your custom backdrops, every time you visit the staff portal.

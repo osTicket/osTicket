@@ -1394,11 +1394,23 @@ class OsticketConfig extends Config {
     }
 
     function getStaffLoginBackdropId() {
-        return $this->get("staff_backdrop_id", false);
+        $id = $this->get("staff_backdrop_id", false);
+
+        if (-1 == $id) {
+            $backdrops = iterator_to_array(AttachmentFile::allBackdrops());
+
+            $b  = array_rand($backdrops);
+            $id = $backdrops[$b]->getId();
+        }
+
+        return $id;
     }
     function getStaffLoginBackdrop() {
         $id = $this->getStaffLoginBackdropId();
         return ($id) ? AttachmentFile::lookup((int) $id) : null;
+    }
+    function isStaffLoginBackdropRandomized() {
+        return -1 == $this->get("staff_backdrop_id");
     }
 
     function isAuthRequiredForFiles() {
