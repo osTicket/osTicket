@@ -153,8 +153,8 @@ class AttachmentFile extends VerySimpleModel {
         Http::cacheable($this->getSignature(true), $this->lastModified(), $ttl);
     }
 
-    function display($scale=false) {
-        $this->makeCacheable();
+    function display($scale=false, $ttl=86400) {
+        $this->makeCacheable($ttl);
 
         if ($scale && extension_loaded('gd')) {
             $image = imagecreatefromstring($this->getData());
