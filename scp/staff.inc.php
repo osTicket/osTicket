@@ -93,6 +93,8 @@ if(!$thisstaff->isAdmin()) {
 //Keep the session activity alive
 $thisstaff->refreshSession();
 
+global $ost, $cfg;
+
 /******* CSRF Protectin *************/
 // Enforce CSRF protection for POSTS
 if ($_POST  && !$ost->checkCSRFToken()) {
