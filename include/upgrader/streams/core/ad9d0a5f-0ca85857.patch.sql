@@ -8,8 +8,7 @@
  * an email was involved (agent or user generated)
  *
  * It also adds a flags field to the thread_collaborator table which
- * tracks whether a collaborator is a CC or BCC collaborator as well as
- * storing whether or not the collaborator is active. As a result, we can
+ * tracks whether or not the collaborator is active. As a result, we can
  * remove the isactive field
  */
 

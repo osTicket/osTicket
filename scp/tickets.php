@@ -152,12 +152,6 @@ if($_POST && !$errors):
                 if(!$vars['response'])
                     $errors['response']=__('Response required');
 
-                //do not post a thread entry if response intended for only bccs and there are no bccs
-                if (is_null($vars['bccs']) && $vars['emailreply'] == 'reply-bcc') {
-                  $vars['emailreply'] = 'reply-bcc';
-                  $errors['bccs']=sprintf(__('Please add a %s'), 'BCC Recipient');
-                }
-
                 if ($cfg->getLockTime()) {
                     if (!$lock) {
                         $errors['err'] = sprintf('%s %s', __('This action requires a lock.'), __('Please try again!'));
@@ -385,19 +379,6 @@ if($_POST && !$errors):
                       $errors['err'] = sprintf('%s %s', __('Unable to add collaborator.'), __('Please try again!'));
                     }
                     break;
-                  case 'addbcc':
-                      if (!$role->hasPerm(Ticket::PERM_EDIT)) {
-                          $errors['err']=__('Permission Denied. You are not allowed to add collaborators');
-                      } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
-                          $errors['err'] = __('Unknown user selected');
-                    } elseif ($c2 = $ticket->addCollaborator($user, array(), $errors)) {
-                          $msg = sprintf(__('Collaborator %s added'),
-                              Format::htmlchars($user->getName()));
-                      }
-                      else {
-                        $errors['err'] = sprintf('%s %s', __('Unable to add collaborator.'), __('Please try again!'));
-                      }
-                      break;
                 default:
                     $errors['err']=__('You must select action to perform');
             endswitch;

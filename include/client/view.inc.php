@@ -38,14 +38,6 @@ if ($thisclient && $thisclient->isGuest()
                 </b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
-  <?php
-      if($collabs = $ticket->getRecipients()) {
-        foreach ($collabs as $collab) {
-          if(get_class($collab) == 'Collaborator' && $collab->user_id == $thisclient->getId() && !$collab->isCc()) {
-            $viewThreads = true;
-          }
-        }
-      } ?>
       <a class="action-button" href="tickets.php?a=print&id=<?php
           echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
 
@@ -147,7 +139,7 @@ echo $v;
     $email = $thisclient->getUserName();
     $clientId = TicketUser::lookupByEmail($email)->getId();
 
-    $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId, 'hideBCC' => !$viewThreads), array(
+    $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId), array(
                     'mode' => Thread::MODE_CLIENT,
                     'html-id' => 'ticketThread')
                 );

@@ -162,41 +162,18 @@ if ($_POST)
             <br/><span class="error"><?php echo $errors['ccs']; ?></span>
           </td>
         </tr>
-        <tr id="bccRow">
-          <td width="160"><?php echo __('Bcc'); ?>:</td>
+        <tr class="no_border">
           <td>
-            <span>
-              <select class="collabSelections" name="bccs[]" id="bcc_users_open" multiple="multiple"
-              data-placeholder="<?php echo __('Select Contacts'); ?>">
+            <?php echo __('Ticket Notice');?>:
+          </td>
+          <td>
+            <select id="emailreply" name="emailreply">
+              <option value="reply-all"><?php echo __('Alert All'); ?></option>
+              <option value="reply-user"><?php echo __('Alert to User'); ?></option>
+              <option value="0">&mdash; <?php echo __('Do Not Send Alert'); ?> &mdash;</option>
             </select>
-          </span>
-
-          <a class="inline button" style="overflow:inherit" href="#"
-          onclick="javascript:
-          $.userLookup('ajax.php/users/lookup/form', function (user) {
-            var newUser = new Option(user.name, user.id, true, true);
-            return $(&quot;#bcc_users_open&quot;).append(newUser).trigger('change');
-          });
-          "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
-
-          <br/><span class="error"><?php echo $errors['bccs']; ?></span>
-        </td>
-      </tr>
-      <tr class="no_border">
-        <td>
-          <?php echo __('Ticket Notice');?>:
-        </td>
-        <td>
-          <select id="emailreply" name="emailreply">
-            <option value="reply-all"><?php echo __('Alert All'); ?></option>
-            <option value="reply-user"><?php echo __('Alert to User'); ?></option>
-            <option value="reply-collab" <?php echo 'selected="selected"'; ?>><?php echo __('Alert to CC + User'); ?></option>
-            <option value="reply-bcc"><?php echo __('Alert to BCC'); ?></option>
-            <option value="reply-bcc"><?php echo __('Alert to BCC'); ?></option>
-            <option value="0">&mdash; <?php echo __('Do Not Send Alert'); ?> &mdash;</option>
-          </select>
-        </td>
-      </tr>
+          </td>
+        </tr>
     </table>
           </td>
         </tr>
