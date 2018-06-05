@@ -20,7 +20,6 @@ if(($users=$thread->getCollaborators())) {?>
     foreach($users as $user) {
         $checked = $user->isActive() ? 'checked="checked"' : '';
         $cc = $user->isCc() ? 'selected="selected"' : '';
-        $bcc = !$user->isCc() ? 'selected="selected"' : '';
 
         echo sprintf('<tr>
                         <td>
@@ -43,15 +42,6 @@ if(($users=$thread->getCollaborators())) {?>
                             ? $U->getAvatar()->getImageTag(24) : '',
                         Format::htmlchars($user->getName()),
                         $user->getEmail());
-
-            if ($thread->object_type == 'T') {
-              echo sprintf('<td>
-                <select name="recipientType[]">
-                    <option value="Cc" %s>Cc</option>
-                    <option value="Bcc" %s>Bcc</option>
-                </select>
-              </td>', $cc, $bcc);
-            }
 
             echo sprintf('<td width="10">
                 <input type="hidden" name="del[]" id="d%d" value="">

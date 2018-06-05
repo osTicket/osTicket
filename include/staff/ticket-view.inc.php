@@ -752,18 +752,14 @@ if ($errors['err'] && isset($_POST['a'])) {
                       foreach ($collabs as $collab) {
                         if ($collab->getUserId() == $lastUser->getId() && $collab->isCc())
                           $ccUser = true;
-                        elseif ($collab->getUserId() == $lastUser->getId() && !$collab->isCc())
-                          $bccUser = true;
                       }
                     }
-                    if ($ticketUser || $ccUser || $bccUser)
+                    if ($ticketUser || $ccUser)
                       $emailReply = true;
                     ?>
                     <select id="emailreply" name="emailreply">
                         <option value="reply-all"><?php echo __('Reply All'); ?></option>
                         <option value="reply-user"><?php echo __('Reply to User'); ?></option>
-                        <option value="reply-collab" <?php echo ($ccUser || $ticketUser ) ?  'selected="selected"' : ''; ?>><?php echo __('Reply to CC + User'); ?></option>
-                        <option value="reply-bcc" <?php echo $bccUser || $errors['bccs'] ?  'selected="selected"' : ''; ?>><?php echo __('Reply to BCC'); ?></option>
                         <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
                         >&mdash; <?php echo __('Do Not Email Reply'); ?> &mdash;</option>
                     </select>
@@ -786,13 +782,9 @@ if ($errors['err'] && isset($_POST['a'])) {
              </tr>
              <?php $collaborators = $ticket->getThread()->getCollaborators();
              $cc_cids = array();
-             $bcc_cids = array();
              foreach ($collaborators as $c) {
                if ($c->flags & Collaborator::FLAG_CC && $c->flags & Collaborator::FLAG_ACTIVE)
                   $cc_cids[] = $c->user_id;
-                elseif (!($c->flags & Collaborator::FLAG_CC) && $c->flags & Collaborator::FLAG_ACTIVE) {
-                  $bcc_cids[] = $c->user_id;
-                }
              }
             ?>
              <tr id="cc-row">
@@ -803,7 +795,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                           data-placeholder="<?php echo __('Select Contacts'); ?>">
                           <?php
                           foreach ($cc_cids as $u) {
-                            if($u != $ticket->user_id && !in_array($u, $bcc_cids)) {
+                            if($u != $ticket->user_id) {
                               ?>
                               <option value="<?php echo $u; ?>" <?php
                               if (in_array($u, $cc_cids))
@@ -824,36 +816,6 @@ if ($errors['err'] && isset($_POST['a'])) {
 
                      <br/><span class="error"><?php echo $errors['ccs']; ?></span>
                  </td>
-             </tr>
-             <tr id="bcc-row">
-               <td width="160" style="padding-left:20px;"><?php echo __('Bcc'); ?></td>
-               <td>
-                  <span>
-                    <select class="collabSelections" name="bccs[]" id="bcc_users" multiple="multiple"
-                        data-placeholder="<?php echo __('Select Contacts'); ?>">
-                        <?php
-                        foreach ($bcc_cids as $u) {
-                          if($u != $ticket->user_id && !in_array($u, $cc_cids)) {
-                            ?>
-                            <option value="<?php echo $u; ?>" <?php
-                            if (in_array($u, $bcc_cids))
-                            echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
-                          </option>
-                        <?php } } ?>
-                        ?>
-                    </select>
-                  </span>
-
-                    <a class="inline button" style="overflow:inherit" href="#"
-                    onclick="javascript:
-                    $.userLookup('ajax.php/users/lookup/form', function (user) {
-                      var newUser = new Option(user.name, user.id, true, true);
-                      return $(&quot;#bcc_users&quot;).append(newUser).trigger('change');
-                    });
-                    "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
-
-                   <br/><span class="error"><?php echo $errors['bccs']; ?></span>
-               </td>
              </tr>
             </tbody>
             <?php
@@ -1231,27 +1193,14 @@ $(function() {
         case "reply-all":
           $('#user-row').show();
           $('#cc-row').show();
-          $('#bcc-row').show();
           break;
         case "reply-user":
           $('#user-row').show();
           $('#cc-row').hide();
-          $('#bcc-row').hide();
-          break;
-        case "reply-collab":
-          $('#user-row').show();
-          $('#cc-row').show();
-          $('#bcc-row').hide();
-          break;
-        case "reply-bcc":
-          $('#user-row').hide();
-          $('#cc-row').hide();
-          $('#bcc-row').show();
           break;
         default:
           $('#user-row').show();
           $('#cc-row').show();
-          $('#bcc-row').hide();
           break;
       }
     }

@@ -53,7 +53,7 @@ class TEA_ShowEmailRecipients extends ThreadEntryAction {
                 $this->entry->getEmailHeader(), true);
 
         $recipients = array();
-        foreach (array('To', 'TO', 'Cc', 'CC', 'Bcc', 'BCC') as $k) {
+        foreach (array('To', 'TO', 'Cc', 'CC') as $k) {
             if (isset($hdr[$k]) && $hdr[$k] &&
                 ($addresses=Mail_Parse::parseAddressList($hdr[$k]))) {
                 foreach ($addresses as $addr) {

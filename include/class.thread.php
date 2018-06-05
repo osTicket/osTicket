@@ -240,18 +240,6 @@ implements Searchable {
           ));
         }
 
-        if($vars['recipientType']) {
-          $combo = array_combine($vars['uid'], $vars['recipientType']);
-          foreach ($combo as $id => $type) {
-            $collab = Collaborator::lookup($id);
-            if(get_class($collab) == 'Collaborator') {
-              $type == 'Cc' ? $collab->setFlag(Collaborator::FLAG_CC, true) :
-                $collab->setFlag(Collaborator::FLAG_CC, false);
-              $collab->save();
-            }
-          }
-        }
-
         unset($this->ht['active_collaborators']);
         $this->_collaborators = null;
 
@@ -366,9 +354,6 @@ implements Searchable {
           }
 
           $entries->filter($visibility);
-
-          if ($type['hideBCC'])
-            $entries->exclude(array('flags__hasbit' => ThreadEntry::FLAG_REPLY_BCC));
         }
 
         if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
@@ -457,7 +442,7 @@ implements Searchable {
 
         $body = $mailinfo['message'];
 
-        // extra handling for determining Cc and Bcc collabs
+        // extra handling for determining Cc collabs
         if ($mailinfo['email']) {
           $staffSenderId = Staff::getIdByEmail($mailinfo['email']);
 
@@ -474,8 +459,6 @@ implements Searchable {
 
                 if ($collaborator && ($collaborator->isCc()))
                   $vars['thread-type'] = 'M';
-                else
-                  $vars['thread-type'] = 'N';
               }
             }
           }
@@ -765,8 +748,6 @@ implements TemplateVariable {
     const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
     const FLAG_REPLY_ALL                = 0x00100;  // Agent response, reply all
     const FLAG_REPLY_USER               = 0x00200;  // Agent response, reply to User
-    const FLAG_REPLY_COLLAB             = 0x00400;  // Agent response, reply to Collaborators
-    const FLAG_REPLY_BCC                = 0x00800;  // Agent response, reply to BCC
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -790,7 +771,6 @@ implements TemplateVariable {
             'M' => 'message',
             'R' => 'response',
             'N' => 'note',
-            'B' => 'bccmessage',
     );
 
     function getTypeName() {
@@ -1492,14 +1472,6 @@ implements TemplateVariable {
         case 'reply-user':
           return $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
           break;
-
-        case 'reply-collab':
-          return $entry->flags |= ThreadEntry::FLAG_REPLY_COLLAB;
-          break;
-
-        case 'reply-bcc':
-          return $entry->flags |= ThreadEntry::FLAG_REPLY_BCC;
-          break;
       }
     }
 
@@ -1564,12 +1536,6 @@ implements TemplateVariable {
         if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'])) {
           $cc = Collaborator::getCollabList($vars['ccs']);
           $recipients['cc'] = $cc;
-        }
-
-        //Bcc Collaborators
-        if($vars['bccs'] && Ticket::checkReply('bcc', $vars['emailreply'])) {
-          $bcc = Collaborator::getCollabList($vars['bccs']);
-          $recipients['bcc'] = $bcc;
         }
 
         if ($vars['emailreply'] != '0' && $recipients)
