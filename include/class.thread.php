@@ -240,18 +240,6 @@ implements Searchable {
           ));
         }
 
-        if($vars['recipientType']) {
-          $combo = array_combine($vars['uid'], $vars['recipientType']);
-          foreach ($combo as $id => $type) {
-            $collab = Collaborator::lookup($id);
-            if(get_class($collab) == 'Collaborator') {
-              $type == 'Cc' ? $collab->setFlag(Collaborator::FLAG_CC, true) :
-                $collab->setFlag(Collaborator::FLAG_CC, false);
-              $collab->save();
-            }
-          }
-        }
-
         unset($this->ht['active_collaborators']);
         $this->_collaborators = null;
 
@@ -454,7 +442,7 @@ implements Searchable {
 
         $body = $mailinfo['message'];
 
-        // extra handling for determining Cc and Bcc collabs
+        // extra handling for determining Cc collabs
         if ($mailinfo['email']) {
           $staffSenderId = Staff::getIdByEmail($mailinfo['email']);
 
@@ -471,8 +459,6 @@ implements Searchable {
 
                 if ($collaborator && ($collaborator->isCc()))
                   $vars['thread-type'] = 'M';
-                else
-                  $vars['thread-type'] = 'N';
               }
             }
           }
@@ -760,6 +746,8 @@ implements TemplateVariable {
     const FLAG_COLLABORATOR             = 0x0020;   // Message from collaborator
     const FLAG_BALANCED                 = 0x0040;   // HTML does not need to be balanced on ::display()
     const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
+    const FLAG_REPLY_ALL                = 0x00100;  // Agent response, reply all
+    const FLAG_REPLY_USER               = 0x00200;  // Agent response, reply to User
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -783,7 +771,6 @@ implements TemplateVariable {
             'M' => 'message',
             'R' => 'response',
             'N' => 'note',
-            'B' => 'bccmessage',
     );
 
     function getTypeName() {
@@ -1476,6 +1463,18 @@ implements TemplateVariable {
         return $entry;
     }
 
+    function setReplyFlag($entry, $replyType) {
+      switch ($replyType) {
+        case 'reply-all':
+          return $entry->flags |= ThreadEntry::FLAG_REPLY_ALL;
+          break;
+
+        case 'reply-user':
+          return $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
+          break;
+      }
+    }
+
     //new entry ... we're trusting the caller to check validity of the data.
     static function create($vars=false) {
         global $cfg;
@@ -1520,7 +1519,7 @@ implements TemplateVariable {
         $ticketUser = Ticket::objects()->filter(array('ticket_id'=>$ticket[0]))->values_flat('user_id')->first();
 
         //User
-        if ($ticketUser) {
+        if ($ticketUser && Ticket::checkReply('user', $vars['emailreply'])) {
           $uEmail = UserEmailModel::objects()->filter(array('user_id'=>$ticketUser[0]))->values_flat('address')->first();
           $u = array();
           $u[$ticketUser[0]] = $uEmail[0];
@@ -1530,19 +1529,16 @@ implements TemplateVariable {
         if (Collaborator::getIdByUserId($vars['userId'], $vars['threadId']))
           $entry->flags |= ThreadEntry::FLAG_COLLABORATOR;
 
+        //add reply type flag
+        self::setReplyFlag($entry, $vars['emailreply']);
+
         //Cc collaborators
-        if($vars['ccs'] && $vars['emailcollab'] == 1) {
+        if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'])) {
           $cc = Collaborator::getCollabList($vars['ccs']);
           $recipients['cc'] = $cc;
         }
 
-        //Bcc Collaborators
-        if($vars['bccs'] && $vars['emailcollab'] == 1) {
-          $bcc = Collaborator::getCollabList($vars['bccs']);
-          $recipients['bcc'] = $bcc;
-        }
-
-        if (($vars['do'] == 'create' || $vars['emailreply'] == 1) && $recipients)
+        if ($vars['emailreply'] != '0' && $recipients)
           $entry->recipients = json_encode($recipients);
 
         if ($entry->format == 'html')

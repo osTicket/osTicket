@@ -738,21 +738,32 @@ if ($errors['err'] && isset($_POST['a'])) {
            <?php } ?>
             <tr>
                 <td width="120">
-                    <label><strong><?php echo __('To'); ?>:</strong></label>
+                    <label><strong><?php echo __('Reply To'); ?>:</strong></label>
                 </td>
                 <td>
                     <?php
-                    # XXX: Add user-to-name and user-to-email HTML ID#s
-                    $to =sprintf('%s &lt;%s&gt;',
-                            Format::htmlchars($ticket->getName()),
-                            $ticket->getReplyToEmail());
-                    $emailReply = (!isset($info['emailreply']) || $info['emailreply']);
+                    //see who sent the last message and decide which option to select.
+                    $lastUser = $ticket->getLastUserRespondent();
+
+                    if ($ticket->getOwnerId() == $lastUser->getId())
+                      $ticketUser = true;
+                    else {
+                      $collabs = $ticket->getThread()->getCollaborators();
+                      foreach ($collabs as $collab) {
+                        if ($collab->getUserId() == $lastUser->getId() && $collab->isCc())
+                          $ccUser = true;
+                      }
+                    }
+                    if ($ticketUser || $ccUser)
+                      $emailReply = true;
                     ?>
                     <select id="emailreply" name="emailreply">
-                        <option value="1" <?php echo $emailReply ?  'selected="selected"' : ''; ?>><?php echo $to; ?></option>
+                        <option value="reply-all"><?php echo __('Reply All'); ?></option>
+                        <option value="reply-user"><?php echo __('Reply to User'); ?></option>
                         <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
                         >&mdash; <?php echo __('Do Not Email Reply'); ?> &mdash;</option>
                     </select>
+                    <i class="help-tip icon-question-sign" href="#reply_types"></i>
                 </td>
             </tr>
             </tbody>
@@ -761,68 +772,50 @@ if ($errors['err'] && isset($_POST['a'])) {
                 ?>
             <tbody id="cc_sec"
                 style="display:<?php echo $emailReply?  'table-row-group':'none'; ?>;">
-             <tr>
-                <td width="120">
-                    <label><strong><?php echo __('Collaborators'); ?>:</strong></label>
+             <tr id="user-row">
+                <td width="120" style="padding-left:20px;">
+                    <label><?php echo __('User'); ?></label>
                 </td>
                 <td>
-                    <input type='checkbox' value='1' name="emailcollab"
-                    id="t<?php echo $ticket->getThreadId(); ?>-emailcollab"
-                        <?php echo ((!$info['emailcollab'] && !$errors) || isset($info['emailcollab']))?'checked="checked"':''; ?>
-                        style="display:<?php echo $ticket->getThread()->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
-                        >
-                    <?php
-                   ?>
+                  <label><?php echo User::lookup($ticket->user_id); ?></label>
                 </td>
              </tr>
              <?php $collaborators = $ticket->getThread()->getCollaborators();
              $cc_cids = array();
-             $bcc_cids = array();
              foreach ($collaborators as $c) {
                if ($c->flags & Collaborator::FLAG_CC && $c->flags & Collaborator::FLAG_ACTIVE)
                   $cc_cids[] = $c->user_id;
-                elseif (!($c->flags & Collaborator::FLAG_CC) && $c->flags & Collaborator::FLAG_ACTIVE) {
-                  $bcc_cids[] = $c->user_id;
-                }
              }
             ?>
-             <tr>
-                 <td width="160"><b><?php echo __('Cc'); ?>:</b></td>
+             <tr id="cc-row">
+                 <td width="160" style="padding-left:20px;"><?php echo __('Cc'); ?></td>
                  <td>
-                     <select class="collabSelections" name="ccs[]" id="cc_users" multiple="multiple"
-                         data-placeholder="<?php echo __('Select Contacts'); ?>">
-                         <?php
-                         foreach ($cc_cids as $u) {
-                           if($u != $ticket->user_id && !in_array($u, $bcc_cids)) {
-                             ?>
-                             <option value="<?php echo $u; ?>" <?php
-                             if (in_array($u, $cc_cids))
-                             echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
-                           </option>
-                         <?php } } ?>
-                         ?>
-                     </select>
+                    <span>
+                      <select class="collabSelections" name="ccs[]" id="cc_users" multiple="multiple"
+                          data-placeholder="<?php echo __('Select Contacts'); ?>">
+                          <?php
+                          foreach ($cc_cids as $u) {
+                            if($u != $ticket->user_id) {
+                              ?>
+                              <option value="<?php echo $u; ?>" <?php
+                              if (in_array($u, $cc_cids))
+                              echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
+                            </option>
+                          <?php } } ?>
+                          ?>
+                      </select>
+                    </span>
+
+                         <a class="inline button" style="overflow:inherit" href="#"
+                         onclick="javascript:
+                         $.userLookup('ajax.php/users/lookup/form', function (user) {
+                           var newUser = new Option(user.name, user.id, true, true);
+                           return $(&quot;#cc_users&quot;).append(newUser).trigger('change');
+                         });
+                         "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
+
                      <br/><span class="error"><?php echo $errors['ccs']; ?></span>
                  </td>
-             </tr>
-             <tr>
-               <td width="160"><b><?php echo __('Bcc'); ?>:</b></td>
-               <td>
-                   <select class="collabSelections" name="bccs[]" id="bcc_users" multiple="multiple"
-                       data-placeholder="<?php echo __('Select Contacts'); ?>">
-                       <?php
-                       foreach ($bcc_cids as $u) {
-                         if($u != $ticket->user_id && !in_array($u, $cc_cids)) {
-                           ?>
-                           <option value="<?php echo $u; ?>" <?php
-                           if (in_array($u, $bcc_cids))
-                           echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
-                         </option>
-                       <?php } } ?>
-                       ?>
-                   </select>
-                   <br/><span class="error"><?php echo $errors['bccs']; ?></span>
-               </td>
              </tr>
             </tbody>
             <?php
@@ -1162,6 +1155,10 @@ $(function() {
         });
     });
 
+    $("#emailreply").ready(function(){
+     checkReply();
+    });
+
     // Post Reply or Note action buttons.
     $('a.post-response').click(function (e) {
         var $r = $('ul.tabs > li > a'+$(this).attr('href')+'-tab');
@@ -1186,34 +1183,30 @@ $(function() {
         return false;
     });
 
+    $('#emailreply').on('change', function(){
+     checkReply();
+    });
+
+    function checkReply() {
+      var value = $("#emailreply").val();
+      switch (value) {
+        case "reply-all":
+          $('#user-row').show();
+          $('#cc-row').show();
+          break;
+        case "reply-user":
+          $('#user-row').show();
+          $('#cc-row').hide();
+          break;
+        default:
+          $('#user-row').show();
+          $('#cc-row').show();
+          break;
+      }
+    }
 });
 
 $(function() {
-  $('.collabSelections').on("select2:select", function(e) {
-    var el = $(this);
-    var tid = <?php echo $ticket->getThreadId(); ?>;
-    var target = e.currentTarget.id;
-    var addTo = (target == 'cc_users') ? 'addcc' : 'addbcc';
-
-   if(el.val().indexOf("NEW") > -1) {
-     $("li[title='— Add New —']").remove();
-     var url = 'ajax.php/thread/' + tid + '/add-collaborator/' + addTo ;
-      $.userLookup(url, function(user) {
-        e.preventDefault();
-         if($('.dialog#confirm-action').length) {
-             $('.dialog#confirm-action #action').val(addTo);
-             $('#confirm-form').append('<input type=hidden name=user_id value='+user.id+' />');
-             $('#overlay').show();
-         }
-      });
-         var arr = el.val();
-         var removeStr = "NEW";
-
-         arr.splice($.inArray(removeStr, arr),1);
-         $(this).val(arr);
-    }
- });
-
  $('.collabSelections').on("select2:unselecting", function(e) {
    var el = $(this);
    var target = '#' + e.currentTarget.id;
@@ -1242,7 +1235,6 @@ $(function() {
        };
      },
      processResults: function (data) {
-       data[0] = {name: "\u2014 Add New \u2014", id: "NEW"};
        return {
          results: $.map(data, function (item) {
            return {

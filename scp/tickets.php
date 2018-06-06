@@ -379,19 +379,6 @@ if($_POST && !$errors):
                       $errors['err'] = sprintf('%s %s', __('Unable to add collaborator.'), __('Please try again!'));
                     }
                     break;
-                  case 'addbcc':
-                      if (!$role->hasPerm(Ticket::PERM_EDIT)) {
-                          $errors['err']=__('Permission Denied. You are not allowed to add collaborators');
-                      } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
-                          $errors['err'] = __('Unknown user selected');
-                    } elseif ($c2 = $ticket->addCollaborator($user, array(), $errors)) {
-                          $msg = sprintf(__('Collaborator %s added'),
-                              Format::htmlchars($user->getName()));
-                      }
-                      else {
-                        $errors['err'] = sprintf('%s %s', __('Unable to add collaborator.'), __('Please try again!'));
-                      }
-                      break;
                 default:
                     $errors['err']=__('You must select action to perform');
             endswitch;

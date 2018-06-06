@@ -150,12 +150,6 @@ implements EmailContact, ITicketUser {
       $this->save();
     }
 
-    public function setBcc() {
-      $this->setFlag(Collaborator::FLAG_ACTIVE, true);
-      $this->setFlag(Collaborator::FLAG_CC, false);
-      $this->save();
-    }
-
     function isCc() {
         return !!($this->flags & self::FLAG_CC);
     }

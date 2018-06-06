@@ -122,15 +122,14 @@ class TasksAjaxAPI extends AjaxController {
                         $task->getId(),
                         $task->getNumber());
 
-                    $entryLink = sprintf('<a href="#entry-%d"><b>%d</b></a> (%s)',
-                        $_SESSION[':form-data']['eid'],
+                    $entryLink = sprintf('<a href="#entry-%d"><b>%s</b></a>',
                         $_SESSION[':form-data']['eid'],
                         Format::datetime($_SESSION[':form-data']['timestamp']));
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
                             'note' => __('Task ' . $taskLink .
-                            '<br /> Thread Entry ID: ' . $entryLink)
+                            '<br /> Thread Entry: ' . $entryLink)
                             );
 
                     $originalTask->postNote($note, $errors, $thisstaff);

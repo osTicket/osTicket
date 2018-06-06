@@ -11,16 +11,11 @@ if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
 ?>
 <?php
-$type = $entryTypes[$entry->type];
-if ($type == 'note') {
-    $type =  'bccmessage';
-    $entry->type = 'B';
-}
-?>
-
+ $type = $entryTypes[$entry->type];
+ ?>
 <div class="thread-entry <?php echo $type; ?> <?php if ($avatar) echo 'avatar'; ?>">
 <?php if ($avatar) { ?>
-    <span class="<?php echo ($entry->type == 'M' || $entry->type == 'B') ? 'pull-left' : 'pull-right'; ?> avatar">
+    <span class="<?php echo ($entry->type == 'M') ? 'pull-left' : 'pull-right'; ?> avatar">
 <?php echo $avatar; ?>
     </span>
 <?php } ?>

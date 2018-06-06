@@ -7,17 +7,13 @@ if ($thisstaff && !strcasecmp($thisstaff->datetime_format, 'relative')) {
     };
 }
 
-$entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note','B' => 'bccmessage');
+$entryTypes = array('M'=>'message', 'R'=>'response', 'N'=>'note');
 $user = $entry->getUser() ?: $entry->getStaff();
 $name = $user ? $user->getName() : $entry->poster;
 $avatar = '';
 if ($user && $cfg->isAvatarsEnabled())
     $avatar = $user->getAvatar();
 
-if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'N') {
-  $entryTypes[$entry->type] = 'bccmessage';
-  $entry->type = 'B';
-}
 ?>
 <div class="thread-entry <?php
     echo $entry->isSystem() ? 'system' : $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
@@ -58,8 +54,11 @@ if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'N') {
         if ($entry->flags & ThreadEntry::FLAG_RESENT) { ?>
             <span class="label label-bare"><?php echo __('Resent'); ?></span>
 <?php   }
-        if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'B') { ?>
-            <span class="label label-bare"><?php echo __('Bcc Collaborator'); ?></span>
+        if ($entry->flags & ThreadEntry::FLAG_REPLY_ALL) { ?>
+            <span class="label label-bare"><?php echo __('Reply All'); ?></span>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_REPLY_USER) { ?>
+            <span class="label label-bare"><?php echo __('Reply to User'); ?></span>
 <?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'M') { ?>
             <span class="label label-bare"><?php echo __('Cc Collaborator'); ?></span>
