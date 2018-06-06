@@ -1,43 +1,75 @@
-<h3><?php echo __('Ticket Collaborators'); ?></h3>
+<h3 class="drag-handle"><?php echo __('Collaborators'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <?php
 if($info && $info['msg']) {
     echo sprintf('<p id="msg_notice" style="padding-top:2px;">%s</p>', $info['msg']);
-} ?>
+}
+
+if ($thread->object_type == 'T')
+  $type = '\'tickets\'';
+if ($thread->object_type == 'A')
+  $type = '\'tasks\'';
+?>
 <hr/>
 <?php
-if(($users=$ticket->getCollaborators())) {?>
+if(($users=$thread->getCollaborators())) {?>
 <div id="manage_collaborators">
-<form method="post" class="collaborators" action="#tickets/<?php echo $ticket->getId(); ?>/collaborators">
+<form method="post" class="collaborators" onsubmit="refreshAndClose(<?php echo $thread->object_id; ?>, <?php echo $type; ?>);" action="#thread/<?php echo $thread->getId(); ?>/collaborators">
     <table border="0" cellspacing="1" cellpadding="1" width="100%">
     <?php
     foreach($users as $user) {
         $checked = $user->isActive() ? 'checked="checked"' : '';
+        $cc = $user->isCc() ? 'selected="selected"' : '';
+        $bcc = !$user->isCc() ? 'selected="selected"' : '';
+
         echo sprintf('<tr>
                         <td>
+                            <label class="inline checkbox">
+                            <input type="checkbox" class="hidden" name="uid[]" id="%d" value="%d" checked="checked">
                             <input type="checkbox" name="cid[]" id="c%d" value="%d" %s>
-                            <a class="collaborator" href="#collaborators/%d/view">%s</a>
-                            <span class="faded"><em>%s</em></span></td>
-                        <td width="10">
-                            <input type="hidden" name="del[]" id="d%d" value="">
-                            <a class="remove" href="#d%d">&times;</a></td>
-                        <td width="30">&nbsp;</td>
-                    </tr>',
-                    $user->getId(),
-                    $user->getId(),
-                    $checked,
-                    $user->getId(),
-                    Format::htmlchars($user->getName()),
-                    $user->getEmail(),
-                    $user->getId(),
-                    $user->getId());
+                            </label>
+                            <a class="collaborator" href="#thread/%d/collaborators/%d/view">%s%s</a>
+                            <div align="left">
+                                <span class="faded"><em>%s</em></span>
+                            </div>
+                        </td>', $user->getId(),
+                        $user->getId(),
+                        $user->getId(),
+                        $user->getId(),
+                        $checked,
+                        $thread->getId(),
+                        $user->getId(),
+                        (($U = $user->getUser()) && ($A = $U->getAvatar()))
+                            ? $U->getAvatar()->getImageTag(24) : '',
+                        Format::htmlchars($user->getName()),
+                        $user->getEmail());
+
+            if ($thread->object_type == 'T') {
+              echo sprintf('<td>
+                <select name="recipientType[]">
+                    <option value="Cc" %s>Cc</option>
+                    <option value="Bcc" %s>Bcc</option>
+                </select>
+              </td>', $cc, $bcc);
+            }
+
+            echo sprintf('<td width="10">
+                <input type="hidden" name="del[]" id="d%d" value="">
+                <a class="remove" href="#d%d">
+                  <i class="icon-trash icon-fixed-width"></i>
+                </a>
+            </td>
+            <td width="30">&nbsp;</td>
+            </tr>',$user->getId(), $user->getId());
     }
     ?>
+    <td>
+      <div><a class="collaborator" id="addcollaborator"
+          href="#thread/<?php echo $thread->getId(); ?>/add-collaborator/addcc"
+          ><i class="icon-plus-sign"></i> <?php echo __('Add Collaborator'); ?></a></div>
+    </td>
     </table>
     <hr style="margin-top:1em"/>
-    <div><a class="collaborator"
-        href="#tickets/<?php echo $ticket->getId(); ?>/add-collaborator"
-        ><i class="icon-plus-sign"></i> <?php echo __('Add New Collaborator'); ?></a></div>
     <div id="savewarning" style="display:none; padding-top:2px;"><p
     id="msg_warning"><?php echo __('You have made changes that you need to save.'); ?></p></div>
     <p class="full-width">
@@ -57,15 +89,22 @@ if(($users=$ticket->getCollaborators())) {?>
     echo __("Bro, not sure how you got here!");
 }
 
-if ($_POST && $ticket && $ticket->getNumCollaborators()) {
+if ($_POST && $thread && $thread->getNumCollaborators()) {
+
+    $collaborators = sprintf('Participants (%d)',
+            $thread->getNumCollaborators());
+
     $recipients = sprintf(__('Recipients (%d of %d)'),
-          $ticket->getNumActiveCollaborators(),
-          $ticket->getNumCollaborators());
+          $thread->getNumActiveCollaborators(),
+          $thread->getNumCollaborators());
     ?>
     <script type="text/javascript">
         $(function() {
             $('#emailcollab').show();
-            $('#recipients').html('<?php echo $recipients; ?>');
+            $('#t<?php echo $thread->getId(); ?>-recipients')
+            .html('<?php echo $recipients; ?>');
+            $('#t<?php echo $thread->getId(); ?>-collaborators')
+            .html('<?php echo $collaborators; ?>');
             });
     </script>
 <?php
@@ -124,4 +163,8 @@ $(function() {
     });
 
 });
+
+function refreshAndClose(tid, type) {
+  window.location.href = type + '.php?id=' + tid;
+}
 </script>

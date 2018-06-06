@@ -14,10 +14,10 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-Class SetupWizard {
+class SetupWizard {
 
     //Mimimum requirements
-    var $prereq = array('php'   => '5.3',
+    var $prereq = array('php'   => '5.4',
                         'mysql' => '5.0');
 
     //Version info - same as the latest version.
@@ -28,7 +28,7 @@ Class SetupWizard {
     //Errors
     var $errors=array();
 
-    function SetupWizard(){
+    function __construct(){
         $this->errors=array();
         $this->version_verbose = sprintf(__('osTicket %s' /* <%s> is for the version */),
             THIS_VERSION);
@@ -47,6 +47,8 @@ Class SetupWizard {
         load SQL schema - assumes MySQL && existing connection
         */
     function load_sql($schema, $prefix, $abort=true, $debug=false) {
+        global $ost;
+
         # Strip comments and remarks
         $schema=preg_replace('%^\s*(#|--).*$%m', '', $schema);
         # Replace table prefix
@@ -62,8 +64,10 @@ Class SetupWizard {
         foreach($statements as $k=>$sql) {
             if(db_query($sql, false)) continue;
             $error = "[$sql] ".db_error();
-            if($abort)
-                    return $this->abort($error, $debug);
+            if ($abort)
+                return $this->abort($error, $debug);
+            elseif ($debug && $ost)
+                $ost->logDBError('DB Error #'.db_errno(), $error, false);
         }
 
         return true;

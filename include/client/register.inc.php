@@ -1,9 +1,7 @@
 <?php
 $info = $_POST;
-if (!isset($info['timezone_id']))
+if (!isset($info['timezone']))
     $info += array(
-        'timezone_id' => $cfg->getDefaultTimezoneId(),
-        'dst' => $cfg->observeDaylightSaving(),
         'backend' => null,
     );
 if (isset($user) && $user instanceof ClientCreateRequest) {
@@ -29,7 +27,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <tbody>
 <?php
     $cf = $user_form ?: UserForm::getInstance();
-    $cf->render(false);
+    $cf->render(false, false, array('mode' => 'create'));
 ?>
 <tr>
     <td colspan="2">
@@ -37,33 +35,18 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </div>
     </td>
 </tr>
-    <td><?php echo __('Time Zone'); ?>:</td>
-    <td>
-        <select name="timezone_id" id="timezone_id">
+    <tr>
+        <td width="180">
+            <?php echo __('Time Zone');?>:
+        </td>
+        <td>
             <?php
-            $sql='SELECT id, offset,timezone FROM '.TIMEZONE_TABLE.' ORDER BY id';
-            if(($res=db_query($sql)) && db_num_rows($res)){
-                while(list($id,$offset, $tz)=db_fetch_row($res)){
-                    $sel=($info['timezone_id']==$id)?'selected="selected"':'';
-                    echo sprintf('<option value="%d" %s>GMT %s - %s</option>',$id,$sel,$offset,$tz);
-                }
-            }
-            ?>
-        </select>
-        &nbsp;<span class="error"><?php echo $errors['timezone_id']; ?></span>
-    </td>
-</tr>
-<tr>
-    <td width="180">
-        <?php echo __('Daylight Saving'); ?>:
-    </td>
-    <td>
-        <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-        <?php echo __('Observe daylight saving'); ?>
-        <em>(<?php echo __('Current Time'); ?>:
-            <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
-    </td>
-</tr>
+            $TZ_NAME = 'timezone';
+            $TZ_TIMEZONE = $info['timezone'];
+            include INCLUDE_DIR.'staff/templates/timezone.tmpl.php'; ?>
+            <div class="error"><?php echo $errors['timezone']; ?></div>
+        </td>
+    </tr>
 <tr>
     <td colspan=2">
         <div><hr><h3><?php echo __('Access Credentials'); ?></h3></div>
@@ -114,4 +97,13 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
         window.location.href='index.php';"/>
 </p>
 </form>
-
+<?php if (!isset($info['timezone'])) { ?>
+<!-- Auto detect client's timezone where possible -->
+<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jstz.min.js"></script>
+<script type="text/javascript">
+$(function() {
+    var zone = jstz.determine();
+    $('#timezone-dropdown').val(zone.name()).trigger('change');
+});
+</script>
+<?php }

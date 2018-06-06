@@ -44,7 +44,7 @@ class QuickNote extends QuickNoteModel {
     }
 
     function getFormattedTime() {
-        return Format::db_datetime(strpos($this->updated, '0000-') !== 0
+        return Format::datetime(strpos($this->updated, '0000-') !== 0
             ? $this->updated : $this->created);
     }
 

@@ -4,9 +4,7 @@ $info=($_POST && $errors)?Format::input($_POST):@Format::htmlchars($org->getInfo
 if (!$info['title'])
     $info['title'] = Format::htmlchars($org->getName());
 ?>
-<script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.multiselect.min.js"></script>
-<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/jquery.multiselect.css"/>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
@@ -15,16 +13,16 @@ if ($info['error']) {
 } elseif ($info['msg']) {
     echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 } ?>
-<ul class="tabs">
-    <li><a href="#tab-profile" class="active"
+<ul class="tabs" id="orgprofile">
+    <li class="active"><a href="#profile"
         ><i class="icon-edit"></i>&nbsp;<?php echo __('Fields'); ?></a></li>
     <li><a href="#contact-settings"
         ><i class="icon-fixed-width icon-cogs faded"></i>&nbsp;<?php
         echo __('Settings'); ?></a></li>
 </ul>
-<form method="post" class="org" action="<?php echo $action; ?>">
-
-<div class="tab_content" id="tab-profile" style="margin:5px;">
+<form method="post" class="org" action="<?php echo $action; ?>" data-tip-namespace="org">
+<div id="orgprofile_container">
+<div class="tab_content" id="profile" style="margin:5px;">
 <?php
 $action = $info['action'] ? $info['action'] : ('#orgs/'.$org->getId());
 if ($ticket && $ticket->getOwnerId() == $user->getId())
@@ -40,7 +38,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
     </table>
 </div>
 
-<div class="tab_content" id="contact-settings" style="display:none;margin:5px;">
+<div class="hidden tab_content" id="contact-settings" style="margin:5px;">
     <table style="width:100%">
         <tbody>
             <tr>
@@ -89,7 +87,9 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     <?php echo __('Primary Contacts'); ?>:
                 </td>
                 <td>
-                    <select name="contacts[]" id="primary_contacts" multiple="multiple">
+                    <select name="contacts[]" id="primary_contacts" multiple="multiple"
+                        data-placeholder="<?php echo __('Select Contacts'); ?>">
+                        <option value=""></option>
 <?php               foreach ($org->allMembers() as $u) { ?>
                         <option value="<?php echo $u->id; ?>" <?php
                             if ($u->isPrimaryContact())
@@ -98,6 +98,22 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     </select>
                     <br/><span class="error"><?php echo $errors['contacts']; ?></span>
                 </td>
+            </tr>
+            <tr>
+                <td width="180">
+                    <?php echo __('Ticket Sharing'); ?>:
+                </td>
+                <td>
+                    <select name="sharing">
+                        <option value=""><?php echo __('Disable'); ?></option>
+                        <option value="sharing-primary" <?php echo $info['sharing-primary'] ? 'selected="selected"' : '';
+                            ?>><?php echo __('Primary contacts see all tickets'); ?></option>
+                        <option value="sharing-all" <?php echo $info['sharing-all'] ? 'selected="selected"' : '';
+                            ?>><?php echo __('All members see all tickets'); ?></option>
+                    </select>
+                    <i class="help-tip icon-question-sign" href="#org_sharing"></i>
+                </td>
+            </tr>
             <tr>
                 <th colspan="2">
                     <?php echo __('Automated Collaboration'); ?>:
@@ -123,7 +139,8 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
             </tr>
             <tr>
                 <th colspan="2">
-                    <?php echo __('Main Domain'); ?>
+                    <?php echo __('Email Domain'); ?>
+                    <i class="help-tip icon-question-sign" href="#email_domain"></i>
                 </th>
             </tr>
             <tr>
@@ -139,7 +156,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
         </tbody>
     </table>
 </div>
-
+</div>
 <div class="clear"></div>
 
 <hr>
@@ -170,6 +187,6 @@ $(function() {
         $('div#org-profile').fadeIn();
         return false;
     });
-    $("#primary_contacts").multiselect({'noneSelectedText':'<?php echo __('Select Contacts'); ?>'});
+    $("#primary_contacts").select2({width: '300px'});
 });
 </script>

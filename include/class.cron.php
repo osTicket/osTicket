@@ -27,9 +27,11 @@ class Cron {
 
     function TicketMonitor() {
         require_once(INCLUDE_DIR.'class.ticket.php');
-        require_once(INCLUDE_DIR.'class.lock.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
-        TicketLock::cleanup(); //Remove expired locks
+        // Cleanup any expired locks
+        require_once(INCLUDE_DIR.'class.lock.php');
+        Lock::cleanup();
+
     }
 
     function PurgeLogs() {
@@ -49,12 +51,17 @@ class Cron {
         AttachmentFile::deleteOrphans();
     }
 
+    function CleanExpiredSessions() {
+        require_once(INCLUDE_DIR.'class.ostsession.php');
+        DbSessionBackend::cleanup();
+    }
+
     function MaybeOptimizeTables() {
         // Once a week on a 5-minute cron
         $chance = rand(1,2000);
         switch ($chance) {
         case 42:
-            @db_query('OPTIMIZE TABLE '.TICKET_LOCK_TABLE);
+            @db_query('OPTIMIZE TABLE `'.LOCK_TABLE.'`');
             break;
         case 242:
             @db_query('OPTIMIZE TABLE '.SYSLOG_TABLE);
@@ -98,6 +105,7 @@ class Cron {
         self::MailFetcher();
         self::TicketMonitor();
         self::PurgeLogs();
+        self::CleanExpiredSessions();
         // Run file purging about every 10 cron runs
         if (mt_rand(1, 9) == 4)
             self::CleanOrphanedFiles();
@@ -105,7 +113,7 @@ class Cron {
         self::MaybeOptimizeTables();
 
         $data = array('autocron'=>false);
-        Signal::send('cron', $data);
+        Signal::send('cron', null, $data);
     }
 }
 ?>

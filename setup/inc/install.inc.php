@@ -115,6 +115,8 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):array('prefix'=>'ost_','dbho
                 <div id="bar">
                     <input class="btn" type="submit" value="<?php echo __('Install Now');?>" tabindex="14">
                 </div>
+
+                <input type="hidden" name="timezone" id="timezone"/>
             </form>
     </div>
     <div>

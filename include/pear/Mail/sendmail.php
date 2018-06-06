@@ -56,7 +56,7 @@ class Mail_sendmail extends Mail {
      *              defaults.
      * @access public
      */
-    function Mail_sendmail($params)
+    function __construct($params)
     {
         if (isset($params['sendmail_path'])) {
             $this->sendmail_path = $params['sendmail_path'];

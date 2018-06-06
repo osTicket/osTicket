@@ -109,7 +109,7 @@
             // Upload failed. TODO: Add a button to the UI to retry on
             // HTTP 500
             return e.remove();
-          e.find('[name="'+that.options.name+'"]').val(json.id);
+          e.find('[name="'+that.options.name+'"]').val(''+json.id+','+file.name);
           e.data('fileId', json.id);
           e.find('.progress-bar')
             .width('100%')
@@ -171,7 +171,6 @@
             .hide())
           .append($('<input type="hidden"/>').attr('name', this.options.name)
             .val(file.id))
-          .append($('<div class="clear"></div>'));
       if (this.options.deletable) {
         filenode.prepend($('<span><i class="icon-trash"></i></span>')
           .addClass('trash pull-right')
@@ -197,7 +196,7 @@
         var i = this.uploads.indexOf(filenode);
         if (i !== -1)
             this.uploads.splice(i,1);
-        filenode.slideUp('fast', function() { this.remove(); });
+        filenode.slideUp('fast', function() { $(this).remove(); });
       }
     },
     cancelUpload: function(node) {
@@ -248,7 +247,7 @@
     files: [],
     deletable: true,
     shim: !window.FileReader,
-    queuefiles: 4
+    queuefiles: 1
   };
 
   $.fn.filedropbox.messages = {
@@ -330,7 +329,8 @@
       globalProgressUpdated: empty,
       speedUpdated: empty
       },
-      errors = ["BrowserNotSupported", "TooManyFiles", "FileTooLarge", "FileTypeNotAllowed", "NotFound", "NotReadable", "AbortError", "ReadError", "FileExtensionNotAllowed"];
+      errors = ["BrowserNotSupported", "TooManyFiles", "FileTooLarge", "FileTypeNotAllowed", "NotFound", "NotReadable", "AbortError", "ReadError", "FileExtensionNotAllowed"],
+      Blob = window.WebKitBlob || window.MozBlob || window.Blob;
 
   $.fn.filedrop = function(options) {
     var opts = $.extend({}, default_opts, options),
@@ -349,8 +349,8 @@
     this.on('drop', drop).on('dragstart', opts.dragStart).on('dragenter', dragEnter).on('dragover', dragOver).on('dragleave', dragLeave);
     $(document).on('drop', docDrop).on('dragenter', docEnter).on('dragover', docOver).on('dragleave', docLeave);
 
-    (opts.link || this).on('click', function(e){
-      $('#' + opts.fallback_id).trigger(e);
+    (opts.link || this).click(function(e) {
+      $('#' + opts.fallback_id).trigger('click');
       return false;
     });
 
@@ -380,8 +380,7 @@
       var dashdash = '--',
           crlf = '\r\n',
           builder = [],
-          paramname = opts.paramname,
-          Blob = window.WebKitBlob || window.Blob;
+          paramname = opts.paramname;
 
       if (opts.data) {
         var params = $.param(opts.data).replace(/\+/g, '%20').split(/&/);
@@ -474,6 +473,10 @@
       stop_loop = false;
 
       if (!files) {
+        opts.error(errors[0]);
+        return false;
+      }
+      if (typeof Blob === "undefined") {
         opts.error(errors[0]);
         return false;
       }

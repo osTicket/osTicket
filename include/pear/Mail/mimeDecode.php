@@ -149,7 +149,7 @@ class Mail_mimeDecode extends PEAR
      * @param string The input to decode
      * @access public
      */
-    function Mail_mimeDecode(&$input)
+    function __construct(&$input)
     {
         list($header, $body)   = $this->_splitBodyHeader($input);
 
@@ -307,6 +307,7 @@ class Mail_mimeDecode extends PEAR
                 case 'multipart/digest':
                 case 'multipart/alternative':
                 case 'multipart/related':
+                case 'multipart/relative':
                 case 'multipart/mixed':
                     if(!isset($content_type['other']['boundary'])){
                         $this->_error = 'No boundary found for ' . $content_type['value'] . ' part';
@@ -528,6 +529,15 @@ class Mail_mimeDecode extends PEAR
         if ($input instanceof StringView) {
             $parts = $input->split('--' . $boundary);
             array_shift($parts);
+
+            if (count($parts) > 0
+                && $parts[count($parts)-1]->substr(0, 2)->__toString() == '--'
+            ) {
+                // Drop the last part if it starts with '--' as such would
+                // be past the end of a multipart section
+                array_pop($parts);
+            }
+
             return $parts;
         }
 

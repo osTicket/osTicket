@@ -17,7 +17,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-class Error extends Exception {
+class BaseError extends Exception {
     static $title = '';
     static $sendAlert = true;
 
@@ -42,7 +42,7 @@ class Error extends Exception {
     }
 }
 
-class InitialDataError extends Error {
+class InitialDataError extends BaseError {
     static $title = 'Problem with install initial data';
 }
 
@@ -52,7 +52,7 @@ function raise_error($message, $class=false) {
 }
 
 // File storage backend exceptions
-class IOException extends Error {
+class IOException extends BaseError {
     static $title = 'Unable to read resource content';
 }
 

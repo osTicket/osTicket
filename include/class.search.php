@@ -21,6 +21,9 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.role.php';
+require_once INCLUDE_DIR . 'class.list.php';
+require_once INCLUDE_DIR . 'class.queue.php';
 
 abstract class SearchBackend {
     static $id = false;
@@ -30,8 +33,18 @@ abstract class SearchBackend {
     const SORT_RECENT = 2;
     const SORT_OLDEST = 3;
 
+    const PERM_EVERYTHING = 'search.all';
+
+    static protected $perms = array(
+        self::PERM_EVERYTHING => array(
+            'title' => /* @trans */ 'Search',
+            'desc'  => /* @trans */ 'See all tickets in search results, regardless of access',
+            'primary' => true,
+        ),
+    );
+
     abstract function update($model, $id, $content, $new=false, $attrs=array());
-    abstract function find($query, $criteria, $model=false, $sort=array());
+    abstract function find($query, QuerySet $criteria, $addRelevance=true);
 
     static function register($backend=false) {
         $backend = $backend ?: get_called_class();
@@ -48,7 +61,12 @@ abstract class SearchBackend {
 
         return new self::$registry[$id]();
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', SearchBackend::getPermissions());
 
 // Register signals to intercept saving of various content throughout the
 // system
@@ -61,20 +79,23 @@ class SearchInterface {
         $this->bootstrap();
     }
 
-    function find($query, $criteria, $model=false, $sort=array()) {
+    function find($query, QuerySet $criteria, $addRelevance=true) {
         $query = Format::searchable($query);
-        return $this->backend->find($query, $criteria, $model, $sort);
+        return $this->backend->find($query, $criteria, $addRelevance);
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-        if (!$this->backend)
-            return;
-
-        $this->backend->update($model, $id, $content, $new, $attrs);
+        if ($this->backend)
+            $this->backend->update($model, $id, $content, $new, $attrs);
     }
 
     function createModel($model) {
         return $this->updateModel($model, true);
+    }
+
+    function deleteModel($model) {
+        if ($this->backend)
+            $this->backend->delete($model);
     }
 
     function updateModel($model, $new=false) {
@@ -89,10 +110,10 @@ class SearchInterface {
                 break;
 
             $this->update($model, $model->getId(),
-                $model->getBody()->getSearchable(), $new,
+                $model->getBody()->getSearchable(),
+                $new === true,
                 array(
                     'title' =>      $model->getTitle(),
-                    'ticket_id' =>  $model->getTicketId(),
                     'created' =>    $model->getCreateDate(),
                 )
             );
@@ -105,7 +126,7 @@ class SearchInterface {
                     $cdata[] = $v;
             $this->update($model, $model->getId(),
                 trim(implode("\n", $cdata)),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getSubject()),
                     'number'=>      $model->getNumber(),
@@ -132,7 +153,7 @@ class SearchInterface {
                         $cdata[] = $v;
             $this->update($model, $model->getId(),
                 trim(implode("\n", $cdata)),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getFullName()),
                     'emails'=>      $model->emails->asArray(),
@@ -150,7 +171,7 @@ class SearchInterface {
                         $cdata[] = $v;
             $this->update($model, $model->getId(),
                 trim(implode("\n", $cdata)),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getName()),
                     'created'=>     $model->getCreateDate(),
@@ -161,7 +182,7 @@ class SearchInterface {
         case $model instanceof FAQ:
             $this->update($model, $model->getId(),
                 $model->getSearchableAnswer(),
-                $new,
+                $new === true,
                 array(
                     'title'=>       Format::searchable($model->getQuestion()),
                     'keywords'=>    $model->getKeywords(),
@@ -196,9 +217,23 @@ class SearchInterface {
         // Tickets, which can be edited as well
         // Knowledgebase articles (FAQ and canned responses)
         // Users, organizations
-        Signal::connect('model.created', array($this, 'createModel'));
+        Signal::connect('threadentry.created', array($this, 'createModel'));
+        Signal::connect('ticket.created', array($this, 'createModel'));
+        Signal::connect('user.created', array($this, 'createModel'));
+        Signal::connect('organization.created', array($this, 'createModel'));
+        Signal::connect('model.created', array($this, 'createModel'), 'FAQ');
+
         Signal::connect('model.updated', array($this, 'updateModel'));
-        #Signal::connect('model.deleted', array($this, 'deleteModel'));
+        Signal::connect('model.deleted', array($this, 'deleteModel'));
+    }
+}
+
+require_once(INCLUDE_DIR.'class.config.php');
+class MySqlSearchConfig extends Config {
+    var $table = CONFIG_TABLE;
+
+    function __construct() {
+        parent::__construct("mysqlsearch");
     }
 }
 
@@ -208,45 +243,39 @@ class MysqlSearchBackend extends SearchBackend {
 
     // Only index 20 batches per cron run
     var $max_batches = 60;
+    var $_reindexed = 0;
+    var $SEARCH_TABLE;
 
     function __construct() {
         $this->SEARCH_TABLE = TABLE_PREFIX . '_search';
     }
 
+    function getConfig() {
+        if (!isset($this->config))
+            $this->config = new MySqlSearchConfig();
+        return $this->config;
+    }
+
+
     function bootstrap() {
-        Signal::connect('cron', array($this, 'IndexOldStuff'));
+        if ($this->getConfig()->get('reindex', true))
+            Signal::connect('cron', array($this, 'IndexOldStuff'));
     }
 
     function update($model, $id, $content, $new=false, $attrs=array()) {
-        switch (true) {
-        case $model instanceof ThreadEntry:
-            $type = 'H';
-            break;
-        case $model instanceof Ticket:
-            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
-            $type = 'T';
-            break;
-        case $model instanceof User:
-            $content .= implode("\n", $attrs['emails']);
-            $type = 'U';
-            break;
-        case $model instanceof Organization:
-            $type = 'O';
-            break;
-        case $model instanceof FAQ:
-            $type = 'K';
-            break;
-        case $model instanceof AttachmentFile:
-            $type = 'F';
-            break;
-        default:
-            // Not indexed
+        if (!($type=ObjectModel::getType($model)))
             return;
-        }
+
+        if ($model instanceof Ticket)
+            $attrs['title'] = $attrs['number'].' '.$attrs['title'];
+        elseif ($model instanceof User)
+            $content .=' '.implode("\n", $attrs['emails']);
 
         $title = $attrs['title'] ?: '';
 
         if (!$content && !$title)
+            return;
+        if (!$id)
             return;
 
         $sql = 'REPLACE INTO '.$this->SEARCH_TABLE
@@ -254,13 +283,33 @@ class MysqlSearchBackend extends SearchBackend {
             . ', object_id='.db_input($id)
             . ', content='.db_input($content)
             . ', title='.db_input($title);
-        return db_query($sql);
+        return db_query($sql, false);
+    }
+
+    function delete($model) {
+        switch (true) {
+        case $model instanceof Thread:
+            $sql = 'DELETE s.* FROM '.$this->SEARCH_TABLE
+                . " s JOIN ".THREAD_ENTRY_TABLE." h ON (h.id = s.object_id) "
+                . " WHERE s.object_type='H'"
+                . ' AND h.thread_id='.db_input($model->getId());
+            return db_query($sql);
+
+        default:
+            if (!($type = ObjectModel::getType($model)))
+                return;
+
+            $sql = 'DELETE FROM '.$this->SEARCH_TABLE
+                . ' WHERE object_type='.db_input($type)
+                . ' AND object_id='.db_input($model->getId());
+            return db_query($sql);
+        }
     }
 
     // Quote things like email addresses
     function quote($query) {
         $parts = array();
-        if (!preg_match_all('`([^\s"\']+)|"[^"]*"|\'[^\']*\'`', $query, $parts,
+        if (!preg_match_all('`(?:([^\s"\']+)|"[^"]*"|\'[^\']*\')(\s*)`', $query, $parts,
                 PREG_SET_ORDER))
             return $query;
 
@@ -273,155 +322,107 @@ class MysqlSearchBackend extends SearchBackend {
                 $char = strpos($m[1], '"') ? "'" : '"';
                 $m[0] = $char . $m[0] . $char;
             }
-            $results[] = $m[0];
+            $results[] = $m[0].$m[2];
         }
-        return implode(' ', $results);
+        return implode('', $results);
     }
 
-    function find($query, $criteria=array(), $model=false, $sort=array()) {
+    function find($query, QuerySet $criteria, $addRelevance=true) {
         global $thisstaff;
 
-        $mode = ' IN BOOLEAN MODE';
-        #if (count(explode(' ', $query)) == 1)
-        #    $mode = ' WITH QUERY EXPANSION';
-        $query = $this->quote($query);
-        $search = 'MATCH (search.title, search.content) AGAINST ('
-            .db_input($query)
-            .$mode.')';
-        $tables = array();
-        $P = TABLE_PREFIX;
-        $sort = '';
+        // MySQL usually doesn't handle words shorter than three letters
+        // (except with special configuration)
+        if (strlen($query) < 3)
+            return $criteria;
 
-        if ($query) {
-            $tables[] = "(
-                SELECT object_type, object_id, $search AS `relevance`
-                FROM `{$P}_search` `search`
-                WHERE $search
-            ) `search`";
-            $sort = 'ORDER BY `search`.`relevance`';
+        $criteria = clone $criteria;
+
+        $mode = ' IN NATURAL LANGUAGE MODE';
+
+        // According to the MySQL full text boolean mode, this grammar is
+        // assumed:
+        // see http://dev.mysql.com/doc/refman/5.6/en/fulltext-boolean.html
+        //
+        // PREOP    = [<>~+-]
+        // POSTOP   = [*]
+        // WORD     = [\w][\w-]*
+        // TERM     = PREOP? WORD POSTOP?
+        // QWORD    = " [^"]+ "
+        // PARENS   = \( { { TERM | QWORD } { \s+ { TERM | QWORD } }+ } \)
+        // EXPR     = { PREOP? PARENS | TERM | QWORD }
+        // BOOLEAN  = EXPR { \s+ EXPR }*
+        //
+        // Changing '{' for (?: and '}' for ')', collapsing whitespace, we
+        // have this regular expression
+        $BOOLEAN = '(?:[<>~+-]?\((?:(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))+)\)|[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?\((?:(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+")(?:\s+(?:[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))+)\)|[<>~+-]?[\w][\w-]*[*]?|"[^"]+"))*';
+
+        // Require the use of at least one operator and conform to the
+        // boolean mode grammar
+        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
+            && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
+        ) {
+            // If using boolean operators, search in boolean mode. This regex
+            // will ensure proper placement of operators, whitespace, and quotes
+            // in an effort to avoid crashing the query at MySQL
+            $query = $this->quote($query);
+            $mode = ' IN BOOLEAN MODE';
         }
+        #elseif (count(explode(' ', $query)) == 1)
+        #    $mode = ' WITH QUERY EXPANSION';
+        $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
 
-        switch ($model) {
+        switch ($criteria->model) {
         case false:
         case 'Ticket':
-            $tables[] = "(select ticket_id as ticket_id from {$P}ticket
-            ) B1 ON (B1.ticket_id = search.object_id and search.object_type = 'T')";
-            $tables[] = "(select A2.id as thread_id, A1.ticket_id from {$P}ticket A1
-                join {$P}ticket_thread A2 on (A1.ticket_id = A2.ticket_id)
-            ) B2 ON (B2.thread_id = search.object_id and search.object_type = 'H')";
-            $tables[] = "(select A3.id as user_id, A1.ticket_id from {$P}user A3
-                join {$P}ticket A1 on (A1.user_id = A3.id)
-            ) B3 ON (B3.user_id = search.object_id and search.object_type = 'U')";
-            $tables[] = "(select A4.id as org_id, A1.ticket_id from {$P}organization A4
-                join {$P}user A3 on (A3.org_id = A4.id) join {$P}ticket A1 on (A1.user_id = A3.id)
-            ) B4 ON (B4.org_id = search.object_id and search.object_type = 'O')";
-            $key = 'COALESCE(B1.ticket_id, B2.ticket_id, B3.ticket_id, B4.ticket_id)';
-            $tables[] = "{$P}ticket A1 ON (A1.ticket_id = {$key})";
-            $tables[] = "{$P}ticket_status A2 ON (A1.status_id = A2.id)";
-            $cdata_search = false;
-            $where = array();
-
-            if ($criteria) {
-                foreach ($criteria as $name=>$value) {
-                    switch ($name) {
-                    case 'status_id':
-                        $where[] = 'A2.id = '.db_input($value);
-                        break;
-                    case 'state':
-                        $where[] = 'A2.state = '.db_input($value);
-                        break;
-                    case 'state__in':
-                        $where[] = 'A2.state IN ('.implode(',',db_input($value)).')';
-                        break;
-                    case 'topic_id':
-                    case 'staff_id':
-                    case 'team_id':
-                    case 'dept_id':
-                    case 'user_id':
-                    case 'isanswered':
-                    case 'isoverdue':
-                    case 'number':
-                        $where[] = sprintf('A1.%s = %s', $name, db_input($value));
-                        break;
-                    case 'created__gte':
-                        $where[] = sprintf('A1.created >= %s', db_input($value));
-                        break;
-                    case 'created__lte':
-                        $where[] = sprintf('A1.created <= %s', db_input($value));
-                        break;
-                    case 'email':
-                    case 'org_id':
-                    case 'form_id':
-                    default:
-                        if (strpos($name, 'cdata.') === 0) {
-                            // Search ticket CDATA table
-                            $cdata_search = true;
-                            $name = substr($name, 6);
-                            if (is_array($value)) {
-                                $where[] = '(' . implode(' OR ', array_map(
-                                    function($k) use ($name) {
-                                        return sprintf('FIND_IN_SET(%s, cdata.`%s`)',
-                                            db_input($k), $name);
-                                    }, $value)
-                                ) . ')';
-                            }
-                            else {
-                                $where[] = sprintf("cdata.%s = %s", $name, db_input($value));
-                            }
-                        }
-                    }
-                }
+            if ($addRelevance) {
+                $criteria = $criteria->extra(array(
+                    'select' => array(
+                        '__relevance__' => 'Z1.`relevance`',
+                    ),
+                ));
             }
-            if ($cdata_search)
-                $tables[] = TABLE_PREFIX.'ticket__cdata cdata'
-                    .' ON (cdata.ticket_id = A1.ticket_id)';
+            $criteria->extra(array(
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, SUM({}) AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN :ticket Z8 ON (Z8.`user_id` = Z6.`id`) WHERE {} GROUP BY `ticket_id`) Z1"),
+                )
+            ));
+            $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')));
+            break;
 
-            // Always consider the current staff's access
-            $thisstaff->getDepts();
-            $access = array();
-            $access[] = '(A1.staff_id=' . db_input($thisstaff->getId())
-                .' AND A2.state="open")';
+        case 'User':
+            $criteria->extra(array(
+                'select' => array(
+                    '__relevance__' => 'Z1.`relevance`',
+                ),
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT Z6.`id` as `user_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') WHERE {}) Z1"),
+                )
+            ));
+            $criteria->filter(array('id'=>new SqlCode('Z1.`user_id`')));
+            break;
 
-            if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-                $access[] = 'A1.dept_id IN ('
-                    . ($depts ? implode(',', db_input($depts)) : 0)
-                    . ')';
-
-            if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-                $access[] = 'A1.team_id IN ('
-                    .implode(',', db_input(array_filter($teams)))
-                    .') AND A2.state="open"';
-
-            $where[] = '(' . implode(' OR ', $access) . ')';
-
-            // TODO: Consider sorting preferences
-
-            $sql = 'SELECT DISTINCT '
-                . $key
-                . ' FROM '
-                . implode(' LEFT JOIN ', $tables)
-                . ' WHERE ' . implode(' AND ', $where)
-                . $sort
-                . ' LIMIT 500';
+        case 'Organization':
+            $criteria->extra(array(
+                'select' => array(
+                    '__relevance__' => 'Z1.`relevance`',
+                ),
+                'tables' => array(
+                    str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
+                    "(SELECT Z2.`id` as `org_id`, {} AS `relevance` FROM `:_search` Z1 LEFT JOIN `:organization` Z2 ON (Z2.`id` = Z1.`object_id` AND Z1.`object_type` = 'O') WHERE {}) Z1"),
+                )
+            ));
+            $criteria->filter(array('id'=>new SqlCode('Z1.`org_id`')));
+            break;
         }
 
-        $class = get_class();
-        $auto_create = function($db_error) use ($class) {
-
-            if ($db_error != 1146)
-                // Perform the standard error handling
-                return true;
-
-            // Create the search table automatically
-            $class::createSearchTable();
-        };
-        $res = db_query($sql, $auto_create);
-        $object_ids = array();
-
-        while ($row = db_fetch_row($res))
-            $object_ids[] = $row[0];
-
-        return $object_ids;
+        // TODO: Ensure search table exists;
+        if (false) {
+            // TODO: Create the search table automatically
+            // $class::createSearchTable();
+        }
+        return $criteria;
     }
 
     static function createSearchTable() {
@@ -436,7 +437,7 @@ class MysqlSearchBackend extends SearchBackend {
         $galera = db_result(db_query($sql));
 
         if ($galera && !$mysql56)
-            throw new Exception('Galera cannot be used with MyISAM tables');
+            throw new Exception('Galera cannot be used with MyISAM tables. Upgrade to MariaDB 10 / MySQL 5.6 is required');
         $engine = $galera ? 'InnodB' : ($mysql56 ? '' : 'MyISAM');
         if ($engine)
             $engine = 'ENGINE='.$engine;
@@ -449,12 +450,18 @@ class MysqlSearchBackend extends SearchBackend {
             primary key `object` (`object_type`, `object_id`),
             fulltext key `search` (`title`, `content`)
         ) $engine CHARSET=utf8";
-        return db_query($sql);
+        if (!db_query($sql))
+            return false;
+
+        // Start rebuilding the index
+        $config = new MySqlSearchConfig();
+        $config->set('reindex', 1);
+        return true;
     }
 
     /**
      * Cooperates with the cron system to automatically find content that is
-     * not index in the _search table and add it to the index.
+     * not indexed in the _search table and add it to the index.
      */
     function IndexOldStuff() {
         $class = get_class();
@@ -470,17 +477,16 @@ class MysqlSearchBackend extends SearchBackend {
         };
 
         // THREADS ----------------------------------
-
-        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".TICKET_THREAD_TABLE."` A1
+        $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".THREAD_ENTRY_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
             AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
-            ORDER BY A1.`id` DESC";
+            ORDER BY A1.`id` DESC LIMIT 500";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $body = ThreadBody::fromFormattedText($row[2], $row[3]);
+            $body = ThreadEntryBody::fromFormattedText($row[2], $row[3]);
             $body = $body->getSearchable();
             $title = Format::searchable($row[1]);
             if (!$body && !$title)
@@ -495,12 +501,13 @@ class MysqlSearchBackend extends SearchBackend {
         $sql = "SELECT A1.`ticket_id` FROM `".TICKET_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`ticket_id` = A2.`object_id` AND A2.`object_type`='T')
             WHERE A2.`object_id` IS NULL
-            ORDER BY A1.`ticket_id` DESC";
+            ORDER BY A1.`ticket_id` DESC LIMIT 300";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $ticket = Ticket::lookup($row[0]);
+            if (!($ticket = Ticket::lookup($row[0])))
+                continue;
             $cdata = $ticket->loadDynamicData();
             $content = array();
             foreach ($cdata as $k=>$a)
@@ -589,6 +596,11 @@ class MysqlSearchBackend extends SearchBackend {
 
         // Flush non-full batch of records
         $this->__index(null, true);
+
+        if (!$this->_reindexed) {
+            // Stop rebuilding the index
+            $this->getConfig()->set('reindex', 0);
+        }
     }
 
     function __index($record, $force_flush=false) {
@@ -608,9 +620,10 @@ class MysqlSearchBackend extends SearchBackend {
 
         $sql = 'INSERT INTO `'.TABLE_PREFIX.'_search` (`object_type`, `object_id`, `title`, `content`)
             VALUES '.implode(',', $queue);
-        if (!db_query($sql) || count($queue) != db_affected_rows())
+        if (!db_query($sql, false) || count($queue) != db_affected_rows())
             throw new Exception('Unable to index content');
 
+        $this->_reindexed += count($queue);
         $queue = array();
 
         if (!--$this->max_batches)
@@ -629,3 +642,747 @@ Signal::connect('system.install',
         array('MysqlSearchBackend', '__init'));
 
 MysqlSearchBackend::register();
+
+// Saved search system
+
+/**
+ * Custom Queue truly represent a saved advanced search.
+ */
+class SavedQueue extends CustomQueue {
+    // Override the ORM relationship to force no children
+    private $children = false;
+    private $_config;
+    private $_criteria;
+    private $_columns;
+    private $_settings;
+    private $_form;
+
+
+
+    function __onload() {
+        global $thisstaff;
+
+        // Load custom settings for this staff
+        if ($thisstaff) {
+            $this->_config = QueueConfig::lookup(array(
+                         'queue_id' => $this->getId(),
+                         'staff_id' => $thisstaff->getId())
+                    );
+        }
+    }
+
+    static function forStaff(Staff $agent) {
+        return static::objects()->filter(Q::any(array(
+            'staff_id' => $agent->getId(),
+            'flags__hasbit' => self::FLAG_PUBLIC,
+        )))
+        ->exclude(array('flags__hasbit'=>self::FLAG_QUEUE));
+    }
+
+    private function getSettings() {
+        if (!isset($this->_settings)) {
+            $this->_settings = array();
+            if ($this->_config)
+                $this->_settings = $this->_config->getSettings();
+        }
+
+        return  $this->_settings;
+    }
+
+    private function getCustomColumns() {
+
+        if (!isset($this->_columns)) {
+            $this->_columns = array();
+            if ($this->_config
+                    && $this->_config->columns->count())
+                $this->_columns = $this->_config->columns;
+        }
+
+        return $this->_columns;
+    }
+
+    /**
+     * Fetch an AdvancedSearchForm instance for use in displaying or
+     * configuring this search in the user interface.
+     *
+     */
+    function getForm($source=null, $searchable=array()) {
+        global $thisstaff;
+
+        if (!$this->isAQueue())
+            $searchable =  $this->getCurrentSearchFields($source,
+                     parent::getCriteria());
+        else // Only allow supplemental matches.
+            $searchable = array_intersect_key($this->getCurrentSearchFields($source),
+                    $this->getSupplementalMatches());
+
+        return parent::getForm($source, $searchable);
+    }
+
+   /**
+     * Get get supplemental matches for public queues.
+     *
+     */
+    function getSupplementalMatches() {
+        // Target flags
+        $flags = array('isoverdue', 'isassigned', 'isreopened', 'isanswered');
+        $current = array();
+        // Check for closed state - whih disables above flags
+        foreach (parent::getCriteria() as $c) {
+            if (!strcasecmp($c[0], 'status__state')
+                    && isset($c[2]['closed']))
+                return array();
+
+            $current[] = $c[0];
+        }
+
+        // Filter out fields already in criteria
+        $matches = array_intersect_key($this->getSupportedMatches(),
+                array_flip(array_diff($flags, $current)));
+
+        return $matches;
+    }
+
+    function criteriaRequired() {
+        return !$this->isAQueue();
+    }
+
+    function describeCriteria($criteria=false){
+        $criteria = $criteria ?: parent::getCriteria();
+        return parent::describeCriteria($criteria);
+    }
+
+    function getCriteria($include_parent=true) {
+
+        if (!isset($this->_criteria)) {
+            $this->getSettings();
+            $this->_criteria = $this->_settings['criteria'] ?: array();
+        }
+
+        $criteria = $this->_criteria;
+        if ($include_parent)
+            $criteria = array_merge($criteria,
+                    parent::getCriteria($include_parent));
+
+
+        return $criteria;
+    }
+
+    function getSupplementalCriteria() {
+        return $this->getCriteria(false);
+    }
+
+    function useStandardColumns() {
+
+        $this->getSettings();
+        if ($this->getCustomColumns()
+                && isset($this->_settings['inherit-columns']))
+            return $this->_settings['inherit-columns'];
+
+        // owner?? edit away.
+        if ($this->_config
+                && $this->_config->staff_id == $this->staff_id)
+            return false;
+
+        return parent::useStandardColumns();
+    }
+
+    function getStandardColumns() {
+        return parent::getColumns(is_null($this->parent));
+    }
+
+    function getColumns($use_template=false) {
+
+        if (!$this->useStandardColumns() && ($columns=$this->getCustomColumns()))
+            return $columns;
+
+        return parent::getColumns($use_template);
+    }
+
+    function update($vars, &$errors=array()) {
+        global $thisstaff;
+
+        if (!$this->checkAccess($thisstaff))
+            return false;
+
+        if ($this->checkOwnership($thisstaff)) {
+            // Owner of the queue - can update everything
+            if (!parent::update($vars, $errors))
+                return false;
+
+            // Personal queues _always_ inherit from their parent
+            $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id >
+                    0);
+
+            return true;
+        }
+
+        // Agent's config for public queue.
+        if (!$this->_config)
+            $this->_config = QueueConfig::create(array(
+                        'queue_id' => $this->getId(),
+                        'staff_id' => $thisstaff->getId()));
+
+        //  Validate & isolate supplemental criteria (if any)
+        $vars['criteria'] = array();
+        if (isset($vars['fields'])) {
+           $form = $this->getForm($vars, $thisstaff);
+            if ($form->isValid()) {
+                $criteria = self::isolateCriteria($form->getClean(),
+                        $this->getRoot());
+                $allowed = $this->getSupplementalMatches();
+                foreach ($criteria as $k => $c)
+                    if (!isset($allowed[$c[0]]))
+                        unset($criteria[$k]);
+
+                $vars['criteria'] = $criteria ?: array();
+            } else {
+                $errors['criteria'] = __('Validation errors exist on supplimental criteria');
+            }
+        }
+
+        if (!$errors && $this->_config->update($vars, $errors))
+            $this->_settings = $this->_criteria = null;
+
+        return (!$errors);
+    }
+
+    static function ticketsCount($agent, $criteria=array(),
+            $prefix='') {
+
+        if (!$agent instanceof Staff)
+            return array();
+
+        $queues = SavedQueue::objects()
+            ->filter(Q::any(array(
+                'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                'staff_id' => $agent->getId(),
+            )));
+
+        if ($criteria)
+            $queues->filter($criteria);
+
+        $query = Ticket::objects();
+        // Apply tickets visibility for the agent
+        $query = $agent->applyVisibility($query);
+        // Aggregate constraints
+        foreach ($queues as $queue) {
+            $Q = $queue->getBasicQuery();
+            $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
+            $query->aggregate(array(
+                "$prefix{$queue->id}" => SqlAggregate::COUNT($expr, true)
+            ));
+        }
+
+        return $query->values()->one();
+    }
+
+    static function lookup($criteria) {
+        $queue = parent::lookup($criteria);
+        // Annoted cusom settings (if any)
+        if (($c=$queue->_config)) {
+            $queue->_settings = $c->getSettings() ?: array();
+            $queue = AnnotatedModel::wrap($queue,
+                        array_intersect_key($queue->_settings,
+                            array_flip(array('sort_id', 'filter'))));
+            $queue->_config = $c;
+        }
+
+        return $queue;
+    }
+
+    static function create($vars=false) {
+        $search = parent::create($vars);
+        $search->clearFlag(self::FLAG_QUEUE);
+        return $search;
+    }
+}
+
+class SavedSearch extends SavedQueue {
+
+    function isSaved() {
+        return (!$this->__new__);
+    }
+}
+
+class AdhocSearch
+extends SavedSearch {
+
+    function isSaved() {
+        return false;
+    }
+
+    function checkAccess($staff) {
+        return true;
+    }
+
+    function getName() {
+        return $this->title ?: $this->describeCriteria();
+    }
+
+    function load($key) {
+
+        if (strpos($key, 'adhoc') === 0)
+            list(, $key) = explode(',', $key, 2);
+
+        if (!$key
+                || !isset($_SESSION['advsearch'])
+                || !($config=$_SESSION['advsearch'][$key]))
+            return null;
+
+       $queue = new AdhocSearch(array(
+                   'id' => "adhoc,$key",
+                   'root' => 'T',
+                   'title' => __('Advanced Search'),
+                ));
+       $queue->config = $config;
+
+       return $queue;
+    }
+}
+
+// AdvacedSearchForm
+class AdvancedSearchForm extends SimpleForm {
+    static $id = 1337;
+
+    function getNumFieldsSelected() {
+        $selected = 0;
+        foreach ($this->getFields() as $F) {
+            if (substr($F->get('name'), -7) == '+search'
+                    && $F->getClean())
+                $selected += 1;
+            // Consider keyword searches
+            elseif ($F->get('name') == ':keywords'
+                    && $F->getClean())
+                $selected += 1;
+        }
+        return $selected;
+    }
+}
+
+// Advanced search special fields
+
+class AdvancedSearchSelectionField extends ChoiceField {
+
+    function hasIdValue() {
+        return false;
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        switch ($method) {
+            case 'includes':
+            case '!includes':
+                $Q = new Q();
+                if (count($value) > 1)
+                    $Q->add(array("{$name}__in" => array_keys($value)));
+                else
+                    $Q->add(array($name => key($value)));
+
+                if ($method == '!includes')
+                    $Q->negate();
+                return $Q;
+                break;
+            // osTicket commonly uses `0` to represent an unset state, so
+            // the set and unset checks need to check for both not null and
+            // nonzero
+            case 'nset':
+                return new Q([$name => 0]);
+            case 'set':
+                return Q::not([$name => 0]);
+            default:
+                return parent::getSearchQ($method, $value, $name);
+        }
+
+    }
+
+}
+
+class HelpTopicChoiceField extends AdvancedSearchSelectionField {
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        return Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+    }
+}
+
+require_once INCLUDE_DIR . 'class.dept.php';
+class DepartmentChoiceField extends AdvancedSearchSelectionField {
+    var $_choices = null;
+
+    function getChoices($verbose=false) {
+        return Dept::getDepartments();
+    }
+
+   function getQuickFilterChoices() {
+       global $thisstaff;
+
+       if (!isset($this->_choices)) {
+         $this->_choices = array();
+         $depts = $thisstaff ? $thisstaff->getDepts() : array();
+         foreach ($this->getChoices() as $id => $name) {
+           if (!$depts || in_array($id, $depts))
+               $this->_choices[$id] = $name;
+         }
+       }
+
+       return $this->_choices;
+   }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+}
+
+
+class AssigneeChoiceField extends ChoiceField {
+    function getChoices($verbose=false) {
+        global $thisstaff;
+
+        $items = array(
+            'M' => __('Me'),
+            'T' => __('One of my teams'),
+        );
+        foreach (Staff::getStaffMembers() as $id=>$name) {
+            // Don't include $thisstaff (since that's 'Me')
+            if ($thisstaff && $thisstaff->getId() == $id)
+                continue;
+            $items['s' . $id] = $name;
+        }
+        foreach (Team::getTeams() as $id=>$name) {
+            $items['t' . $id] = $name;
+        }
+        return $items;
+    }
+
+    function getSearchMethods() {
+        return array(
+            'assigned' =>   __('assigned'),
+            '!assigned' =>  __('unassigned'),
+            'includes' =>   __('includes'),
+            '!includes' =>  __('does not include'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'assigned' => null,
+            '!assigned' => null,
+            'includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+            '!includes' => array('ChoiceField', array(
+                'choices' => $this->getChoices(),
+                'configuration' => array('multiselect' => true),
+            )),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case 'assigned':
+            $Q->negate();
+        case '!assigned':
+            $Q->add(array('team_id' => 0,
+                'staff_id' => 0));
+            break;
+        case '!includes':
+            $Q->negate();
+        case 'includes':
+            $teams = $agents = array();
+            foreach ($value as $id => $ST) {
+                switch ($id[0]) {
+                case 'M':
+                    $agents[] = $thisstaff->getId();
+                    break;
+                case 's':
+                    $agents[] = (int) substr($id, 1);
+                    break;
+                case 'T':
+                    $teams = array_merge($thisstaff->getTeams());
+                    break;
+                case 't':
+                    $teams[] = (int) substr($id, 1);
+                    break;
+                }
+            }
+            $constraints = array();
+            if ($teams)
+                $constraints['team_id__in'] = $teams;
+            if ($agents)
+                $constraints['staff_id__in'] = $agents;
+            $Q->add(Q::any($constraints));
+        }
+        return $Q;
+    }
+
+    function describeSearchMethod($method) {
+        switch ($method) {
+        case 'assigned':
+            return __('assigned');
+        case '!assigned':
+            return __('unassigned');
+        default:
+            return parent::describeSearchMethod($method);
+        }
+    }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
+    }
+
+    function from_query($row, $name=false) {
+        if ($row['staff__firstname'])
+            return new AgentsName(array('first' => $row['staff__firstname'], 'last' => $row['staff__lastname']));
+        if ($row['team_id'])
+            return Team::getLocalById($row['team_id'], 'name', $row['team__name']);
+    }
+
+    function display($value) {
+        return (string) $value;
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return Staff::nsort($query, $reverse);
+    }
+}
+
+class AssignedField extends AssigneeChoiceField {
+
+    function getSearchMethods() {
+        return array(
+            'assigned' =>   __('assigned'),
+            '!assigned' =>  __('unassigned'),
+        );
+    }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('staff_id', 'team_id');
+    }
+
+    function from_query($row, $name=false) {
+        return ($row['staff_id'] || $row['staff_id'])
+            ? __('Yes') : __('No');
+    }
+
+}
+
+/**
+ * Simple trait which changes the SQL for "has a value" and "does not have a
+ * value" to check for zero or non-zero. Useful for not nullable fields.
+ */
+trait ZeroMeansUnset {
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        // osTicket commonly uses `0` to represent an unset state, so
+        // the set and unset checks need to check for both not null and
+        // nonzero
+        case 'nset':
+            return new Q([$name => 0]);
+        case 'set':
+            return Q::not([$name => 0]);
+        }
+        return parent::getSearchQ($method, $value, $name);
+    }
+}
+
+class AgentSelectionField extends AdvancedSearchSelectionField {
+    use ZeroMeansUnset;
+
+    function getChoices($verbose=false) {
+        return array('M' => __('Me')) + Staff::getStaffMembers();
+    }
+
+    function toString($value) {
+        $choices =  $this->getChoices();
+        $selection = array();
+        foreach ($value as $k => $v)
+            if (isset($choices[$k]))
+                $selection[] = $choices[$k];
+
+        return $selection ?  implode(',', $selection) :
+            parent::toString($value);
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+        // unpack me
+        if (isset($value['M']) && $thisstaff) {
+            $value[$thisstaff->getId()] = $thisstaff->getName();
+            unset($value['M']);
+        }
+
+        return parent::getSearchQ($method, $value, $name);
+    }
+
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return Staff::nsort($query, $reverse);
+    }
+}
+
+class DepartmentManagerSelectionField extends AgentSelectionField {
+
+    function getChoices($verbose=false) {
+        return Staff::getStaffMembers();
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'dept__manager_id');
+    }
+}
+
+class TeamSelectionField extends AdvancedSearchSelectionField {
+
+    function getChoices($verbose=false) {
+        return array('T' => __('One of my teams')) + Team::getTeams();
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        // Unpack my teams
+        if (isset($value['T']) && $thisstaff
+                && ($teams = $thisstaff->getTeams())) {
+            unset($value['T']);
+            $value = $value + array_flip($teams);
+        }
+
+        return parent::getSearchQ($method, $value, $name);
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}team__name");
+    }
+}
+
+class TicketStateChoiceField extends AdvancedSearchSelectionField {
+    function getChoices($verbose=false) {
+        return array(
+            'open' => __('Open'),
+            'closed' => __('Closed'),
+            'archived' => _P('ticket state name', 'Archived'),
+            'deleted' => _P('ticket state name','Deleted'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'status__state');
+    }
+}
+
+class TicketFlagChoiceField extends ChoiceField {
+    function getChoices($verbose=false) {
+        return array(
+            'isanswered' =>   __('Answered'),
+            'isoverdue' =>    __('Overdue'),
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $Q = new Q();
+        if (isset($value['isanswered']))
+            $Q->add(array('isanswered' => 1));
+        if (isset($value['isoverdue']))
+            $Q->add(array('isoverdue' => 1));
+        if ($method == '!includes')
+            $Q->negate();
+        if ($Q->constraints)
+            return $Q;
+    }
+}
+
+class TicketSourceChoiceField extends ChoiceField {
+    function getChoices($verbose=false) {
+        return Ticket::getSources();
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        return parent::getSearchQ($method, $value, 'source');
+    }
+}
+
+class OpenClosedTicketStatusList extends TicketStatusList {
+    function getItems($criteria=array()) {
+        $rv = array();
+        $base = parent::getItems($criteria);
+        foreach ($base as $idx=>$S) {
+            if (in_array($S->state, array('open', 'closed')))
+                $rv[$idx] = $S;
+        }
+        return $rv;
+    }
+}
+class TicketStatusChoiceField extends SelectionField {
+    static $widget = 'ChoicesWidget';
+
+    function getList() {
+        return new OpenClosedTicketStatusList(
+            DynamicList::lookup(
+                array('type' => 'ticket-status'))
+        );
+    }
+
+    function getSearchMethods() {
+        return array(
+            'includes' =>   __('is'),
+            '!includes' =>  __('is not'),
+        );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        $name = $name ?: $this->get('name');
+        switch ($method) {
+        case '!includes':
+            return Q::not(array("{$name}__in" => array_keys($value)));
+        case 'includes':
+            return new Q(array("{$name}__in" => array_keys($value)));
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
+    }
+}
+
+interface Searchable {
+    // Fetch an array of [ orm__path => Field() ] pairs. The field label is
+    // used when this list is rendered in a dropdown, and the field search
+    // mechanisms are use to apply query filtering based on the field.
+    static function getSearchableFields();
+
+    // Determine if the object supports abritrary form additions, through
+    // the "Manage Forms" dialog usually
+    static function supportsCustomData();
+}

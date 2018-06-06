@@ -14,6 +14,8 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
+include_once INCLUDE_DIR.'class.charset.php';
+require_once INCLUDE_DIR.'class.variable.php';
 
 class Format {
 
@@ -40,47 +42,13 @@ class Format {
         return $size;
     }
 
-	/* encode text into desired encoding - taking into accout charset when available. */
-    function encode($text, $charset=null, $encoding='utf-8') {
-
-        //Try auto-detecting charset/encoding
-        if (!$charset && function_exists('mb_detect_encoding'))
-            $charset = mb_detect_encoding($text);
-
-        // Cleanup - incorrect, bogus, or ambiguous charsets
-        // ISO-8859-1 is assumed for empty charset.
-        if (!$charset || in_array(strtolower(trim($charset)),
-                array('default','x-user-defined','iso','us-ascii')))
-            $charset = 'ISO-8859-1';
-
-        $original = $text;
-        if (function_exists('iconv'))
-            $text = iconv($charset, $encoding.'//IGNORE', $text);
-        elseif (function_exists('mb_convert_encoding'))
-            $text = mb_convert_encoding($text, $encoding, $charset);
-        elseif (!strcasecmp($encoding, 'utf-8')
-                && function_exists('utf8_encode')
-                && !strcasecmp($charset, 'ISO-8859-1'))
-            $text = utf8_encode($text);
-
-        // If $text is false, then we have a (likely) invalid charset, use
-        // the original text and assume 8-bit (latin-1 / iso-8859-1)
-        // encoding
-        return (!$text && $original) ? $original : $text;
-    }
-
-    //Wrapper for utf-8 encoding.
-    function utf8encode($text, $charset=null) {
-        return Format::encode($text, $charset, 'utf-8');
-    }
-
     function mimedecode($text, $encoding='UTF-8') {
 
         if(function_exists('imap_mime_header_decode')
                 && ($parts = imap_mime_header_decode($text))) {
             $str ='';
             foreach ($parts as $part)
-                $str.= Format::encode($part->text, $part->charset, $encoding);
+                $str.= Charset::transcode($part->text, $part->charset, $encoding);
 
             $text = $str;
         } elseif($text[0] == '=' && function_exists('iconv_mime_decode')) {
@@ -105,7 +73,7 @@ class Format {
                 $filename, $match))
             // XXX: Currently we don't care about the language component.
             //      The  encoding hint is sufficient.
-            return self::utf8encode(urldecode($match[3]), $match[1]);
+            return Charset::utf8(urldecode($match[3]), $match[1]);
         else
             return $filename;
     }
@@ -148,15 +116,87 @@ class Format {
         return $len ? wordwrap($text, $len, "\n", true) : $text;
     }
 
-    function html($html, $config=array('balance'=>1)) {
+    function html_balance($html, $remove_empty=true) {
+        if (!extension_loaded('dom'))
+            return $html;
+
+        if (!trim($html))
+            return $html;
+
+        $doc = new DomDocument();
+        $xhtml = '<?xml encoding="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
+            // Wrap the content in a <div> because libxml would use a <p>
+            . "<div>$html</div>";
+        $doc->encoding = 'utf-8';
+        $doc->preserveWhitespace = false;
+        $doc->recover = true;
+        if (false === @$doc->loadHTML($xhtml))
+            return $html;
+
+        if ($remove_empty) {
+            // Remove empty nodes
+            $xpath = new DOMXPath($doc);
+            static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
+                    'iframe' => 1, 'hr'=>1, 'img'=>1, 'input'=>1,
+                    'isindex'=>1, 'param'=>1);
+            do {
+                $done = true;
+                $nodes = $xpath->query('//*[not(text()) and not(node())]');
+                foreach ($nodes as $n) {
+                    if (isset($eE[$n->nodeName]))
+                        continue;
+                    $n->parentNode->removeChild($n);
+                    $done = false;
+                }
+            } while (!$done);
+        }
+
+        static $phpversion;
+        if (!isset($phpversion))
+            $phpversion = phpversion();
+
+        $body = $doc->getElementsByTagName('body');
+        if (!$body->length)
+            return $html;
+
+        if ($phpversion > '5.3.6') {
+            $html = $doc->saveHTML($doc->getElementsByTagName('body')->item(0)->firstChild);
+        }
+        else {
+            $html = $doc->saveHTML();
+            $html = preg_replace('`^<!DOCTYPE.+?>|<\?xml .+?>|</?html>|</?body>|</?head>|<meta .+?/?>`', '', $html); # <?php
+        }
+        return preg_replace('`^<div>|</div>$`', '', trim($html));
+    }
+
+    function html($html, $config=array()) {
         require_once(INCLUDE_DIR.'htmLawed.php');
         $spec = false;
         if (isset($config['spec']))
             $spec = $config['spec'];
+
+        // Add in htmLawed defaults
+        $config += array(
+            'balance' => 1,
+        );
+
+        // Attempt to balance using libxml. htmLawed will corrupt HTML with
+        // balancing to fix improper HTML at the same time. For instance,
+        // some email clients may wrap block elements inside inline
+        // elements. htmLawed will change such block elements to inlines to
+        // make the HTML correct.
+        if ($config['balance'] && extension_loaded('dom')) {
+            $html = self::html_balance($html);
+            $config['balance'] = 0;
+        }
+
         return htmLawed($html, $config, $spec);
     }
 
     function html2text($html, $width=74, $tidy=true) {
+
+        if (!$html)
+            return $html;
 
 
         # Tidy html: decode, balance, sanitize tags
@@ -165,8 +205,9 @@ class Format {
 
         # See if advanced html2text is available (requires xml extension)
         if (function_exists('convert_html_to_text')
-                && extension_loaded('dom'))
-            return convert_html_to_text($html, $width);
+                && extension_loaded('dom')
+                && ($text = convert_html_to_text($html, $width)))
+                return $text;
 
         # Try simple html2text  - insert line breaks after new line tags.
         $html = preg_replace(
@@ -183,6 +224,17 @@ class Format {
     static function __html_cleanup($el, $attributes=0) {
         static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
             'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
+
+        // We're dealing with closing tag
+        if ($attributes === 0)
+            return "</{$el}>";
+
+        // Remove iframe and embed without src (perhaps striped by spec)
+        // It would be awesome to rickroll such entry :)
+        if (in_array($el, array('iframe', 'embed'))
+                && (!isset($attributes['src']) || empty($attributes['src'])))
+            return '';
+
         // Clean unexpected class values
         if (isset($attributes['class'])) {
             $classes = explode(' ', $attributes['class']);
@@ -233,26 +285,45 @@ class Format {
         }
     }
 
-    function safe_html($html) {
+    function safe_html($html, $options=array()) {
+
+        $options = array_merge(array(
+                    // Balance html tags
+                    'balance' => 1,
+                    // Decoding special html char like &lt; and &gt; which
+                    // can be used to skip cleaning
+                    'decode' => true
+                    ),
+                $options);
+
+        if ($options['decode'])
+            $html = Format::htmldecode($html);
+
         // Remove HEAD and STYLE sections
         $html = preg_replace(
             array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
                   ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
                   ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
                   ':<\?[^>]+>:',                # <?xml version="1.0" ... >
+                  ':<html[^>]+:i',              # drop html attributes
+                  ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
+                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
             ),
-            array('', '', '', ''),
+            array('', '', '', '', '<html', '$4', '$2 $3'),
             $html);
+
+        // HtmLawed specific config only
         $config = array(
             'safe' => 1, //Exclude applet, embed, iframe, object and script tags.
-            'balance' => 1, //balance and close unclosed tags.
+            'balance' => $options['balance'],
             'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
             'tidy' => -1,
             'deny_attribute' => 'id',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
             'elements' => '*+iframe',
-            'spec' => 'iframe=-*,height,width,type,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo)\.com/`i"),frameborder; div=data-mid',
+            'spec' =>
+            'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo|player.vimeo)\.com/`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen',
         );
 
         return Format::html($html, $config);
@@ -261,14 +332,14 @@ class Format {
     function localizeInlineImages($text) {
         // Change file.php urls back to content-id's
         return preg_replace(
-            '/src="(?:\/[^"]+?)?\/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*/',
+            '`src="(?:https?:/)?(?:/[^/"]+)*?/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*`',
             'src="cid:$1', $text);
     }
 
-    function sanitize($text, $striptags=false) {
+    function sanitize($text, $striptags=false, $spec=false) {
 
         //balance and neutralize unsafe tags.
-        $text = Format::safe_html($text);
+        $text = Format::safe_html($text, array('spec' => $spec));
 
         $text = self::localizeInlineImages($text);
 
@@ -316,7 +387,7 @@ class Format {
     }
 
     //Format text for display..
-    function display($text, $inline_images=true) {
+    function display($text, $inline_images=true, $balance=true) {
         // Make showing offsite images optional
         $text = preg_replace_callback('/<img ([^>]*)(src="http[^"]+")([^>]*)\/>/',
             function($match) {
@@ -327,7 +398,10 @@ class Format {
             },
             $text);
 
-        //make urls clickable.
+        if ($balance)
+            $text = self::html_balance($text, false);
+
+        // make urls clickable.
         $text = Format::clickableurls($text);
 
         if ($inline_images)
@@ -349,12 +423,12 @@ class Format {
         global $ost;
 
         // Find all text between tags
-        $text = preg_replace_callback(':^[^<]+|>[^<]+:',
+        return preg_replace_callback(':^[^<]+|>[^<]+:',
             function($match) {
                 // Scan for things that look like URLs
                 return preg_replace_callback(
                     '`(?<!>)(((f|ht)tp(s?)://|(?<!//)www\.)([-+~%/.\w]+)(?:[-?#+=&;%@.\w]*)?)'
-                   .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,4})`',
+                   .'|(\b[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,63})`',
                     function ($match) {
                         if ($match[1]) {
                             while (in_array(substr($match[1], -1),
@@ -376,32 +450,6 @@ class Format {
                     $match[0]);
             },
             $text);
-
-        // Now change @href and @src attributes to come back through our
-        // system as well
-        $config = array(
-            'hook_tag' => function($e, $a=0) use ($target) {
-                static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
-                    'hr'=>1, 'img'=>1, 'input'=>1, 'isindex'=>1, 'param'=>1);
-                if ($e == 'a' && $a) {
-                    $a['target'] = $target;
-                    $a['class'] = 'no-pjax';
-                }
-
-                $at = '';
-                if (is_array($a)) {
-                    foreach ($a as $k=>$v)
-                        $at .= " $k=\"$v\"";
-                    return "<{$e}{$at}".(isset($eE[$e])?" /":"").">";
-                } else {
-                    return "</{$e}>";
-                }
-            },
-            'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
-            'elements' => '*+iframe',
-            'spec' => 'span=data-src,width,height',
-        );
-        return Format::html($text, $config);
     }
 
     function stripEmptyLines($string) {
@@ -409,14 +457,17 @@ class Format {
     }
 
 
-    function viewableImages($html, $script=false) {
+    function viewableImages($html, $options=array()) {
+        $cids = $images = array();
+        $options +=array(
+                'deposition' => 'inline');
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
-        function($match) use ($script) {
-            $hash = $match[1];
-            if (!($file = AttachmentFile::lookup($hash)))
+        function($match) use ($options, $images) {
+            if (!($file = AttachmentFile::lookup($match[1])))
                 return $match[0];
+
             return sprintf('"%s" data-cid="%s"',
-                $file->getDownloadUrl(false, 'inline', $script), $match[1]);
+                $file->getDownloadUrl($options), $match[1]);
         }, $html);
     }
 
@@ -461,39 +512,245 @@ class Format {
         return $tstring;
     }
 
-    /* Dates helpers...most of this crap will change once we move to PHP 5*/
-    function db_date($time) {
+    function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
+            $strftimeFallback, $timezone, $user=false) {
         global $cfg;
-        return Format::userdate($cfg->getDateFormat(), Misc::db2gmtime($time));
+        static $cache;
+
+        if ($timestamp && $fromDb)
+            $timestamp = Misc::db2gmtime($timestamp);
+
+        // Make sure timestamp is valid for realz.
+        if (!$timestamp || !($datetime = DateTime::createFromFormat('U', $timestamp)))
+            return '';
+
+        // Set the desired timezone (caching since it will be mostly same
+        // for most date formatting.
+        $timezone = Format::timezone($timezone, $cfg->getTimezone());
+        if (isset($cache[$timezone]))
+            $tz =  $cache[$timezone];
+        else
+            $cache[$timezone] = $tz = new DateTimeZone($timezone);
+
+        $datetime->setTimezone($tz);
+
+        // Formmating options
+        $options = array(
+                'timezone' => $tz->getName(),
+                'locale' =>  Internationalization::getCurrentLocale($user),
+                'daytype' => $dayType,
+                'timetype' => $timeType,
+                'strftime' => $strftimeFallback,
+                );
+
+        return self::IntDateFormat($datetime, $format, $options);
+
     }
 
-    function db_datetime($time) {
+    // IntDateFormat
+    // Format datetime to desired format in accorrding to desired locale
+    function IntDateFormat(DateTime $datetime, $format, $options=array()) {
         global $cfg;
-        return Format::userdate($cfg->getDateTimeFormat(), Misc::db2gmtime($time));
+
+        if (!$datetime instanceof DateTime)
+            return '';
+
+        $format = $format ?: $cfg->getDateFormat();
+        $timezone = $datetime->getTimeZone();
+        // Use IntlDateFormatter if available
+        if (class_exists('IntlDateFormatter')) {
+
+            if ($cfg && $cfg->isForce24HourTime())
+                $format = str_replace(array('a', 'h'), array('', 'H'),
+                        $format);
+
+            $options += array(
+                    'pattern' => $format,
+                    'timezone' => $timezone->getName());
+
+            if ($fmt=Internationalization::getIntDateFormatter($options))
+                return  $fmt->format($datetime);
+        }
+
+        // Fallback to using strftime which is not timezone aware
+        // Figure out timezone offset for given timestamp
+        $timestamp = $datetime->format('U');
+        $time = DateTime::createFromFormat('U', $timestamp, new DateTimeZone('UTC'));
+        $timestamp += $timezone->getOffset($time);
+        // Change format to strftime format otherwise us a fallback format
+        $format = self::getStrftimeFormat($format) ?: $options['strftime']
+            ?:  '%x %X';
+        return strftime($format, $timestamp);
     }
 
-    function db_daydatetime($time) {
+    // Normalize ambiguous timezones
+    function timezone($tz, $default=false) {
+
+        // Translate ambiguous 'GMT' timezone
+        if ($tz == 'GMT')
+           return 'Europe/London';
+
+        if (!$tz || !strcmp($tz, '+00:00'))
+            $tz = 'UTC';
+
+        if (is_numeric($tz))
+            $tz = timezone_name_from_abbr('', $tz, false);
+        // Forbid timezone abbreviations like 'CDT'
+        elseif ($tz !== 'UTC' && strpos($tz, '/') === false) {
+            // Attempt to lookup based on the abbreviation
+            if (!($tz = timezone_name_from_abbr($tz)))
+                // Abbreviation doesn't point to anything valid
+                return $default;
+        }
+
+        // SYSTEM does not describe a time zone, ensure we have a valid zone
+        // by attempting to create an instance of DateTimeZone()
+        try {
+            $timezone = new DateTimeZone($tz);
+            return $timezone->getName();
+        } catch(Exception $ex) {
+            return $default;
+        }
+
+        return $tz;
+    }
+
+    function parseDateTime($date, $locale=null, $format=false) {
         global $cfg;
-        return Format::userdate($cfg->getDayDateTimeFormat(), Misc::db2gmtime($time));
+
+        if (!$date)
+            return null;
+
+        // Timestamp format?
+        if (is_numeric($date))
+            return DateTime::createFromFormat('U', $date);
+
+        $datetime = null;
+        try {
+            $datetime = new DateTime($date);
+            $tz = $datetime->getTimezone()->getName();
+            if ($tz && $tz[0] == '+' || $tz[0] == '-')
+                $tz = (int) $datetime->format('Z');
+            $timezone =  new DateTimeZone(Format::timezone($tz) ?: 'UTC');
+            $datetime->setTimezone($timezone);
+        } catch (Exception $ex) {
+            // Fallback using strtotime
+            if (($time=strtotime($date)))
+                $datetime = DateTime::createFromFormat('U', $time);
+
+        }
+
+        return $datetime;
     }
 
-    function userdate($format, $gmtime) {
-        return Format::date($format, $gmtime, $_SESSION['TZ_OFFSET'], $_SESSION['TZ_DST']);
+    function time($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
+        global $cfg;
+
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getTimeFormat(), $fromDb,
+            IDF_NONE, IDF_SHORT,
+            '%X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function date($format, $gmtimestamp, $offset=0, $daylight=false){
+    function date($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
+        global $cfg;
 
-        if(!$gmtimestamp || !is_numeric($gmtimestamp))
-            return "";
+        return self::__formatDate($timestamp,
+            $format ?: $cfg->getDateFormat(), $fromDb,
+            IDF_SHORT, IDF_NONE,
+            '%x', $timezone ?: $cfg->getTimezone(), $user);
+    }
 
-        $offset+=$daylight?date('I', $gmtimestamp):0; //Daylight savings crap.
+    function datetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
+        global $cfg;
 
-        return date($format, ($gmtimestamp+ ($offset*3600)));
+        return self::__formatDate($timestamp,
+                $cfg->getDateTimeFormat(), $fromDb,
+                IDF_SHORT, IDF_SHORT,
+                '%x %X', $timezone ?: $cfg->getTimezone(), $user);
+    }
+
+    function daydatetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
+        global $cfg;
+
+        return self::__formatDate($timestamp,
+                $cfg->getDayDateTimeFormat(), $fromDb,
+                IDF_FULL, IDF_SHORT,
+                '%x %X', $timezone ?: $cfg->getTimezone(), $user);
+    }
+
+    function getStrftimeFormat($format) {
+        static $codes, $ids;
+
+        if (!isset($codes)) {
+            // This array is flipped because of duplicated formats on the
+            // intl side due to slight differences in the libraries
+            $codes = array(
+            '%d' => 'dd',
+            '%a' => 'EEE',
+            '%e' => 'd',
+            '%A' => 'EEEE',
+            '%w' => 'e',
+            '%w' => 'c',
+            '%z' => 'D',
+
+            '%V' => 'w',
+
+            '%B' => 'MMMM',
+            '%m' => 'MM',
+            '%b' => 'MMM',
+
+            '%g' => 'Y',
+            '%G' => 'Y',
+            '%Y' => 'y',
+            '%y' => 'yy',
+
+            '%P' => 'a',
+            '%l' => 'h',
+            '%k' => 'H',
+            '%I' => 'hh',
+            '%H' => 'HH',
+            '%M' => 'mm',
+            '%S' => 'ss',
+
+            '%z' => 'ZZZ',
+            '%Z' => 'z',
+            );
+
+            $flipped = array_flip($codes);
+            krsort($flipped);
+
+            // Also establish a list of ids, so we can do a creative replacement
+            // without clobbering the common letters in the formats
+            $keys = array_keys($flipped);
+            $ids = array_combine($keys, array_map('chr', array_flip($keys)));
+
+            // Now create an array from the id codes back to strftime codes
+            $codes = array_combine($ids, $flipped);
+        }
+        // $ids => array(intl => #id)
+        // $codes => array(#id => strftime)
+        $format = str_replace(array_keys($ids), $ids, $format);
+        $format = str_replace($ids, $codes, $format);
+
+        return preg_replace_callback('`[\x00-\x1f]`',
+            function($m) use ($ids) {
+                return $ids[ord($m[0])];
+            },
+            $format
+        );
     }
 
     // Thanks, http://stackoverflow.com/a/2955878/1025836
     /* static */
     function slugify($text) {
+        // convert special characters to entities
+        $text = htmlentities($text, ENT_NOQUOTES, 'UTF-8');
+
+        // removes entity suffixes, leaving only un-accented characters
+        $text = preg_replace('~&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);~', '$1', $text);
+        $text = preg_replace('~&([A-za-z]{2})(?:lig);~', '$1', $text);
+
         // replace non letter or digits by -
         $text = preg_replace('~[^\p{L}\p{N}]+~u', '-', $text);
 
@@ -555,7 +812,7 @@ class Format {
                 $contents = base64_decode($contents);
         }
         if ($output_encoding && $charset)
-            $contents = Format::encode($contents, $charset, $output_encoding);
+            $contents = Charset::transcode($contents, $charset, $output_encoding);
 
         return array(
             'data' => $contents,
@@ -572,41 +829,11 @@ class Format {
             // Normalize text input :: remove diacritics and such
             $text = normalizer_normalize($text, Normalizer::FORM_C);
         }
-        else {
-            // As a lightweight compatiblity, use a lightweight C
-            // normalizer with diacritic removal, thanks
-            // http://ahinea.com/en/tech/accented-translate.html
-            $tr = array(
-                "ä" => "a", "ñ" => "n", "ö" => "o", "ü" => "u", "ÿ" => "y"
-            );
-            $text = strtr($text, $tr);
-        }
-        // Decompose compatible versions of characters (ä => ae)
-        $tr = array(
-            "ß" => "ss", "Æ" => "AE", "æ" => "ae", "Ĳ" => "IJ",
-            "ĳ" => "ij", "Œ" => "OE", "œ" => "oe", "Ð" => "D",
-            "Đ" => "D", "ð" => "d", "đ" => "d", "Ħ" => "H", "ħ" => "h",
-            "ı" => "i", "ĸ" => "k", "Ŀ" => "L", "Ł" => "L", "ŀ" => "l",
-            "ł" => "l", "Ŋ" => "N", "ŉ" => "n", "ŋ" => "n", "Ø" => "O",
-            "ø" => "o", "ſ" => "s", "Þ" => "T", "Ŧ" => "T", "þ" => "t",
-            "ŧ" => "t", "ä" => "ae", "ö" => "oe", "ü" => "ue",
-            "Ä" => "AE", "Ö" => "OE", "Ü" => "UE",
-        );
-        $text = strtr($text, $tr);
 
-        // Drop separated diacritics
-        $text = preg_replace('/\p{M}/u', '', $text);
-
-        // Drop extraneous whitespace
-        $text = preg_replace('/(\s)\s+/u', '$1', $text);
-
-        // Drop leading and trailing whitespace
-        $text = trim($text);
-
-        if (class_exists('IntlBreakIterator')) {
+        if (false && class_exists('IntlBreakIterator')) {
             // Split by word boundaries
             if ($tokenizer = IntlBreakIterator::createWordInstance(
-                    $lang ?: ($cfg ? $cfg->getSystemLanguage() : 'en_US'))
+                    $lang ?: ($cfg ? $cfg->getPrimaryLanguage() : 'en_US'))
             ) {
                 $tokenizer->setText($text);
                 $tokens = array();
@@ -620,8 +847,253 @@ class Format {
             // http://www.unicode.org/reports/tr29/#Word_Boundaries
 
             // Punt for now
+
+            // Drop extraneous whitespace
+            $text = preg_replace('/(\s)\s+/u', '$1', $text);
+
+            // Drop leading and trailing whitespace
+            $text = trim($text);
         }
         return $text;
+    }
+
+    function relativeTime($to, $from=false, $granularity=1) {
+        if (!$to)
+            return false;
+        $timestamp = $to;
+        if (gettype($timestamp) === 'string')
+            $timestamp = strtotime($timestamp);
+        $from = $from ?: Misc::gmtime();
+        if (gettype($timestamp) === 'string')
+            $from = strtotime($from);
+        $timeDiff = $from - $timestamp;
+        $absTimeDiff = abs($timeDiff);
+
+        // Roll back to the nearest multiple of $granularity
+        $absTimeDiff -= $absTimeDiff % $granularity;
+
+        // within 2 seconds
+        if ($absTimeDiff <= 2) {
+          return $timeDiff >= 0 ? __('just now') : __('now');
+        }
+
+        // within a minute
+        if ($absTimeDiff < 60) {
+          return sprintf($timeDiff >= 0 ? __('%d seconds ago') : __('in %d seconds'), $absTimeDiff);
+        }
+
+        // within 2 minutes
+        if ($absTimeDiff < 120) {
+          return sprintf($timeDiff >= 0 ? __('about a minute ago') : __('in about a minute'));
+        }
+
+        // within an hour
+        if ($absTimeDiff < 3600) {
+          return sprintf($timeDiff >= 0 ? __('%d minutes ago') : __('in %d minutes'), $absTimeDiff / 60);
+        }
+
+        // within 2 hours
+        if ($absTimeDiff < 7200) {
+          return ($timeDiff >= 0 ? __('about an hour ago') : __('in about an hour'));
+        }
+
+        // within 24 hours
+        if ($absTimeDiff < 86400) {
+          return sprintf($timeDiff >= 0 ? __('%d hours ago') : __('in %d hours'), $absTimeDiff / 3600);
+        }
+
+        // within 2 days
+        $days2 = 2 * 86400;
+        if ($absTimeDiff < $days2) {
+            // XXX: yesterday / tomorrow?
+          return $absTimeDiff >= 0 ? __('yesterday') : __('tomorrow');
+        }
+
+        // within 29 days
+        $days29 = 29 * 86400;
+        if ($absTimeDiff < $days29) {
+          return sprintf($timeDiff >= 0 ? __('%d days ago') : __('in %d days'), $absTimeDiff / 86400);
+        }
+
+        // within 60 days
+        $days60 = 60 * 86400;
+        if ($absTimeDiff < $days60) {
+          return ($timeDiff >= 0 ? __('about a month ago') : __('in about a month'));
+        }
+
+        $currTimeYears = date('Y', $from);
+        $timestampYears = date('Y', $timestamp);
+        $currTimeMonths = $currTimeYears * 12 + date('n', $from);
+        $timestampMonths = $timestampYears * 12 + date('n', $timestamp);
+
+        // within a year
+        $monthDiff = $currTimeMonths - $timestampMonths;
+        if ($monthDiff < 12 && $monthDiff > -12) {
+          return sprintf($monthDiff >= 0 ? __('%d months ago') : __('in %d months'), abs($monthDiff));
+        }
+
+        $yearDiff = $currTimeYears - $timestampYears;
+        if ($yearDiff < 2 && $yearDiff > -2) {
+          return $yearDiff >= 0 ? __('a year ago') : __('in a year');
+        }
+
+        return sprintf($yearDiff >= 0 ? __('%d years ago') : __('in %d years'), abs($yearDiff));
+    }
+}
+
+if (!class_exists('IntlDateFormatter')) {
+    define('IDF_NONE', 0);
+    define('IDF_SHORT', 1);
+    define('IDF_FULL', 2);
+}
+else {
+    define('IDF_NONE', IntlDateFormatter::NONE);
+    define('IDF_SHORT', IntlDateFormatter::SHORT);
+    define('IDF_FULL', IntlDateFormatter::FULL);
+}
+
+class FormattedLocalDate
+implements TemplateVariable {
+
+    var $date;
+    var $timezone;
+    var $datetime;
+    var $fromdb;
+    var $format;
+
+    function __construct($date,  $options=array()) {
+
+        // Date to be formatted
+        $this->datetime = Format::parseDateTime($date);
+        $this->date = $this->datetime->getTimestamp();
+        // Desired timezone
+        if (isset($options['timezone']))
+            $this->timezone = $options['timezone'];
+        else
+            $this->timezone = false;
+        // User
+        if (isset($options['user']))
+            $this->user = $options['user'];
+        else
+            $this->user = false;
+
+        // DB date or nah?
+        if (isset($options['fromdb']))
+            $this->fromdb = $options['fromdb'];
+        else
+            $this->fromdb = true;
+        // Desired format
+        if (isset($options['format']) && $options['format'])
+            $this->format = $options['format'];
+    }
+
+    function getDateTime() {
+        return $this->datetime;
+    }
+
+    function asVar() {
+        return $this->getVar($this->format ?: 'long');
+    }
+
+    function getVar($what) {
+        // TODO: Rebase date format so that locale is discovered HERE.
+
+        switch ($what) {
+        case 'short':
+            return Format::date($this->date, $this->fromdb, false, $this->timezone, $this->user);
+        case 'long':
+            return Format::datetime($this->date, $this->fromdb, $this->timezone, $this->user);
+        case 'time':
+            return Format::time($this->date, $this->fromdb, false, $this->timezone, $this->user);
+        case 'full':
+            return Format::daydatetime($this->date, $this->fromdb, $this->timezone, $this->user);
+        }
+    }
+
+    function __toString() {
+        return $this->asVar() ?: '';
+    }
+
+    static function getVarScope() {
+        return array(
+            'full' => 'Expanded date, e.g. day, month dd, yyyy',
+            'long' => 'Date and time, e.g. d/m/yyyy hh:mm',
+            'short' => 'Date only, e.g. d/m/yyyy',
+            'time' => 'Time only, e.g. hh:mm',
+        );
+    }
+}
+
+class FormattedDate
+extends FormattedLocalDate {
+    function asVar() {
+        return $this->getVar('system')->asVar();
+    }
+
+    function __toString() {
+        global $cfg;
+
+        $timezone = new DatetimeZone($this->timezone ?:
+                $cfg->getTimezone());
+        $options = array(
+                'timezone'  => $timezone->getName(),
+                'fromdb'    => $this->fromdb,
+                'format'    => $this->format
+                );
+
+        $val = (string) new FormattedLocalDate($this->date, $options);
+        if ($this->timezone && $this->format == 'long') {
+            try {
+                $this->datetime->setTimezone($timezone);
+                $val = sprintf('%s %s',
+                        $val, $this->datetime->format('T'));
+
+            } catch(Exception $ex) {
+                // ignore
+            }
+        }
+
+        return $val;
+    }
+
+    function getVar($what, $context=null) {
+        global $cfg;
+
+        if ($rv = parent::getVar($what, $context))
+            return $rv;
+
+        switch ($what) {
+        case 'user':
+            // Fetch $recipient from the context and find that user's time zone
+            if ($context && ($recipient = $context->getObj('recipient'))) {
+                $options = array(
+                        'timezone' => $recipient->getTimezone() ?: $cfg->getDefaultTimezone(),
+                        'user' => $recipient
+                        );
+                return new FormattedLocalDate($this->date, $options);
+            }
+            // Don't resolve the variable until correspondance is sent out
+            return false;
+        case 'system':
+            return new FormattedLocalDate($this->date, array(
+                        'timezone' => $cfg->getDefaultTimezone()
+                        )
+                    );
+        }
+    }
+
+    function getHumanize() {
+        return Format::relativeTime(Misc::db2gmtime($this->date));
+    }
+
+    static function getVarScope() {
+        return parent::getVarScope() + array(
+            'humanize' => 'Humanized time, e.g. about an hour ago',
+            'user' => array(
+                'class' => 'FormattedLocalDate', 'desc' => "Localize to recipient's time zone and locale"),
+            'system' => array(
+                'class' => 'FormattedLocalDate', 'desc' => 'Localize to system default time zone'),
+        );
     }
 }
 ?>

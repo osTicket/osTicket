@@ -23,4 +23,4 @@ Comments are meant to serve as a consistent hint to the context of the text.
 Starting a new translation
 --------------------------
 We are using Crowdin to manage our translations. Visit our translation page
-at http://i18n.crowdin.com/
+at https://crowdin.com/project/osticket-official

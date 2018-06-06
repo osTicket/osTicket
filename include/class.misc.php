@@ -16,14 +16,30 @@
 
 class Misc {
 
-	function randCode($count=8, $chars=false) {
-        $chars = $chars ? $chars
-            : 'abcdefghijklmnopqrstuvwzyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.';
-        $data = '';
-        $m = strlen($chars) - 1;
-        for ($i=0; $i < $count; $i++)
-            $data .= $chars[mt_rand(0,$m)];
-        return $data;
+	function randCode($len=8, $chars=false) {
+        $chars = $chars ?: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_=';
+
+        // Determine the number of bits we need
+        $char_count = strlen($chars);
+        $bits_per_char = ceil(log($char_count, 2));
+        $bytes = ceil(4 * $len / floor(32 / $bits_per_char));
+        // Pad to 4 byte boundary
+        $bytes += (4 - ($bytes % 4)) % 4;
+
+        // Fetch some random data blocks
+        $data = Crypto::random($bytes);
+
+        $mask = (1 << $bits_per_char) - 1;
+        $loops = (int) (32 / $bits_per_char);
+        $output = '';
+        $ints = unpack('V*', $data);
+        foreach ($ints as $int) {
+            for ($i = $loops; $i > 0; $i--) {
+                $output .= $chars[($int & $mask) % $char_count];
+                $int >>= $bits_per_char;
+            }
+        }
+        return substr($output, 0, $len);
 	}
 
     function __rand_seed($value=0) {
@@ -36,41 +52,88 @@ class Misc {
     }
 
     /* Helper used to generate ticket IDs */
-    function randNumber($len=6,$start=false,$end=false) {
+    function randNumber($len=6) {
+        $number = '';
+        for ($i=0; $i<$len; $i++) {
+            $min = ($i == 0) ? 1 : 0;
+            $number .= mt_rand($min, 9);
+        }
 
-        $start=(!$len && $start)?$start:str_pad(1,$len,"0",STR_PAD_RIGHT);
-        $end=(!$len && $end)?$end:str_pad(9,$len,"9",STR_PAD_RIGHT);
-
-        return mt_rand($start,$end);
+        return (int) $number;
     }
 
     /* misc date helpers...this will go away once we move to php 5 */
     function db2gmtime($var){
+        static $dbtz;
         global $cfg;
-        if(!$var) return;
 
-        $dbtime=is_int($var)?$var:strtotime($var);
-        return $dbtime-($cfg->getDBTZoffset()*3600);
+        if (!$var || !$cfg)
+            return;
+
+        if (!isset($dbtz))
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+
+        $dbtime = is_int($var) ? $var : strtotime($var);
+        $D = DateTime::createFromFormat('U', $dbtime);
+        if (!$D)
+            // This happens e.g. from negative timestamps
+            return $var;
+
+        return $dbtime - $dbtz->getOffset($D);
+    }
+
+    // Take user's time and return GMT time.
+    function user2gmtime($timestamp=null, $user=null) {
+        global $cfg;
+
+        $tz = new DateTimeZone($cfg->getTimezone($user));
+
+        if ($timestamp && is_int($timestamp)) {
+            if (!($date = DateTime::createFromFormat('U', $timestamp)))
+                return $timestamp;
+
+            return $timestamp - $tz->getOffset($date);
+        }
+
+        $date = new DateTime($timestamp ?: 'now', $tz);
+        return $date ? $date->getTimestamp() : $timestamp;
     }
 
     //Take user time or gmtime and return db (mysql) time.
     function dbtime($var=null){
-         global $cfg;
+        static $dbtz;
+        global $cfg;
 
-        if(is_null($var) || !$var)
-            $time=Misc::gmtime(); //gm time.
-        else{ //user time to GM.
-            $time=is_int($var)?$var:strtotime($var);
-            $offset=$_SESSION['TZ_OFFSET']+($_SESSION['TZ_DST']?date('I',$time):0);
-            $time=$time-($offset*3600);
+        if (is_null($var) || !$var) {
+            // Default timezone is set to UTC
+            $time = time();
+        } else {
+            // User time to UTC
+            $time = self::user2gmtime($var);
         }
-        //gm to db time
-        return $time+($cfg->getDBTZoffset()*3600);
+
+        if (!isset($dbtz)) {
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+        }
+        // UTC to db time
+        $D = DateTime::createFromFormat('U', $time);
+        return $time + $dbtz->getOffset($D);
     }
 
     /*Helper get GM time based on timezone offset*/
-    function gmtime() {
-        return time()-date('Z');
+    function gmtime($time=false, $user=false) {
+        global $cfg;
+
+        $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');
+
+       if ($time && is_numeric($time))
+          $time = DateTime::createFromFormat('U', $time);
+        elseif (!($time = new DateTime($time ?: 'now'))) {
+            // Old standard
+            return time() - date('Z');
+        }
+
+        return $time->getTimestamp() - $tz->getOffset($time);
     }
 
     /* Needed because of PHP 4 support */
@@ -106,34 +169,35 @@ class Misc {
     function timeDropdown($hr=null, $min =null,$name='time') {
         global $cfg;
 
-        $hr =is_null($hr)?0:$hr;
-        $min =is_null($min)?0:$min;
-
         //normalize;
-        if($hr>=24)
-            $hr=$hr%24;
-        elseif($hr<0)
-            $hr=0;
+        if ($hr >= 24)
+            $hr = $hr%24;
+        elseif ($hr < 0)
+            $hr = 0;
+        elseif ($hr)
+            $hr = (int) $hr;
+        else  // Default to 5pm
+            $hr = 17;
 
-        if($min>=45)
-            $min=45;
-        elseif($min>=30)
-            $min=30;
-        elseif($min>=15)
-            $min=15;
+        if ($min >= 45)
+            $min = 45;
+        elseif ($min >= 30)
+            $min = 30;
+        elseif ($min >= 15)
+            $min = 15;
         else
-            $min=0;
+            $min = 0;
 
+        $time = Misc::user2gmtime(mktime(0,0,0));
         ob_start();
-        echo sprintf('<select name="%s" id="%s">',$name,$name);
-        echo '<option value="" selected>'.__('Time').'</option>';
-        $format = $cfg->getTimeFormat();
+        echo sprintf('<select name="%s" id="%s" style="display:inline-block;width:auto">',$name,$name);
+        echo '<option value="" selected="selected">&mdash;'.__('Time').'&mdash;</option>';
         for($i=23; $i>=0; $i--) {
-            for($minute=45; $minute>=0; $minute-=15) {
-                $sel=($hr==$i && $min==$minute)?'selected="selected"':'';
+            for ($minute=45; $minute>=0; $minute-=15) {
+                $sel=($hr===$i && $min===$minute) ? 'selected="selected"' : '';
                 $_minute=str_pad($minute, 2, '0',STR_PAD_LEFT);
                 $_hour=str_pad($i, 2, '0',STR_PAD_LEFT);
-                $disp = gmdate($format, $i*3600 + $minute*60);
+                $disp = Format::time($time + ($i*3600 + $minute*60 + 1), false);
                 echo sprintf('<option value="%s:%s" %s>%s</option>',$_hour,$_minute,$sel,$disp);
             }
         }

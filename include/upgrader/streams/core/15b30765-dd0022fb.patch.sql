@@ -18,7 +18,11 @@ INSERT INTO `%TABLE_PREFIX%file_chunk` (`file_id`, `chunk_id`, `filedata`)
     SELECT `id`, 0, `filedata`
     FROM `%TABLE_PREFIX%file`;
 
-ALTER TABLE `%TABLE_PREFIX%file` DROP COLUMN `filedata`;
+ALTER TABLE `%TABLE_PREFIX%file`
+    DROP COLUMN `filedata`,
+    ADD `bk` CHAR(1) NOT NULL DEFAULT 'D' AFTER `id`,
+    ADD `attrs` VARCHAR(255) AFTER `name`;
+
 OPTIMIZE TABLE `%TABLE_PREFIX%file`;
 
 -- Finished with patch

@@ -17,7 +17,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 echo sprintf('<li>%s</li>',$error);
             echo '</ul>';
         } else {
-            echo '<b><font color="red">'.__('Internal error occurred - get technical help.').'</font></b>';
+            echo '<b><font color="red">'.__('Internal error occurred').' - '.__('Get technical help!').'</font></b>';
         }
         ?>
         <p><b><?php echo sprintf(__('For details - please view %s or check your email.'),
@@ -27,7 +27,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
     </div>
     <p><strong><?php echo __('Need Help?');?></strong> <?php echo sprintf(__('We provide %1$s professional upgrade services %2$s and commercial support.'), '<a target="_blank" href="http://osticket.com/support/professional_services.php"><u>','</u></a>'); echo sprintf(__('%1$s Contact us %2$s today for <u>expedited</u> help.'), '<a target="_blank" href="http://osticket.com/support/">','</a>');?></p>
   </div>
-  <div id="sidebar">
+  <div class="sidebar">
     <h3><?php echo __('What to do?');?></h3>
     <p><?php echo sprintf(__('Restore your previous version from backup and try again or %1$s seek help %2$s.'), '<a target="_blank" href="http://osticket.com/support/">','</a>');?></p>
   </div>

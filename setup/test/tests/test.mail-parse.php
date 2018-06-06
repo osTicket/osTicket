@@ -1,13 +1,13 @@
 <?php
 
+require_once 'mockdb.php';
+
 require_once INCLUDE_DIR.'class.validator.php';
 require_once INCLUDE_DIR.'class.auth.php';
 require_once INCLUDE_DIR.'class.staff.php';
 require_once INCLUDE_DIR.'class.email.php';
 require_once INCLUDE_DIR.'class.format.php';
 require_once INCLUDE_DIR.'class.thread.php';
-
-require_once 'mockdb.php';
 
 class TestMailParsing extends Test {
     var $name = "Mail parsing library tests";
@@ -43,7 +43,7 @@ Q2hlZXJzISE=
 --=_28022448a1f58a3af7edf57ff2e3af44--
 EOF;
 
-        $result = EmailDataParser::parse($email);
+        $result = @EmailDataParser::parse($email);
         $this->assert(count($result['recipients']) == 1, 'Expected 1 recipient');
         $this->assert($result['recipients'][0]['source'] == 'delivered-to',
             'Delivered-To header used as a collaborator');
