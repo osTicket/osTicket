@@ -37,14 +37,27 @@ elseif ($ticket->isAssigned()
 
 if (!$errors['err']) {
 
+    // Extract domain name from email address
+    $domain = substr($ticket->getEmail(), 0, strrpos($ticket->getEmail(), '@'));
+
     if ($lock && $lock->getStaffId()!=$thisstaff->getId())
         $errors['err'] = sprintf(__('%s is currently locked by %s'),
                 __('This ticket'),
                 $lock->getStaffName());
     elseif (($emailBanned=Banlist::isBanned($ticket->getEmail())))
         $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
-    elseif (!Validator::is_valid_email($ticket->getEmail()))
+
+    // If we have the APC extension, we will validate the email, optionally caching that
+    //  the domain is valid, should osTicket be configured to query the domain. If
+    //  the APC extension is not loaded then execution shall continue as normal
+    elseif (function_exists('apcu_exists') && !Validator::is_email($ticket->getEmail(), false, $cfg->verifyEmailAddrs() && !apcu_exists('email.' . $domain)) ||
+           !function_exists('apcu_exists') && !Validator::is_valid_email($ticket->getEmail()))
         $errors['err'] = __('EndUser email address is not valid! Consider updating it before responding');
+
+    // And if we have the APC extension AND we are validating
+    //  domains, let us cache that the domain is valid
+    elseif (function_exists('apcu_store') && $cfg->verifyEmailAddrs())
+        apcu_store('email.' . $domain, true, 3600);
 }
 
 $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
