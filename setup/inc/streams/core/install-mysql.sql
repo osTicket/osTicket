@@ -718,7 +718,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','transferred', 'reffered', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL,
+  `state` enum('created','closed','reopened','assigned','transferred', 'referred', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL,
   `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
   `username` varchar(128) NOT NULL default 'SYSTEM',
   `uid` int(11) unsigned DEFAULT NULL,
