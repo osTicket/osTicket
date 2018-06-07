@@ -70,7 +70,7 @@ class Page extends VerySimpleModel {
         return $this->_getLocal('body', $lang);
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getLocalBody());
+        return Format::viewableImages($this->getLocalBody(), ['type' => 'P']);
     }
 
     function _getLocal($what, $lang=false) {

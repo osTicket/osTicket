@@ -38,7 +38,9 @@ class Category extends VerySimpleModel {
     function getName() { return $this->name; }
     function getNumFAQs() { return  $this->faqs->count(); }
     function getDescription() { return $this->description; }
-    function getDescriptionWithImages() { return Format::viewableImages($this->description); }
+    function getDescriptionWithImages() {
+        return Format::viewableImages($this->description);
+    }
     function getNotes() { return $this->notes; }
     function getCreateDate() { return $this->created; }
     function getUpdateDate() { return $this->updated; }
