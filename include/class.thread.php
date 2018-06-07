@@ -1791,8 +1791,8 @@ class ThreadEvents extends InstrumentedList {
             }
             // XXX: Use $user here
             elseif ($thisclient) {
-                if ($thisclient->hasAccount)
-                    $username = $thisclient->getAccount()->getUserName();
+                if ($thisclient->hasAccount())
+                    $username = $thisclient->getFullName();
                 if (!$username)
                     $username = $thisclient->getEmail();
             }
