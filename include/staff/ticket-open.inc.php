@@ -162,6 +162,9 @@ if ($_POST)
             <br/><span class="error"><?php echo $errors['ccs']; ?></span>
           </td>
         </tr>
+        <?php
+        if ($cfg->notifyONNewStaffTicket()) {
+         ?>
         <tr class="no_border">
           <td>
             <?php echo __('Ticket Notice');?>:
@@ -174,6 +177,7 @@ if ($_POST)
             </select>
           </td>
         </tr>
+      <?php } ?>
     </table>
           </td>
         </tr>
