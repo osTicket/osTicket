@@ -831,6 +831,7 @@ class TicketsAjaxAPI extends AjaxController {
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
+              
                     if (!$role->hasPerm(Ticket::PERM_CLOSE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
@@ -947,14 +948,16 @@ class TicketsAjaxAPI extends AjaxController {
             foreach ($_REQUEST['tids'] as $tid) {
                 if (($ticket=Ticket::lookup($tid))
                         && $ticket->getStatusId() != $status->getId()
+                        && $ticket->getHelpTopicId() 
                         && $ticket->checkStaffPerm($thisstaff)
                         && $ticket->setStatus($status, $comments, $errors))
                     $i++;
             }
             if (!$i) {
+                
                 $errors['err'] = $errors['err']
                     ?: sprintf(__('Unable to change status for %s'),
-                        _N('selected ticket', 'selected tickets', $count));
+                        _N('selected ticket ', 'selected tickets', $count));
             }
             else {
                 // Assume success
