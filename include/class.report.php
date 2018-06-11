@@ -153,6 +153,9 @@ class OverviewReport {
                     'annulled' => 0,
                     ),
                 ))
+            ->filter(array(
+                    'timestamp__range' => array($start, $stop, true),
+               ))
             ->aggregate(array(
                 'ServiceTime' => SqlAggregate::AVG(SqlFunction::timestampdiff(
                   new SqlCode('HOUR'), new SqlField('thread__events__timestamp'), new SqlField('timestamp'))
