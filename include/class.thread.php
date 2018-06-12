@@ -1871,6 +1871,7 @@ class ThreadEvent extends VerySimpleModel {
 
     // Valid events for database storage
     const ASSIGNED  = 'assigned';
+    const RELEASED  = 'released';
     const CLOSED    = 'closed';
     const CREATED   = 'created';
     const COLLAB    = 'collab';
@@ -1906,6 +1907,7 @@ class ThreadEvent extends VerySimpleModel {
     function getIcon() {
         $icons = array(
             'assigned'  => 'hand-right',
+            'released'  => 'unlock',
             'collab'    => 'group',
             'created'   => 'magic',
             'overdue'   => 'time',
@@ -2092,7 +2094,7 @@ class ThreadEvents extends InstrumentedList {
      * $object - Object to log activity for
      * $state - State name of the activity (one of 'created', 'edited',
      *      'deleted', 'closed', 'reopened', 'error', 'collab', 'resent',
-     *      'assigned', 'transferred')
+     *      'assigned', 'released', 'transferred')
      * $data - (array?) Details about the state change
      * $user - (string|User|Staff) user triggering the state change
      * $annul - (state) a corresponding state change that is annulled by
@@ -2169,6 +2171,30 @@ class AssignmentEvent extends ThreadEvent {
             break;
         case isset($data['claim']):
             $desc = __('<b>{somebody}</b> claimed this {timestamp}');
+            break;
+        }
+        return $this->template($desc);
+    }
+}
+
+class ReleaseEvent extends ThreadEvent {
+    static $icon = 'unlock';
+    static $state = 'released';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        $data = $this->getData();
+        switch (true) {
+        case isset($data['staff'], $data['team']):
+            $desc = __('Ticket released from <strong>{<Team>data.team}</strong> and <strong>{<Staff>data.staff}</strong> by <b>{somebody}</b> {timestamp}');
+            break;
+        case isset($data['staff']):
+            $desc = __('Ticket released from <strong>{<Staff>data.staff}</strong> by <b>{somebody}</b> {timestamp}');
+            break;
+        case isset($data['team']):
+            $desc = __('Ticket released from <strong>{<Team>data.team}</strong> by <b>{somebody}</b> {timestamp}');
+            break;
+        default:
+            $desc = __('<b>{somebody}</b> released ticket assignment {timestamp}');
             break;
         }
         return $this->template($desc);

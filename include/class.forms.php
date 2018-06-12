@@ -4928,6 +4928,49 @@ class ClaimForm extends AssignmentForm {
 
 }
 
+class ReleaseForm extends Form {
+    static $id = 'unassign';
+
+    function getFields() {
+        if ($this->fields)
+            return $this->fields;
+
+        $fields = array(
+            'comments' => new TextareaField(array(
+                    'id' => 1, 'label'=> '', 'required'=>false, 'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'small',
+                        'placeholder' => __('Optional reason for releasing assignment'),
+                        ),
+                    )
+                ),
+            );
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getField($name) {
+        if (($fields = $this->getFields())
+                && isset($fields[$name]))
+            return $fields[$name];
+    }
+
+    function isValid($include=false) {
+        if (!parent::isValid($include))
+            return false;
+
+        return !$this->errors();
+    }
+
+    function getComments() {
+        return $this->getField('comments')->getClean();
+    }
+}
+
 class ReferralForm extends Form {
 
     static $id = 'refer';
