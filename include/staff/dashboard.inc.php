@@ -1,6 +1,15 @@
 <script src="<?php echo ROOT_PATH; ?>scp/js/morris.min.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/raphael-min.js"></script>
 
+
+
+<script src="<?php echo ROOT_PATH; ?>scp/js/highcharts.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-3d.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/modules/exporting.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/modules/export-data.js"></script>
+
+
+
 <div class="subnav">
 
     <div class="float-left subnavtitle">
@@ -104,80 +113,23 @@
 
 <div class="row">
     <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    Backlog
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet1"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet1" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptentopic">
-                        <div id="backlog-chart-container" class="flot-chart" style="height: 260px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portlet" id="backlog-chart-container" ><!-- /primary heading -->
+            
         </div>
     </div>
     
+    
+   
+    
     <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS (By Status)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet2"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet2" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptentopic">
-                        <div id="ticketsbystatus-chart-container" class="flot-chart" style="height: 260px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portlet" id="ticketsbystatus-chart-container"><!-- /primary heading -->
+            
         </div>
     </div>
 
     <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    MY TICKETS (By Status)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet3"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet3" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptentopic">
-                        <div id="myticketsbystatus-chart-container" class="flot-chart" style="height: 260px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portlet" id="myticketsbystatus-chart-container"><!-- /primary heading -->
+           
         </div>
     </div>
     <div class="col-lg-3">
@@ -1644,178 +1596,172 @@ ORDER BY COUNT DESC limit 10";
 //Backlog
 $(function() {
 
-		var data = [
-        ["CAN", <?php echo $BacklogTickets["CAN"]; ?>], 
-        ["EXT", <?php echo $BacklogTickets["EXT"]; ?>], 
-        ["IND", <?php echo $BacklogTickets["IND"]; ?>], 
-        ["MEX", <?php echo $BacklogTickets["MEX"]; ?>], 
-        ["NTC", <?php echo $BacklogTickets["NTC"]; ?>], 
-        ["OH", <?php echo $BacklogTickets["OH"]; ?>], 
-        ["SS", <?php echo $BacklogTickets["SS"]; ?>], 
-        ["TNN1", <?php echo $BacklogTickets["TNN1"]; ?>], 
-        ["TNN2", <?php echo $BacklogTickets["TNN2"]; ?>], 
-        ["TNS", <?php echo $BacklogTickets["TNS"]; ?>],
-        ["VIP", <?php echo $BacklogTickets["VIP"]; ?>]
-       
-        ];
+    Highcharts.chart('backlog-chart-container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'BACKLOG'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Backlog',
+            data: [
+            <?php if ($BacklogTickets["CAN"]) { ?>
+            ["CAN", <?php echo $BacklogTickets["CAN"]; ?>],
+            <?php } if ($BacklogTickets["BRY"]) { ?>
+            ["BRY", <?php echo $BacklogTickets["BRY"]; ?>],              
+            <?php } if ($BacklogTickets["EXT"]) { ?>
+            ["EXT", <?php echo $BacklogTickets["EXT"]; ?>], 
+            <?php } if ($BacklogTickets["IND"]) { ?>
+            ["IND", <?php echo $BacklogTickets["IND"]; ?>], 
+            <?php } if ($BacklogTickets["MEX"]) { ?>
+            ["MEX", <?php echo $BacklogTickets["MEX"]; ?>], 
+            <?php } if ($BacklogTickets["NTC"]) { ?>
+            ["NTC", <?php echo $BacklogTickets["NTC"]; ?>], 
+            <?php } if ($BacklogTickets["OH"]) { ?>
+            ["OH", <?php echo $BacklogTickets["OH"]; ?>],
+            <?php } if ($BacklogTickets["PAU"]) { ?>
+            ["PAU", <?php echo $BacklogTickets["PAU"]; ?>],
+            <?php } if ($BacklogTickets["RTA"]) { ?>
+            ["RTA", <?php echo $BacklogTickets["RTA"]; ?>], 
+            <?php } if ($BacklogTickets["RTC"]) { ?>
+            ["RTC", <?php echo $BacklogTickets["RTC"]; ?>],         
+            <?php } if ($BacklogTickets["SS"]) { ?>
+            ["SS", <?php echo $BacklogTickets["SS"]; ?>], 
+            <?php } if ($BacklogTickets["TNN1"]) { ?>   
+            ["TNN1", <?php echo $BacklogTickets["TNN1"]; ?>], 
+            <?php } if ($BacklogTickets["TNN2"]) { ?>
+            ["TNN2", <?php echo $BacklogTickets["TNN2"]; ?>], 
+            <?php } if ($BacklogTickets["TNS"]) { ?>
+            ["TNS", <?php echo $BacklogTickets["TNS"]; ?>],
+            <?php } if ($BacklogTickets["VIP"]) { ?>
+            ["VIP", <?php echo $BacklogTickets["VIP"]; ?>],
+            <?php } ?>
+            ]
+        }]
+    });
+});
 
-		$.plot("#backlog-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 10,
-                margin: 10
-			},
-            colors : ['#d9221d'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});    
-
+		
 //Tickets By Status
 $(function() {
 
-		var data = [
-        ["Unassigned", <?php echo $UnassignedTickets; ?>], 
-        ["Held", <?php echo $HeldTickets; ?>], 
-        ["Agent Action", <?php echo $ReplyTickets; ?>], 
-        ["Submitter Action", <?php echo $TheirReplyTickets; ?>], 
-        ["3rd Party", <?php echo $ThridPartyTicketsTickets; ?>]
-               
-        ];
-
-		$.plot("#ticketsbystatus-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            colors : ['#6c92ea'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});   
-
+    Highcharts.chart('ticketsbystatus-chart-container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'TICKETS (BY STATUS)'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Backlog',
+            data: [
+            <?php if ($UnassignedTickets) { ?>
+            ["Unassigned", <?php echo $UnassignedTickets; ?>],
+            <?php } if ($HeldTickets) { ?>
+            ["Held", <?php echo $HeldTickets; ?>],             
+            <?php } if ($ReplyTickets) { ?>
+            ["Agent Action", <?php echo $ReplyTickets; ?>],
+            <?php } if ($TheirReplyTickets) { ?>
+            ["Submitter Action", <?php echo $TheirReplyTickets; ?>],
+            <?php } if ($ThridPartyTicketsTickets) { ?>
+            ["3rd Party", <?php echo $ThridPartyTicketsTickets; ?>] 
+             <?php } ?>
+            ]
+        }]
+    });
+});
 //My Tickets By Status
+
 $(function() {
 
-		var data = [
-        ["Held", <?php echo $MyHeldTickets; ?>], 
-        ["Agent Action", <?php echo $MyReplyTickets; ?>], 
-        ["Submitter Action", <?php echo $MyTheirReplyTickets; ?>], 
-        ["3rd PArty", <?php echo $MyThridPartyTickets; ?>]
-               
-        ];
+    Highcharts.chart('myticketsbystatus-chart-container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'TICKETS (BY STATUS)'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Backlog',
+            data: [
+            
+            <?php if ($MyHeldTickets) { ?>
+            ["Held", <?php echo $MyHeldTickets; ?>],             
+            <?php } if ($MyReplyTickets) { ?>
+            ["Agent Action", <?php echo $MyReplyTickets; ?>],
+            <?php } if ($MyTheirReplyTickets) { ?>
+            ["Submitter Action", <?php echo $MyTheirReplyTickets; ?>],
+            <?php } if ($MyThridPartyTicketsTickets) { ?>
+            ["3rd Party", <?php echo $MyThridPartyTicketsTickets; ?>] 
+             <?php } ?>
+            ]
+        }]
+    });
+});
 
-		$.plot("#myticketsbystatus-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            colors : ['#e2c22a'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});   
+
+
 //Suggestions By Status
 $(function() {
 
