@@ -98,6 +98,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_CREATE   = 'ticket.create';
     const PERM_EDIT     = 'ticket.edit';
     const PERM_ASSIGN   = 'ticket.assign';
+    const PERM_RELEASE  = 'ticket.release';
     const PERM_TRANSFER = 'ticket.transfer';
     const PERM_REPLY    = 'ticket.reply';
     const PERM_CLOSE    = 'ticket.close';
@@ -119,6 +120,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Assign',
                 'desc'  =>
                 /* @trans */ 'Ability to assign tickets to agents or teams'),
+            self::PERM_RELEASE => array(
+                'title' =>
+                /* @trans */ 'Release',
+                'desc'  =>
+                /* @trans */ 'Ability to release ticket assignment'),
             self::PERM_TRANSFER => array(
                 'title' =>
                 /* @trans */ 'Transfer',
@@ -2470,8 +2476,15 @@ implements RestrictedAccess, Threadable, Searchable {
         return true;
     }
 
-    function release() {
-        return $this->unassign();
+    function release($info=array(), &$errors) {
+        if ($info['sid'] && $info['tid'])
+            return $this->unassign();
+        elseif ($info['sid'] && $this->setStaffId(0))
+            return true;
+        elseif ($info['tid'] && $this->setTeamId(0))
+            return true;
+
+        return false;
     }
 
     function refer(ReferralForm $form, &$errors, $alert=true) {
