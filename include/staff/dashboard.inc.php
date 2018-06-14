@@ -133,31 +133,7 @@
            
         </div>
     </div>
-    <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    SUGGESTIONS (By Status)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion2" href="#portlet4"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet4" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptentopic">
-                        <div id="suggestionssbystatus-chart-container" class="flot-chart" style="height: 260px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
     
     
 </div>
@@ -676,29 +652,10 @@
     </div>
  </div>
 <div class="row">
+
     <div class="col-lg-6">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS (OPEN|CLOSED|BACKLOG)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet6"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet6" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="combine-chart">
-                        <div id="combine-chart-container" class="flot-chart" style="height: 320px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portlet" id="backlog-chart-container1"><!-- /primary heading -->
+           
         </div>
     </div>
     <div class="col-lg-6">
@@ -795,103 +752,6 @@
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tickrotor.js"></script>
 
 <script>
-
-$('svg').height(700);
-
-! function($) {
-	"use strict";
-
-	var FlotChart = function() {
-		this.$body = $("body")
-		this.$realData = []
-	};
-
-    
-    //creates Combine Chart
-	FlotChart.prototype.createCombineGraph = function(selector, ticks, labels, datas) {
-
-		var data = [{
-			label : labels[0],
-			data : datas[0],
-			lines : {
-				show : true,
-				fill : true
-			},
-			points : {
-				show : true
-			}
-		}, {
-			label : labels[1],
-			data : datas[1],
-			lines : {
-				show : true
-			},
-			points : {
-				show : true
-			}
-		}, {
-			label : labels[2],
-			data : datas[2],
-			bars : {
-				show : true,
-                align: "center",
-                barWidth: 0.8,                
-			}
-		}];
-		var options = {
-			series : {
-				shadowSize : 0
-			},
-			grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                margin: 10
-			},
-			colors : ['#d9221d', '#e2c22a', '#6c92ea'],
-			tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x | %s | %y",
-                
-                
-              },
-			legend : {
-				position : "ne",
-				margin : [0, -24],
-				noColumns : 0,
-				labelBoxBorderColor : null,
-				labelFormatter : function(label, series) {
-					// just add some space to labes
-					return '' + label + '&nbsp;&nbsp;';
-				},
-				width : 30,
-				height : 2
-			},
-			yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis : {
-				ticks: ticks,
-				tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		};
-
-		$.plot($(selector), data, options);
-	},
-
-	//initializing various charts and components
-	FlotChart.prototype.init = function() {
 		
          <?php
         $sql="select CALENDARWEEK as WEEK, 
@@ -934,67 +794,76 @@ $('svg').height(700);
         $results = db_query($sql); 
         
     ?> 
-        
-		//Combine graph data
-		var Backlog = [
-        <?php
-        $r=0;
-        foreach ($results as $result) {
-            echo "[".$r.",\"".$result['BACKLOG']."\"],";
-             $r++;
-        }
-        
-        ?>
-        ];
-		var Open = [
-        <?php
-        $r=0;
-        foreach ($results as $result) {
-            echo "[".$r.",\"".$result['OPEN']."\"],";
-             $r++;
-        }
-        
-        ?>
-        ];
-		var Closed = [
-        <?php
-        $r=0;
-        foreach ($results as $result) {
-            echo "[".$r.",\"".$result['CLOSED']."\"],";
-             $r++;
-        }
-        
-        ?>
-        ];
-		var Weeks = [
-        
-        <?php
-        $r=0;
-        foreach ($results as $result) {
-            echo "[".$r.",\"".$result['WEEK']."\"],";
-             $r++;
-        }
-        
-        ?>
-        
-        ];
-		var combinelabels = ["Backlog", "Open", "Closed"];
-		var combinedatas = [Backlog, Open, Closed];
+    
+    
+ $(function() {        
+     Highcharts.chart('backlog-chart-container1', {
+        chart: {
+            type: 'areaspline'
+        },
+        title: {
+            text: 'TICKETS (OPEN|CLOSED|BACKLOG)',
+            style: {
+                color: '#797979',
+                fontSize: '14px',
+                fontWeight: '600',
+                }
+        },
+        legend: {
+            layout: 'horizontal',
+            align: 'right',
+            verticalAlign: 'top',
+            x: -20,
+            y: 30,
+            floating: true,
+            borderWidth: 1,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+        },
+        xAxis: {
+            categories: [ <?php foreach ($results as $result) {echo "'".$result['WEEK']."',";}?>
+                
+            ],
+            
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+            }
+        },
+        tooltip: {
+            shared: true,
+            valueSuffix: ' tickets'
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+            areaspline: {
+                fillOpacity: 0.5
+            }
+        },
+        series: [
+        {
+            type: 'column',
+            name: 'CLOSED',
+            data: [<?php foreach ($results as $result) { echo $result['CLOSED'].',';}?>]
+        }, {
+            type: 'spline',
+            name: 'OPEN',
+            data: [<?php foreach ($results as $result) { echo $result['OPEN'].',';}?>],
+            color: '#e3c436'
+            
+        }, {
+            name: 'BACKLOG',
+            data: [<?php foreach ($results as $result) { echo $result['BACKLOG'].',';}?>],
+            color: '#dd3c37'
+            
+          }]
 
-		this.createCombineGraph("#combine-chart #combine-chart-container", Weeks, combinelabels, combinedatas);
-	},
+    });
 
-	//init flotchart
-	$.FlotChart = new FlotChart, $.FlotChart.Constructor =
-	FlotChart
-
-}(window.jQuery),
-
-//initializing flotchart
-function($) {
-	"use strict";
-	$.FlotChart.init()
-}(window.jQuery);
+});      
+    
 
 <?php
         $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
@@ -1549,60 +1418,6 @@ $(function() {
 
 
 
-//Suggestions By Status
-$(function() {
-
-		var data = [
-        ["Agent Action", <?php echo $SuggestionAssignedTickets; ?>], 
-        ["3rd Party", <?php echo $SuggestionThridPartyTicketsTickets; ?>], 
-        
-               
-        ];
-
-		$.plot("#suggestionssbystatus-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            colors : ['#7DCC80'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	}); 
 
 
 
