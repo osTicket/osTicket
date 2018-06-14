@@ -21,6 +21,7 @@
     ticket.edit,
     ticket.assign,
     ticket.transfer,
+    ticket.refer,
     ticket.reply,
     ticket.close,
     ticket.delete,
@@ -45,6 +46,7 @@
     ticket.edit,
     ticket.assign,
     ticket.transfer,
+    ticket.refer,
     ticket.reply,
     ticket.close,
     task.create,
@@ -65,6 +67,7 @@
     ticket.create,
     ticket.assign,
     ticket.transfer,
+    ticket.refer,
     ticket.reply
     task.create,
     task.assign,

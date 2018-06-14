@@ -99,6 +99,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_EDIT     = 'ticket.edit';
     const PERM_ASSIGN   = 'ticket.assign';
     const PERM_TRANSFER = 'ticket.transfer';
+    const PERM_REFER    = 'ticket.refer';
     const PERM_REPLY    = 'ticket.reply';
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
@@ -124,6 +125,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Transfer',
                 'desc'  =>
                 /* @trans */ 'Ability to transfer tickets between departments'),
+            self::PERM_REFER => array(
+                'title' =>
+                /* @trans */ 'Refer',
+                'desc'  =>
+                /* @trans */ 'Ability to manage ticket referrals'),
             self::PERM_REPLY => array(
                 'title' =>
                 /* @trans */ 'Post Reply',
