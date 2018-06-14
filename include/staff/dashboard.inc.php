@@ -7,6 +7,7 @@
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-3d.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/exporting.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/export-data.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/modules/pareto.js"></script>
 
 
 
@@ -701,303 +702,84 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TOP 10 OPEN TOPICS
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet7"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet7" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptentopic">
-                        <div id="toptentopic-chart-container" class="flot-chart" style="height: 320px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portlet" id="toptentopic-chart-container"><!-- /primary heading -->
+           
         </div>
     </div>
+    <div class="col-lg-3">
+        <div class="portlet" id="toptenclosedtopic-container"><!-- /primary heading -->
+           
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="portlet" id="toptenclosedpytopic-chart-container"><!-- /primary heading -->
+            
+            </div>
+        </div>
+       
+               <div class="col-lg-3">
+        <div class="portlet" id="toptenopenbyassociate-chart-container"><!-- /primary heading -->
+           </div>
+        </div>
+         <div class="col-lg-3">
+        <div class="portlet" id="toptenclosebyassociate-chart-container"><!-- /primary heading -->
+            
+                </div>
+            </div>   
 </div>
 
 <div class="row">
-    <div class="col-lg-6">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS (STATUS BY TECH)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet8"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet8" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="statusbyagent-chart">
-                        <div class="row">
-                            <div id="statusbyagent-chart-container" class="col-sm-8" style="height: 320px;">
-                            </div>
-                            <div id="statusbyagent-chart-legend" class="col-sm-4">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  
+     <div class="col-lg-6">
+        <div class="portlet" id="statusbyagent-chart-container1"><!-- /primary heading -->
+           
         </div>
     </div>
-        <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TOP 10 CLOSED TOPICS (CURRENT YEAR)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet9"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet9" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptenclosedtopic-chart">
-                        
-                            <div id="toptenclosedtopic-chart-container"  style="height: 320px;">
-                            </div>
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TOP 10 CLOSED TOPICS (PRIOR YEAR)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet11"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet11" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptenclosedpytopic-chart">
-                        
-                            <div id="toptenclosedpytopic-chart-container"  style="height: 320px;">
-                            </div>
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
+    
+ <div class="col-lg-6">
+        <div class="portlet" id="statusbyagent-chart-container2"><!-- /primary heading -->
+           
+        </div>
     </div>
     
 </div>
        <div class="row">
     <div class="col-lg-6">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS (STATUS BY LOCATION)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet10"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet10" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                
-                    <div id="statusbylocation-chart">
-                        <div class="row">
-                            <div id="statusbylocation-chart-container" class="col-sm-8" style="height: 320px;">
-                            </div>
-                            <div id="statusbylocation-chart-legend" class="col-sm-4">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portlet" id="statusbylocation-chart-container1"><!-- /primary heading -->
+            
         </div>
     </div>
-              <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TOP 10 TICKET (OPEN BY ASSOCIATE)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet15"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet15" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptenopenbyassociate-chart">
-                        
-                            <div id="toptenopenbyassociate-chart-container"  style="height: 320px;">
-                            </div>
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="col-lg-6">
+        <div class="portlet" id="statusbylocation-chart-container2"><!-- /primary heading -->
+            
         </div>
-         <div class="col-lg-3">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TOP 10 TICKET (Closed BY ASSOCIATE)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet14"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet14" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                    <div id="toptenclosebyassociate-chart">
-                        
-                            <div id="toptenclosebyassociate-chart-container"  style="height: 320px;">
-                            </div>
-                           
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> 
+    </div>
+
 
  </div>
  <div class="row">
-    <div class="col-lg-12">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS CLOSED (TECH 1 YEARS)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet12"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet12" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                
-                    <div id="closedbytech-chart">
-                        <div class="row">
-                            <div id="closedbytech-chart-container" class="col-sm-10" style="height: 320px;">
-                            </div>
-                            <div id="closedbytech-chart-legend" class="col-sm-2">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+ 
+ 
+ <div class="col-lg-12">
+        <div class="portlet" id="closedbytech-chart-container1"><!-- /primary heading -->
+            
         </div>
     </div>
- </div>
- <div class="row">
-    <div class="col-lg-12">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS OPENED (LOCATION 1 YEARS) 
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet16"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet16" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                
-                    <div id="openedbylocation-chart">
-                        <div class="row">
-                            <div id="openedbylocation-chart-container" class="col-sm-10" style="height: 320px;">
-                            </div>
-                            <div id="openedbylocation-chart-legend" class="col-sm-2">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+ 
+  <div class="col-lg-12">
+        <div class="portlet" id="openedbylocation-chart-container1"><!-- /primary heading -->
+            
         </div>
     </div>
- </div>
- <div class="row">
-    <div class="col-lg-12">
-        <div class="portlet"><!-- /primary heading -->
-            <div class="portlet-heading">
-                <h3 class="portlet-title text-dark">
-                    TICKETS CLOSED (LOCATION 1 YEARS)
-                </h3>
-                <div class="portlet-widgets">
-                    
-                    <span class="divider"></span>
-                    <a data-toggle="collapse" data-parent="#accordion1" href="#portlet13"><i class="ion-minus-round"></i></a>
-                    <span class="divider"></span>
-                    <a href="#" data-toggle="remove"><i class="ion-close-round"></i></a>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div id="portlet13" class="panel-collapse collapse show">
-                <div class="portlet-body">
-                
-                    <div id="ticketsclosedbylocation-chart">
-                        <div class="row">
-                            <div id="ticketsclosedbylocation-chart-container" class="col-sm-10" style="height: 320px;">
-                            </div>
-                            <div id="ticketsclosedbylocation-chart-legend" class="col-sm-2">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+   <div class="col-lg-12">
+        <div class="portlet" id="closedbylocation-chart-container1"><!-- /primary heading -->
+            
         </div>
     </div>
+
  </div>
+
  
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.js"></script> 
@@ -1214,13 +996,7 @@ function($) {
 	$.FlotChart.init()
 }(window.jQuery);
 
-
-
-$(function() {
-
-		var data = [
-        
-           <?php
+<?php
         $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
 FROM     (SELECT ost_ticket.number AS Ticket, 
                                     CASE ost_help_topic.topic_id WHEN 35 THEN 'Associates' WHEN 29 THEN 'Associates/Add' WHEN 36 THEN 'Associates/Change' WHEN 31 THEN 'Associates/Termination' WHEN 27 THEN 'Connectivity' WHEN 37 THEN 'Connectivity/Add'
@@ -1242,64 +1018,62 @@ WHERE  TOPIC IS NOT NULL
 GROUP BY TOPIC
 ORDER BY COUNT DESC limit 10";
         $tresults = db_query($sql1); 
+    ?>    
+$(function() {        
+ Highcharts.chart('toptentopic-chart-container', {
 
-        foreach ($tresults as $tresult) {
-            echo "[\"".$tresult['TOPIC']."\", ".$tresult['COUNT']."],";
+    chart: {
+        renderTo: 'toptentopic-chart-container',
+        type: 'column'
+    },
+    title: {
+        text: 'TOP 10 OPEN TOPICS',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+    },
+    xAxis: {
+        categories: [<?php foreach ($tresults as $tresult) {echo "'".$tresult['TOPIC']."',";}?>]
+    },
+    yAxis: [{
+        title: {
+            text: ''
         }
-    ?> 
-                
-        ];
+    }, {
+        title: {
+            text: ''
+        },
+        minPadding: 0,
+        maxPadding: 0,
+        max: 100,
+        min: 0,
+        opposite: true,
+        labels: {
+            format: "{value}%"
+        }
+    }],
+    credits: false,
+    series: [{
+        type: 'pareto',
+        name: 'Pareto',
+        yAxis: 1,
+        zIndex: 10,
+        baseSeries: 1
+    }, {
+        name: 'Tickets',
+        type: 'column',
+        zIndex: 2,
+        data: [<?php foreach ($tresults as $tresult) {echo $tresult['COUNT'].',';} ?>]
+    }]
+});
 
-		$.plot("#toptentopic-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 18,
-                margin: 10
-			},
-            colors : ['#6c92ea'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});
+});        
+    
 //Top 10 Closed
-    $(function() {
-
-		var data = [
-        
-           <?php
+  
+<?php
         $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
 FROM     (SELECT ost_ticket.number AS Ticket, 
                                     CASE ost_help_topic.topic_id WHEN 35 THEN 'Associates' WHEN 29 THEN 'Associates/Add' WHEN 36 THEN 'Associates/Change' WHEN 31 THEN 'Associates/Termination' WHEN 27 THEN 'Connectivity' WHEN 37 THEN 'Connectivity/Add'
@@ -1320,66 +1094,65 @@ FROM     (SELECT ost_ticket.number AS Ticket,
 WHERE  TOPIC IS NOT NULL
 GROUP BY TOPIC
 ORDER BY COUNT DESC limit 10";
-        $tresults = db_query($sql1); 
+$tresults = db_query($sql1); 
+?>
 
-        foreach ($tresults as $tresult) {
-            echo "[\"".$tresult['TOPIC']."\", ".$tresult['COUNT']."],";
+
+$(function() {        
+ Highcharts.chart('toptenclosedtopic-container', {
+
+    chart: {
+        renderTo: 'toptenclosedtopic-container',
+        type: 'column'
+    },
+    title: {
+        text: 'TOP 10 CLOSED TOPICS',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+    },
+    xAxis: {
+        categories: [<?php foreach ($tresults as $tresult) {echo "'".$tresult['TOPIC']."',";}?>]
+    },
+    yAxis: [{
+        title: {
+            text: ''
         }
-    ?> 
-                
-        ];
+    }, {
+        title: {
+            text: ''
+        },
+        minPadding: 0,
+        maxPadding: 0,
+        max: 100,
+        min: 0,
+        opposite: true,
+        labels: {
+            format: "{value}%"
+        }
+    }],
+    credits: false,
+    series: [{
+        type: 'pareto',
+        name: 'Pareto',
+        yAxis: 1,
+        zIndex: 10,
+        baseSeries: 1
+    }, {
+        name: 'Tickets',
+        type: 'column',
+        zIndex: 2,
+        data: [<?php foreach ($tresults as $tresult) {echo $tresult['COUNT'].',';} ?>]
+    }]
+});
 
-		$.plot("#toptenclosedtopic-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 18,
-                margin: 10
-			},
-            colors : ['#6c92ea'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});
-
-    //Top 10 Closed prior
-    $(function() {
-
-		var data = [
+});        
         
-           <?php
+
+//Top 10 Closed prior
+<?php
         $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
 FROM     (SELECT ost_ticket.number AS Ticket, 
                                     CASE ost_help_topic.topic_id WHEN 35 THEN 'Associates' WHEN 29 THEN 'Associates/Add' WHEN 36 THEN 'Associates/Change' WHEN 31 THEN 'Associates/Termination' WHEN 27 THEN 'Connectivity' WHEN 37 THEN 'Connectivity/Add'
@@ -1401,65 +1174,63 @@ WHERE  TOPIC IS NOT NULL
 GROUP BY TOPIC
 ORDER BY COUNT DESC limit 10";
         $ptresults = db_query($sql1); 
+?>
 
-        foreach ($ptresults as $ptresult) {
-            echo "[\"".$ptresult['TOPIC']."\", ".$ptresult['COUNT']."],";
+$(function() {
+ Highcharts.chart('toptenclosedpytopic-chart-container', {
+
+    chart: {
+        renderTo: 'toptenclosedpytopic-chart-container',
+        type: 'column'
+    },
+    title: {
+        text: 'TOP 10 CLOSED PRIOR YEAR TOPICS',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+    },
+    xAxis: {
+        categories: [<?php foreach ($ptresults as $tresult) {echo "'".$tresult['TOPIC']."',";}?>]
+    },
+    yAxis: [{
+        title: {
+            text: ''
         }
-    ?> 
-                
-        ];
+    }, {
+        title: {
+            text: ''
+        },
+        minPadding: 0,
+        maxPadding: 0,
+        max: 100,
+        min: 0,
+        opposite: true,
+        labels: {
+            format: "{value}%"
+        }
+    }],
+    credits: false,
+    series: [{
+        type: 'pareto',
+        name: 'Pareto',
+        yAxis: 1,
+        zIndex: 10,
+        baseSeries: 1
+    }, {
+        name: 'Tickets',
+        type: 'column',
+        zIndex: 2,
+        data: [<?php foreach ($ptresults as $tresult) {echo $tresult['COUNT'].',';} ?>]
+    }]
+});
 
-		$.plot("#toptenclosedpytopic-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 18,
-                margin: 10
-			},
-            colors : ['#6c92ea'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
 	
 	});
 //Top 10 Open by Associate
-    $(function() {
-
-		var data = [
-        
-           <?php
-        $sql1="select * from (
+<?php
+ $sql1="select * from (
 	select count(ticket_id) as COUNT, ASSOCIATE, LOCATION from
 	(
 	SELECT t.ticket_id, t.updated, o.name as LOCATION, u.name as ASSOCIATE FROM ost_ticket t 
@@ -1471,65 +1242,61 @@ ORDER BY COUNT DESC limit 10";
 	group by ASSOCIATE order by COUNT DESC
     ) a limit 10";
         $tresults = db_query($sql1); 
+   ?>     
+$(function() {
+     Highcharts.chart('toptenopenbyassociate-chart-container', {
 
-        foreach ($tresults as $tresult) {
-            echo "[\"".$tresult['ASSOCIATE']."\", ".$tresult['COUNT']."],";
-        }
-    ?> 
-                
-        ];
+        chart: {
+            renderTo: 'toptenopenbyassociate-chart-container',
+            type: 'column'
+        },
+        title: {
+            text: 'TOP 10 OPEN BY ASSOCIATE',
+                style: {
+                color: '#797979',
+                fontSize: '14px',
+                fontWeight: '600',
+                }
+        },
+        xAxis: {
+            categories: [<?php foreach ($tresults as $tresult) {echo "'".$tresult['ASSOCIATE']."',";}?>]
+        },
+        yAxis: [{
+            title: {
+                text: ''
+            }
+        }, {
+            title: {
+                text: ''
+            },
+            minPadding: 0,
+            maxPadding: 0,
+            max: 100,
+            min: 0,
+            opposite: true,
+            labels: {
+                format: "{value}%"
+            }
+        }],
+        credits: false,
+        series: [{
+            type: 'pareto',
+            name: 'Pareto',
+            yAxis: 1,
+            zIndex: 10,
+            baseSeries: 1
+        }, {
+            name: 'Tickets',
+            type: 'column',
+            zIndex: 2,
+            data: [<?php foreach ($tresults as $tresult) {echo $tresult['COUNT'].',';} ?>]
+        }]
+    });
+});
 
-		$.plot("#toptenopenbyassociate-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 18,
-                margin: 10
-			},
-            colors : ['#6c92ea'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});
-    //Top 10 Closed Associate
-    $(function() {
-
-		var data = [
-        
-           <?php
-        $sql1="select * from (
+ //Top 10 Closed Associate
+<?php
+ $sql1="select * from (
 	select count(ticket_id) as COUNT, ASSOCIATE, LOCATION from
 	(
 	SELECT t.ticket_id, t.updated, o.name as LOCATION, u.name as ASSOCIATE FROM ost_ticket t 
@@ -1541,58 +1308,60 @@ ORDER BY COUNT DESC limit 10";
 	group by ASSOCIATE order by COUNT DESC
     ) a limit 10";
         $tresults = db_query($sql1); 
+   ?>     
+$(function() {
+     Highcharts.chart('toptenclosebyassociate-chart-container', {
 
-        foreach ($tresults as $tresult) {
-            echo "[\"".$tresult['ASSOCIATE']."\", ".$tresult['COUNT']."],";
-        }
-    ?> 
-                
-        ];
+        chart: {
+            renderTo: 'toptenclosebyassociate-chart-container',
+            type: 'column'
+        },
+        title: {
+            text: 'TOP 10 CLOSED BY ASSOCIATE',
+                style: {
+                color: '#797979',
+                fontSize: '14px',
+                fontWeight: '600',
+                }
+        },
+        xAxis: {
+            categories: [<?php foreach ($tresults as $tresult) {echo "'".$tresult['ASSOCIATE']."',";}?>]
+        },
+        yAxis: [{
+            title: {
+                text: ''
+            }
+        }, {
+            title: {
+                text: ''
+            },
+            minPadding: 0,
+            maxPadding: 0,
+            max: 100,
+            min: 0,
+            opposite: true,
+            labels: {
+                format: "{value}%"
+            }
+        }],
+        credits: false,
+        series: [{
+            type: 'pareto',
+            name: 'Pareto',
+            yAxis: 1,
+            zIndex: 10,
+            baseSeries: 1
+        }, {
+            name: 'Tickets',
+            type: 'column',
+            zIndex: 2,
+            data: [<?php foreach ($tresults as $tresult) {echo $tresult['COUNT'].',';} ?>]
+        }]
+    });
+});
+		
+   
 
-		$.plot("#toptenclosebyassociate-chart-container", [ data ], {
-			series: {
-				bars: {
-					show: true,
-					barWidth: 0.6,
-					align: "center"
-				}
-			},
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 18,
-                margin: 10
-			},
-            colors : ['#6c92ea'],
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%x: %y",
-                
-                
-              },
-            yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                    color : '#868e96',
-                    				},
-                
-                rotateTicks: 135
-			}
-		});
-	
-	});
 //Backlog
 $(function() {
 
@@ -1606,8 +1375,14 @@ $(function() {
             }
         },
         title: {
-            text: 'BACKLOG'
+            text: 'BACKLOG',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
         },
+        credits: false,
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
         },
@@ -1676,8 +1451,14 @@ $(function() {
             }
         },
         title: {
-            text: 'TICKETS (BY STATUS)'
+            text: 'TICKETS (BY STATUS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
         },
+        credits: false,
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
         },
@@ -1725,8 +1506,14 @@ $(function() {
             }
         },
         title: {
-            text: 'TICKETS (BY STATUS)'
+            text: 'TICKETS (BY STATUS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
         },
+        credits: false,
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
         },
@@ -1817,6 +1604,8 @@ $(function() {
 	
 	}); 
 
+
+
     <?php
         $sql="	select distinct lastname, owner_name  from (            select sum(count) as COUNT, STATUS, OWNER_NAME,LASTNAME from
 				(Select COUNT(Status) as Count, STATUS, OWNER_NAME, LASTNAME from
@@ -1847,11 +1636,35 @@ $(function() {
         
         $sql="SELECT distinct ost_ticket_status.name as STATUS 
 			    FROM (ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
-                WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12 order by STATUS";
+                WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12  order by STATUS";
         
         $cstatuses = db_query($sql); 
         
-        $sql="select sum(count) as COUNT, STATUS, OWNER_NAME,LASTNAME from
+        $sql="select sum(count) as COUNT, STATUS, OWNER_NAME from(
+                select sum(count) as COUNT, STATUS, OWNER_NAME from
+                                (Select COUNT(Status) as Count, STATUS, OWNER_NAME, LASTNAME from
+                                    (SELECT ost_ticket.number as Ticket, 
+                                        ost_ticket_status.name as STATUS, 
+                                        ost_ticket.Updated, 
+                                        ost_staff.lastname as LASTNAME,
+                                        CONCAT(ost_staff.lastname, ', ', ost_staff.firstname) as OWNER_NAME
+                                        FROM (ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+                                         LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and 
+                                         ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
+                                where lastname is not null Group by lastname,  Status, OWNER_NAME )b
+                            group by STATUS,LASTNAME
+                union all 
+                select b.count as COUNT, a.name as STATUS, b.OWNER_NAME  from (select 0 as count, name  from ost_ticket_status where id != 3 and id != 12 and id != 1 and id != 2 and id != 4 and id != 5) a join 
+
+                (select distinct CONCAT(ost_staff.lastname, ', ', ost_staff.firstname) as OWNER_NAME, 0 as count
+                FROM (ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+                 LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and 
+                 ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12 and lastname is not null) b  on a.count = b.count)d   Group by Status, OWNER_NAME";
+            
+        $ctechsdata = db_query($sql);
+        
+        
+         $sql="select distinct OWNER_NAME from (select sum(count) as COUNT, STATUS, OWNER_NAME,LASTNAME from
 				(Select COUNT(Status) as Count, STATUS, OWNER_NAME, LASTNAME from
 					(SELECT ost_ticket.number as Ticket, 
 						ost_ticket_status.name as STATUS, 
@@ -1862,11 +1675,11 @@ $(function() {
 						 LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and 
 						 ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
 				where lastname is not null Group by lastname,  Status, OWNER_NAME )b
-            group by STATUS,LASTNAME";
-            
-        $ctechsdata = db_query($sql);
+            group by STATUS,LASTNAME order by lastname) OWNER";
         
-        $sql="select sum(COUNT) as COUNT, STATUS, LOCATION from
+        $ctechs = db_query($sql);
+        
+        $sql="select sum(count) as COUNT, STATUS, LOCATION from (select sum(COUNT) as COUNT, STATUS, LOCATION from
                 (Select COUNT(STATUS) as COUNT,STATUS, LOCATION from
                     (SELECT ost_ticket.number as Ticket, ost_ticket_status.name as STATUS, ost_organization.name as LOCATION
                     FROM ((ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
@@ -1874,190 +1687,380 @@ $(function() {
                     LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12) A
                     where LOCATION is not null
                 Group by LOCATION,  STATUS ) a
-              group by LOCATION, STATUS";
+              group by LOCATION, STATUS
+              
+              union all 
+                select b.count as COUNT, a.name as STATUS, b.LOCATION  from (select 0 as count, name  from ost_ticket_status where id != 3 and id != 12 and id != 1 and id != 2 and id != 4 and id != 5) a join 
+                
+                (SELECT  distinct ost_organization.name as LOCATION, 0 as count
+                    FROM ((ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
+                    LEFT JOIN (ost_user LEFT JOIN ost_organization ON ost_user.org_id = ost_organization.id) ON ost_ticket.user_id = ost_user.id)
+                    LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12)b   
+                    Group by Status, LOCATION)d Group by Status, LOCATION";
 
 $clocsdata = db_query($sql);
         
 ?>
+
+
 //Status by tech
-$(function () {        
-<?php                
-           foreach ($cstatuses as $cstatus) {
-             
-             echo "var ".preg_replace('/\s+/', '', $cstatus["STATUS"])." = { \n";
-             echo "label: '".$cstatus["STATUS"]."', \n";
-             echo  "data: [ \n";
-             
-             foreach ($ctechsdata as $techsdata) {
-             
-                if ($techsdata["STATUS"] == $cstatus["STATUS"] ){
-                     
-                    echo  "[\"".$techsdata["OWNER_NAME"]."\", ".$techsdata["COUNT"]."],\n"; 
-                } 
-             
-             }
-             echo "] };\n";
-        
-        }
-    ?>     
-     
 
-   
-    var dataset = [
-   <?php
-  foreach ($cstatuses as $cstatus) {
-             
-             echo preg_replace('/\s+/', '', $cstatus["STATUS"]).",";
-   }   
-   ?>
-   ];
-
-    var options = {
-        series: {
-            stack: true,
-            bars: {
-                show: true
+$(function () {
+    
+    
+    Highcharts.chart('statusbyagent-chart-container1', {
+        chart: {
+            type: 'column',
+            marginRight: 180
+        },
+        title: {
+            text: 'TICKETS (TECH BY STATUS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
             }
         },
-        
-        bars: {
-            align: "center",
-            horizontal: false,
-            barWidth: .8,
-            lineWidth: 1
+        credits: false,
+        xAxis: {
+            categories: [<?php
+  foreach ($cstatuses as $cstatus) {
+             
+             echo "'".preg_replace('/\s+/', ' ', $cstatus["STATUS"])."',";
+   }   
+   ?>]
         },
-         grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%s: %y",
-                
-                
-              },
-
-        yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                color : '#868e96',
-                    	},
-                rotateTicks: 135
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Tickets'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                }
+            }
         },
         legend: {
-                show: true,
-                container: '#statusbyagent-chart-legend'
-				
-				
-        }
-    };
-    
-    $.plot($("#statusbyagent-chart #statusbyagent-chart-container"), dataset, options);
+            align: 'right',
+            x: -20,
+            verticalAlign: 'top',
+            layout: 'verticle',
+            y: 30,
+            floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: true
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true,
+                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+            }
+        },
+        series: [
+        
+        <?php
+        foreach ($ctechs as $ctech) { ?>
+        
+        {
+            name: '<?php echo $ctech["OWNER_NAME"]?>',
+            data: [<?php foreach ($ctechsdata as $techsdata) {
+
+                if ($techsdata["OWNER_NAME"] == $ctech["OWNER_NAME"]) echo $techsdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+    });
+
 });
 
-//Status by Location
-$(function () {        
-<?php                
-           foreach ($cstatuses as $cstatus) {
-             
-             echo "var ".preg_replace('/\s+/', '', $cstatus["STATUS"])." = { \n";
-             echo "label: '".$cstatus["STATUS"]."', \n";
-             echo  "data: [ \n";
-             
-             foreach ($clocsdata as $locsdata) {
-             
-                if ($locsdata["STATUS"] == $cstatus["STATUS"] ){
-                     
-                    echo  "[\"".$locsdata["LOCATION"]."\", ".$locsdata["COUNT"]."],\n"; 
-                } 
-             
-             }
-             echo "] };\n";
-        
-        }
-    ?>     
-     
-
-   
-    var dataset = [
-   <?php
-  foreach ($cstatuses as $cstatus) {
-             
-             echo preg_replace('/\s+/', '', $cstatus["STATUS"]).",";
-   }   
-   ?>
-   ];
-
-    var options = {
-        series: {
-            stack: true,
-            bars: {
-                show: true
+$(function () {
+    
+    
+    Highcharts.chart('statusbyagent-chart-container2', {
+        chart: {
+            type: 'column',
+            marginRight: 230
+        },
+        title: {
+            text: 'TICKETS (STATUS BY TECH)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
             }
         },
-        
-        bars: {
-            align: "center",
-            horizontal: false,
-            barWidth: .8,
-            lineWidth: 1
+        credits: false,
+        xAxis: {
+            categories: [<?php
+  foreach ($ctechs as $ctech) {
+             
+             echo "'".preg_replace('/\s+/', ' ', $ctech["OWNER_NAME"])."',";
+   }   
+   ?>]
         },
-         grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            
-			 tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%s: %y",
-                
-                
-              },
-
-        yaxis : {
-				tickColor : '#f5f5f5',
-				font : {
-					color : '#bdbdbd'
-				}
-			},
-			xaxis: {
-				mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                color : '#868e96',
-                    	},
-                rotateTicks: 135
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Tickets'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                }
+            }
         },
         legend: {
-                show: true,
-                container: '#statusbylocation-chart-legend'
-        }
-    };
+            align: 'right',
+            x: -0,
+            verticalAlign: 'top',
+            layout: 'verticle',
+            y: 30,
+            floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: true
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true,
+                     formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 2) {
+                        return '';
+                    }
+                    return val;
+                },
+                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+            }
+        },
+        series: [
+        
+        <?php
+        foreach ($cstatuses as $cstatus) { ?>
+        
+        {
+            name: '<?php echo $cstatus["STATUS"]?>',
+            data: [<?php foreach ($ctechsdata as $techsdata) {
+
+                if ($techsdata["STATUS"] == $cstatus["STATUS"]) echo $techsdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+    });
+
+});
+
+
+
+//Status by Location
+$(function () {
     
-    $.plot($("#statusbylocation-chart #statusbylocation-chart-container"), dataset, options);
-});  
+    
+    Highcharts.chart('statusbylocation-chart-container1', {
+        chart: {
+            type: 'column',
+            marginRight: 180
+        },
+        title: {
+            text: 'TICKETS (LOCATION BY STATUS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+        credits: false,
+        xAxis: {
+            categories: [<?php
+  foreach ($cstatuses as $cstatus) {
+             
+             echo "'".preg_replace('/\s+/', ' ', $cstatus["STATUS"])."',";
+   }   
+   ?>]
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Tickets'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            x: -30,
+            verticalAlign: 'top',
+            layout: 'verticle',
+            y: 30,
+            floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: true
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true,
+                     formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 2) {
+                        return '';
+                    }
+                    return val;
+                },
+                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+            }
+        },
+        series: [
+        
+         <?php
+        foreach ($locs as $loc) { ?>
+        
+        {
+            name: '<?php echo $loc["LOCATION"]?>',
+            data: [<?php foreach ($clocsdata as $locsdata) {
+
+                if ($locsdata["LOCATION"] == $loc["LOCATION"]) echo $locsdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+    });
+
+});
+
+$(function () {
+    
+    
+    Highcharts.chart('statusbylocation-chart-container2', {
+        chart: {
+            type: 'column',
+            marginRight: 230
+        },
+        title: {
+            text: 'TICKETS (STATUS BY LOCATION)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+        credits: false,
+        xAxis: {
+            categories: [<?php
+  foreach ($locs as $loc) {
+             
+             echo "'".preg_replace('/\s+/', ' ', $loc["LOCATION"])."',";
+   }   
+   ?>]
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total Tickets'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            x: -5,
+            verticalAlign: 'top',
+            layout: 'verticle',
+            y: 30,
+            floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: true
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true,
+                     formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 1) {
+                        return '';
+                    }
+                    return val;
+                },
+                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+            }
+        },
+        series: [
+        
+         <?php
+        foreach ($cstatuses as $cstatus) { ?>
+        
+        {
+            name: '<?php echo $cstatus["STATUS"]?>',
+            data: [<?php foreach ($clocsdata as $locsdata) {
+
+                if ($locsdata["STATUS"] == $cstatus["STATUS"]) echo $locsdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+    });
+
+});
+
+
 //location 2 year
 <?php
 
@@ -2095,90 +2098,128 @@ $sql="select CALENDARWEEK,CALENDARYEAR, count(LASTNAME) as COUNT,OWNER_NAME, LAS
 
 $locsdata = db_query($sql);
 
+$sql="select distinct cat from (select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(OWNER_NAME) as COUNT,OWNER_NAME from
+	(
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK,YEAR(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARYEAR, 
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK order by CALENDARYEAR,CALENDARWEEK)a";
+    
+ $periods = db_query($sql);   
+
+$sql="select * from (select cat,sum(COUNT) as COUNT, OWNER_NAME,CALENDARWEEK,CALENDARYEAR from (select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(OWNER_NAME) as COUNT,OWNER_NAME, CALENDARWEEK,CALENDARYEAR from
+	(
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK,YEAR(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARYEAR, 
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK
+    
+    union all
+    
+    select distinct cat, 0 as COUNT, b.OWNER_NAME,CALENDARWEEK,CALENDARYEAR   from (select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(OWNER_NAME) as COUNT,OWNER_NAME, CALENDARWEEK,CALENDARYEAR  from
+	(
+	SELECT  month(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARWEEK,YEAR(FROM_DAYS(TO_DAYS(t.closed) - MOD(TO_DAYS(t.closed) - 2, 7))) AS CALENDARYEAR,
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME, s.name as STATUS FROM ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by OWNER_NAME, CALENDARYEAR, CALENDARWEEK)a left join
+    
+    (SELECT distinct
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME FROM ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH))b on 1=1) dat
+    
+    group by  cat, OWNER_NAME) datb order by CALENDARYEAR, CALENDARWEEK";
+
+    $techsdata = db_query($sql);
+    
+    
+    $sql="SELECT distinct
+    concat(u.lastname, ', ', u.firstname) AS OWNER_NAME FROM ost_ticket t 
+	left join ost_staff u on u.staff_id = t.staff_id 
+	left join ost_ticket_status s on s.id = t.status_id
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)";
+
+    $techs = db_query($sql);
+    
+    
 ?>
 
-       
-<?php                
-           foreach ($locs as $loc) {
-             
-             echo "var ".preg_replace('/\s+/', '', $loc["LASTNAME"])." = [\n";
-                         
-             foreach ($locsdata as $locdata) {
-             
-                if ($locdata["LASTNAME"] == $loc["LASTNAME"] ){
-                     
-                    echo  "[\"".date("M Y", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10, $locdata["CALENDARYEAR"]))."\", ".$locdata["COUNT"]."],\n"; 
-                } 
-             
-             }
-             echo "];\n";
-        
-        }
-    ?> 
+$(function () {
+    Highcharts.chart('closedbytech-chart-container1', {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: 'TICKETS CLOSED (TECH 1 YEARS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
 
-$(function () {        
-    $.plot($("#closedbytech-chart-container"),
-        [
-        
-        <?php                
-           foreach ($locs as $loc) {
-              ?> 
-               {
-              data: <?php echo $loc["LASTNAME"];?>,
-              label: "<?php echo $loc["OWNER_NAME"];?>",
-              points: { show: true },
-              lines: { show: true}
-
-            },
-            <?php   
-           }  
-         ?> 
-         
-            
-        ],
-        {            
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%s | %y",
-                
-                
-              },
-            xaxis: {
-                mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                color : '#868e96',
-                    	},
-                rotateTicks: 135
-            },
-            yaxes: [
-                {
-                    /* First y axis */
-                },
-                {
-                    /* Second y axis */
-                    position: "right"  /* left or right */
-                }
-            ], legend: {
-                show: true,
-                container: '#closedbytech-chart-legend'
-				
-				
-        }      
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+            }
+        },
+        plotOptions: {
+        spline: {
+            marker: {
+                radius: 4,
+                lineColor: '#666666',
+                lineWidth: 1
+            }
         }
-    );
-});
+        },
+        
+               series: [
+        
+         <?php
+        foreach ($techs as $tech) { ?>
+        
+        {
+            name: '<?php echo $tech["OWNER_NAME"]?>',
+            data: [<?php foreach ($techsdata as $techdata) {
+
+                if ($techdata["OWNER_NAME"] == $tech["OWNER_NAME"]) echo $techdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});      
+
 
 //Opened by location 2 year
 <?php
@@ -2201,7 +2242,50 @@ $sql="select distinct LOCATION from
 
 $olocs = db_query($sql);
 
-$sql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
+$sql="select * from (select cat,sum(COUNT) as COUNT, LOCATION,CALENDARWEEK,CALENDARYEAR from (
+	select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK,CALENDARYEAR from
+	(
+		SELECT  month(t.created) AS CALENDARWEEK,year(t.created) AS CALENDARYEAR, 
+		o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+		left join ost_user u on u.id = t.user_id 
+		left join ost_organization o on o.id = u.org_id
+		left join ost_ticket_status s on s.id = t.status_id
+		where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.created >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by LOCATION, CALENDARYEAR, CALENDARWEEK
+    
+    union all
+    
+    select distinct cat, 0 as COUNT, b.LOCATION,CALENDARWEEK,CALENDARYEAR   from (select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK,CALENDARYEAR  from
+	(
+	SELECT  month(t.created) AS CALENDARWEEK,year(t.created) AS CALENDARYEAR,
+    o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+    left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.created >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by LOCATION, CALENDARYEAR, CALENDARWEEK)a left join
+    
+    (SELECT distinct
+     o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.created >(CURDATE() - INTERVAL 11 MONTH))b on 1=1) dat
+    
+    group by  cat, LOCATION) datb  Where LOCATION IS NOT NULL order by CALENDARYEAR, CALENDARWEEK
+    
+";
+
+$olocsdata = db_query($sql);
+
+$sql="select distinct concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat  from
 	(
 	SELECT month(t.created) AS CALENDARWEEK,year(t.created) AS CALENDARYEAR, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
@@ -2212,101 +2296,75 @@ $sql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.created) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
-	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
-    
-";
-
-$olocsdata = db_query($sql);
+	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION";
+ 
+$periods = db_query($sql);   
 
 ?>
 
-       
-<?php                
-           foreach ($olocs as $oloc) {
-             
-             echo "var obl".preg_replace('/\s+/', '', $oloc["LOCATION"])." = [\n";
-                         
-             foreach ($olocsdata as $olocdata) {
-             
-                if ($olocdata["LOCATION"] == $oloc["LOCATION"] ){
-                     
-                    echo  "[\"".date("M Y", mktime(0, 0, 0, $olocdata["CALENDARWEEK"], 10, $olocdata["CALENDARYEAR"]))."\", ".$olocdata["COUNT"]."],\n"; 
-                } 
-             
-             }
-             echo "];\n";
-        
-        }
-    ?> 
 
-$(function () {        
-    $.plot($("#openedbylocation-chart-container"),
-        [
-        
-        <?php                
-           foreach ($olocs as $oloc) {
-              ?> 
-               {
-              data: obl<?php echo $oloc["LOCATION"];?>,
-              label: "<?php echo $oloc["LOCATION"];?>",
-              points: { show: true },
-              lines: { show: true},
-             
-            },
-            <?php   
-           }  
-         ?> 
-            
-        ],
-        
-        {            
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%s | %y",
-                
-                
-              },
-            xaxis: {
-                mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                color : '#868e96',
-                    	},
-                rotateTicks: 135
-            },
-            yaxes: [
-                {
-                    /* First y axis */
-                },
-                {
-                    /* Second y axis */
-                    position: "right"  /* left or right */
-                }
-            ], legend: {
-                show: true,
-                container: '#openedbylocation-chart-legend'
-				
-				
-        }      
+$(function () {
+    Highcharts.chart('openedbylocation-chart-container1', {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: 'TICKETS OPENED (LOCATION 1 YEARS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+            }
+        },
+        plotOptions: {
+        spline: {
+            marker: {
+                radius: 4,
+                lineColor: '#666666',
+                lineWidth: 1
+            }
         }
-    );
-});
+        },
+        
+               series: [
+        
+         <?php
+        foreach ($olocs as $oloc) { ?>
+        
+        {
+            name: '<?php echo $oloc["LOCATION"]?>',
+            data: [<?php foreach ($olocsdata as $olocdata) {
+
+                if ($olocdata["LOCATION"] == $oloc["LOCATION"]) echo $olocdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});  
 
 //closed by location 2 year
+
 <?php
 
-$csql="select distinct LOCATION from
+$sql="select distinct LOCATION from
 (
 	select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
 	(
@@ -2316,15 +2374,58 @@ $csql="select distinct LOCATION from
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH) and o.name is not null
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
 	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
-)b;"; 
+)b ";
 
-$locs = db_query($csql);
+$olocs = db_query($sql);
 
-$csql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION from
+$sql="select * from (select cat,sum(COUNT) as COUNT, LOCATION,CALENDARWEEK,CALENDARYEAR from (
+	select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK,CALENDARYEAR from
+	(
+		SELECT  month(t.closed) AS CALENDARWEEK,year(t.closed) AS CALENDARYEAR, 
+		o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+		left join ost_user u on u.id = t.user_id 
+		left join ost_organization o on o.id = u.org_id
+		left join ost_ticket_status s on s.id = t.status_id
+		where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by LOCATION, CALENDARYEAR, CALENDARWEEK
+    
+    union all
+    
+    select distinct cat, 0 as COUNT, b.LOCATION,CALENDARWEEK,CALENDARYEAR   from (select concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK,CALENDARYEAR  from
+	(
+	SELECT  month(t.closed) AS CALENDARWEEK,year(t.closed) AS CALENDARYEAR,
+    o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+    left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)
+	) a
+
+	group by LOCATION, CALENDARYEAR, CALENDARWEEK)a left join
+    
+    (SELECT distinct
+     o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH))b on 1=1) dat
+    
+    group by  cat, LOCATION) datb  Where LOCATION IS NOT NULL order by CALENDARYEAR, CALENDARWEEK
+    
+";
+
+$olocsdata = db_query($sql);
+
+$sql="select distinct concat(MONTHNAME(STR_TO_DATE(CALENDARWEEK, '%m')),' ',CALENDARYEAR) as cat  from
 	(
 	SELECT month(t.closed) AS CALENDARWEEK,year(t.closed) AS CALENDARYEAR, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
 	left join ost_user u on u.id = t.user_id 
@@ -2332,99 +2433,73 @@ $csql="select CALENDARWEEK, CALENDARYEAR, count(LOCATION) as COUNT, LOCATION fro
 	left join ost_ticket_status s on s.id = t.status_id
 
 
-	where t.status_id = 3  AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH)
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (CURDATE() - INTERVAL 11 MONTH)
 	) a
 	where LOCATION is not null
-	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION
-";
-
-$locsdata = db_query($csql);
+	group by LOCATION, CALENDARWEEK,CALENDARYEAR order by CALENDARYEAR,CALENDARWEEK, LOCATION";
+ 
+$periods = db_query($sql);   
 
 ?>
 
+
+$(function () {
+    Highcharts.chart('closedbylocation-chart-container1', {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: 'TICKETS CLOSED (LOCATION 1 YEARS)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+            }
+        },
+        plotOptions: {
+        spline: {
+            marker: {
+                radius: 4,
+                lineColor: '#666666',
+                lineWidth: 1
+            }
+        }
+        },
+        
+               series: [
+        
+         <?php
+        foreach ($olocs as $oloc) { ?>
+        
+        {
+            name: '<?php echo $oloc["LOCATION"]?>',
+            data: [<?php foreach ($olocsdata as $olocdata) {
+
+                if ($olocdata["LOCATION"] == $oloc["LOCATION"]) echo $olocdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});  
        
-<?php                
-           foreach ($locs as $loc) {
-             
-             echo "var ".preg_replace('/\s+/', '', $loc["LOCATION"])." = [\n";
-                         
-             foreach ($locsdata as $locdata) {
-             
-                if ($locdata["LOCATION"] == $loc["LOCATION"] ){
-                     
-                    echo  "[\"".date("M Y", mktime(0, 0, 0, $locdata["CALENDARWEEK"], 10, $locdata["CALENDARYEAR"]))."\", ".$locdata["COUNT"]."],\n"; 
-                } 
-             
-             }
-             echo "];\n";
-        
-        }
-    ?> 
-
-$(function () {        
-    $.plot($("#ticketsclosedbylocation-chart-container"),
-        [
-        
-        <?php                
-           foreach ($locs as $loc) {
-              ?> 
-               {
-              data: <?php echo $loc["LOCATION"];?>,
-              label: "<?php echo $loc["LOCATION"];?>",
-              points: { show: true },
-              lines: { show: true},
-             
-            },
-            <?php   
-           }  
-         ?> 
-            
-        ],
-        
-        {            
-            grid : {
-				hoverable : true,
-				clickable : true,
-				tickColor : "#f9f9f9",
-				borderWidth : 1,
-				borderColor : "#eeeeee",
-                labelMargin: 20,
-                margin: 10
-			},
-            tooltip: {
-                 show: true,
-                 cssClass: "flot",
-                 content: "%s | %y",
-                
-                
-              },
-            xaxis: {
-                mode: "categories",
-				tickLength: 0,
-                tickColor : '#f5f5f5',
-				font : {
-                color : '#868e96',
-                    	},
-                rotateTicks: 135
-            },
-            yaxes: [
-                {
-                    /* First y axis */
-                },
-                {
-                    /* Second y axis */
-                    position: "right"  /* left or right */
-                }
-            ], legend: {
-                show: true,
-                container: '#ticketsclosedbylocation-chart-legend'
-				
-				
-        }      
-        }
-    );
-});
-
     
       
 </script>
