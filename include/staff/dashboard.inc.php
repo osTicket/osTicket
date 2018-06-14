@@ -1375,7 +1375,7 @@ $(function() {
             }
         },
         title: {
-            text: 'TICKETS (BY STATUS)',
+            text: 'MY TICKETS (BY STATUS)',
             style: {
             color: '#797979',
             fontSize: '14px',
