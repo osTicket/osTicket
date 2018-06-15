@@ -19,16 +19,19 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
         </div>
 <?php } ?>
         <div class="content"><?php
-    $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
-    if ($faqs->all()) { ?>
-            <section><div class="header"><?php echo __('Featured Questions'); ?></div>
-<?php   foreach ($faqs as $F) { ?>
-            <div><a href="<?php echo ROOT_PATH; ?>kb/faq.php?id=<?php
-                echo urlencode($F->getId());
-                ?>"><?php echo $F->getLocalQuestion(); ?></a></div>
-<?php   } ?>
+    if ($cfg->isKnowledgebaseEnabled()) {
+        $faqs = FAQ::getFeatured()->select_related('category')->limit(5);
+        if ($faqs->all()) { ?>
+            <section>
+                <div class="header"><?php echo __('Featured Questions'); ?></div>
+                <?php foreach ($faqs as $F) { ?>
+                    <div><a href="<?php echo ROOT_PATH; ?>kb/faq.php?id=<?php
+                        echo urlencode($F->getId());
+                        ?>"><?php echo $F->getLocalQuestion(); ?></a></div>
+                <?php } ?>
             </section>
-<?php
+            <?php
+        }
     }
     $resources = Page::getActivePages()->filter(array('type'=>'other'));
     if ($resources->all()) { ?>
