@@ -1511,7 +1511,7 @@ $(function() {
                     FROM ((ost_ticket LEFT JOIN ost_ticket_status ON ost_ticket.status_id = ost_ticket_status.id)
                     LEFT JOIN (ost_user LEFT JOIN ost_organization ON ost_user.org_id = ost_organization.id) ON ost_ticket.user_id = ost_user.id)
                     LEFT JOIN ost_staff ON ost_ticket.staff_id = ost_staff.staff_id WHERE ost_ticket.topic_id != 12 and ost_ticket.topic_id != 14 and ost_ticket.status_id != 3 and ost_ticket.status_id != 12)b   
-                    Group by Status, LOCATION)d Group by Status, LOCATION";
+                    Group by Status, LOCATION)d where location is not null Group by Status, LOCATION";
 
 $clocsdata = db_query($sql);
         
