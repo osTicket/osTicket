@@ -1015,7 +1015,7 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
         return Dept::getDepartments();
     }
 
-   function getQuickFilterChoices() {
+    function getQuickFilterChoices() {
        global $thisstaff;
 
        if (!isset($this->_choices)) {
@@ -1028,13 +1028,22 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
        }
 
        return $this->_choices;
-   }
+    }
 
     function getSearchMethods() {
         return array(
             'includes' =>   __('is'),
             '!includes' =>  __('is not'),
         );
+    }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('dept_id', 'dept__name');
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}dept__name");
     }
 }
 
@@ -1136,6 +1145,14 @@ class AssigneeChoiceField extends ChoiceField {
     }
 
     function addToQuery($query, $name=false) {
+
+        $fields = array();
+        foreach(Staff::getsortby('staff__') as $key)
+             $fields[] = new SqlField($key);
+        $fields[] =  new SqlField('team__name');
+        $fields[] = 'zzz';
+        $expr = call_user_func_array(array('SqlFunction', 'COALESCE'), $fields);
+        $query->annotate(array($name ?: 'assignee' => $expr));
         return $query->values('staff__firstname', 'staff__lastname', 'team__name', 'team_id');
     }
 
@@ -1144,15 +1161,11 @@ class AssigneeChoiceField extends ChoiceField {
             return new AgentsName(array('first' => $row['staff__firstname'], 'last' => $row['staff__lastname']));
         if ($row['team_id'])
             return Team::getLocalById($row['team_id'], 'name', $row['team__name']);
+
     }
 
     function display($value) {
         return (string) $value;
-    }
-
-    function applyOrderBy($query, $reverse=false, $name=false) {
-        $reverse = $reverse ? '-' : '';
-        return Staff::nsort($query, $reverse);
     }
 }
 
@@ -1225,10 +1238,13 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
         return parent::getSearchQ($method, $value, $name);
     }
 
+    function getSortKeys($path='') {
+        return Staff::getsortby('staff__');
+    }
 
     function applyOrderBy($query, $reverse=false, $name=false) {
         $reverse = $reverse ? '-' : '';
-        return Staff::nsort($query, $reverse);
+        return Staff::nsort($query, "{$reverse}staff__");
     }
 }
 
@@ -1260,6 +1276,10 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         }
 
         return parent::getSearchQ($method, $value, $name);
+    }
+
+    function getSortKeys() {
+        return array('team__name');
     }
 
     function applyOrderBy($query, $reverse=false, $name=false) {
