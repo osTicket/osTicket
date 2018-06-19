@@ -1147,16 +1147,10 @@ class UserAccount extends VerySimpleModel {
     }
 
     /*
-     * This assumes the staff is doing the update
+     * Updates may be done by Staff or by the User if registration
+     * options are set to Public
      */
     function update($vars, &$errors) {
-        global $thisstaff;
-
-
-        if (!$thisstaff) {
-            $errors['err'] = __('Access denied');
-            return false;
-        }
 
         // TODO: Make sure the username is unique
 
