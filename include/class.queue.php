@@ -2097,7 +2097,8 @@ extends VerySimpleModel {
             $fields = array();
             foreach ($keys as $key) {
                 list($path, $field) = $key;
-                $fields[] = new SqlField($path);
+                foreach ($field->getSortKeys($path) as $field)
+                    $fields[]  = new SqlField($field);
             }
             // Force nulls to the buttom.
             $fields[] = 'zzz';

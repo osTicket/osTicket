@@ -845,7 +845,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return self::getStaffMembers(array('available'=>true));
     }
 
-    static function nsort(QuerySet $qs, $path='', $format=null) {
+    static function getsortby($path='', $format=null) {
         global $cfg;
 
         $format = $format ?: $cfg->getAgentNameFormat();
@@ -853,12 +853,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         case 'last':
         case 'lastfirst':
         case 'legal':
-            $qs->order_by("{$path}lastname", "{$path}firstname");
+            $fields = array("{$path}lastname", "{$path}firstname");
             break;
         default:
-            $qs->order_by("${path}firstname", "${path}lastname");
+            $fields = array("${path}firstname", "${path}lastname");
         }
 
+        return $fields;
+    }
+
+    static function nsort(QuerySet $qs, $path='', $format=null) {
+        $fields = self::getsortby($path, $format);
+        $qs->order_by($fields);
         return $qs;
     }
 

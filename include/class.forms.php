@@ -1054,10 +1054,18 @@ class FormField {
 
     function getLabel() { return $this->get('label'); }
 
+    function getSortKeys($path) {
+        return array($path);
+    }
+
+    function getOrmPath($name=false, $query=null) {
+        return CustomQueue::getOrmPath($name ?:$this->get('name'), $query);
+    }
+
     function applyOrderBy($query, $reverse=false, $name=false) {
-        $col = $name ?: CustomQueue::getOrmPath($this->get('name'), $query);
-        if ($reverse)
-            $col = '-' . $col;
+        $col = sprintf('%s%s',
+                $reverse ? '-' : '',
+                $this->getOrmPath($name, $query));
         return $query->order_by($col);
     }
 
