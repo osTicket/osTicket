@@ -2685,7 +2685,8 @@ class DepartmentField extends ChoiceField {
 
         $active_depts = Dept::objects()
           ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
-          ->values('id', 'name');
+          ->values('id', 'name')
+          ->order_by('name');
 
         $choices = array();
         if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
