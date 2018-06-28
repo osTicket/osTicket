@@ -471,23 +471,23 @@ implements TemplateVariable, Searchable {
         $this->notes = Format::sanitize($vars['notes']);
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));
-        if ($filter_actions && $vars['status'] == __('Active'))
+        if ($filter_actions && $vars['status'] == 'active')
           FilterAction::setFilterFlag($filter_actions, 'topic', false);
         else
           FilterAction::setFilterFlag($filter_actions, 'topic', true);
 
         switch ($vars['status']) {
-          case __('Active'):
+          case 'active':
             $this->setFlag(self::FLAG_ACTIVE, true);
             $this->setFlag(self::FLAG_ARCHIVED, false);
             break;
 
-          case __('Disabled'):
+          case 'disabled':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, false);
             break;
 
-          case __('Archived'):
+          case 'archived':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, true);
             break;
