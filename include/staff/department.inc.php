@@ -167,17 +167,16 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Ticket Assignment'); ?>:</td>
+          <td><?php echo __('Ticket Assignment'); ?>:</td>
             <td>
-                <label>
-                <input type="checkbox" name="assign_members_only" <?php echo
-                $info['assign_members_only']?'checked="checked"':''; ?>>
-                <?php echo __('Restrict ticket assignment to department members'); ?>
-                </label>
-                <i class="help-tip icon-question-sign" href="#sandboxing"></i>
+                <select name="assignment_flag">
+                  <option value="all"<?php echo ($info['assignment_flag'] == 'all')?'selected="selected"':'';?>><?php echo __('All'); ?></option>
+                  <option value="members"<?php echo ($info['assignment_flag'] == 'members') ?'selected="selected"':'';?>><?php echo __('Department Members'); ?></option>
+                  <option value="primary"<?php echo ($info['assignment_flag'] == 'primary') ?'selected="selected"':'';?>><?php echo __('Primary Members'); ?></option>
+                </select>
+                &nbsp;<span class="error">&nbsp;</span> <i class="help-tip icon-question-sign" href="#sandboxing"></i>
             </td>
         </tr>
-
         <tr>
             <td><?php echo __('Claim on Response'); ?>:</td>
             <td>

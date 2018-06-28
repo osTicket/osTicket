@@ -648,7 +648,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $errors['err'] = __('Unknown assignee');
         } elseif (!$assignee->isAvailable()) {
             $errors['err'] = __('Agent is unavailable for assignment');
-        } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+        } elseif (!$dept->canAssign($assignee)) {
             $errors['err'] = __('Permission denied');
         }
 
@@ -692,6 +692,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $evd = array();
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
+            $dept = $this->getDept();
             if ($this->getStaffId() == $assignee->getId()) {
                 $errors['assignee'] = sprintf(__('%s already assigned to %s'),
                         __('Task'),
@@ -699,7 +700,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                         );
             } elseif(!$assignee->isAvailable()) {
                 $errors['assignee'] = __('Agent is unavailable for assignment');
-            } else {
+              } elseif (!$dept->canAssign($assignee)) {
+                $errors['err'] = __('Permission denied');
+            }
+            else {
                 $this->staff_id = $assignee->getId();
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId())
                     $evd['claim'] = true;
