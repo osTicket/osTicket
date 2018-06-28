@@ -2944,9 +2944,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $collabsCc['cc'] = $collabsCc[0];
             }
 
-            if (Ticket::checkReply('user', $vars['emailreply']))
-              $email->send($user, $msg['subj'], $msg['body'], $attachments,
-                      $options, $collabsCc);
+            $email->send($user, $msg['subj'], $msg['body'], $attachments,
+                    $options, $collabsCc);
 
         }
 
@@ -4046,8 +4045,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            $response = $ticket->postReply($vars, $errors,
-                    !isset($vars['alertuser']));
+            $response = $ticket->postReply($vars, $errors, is_null($vars['emailreply']) ?: !isset($vars['emailreply']));
         }
 
         // Not assigned...save optional note if any
@@ -4059,6 +4057,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         if (!$cfg->notifyONNewStaffTicket()
+            || !isset($vars['emailreply'])
             || !($dept=$ticket->getDept())
         ) {
             return $ticket; //No alerts.
