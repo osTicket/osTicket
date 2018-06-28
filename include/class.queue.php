@@ -590,11 +590,13 @@ class CustomQueue extends VerySimpleModel {
                 'lastupdate' =>     __('Last Updated'),
                 'est_duedate' =>    __('SLA Due Date'),
                 'duedate' =>        __('Due Date'),
+                'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
                 'staff::getName' => __('Agent Assigned'),
                 'team::getName' =>  __('Team Assigned'),
                 'thread_count' =>   __('Thread Count'),
+                'reopen_count' =>   __('Reopen Count'),
                 'attachment_count' => __('Attachment Count'),
                 ) + $cdata;
 
