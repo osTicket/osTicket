@@ -57,6 +57,10 @@ class Export {
             $fields[$key] = $f;
             $cdata[$key] = $f->getLocal('label');
         }
+
+        if (!is_array($target))
+          $target = CustomQueue::getExportableFields() + $cdata;
+
         // Reset the $sql query
         $tickets = $sql->models()
             ->select_related('user', 'user__default_email', 'dept', 'staff',

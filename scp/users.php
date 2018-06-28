@@ -184,7 +184,7 @@ if ($user ) {
         } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':U:tickets'])) {
             $filename = sprintf('%s-tickets-%s.csv',
                     $user->getName(), strftime('%Y%m%d'));
-            if (!Export::saveTickets($query, $filename, 'csv'))
+            if (!Export::saveTickets($query, '', $filename, 'csv'))
                 $errors['err'] = __('Unable to dump query results.')
                     .' '.__('Internal error occurred');
         }
