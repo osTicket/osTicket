@@ -476,8 +476,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if ($assigned && $this->usePrimaryRoleOnAssignment())
             return $this->role;
 
-        // View only access
-        return new Role(array());
+        // Ticket Create & View only access
+        $perms = JSONDataEncoder::encode(array(
+                    Ticket::PERM_CREATE => 1));
+        return new Role(array('permissions' => $perms));
     }
 
     function hasPerm($perm, $global=true) {
