@@ -30,7 +30,7 @@ $redirect = false;
 if($_REQUEST['id'] || $_REQUEST['number']) {
     if($_REQUEST['id'] && !($ticket=Ticket::lookup($_REQUEST['id'])))
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
-    elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(['number' => $_REQUEST['number']])))
+    elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(array('number' => $_REQUEST['number']))))
          $errors['err']=sprintf(__('%s: Unknown or invalid number.'), __('ticket'));
     elseif(!$ticket->checkStaffPerm($thisstaff)) {
         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
@@ -192,9 +192,12 @@ if($_POST && !$errors):
                     'ticket.response.' . $ticket->getId(),
                     $thisstaff->getId());
 
-                // Go back to the ticket listing page on reply
-                $ticket = null;
+                if ($ticket->isClosed())
+                    $ticket = null;
+
                 $redirect = 'tickets.php';
+                if ($ticket)
+                    $redirect = 'tickets.php?id='.$ticket->getId();
 
             } elseif(!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
@@ -225,7 +228,12 @@ if($_POST && !$errors):
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
-                $msg=__('Internal note posted successfully');
+                $msg = sprintf(__('%s: %s posted successfully'),
+                        sprintf(__('Ticket #%s'),
+                            sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                $ticket->getId(), $ticket->getNumber())),
+                        __('Internal note')
+                        );
                 // Clear attachment list
                 $note_form->setSource(array());
                 $note_form->getField('attachments')->reset();
@@ -241,6 +249,9 @@ if($_POST && !$errors):
                         $thisstaff->getId());
 
                  $redirect = 'tickets.php';
+                 if ($ticket)
+                     $redirect ='tickets.php?id='.$ticket->getId();
+
             } else {
 
                 if(!$errors['err'])
@@ -414,7 +425,7 @@ if($_POST && !$errors):
                         // Drop files from the response attachments widget
                         $response_form->setSource(array());
                         $response_form->getField('attachments')->reset();
-                        unset($_SESSION[':form-data']);
+                        $_SESSION[':form-data'] = null;
                     } elseif(!$errors['err']) {
                         $errors['err']=sprintf('%s %s',
                             __('Unable to create the ticket.'),
