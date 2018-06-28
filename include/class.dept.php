@@ -736,23 +736,23 @@ implements TemplateVariable, Searchable {
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $this->getId().'}'));
-        if ($filter_actions && $vars['status'] == __('Active'))
+        if ($filter_actions && $vars['status'] == 'active')
           FilterAction::setFilterFlag($filter_actions, 'dept', false);
         else
           FilterAction::setFilterFlag($filter_actions, 'dept', true);
 
         switch ($vars['status']) {
-          case __('Active'):
+          case 'active':
             $this->setFlag(self::FLAG_ACTIVE, true);
             $this->setFlag(self::FLAG_ARCHIVED, false);
             break;
 
-          case __('Disabled'):
+          case 'disabled':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, false);
             break;
 
-          case __('Archived'):
+          case 'archived':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, true);
             break;
