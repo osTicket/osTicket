@@ -678,6 +678,7 @@ class CustomQueue extends VerySimpleModel {
                 "bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticket",
                 "annotations" => '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"}]',
+                "conditions" => '[{"crit":["isanswered","set",null],"prop":{"font-weight":"bold"}}]',
                 "truncate" => 'ellipsis',
             )),
             QueueColumn::placeholder(array(
