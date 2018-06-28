@@ -288,7 +288,9 @@ class TasksAjaxAPI extends AjaxController {
                                     Q::all(array(
                                         'dept_access__dept__id__in' => $depts,
                                         Q::not(array('dept_access__dept__flags__hasbit'
-                                            => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                            => Dept::FLAG_ASSIGN_MEMBERS_ONLY,
+                                            'dept_access__dept__flags__hasbit'
+                                                => Dept::FLAG_ASSIGN_PRIMARY_ONLY))
                                         ))
                                     )));
                 }

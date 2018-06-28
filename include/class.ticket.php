@@ -847,9 +847,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $prompt = $assignee = '';
         // Possible assignees
-        $assignees = array();
+        $assignees = null;
         switch (strtolower($options['target'])) {
             case 'agents':
+                $assignees = array();
                 $dept = $this->getDept();
                 foreach ($dept->getAssignees() as $member)
                     $assignees['s'.$member->getId()] = $member;
@@ -859,6 +860,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $prompt = __('Select an Agent');
                 break;
             case 'teams':
+                $assignees = array();
                 if (($teams = Team::getActiveTeams()))
                     foreach ($teams as $id => $name)
                         $assignees['t'.$id] = $name;
@@ -874,7 +876,8 @@ implements RestrictedAccess, Threadable, Searchable {
             $source = array('assignee' => array($assignee));
 
         $form = AssignmentForm::instantiate($source, $options);
-        if ($assignees)
+
+        if (isset($assignees))
             $form->setAssignees($assignees);
 
         if (($refer = $form->getField('refer'))) {
@@ -2338,7 +2341,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $errors['err'] = __('Unknown assignee');
         } elseif (!$assignee->isAvailable()) {
             $errors['err'] = __('Agent is unavailable for assignment');
-        } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+        } elseif (!$dept->canAssign($assignee)) {
             $errors['err'] = __('Permission denied');
         }
 
@@ -2404,7 +2407,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         );
             } elseif(!$assignee->isAvailable()) {
                 $errors['assignee'] = __('Agent is unavailable for assignment');
-            } elseif ($dept->assignMembersOnly() && !$dept->isMember($assignee)) {
+              } elseif (!$dept->canAssign($assignee)) {
                 $errors['err'] = __('Permission denied');
             } else {
                 $refer = $this->staff ?: null;

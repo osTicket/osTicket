@@ -77,10 +77,9 @@ group_membership:
 sandboxing:
     title: Ticket Assignment Restrictions
     content: >
-        Enable this to restrict ticket assignment to include only members
-        of this Department. Department membership can be extended to Groups,
-        if <span class="doc-desc-title">Alerts &amp; Notices
-        Recipients</span> includes groups members.
+        Determine if Tickets can be assigned to all agents,
+        agents with Primary or Extended Department access,
+        or only agents with Primary Department access.
 
 disable_auto_claim:
     title: Disable Auto Claim

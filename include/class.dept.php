@@ -70,6 +70,7 @@ implements TemplateVariable, Searchable {
     const FLAG_DISABLE_AUTO_CLAIM  = 0x0002;
     const FLAG_ACTIVE = 0x0004;
     const FLAG_ARCHIVED = 0x0008;
+    const FLAG_ASSIGN_PRIMARY_ONLY = 0x0010;
 
     function asVar() {
         return $this->getName();
@@ -280,14 +281,27 @@ implements TemplateVariable, Searchable {
         return $this->_extended_members;
     }
 
-    // Get members  eligible members only
+    // Get eligible members only
     function getAssignees() {
-        $members = clone $this->getAvailableMembers();
-        // If restricted then filter to primary members ONLY!
-        if ($this->assignMembersOnly())
-            $members->filter(array('dept_id' => $this->getId()));
 
-        return $members;
+      //this is for if all members is set
+      if (!$this->assignPrimaryOnly() && !$this->assignMembersOnly()) {
+        $members =  Staff::objects()->filter(array(
+            'onvacation' => 0,
+            'isactive' => 1,
+        ));
+
+        return Staff::nsort($members);
+      }
+
+      //this gets just the members of the dept
+      $members = clone $this->getAvailableMembers();
+
+      //this gets just the primary members of the dept
+      if ($this->assignPrimaryOnly())
+        $members->filter(array('dept_id' => $this->getId()));
+
+      return Staff::nsort($members);
     }
 
     function getMembersForAlerts() {
@@ -359,6 +373,23 @@ implements TemplateVariable, Searchable {
         return ($this->getSignature() && $this->isPublic());
     }
 
+    //Check if an agent is eligible for assignment
+    function canAssign(Staff $assignee) {
+        //Primary members only
+        if ($this->assignPrimaryOnly() && !$this->isPrimaryMember($assignee))
+            return false;
+
+        //Extended members only
+        if ($this->assignMembersOnly() && !$this->isMember($assignee))
+            return false;
+
+         //Make sure agent is active & not on vacation
+         if (!$assignee->isActive() || $assignee->onVacation())
+             return false;
+
+        return true;
+    }
+
     function getManagerId() {
         return $this->manager_id;
     }
@@ -367,20 +398,22 @@ implements TemplateVariable, Searchable {
         return $this->manager;
     }
 
-    function isManager($staff) {
-        if (is_object($staff))
-            $staff = $staff->getId();
+    function isManager(Staff $staff) {
+        $staff = $staff->getId();
 
         return ($this->getManagerId() && $this->getManagerId()==$staff);
     }
 
-    function isMember($staff) {
-        if (is_object($staff))
-            $staff = $staff->getId();
+    function isMember(Staff $staff) {
+        $staff = $staff->getId();
 
         return $this->getMembers()->findFirst(array(
             'staff_id' => $staff
         ));
+    }
+
+    function isPrimaryMember(Staff $staff) {
+        return ($staff->getDeptId() == $this->getId());
     }
 
     function isPublic() {
@@ -403,6 +436,19 @@ implements TemplateVariable, Searchable {
         return $this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY;
     }
 
+    function assignPrimaryOnly() {
+        return $this->flags & self::FLAG_ASSIGN_PRIMARY_ONLY;
+    }
+
+    function getAssignmentFlag() {
+        if($this->flags & self::FLAG_ASSIGN_MEMBERS_ONLY)
+          return 'members';
+        elseif($this->flags & self::FLAG_ASSIGN_PRIMARY_ONLY)
+          return 'primary';
+        else
+          return 'all';
+    }
+
     function disableAutoClaim() {
         return $this->flags & self::FLAG_DISABLE_AUTO_CLAIM;
     }
@@ -417,9 +463,10 @@ implements TemplateVariable, Searchable {
             foreach (static::$meta['joins'] as $k => $v)
                 unset($ht[$k]);
 
-        $ht['assign_members_only'] = $this->assignMembersOnly();
         $ht['disable_auto_claim'] =  $this->disableAutoClaim();
         $ht['status'] = $this->getStatus();
+        $ht['assignment_flag'] = $this->getAssignmentFlag();
+
         return $ht;
     }
 
@@ -732,6 +779,7 @@ implements TemplateVariable, Searchable {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
+
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
 
@@ -755,6 +803,23 @@ implements TemplateVariable, Searchable {
           case 'archived':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, true);
+        }
+
+        $this->flags = 0;
+        $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+
+        switch ($vars['assignment_flag']) {
+          case 'all':
+            $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, false);
+            $this->setFlag(self::FLAG_ASSIGN_PRIMARY_ONLY, false);
+            break;
+          case 'members':
+            $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, true);
+            $this->setFlag(self::FLAG_ASSIGN_PRIMARY_ONLY, false);
+            break;
+          case 'primary':
+            $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, false);
+            $this->setFlag(self::FLAG_ASSIGN_PRIMARY_ONLY, true);
             break;
         }
 
