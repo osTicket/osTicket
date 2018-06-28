@@ -118,7 +118,8 @@ if($ticket->isOverdue())
                             || $dept->isMember($thisstaff))
                         ) { ?>
                  <li><a class="no-pjax ticket-action"
-                    data-redirect="tickets.php"
+                    data-redirect="tickets.php?id=<?php echo
+                    $ticket->getId(); ?>"
                     href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
                 <?php
