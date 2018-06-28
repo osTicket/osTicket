@@ -74,6 +74,10 @@ class Export {
                     ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
                     ->filter(array('entries__attachments__inline' => 0))
                     ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
+                'reopen_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->filter(array('events__annulled' => 0, 'events__state' => 'reopened'))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('events__id'))),
                 'thread_count' => TicketThread::objects()
                     ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
                     ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))

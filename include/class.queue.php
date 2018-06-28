@@ -1437,6 +1437,37 @@ extends QueueColumnAnnotation {
     }
 }
 
+class TicketReopenCount
+extends QueueColumnAnnotation {
+    static $icon = 'folder-open-alt';
+    static $qname = '_reopen_count';
+    static $desc = /* @trans */ 'Reopen Count';
+
+    function annotate($query) {
+        return $query->annotate(array(
+        static::$qname => TicketThread::objects()
+            ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+            ->filter(array('events__annulled' => 0, 'events__state' => 'reopened'))
+            ->aggregate(array('count' => SqlAggregate::COUNT('events__id')))
+        ));
+    }
+
+    function getDecoration($row, $text) {
+        $reopencount = $row[static::$qname];
+        if ($reopencount) {
+            return sprintf(
+                '&nbsp;<small class="faded-more"><i class="icon-%s"></i> %s</small>',
+                static::$icon,
+                $reopencount > 1 ? $reopencount : ''
+            );
+        }
+    }
+
+    function isVisible($row) {
+        return $row[static::$qname];
+    }
+}
+
 class ThreadAttachmentCount
 extends QueueColumnAnnotation {
     static $icon = 'paperclip';
