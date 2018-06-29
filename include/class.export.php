@@ -254,7 +254,7 @@ class Export {
         $filename = $filename ?: sprintf('Agents-%s.csv',
                 strftime('%Y%m%d'));
         Http::download($filename, "text/$how");
-        $depts = Dept::getDepartments();
+        $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
         echo self::dumpQuery($agents, array(
                     '::getName'  =>  'Name',
                     '::getUsername' => 'Username',
