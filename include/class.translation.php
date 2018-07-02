@@ -54,6 +54,9 @@
  * second parameter in the constructor (e.g. whenusing very large MO files
  * that you don't want to keep in memory)
  */
+if(!defined('INCLUDE_DIR')) {
+		define('INCLUDE_DIR', __DIR__ . "/");
+}
 class gettext_reader {
   //public:
    var $error = 0; // public variable that holds error code (0 if no error)
@@ -580,6 +583,7 @@ class Translation extends gettext_reader implements Serializable {
     }
 
     static function buildHashFile($mofile, $outfile=false, $return=false) {
+    	$mofile_par = $mofile; 
         if (!$outfile) {
             $stream = fopen('php://stdout', 'w');
         }
@@ -600,7 +604,7 @@ class Translation extends gettext_reader implements Serializable {
         $reader = new parent($mofile, true);
 
         if ($reader->short_circuit || $reader->error)
-            throw new Exception('Unable to initialize MO input file');
+            throw new Exception('Unable to initialize MO input file:'.$mofile_par);
 
         $reader->load_tables();
 
