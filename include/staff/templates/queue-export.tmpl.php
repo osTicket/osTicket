@@ -39,7 +39,7 @@ if (isset($cache['fields']) && $fields)
       </tbody>
       <tbody class="sortable-rows" id="fields">
         <?php
-        foreach ($queue->getExportableFields() as $path  => $label) {
+        foreach (array_merge($fields, $queue->getExportableFields()) as $path  => $label) {
          echo sprintf('<tr style="display: table-row;">
                 <td><i class="faded-more
                 icon-sort"></i>&nbsp;&nbsp;<label><input
