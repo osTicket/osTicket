@@ -1847,9 +1847,9 @@ class ChoiceField extends FormField {
         if ($value && is_array($value)) {
             $selection = $value;
         } elseif (isset($choices[$value]))
-            $selection[] = $choices[$value];
-        elseif ($this->get('default'))
-            $selection[] = $choices[$this->get('default')];
+            $selection[$value] = $choices[$value];
+        elseif (($v=$this->get('default')) && isset($choices[$v]))
+            $selection[$v] = $choices[$v];
 
         return $selection;
     }
