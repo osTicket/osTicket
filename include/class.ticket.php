@@ -1367,8 +1367,8 @@ implements RestrictedAccess, Threadable, Searchable {
         return false;
     }
 
-    function checkReply($userType, $replyType) {
-      if ($userType == 'cc' && $replyType == 'reply-all')
+    function checkReply($userType, $replyType, $forceAlert=false) {
+      if ($userType == 'cc' && ($replyType == 'reply-all' || $forceAlert))
         return true;
 
       if ($userType == 'user' && ($replyType == 'reply-all' || $replyType == 'reply-user'))
@@ -2939,7 +2939,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $attachments = $cfg->emailAttachments() ? $response->getAttachments() : array();
             //Cc collaborators
             $collabsCc = array();
-            if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'])) {
+            if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'], true)) {
                 $collabsCc[] = Collaborator::getCollabList($vars['ccs']);
                 $collabsCc['cc'] = $collabsCc[0];
             }
@@ -4045,7 +4045,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            $response = $ticket->postReply($vars, $errors, is_null($vars['emailreply']) ?: !isset($vars['emailreply']));
+            $response = $ticket->postReply($vars, $errors, is_null($vars['emailreply']) ?: $vars['emailreply'] === "0");
         }
 
         // Not assigned...save optional note if any
