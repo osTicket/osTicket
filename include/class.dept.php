@@ -373,18 +373,25 @@ implements TemplateVariable, Searchable {
         return ($this->getSignature() && $this->isPublic());
     }
 
-    //Check if an agent is eligible for assignment
-    function canAssign(Staff $assignee) {
-        //Primary members only
-        if ($this->assignPrimaryOnly() && !$this->isPrimaryMember($assignee))
-            return false;
+    // Check if an agent or team is eligible for assignment
+    function canAssign($assignee) {
 
-        //Extended members only
-        if ($this->assignMembersOnly() && !$this->isMember($assignee))
-            return false;
 
-         //Make sure agent is active & not on vacation
-         if (!$assignee->isActive() || $assignee->onVacation())
+        if ($assignee instanceof Staff) {
+            // Primary members only
+            if ($this->assignPrimaryOnly() && !$this->isPrimaryMember($assignee))
+                return false;
+
+            // Extended members only
+            if ($this->assignMembersOnly() && !$this->isMember($assignee))
+                return false;
+        } elseif (!$assignee instanceof Team) {
+            // Assignee can only be an Agent or a Team
+            return false;
+        }
+
+        // Make sure agent / team  is availabe for assignment
+        if (!$assignee->isAvailable())
              return false;
 
         return true;

@@ -2397,17 +2397,17 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $evd = array();
         $refer = null;
+        $dept = $this->getDept();
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
-            $dept = $this->getDept();
             if ($this->getStaffId() == $assignee->getId()) {
                 $errors['assignee'] = sprintf(__('%s already assigned to %s'),
                         __('Ticket'),
                         __('the agent')
                         );
-            } elseif(!$assignee->isAvailable()) {
+            } elseif (!$assignee->isAvailable()) {
                 $errors['assignee'] = __('Agent is unavailable for assignment');
-              } elseif (!$dept->canAssign($assignee)) {
+            } elseif (!$dept->canAssign($assignee)) {
                 $errors['err'] = __('Permission denied');
             } else {
                 $refer = $this->staff ?: null;
@@ -2425,6 +2425,8 @@ implements RestrictedAccess, Threadable, Searchable {
                         __('Ticket'),
                         __('the team')
                         );
+            } elseif (!$dept->canAssign($assignee)) {
+                $errors['err'] = __('Permission denied');
             } else {
                 $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();

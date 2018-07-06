@@ -126,6 +126,10 @@ implements TemplateVariable {
         return $this->isEnabled();
     }
 
+    function isAvailable() {
+        return ($this->isActive() && $this->members);
+    }
+
     function alertsEnabled() {
         return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
