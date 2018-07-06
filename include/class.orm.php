@@ -2282,6 +2282,7 @@ class SqlCompiler {
             'gte' => function($a, $b) { return $a >= $b; },
             'lt' => function($a, $b) { return $a < $b; },
             'lte' => function($a, $b) { return $a <= $b; },
+            'in' => function($a, $b) { return in_array($a, is_array($b) ? $b : array($b)); },
             'contains' => function($a, $b) { return stripos($a, $b) !== false; },
             'startswith' => function($a, $b) { return stripos($a, $b) === 0; },
             'endswith' => function($a, $b) { return iEndsWith($a, $b); },
