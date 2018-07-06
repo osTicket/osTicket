@@ -273,7 +273,7 @@ implements Searchable {
     function isReferred($to=null, $strict=false) {
 
         if (is_null($to) || !$this->referrals)
-            return ($this->referrals);
+            return ($this->referrals && $this->referrals->count());
 
         switch (true) {
         case $to instanceof Staff:
@@ -287,21 +287,24 @@ implements Searchable {
                 return false;
 
             // Referred to staff's department
-            if ($to->getDepts() && $this->referrals->filter(array(
-                            'object_id__in' => $to->getDepts(),
-                            'object_type'   => ObjectModel::OBJECT_TYPE_DEPT)))
+            if ($this->referrals->findFirst(array(
+                   'object_id__in' => $to->getDepts(),
+                   'object_type'   => ObjectModel::OBJECT_TYPE_DEPT)))
                 return true;
-            // Referred to staff's  team
-            if ($to->getTeams() && $this->referrals->filter(array(
+
+            // Referred to staff's teams
+            if ($to->getTeams() && $this->referrals->findFirst(array(
                             'object_id__in' => $to->getTeams(),
-                            'object_type'   => ObjectModel::OBJECT_TYPE_TEAM)))
+                            'object_type'   => ObjectModel::OBJECT_TYPE_TEAM
+                            )))
                 return true;
+
+            return false;
             break;
         case $to instanceof Dept:
             // Refered to the dept
-            if ($this->getReferral($to->getId(),
-                        ObjectModel::OBJECT_TYPE_DEPT))
-                return true;
+            return ($this->getReferral($to->getId(),
+                        ObjectModel::OBJECT_TYPE_DEPT));
             break;
         }
 
