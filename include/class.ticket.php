@@ -1367,8 +1367,8 @@ implements RestrictedAccess, Threadable, Searchable {
         return false;
     }
 
-    function checkReply($userType, $replyType, $forceAlert=false) {
-      if ($userType == 'cc' && ($replyType == 'reply-all' || $forceAlert))
+    function checkReply($userType, $replyType) {
+      if ($userType == 'cc' && $replyType == 'reply-all')
         return true;
 
       if ($userType == 'user' && ($replyType == 'reply-all' || $replyType == 'reply-user'))
@@ -2939,7 +2939,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $attachments = $cfg->emailAttachments() ? $response->getAttachments() : array();
             //Cc collaborators
             $collabsCc = array();
-            if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'], true)) {
+            if ($vars['ccs']) {
                 $collabsCc[] = Collaborator::getCollabList($vars['ccs']);
                 $collabsCc['cc'] = $collabsCc[0];
             }
