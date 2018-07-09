@@ -210,7 +210,7 @@ class Unpacker extends Module {
         ), $pipes);
 
         fwrite($pipes[0], "<?php
-        include '{$this->destination}/bootstrap.php';
+        include '{$this->source}/bootstrap.php';
         print INCLUDE_DIR;
         ");
         fclose($pipes[0]);
