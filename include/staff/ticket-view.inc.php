@@ -20,6 +20,8 @@ if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
+$isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
+$canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
 
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
@@ -146,14 +148,14 @@ if($ticket->isOverdue())
                 <?php
                  }
 
-                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
-
-                    if($ticket->isAssigned()) { ?>
-                        <li><a  class="confirm-action" id="ticket-release" href="#release"><i class="icon-user"></i> <?php
-                            echo __('Release (unassign) Ticket'); ?></a></li>
-                    <?php
-                    }
-
+                 if ($ticket->isAssigned() && $canRelease) { ?>
+                        <li><a href="#tickets/<?php echo $ticket->getId();
+                            ?>/release" class="ticket-action"
+                             data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>" >
+                               <i class="icon-unlock"></i> <?php echo __('Release (unassign) Ticket'); ?></a></li>
+                 <?php
+                 }
+                 if($ticket->isOpen() && $isManager) {
                     if(!$ticket->isOverdue()) { ?>
                         <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> <?php
                             echo __('Mark as Overdue'); ?></a></li>

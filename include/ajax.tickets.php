@@ -652,6 +652,66 @@ function refer($tid, $target=null) {
 
     }
 
+    function release($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_RELEASE) && !$thisstaff->isManager())
+            Http::response(403, __('Permission denied'));
+
+        if (!$ticket->isAssigned())
+            $errors['err'] = __('Ticket is not assigned!');
+
+
+        $errors = array();
+        $info = array(':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Release Confirmation')));
+
+        $form = ReleaseForm::instantiate($_POST);
+        $hasData = ($_POST['sid'] || $_POST['tid']);
+
+        $staff = $ticket->getStaff();
+        $team = $ticket->getTeam();
+        if ($_POST) {
+            if ($hasData && $ticket->release($_POST, $errors)) {
+                $data = array();
+
+                if ($staff && !$ticket->getStaff())
+                    $data['staff'] = array($staff->getId(), (string) $staff->getName()->getOriginal());
+                if ($team && !$ticket->getTeam())
+                    $data['team'] = $team->getId();
+                $ticket->logEvent('released', $data);
+
+                $comments = $form->getComments();
+                if ($comments) {
+                    $title = __('Assignment Released');
+                    $_errors = array();
+
+                    $ticket->postNote(
+                        array('note' => $comments, 'title' => $title),
+                        $_errors, $thisstaff, false);
+                }
+
+                $_SESSION['::sysmsgs']['msg'] = __('Ticket assignment released successfully');
+                Http::response(201, $ticket->getId());
+            }
+
+            if (!$hasData)
+                $errors['err'] = __('Please check an assignee to release assignment');
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to release ticket assignment');
+        }
+
+        if($errors && $errors['err'])
+            $info['error'] = $errors['err'] ?: __('Unable to release ticket');
+
+        include STAFFINC_DIR . 'templates/release.tmpl.php';
+    }
+
     function massProcess($action, $w=null)  {
         global $thisstaff, $cfg;
 
