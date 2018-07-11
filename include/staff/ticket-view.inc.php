@@ -174,7 +174,7 @@ if($ticket->isOverdue())
                 } ?>
 
                 <?php
-                if ($role->hasPerm(Ticket::PERM_TRANSFER)) { ?>
+                if ($role->hasPerm(Ticket::PERM_REFER)) { ?>
                 <li><a href="#tickets/<?php echo $ticket->getId();
                     ?>/referrals" class="ticket-action"
                      data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>" >
