@@ -786,6 +786,7 @@ implements TemplateVariable, Searchable {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
+        $this->flags = $vars['flags'] ?: 0;
 
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
@@ -812,7 +813,6 @@ implements TemplateVariable, Searchable {
             $this->setFlag(self::FLAG_ARCHIVED, true);
         }
 
-        $this->flags = 0;
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
 
         switch ($vars['assignment_flag']) {

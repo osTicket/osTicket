@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 86707325fc571e56242fccc46fd24466
 =======
 0ca8585781bc6656f3ca008212554441
@@ -19,3 +20,6 @@
 =======
 192aeec968ad819b88c49d7e0fecd723
 >>>>>>> Spelling Mistake:
+=======
+26fd79dc5443f37779f9d2c4108058f4
+>>>>>>> Final Additions For v1.11

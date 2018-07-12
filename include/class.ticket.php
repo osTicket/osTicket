@@ -4026,7 +4026,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // department
         if ($vars['assignId'] && !(
             $role
-            ? $role->hasPerm(Ticket::PERM_ASSIGN)
+            ? ($role->hasPerm(Ticket::PERM_ASSIGN) || $role->__new__)
             : $thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)
         )) {
             $errors['assignId'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
@@ -4100,12 +4100,6 @@ implements RestrictedAccess, Threadable, Searchable {
                  $attachments = $attachments->merge($response->getAttachments());
            }
 
-            $message = (string) $message;
-            if ($response) {
-                $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
-                $message .= $response->getBody();
-            }
-
             if ($vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
             elseif ($vars['signature']=='dept' && $dept && $dept->isPublic())
@@ -4117,7 +4111,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 array(
                     'message'   => $message,
                     'signature' => $signature,
-                    'response'  => ($response) ? $response->getBody() : '',
+                    'response'  => $response ?: '',
                     'recipient' => $ticket->getOwner(), //End user
                     'staff'     => $thisstaff,
                 )
