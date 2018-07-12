@@ -118,7 +118,9 @@ class Email extends VerySimpleModel {
 
     function getInfo() {
         $base = $this->getHashtable();
-        $base['mail_proto'] = $this->mail_proto;
+        $base['mail_proto'] = $this->mail_protocol;
+        if ($this->mail_encryption != 'NONE')
+          $base['mail_proto'] .= "/{$this->mail_encryption}";
         return $base;
     }
 
@@ -395,16 +397,16 @@ class Email extends VerySimpleModel {
         $this->userid = $vars['userid'];
         $this->mail_active = $vars['mail_active'];
         $this->mail_host = $vars['mail_host'];
-        $this->mail_protocol = $vars['mail_protocol']?$vars['mail_protocol']:'POP';
+        $this->mail_protocol = $vars['mail_protocol'] ?: 'POP';
         $this->mail_encryption = $vars['mail_encryption'];
-        $this->mail_port = $vars['mail_port']?$vars['mail_port']:0;
-        $this->mail_fetchfreq = $vars['mail_fetchfreq']?$vars['mail_fetchfreq']:0;
-        $this->mail_fetchmax = $vars['mail_fetchmax']?$vars['mail_fetchmax']:0;
+        $this->mail_port = $vars['mail_port'] ?: 0;
+        $this->mail_fetchfreq = $vars['mail_fetchfreq'] ?: 0;
+        $this->mail_fetchmax = $vars['mail_fetchmax'] ?: 0;
         $this->smtp_active = $vars['smtp_active'];
         $this->smtp_host = $vars['smtp_host'];
-        $this->smtp_port = $vars['smtp_port']?$vars['smtp_port']:0;
+        $this->smtp_port = $vars['smtp_port'] ?: 0;
         $this->smtp_auth = $vars['smtp_auth'];
-        $this->smtp_spoofing = isset($vars['smtp_spoofing'])?1:0;
+        $this->smtp_spoofing = isset($vars['smtp_spoofing']) ? 1 : 0;
         $this->notes = Format::sanitize($vars['notes']);
 
         //Post fetch email handling...

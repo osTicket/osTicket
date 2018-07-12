@@ -25,7 +25,8 @@ CREATE TABLE `%TABLE_PREFIX%attachment` (
   `inline` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `lang` varchar(16),
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `file-type` (`object_id`,`file_id`,`type`)
+  UNIQUE KEY `file-type` (`object_id`,`file_id`,`type`),
+  UNIQUE KEY `file_object` (`file_id`,`object_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
@@ -718,7 +719,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','transferred', 'reffered', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL,
+  `state` enum('created','closed','reopened','assigned','released','transferred', 'referred', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL,
   `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
   `username` varchar(128) NOT NULL default 'SYSTEM',
   `uid` int(11) unsigned DEFAULT NULL,

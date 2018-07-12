@@ -62,8 +62,10 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
                 $changes += $f->getChanges();
                 $f->save();
             }
-            if ($changes)
-                $ticket->logEvent('edited', array('fields' => $changes));
+            if ($changes) {
+              $user = User::lookup($thisclient->getId());
+              $ticket->logEvent('edited', array('fields' => $changes), $user);
+            }
             $_REQUEST['a'] = null; //Clear edit action - going back to view.
         }
         break;
