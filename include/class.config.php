@@ -419,6 +419,11 @@ class OsticketConfig extends Config {
         return $this->get('enable_avatars');
     }
 
+    function isTicketLockEnabled() {
+        return (($this->getTicketLockMode() != Lock::MODE_DISABLED)
+                && $this->getLockTime());
+    }
+
     function getClientTimeout() {
         return $this->getClientSessionTimeout();
     }
