@@ -68,6 +68,7 @@
   permissions: [
     ticket.create,
     ticket.assign,
+    ticket.release,
     ticket.transfer,
     ticket.refer,
     ticket.reply

@@ -43,8 +43,11 @@ if (!$ticket) {
     $queue_id = null;
 
     // Search for user
-    if (isset($_GET['uid']))
-        $user = User::lookup($_GET['uid']);
+    if (isset($_REQUEST['uid']))
+        $user = User::lookup($_REQUEST['uid']);
+
+    if (isset($_REQUEST['email']))
+        $user = User::lookupByEmail($_REQUEST['email']);
 
     if ($user
             && $_GET['a'] !== 'open'
@@ -398,7 +401,7 @@ if($_POST && !$errors):
                 } else {
                     $vars = $_POST;
 
-                    if ($vars['uid'] && (!User::lookup($vars['uid'])))
+                    if ($vars['uid'] && !($user=User::lookup($vars['uid'])))
                         $vars['uid'] = 0;
 
                     $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
