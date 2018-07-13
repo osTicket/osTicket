@@ -91,6 +91,9 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
 <?php } ?>
                 </select>
                 &nbsp;<span class="error"><?php echo $errors['pid']; ?></span>
+<<<<<<< HEAD
+>>>>>>> department: Error Feedback
+=======
 >>>>>>> department: Error Feedback
             </td>
         </tr>

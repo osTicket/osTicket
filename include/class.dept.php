@@ -758,10 +758,13 @@ implements TemplateVariable, Searchable {
             $errors['pid'] = __('Department selection is required');
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         $dept = Dept::lookup($vars['pid']);
         if($dept && !$dept->isActive())
           $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Parent Department'));
 =======
+=======
+>>>>>>> department: Error Feedback
         if ($vars['sla_id'] && !SLA::lookup($vars['sla_id']))
             $errors['sla_id'] = __('Invalid SLA');
 
@@ -776,6 +779,9 @@ implements TemplateVariable, Searchable {
 
         if ($vars['autoresp_email_id'] && !Email::lookup($vars['autoresp_email_id']))
             $errors['autoresp_email_id'] = __('Unkown System Email');
+<<<<<<< HEAD
+>>>>>>> department: Error Feedback
+=======
 >>>>>>> department: Error Feedback
 
         // Format access update as [array(dept_id, role_id, alerts?)]
@@ -802,11 +808,14 @@ implements TemplateVariable, Searchable {
         $this->signature = Format::sanitize($vars['signature']);
         $this->group_membership = $vars['group_membership'];
 <<<<<<< HEAD
+<<<<<<< HEAD
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
         $this->flags = $vars['flags'] ?: 0;
 
 =======
+=======
+>>>>>>> department: Error Feedback
         $this->ticket_auto_response = isset($vars['ticket_auto_response']) ? (int) $vars['ticket_auto_response'] : 1;
         $this->message_auto_response = isset($vars['message_auto_response']) ? (int) $vars['message_auto_response'] : 1;
         $this->flags = 0;
