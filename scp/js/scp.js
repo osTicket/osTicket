@@ -801,7 +801,7 @@ $.confirm = function(message, title, options) {
             .append($('<span class="buttons pull-left"></span>')
                 .append($('<input type="button" class="close"/>')
                     .attr('value', __('Cancel'))
-                    .click(function() { hide(); })
+                    .click(function() { hide();  D.resolve(false); })
             )).append($('<span class="buttons pull-right"></span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
