@@ -1107,6 +1107,25 @@ implements RestrictedAccess, Threadable, Searchable {
         return $c;
     }
 
+    function addCollaborators($users, $vars, &$errors, $event=true) {
+
+        if (!$users || !is_array($users))
+            return null;
+
+        $collabs = $this->getCollaborators();
+        $new = array();
+        foreach ($users as $user) {
+            if (!($user instanceof User)
+                    && !($user = User::lookup($user)))
+                continue;
+            if ($collabs->findFirst(array('user_id' => $user->getId())))
+                continue;
+            if ($c=$this->addCollaborator($user, $vars, $errors, $event))
+                $new[] = $c;
+        }
+        return $new;
+    }
+
     //XXX: Ugly for now
     function updateCollaborators($vars, &$errors) {
         global $thisstaff;
@@ -1397,17 +1416,6 @@ implements RestrictedAccess, Threadable, Searchable {
         // FIXME: Throw and excception and add test cases
         return false;
     }
-
-    function checkReply($userType, $replyType) {
-      if ($userType == 'cc' && $replyType == 'reply-all')
-        return true;
-
-      if ($userType == 'user' && ($replyType == 'reply-all' || $replyType == 'reply-user'))
-        return true;
-
-      return false;
-    }
-
 
     function setAnsweredState($isanswered) {
         $this->isanswered = $isanswered;
@@ -2978,8 +2986,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
             // Get active recipients
             $recipients = new MailingList();
-            $recioients->add($this->getOwner());
-            if ($collabs = $this->getActiveCollaborators()) {
+            $recipients->add($this->getOwner());
+            if (!strcasecmp('all', $vars['reply-to'])
+                    &&  ($collabs = $this->getActiveCollaborators())){
                 foreach ($collabs as $c)
                     if ($vars['ccs'] && in_array($c->getUserId(),
                                 $vars['ccs']))
@@ -4061,25 +4070,20 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;
 
-        $collabsCc = array();
-        if (isset($vars['ccs'])) {
-          foreach ($vars['ccs'] as $uid) {
-            $ccuser = User::lookup($uid);
+        if (isset($vars['ccs']))
+          $ticket->addCollaborators($vars['ccs'], array(), $errors);
 
-            if ($ccuser && !$existing = Collaborator::getIdByUserId($ccuser->getId(), $ticket->getThreadId())) {
-                $collabsCc[] = $ccuser->getEmail()->address;
-
-              if (($c2=$ticket->getThread()->addCollaborator($ccuser,array(), $errors)))
-                    $c2->setCc();
-            }
-          }
-          $collabsCc['cc'] = $collabsCc;
-        }
+        if (strcasecmp('user', $vars['reply-to']))
+            $recipients = $ticket->getRecipients();
+        else
+            $recipients = $ticket->getOwner();
 
         $vars['msgId']=$ticket->getLastMsgId();
 
         // Effective role for the department
         $role = $ticket->getRole($thisstaff);
+
+        $alert = strcasecmp('none', $vars['reply-to']);
 
         // post response - if any
         $response = null;
@@ -4087,7 +4091,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            $response = $ticket->postReply($vars, $errors, is_null($vars['emailreply']) ?: $vars['emailreply'] === "0");
+            $response = $ticket->postReply($vars, $errors, $alert && !$cfg->notifyONNewStaffTicket());
         }
 
         // Not assigned...save optional note if any
@@ -4099,7 +4103,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         if (!$cfg->notifyONNewStaffTicket()
-            || !isset($vars['emailreply'])
+            || !$alert
             || !($dept=$ticket->getDept())
         ) {
             return $ticket; //No alerts.
@@ -4140,13 +4144,8 @@ implements RestrictedAccess, Threadable, Searchable {
             );
 
             //ticket created on user's behalf
-            if (Ticket::checkReply('cc', $vars['emailreply'])) {
-              $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
-                  $options, $collabsCc);
-            }
-            elseif (Ticket::checkReply('user', $vars['emailreply']))
-              $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
-                  $options);
+            $email->send($recipients, $msg['subj'], $msg['body'], $attachments,
+                $options);
         }
         return $ticket;
     }

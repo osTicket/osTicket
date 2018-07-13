@@ -305,28 +305,8 @@ class Mailer {
         require_once (PEAR_DIR.'Mail.php'); // PEAR Mail package
         require_once (PEAR_DIR.'Mail/mime.php'); // PEAR Mail_Mime packge
 
-
         $messageId = $this->getMessageId($recipients, $options);
-
-
-        if (is_object($recipient) && is_callable(array($recipient, 'getEmail'))) {
-            // Add personal name if available
-            if (is_callable(array($recipient, 'getName'))) {
-                $to = sprintf('"%s" <%s>',
-                    $recipient->getName()->getOriginal(), $recipient->getEmail()
-                );
-            }
-            else {
-                $to = $recipient->getEmail();
-            }
-        } else {
-            $to = $recipient;
-        }
-
-        //do some cleanup
-        $to = preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
-
         $headers = array (
             'From' => $this->getFromAddress($options),
             'Subject' => $subject,
@@ -350,12 +330,12 @@ class Mailer {
 
                 $entry = null;
                 switch (true) {
-                case $recipient instanceof TicketOwner:
-                case $recipient instanceof Collaborator:
+                case $recipients instanceof TicketOwner:
+                case $recipients instanceof Collaborator:
                     $entry = $thread->getLastEmailMessage(array(
-                                'user_id' => $recipient->getUserId()));
+                                'user_id' => $recipients->getUserId()));
                     break;
-                case $recipient instanceof Staff:
+                case $recipients instanceof Staff:
                     //XXX: is it necessary ??
                     break;
                 }
@@ -592,8 +572,6 @@ class Mailer {
         if ($this->getEmail())
             $args = array('-f '.$this->getEmail()->getEmail());
         $mail = mail::factory('mail', $args);
-        // Ensure the To: header is properly encoded.
-        $to = $headers['To'];
         $result = $mail->send($to, $headers, $body);
         if(!PEAR::isError($result))
             return $messageId;
