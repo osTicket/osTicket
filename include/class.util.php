@@ -1,5 +1,14 @@
 <?php
 
+require_once INCLUDE_DIR . 'class.variable.php';
+
+// Used by the email system
+interface EmailContact {
+    function getId();
+    function getName();
+    function getEmail();
+}
+
 abstract class BaseList
 implements IteratorAggregate, Countable {
     protected $storage = array();
@@ -175,5 +184,56 @@ implements ArrayAccess, Serializable {
     }
     function unserialize($what) {
         $this->storage = unserialize($what);
+    }
+}
+
+class MailingList extends ListObject
+implements TemplateVariable {
+
+    function add($contact) {
+        if (!$contact instanceof EmailContact)
+            throw new InvalidArgumentException('Email Contact expected');
+
+        return parent::add($contact);
+    }
+
+    function __toString() {
+        return $this->getNames();
+    }
+
+    function getNames() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list [] = $user->getName();
+        }
+        return $list ? implode(', ', $list) : '';
+    }
+
+    function getFull() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
+        }
+
+        return $list ? implode(', ', $list) : '';
+    }
+
+    function getEmails() {
+        $list = array();
+        foreach($this->storage as $user) {
+            if (is_object($user))
+                $list[] = $user->getEmail();
+        }
+        return $list ? implode(', ', $list) : '';
+    }
+
+    static function getVarScope() {
+        return array(
+            'names' => __('List of names'),
+            'emails' => __('List of email addresses'),
+            'full' => __('List of names and email addresses'),
+        );
     }
 }

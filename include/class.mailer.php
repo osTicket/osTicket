@@ -165,8 +165,11 @@ class Mailer {
         case $recipient instanceof Collaborator:
             $utype = 'C';
             break;
+        case  $recipient instanceof MailingList:
+            $utype = 'M';
+            break;
         default:
-            $utype = $options['utype'] ?: '?';
+            $utype = $options['utype'] ?: is_array($recipient) ? 'M' : '?';
         }
 
 
@@ -209,6 +212,7 @@ class Mailer {
      *          'U' - TicketOwner
      *          'S' - Staff
      *          'C' - Collborator
+     *          'M' - Multiple
      *          '?' - Something else
      */
     static function decodeMessageId($mid) {
@@ -294,14 +298,16 @@ class Mailer {
             0, 6);
     }
 
-    function send($recipient, $subject, $message, $options=null, $collabs=array()) {
+    function send($recipients, $subject, $message, $options=null) {
         global $ost, $cfg;
 
         //Get the goodies
         require_once (PEAR_DIR.'Mail.php'); // PEAR Mail package
         require_once (PEAR_DIR.'Mail/mime.php'); // PEAR Mail_Mime packge
 
-        $messageId = $this->getMessageId($recipient, $options);
+
+        $messageId = $this->getMessageId($recipients, $options);
+
 
         if (is_object($recipient) && is_callable(array($recipient, 'getEmail'))) {
             // Add personal name if available
@@ -323,7 +329,6 @@ class Mailer {
 
         $headers = array (
             'From' => $this->getFromAddress($options),
-            'To' => $to,
             'Subject' => $subject,
             'Date'=> date('D, d M Y H:i:s O'),
             'Message-ID' => "<{$messageId}>",
@@ -413,12 +418,34 @@ class Mailer {
 
         // Use general failsafe default initially
         $eol = "\n";
-
         // MAIL_EOL setting can be defined in `ost-config.php`
         if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
             $eol = MAIL_EOL;
         }
+
         $mime = new Mail_mime($eol);
+
+        // Add recipients
+        if (!is_array($recipients) && (!$recipients instanceof MailingList))
+            $recipients =  array($recipients);
+        foreach ($recipients as $recipient) {
+            switch (true) {
+                case $recipient instanceof TicketOwner:
+                case $recipient instanceof Staff:
+                    $mime->addTo(sprintf('%s <%s>',
+                                $recipient->getName(),
+                                $recipient->getEmail()));
+                break;
+                case $recipient instanceof Collaborator:
+                    $mime->addCc(sprintf('%s <%s>',
+                                $recipient->getName(),
+                                $recipient->getEmail()));
+                break;
+                default:
+                    // Assuming email address.
+                    $mime->addTo($recipient);
+            }
+        }
 
         // Add in extra attachments, if any from template variables
         if ($message instanceof TextWithExtras
@@ -508,19 +535,6 @@ class Mailer {
             }
         }
 
-        $cc = array();
-        if($collabs) {
-          if($collabs['cc']) {
-            foreach ($collabs['cc'] as $email) {
-              $mime->addCc($email);
-              $email = preg_replace("/(\r\n|\r|\n)/s",'', trim($email));
-              $cc[] = $email;
-            }
-            $to = $to.', '.implode(', ',$cc);
-          }
-        }
-        $to = ltrim($to, ', ');
-
         //Desired encodings...
         $encodings=array(
                 'head_encoding' => 'quoted-printable',
@@ -534,7 +548,8 @@ class Mailer {
         $body = $mime->get($encodings);
         //encode the headers.
         $headers = $mime->headers($headers, true);
-
+        $to = implode(',', array_filter(array($headers['To'], $headers['Cc'],
+                    $headers['Bcc'])));
         // Cache smtp connections made during this request
         static $smtp_connections = array();
         if(($smtp=$this->getSMTPInfo())) { //Send via SMTP

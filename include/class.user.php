@@ -210,8 +210,11 @@ class UserCdata extends VerySimpleModel {
 class User extends UserModel
 implements TemplateVariable, Searchable {
 
+    var $_email;
     var $_entries;
     var $_forms;
+
+
 
     static function fromVars($vars, $create=true, $update=false) {
         // Try and lookup by email address
@@ -1310,51 +1313,17 @@ class UserAccountStatus {
     }
 }
 
-
 /*
  *  Generic user list.
  */
-class UserList extends ListObject
-implements TemplateVariable {
+class UserList extends MailingList {
 
-    function __toString() {
-        return $this->getNames();
-    }
+   function add($user) {
+        if (!$user instanceof ITicketUser)
+            throw new InvalidArgumentException('User expected');
 
-    function getNames() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list [] = $user->getName();
-        }
-        return $list ? implode(', ', $list) : '';
-    }
-
-    function getFull() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
-        }
-
-        return $list ? implode(', ', $list) : '';
-    }
-
-    function getEmails() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list[] = $user->getEmail();
-        }
-        return $list ? implode(', ', $list) : '';
-    }
-
-    static function getVarScope() {
-        return array(
-            'names' => __('List of names'),
-            'emails' => __('List of email addresses'),
-            'full' => __('List of names and email addresses'),
-        );
+        return parent::add($user);
     }
 }
+
 ?>
