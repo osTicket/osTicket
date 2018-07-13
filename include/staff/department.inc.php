@@ -59,6 +59,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             <td>
                 <select name="pid">
                     <option value="">&mdash; <?php echo __('Top-Level Department'); ?> &mdash;</option>
+<<<<<<< HEAD
                     <?php
                     if($info['pid'])
                       $current_name = Dept::getNameById($info['pid']);
@@ -80,6 +81,17 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
               if($warn) { ?>
                   &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
               <?php } ?>
+=======
+<?php foreach (Dept::getDepartments() as $id=>$name) {
+    if ($info['id'] && $id == $info['id'])
+        continue; ?>
+                    <option value="<?php echo $id; ?>" <?php
+                    if ($info['pid'] == $id) echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+<?php } ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['pid']; ?></span>
+>>>>>>> department: Error Feedback
             </td>
         </tr>
         <tr>
