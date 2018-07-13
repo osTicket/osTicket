@@ -1110,6 +1110,8 @@ class OsticketConfig extends Config {
         $f['default_timezone']=array('type'=>'string',   'required'=>1, 'error'=>__('Default Timezone is required'));
         $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
 
+        $vars = Format::htmlchars($vars, true);
+
         // Make sure the selected backend is valid
         $storagebk = null;
         if (isset($vars['default_storage_bk'])) {
