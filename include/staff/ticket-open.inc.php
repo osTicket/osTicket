@@ -167,10 +167,10 @@ if ($_POST)
             <?php echo __('Ticket Notice');?>:
           </td>
           <td>
-            <select id="emailreply" name="emailreply">
-              <option value="reply-all"><?php echo __('Alert All'); ?></option>
-              <option value="reply-user"><?php echo __('Alert to User'); ?></option>
-              <option value="0">&mdash; <?php echo __('Do Not Send Alert'); ?> &mdash;</option>
+            <select id="reply-to" name="reply-to">
+              <option value="all"><?php echo __('Alert All'); ?></option>
+              <option value="user"><?php echo __('Alert to User'); ?></option>
+              <option value="none">&mdash; <?php echo __('Do Not Send Alert'); ?> &mdash;</option>
             </select>
           </td>
         </tr>
