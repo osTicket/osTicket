@@ -443,10 +443,13 @@ class Email extends VerySimpleModel {
         return self::$perms;
     }
 
-    static function getAddresses($options=array()) {
+    static function getAddresses($options=array(), $flat=true) {
         $objects = static::objects();
         if ($options['smtp'])
             $objects = $objects->filter(array('smtp_active'=>true));
+
+        if (!$flat)
+            return $objects;
 
         $addresses = array();
         foreach ($objects->values_flat('email_id', 'email') as $row) {

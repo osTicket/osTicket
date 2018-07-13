@@ -843,6 +843,22 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->recipients;
     }
 
+    function getCollaborators() {
+        return $this->getThread()->getCollaborators();
+    }
+
+    function getNumCollaborators() {
+        return $this->getThread()->getNumCollaborators();
+    }
+
+    function getActiveCollaborators() {
+        return $this->getThread()->getActiveCollaborators();
+    }
+
+    function getNumActiveCollaborators() {
+        return $this->getThread()->getNumActiveCollaborators();
+    }
+
     function getAssignmentForm($source=null, $options=array()) {
 
         $prompt = $assignee = '';
