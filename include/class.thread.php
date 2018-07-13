@@ -2191,7 +2191,7 @@ class TextThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return  Format::stripEmptyLines(parent::getClean());
+        return  Format::htmlchars(Format::stripEmptyLines(parent::getClean()), true);
     }
 
     function prepend($what) {
