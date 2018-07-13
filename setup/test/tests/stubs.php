@@ -223,6 +223,8 @@ class Mail_mime {
     function setTXTBody() {}
     function setHTMLBody() {}
     function addCc() {}
+    function addTo() {}
+    function addBcc() {}
 }
 
 class mPDF {

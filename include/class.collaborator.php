@@ -168,6 +168,8 @@ implements EmailContact, ITicketUser {
 
     static function create($vars=false) {
         $inst = new static($vars);
+        $inst->setFlag(Collaborator::FLAG_ACTIVE, true);
+        $inst->setFlag(Collaborator::FLAG_CC, true);
         $inst->created = SqlFunction::NOW();
         return $inst;
     }
