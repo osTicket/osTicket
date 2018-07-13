@@ -82,6 +82,9 @@ implements EmailContact, ITicketUser, TemplateVariable {
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }
     function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
+    function getName() {
+        return ($this->user) ? $this->user->getName() : null;
+    }
 
     static function lookupByToken($token) {
 
@@ -157,6 +160,11 @@ class TicketOwner extends  TicketUser {
         parent::__construct($user);
         $this->ticket = $ticket;
     }
+
+    function __toString() {
+        return (string) $this->getName();
+    }
+
 
     function getTicket() {
         return $this->ticket;
@@ -470,12 +478,6 @@ class ClientAccount extends UserAccount {
     }
 }
 
-// Used by the email system
-interface EmailContact {
-    // function getId()
-    // function getName()
-    // function getEmail()
-}
 
 interface ITicketUser {
 /* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue

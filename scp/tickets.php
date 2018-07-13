@@ -175,8 +175,9 @@ if($_POST && !$errors):
                 if(!$errors['err'] && Banlist::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
-
-            if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
+            $alert =  strcasecmp('none', $_POST['reply-to']);
+            if(!$errors && ($response=$ticket->postReply($vars, $errors,
+                            $alert))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
                         sprintf(__('Ticket #%s'),
                             sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',

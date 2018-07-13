@@ -1468,11 +1468,11 @@ implements TemplateVariable {
 
     function setReplyFlag($entry, $replyType) {
       switch ($replyType) {
-        case 'reply-all':
+        case 'all':
           return $entry->flags |= ThreadEntry::FLAG_REPLY_ALL;
           break;
 
-        case 'reply-user':
+        case 'user':
           return $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
           break;
       }
@@ -1522,7 +1522,7 @@ implements TemplateVariable {
         $ticketUser = Ticket::objects()->filter(array('ticket_id'=>$ticket[0]))->values_flat('user_id')->first();
 
         //User
-        if ($ticketUser && Ticket::checkReply('user', $vars['emailreply'])) {
+        if ($ticketUser && strcasecmp('none', $vars['reply-to'])) {
           $uEmail = UserEmailModel::objects()->filter(array('user_id'=>$ticketUser[0]))->values_flat('address')->first();
           $u = array();
           $u[$ticketUser[0]] = $uEmail[0];
@@ -1533,15 +1533,15 @@ implements TemplateVariable {
           $entry->flags |= ThreadEntry::FLAG_COLLABORATOR;
 
         //add reply type flag
-        self::setReplyFlag($entry, $vars['emailreply']);
+        self::setReplyFlag($entry, $vars['reply-to']);
 
         //Cc collaborators
-        if ($vars['ccs'] && Ticket::checkReply('cc', $vars['emailreply'])) {
+        if ($vars['ccs'] && !strcasecmp('all', $vars['reply-to'])) {
           $cc = Collaborator::getCollabList($vars['ccs']);
           $recipients['cc'] = $cc;
         }
 
-        if ($vars['emailreply'] != '0' && $recipients)
+        if ($vars['reply-to'] != 'none' && $recipients)
           $entry->recipients = json_encode($recipients);
 
         if ($entry->format == 'html')

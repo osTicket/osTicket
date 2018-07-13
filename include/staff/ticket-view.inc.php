@@ -373,7 +373,7 @@ if($ticket->isOverdue())
                             else
                               $recipients = 0;
 
-                             echo sprintf('<span><a class="collaborators preview"
+                             echo sprintf('<span><a class="manage-collaborators preview"
                                     href="#thread/%d/collaborators"><span id="t%d-recipients"><i class="icon-group"></i> (%s)</span></a></span>',
                                     $ticket->getThreadId(),
                                     $ticket->getThreadId(),
@@ -696,7 +696,10 @@ if ($errors['err'] && isset($_POST['a'])) {
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
-    if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+    if ($role->hasPerm(Ticket::PERM_REPLY)) {
+        $replyTo = $_POST['reply-to'] ?: 'all';
+        $emailReply = ($replyTo != 'none');
+        ?>
     <form id="reply" class="tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
@@ -714,127 +717,188 @@ if ($errors['err'] && isset($_POST['a'])) {
             <?php
             }?>
            <tbody id="to_sec">
-           <?php
-           # XXX: Add user-to-name and user-to-email HTML ID#s
-           if ($addresses = Email::getAddresses(array('smtp' => true))){
-           ?>
            <tr>
                <td width="120">
                    <label><strong><?php echo __('From'); ?>:</strong></label>
                </td>
                <td>
-                   <select id="from_name" name="from_name">
+                   <select id="from_email_id" name="from_email_id">
                      <?php
-                     $sql=' SELECT email_id, email, name, smtp_host '
-                         .' FROM '.EMAIL_TABLE.' WHERE smtp_active = 1';
-                     if(($res=db_query($sql)) && db_num_rows($res)) {
-                         while (list($id, $email, $name, $host) = db_fetch_row($res)){
-                             $email=$name?"$name &lt;$email&gt;":$email;
-                             ?>
-                             <option value="<?php echo $id; ?>"<?php echo ($dept->getEmail()->email_id==$id)?'selected="selected"':''; ?>><?php echo $email; ?></option>
-                         <?php
+                     // Department email (default).
+                     echo sprintf('<option value="%s" selected="selected">%s</option>',
+                             $dept->getEmail()->getId(),
+                             Format::htmlchars($dept->getEmail()->getAddress()));
+                     // Optional SMTP addreses user can send email via
+                     if (($emails = Email::getAddresses(array('smtp' =>
+                                 true), false)) && count($emails)) {
+                         echo '<option value=""
+                             disabled="disabled">&nbsp;</option>';
+                         $emailId = $_POST['from_email_id'] ?: 0;
+                         foreach ($emails as $e) {
+                             if ($dept->getEmail()->getId() == $e->getId())
+                                 continue;
+                             echo sprintf('<option value="%s" %s>%s</option>',
+                                     $e->getId(),
+                                      $e->getId() == $emailId ?
+                                      'selected="selected"' : '',
+                                      Format::htmlchars($e->getAddress()));
                          }
-                     } ?>
+                     }
+                     ?>
                    </select>
                </td>
            </tr>
-           <?php } ?>
-            <tr>
+            </tbody>
+            <tbody id="recipients">
+             <tr id="user-row">
                 <td width="120">
-                    <label><strong><?php echo __('Reply To'); ?>:</strong></label>
+                    <label><strong><?php echo __('Recipients'); ?>:</strong></label>
+                </td>
+                <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
+                    onclick="javascript:
+                        $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
+                                function (user) {
+                                    window.location = 'tickets.php?id='<?php $ticket->getId(); ?>
+                                });
+                        return false;
+                        "><span ><?php
+                            echo Format::htmlchars($ticket->getOwner()->getEmail()->getAddress());
+                    ?></span></a>
+                </td>
+              </tr>
+               <tr><td>&nbsp;</td>
+                   <td>
+                   <div style="margin-bottom:2px;">
+                    <?php
+                         echo sprintf('<span><a id="show_ccs"
+                                 class="icon-caret-right"></i>&nbsp;%s </a>
+                                 &nbsp;
+                                 <a class="manage-collaborators preview noclick %s"
+                                  href="#thread/%d/collaborators">
+                                 (%s)</a></span>',
+                                 __('Collaborators'),
+                                 $ticket->getNumCollaborators()
+                                  ? '' : 'hidden',
+                                 $ticket->getThreadId(),
+                                 sprintf(__('%s of %s'),
+                                         sprintf('<span
+                                             class="collabselection__count">%d</span>',
+                                             $ticket->getNumActiveCollaborators()),
+                                         sprintf('<span
+                                             class="collabselection__total">%d</span>',
+                                              $ticket->getNumCollaborators())
+                                         )
+                                     );
+                    ?>
+                   </div>
+                   <div id="ccs" class="hidden">
+                     <div>
+                        <span style="margin: 10px 5px 1px 0;" class="faded pull-left"><?php echo __('Select or Add New Collaborators'); ?>&nbsp;</span>
+                        <?php
+                        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+                        <span class="action-button pull-left" style="margin: 2px  0 5px 20px;"
+                            data-dropdown="#action-dropdown-collaborators"
+                            data-placement="bottom"
+                            data-toggle="tooltip"
+                            title="<?php echo __('Manage Collaborators'); ?>"
+                            >
+                            <i class="icon-caret-down pull-right"></i>
+                            <a class="ticket-action" id="collabs-button"
+                                data-redirect="tickets.php?id=<?php echo
+                                $ticket->getId(); ?>"
+                                href="#thread/<?php echo
+                                $ticket->getThreadId(); ?>/collaborators">
+                                <i class="icon-group"></i></a>
+                         </span>
+                         <?php
+                        }  ?>
+                         <span class="error">&nbsp;&nbsp;<?php echo $errors['ccs']; ?></span>
+                        </div>
+                        <?php
+                        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+                        <div id="action-dropdown-collaborators" class="action-dropdown anchor-right">
+                          <ul>
+                             <li><a class="manage-collaborators"
+                                href="#thread/<?php echo
+                                $ticket->getThreadId(); ?>/add-collaborator/addcc"><i
+                                class="icon-plus"></i> <?php echo __('Add New'); ?></a>
+                             <li><a class="manage-collaborators"
+                                href="#thread/<?php echo
+                                $ticket->getThreadId(); ?>/collaborators"><i
+                                class="icon-cog"></i> <?php echo __('Manage Collaborators'); ?></a>
+                          </ul>
+                        </div>
+                        <?php
+                        } ?>
+                     <div class="clear">
+                      <select id="collabselection" name="ccs[]" multiple="multiple"
+                          data-placeholder="<?php
+                            echo __('Select Active Collaborators'); ?>">
+                          <?php
+                          $collabs = $ticket->getCollaborators();
+                          foreach ($collabs as $c) {
+                              echo sprintf('<option value="%s" %s class="%s">%s</option>',
+                                      $c->getUserId(),
+                                      $c->isActive() ?
+                                      'selected="selected"' : '',
+                                      $c->isActive() ?
+                                      'active' : 'disabled',
+                                      $c->getName());
+                          }
+                          ?>
+                      </select>
+                     </div>
+                 </div>
+                 </td>
+             </tr>
+             <tr>
+                <td width="120">
+                    <label><?php echo __('Reply To'); ?>:</label>
                 </td>
                 <td>
                     <?php
-                    //see who sent the last message and decide which option to select.
-                    $lastUser = $ticket->getLastUserRespondent();
+                    // Supported Reply Types
+                    $replyTypes = array(
+                            'all'   =>  __('All Active Recipients'),
+                            'user'  =>  sprintf('%s (%s)',
+                                __('Ticket Owner'),
+                                Format::htmlchars($ticket->getOwner()->getEmail())),
+                            'none'  =>  sprintf('&mdash; %s  &mdash;',
+                                __('Do Not Email Reply'))
+                            );
 
-                    if ($ticket->getOwnerId() == $lastUser->getId())
-                      $ticketUser = true;
-                    else {
-                      $collabs = $ticket->getThread()->getCollaborators();
-                      foreach ($collabs as $collab) {
-                        if ($collab->getUserId() == $lastUser->getId() && $collab->isCc())
-                          $ccUser = true;
-                      }
-                    }
-                    if ($ticketUser || $ccUser)
-                      $emailReply = true;
+                    $replyTo = $_POST['reply-to'] ?: 'all';
+                    $emailReply = ($replyTo != 'none');
                     ?>
-                    <select id="emailreply" name="emailreply">
-                        <option value="reply-all"><?php echo __('Reply All'); ?></option>
-                        <option value="reply-user"><?php echo __('Reply to User'); ?></option>
-                        <option value="0" <?php echo !$emailReply ? 'selected="selected"' : ''; ?>
-                        >&mdash; <?php echo __('Do Not Email Reply'); ?> &mdash;</option>
+                    <select id="reply-to" name="reply-to">
+                        <?php
+                        foreach ($replyTypes as $k => $v) {
+                            echo sprintf('<option value="%s" %s>%s</option>',
+                                    $k,
+                                    ($k == $replyTo) ?
+                                    'selected="selected"' : '',
+                                    $v);
+                        }
+                        ?>
                     </select>
                     <i class="help-tip icon-question-sign" href="#reply_types"></i>
                 </td>
-            </tr>
-            </tbody>
-            <?php
-            if(1) { //Make CC optional feature? NO, for now.
-                ?>
-            <tbody id="cc_sec"
-                style="display:<?php echo $emailReply?  'table-row-group':'none'; ?>;">
-             <tr id="user-row">
-                <td width="120" style="padding-left:20px;">
-                    <label><?php echo __('User'); ?></label>
-                </td>
-                <td>
-                  <label><?php echo User::lookup($ticket->user_id); ?></label>
-                </td>
-             </tr>
-             <?php $collaborators = $ticket->getThread()->getCollaborators();
-             $cc_cids = array();
-             foreach ($collaborators as $c) {
-               if ($c->flags & Collaborator::FLAG_CC && $c->flags & Collaborator::FLAG_ACTIVE)
-                  $cc_cids[] = $c->user_id;
-             }
-            ?>
-             <tr id="cc-row">
-                 <td width="160" style="padding-left:20px;"><?php echo __('Cc'); ?></td>
-                 <td>
-                    <span>
-                      <select class="collabSelections" name="ccs[]" id="cc_users" multiple="multiple"
-                          data-placeholder="<?php echo __('Select Contacts'); ?>">
-                          <?php
-                          foreach ($cc_cids as $u) {
-                            if($u != $ticket->user_id) {
-                              ?>
-                              <option value="<?php echo $u; ?>" <?php
-                              if (in_array($u, $cc_cids))
-                              echo 'selected="selected"'; ?>><?php echo User::lookup($u); ?>
-                            </option>
-                          <?php } } ?>
-                          ?>
-                      </select>
-                    </span>
-
-                         <a class="inline button" style="overflow:inherit" href="#"
-                         onclick="javascript:
-                         $.userLookup('ajax.php/users/lookup/form', function (user) {
-                           var newUser = new Option(user.name, user.id, true, true);
-                           return $(&quot;#cc_users&quot;).append(newUser).trigger('change');
-                         });
-                         "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
-
-                     <br/><span class="error"><?php echo $errors['ccs']; ?></span>
-                 </td>
              </tr>
             </tbody>
-            <?php
-            } ?>
             <tbody id="resp_sec">
-            <?php
-            if($errors['response']) {?>
-            <tr><td width="120">&nbsp;</td><td class="error"><?php echo $errors['response']; ?>&nbsp;</td></tr>
-            <?php
-            }?>
+            <tr><td colspan="2">&nbsp;</td></tr>
             <tr>
                 <td width="120" style="vertical-align:top">
                     <label><strong><?php echo __('Response');?>:</strong></label>
                 </td>
                 <td>
-<?php if ($cfg->isCannedResponseEnabled()) { ?>
+                <?php
+                if ($errors['response'])
+                    echo sprintf('<div class="error">%s</div>',
+                            $errors['response']);
+
+                if ($cfg->isCannedResponseEnabled()) { ?>
+                  <div>
                     <select id="cannedResp" name="cannedResp">
                         <option value="0" selected="selected"><?php echo __('Select a canned response');?></option>
                         <option value='original'><?php echo __('Original Message'); ?></option>
@@ -848,8 +912,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                         }
                         ?>
                     </select>
-                    <br>
-<?php } # endif (canned-resonse-enabled)
+                    </div>
+                <?php } # endif (canned-resonse-enabled)
                     $signature = '';
                     switch ($thisstaff->getDefaultSignatureType()) {
                     case 'dept':
@@ -860,6 +924,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                         $signature = $thisstaff->getSignature();
                         break;
                     } ?>
+                  <div>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
                         data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
@@ -874,6 +939,7 @@ if ($errors['err'] && isset($_POST['a'])) {
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
     echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
                     ?></textarea>
+                </div>
                 <div id="reply_form_attachments" class="attachments">
                 <?php
                     print $response_form->getField('attachments')->render();
@@ -1158,9 +1224,20 @@ $(function() {
         });
     });
 
-    $("#emailreply").ready(function(){
-     checkReply();
-    });
+    $(document).on('click', 'a.manage-collaborators', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'+$(this).attr('href').substr(1);
+        $.dialog(url, 201, function (xhr) {
+           var resp = $.parseJSON(xhr.responseText);
+           if (resp.user && !resp.users)
+              resp.users.push(resp.user);
+            // TODO: Process resp.users
+           $('.tip_box').remove();
+        }, {
+            onshow: function() { $('#user-search').focus(); }
+        });
+        return false;
+     });
 
     // Post Reply or Note action buttons.
     $('a.post-response').click(function (e) {
@@ -1186,70 +1263,54 @@ $(function() {
         return false;
     });
 
-    $('#emailreply').on('change', function(){
-     checkReply();
+  $('#show_ccs').click(function() {
+    var show = $(this);
+    var collabs = $('a#managecollabs');
+    $('#ccs').slideToggle('fast', function(){
+        if ($(this).is(":hidden")) {
+            collabs.hide();
+            show.removeClass('icon-caret-down').addClass('icon-caret-right');
+        } else {
+            collabs.show();
+            show.removeClass('icon-caret-right').addClass('icon-caret-down');
+        }
     });
+    return false;
+   });
 
-    function checkReply() {
-      var value = $("#emailreply").val();
-      switch (value) {
-        case "reply-all":
-          $('#user-row').show();
-          $('#cc-row').show();
-          break;
-        case "reply-user":
-          $('#user-row').show();
-          $('#cc-row').hide();
-          break;
-        default:
-          $('#user-row').show();
-          $('#cc-row').show();
-          break;
-      }
+  $('.collaborators.noclick').click(function() {
+    $('#show_ccs').trigger('click');
+   });
+
+  $('#collabselection').select2({
+    width: '350px',
+    allowClear: true,
+    sorter: (data) => {
+        return data.filter(function (item) {
+                return !item.selected;
+                });
+    },
+    templateResult: (e) => {
+        var $e = $(
+        '<span><i class="icon-user"></i> ' + e.text + '</span>'
+        );
+        return $e;
     }
-});
-
-$(function() {
- $('.collabSelections').on("select2:unselecting", function(e) {
-   var el = $(this);
-   var target = '#' + e.currentTarget.id;
-     var confirmation = confirm(__("Are you sure you want to remove the collaborator from receiving this reply?"));
-     if (confirmation == false) {
-       $(target).on("select2:opening", function(e) {
-         return false;
-       });
-       return false;
-     }
-
-});
-
- $('.collabSelections').select2({
-   width: '350px',
-   minimumInputLength: 3,
-   ajax: {
-     url: "ajax.php/users/local",
-     dataType: 'json',
-     data: function (params) {
-       if (!params) {
-         params.term = 'test';
-       }
-       return {
-         q: params.term,
-       };
-     },
-     processResults: function (data) {
-       return {
-         results: $.map(data, function (item) {
-           return {
-             text: item.name,
-             slug: item.slug,
-             id: item.id
-           }
-         })
-       };
-     }
-   }
- });
-
+   }).on("select2:unselecting", function(e) {
+        if (!confirm(__("Are you sure you want to DISABLE the collaborator?")))
+            e.preventDefault();
+   }).on("select2:selecting", function(e) {
+        if (!confirm(__("Are you sure you want to ENABLE the collaborator?")))
+             e.preventDefault();
+   }).on('change', function(e) {
+    var id = e.currentTarget.id;
+    var count = $('li.select2-selection__choice').length;
+    var total = $('#' + id +' option').length;
+    $('.' + id + '__count').html(count);
+    $('.' + id + '__total').html(total);
+    $('.' + id + '__total').parent().toggle((total));
+   }).on('select2:opening select2:closing', function(e) {
+    $(this).parent().find('.select2-search__field').prop('disabled', true);
+   });
 });
 </script>
