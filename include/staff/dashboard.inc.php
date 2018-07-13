@@ -1,15 +1,8 @@
-<script src="<?php echo ROOT_PATH; ?>scp/js/morris.min.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/raphael-min.js"></script>
-
-
-
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-3d.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/exporting.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/export-data.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/pareto.js"></script>
-
-
 
 <div class="subnav">
 
@@ -738,19 +731,6 @@
  </div>
 
  
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.js"></script> 
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.time.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tooltip.min.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.resize.min.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.pie.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.categories.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.selection.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.orderBars.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.stack.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.crosshair.js"></script>
-<script src="<?php echo ROOT_PATH; ?>scp/js/jquery.flot.tickrotor.js"></script>
-
 <script>
 		
          <?php
