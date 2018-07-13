@@ -90,7 +90,7 @@ if($_POST && !$errors):
                 if(!$vars['response'])
                     $errors['response']=__('Response required');
 
-                if ($cfg->getLockTime()) {
+                if ($cfg->isTicketLockEnabled()) {
                     if (!$lock) {
                         $errors['err'] = sprintf('%s %s', __('This action requires a lock.'), __('Please try again!'));
                     }
@@ -147,7 +147,7 @@ if($_POST && !$errors):
                 $vars['cannedattachments'] ?: array(), $attachments);
             $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
-            if ($cfg->getLockTime()) {
+            if ($cfg->isTicketLockEnabled()) {
                 if (!$lock) {
                     $errors['err'] = sprintf('%s %s', __('This action requires a lock.'), __('Please try again!'));
                 }
