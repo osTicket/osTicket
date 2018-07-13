@@ -285,7 +285,13 @@ implements TemplateVariable, Searchable {
     }
 
     function getEmail() {
-        return new EmailAddress($this->default_email->address);
+
+        if (!isset($this->_email))
+            $this->_email = new EmailAddress(sprintf('"%s" <%s>',
+                    $this->getName(),
+                    $this->default_email->address));
+
+        return $this->_email;
     }
 
     function getAvatar($size=null) {
@@ -661,34 +667,70 @@ implements TemplateVariable, Searchable {
 
 class EmailAddress
 implements TemplateVariable {
+    var $email;
     var $address;
+    protected $_info;
 
     function __construct($address) {
-        $this->address = $address;
+        $this->_info = self::parse($address);
+        $this->email = sprintf('%s@%s',
+                $this->getMailbox(),
+                $this->getDomain());
+
+        if ($this->getName())
+            $this->address = sprintf('%s <%s>',
+                    $this->getName(),
+                    $this->email);
     }
 
     function __toString() {
-        return (string) $this->address;
+        return (string) $this->email;
     }
 
     function getVar($what) {
+
+        if (!$this->_info)
+            return '';
+
+        switch ($what) {
+        case 'host':
+        case 'domain':
+            return $this->_info->host;
+        case 'personal':
+            return trim($this->_info->personal, '"');
+        case 'mailbox':
+            return $this->_info->mailbox;
+        }
+    }
+
+    function getAddress() {
+        return $this->address ?: $this->email;
+    }
+
+    function getHost() {
+        return $this->getVar('host');
+    }
+
+    function getDomain() {
+        return $this->getHost();
+    }
+
+    function getName() {
+        return $this->getVar('personal');
+    }
+
+    function getMailbox() {
+        return $this->getVar('mailbox');
+    }
+
+    // Parse and email adddress (RFC822) into it's parts.
+    // @address - one address is expected
+    static function parse($address) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
-        if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
-            return '';
-
-        if (count($mails) > 1)
-            return '';
-
-        $info = $mails[0];
-        switch ($what) {
-        case 'domain':
-            return $info->host;
-        case 'personal':
-            return trim($info->personal, '"');
-        case 'mailbox':
-            return $info->mailbox;
-        }
+        if (($parts = Mail_RFC822::parseAddressList($address))
+                && !PEAR::isError($parts))
+            return current($parts);
     }
 
     static function getVarScope() {
