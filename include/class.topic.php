@@ -13,12 +13,12 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 require_once INCLUDE_DIR . 'class.sequence.php';
 require_once INCLUDE_DIR . 'class.filter.php';
+require_once INCLUDE_DIR . 'class.search.php';
 
 class Topic extends VerySimpleModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => TOPIC_TABLE,
@@ -89,6 +89,18 @@ implements TemplateVariable {
                 'class' => 'SLA', 'desc' => __('Service Level Agreement'),
             ),
         );
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'topic' => new TextboxField(array(
+                'label' => __('Name'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        return false;
     }
 
     function getId() {

@@ -16,6 +16,7 @@ require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
 require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
 require_once(INCLUDE_DIR . 'class.user.php');
+require_once INCLUDE_DIR . 'class.search.php';
 
 class OrganizationModel extends VerySimpleModel {
     static $meta = array(
@@ -28,7 +29,14 @@ class OrganizationModel extends VerySimpleModel {
             'cdata' => array(
                 'constraint' => array('id' => 'OrganizationCdata.org_id'),
             ),
-        )
+            'entries' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'O'" => 'DynamicFormEntry.object_type',
+                ),
+                'list' => true,
+            ),
+        ),
     );
 
     const COLLAB_ALL_MEMBERS =      0x0001;
@@ -160,7 +168,7 @@ class OrganizationCdata extends VerySimpleModel {
 }
 
 class Organization extends OrganizationModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
     var $_entries;
     var $_forms;
 
@@ -341,6 +349,25 @@ implements TemplateVariable {
         return $base + $extra;
     }
 
+    static function getSearchableFields() {
+        $uform = OrganizationForm::objects()->one();
+        $base = array();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
+    }
+
+    static function supportsCustomData() {
+        return true;
+    }
+
     function update($vars, &$errors) {
 
         $valid = true;
@@ -444,6 +471,15 @@ implements TemplateVariable {
                 return false;
         }
         return true;
+    }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('orgs.php?id=%s', $id);
     }
 
     static function fromVars($vars) {

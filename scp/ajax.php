@@ -169,12 +169,17 @@ $dispatcher = patterns('',
         url('^search', patterns('ajax.search.php:SearchAjaxAPI',
             url_get('^$', 'getAdvancedSearchDialog'),
             url_post('^$', 'doSearch'),
-            url_get('^quick$', 'doQuickSearch'),
-            url_get('^/(?P<id>\d+)$', 'loadSearch'),
+            url_get('^/(?P<id>\d+)$', 'editSearch'),
+            url_get('^/adhoc,(?P<key>[\w=/+]+)$', 'getAdvancedSearchDialog'),
             url_post('^/(?P<id>\d+)$', 'saveSearch'),
             url_delete('^/(?P<id>\d+)$', 'deleteSearch'),
             url_post('^/create$', 'createSearch'),
-            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField')
+            url_get('^/field/(?P<id>[\w_!:]+)$', 'addField'),
+            url('^/column/edit/(?P<id>\d+)$', 'editColumn'),
+            url('^/sort/edit/(?P<id>\d+)$', 'editSort'),
+            url_post('^(?P<id>\d+)/delete$', 'deleteQueues'),
+            url_post('^(?P<id>\d+)/disable$', 'disableQueues'),
+            url_post('^(?P<id>\d+)/enable$', 'undisableQueues')
         ))
     )),
     url('^/tasks/', patterns('ajax.tasks.php:TasksAjaxAPI',
@@ -242,7 +247,9 @@ $dispatcher = patterns('',
             url('^/department$', 'addDepartment'),
             url('^/team$', 'addTeam'),
             url('^/role$', 'addRole'),
-            url('^/staff$', 'addStaff')
+            url('^/staff$', 'addStaff'),
+            url('^/queue-column$', 'addQueueColumn'),
+            url('^/queue-sort$', 'addQueueSort')
         )),
         url_get('^/role/(?P<id>\d+)/perms', 'getRolePerms')
     )),
@@ -253,6 +260,14 @@ $dispatcher = patterns('',
         url('^/reset-permissions', 'resetPermissions'),
         url('^/change-department', 'changeDepartment'),
         url('^/(?P<id>\d+)/avatar/change', 'setAvatar')
+    )),
+    url('^/queue/', patterns('ajax.search.php:SearchAjaxAPI',
+        url('^(?P<id>\d+/)?preview$', 'previewQueue'),
+        url_get('^addColumn$', 'addColumn'),
+        url_get('^condition/add$', 'addCondition'),
+        url_get('^condition/addProperty$', 'addConditionProperty'),
+        url_get('^counts$', 'collectQueueCounts'),
+        url('^(?P<id>\d+)/delete$', 'deleteQueue')
     ))
 );
 

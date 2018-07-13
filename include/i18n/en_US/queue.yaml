@@ -1,0 +1,193 @@
+#
+# Basic queues for the initial ticket system. Queues installed for
+# - Open / All
+# - Open / Answered
+# - Open / Unanswered
+# - Open / Unassigned
+# - Open / Mine
+# - Closed / All
+#
+# Fields:
+# id:       
+# parent_id:
+# flags:
+#   0x01:   FLAG_PUBLIC
+#   0x02:   FLAG_QUEUE (should be set for everything here)
+#   0x04:   FLAG_DISABLED
+#   0x08:   FLAG_INHERIT (inherit criteria from parent)
+#   0x10:   FLAG_INHERIT_COLUMNS
+#   0x20:   FLAG_INHERIT_SORTING
+# staff_id: User owner of the queue
+# sort:     Manual sort order
+# title:    Display name of the queue
+# config:   Criteria configuration
+# filter:   Quick filter field
+# root:     Object type of the queue listing
+#   'T':    Tickets
+#   'A':    Tasks
+#
+---
+- id: 1
+  title: Open
+  flags: 0x03
+  sort: 1
+  root: T 
+  config: '[["status__state","includes",{"open":"Open"}]]'
+  columns:
+    - column_id: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      sort: 2
+      width: 150
+      heading: Last Updated
+    - column_id: 3
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      sort: 6
+      width: 160
+      heading: Assigned To
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+
+- id: 2
+  title: Closed
+  flags: 0x03
+  sort: 2
+  root: T
+  config: '[["status__state","includes",{"closed":"Closed"}]]'
+  columns:
+    - column_id: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      sort: 6
+      width: 160
+      heading: Closed By
+
+- title: Unanswered
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 1
+  config: '[["isanswered","nset",null]]'
+  columns:
+    - column_id: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      sort: 6
+      width: 160
+      heading: Assigned To
+
+- title: Unassigned
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 2
+  config: '[["assignee","!assigned",null]]'
+  columns:
+    - column_id: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 11
+      sort: 6
+      width: 160
+      heading: Department
+
+- title: My Tickets
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 4
+  config: '[["assignee","includes",{"M":"Me", "T":"One of my teams"}]]'
+  columns:
+    - column_id: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 11
+      sort: 6
+      width: 160
+      heading: Department
