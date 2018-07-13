@@ -43,8 +43,11 @@ if (!$ticket) {
     $queue_id = null;
 
     // Search for user
-    if (isset($_GET['uid']))
-        $user = User::lookup($_GET['uid']);
+    if (isset($_REQUEST['uid']))
+        $user = User::lookup($_REQUEST['uid']);
+
+    if (isset($_REQUEST['email']))
+        $user = User::lookupByEmail($_REQUEST['email']);
 
     if ($user
             && $_GET['a'] !== 'open'
@@ -283,19 +286,6 @@ if($_POST && !$errors):
             break;
         case 'process':
             switch(strtolower($_POST['do'])):
-                case 'release':
-                    if(!$ticket->isAssigned() || !($assigned=$ticket->getAssigned())) {
-                        $errors['err'] = __('Ticket is not assigned!');
-                    } elseif($ticket->release()) {
-                        $msg=sprintf(__(
-                            /* 1$ is the current assignee, 2$ is the agent removing the assignment */
-                            'Ticket released (unassigned) from %1$s by %2$s'),
-                            $assigned, $thisstaff->getName());
-                        $ticket->logActivity(__('Ticket unassigned'),$msg);
-                    } else {
-                        $errors['err'] = sprintf('%s %s', __('Problems releasing the ticket.'), __('Please try again!'));
-                    }
-                    break;
                 case 'claim':
                     if(!$role->hasPerm(Ticket::PERM_EDIT)) {
                         $errors['err'] = __('Permission Denied. You are not allowed to assign/claim tickets.');
@@ -412,7 +402,7 @@ if($_POST && !$errors):
                 } else {
                     $vars = $_POST;
 
-                    if ($vars['uid'] && (!User::lookup($vars['uid'])))
+                    if ($vars['uid'] && !($user=User::lookup($vars['uid'])))
                         $vars['uid'] = 0;
 
                     $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();

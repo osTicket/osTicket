@@ -98,7 +98,9 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_CREATE   = 'ticket.create';
     const PERM_EDIT     = 'ticket.edit';
     const PERM_ASSIGN   = 'ticket.assign';
+    const PERM_RELEASE  = 'ticket.release';
     const PERM_TRANSFER = 'ticket.transfer';
+    const PERM_REFER    = 'ticket.refer';
     const PERM_REPLY    = 'ticket.reply';
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
@@ -119,11 +121,21 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Assign',
                 'desc'  =>
                 /* @trans */ 'Ability to assign tickets to agents or teams'),
+            self::PERM_RELEASE => array(
+                'title' =>
+                /* @trans */ 'Release',
+                'desc'  =>
+                /* @trans */ 'Ability to release ticket assignment'),
             self::PERM_TRANSFER => array(
                 'title' =>
                 /* @trans */ 'Transfer',
                 'desc'  =>
                 /* @trans */ 'Ability to transfer tickets between departments'),
+            self::PERM_REFER => array(
+                'title' =>
+                /* @trans */ 'Refer',
+                'desc'  =>
+                /* @trans */ 'Ability to manage ticket referrals'),
             self::PERM_REPLY => array(
                 'title' =>
                 /* @trans */ 'Post Reply',
@@ -2493,8 +2505,15 @@ implements RestrictedAccess, Threadable, Searchable {
         return true;
     }
 
-    function release() {
-        return $this->unassign();
+    function release($info=array(), &$errors) {
+        if ($info['sid'] && $info['tid'])
+            return $this->unassign();
+        elseif ($info['sid'] && $this->setStaffId(0))
+            return true;
+        elseif ($info['tid'] && $this->setTeamId(0))
+            return true;
+
+        return false;
     }
 
     function refer(ReferralForm $form, &$errors, $alert=true) {
@@ -4034,7 +4053,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // department
         if ($vars['assignId'] && !(
             $role
-            ? $role->hasPerm(Ticket::PERM_ASSIGN)
+            ? ($role->hasPerm(Ticket::PERM_ASSIGN) || $role->__new__)
             : $thisstaff->hasPerm(Ticket::PERM_ASSIGN, false)
         )) {
             $errors['assignId'] = __('Action Denied. You are not allowed to assign/reassign tickets.');
@@ -4103,12 +4122,6 @@ implements RestrictedAccess, Threadable, Searchable {
                  $attachments = $attachments->merge($response->getAttachments());
            }
 
-            $message = (string) $message;
-            if ($response) {
-                $message .= ($cfg->isRichTextEnabled()) ? "<br><br>" : "\n\n";
-                $message .= $response->getBody();
-            }
-
             if ($vars['signature']=='mine')
                 $signature=$thisstaff->getSignature();
             elseif ($vars['signature']=='dept' && $dept && $dept->isPublic())
@@ -4120,7 +4133,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 array(
                     'message'   => $message,
                     'signature' => $signature,
-                    'response'  => ($response) ? $response->getBody() : '',
+                    'response'  => $response ?: '',
                     'recipient' => $ticket->getOwner(), //End user
                     'staff'     => $thisstaff,
                 )
