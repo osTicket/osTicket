@@ -1031,12 +1031,11 @@ $(document).on('submit', 'form', function() {
 });
 
 //Collaborators
-$(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+$(document).on('click', 'a.collaborator, a.collaborators:not(.noclick)', function(e) {
     e.preventDefault();
     var url = 'ajax.php/'+$(this).attr('href').substr(1);
     $.dialog(url, 201, function (xhr) {
        var resp = $.parseJSON(xhr.responseText);
-       $('input#t'+resp.id+'-emailcollab').show();
        $('#t'+resp.id+'-recipients').text(resp.text);
        $('.tip_box').remove();
     }, {
