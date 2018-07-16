@@ -55,10 +55,10 @@ if ($user && $cfg->isAvatarsEnabled())
             <span class="label label-bare"><?php echo __('Resent'); ?></span>
 <?php   }
         if ($entry->flags & ThreadEntry::FLAG_REPLY_ALL) { ?>
-            <span class="label label-bare"><?php echo __('Reply All'); ?></span>
+            <span class="label label-bare"><i class="icon-group"></i></span>
 <?php   }
         if ($entry->flags & ThreadEntry::FLAG_REPLY_USER) { ?>
-            <span class="label label-bare"><?php echo __('Reply to User'); ?></span>
+            <span class="label label-bare"><i class="icon-user"></i></span>
 <?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'M') { ?>
             <span class="label label-bare"><?php echo __('Cc Collaborator'); ?></span>
