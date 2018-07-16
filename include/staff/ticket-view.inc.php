@@ -773,7 +773,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                          echo sprintf('<span><a id="show_ccs"
                                  class="icon-caret-right"></i>&nbsp;%s </a>
                                  &nbsp;
-                                 <a class="manage-collaborators preview noclick %s"
+                                 <a class="manage-collaborators
+                                 collaborators preview noclick %s"
                                   href="#thread/%d/collaborators">
                                  (%s)</a></span>',
                                  __('Collaborators'),
