@@ -253,7 +253,10 @@ elseif ($_SESSION[$queue_sort_key][0] == 'relevance') {
 }
 
 if (isset($_GET['sort'])) {
-    $_SESSION[$queue_sort_key] = array($_GET['sort'], $_GET['dir']);
+    $_SESSION[$queue_sort_key] = array(
+            Format::htmlchars($_GET['sort']),
+            Format::htmlchars($_GET['dir'])
+        );
 }
 elseif (!isset($_SESSION[$queue_sort_key])) {
     $_SESSION[$queue_sort_key] = array($queue_sort_options[0], 0);
