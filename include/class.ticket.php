@@ -841,18 +841,29 @@ implements RestrictedAccess, Threadable, Searchable {
         return $entries;
     }
 
-    // MailingList of recipients  (owner + active collaborators)
-    function getRecipients() {
-        if (!isset($this->recipients)) {
-            $list = new MailingList();
-            $list->add($this->getOwner());
-            if ($collabs = $this->getActiveCollaborators()) {
-                foreach ($collabs as $c)
-                    $list->add($c);
-            }
-            $this->recipients = $list;
+    // MailingList of participants  (owner + collaborators)
+    function getRecipients($who='all', $whitelist=array(), $active=true) {
+        $list = new MailingList();
+        switch (strtolower($who)) {
+            case 'user':
+                $list->addTo($this->getOwner());
+                break;
+            case 'all':
+                $list->addTo($this->getOwner());
+                // Fall-trough
+            case 'collabs':
+                if (($collabs = $active ?  $this->getActiveCollaborators() :
+                    $this->getCollaborators())) {
+                    foreach ($collabs as $c)
+                        if (!$whitelist || in_array($c->getUserId(),
+                                    $whitelist))
+                            $list->addCc($c);
+                }
+                break;
+            default:
+                return null;
         }
-        return $this->recipients;
+        return $list;
     }
 
     function getCollaborators() {
@@ -1295,18 +1306,15 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->save();
     }
 
-    //Status helper.
-
+    // Ticket Status helper.
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
 
         if ($thisstaff && !($role=$this->getRole($thisstaff)))
             return false;
 
-        if ($status && is_numeric($status))
-            $status = TicketStatus::lookup($status);
-
-        if (!$status || !$status instanceof TicketStatus)
+        if ((!$status instanceof TicketStatus)
+                && !($status = TicketStatus::lookup($status)))
             return false;
 
         // Double check permissions (when changing status)
@@ -1317,7 +1325,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     return false;
                 break;
             case 'deleted':
-                // XXX: intercept deleted status and do hard delete
+                // XXX: intercept deleted status and do hard delete TODO: soft deletes
                 if ($role->hasPerm(Ticket::PERM_DELETE))
                     return $this->delete($comments);
                 // Agent doesn't have permission to delete  tickets
@@ -2885,18 +2893,6 @@ implements RestrictedAccess, Threadable, Searchable {
     function postReply($vars, &$errors, $alert=true, $claim=true) {
         global $thisstaff, $cfg;
 
-        // Add new collabs if any.
-        $collabs = $this->getCollaborators();
-        if (isset($vars['ccs'])) {
-            foreach ($vars['ccs'] as $uid) {
-                if ($collabs->findFirst(array('user_id' => $uid)))
-                    continue;
-
-                if ($user=User::lookup($uid))
-                    $this->addCollaborator($user, array(), $errors);
-            }
-        }
-
         if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
 
@@ -2906,18 +2902,25 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
+        // Add new collaboratorss (if any).
+        if (isset($vars['ccs']) && count($vars['ccs']))
+            $this->addCollaborators($vars['ccs']);
+
+        // Get active recipients of the response
+        $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
+        if ($recipients instanceof MailingList)
+            $vars['recipients'] = $recipients->getEmailAddresses();
+
         if (!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
 
         $dept = $this->getDept();
         $assignee = $this->getStaff();
-        // Set status - if checked.
+        // Set status if new is selected
         if ($vars['reply_status_id']
-            && $vars['reply_status_id'] != $this->getStatusId()
-        ) {
-            $this->setStatus($vars['reply_status_id']);
-        }
-
+                && ($status = TicketStatus::lookup($vars['reply_status_id']))
+                && $status->getId() != $this->getStatusId())
+            $this->setStatus($status);
 
         // Claim on response bypasses the department assignment restrictions
         $claim = ($claim
@@ -2973,8 +2976,9 @@ implements RestrictedAccess, Threadable, Searchable {
         );
 
         if ($email
-            && ($tpl = $dept->getTemplate())
-            && ($msg=$tpl->getReplyMsgTemplate())) {
+                && $recipients
+                && ($tpl = $dept->getTemplate())
+                && ($msg=$tpl->getReplyMsgTemplate())) {
 
             $msg = $this->replaceVars($msg->asArray(),
                 $variables + array('recipient' => $this->getOwner())
@@ -2983,17 +2987,6 @@ implements RestrictedAccess, Threadable, Searchable {
             // Attachments
             $attachments = $cfg->emailAttachments() ?
                 $response->getAttachments() : array();
-
-            // Get active recipients
-            $recipients = new MailingList();
-            $recipients->add($this->getOwner());
-            if (!strcasecmp('all', $vars['reply-to'])
-                    &&  ($collabs = $this->getActiveCollaborators())){
-                foreach ($collabs as $c)
-                    if ($vars['ccs'] && in_array($c->getUserId(),
-                                $vars['ccs']))
-                        $recipients->add($c);
-            }
 
             //Send email to recepients
             $email->send($recipients, $msg['subj'], $msg['body'],
@@ -4070,35 +4063,30 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;
 
-        if (isset($vars['ccs']))
-          $ticket->addCollaborators($vars['ccs'], array(), $errors);
-
-        if (strcasecmp('user', $vars['reply-to']))
-            $recipients = $ticket->getRecipients();
-        else
-            $recipients = $ticket->getOwner();
-
         $vars['msgId']=$ticket->getLastMsgId();
 
         // Effective role for the department
         $role = $ticket->getRole($thisstaff);
 
-        $alert = strcasecmp('none', $vars['reply-to']);
+        // Add collaborators (if any)
+        if (isset($vars['ccs']) && count($vars['ccs']))
+          $ticket->addCollaborators($vars['ccs'], array(), $errors);
 
+        $alert = strcasecmp('none', $vars['reply-to']);
         // post response - if any
         $response = null;
-        if($vars['response'] && $role->hasPerm(Ticket::PERM_REPLY)) {
+        if ($vars['response'] && $role->hasPerm(Ticket::PERM_REPLY)) {
             $vars['response'] = $ticket->replaceVars($vars['response']);
             // $vars['cannedatachments'] contains the attachments placed on
             // the response form.
-            $response = $ticket->postReply($vars, $errors, $alert && !$cfg->notifyONNewStaffTicket());
+            $response = $ticket->postReply($vars, $errors, ($alert &&
+                        !$cfg->notifyONNewStaffTicket()));
         }
 
         // Not assigned...save optional note if any
         if (!$ticket->isAssigned() && $vars['note']) {
-            if (!$cfg->isRichTextEnabled()) {
+            if (!$cfg->isRichTextEnabled())
                 $vars['note'] = new TextThreadEntryBody($vars['note']);
-            }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
 
@@ -4108,6 +4096,10 @@ implements RestrictedAccess, Threadable, Searchable {
         ) {
             return $ticket; //No alerts.
         }
+
+        // Notice Recipients
+        $recipients = $ticket->getRecipients($vars['reply-to']);
+
         // Send Notice to user --- if requested AND enabled!!
         if (($tpl=$dept->getTemplate())
             && ($msg=$tpl->getNewTicketNoticeMsgTemplate())

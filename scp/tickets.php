@@ -147,8 +147,7 @@ if($_POST && !$errors):
         case 'reply':
             if (!$role || !$role->hasPerm(Ticket::PERM_REPLY)) {
                 $errors['err'] = __('Action denied. Contact admin for access');
-            }
-            else {
+            } else {
                 $vars = $_POST;
                 $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
                 $vars['response'] = ThreadEntryBody::clean($vars['response']);
@@ -175,8 +174,9 @@ if($_POST && !$errors):
                 if(!$errors['err'] && Banlist::isBanned($ticket->getEmail()))
                     $errors['err']=__('Email is in banlist. Must be removed to reply.');
             }
+
             $alert =  strcasecmp('none', $_POST['reply-to']);
-            if(!$errors && ($response=$ticket->postReply($vars, $errors,
+            if (!$errors && ($response=$ticket->postReply($vars, $errors,
                             $alert))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
                         sprintf(__('Ticket #%s'),
@@ -203,7 +203,7 @@ if($_POST && !$errors):
                 if ($ticket)
                     $redirect = 'tickets.php?id='.$ticket->getId();
 
-            } elseif(!$errors['err']) {
+            } elseif (!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
                     __('Unable to post the reply.'),
                     __('Correct any errors below and try again.'));
