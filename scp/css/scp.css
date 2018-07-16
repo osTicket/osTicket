@@ -3636,3 +3636,7 @@ img.avatar + img.avatar {
  * Fixes a rendering issue on Safari
  */
 .select2-search__field{-webkit-appearance: textfield;}
+/* Fixes Select2 placeholder bug where
+ * placeholder is cutoff.
+ */
+.select2-search__field:not([placeholder='']){width: 100% !important;}
