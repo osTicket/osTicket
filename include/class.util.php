@@ -20,6 +20,10 @@ implements EmailContact {
         $this->type = $type;
     }
 
+    function getContact() {
+        return $this->contact;
+    }
+
     function getId() {
         return $this->contact->getId();
     }
