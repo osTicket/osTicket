@@ -350,8 +350,13 @@ class Format {
     function htmlchars($var, $sanitize = false) {
         static $phpversion = null;
 
-        if (is_array($var))
-            return array_map(array('Format', 'htmlchars'), $var);
+        if (is_array($var)) {
+            $result = array();
+            foreach ($var as $k => $v)
+                $result[$k] = self::htmlchars($v, $sanitize);
+
+            return $result;
+        }
 
         if ($sanitize)
             $var = Format::sanitize($var);

@@ -761,6 +761,21 @@ implements TemplateVariable, Searchable {
         if($dept && !$dept->isActive())
           $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Parent Department'));
 
+        if ($vars['sla_id'] && !SLA::lookup($vars['sla_id']))
+            $errors['sla_id'] = __('Invalid SLA');
+
+        if ($vars['manager_id'] && !Staff::lookup($vars['manager_id']))
+            $errors['manager_id'] = __('Unknown Staff');
+
+        if ($vars['email_id'] && !Email::lookup($vars['email_id']))
+            $errors['email_id'] = __('Unknown System Email');
+
+        if ($vars['tpl_id'] && !EmailTemplateGroup::lookup($vars['tpl_id']))
+            $errors['tpl_id'] = __('Unknown Template Set');
+
+        if ($vars['autoresp_email_id'] && !Email::lookup($vars['autoresp_email_id']))
+            $errors['autoresp_email_id'] = __('Unkown System Email');
+
         // Format access update as [array(dept_id, role_id, alerts?)]
         $access = array();
         if (isset($vars['members'])) {
@@ -775,11 +790,11 @@ implements TemplateVariable, Searchable {
             return false;
 
         $this->pid = $vars['pid'] ?: null;
-        $this->ispublic = isset($vars['ispublic'])?$vars['ispublic']:0;
-        $this->email_id = isset($vars['email_id'])?$vars['email_id']:0;
-        $this->tpl_id = isset($vars['tpl_id'])?$vars['tpl_id']:0;
-        $this->sla_id = isset($vars['sla_id'])?$vars['sla_id']:0;
-        $this->autoresp_email_id = isset($vars['autoresp_email_id'])?$vars['autoresp_email_id']:0;
+        $this->ispublic = isset($vars['ispublic']) ? (int) $vars['ispublic'] : 0;
+        $this->email_id = isset($vars['email_id']) ? (int) $vars['email_id'] : 0;
+        $this->tpl_id = isset($vars['tpl_id']) ? (int) $vars['tpl_id'] : 0;
+        $this->sla_id = isset($vars['sla_id']) ? (int) $vars['sla_id'] : 0;
+        $this->autoresp_email_id = isset($vars['autoresp_email_id']) ? (int) $vars['autoresp_email_id'] : 0;
         $this->manager_id = $vars['manager_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);
         $this->signature = Format::sanitize($vars['signature']);
