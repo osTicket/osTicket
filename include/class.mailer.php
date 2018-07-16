@@ -399,28 +399,41 @@ class Mailer {
         // Use general failsafe default initially
         $eol = "\n";
         // MAIL_EOL setting can be defined in `ost-config.php`
-        if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
+        if (defined('MAIL_EOL') && is_string(MAIL_EOL))
             $eol = MAIL_EOL;
-        }
-
         $mime = new Mail_mime($eol);
-
         // Add recipients
         if (!is_array($recipients) && (!$recipients instanceof MailingList))
             $recipients =  array($recipients);
         foreach ($recipients as $recipient) {
             switch (true) {
+                case $recipient instanceof EmailRecipient:
+                    $addr = sprintf('%s <%s>',
+                            $recipient->getName(),
+                            $recipient->getEmail());
+                    switch ($recipient->getType()) {
+                        case 'to':
+                            $mime->addTo($addr);
+                            break;
+                        case 'cc':
+                            $mime->addCc($addr);
+                            break;
+                        case 'bcc':
+                            $mime->addBcc($addr);
+                            break;
+                    }
+                    break;
                 case $recipient instanceof TicketOwner:
                 case $recipient instanceof Staff:
                     $mime->addTo(sprintf('%s <%s>',
                                 $recipient->getName(),
                                 $recipient->getEmail()));
-                break;
+                    break;
                 case $recipient instanceof Collaborator:
                     $mime->addCc(sprintf('%s <%s>',
                                 $recipient->getName(),
                                 $recipient->getEmail()));
-                break;
+                    break;
                 default:
                     // Assuming email address.
                     $mime->addTo($recipient);
@@ -572,6 +585,7 @@ class Mailer {
         if ($this->getEmail())
             $args = array('-f '.$this->getEmail()->getEmail());
         $mail = mail::factory('mail', $args);
+        $to = $headers['To'];
         $result = $mail->send($to, $headers, $body);
         if(!PEAR::isError($result))
             return $messageId;

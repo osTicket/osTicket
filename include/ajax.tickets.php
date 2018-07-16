@@ -661,11 +661,10 @@ function refer($tid, $target=null) {
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_RELEASE) && !$thisstaff->isManager())
             Http::response(403, __('Permission denied'));
 
+        $errors = array();
         if (!$ticket->isAssigned())
             $errors['err'] = __('Ticket is not assigned!');
 
-
-        $errors = array();
         $info = array(':title' => sprintf(__('Ticket #%s: %s'),
                     $ticket->getNumber(),
                     __('Release Confirmation')));

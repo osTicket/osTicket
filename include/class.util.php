@@ -9,6 +9,34 @@ interface EmailContact {
     function getEmail();
 }
 
+
+class EmailRecipient
+implements EmailContact {
+    protected $contact;
+    protected $type;
+
+    function __construct(EmailContact $contact, $type='to') {
+        $this->contact = $contact;
+        $this->type = $type;
+    }
+
+    function getId() {
+        return $this->contact->getId();
+    }
+
+    function getEmail() {
+        return $this->contact->getEmail();
+    }
+
+    function getName() {
+        return $this->contact->getName();
+    }
+
+    function getType() {
+        return $this->type;
+    }
+}
+
 abstract class BaseList
 implements IteratorAggregate, Countable {
     protected $storage = array();
@@ -190,15 +218,41 @@ implements ArrayAccess, Serializable {
 class MailingList extends ListObject
 implements TemplateVariable {
 
-    function add($contact) {
-        if (!$contact instanceof EmailContact)
-            throw new InvalidArgumentException('Email Contact expected');
+    function add($recipient) {
+        if (!$recipient instanceof EmailRecipient)
+            throw new InvalidArgumentException('Email Recipient expected');
 
-        return parent::add($contact);
+        return parent::add($recipient);
+    }
+
+    function addRecipient($contact, $to='to') {
+        return $this->add(new EmailRecipient($contact, $to));
+    }
+
+    function addTo(EmailContact $contact) {
+        return $this->addRecipient($contact, 'to');
+    }
+
+    function addCc(EmailContact $contact) {
+        return $this->addRecipient($contact, 'cc');
+    }
+
+    function addBcc(EmailContact $contact) {
+        return $this->addRecipient($contact, 'bcc');
     }
 
     function __toString() {
         return $this->getNames();
+    }
+
+    // Recipients' email addresses
+    function getEmailAddresses() {
+        $list = array();
+        foreach ($this->storage as $u) {
+            $list[$u->getType()][$u->getId()] = sprintf("%s <%s>",
+                    $u->getName(), $u->getEmail());
+        }
+        return $list;
     }
 
     function getNames() {

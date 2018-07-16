@@ -1466,18 +1466,6 @@ implements TemplateVariable {
         return $entry;
     }
 
-    function setReplyFlag($entry, $replyType) {
-      switch ($replyType) {
-        case 'all':
-          return $entry->flags |= ThreadEntry::FLAG_REPLY_ALL;
-          break;
-
-        case 'user':
-          return $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
-          break;
-      }
-    }
-
     //new entry ... we're trusting the caller to check validity of the data.
     static function create($vars=false) {
         global $cfg;
@@ -1513,36 +1501,14 @@ implements TemplateVariable {
             'poster' => $poster,
             'source' => $vars['source'],
             'flags' => $vars['flags'] ?: 0,
-            'recipients' => $vars['recipients'],
         ));
 
         //add recipients to thread entry
-        $recipients = array();
-        $ticket = Thread::objects()->filter(array('id'=>$vars['threadId']))->values_flat('object_id')->first();
-        $ticketUser = Ticket::objects()->filter(array('ticket_id'=>$ticket[0]))->values_flat('user_id')->first();
-
-        //User
-        if ($ticketUser && strcasecmp('none', $vars['reply-to'])) {
-          $uEmail = UserEmailModel::objects()->filter(array('user_id'=>$ticketUser[0]))->values_flat('address')->first();
-          $u = array();
-          $u[$ticketUser[0]] = $uEmail[0];
-          $recipients['to'] = $u;
-        }
+        if ($vars['recipients'])
+            $entry->recipients = json_encode($vars['recipients']);
 
         if (Collaborator::getIdByUserId($vars['userId'], $vars['threadId']))
           $entry->flags |= ThreadEntry::FLAG_COLLABORATOR;
-
-        //add reply type flag
-        self::setReplyFlag($entry, $vars['reply-to']);
-
-        //Cc collaborators
-        if ($vars['ccs'] && !strcasecmp('all', $vars['reply-to'])) {
-          $cc = Collaborator::getCollabList($vars['ccs']);
-          $recipients['cc'] = $cc;
-        }
-
-        if ($vars['reply-to'] != 'none' && $recipients)
-          $entry->recipients = json_encode($recipients);
 
         if ($entry->format == 'html')
             // The current codebase properly balances html
@@ -2893,10 +2859,19 @@ implements TemplateVariable {
     }
 
     function addResponse($vars, &$errors) {
-
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
-        $vars['pid'] = $this->getLastMessage()->id;
+        $vars['pid'] = $this->getLastMessage()->getId();
+
+        $vars['flags'] = 0;
+        switch ($vars['reply-to']) {
+            case 'all':
+                $vars['flags'] |= ThreadEntry::FLAG_REPLY_ALL;
+            break;
+            case 'user':
+                $vars['flags'] |= ThreadEntry::FLAG_REPLY_USER;
+            break;
+        }
 
         if (!($resp = ResponseThreadEntry::add($vars, $errors)))
             return $resp;
