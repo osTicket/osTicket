@@ -22,7 +22,7 @@ UPDATE `%TABLE_PREFIX%role`
 
 -- Ticket Notice Template
 UPDATE `%TABLE_PREFIX%email_template`
-    SET `code_name` = REPLACE('ticket.notice', '%{message}', '%{message}<br><br>%{response}')
+    SET `body` = REPLACE(`body`, '%{message}', '%{message}<br><br>%{response}')
     WHERE `code_name` = 'ticket.notice';
 
  -- Finished with patch
