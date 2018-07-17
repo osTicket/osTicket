@@ -193,6 +193,8 @@ var scp_prep = function() {
         }
      });
 
+    $('form select#cannedResp').select2({width: '300px'});
+
     $('form select#cannedResp').change(function() {
 
         var fObj = $(this).closest('form');
