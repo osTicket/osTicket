@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 =======
@@ -76,6 +77,8 @@ osTicket 1.11.0-rc.1
 =======
 =======
 =======
+=======
+>>>>>>> Add Release Notes for v1.10.4
 osTicket v1.10.4
 ================
 ### Enhancements
@@ -90,6 +93,9 @@ osTicket v1.10.4
 * department: Error Feedback (#4331)
 
 
+<<<<<<< HEAD
+>>>>>>> Add Release Notes for v1.10.4
+=======
 >>>>>>> Add Release Notes for v1.10.4
 osTicket v1.10.3
 ================
