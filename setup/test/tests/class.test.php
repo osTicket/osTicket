@@ -69,11 +69,11 @@ class Test {
         fputs(STDOUT, 'w');
     }
 
-    function assert($expr, $message) {
+    function assert($expr, $message=false) {
         if ($expr)
             $this->pass();
         else
-            $this->fail('', '', $message);
+            $this->fail('', '', $message ?: 'Test case failed');
     }
 
     function assertEqual($a, $b, $message=false) {
