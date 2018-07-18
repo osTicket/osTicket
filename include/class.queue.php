@@ -1247,7 +1247,7 @@ class CustomQueue extends VerySimpleModel {
                 && !$this->hasFlag(self::FLAG_INHERIT_COLUMNS)) {
 
 
-            if ($this->columns->update($vars['columns'], $errors, array(
+            if ($this->columns->updateColumns($vars['columns'], $errors, array(
                                 'queue_id' => $this->getId(),
                                 'staff_id' => $this->staff_id)))
                 $this->columns->reset();
@@ -2552,7 +2552,7 @@ extends VerySimpleModel {
                 );
 
         if (!$setting['inherit-columns'] && $vars['columns']) {
-            if (!$this->columns->update($vars['columns'], $errors, array(
+            if (!$this->columns->updateColumns($vars['columns'], $errors, array(
                                 'queue_id' => $this->queue_id,
                                 'staff_id' => $this->staff_id)))
                 $setting['inherit-columns'] = true;
@@ -2663,9 +2663,7 @@ extends InstrumentedList {
         return $anno;
     }
 
-    function update($columns, &$errors, $options=array()) {
-
-
+    function updateColumns($columns, &$errors, $options=array()) {
         $new = $columns;
         $order = array_keys($new);
         foreach ($this as $col) {
