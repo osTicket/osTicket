@@ -83,8 +83,13 @@ if ($user) { ?>
 <form method="post" class="user" action="<?php echo $info['action'] ?: '#users/lookup/form'; ?>">
     <table width="100%" class="fixed">
     <?php
+<<<<<<< HEAD
         $form = $form ?: UserForm::getInstance();
         $form->render(true, __('Create New User'), array('mode' => 'create')); ?>
+=======
+        if(!$form) $form = UserForm::getInstance();
+        $form->render(['staff' => true, 'title' => __('Create New User')]); ?>
+>>>>>>> lint: Fix warnings about incomaptible function signatures
     </table>
     <hr>
     <p class="full-width">

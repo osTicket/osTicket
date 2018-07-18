@@ -70,7 +70,7 @@ if ($info['error']) {
     <table width="100%" class="fixed">
     <?php
         if (!$form) $form = OrganizationForm::getInstance();
-        $form->render(true, __('Create New Organization')); ?>
+        $form->render(array('staff' => true, 'title' => __('Create New Organization'))); ?>
     </table>
     <hr>
     <p class="full-width">

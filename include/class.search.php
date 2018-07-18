@@ -1010,11 +1010,15 @@ extends SavedSearch {
         return false;
     }
 
+<<<<<<< HEAD
     function isOwner(Staff $staff) {
         return $this->ht['staff_id'] == $staff->getId();
     }
 
     function checkAccess($staff) {
+=======
+    function checkAccess(Staff $staff) {
+>>>>>>> lint: Fix warnings about incomaptible function signatures
         return true;
     }
 
@@ -1433,7 +1437,7 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         return parent::getSearchQ($method, $value, $name);
     }
 
-    function getSortKeys() {
+    function getSortKeys($path) {
         return array('team__name');
     }
 
