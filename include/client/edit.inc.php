@@ -16,7 +16,7 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
     <tbody id="dynamic-form">
     <?php if ($forms)
         foreach ($forms as $form) {
-            $form->render(false);
+            $form->render(['staff' => false]);
     } ?>
     </tbody>
 </table>

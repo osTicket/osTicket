@@ -912,7 +912,7 @@ extends SavedSearch {
         return false;
     }
 
-    function checkAccess($staff) {
+    function checkAccess(Staff $staff) {
         return true;
     }
 
@@ -1278,7 +1278,7 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         return parent::getSearchQ($method, $value, $name);
     }
 
-    function getSortKeys() {
+    function getSortKeys($path) {
         return array('team__name');
     }
 
