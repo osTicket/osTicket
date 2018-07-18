@@ -67,6 +67,7 @@ core:
     assigned_alert_team_lead: 0
     assigned_alert_team_members: 0
     auto_claim_tickets: 1
+    collaborator_ticket_visibility: 1
     show_related_tickets: 1
     show_assigned_tickets: 1
     show_answered_tickets: 0

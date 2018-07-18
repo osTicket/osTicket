@@ -77,7 +77,11 @@ if ($settings['status'])
 // unique values
 $visibility = $basic_filter->copy()
     ->values_flat('ticket_id')
-    ->filter(array('user_id' => $thisclient->getId()))
+    ->filter(array('user_id' => $thisclient->getId()));
+
+// Add visibility of Tickets where the User is a Collaborator if enabled
+if ($cfg->collaboratorTicketsVisibility())
+    $visibility = $visibility
     ->union($basic_filter->copy()
         ->values_flat('ticket_id')
         ->filter(array('thread__collaborators__user_id' => $thisclient->getId()))
