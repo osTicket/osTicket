@@ -321,6 +321,7 @@ class EndUser extends BaseAuthenticatedUser {
     }
 
     private function getStats() {
+        global $cfg;
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
             ->values('status__state', 'topic_id')
@@ -338,10 +339,11 @@ class EndUser extends BaseAuthenticatedUser {
         // one index. Therefore, to scan two indexes (by user_id and
         // thread.collaborators.user_id), we need two queries. A union will
         // help out with that.
-        $mine->union($collab->filter(array(
-            'thread__collaborators__user_id' => $this->getId(),
-            Q::not(array('user_id' => $this->getId()))
-        )));
+        if ($cfg->collaboratorTicketsVisibility())
+            $mine->union($collab->filter(array(
+                'thread__collaborators__user_id' => $this->getId(),
+                Q::not(array('user_id' => $this->getId()))
+            )));
 
         if ($orgid = $this->getOrgId()) {
             // Also generate a separate query for all the tickets owned by
