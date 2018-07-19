@@ -94,6 +94,15 @@ claim_tickets:
         <br><br>
         Reopened tickets are always assigned to the last respondent.
 
+collaborator_ticket_visibility:
+    title: Collaborator Tickets Visibility
+    content: >
+        If Enabled, Users will have visibility to ALL Tickets they participate in
+        when signing into the Web Portal.
+        <br><br>
+        If Disabled, Users will only be able to see their own Tickets
+        when signing into the Web Portal.
+
 assigned_tickets:
     title: Assigned Tickets
     content: >
