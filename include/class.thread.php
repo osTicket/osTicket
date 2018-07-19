@@ -428,6 +428,7 @@ implements Searchable {
             'ip' =>     '',
             'reply_to' => $entry,
             'recipients' => $mailinfo['recipients'],
+            'thread_entry_recipients' => $mailinfo['thread_entry_recipients'],
             'to-email-id' => $mailinfo['to-email-id'],
             'autorespond' => !isset($mailinfo['passive']),
         );
@@ -1504,8 +1505,9 @@ implements TemplateVariable {
         ));
 
         //add recipients to thread entry
-        if ($vars['recipients'])
-            $entry->recipients = json_encode($vars['recipients']);
+        if ($vars['thread_entry_recipients'])
+            $entry->recipients = json_encode($vars['thread_entry_recipients']);
+
 
         if (Collaborator::getIdByUserId($vars['userId'], $vars['threadId']))
           $entry->flags |= ThreadEntry::FLAG_COLLABORATOR;
