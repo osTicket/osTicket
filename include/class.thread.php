@@ -2220,7 +2220,7 @@ class CollaboratorEvent extends ThreadEvent {
             }
             $desc = sprintf($base, implode(', ', $collabs));
             break;
-        case isset($data['add']) && $mode!=self::MODE_CLIENT:
+        case isset($data['add']):
             $base = __('<b>{somebody}</b> added <strong>%s</strong> as collaborators {timestamp}');
             $collabs = array();
             if ($data['add']) {
