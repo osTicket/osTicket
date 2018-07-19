@@ -53,7 +53,21 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
     var $_teams = null;
     var $_config = null;
     var $_perm;
+	const PERM_SDIRECTORY =  'staff.dir';
+	
+	static protected $perms = array(
+		self::PERM_SDIRECTORY => array(
+            'title' => /* @trans */ 'Staff Directory',
+            'desc' => /* @trans */ 'Ability to access the staff directory',
+            'primary' => true,
+        ),
+    );
+	   
+	static function getPermissions() {
+        return self::$perms;
+    }
 
+	
     function __onload() {
 
         // WE have to patch info here to support upgrading from old versions.
@@ -1139,6 +1153,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
 }
 
+include_once INCLUDE_DIR.'class.role.php';
+RolePermission::register(/* @trans */ 'Staff', Staff::getPermissions());
+
 interface RestrictedAccess {
     function checkStaffPerm($staff);
 }
@@ -1480,6 +1497,7 @@ extends AbstractForm {
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+			Staff::PERM_SDIRECTORY,
         );
         return $clean;
     }
