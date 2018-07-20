@@ -39,7 +39,7 @@ class UsersAjaxAPI extends AjaxController {
         $emails=array();
         $matches = array();
 
-        if (strlen($q) < 3)
+        if (strlen(Format::searchable($q)) < 3)
             return $this->encode(array());
 
         if (!$type || !strcasecmp($type, 'remote')) {
