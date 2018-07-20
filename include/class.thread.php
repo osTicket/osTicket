@@ -1505,8 +1505,18 @@ implements TemplateVariable {
         ));
 
         //add recipients to thread entry
-        if ($vars['thread_entry_recipients'])
+        if ($vars['thread_entry_recipients']) {
+            $count = 0;
+            foreach ($vars['thread_entry_recipients'] as $key => $value)
+                $count = $count + count($value);
+
+            if ($count > 1)
+                $entry->flags |= ThreadEntry::FLAG_REPLY_ALL;
+            else
+                $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
+
             $entry->recipients = json_encode($vars['thread_entry_recipients']);
+        }
 
 
         if (Collaborator::getIdByUserId($vars['userId'], $vars['threadId']))
@@ -2866,14 +2876,6 @@ implements TemplateVariable {
         $vars['pid'] = $this->getLastMessage()->getId();
 
         $vars['flags'] = 0;
-        switch ($vars['reply-to']) {
-            case 'all':
-                $vars['flags'] |= ThreadEntry::FLAG_REPLY_ALL;
-            break;
-            case 'user':
-                $vars['flags'] |= ThreadEntry::FLAG_REPLY_USER;
-            break;
-        }
 
         if (!($resp = ResponseThreadEntry::add($vars, $errors)))
             return $resp;
