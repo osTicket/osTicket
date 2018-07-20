@@ -1270,6 +1270,8 @@ $(function() {
             ["RTA", <?php echo $BacklogTickets["RTA"]; ?>], 
             <?php } if ($BacklogTickets["RTC"]) { ?>
             ["RTC", <?php echo $BacklogTickets["RTC"]; ?>],         
+             <?php } if ($BacklogTickets["RVC"]) { ?>
+            ["RVC", <?php echo $BacklogTickets["RVC"]; ?>],           
             <?php } if ($BacklogTickets["SS"]) { ?>
             ["SS", <?php echo $BacklogTickets["SS"]; ?>], 
             <?php } if ($BacklogTickets["TNN1"]) { ?>   
