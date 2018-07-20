@@ -2863,7 +2863,8 @@ implements TemplateVariable {
     function addResponse($vars, &$errors) {
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
-        $vars['pid'] = $this->getLastMessage()->getId();
+        if ($message = $this->getLastMessage())
+            $vars['pid'] = $message->getId();
 
         $vars['flags'] = 0;
         switch ($vars['reply-to']) {
