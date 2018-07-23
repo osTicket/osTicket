@@ -2669,39 +2669,23 @@ implements RestrictedAccess, Threadable, Searchable {
 
       // Get active recipients of the response
       // Initial Message from Tickets created by Agent
-      if ($vars['reply-to']) {
-          if ($vars['reply-to'] == 'all' || $vars['reply-to'] == 'user') {
-              if ($user = User::lookup($this->user_id))
-                $vars['thread_entry_recipients']['to'][] = $user->getEmail()->address;
-          }
-          if ($vars['ccs'] && $vars['reply-to'] == 'all') {
-              foreach ($vars['ccs'] as $key => $uid) {
-                  if (!$cc = User::lookup($uid))
-                    continue;
-                  else
-                    $vars['thread_entry_recipients']['cc'][] = $cc->getEmail()->address;
-              }
-          }
-      }
-      // Messages from User front end
-      elseif (strtolower($origin) != 'email') {
+      if ($vars['reply-to'])
+          $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
+      // Messages from Web Portal
+      elseif (strcasecmp($origin, 'email')) {
           $recipients = $this->getRecipients('all');
           foreach ($recipients as $key => $recipient) {
-              $recipientContact = $recipient->getContact();
-              // Do not put the Ticket Owner as a recipient if they are opening a new Ticket
-              if(get_class($recipientContact) == 'TicketOwner' && !is_null($this->getLastMsgDate())) {
-                  if ($recipientContact->getId() == $vars['userId'])
-                      unset($recipients[$key]);
-              }
-              // Do not put a Collaborator as a recipient if they are replying from Web Portal
-              elseif (get_class($recipientContact) == 'Collaborator') {
-                  if ($recipient->getContact()->getUserId() == $vars['userId'])
-                      unset($recipients[$key]);
-              }
+              if (!$recipientContact = $recipient->getContact());
+                  continue;
+
+              $userId = $recipientContact->getUserId() ?: $recipientContact->getId();
+              // Do not list the poster as a recipient
+              if ($userId == $vars['userId'])
+                unset($recipients[$key]);
           }
-          if ($recipients && $recipients instanceof MailingList)
-              $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
       }
+      if ($recipients && $recipients instanceof MailingList)
+          $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
 
         if (!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
@@ -2759,7 +2743,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onMessage($message, ($autorespond && $alerts), $reopen); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $alerts && $cfg && $cfg->notifyCollabsONNewMessage()) {
+        if ($autorespond && $alerts
+            && $cfg && $cfg->notifyCollabsONNewMessage()
+            && strcasecmp($origin, 'email')) {
           //when user replies, this is where collabs notified
           $this->notifyCollaborators($message, array('signature' => ''));
         }
@@ -3857,6 +3843,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
+        // Add collaborators (if any)
+        if (isset($vars['ccs']) && count($vars['ccs']))
+          $ticket->addCollaborators($vars['ccs'], array(), $errors);
+
         // Add organizational collaborators
         if ($org && $org->autoAddCollabs()) {
             $pris = $org->autoAddPrimaryContactsAsCollabs();
@@ -4079,10 +4069,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Effective role for the department
         $role = $ticket->getRole($thisstaff);
-
-        // Add collaborators (if any)
-        if (isset($vars['ccs']) && count($vars['ccs']))
-          $ticket->addCollaborators($vars['ccs'], array(), $errors);
 
         $alert = strcasecmp('none', $vars['reply-to']);
         // post response - if any

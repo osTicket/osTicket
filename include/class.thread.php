@@ -2073,11 +2073,14 @@ class ThreadEvents extends InstrumentedList {
     function log($object, $state, $data=null, $user=null, $annul=null) {
         global $thisstaff, $thisclient;
 
-        if ($object instanceof Ticket)
+        if ($object && ($object instanceof Ticket))
             // TODO: Use $object->createEvent() (nolint)
             $event = ThreadEvent::forTicket($object, $state, $user);
-        elseif ($object instanceof Task)
+        elseif ($object && ($object instanceof Task))
             $event = ThreadEvent::forTask($object, $state, $user);
+
+        if (is_null($event))
+            return;
 
         # Annul previous entries if requested (for instance, reopening a
         # ticket will annul an 'closed' entry). This will be useful to
