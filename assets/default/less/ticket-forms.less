@@ -1,73 +1,37 @@
 #ticketForm, #clientLogin {
-  div {
-    clear: both;
-    padding: 3px 0;
-    overflow: hidden;
-
-    label {
-      display: block;
-      width: 140px;
-      float: left;
-    }
-
-    label.required {
-        font-weight: bold;
-        text-align: left;
-    }
-
-    input, textarea {
-      width: auto;
-      border: 1px solid #aaa;
-      background: #fff;
-      margin-right: 10px;
-      display: block;
-      float: left;
-    }
-
-    input[type=file] {
-      border: 0;
-    }
-
-    select {
-      display: block;
-      float: left;
-    }
-    div.captchaRow {
-      line-height: 31px;
-
-      input {
-        position: relative;
-        top: 6px;
-      }
-    }
-
+  label.required {
+    font-weight: bold;
+    text-align: left;
   }
 
-  td, div {
-    textarea {
-      width: 600px;
-    }
+  input[type=file] {
+    border: 0;
+  } 
 
-    em {
-      color: #777;
-    }
+  .captchaRow {
+    line-height: 31px;
 
-    .captcha {
-      width: 88px;
-      height: 31px;
-      background: #000;
-      display: block;
-      float: left;
-      margin-right: 20px;
-    }
-
-    label.inline {
-      width: auto;
-      padding: 0 10px;
+    input {
+      position: relative;
+      top: 6px;
     }
   }
 
-  div.error {
+  .captcha {
+    width: 88px;
+    height: 31px;
+    background: #000;
+    display: block;
+    float: left;
+    margin-right: 20px;
+  }
+
+  .inline {
+    width: auto;
+    padding: 0 10px;
+  }
+
+  .error {
     input {
       border: 1px solid #a00;
     }
@@ -90,12 +54,6 @@
 }
 
 #clientLogin {
-  width: 400px;
-  margin-top: 20px;
-  padding: 10px 100px 10px 10px;
-  border: 1px solid #ccc;
-  background: url('../images/lock.png?1319655200') 440px 50% no-repeat #f6f6f6;
-
   p {
     clear: both;
     text-align: center;
@@ -109,23 +67,19 @@
   }
 
   #email {
-    width: 250px;
     margin-right: 0;
   }
 
   #ticketno {
-    width: 120px;
     margin-right: 0;
   }
 }
 
 #reply {
   margin-top: 20px;
-  padding: 10px 5px;
-  background: #f9f9f9;
-  border: 1px solid #ccc;
 
   h2 {
+    margin-top: 0;
     margin-bottom: 10px;
   }
 
@@ -166,5 +120,74 @@
     padding:3px;
     padding-right:10px;
     width: auto !important
+  }
+}
+
+#ticketForm {
+  margin: 20px 0;
+
+  hr {
+    display: none;
+  }
+}
+
+select,
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="tel"],
+input[type="password"] {
+  &:extend(.form-control);
+}
+
+.osticket-group {
+  display: flex;
+  flex-direction: column;
+
+  .form-header {
+    margin-top: 0;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+  }
+
+  .action-button {
+    &:extend(.btn);
+    &:extend(.btn-primary);
+  }
+}
+
+.inl-blk {
+  display: inline-block !important;
+}
+
+#dynamic-form {
+  display: flex;
+  flex-direction: column;
+}
+
+#dynamic-form,
+#form-inner {
+  label {
+    display: block;
+  }
+
+  .action-button {
+    &:extend(.btn);
+    &:extend(.btn-primary);
+    &:extend(.btn-block);
+  }
+
+  .select2 {
+    width: 100% !important;
+  }
+
+  .form-header {
+    h3 {
+      margin-top: 0;
+    }
   }
 }

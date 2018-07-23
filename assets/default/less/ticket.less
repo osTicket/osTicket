@@ -29,38 +29,17 @@
 
 
 #ticketTable {
-  border: 1px solid #aaa;
-  border-left: none;
-  border-bottom: none;
-
   caption {
-    padding: 5px;
-    text-align: left;
+    padding: 10px 15px;
     color: #000;
     background: #ddd;
-    border: 1px solid #aaa;
-    border-bottom: none;
     font-weight: bold;
   }
 
   th {
-    height: 24px;
-    line-height: 24px;
-    background: #e1f2ff;
-    border: 1px solid #aaa;
-    border-right: none;
-    border-top: none;
-
     a {
       color: #000;
     }
-  }
-
-  td {
-    padding: 2px;
-    border: 1px solid #aaa;
-    border-right: none;
-    border-top: none;
   }
 
   tr.alt td {
@@ -68,9 +47,13 @@
   }
 }
 
+.link {
+  cursor: pointer;
+}
+
 #ticketSearchForm {
+  width: 100%;
   display: inline-block;
-  float: left;
   padding: 0 0 5px 0;
 }
 
@@ -90,14 +73,51 @@ a.refresh {
   background-image: url('../images/icons/refresh.png');
 }
 
-.infoTable {
-  background: #F4FAFF;
-  th {
-    text-align: left;
-  }
-}
-
 #ticketThread {
+  display: flex;
+  flex-direction: column;
+
+  .thread-entry {
+    padding: 10px;
+    border: 1px solid #337ab7;
+
+    &.response {
+      text-align: right;
+    }
+
+    .avatar {
+      img {
+        &:extend(.img-rounded);
+      }
+    }
+    .header {
+      display: inline-block;
+      padding: 0 0.9em;
+      border-bottom: 1px solid #337ab7;
+    }
+  }
+
+  .thread-event {
+    &.action {
+      padding: 10px 15px;
+      border-bottom: 1px solid transparent;
+      border-bottom-right-radius: 3px;
+      border-bottom-left-radius: 3px;
+      color: #fff;
+      background-color: #337ab7;
+      border-color: #337ab7;
+      margin-bottom: 25px;
+
+      img.avatar {
+        max-height: 15px;
+        border-radius: 2px;
+        margin-top: -3px;
+        margin-left: 5px;
+        margin-right: 2px;
+      }
+    }
+  }
+
   table {
     margin-top: 10px;
     border: 1px solid #aaa;
@@ -143,3 +163,20 @@ a.refresh {
   }
 }
 
+#tickets-pagination {
+  display: flex;
+
+  .btn-toolbar {
+    margin-left: 0;
+    margin-bottom: 20px;
+
+    .btn-group {
+      b {
+        &:extend(.btn);
+        &:extend(.btn-primary);
+        &:extend(.btn-xs);
+        cursor: not-allowed;
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  ubuntu-apache2-php7.0:
+    image: diegomelo182/ubuntu-apache2-php7.0
+    ports:
+    - "8000:80"
+    volumes:
+      - "./:/var/www/html/"
+    dns:
+      - 8.8.8.8
+      - 9.9.9.9
+    tty: true
+    stdin_open: true
+    entrypoint: /usr/sbin/apache2ctl -D FOREGROUND
+
+networks:
+  default:
+    driver: bridge
