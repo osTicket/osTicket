@@ -2667,6 +2667,26 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['userId'] == $this->user_id)
           $isMsg = true;
 
+      // Get active recipients of the response
+      // Initial Message from Tickets created by Agent
+      if ($vars['reply-to'])
+          $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
+      // Messages from Web Portal
+      elseif (strcasecmp($origin, 'email')) {
+          $recipients = $this->getRecipients('all');
+          foreach ($recipients as $key => $recipient) {
+              if (!$recipientContact = $recipient->getContact());
+                  continue;
+
+              $userId = $recipientContact->getUserId() ?: $recipientContact->getId();
+              // Do not list the poster as a recipient
+              if ($userId == $vars['userId'])
+                unset($recipients[$key]);
+          }
+      }
+      if ($recipients && $recipients instanceof MailingList)
+          $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
+
         if (!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
 
@@ -2723,7 +2743,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onMessage($message, ($autorespond && $alerts), $reopen); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $alerts && $cfg && $cfg->notifyCollabsONNewMessage()) {
+        if ($autorespond && $alerts
+            && $cfg && $cfg->notifyCollabsONNewMessage()
+            && strcasecmp($origin, 'email')) {
           //when user replies, this is where collabs notified
           $this->notifyCollaborators($message, array('signature' => ''));
         }
@@ -3821,6 +3843,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
+        // Add collaborators (if any)
+        if (isset($vars['ccs']) && count($vars['ccs']))
+          $ticket->addCollaborators($vars['ccs'], array(), $errors);
+
         // Add organizational collaborators
         if ($org && $org->autoAddCollabs()) {
             $pris = $org->autoAddPrimaryContactsAsCollabs();
@@ -4043,10 +4069,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Effective role for the department
         $role = $ticket->getRole($thisstaff);
-
-        // Add collaborators (if any)
-        if (isset($vars['ccs']) && count($vars['ccs']))
-          $ticket->addCollaborators($vars['ccs'], array(), $errors);
 
         $alert = strcasecmp('none', $vars['reply-to']);
         // post response - if any
