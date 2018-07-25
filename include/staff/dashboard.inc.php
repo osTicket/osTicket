@@ -817,7 +817,7 @@
                 label: {
                     text: 'Target',
                     style: {
-                    color: 'blue',
+                    color: 'black',
                     fontWeight: 'bold'
                 }
                 } ,
