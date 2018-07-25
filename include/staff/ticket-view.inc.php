@@ -770,8 +770,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                    <td>
                    <div style="margin-bottom:2px;">
                     <?php
-                         echo sprintf('<span><a id="show_ccs"
-                                 class="icon-caret-right"></i>&nbsp;%s </a>
+                         echo sprintf('<span><a id="show_ccs">
+                                 <i id="arrow-icon" class="icon-caret-right"></i>&nbsp;%s </a>
                                  &nbsp;
                                  <a class="manage-collaborators
                                  collaborators preview noclick %s"
@@ -1265,7 +1265,7 @@ $(function() {
     });
 
   $('#show_ccs').click(function() {
-    var show = $(this);
+    var show = $('#arrow-icon');
     var collabs = $('a#managecollabs');
     $('#ccs').slideToggle('fast', function(){
         if ($(this).is(":hidden")) {
@@ -1286,12 +1286,12 @@ $(function() {
   $('#collabselection').select2({
     width: '350px',
     allowClear: true,
-    sorter: (data) => {
+    sorter: function(data) {
         return data.filter(function (item) {
                 return !item.selected;
                 });
     },
-    templateResult: (e) => {
+    templateResult: function(e) {
         var $e = $(
         '<span><i class="icon-user"></i> ' + e.text + '</span>'
         );

@@ -335,23 +335,31 @@ class MailFetcher {
 
         $header['system_emails'] = array();
         $header['recipients'] = array();
+        $header['thread_entry_recipients'] = array();
         foreach($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
+                    $name = $this->mime_decode(@$addr->personal);
+                    $email = strtolower($addr->mailbox).'@'.$addr->host;
                     $header['recipients'][] = array(
                             'source' => sprintf(_S("Email (%s)"),$source),
-                            'name' => $this->mime_decode(@$addr->personal),
-                            'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                            'name' => $name,
+                            'email' => $email);
+
+                    $header['thread_entry_recipients'][$source][] = sprintf('%s <%s>', $name, $email);
                 } elseif ($emailId) {
                     $header['system_emails'][] = $emailId;
+                    $system_email = Email::lookup($emailId);
+                    $header['thread_entry_recipients']['to'][] = (string) $system_email;
                     if (!$header['emailId'])
                         $header['emailId'] = $emailId;
                 }
             }
         }
+        $header['thread_entry_recipients']['to'] = array_unique($header['thread_entry_recipients']['to']);
 
         //See if any of the recipients is a delivered to address
         if ($tolist['delivered-to']) {

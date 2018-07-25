@@ -1629,14 +1629,6 @@ implements RestrictedAccess, Threadable, Searchable {
         $poster = User::lookup($entry->user_id);
         $posterEmail = $poster->getEmail()->address;
 
-        $recipients = array();
-        if($vars['ccs']) {
-          foreach ($vars['ccs'] as $cc) {
-            $collab = Collaborator::getIdByUserId($cc, $this->getThread()->getId());
-            $recipients[] = Collaborator::lookup($collab);
-          }
-        }
-
         $vars = array_merge($vars, array(
             'message' => (string) $entry,
             'poster' => $poster ?: _S('A collaborator'),
@@ -1658,35 +1650,22 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
 
-        $collaborators = array();
-        $collabsCc = array();
-        foreach ($recipients as $recipient) {
-            if(get_class($recipient) == 'Collaborator') {
-              if ($recipient->isCc())
-                $collabsCc[] = $recipient->getEmail()->address;
-            }
+        foreach ($recipients as $key => $recipient) {
+            $recipient = $recipient->getContact();
 
             if(get_class($recipient) == 'TicketOwner')
-              $owner = $recipient;
+                $owner = $recipient;
+
+            if ((get_class($recipient) == 'Collaborator' ? $recipient->getUserId() : $recipient->getId()) == $entry->user_id)
+                unset($recipients[$key]);
          }
 
-        foreach ($collabsCc as $cc) {
-          if (in_array($cc, $skip))
-            continue;
-          elseif ($cc != $posterEmail)
-            $collaborators[] = $cc;
-        }
-
-        //the ticket user is a recipient
+        //see if the ticket user is a recipient
         if ($owner->getEmail()->address != $poster->getEmail()->address && !in_array($owner->getEmail()->address, $skip))
           $owner_recip = $owner->getEmail()->address;
 
-        $collaborators['cc'] = $collaborators;
-
-        //collaborator email sent out
-        if ($collaborators['cc']  || $owner_recip) {
-          //say dear collaborator if the ticket user is not a recipient
-          if (!$owner_recip) {
+        //say dear collaborator if the ticket user is not a recipient
+        if (!$owner_recip) {
             $nameFormats = array_keys(PersonsName::allFormats());
             $names = array();
             foreach ($nameFormats as $key => $value) {
@@ -1694,16 +1673,13 @@ implements RestrictedAccess, Threadable, Searchable {
             }
             $names = array_merge($names, array('recipient' => $recipient));
             $cnotice = $this->replaceVars($msg, $names);
-          }
-
-          //otherwise address email to ticket user
-          else
+        }
+        //otherwise address email to ticket user
+        else
             $cnotice = $this->replaceVars($msg, array('recipient' => $owner));
 
-          //if the ticket user is a recipient, put them in to address otherwise, cc all recipients
-          $email->send($owner_recip ? $owner_recip : '', $cnotice['subj'], $cnotice['body'], $attachments,
-              $options, $collaborators);
-        }
+        $email->send($recipients, $cnotice['subj'], $cnotice['body'], $attachments,
+            $options);
     }
 
     function onMessage($message, $autorespond=true, $reopen=true) {
@@ -2691,6 +2667,26 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['userId'] == $this->user_id)
           $isMsg = true;
 
+      // Get active recipients of the response
+      // Initial Message from Tickets created by Agent
+      if ($vars['reply-to'])
+          $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
+      // Messages from Web Portal
+      elseif (strcasecmp($origin, 'email')) {
+          $recipients = $this->getRecipients('all');
+          foreach ($recipients as $key => $recipient) {
+              if (!$recipientContact = $recipient->getContact())
+                  continue;
+
+              $userId = $recipientContact->getUserId() ?: $recipientContact->getId();
+              // Do not list the poster as a recipient
+              if ($userId == $vars['userId'])
+                unset($recipients[$key]);
+          }
+      }
+      if ($recipients && $recipients instanceof MailingList)
+          $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
+
         if (!($message = $this->getThread()->addMessage($vars, $errors)))
             return null;
 
@@ -2747,7 +2743,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onMessage($message, ($autorespond && $alerts), $reopen); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $alerts && $cfg && $cfg->notifyCollabsONNewMessage()) {
+        if ($autorespond && $alerts
+            && $cfg && $cfg->notifyCollabsONNewMessage()
+            && strcasecmp($origin, 'email')) {
           //when user replies, this is where collabs notified
           $this->notifyCollaborators($message, array('signature' => ''));
         }
@@ -2902,14 +2900,14 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
-        // Add new collaboratorss (if any).
+        // Add new collaborators (if any).
         if (isset($vars['ccs']) && count($vars['ccs']))
-            $this->addCollaborators($vars['ccs']);
+            $this->addCollaborators($vars['ccs'], array(), $errors);
 
         // Get active recipients of the response
         $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
         if ($recipients instanceof MailingList)
-            $vars['recipients'] = $recipients->getEmailAddresses();
+            $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
 
         if (!($response = $this->getThread()->addResponse($vars, $errors)))
             return null;
@@ -3845,6 +3843,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
+        // Add collaborators (if any)
+        if (isset($vars['ccs']) && count($vars['ccs']))
+          $ticket->addCollaborators($vars['ccs'], array(), $errors);
+
         // Add organizational collaborators
         if ($org && $org->autoAddCollabs()) {
             $pris = $org->autoAddPrimaryContactsAsCollabs();
@@ -4067,10 +4069,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Effective role for the department
         $role = $ticket->getRole($thisstaff);
-
-        // Add collaborators (if any)
-        if (isset($vars['ccs']) && count($vars['ccs']))
-          $ticket->addCollaborators($vars['ccs'], array(), $errors);
 
         $alert = strcasecmp('none', $vars['reply-to']);
         // post response - if any

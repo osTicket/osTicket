@@ -428,6 +428,7 @@ implements Searchable {
             'ip' =>     '',
             'reply_to' => $entry,
             'recipients' => $mailinfo['recipients'],
+            'thread_entry_recipients' => $mailinfo['thread_entry_recipients'],
             'to-email-id' => $mailinfo['to-email-id'],
             'autorespond' => !isset($mailinfo['passive']),
         );
@@ -1504,8 +1505,19 @@ implements TemplateVariable {
         ));
 
         //add recipients to thread entry
-        if ($vars['recipients'])
-            $entry->recipients = json_encode($vars['recipients']);
+        if ($vars['thread_entry_recipients']) {
+            $count = 0;
+            foreach ($vars['thread_entry_recipients'] as $key => $value)
+                $count = $count + count($value);
+
+            if ($count > 1)
+                $entry->flags |= ThreadEntry::FLAG_REPLY_ALL;
+            else
+                $entry->flags |= ThreadEntry::FLAG_REPLY_USER;
+
+            $entry->recipients = json_encode($vars['thread_entry_recipients']);
+        }
+
 
         if (Collaborator::getIdByUserId($vars['userId'], $vars['threadId']))
           $entry->flags |= ThreadEntry::FLAG_COLLABORATOR;
@@ -2061,11 +2073,14 @@ class ThreadEvents extends InstrumentedList {
     function log($object, $state, $data=null, $user=null, $annul=null) {
         global $thisstaff, $thisclient;
 
-        if ($object instanceof Ticket)
+        if ($object && ($object instanceof Ticket))
             // TODO: Use $object->createEvent() (nolint)
             $event = ThreadEvent::forTicket($object, $state, $user);
-        elseif ($object instanceof Task)
+        elseif ($object && ($object instanceof Task))
             $event = ThreadEvent::forTask($object, $state, $user);
+
+        if (is_null($event))
+            return;
 
         # Annul previous entries if requested (for instance, reopening a
         # ticket will annul an 'closed' entry). This will be useful to
@@ -2218,7 +2233,7 @@ class CollaboratorEvent extends ThreadEvent {
             }
             $desc = sprintf($base, implode(', ', $collabs));
             break;
-        case isset($data['add']) && $mode!=self::MODE_CLIENT:
+        case isset($data['add']):
             $base = __('<b>{somebody}</b> added <strong>%s</strong> as collaborators {timestamp}');
             $collabs = array();
             if ($data['add']) {
@@ -2861,17 +2876,10 @@ implements TemplateVariable {
     function addResponse($vars, &$errors) {
         $vars['threadId'] = $this->getId();
         $vars['userId'] = 0;
-        $vars['pid'] = $this->getLastMessage()->getId();
+        if ($message = $this->getLastMessage())
+            $vars['pid'] = $message->getId();
 
         $vars['flags'] = 0;
-        switch ($vars['reply-to']) {
-            case 'all':
-                $vars['flags'] |= ThreadEntry::FLAG_REPLY_ALL;
-            break;
-            case 'user':
-                $vars['flags'] |= ThreadEntry::FLAG_REPLY_USER;
-            break;
-        }
 
         if (!($resp = ResponseThreadEntry::add($vars, $errors)))
             return $resp;
