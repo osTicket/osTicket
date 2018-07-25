@@ -265,6 +265,11 @@ $BacklogTickets["OH"]+
 $BacklogTickets["NTC"]+
 $BacklogTickets["TNN1"]+
 $BacklogTickets["TNN2"]+
-$BacklogTickets["TNS"];   
+$BacklogTickets["TNS"]+
+$BacklogTickets["BRY"]+
+$BacklogTickets["PAU"]+
+$BacklogTickets["RVC"]+
+$BacklogTickets["RTA"]+
+$BacklogTickets["VIP"];   
 
 ?>

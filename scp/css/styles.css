@@ -876,7 +876,8 @@ code, pre {
 
 .bg-white {
   background-color: #ffffff !important; }
-  
+.bg-vipred {
+  background-color: #d50000 !important; }   
 .bg-flatred {
   background-color: #C0392B !important; } 
 .bg-flatredalt {
@@ -884,11 +885,15 @@ code, pre {
 .bg-flatpurple {
   background-color: #9B59B6 !important; } 
 .bg-flatpurplealt {
-  background-color: #8E44AD !important; }   
+  background-color: #8E44AD !important; }  
+.bg-flatpurplealt1 {
+  background-color: #6a1b9a !important; }   
 .bg-flatblue {
   background-color: #2980B9 !important; } 
 .bg-flatbluealt {
   background-color: #3498DB !important; } 
+.bg-flatbluealt1 {
+  background-color: #283593 !important; }  
 .bg-flatbluegreen {
   background-color: #1ABC9C !important; } 
 .bg-flatbluegreenalt {
@@ -898,7 +903,9 @@ code, pre {
 .bg-flatgreenalt {
   background-color: #2ECC71 !important; }    
 .bg-flatgreenalt2 {
-  background-color:   #AFB42B !important; }
+  background-color: #AFB42B !important; }
+.bg-flatgreenalt3 {
+  background-color: #629749 !important; }
 .bg-flatyellow {
   background-color: #F1C40F !important; } 
 .bg-flatyellowalt {
@@ -907,6 +914,8 @@ code, pre {
   background-color: #E67E22 !important; } 
 .bg-flatorangealt {
  background-color: #D35400 !important; } 
+.bg-flatorangealt1 {
+ background-color: #c17900 !important; } 
 .bg-flatgrey {
   background-color: #546E7A !important; }   
 .bg-flatbrown {

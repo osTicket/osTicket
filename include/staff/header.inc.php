@@ -206,6 +206,10 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     <div class="notify-icon bg-warning"><?php echo $BacklogTickets["CAN"]; ?></div>
                                     <p class="notify-details">CAN<small class="text-muted">Canada's Backlog</small></p>
                                 </a>
+                                 <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatgreenalt3"><?php echo $BacklogTickets["BRY"]; ?></div>
+                                    <p class="notify-details">BRY<small class="text-muted">Bryan's Backlog</small></p>
+                                </a>
                                 <a href="/scp/tickets.php?queue=3&p=1&l=10&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatbrown"><?php echo $BacklogTickets["EXT"]; ?></div>
                                     <p class="notify-details">EXT<small class="text-muted">External's Backlog</small></p>
@@ -226,9 +230,21 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     <div class="notify-icon bg-flatpurple"><?php echo $BacklogTickets["OH"]; ?></div>
                                     <p class="notify-details">OH<small class="text-muted">Ohio's Backlog</small></p>
                                 </a>
+                                 <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatpurplealt1"><?php echo $BacklogTickets["PAU"]; ?></div>
+                                    <p class="notify-details">PAU<small class="text-muted">Paulding's Backlog</small></p>
+                                </a>
                                 <a href="/scp/tickets.php?queue=3&p=1&l=11&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatgrey"><?php echo $BacklogTickets["SS"]; ?></div>
                                     <p class="notify-details">SS<small class="text-muted">Shared Services's Backlog</small></p>
+                                </a>
+                                 <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatorangealt1"><?php echo $BacklogTickets["RTA"]; ?></div>
+                                    <p class="notify-details">RTA<small class="text-muted">Ridge Tooling and Automation's Backlog</small></p>
+                                </a>
+                                 <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatbluealt1"><?php echo $BacklogTickets["RVC"]; ?></div>
+                                    <p class="notify-details">RVC<small class="text-muted">Ridgeville Corner's Baklog</small></p>
                                 </a>
                                 <a href="/scp/tickets.php?queue=3&p=1&l=4&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatbluegreen"><?php echo $BacklogTickets["TNN1"]; ?></div>
@@ -241,6 +257,10 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-flatgreen"><?php echo $BacklogTickets["TNS"]; ?></div>
                                     <p class="notify-details">TNS<small class="text-muted">Tennesee South's Backlog</small></p>
+                                </a>
+                                 <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-vipred"><?php echo $BacklogTickets["VIP"]; ?></div>
+                                    <p class="notify-details">VIP<small class="text-muted">VIP's Backlog</small></p>
                                 </a>
                                 
                                 
