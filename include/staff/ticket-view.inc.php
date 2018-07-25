@@ -1286,12 +1286,12 @@ $(function() {
   $('#collabselection').select2({
     width: '350px',
     allowClear: true,
-    sorter: (data) => {
+    sorter: function(data) {
         return data.filter(function (item) {
                 return !item.selected;
                 });
     },
-    templateResult: (e) => {
+    templateResult: function(e) {
         var $e = $(
         '<span><i class="icon-user"></i> ' + e.text + '</span>'
         );
