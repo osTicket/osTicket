@@ -2675,7 +2675,7 @@ implements RestrictedAccess, Threadable, Searchable {
       elseif (strcasecmp($origin, 'email')) {
           $recipients = $this->getRecipients('all');
           foreach ($recipients as $key => $recipient) {
-              if (!$recipientContact = $recipient->getContact());
+              if (!$recipientContact = $recipient->getContact())
                   continue;
 
               $userId = $recipientContact->getUserId() ?: $recipientContact->getId();
