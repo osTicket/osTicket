@@ -808,8 +808,22 @@
         yAxis: {
             title: {
                 text: 'Number of Tickets'
-            }
-        },
+            },
+              plotLines: [{
+                color: 'green', // Color value
+                dashStyle: 'shortdash', // Style of the plot line. Default to solid
+                value: 50, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                    text: 'Target',
+                    style: {
+                    color: 'blue',
+                    fontWeight: 'bold'
+                }
+                } ,
+                zIndex: 6                
+              }]
+                    },
         tooltip: {
             shared: true,
             valueSuffix: ' tickets'
