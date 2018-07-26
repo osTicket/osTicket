@@ -291,10 +291,27 @@ $(function() {
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
             reset.click(function() {
+<<<<<<< HEAD
                 if (el.attr('data-draft-id'))
                     el.redactor('draft.deleteDraft').attr('data-draft-id', '');
                 else
                     el.redactor('insert.set', '', false, false);
+=======
+                var file = $('.file');
+                if (file)
+                    file.remove();
+                if (el.attr('data-draft-id'))
+                    el.redactor('draft.deleteDraft').attr('data-draft-id', '');
+                else {
+                    try {
+                        el.redactor('insert.set', '', false, false);
+                    }
+                    catch (error) {
+                        el.redactor(); //reinitialize redactor
+                        el.redactor('insert.set', '', false, false);
+                    }
+                }
+>>>>>>> Web Portal Fixes:
             });
         }
         $('input[type=submit]', el.closest('form')).on('click', function() {
@@ -302,7 +319,13 @@ $(function() {
             // where Redactor does not sync properly after adding an image.
             // Therefore, the ::get() call will not include text added after
             // the image was inserted.
-            el.redactor('code.sync');
+            try {
+                el.redactor('code.sync');
+            }
+            catch (error) {
+                el.redactor(); //reinitialize redactor
+                el.redactor('code.sync');
+            }
         });
         if (!$.clientPortal) {
             options['plugins'] = options['plugins'].concat(
