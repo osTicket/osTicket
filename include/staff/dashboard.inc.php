@@ -760,7 +760,7 @@
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
                                 UNION all 
-                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS) as VALUE, 'BACKLOG' AS Status,  
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(RTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
                 STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
 
                 where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
