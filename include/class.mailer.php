@@ -434,6 +434,9 @@ class Mailer {
                                 $recipient->getName(),
                                 $recipient->getEmail()));
                     break;
+                case $recipient instanceof EmailAddress:
+                    $mime->addTo($recipient->getAddress());
+                    break;
                 default:
                     // Assuming email address.
                     $mime->addTo($recipient);
