@@ -1049,23 +1049,37 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
 
 
 class AssigneeChoiceField extends ChoiceField {
+
+    protected $_items;
+
+
     function getChoices($verbose=false) {
         global $thisstaff;
 
-        $items = array(
-            'M' => __('Me'),
-            'T' => __('One of my teams'),
-        );
-        foreach (Staff::getStaffMembers() as $id=>$name) {
-            // Don't include $thisstaff (since that's 'Me')
-            if ($thisstaff && $thisstaff->getId() == $id)
-                continue;
-            $items['s' . $id] = $name;
+        if (!isset($this->_items)) {
+            $items = array(
+                'M' => __('Me'),
+                'T' => __('One of my teams'),
+            );
+            foreach (Staff::getStaffMembers() as $id=>$name) {
+                // Don't include $thisstaff (since that's 'Me')
+                if ($thisstaff && $thisstaff->getId() == $id)
+                    continue;
+                $items['s' . $id] = $name;
+            }
+            foreach (Team::getTeams() as $id=>$name) {
+                $items['t' . $id] = $name;
+            }
+
+            $this->_items = $items;
         }
-        foreach (Team::getTeams() as $id=>$name) {
-            $items['t' . $id] = $name;
-        }
-        return $items;
+
+        return $this->_items;
+    }
+
+    function getChoice($k) {
+        $choices = $this->getChoices();
+        return $choices[$k] ?: null;
     }
 
     function getSearchMethods() {
@@ -1166,6 +1180,15 @@ class AssigneeChoiceField extends ChoiceField {
 
     function display($value) {
         return (string) $value;
+    }
+
+    function toString($value) {
+        if (!is_array($value))
+             $value = array($value => $value);
+        $selection = array();
+        foreach ($value as $k => $v)
+            $selection[] = $this->getChoice($k) ?: (string) $v;
+        return implode(', ', $selection);
     }
 }
 

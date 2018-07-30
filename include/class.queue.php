@@ -1301,7 +1301,7 @@ class CustomQueue extends VerySimpleModel {
     static function __create($vars) {
         $q = static::create($vars);
         $q->psave();
-        foreach ($vars['columns'] as $info) {
+        foreach ($vars['columns'] ?: array() as $info) {
             $glue = new QueueColumnGlue($info);
             $glue->queue_id = $q->getId();
             $glue->save();
