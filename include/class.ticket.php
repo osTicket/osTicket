@@ -1660,6 +1660,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 unset($recipients[$key]);
          }
 
+        if (!count($recipients))
+            return true;
+
         //see if the ticket user is a recipient
         if ($owner->getEmail()->address != $poster->getEmail()->address && !in_array($owner->getEmail()->address, $skip))
           $owner_recip = $owner->getEmail()->address;
