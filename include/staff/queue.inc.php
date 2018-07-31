@@ -228,7 +228,7 @@ if ($queue->parent) { ?>
                 <div class="pull-right">
                   <small class="hidden faded"><?php echo __('Default'); ?></small>
                   <a href="#" class="drop-sort" title="<?php echo __('Delete');
-                    ?>"><i class="icon-trash"></i></a>
+                    ?>"><i class="fa fa-trash"></i></a>
                 </div>
               </td>
             <tr>

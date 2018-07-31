@@ -68,6 +68,69 @@ $tickets->filter($qfilter);
 $states = array('open');
 $states = array_merge($states, array('closed'));
 
+   
+ $Location = Dept::objects()
+                ->order_by('name');
+   // var_dump($Location);           
+                     
+    foreach ($Location as $cLocation) {
+        $query = Ticket::objects();   
+        
+        $lqfilter = Q::any(new Q($qf1));
+       
+        if ($sta  >0){
+         $query->filter($qfilter);
+         }     
+         
+         if ($loc  >0){
+         $query->filter($qfilter);
+         }   
+                  if ($top  >0){
+         $query->filter($qfilter);
+         }   
+         
+        $Q = $queue->getBasicQuery();
+        $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
+              
+       $query->aggregate(array(
+            $queue->getId() => SqlAggregate::COUNT($expr)))
+            ->filter(array('dept_id' => $cLocation->getId()));
+         
+        if ($filters == 1){ 
+           $lfiltercount[$cLocation->getId()] = $query->values()->one();
+        }
+    }    
+
+
+ $Topic = Topic::objects()
+                ->order_by('topic');
+   // var_dump($Location);           
+                     
+   foreach ($Topic as $cTopic) {
+        $query = Ticket::objects();   
+        
+        $tqfilter = Q::any(new Q($qf1));
+       
+        if ($sta  >0){
+         $query->filter($qfilter);
+         }     
+         
+         if ($loc  >0){
+         $query->filter($qfilter);
+         }   
+         
+        $Q = $queue->getBasicQuery();
+        $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), 1);
+              
+       $query->aggregate(array(
+            $queue->getId() => SqlAggregate::COUNT($expr)))
+            ->filter(array('topic_id' => $cTopic->getId()));
+         
+        if ($filters == 1){ 
+           $tfiltercount[$cTopic->getId()] = $query->values()->one();
+        }
+    }    
+
 $Statuses = array();
 foreach (TicketStatusList::getStatuses(
             array('states' => $states)) as $status) {
@@ -286,7 +349,7 @@ $pageNav->setURL('tickets.php', $args);
                                         <a class="no-pjax confirm-action" href="#"
                                             data-dialog="ajax.php/queue/<?php
                                             echo $queue->id; ?>/delete"><i
-                                        class="icon-fixed-width icon-trash"></i>
+                                        class="icon-fixed-width fa fa-trash"></i>
                                         <?php echo __('Delete'); ?></a>
                                     </li>
             <?php } ?>

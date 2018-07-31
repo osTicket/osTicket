@@ -94,7 +94,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
                         $name.=' '.__('(disabled)');
-
                     echo sprintf('<option value="%d" %s %s>%s</option>',
                             $status->getId(),
                             ($config['default_ticket_status_id'] ==
@@ -238,7 +237,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     $name = $status->getName();
                     if (!($isenabled = $status->isEnabled()))
                         $name.=' '.__('(disabled)');
-
                     echo sprintf('<option value="%d" %s %s>%s</option>',
                             $status->getId(),
                             ($config['autoclose_status_id'] ==
@@ -264,28 +262,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#autoclose_duration"></i>
             </td>
         </tr>
-        <tr>
-            <th colspan="2">
-                <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
-            </th>
-        </tr>
-        <tr>
-            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
-            <td>
-<?php
-                $tform = TicketForm::objects()->one()->getForm();
-                $f = $tform->getField('message');
-?>
-                <a class="action-button field-config" style="overflow:inherit"
-                    href="#ajax.php/form/field-config/<?php
-                        echo $f->get('id'); ?>"
-                    onclick="javascript:
-                        $.dialog($(this).attr('href').substr(1), [201]);
-                        return false;
-                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
-                <i class="help-tip icon-question-sign" href="#ticket_attachment_settings"></i>
-            </td>
-        </tr>
+        
     </tbody>
 </table>
 </div>

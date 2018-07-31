@@ -65,7 +65,7 @@ $hidden_cols = $queue->inheritColumns() || count($queue->columns) === 0;
       <td>
         <input type="checkbox" data-name="sortable"/>
         <a href="#" class="pull-right drop-column" title="<?php echo __('Delete');
-          ?>"><i class="icon-trash"></i></a>
+          ?>"><i class="fa fa-trash"></i></a>
       </td>
     </tr>
   </tbody>

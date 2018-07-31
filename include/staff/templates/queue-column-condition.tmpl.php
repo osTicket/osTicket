@@ -15,7 +15,7 @@
   <div class="pull-right">
     <a href="#" onclick="javascript: $(this).closest('.condition').remove();
       return false;
-      "><i class="icon-trash"></i></a>
+      "><i class="fa fa-trash"></i></a>
   </div>
   <div><strong><?php echo $label ?: $field->getLabel(); ?></div></strong>
   <div class="advanced-search">

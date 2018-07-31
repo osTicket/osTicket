@@ -12,7 +12,7 @@
   <input type="hidden" name="property_name[]" value="<?php echo $prop; ?>" />
   <div class="pull-right">
     <a href="#" onclick="javascript:$(this).closest('.condition-property').remove()"
-      ><i class="icon-trash"></i></a>
+      ><i class="fa fa-trash"></i></a>
   </div>
   <div><?php echo mb_convert_case($prop, MB_CASE_TITLE); ?></div>
 <?php

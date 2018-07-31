@@ -49,7 +49,7 @@ $data_form = $data_form ?: $column->getDataConfigForm($_POST);
             annotation.remove();
             if (tab.find('.annotation:not(.template)').length === 0)
                 tab.find('.empty.placeholder').show()
-            return false;"><i class="icon-trash"></i></a>
+            return false;"><i class="fa fa-trash"></i></a>
       </div>
     </div>
 
