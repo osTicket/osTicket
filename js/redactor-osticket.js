@@ -291,7 +291,7 @@ $(function() {
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
             reset.click(function() {
-                var file = $('.file');
+                var file = $('.file', el.closest('form'));
                 if (file)
                     file.remove();
                 if (el.attr('data-draft-id'))
