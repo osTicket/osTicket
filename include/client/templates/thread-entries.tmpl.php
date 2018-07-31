@@ -34,7 +34,9 @@ if (count($entries)) {
                 $events->next();
                 $event = $events->current();
             }
+            ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
             include 'thread-entry.tmpl.php';
+            ?></div><?php
         }
         $i++;
     }
