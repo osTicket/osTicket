@@ -378,7 +378,8 @@ var scp_prep = function() {
            $('input[name^='+attr+']', ui.item.parent('tbody')).each(function(i, el) {
                $(el).val(i + 1 + offset);
            });
-       }
+       },
+       'cancel': ':input,button,div[contenteditable=true]'
    });
 
     // Scroll to a stop or top on scroll-up click
