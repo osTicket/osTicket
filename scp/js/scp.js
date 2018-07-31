@@ -216,6 +216,7 @@ var scp_prep = function() {
                     var box = $('#response',fObj),
                         redactor = box.data('redactor');
                     if(canned.response) {
+                        redactor.selection.restore();
                         if (redactor)
                             redactor.insert.html(canned.response);
                         else
