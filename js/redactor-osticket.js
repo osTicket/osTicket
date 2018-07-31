@@ -292,12 +292,16 @@ $(function() {
         if (reset) {
             reset.click(function() {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if (el.attr('data-draft-id'))
                     el.redactor('draft.deleteDraft').attr('data-draft-id', '');
                 else
                     el.redactor('insert.set', '', false, false);
 =======
                 var file = $('.file');
+=======
+                var file = $('.file', el.closest('form'));
+>>>>>>> Reset Button Fix:
                 if (file)
                     file.remove();
                 if (el.attr('data-draft-id'))
