@@ -655,7 +655,7 @@ class EmailDataParser {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
-                    $name = $this->mime_decode(@$addr->personal);
+                    $name = trim(@$addr->personal, '"');
                     $email = strtolower($addr->mailbox).'@'.$addr->host;
                     $data['recipients'][] = array(
                         'source' => sprintf(_S("Email (%s)"), $source),
