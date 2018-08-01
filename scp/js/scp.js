@@ -194,6 +194,11 @@ var scp_prep = function() {
      });
 
     $('form select#cannedResp').select2({width: '300px'});
+    $('form select#cannedResp').on('select2:opening', function (e) {
+        var redactor = $('.richtext', e.target.closest('form')).data('redactor');
+        if (redactor)
+            redactor.selection.save();
+    });
 
     $('form select#cannedResp').change(function() {
 
@@ -216,9 +221,10 @@ var scp_prep = function() {
                     var box = $('#response',fObj),
                         redactor = box.data('redactor');
                     if(canned.response) {
-                        if (redactor)
+                        if (redactor) {
+                            redactor.selection.restore();
                             redactor.insert.html(canned.response);
-                        else
+                        } else
                             box.val(box.val() + canned.response);
 
                         if (redactor)
