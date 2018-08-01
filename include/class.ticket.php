@@ -1006,12 +1006,16 @@ implements RestrictedAccess, Threadable, Searchable {
                         ));
             break;
         case 'topic':
+            $current = array();
+            if ($topic = $this->getTopic())
+                $current = array($topic->getId());
+            $choices = Topic::getHelpTopics(false, $topic ? (Topic::DISPLAY_DISABLED) : false, true, $current);
             return ChoiceField::init(array(
                         'id' => $fid,
                         'name' => "{$fid}_id",
                         'label' => __('Help Topic'),
                         'default' => $this->getTopicId(),
-                        'choices' => Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED)
+                        'choices' => $choices
                         ));
             break;
         case 'source':
@@ -3338,7 +3342,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     }
                 }
 
-                if (!$this->save())
+                if (!$errors && !$this->save())
                     $errors['field'] =  __('Unable to update field');
             }
         }
