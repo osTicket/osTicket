@@ -360,7 +360,7 @@ if($ticket->isOverdue())
                         ?>
                     </td>
                 </tr>
-				<tr>
+		<tr>
                     <th>
                         <?php echo __('Phone'); ?>:
                     </th>
