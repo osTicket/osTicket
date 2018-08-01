@@ -329,7 +329,7 @@ implements TemplateVariable, Searchable {
             $this->flags &= ~$flag;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array()) {
       global $cfg;
       static $topics, $names = array();
 
@@ -385,7 +385,8 @@ implements TemplateVariable, Searchable {
           $info = $topics[$id];
           if ($publicOnly && !$info['public'])
               continue;
-          if (!$disabled && $info['disabled'])
+          //if topic is disabled + we're not getting all topics OR topic is not in whitelist
+          if ($info['disabled'] && (!$disabled || ($whitelist && !in_array($id, $whitelist))))
               continue;
           if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
               $n .= " - ".__("(disabled)");
