@@ -31,19 +31,21 @@ if($_POST){
             if(!$filter){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
             }elseif($filter->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'), __('this ticket filter'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Correct error(s) below and try again.'),
-                    __('this ticket filter'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this ticket filter')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
             if((Filter::create($_POST,$errors))){
-                $msg=sprintf(__('Successfully updated %s'), __('this ticket filter'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this ticket filter'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this ticket filter')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -91,13 +93,13 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %s deleted'), $i, $count,
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                  _N('selected ticket filter', 'selected ticket filters', $count));
                         break;
                     default:
@@ -106,7 +108,7 @@ if($_POST){
             }
             break;
         default:
-            $errors['err']=__('Unknown command/action');
+            $errors['err']=__('Unknown action');
             break;
     }
 }

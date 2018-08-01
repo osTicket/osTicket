@@ -1,6 +1,10 @@
 jQuery(function() {
     var showtip = function (url, elem,xoffset) {
 
+            // If element is no longer visible
+            if (!elem.is(':visible'))
+                return;
+
             var pos = elem.offset();
             var y_pos = pos.top - 12;
             var x_pos = pos.left + (xoffset || (elem.width() + 16));
@@ -9,20 +13,25 @@ jQuery(function() {
             var tip_box = $('<div>').addClass('tip_box');
             var tip_shadow = $('<div>').addClass('tip_shadow');
             var tip_content = $('<div>').addClass('tip_content').load(url, function() {
-                tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
-            var width = $(window).width(),
-                rtl = $('html').hasClass('rtl'),
-                size = tip_content.outerWidth(),
-                left = the_tip.position().left,
-                left_room = left - size,
-                right_room = width - size - left,
-                flip = rtl
-                    ? (left_room > 0 && left_room > right_room)
-                    : (right_room < 0 && left_room > right_room);
-                if (flip) {
-                    the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
-                    tip_box.addClass('right');
-                    tip_arrow.addClass('flip-x');
+                if (elem.is(':visible')) {
+                    tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
+                    var width = $(window).width(),
+                    rtl = $('html').hasClass('rtl'),
+                    size = tip_content.outerWidth(),
+                    left = the_tip.position().left,
+                    left_room = left - size,
+                    right_room = width - size - left,
+                    flip = rtl
+                        ? (left_room > 0 && left_room > right_room)
+                        : (right_room < 0 && left_room > right_room);
+                    if (flip) {
+                        the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
+                        tip_box.addClass('right');
+                        tip_arrow.addClass('flip-x');
+                    }
+                } else {
+                    // Self close  if the element is gone
+                    $('.tip_box').remove();
                 }
             });
 
@@ -31,16 +40,22 @@ jQuery(function() {
                 "top":y_pos + "px",
                 "left":x_pos + "px"
             }).addClass(elem.data('id'));
+
+            // Close any open tips
             $('.tip_box').remove();
-            $('body').append(the_tip.hide().fadeIn());
-            $('.' + elem.data('id') + ' .tip_shadow').css({
-                "height":$('.' + elem.data('id')).height() + 5
-            });
+            // Only show the tip if the element is still visible.
+            if (elem.is(':visible')) {
+                $('body').append(the_tip.hide().fadeIn());
+                $('.' + elem.data('id') + ' .tip_shadow').css({
+                    "height":$('.' + elem.data('id')).height() + 5
+                });
+            }
     },
     getHelpTips = (function() {
         var dfd, cache = {};
-        return function(namespace) {
-            var namespace = namespace
+        return function(elem) {
+            var namespace =
+                   $(elem).closest('[data-tip-namespace]').data('tipNamespace')
                 || $('#content').data('tipNamespace')
                 || $('meta[name=tip-namespace]').attr('content');
             if (!namespace)
@@ -62,8 +77,8 @@ jQuery(function() {
 
     var tip_id = 1;
     //Generic tip.
-    $('.tip')
-    .live('click mouseover', function(e) {
+    $(document)
+    .on('click mouseover', '.tip', function(e) {
         e.preventDefault();
         if (!this.rel)
             this.rel = 'tip-' + (tip_id++);
@@ -84,12 +99,12 @@ jQuery(function() {
             }
         }
     })
-    .live('mouseout', function(e) {
+    .on('mouseout', '.tip', function(e) {
         clearTimeout($(this).data('timer'));
     });
 
-    $('.help-tip')
-    .live('mouseover click', function(e) {
+    $(document)
+    .on('mouseover click', '.help-tip', function(e) {
         e.preventDefault();
 
         var elem = $(this),
@@ -129,11 +144,11 @@ jQuery(function() {
                 }
             }, 500);
 
-        elem.live('mouseout', function() {
+        elem.on('mouseout', function() {
             clearTimeout(tip_timer);
         });
 
-        getHelpTips().then(function(tips) {
+        getHelpTips(elem).then(function(tips) {
             var href = elem.attr('href');
             if (href) {
                 section = tips[elem.attr('href').substr(1)];
@@ -174,7 +189,8 @@ jQuery(function() {
     });
 
     //faq preview tip
-    $('.previewfaq').live('mouseover', function(e) {
+    $(document)
+    .on('mouseover', '.previewfaq', function(e) {
         e.preventDefault();
         var elem = $(this);
 
@@ -193,12 +209,12 @@ jQuery(function() {
                 showtip(url,elem,xoffset);
             }
         }
-    }).live('mouseout', function(e) {
+    }).on('mouseout', '.previewfaq', function(e) {
         clearTimeout($(this).data('timer'));
     });
 
 
-    $('a.collaborators.preview').live('mouseover', function(e) {
+    $(document).on('mouseover', 'a.collaborators.preview', function(e) {
         e.preventDefault();
         var elem = $(this);
 
@@ -211,24 +227,27 @@ jQuery(function() {
         } else {
             showtip(url,elem,xoffset);
         }
-    }).live('mouseout', function(e) {
+    }).on('mouseout', 'a.collaborators.preview', function(e) {
         clearTimeout($(this).data('timer'));
-    }).live('click', function(e) {
+    }).on('click', 'a.collaborators.preview', function(e) {
         clearTimeout($(this).data('timer'));
         $('.tip_box').remove();
     });
 
 
-    //Ticket preview
-    $('.ticketPreview').live('mouseover', function(e) {
-        e.preventDefault();
+    // Tooltip preview
+    $(document).on('mouseover', '.preview', function(e) {
         var elem = $(this);
-
+        if (!elem.attr('href'))
+            return;
         var vars = elem.attr('href').split('=');
-        var url = 'ajax.php/tickets/'+vars[1]+'/preview';
-        var id='t'+vars[1];
+        if (!elem.data('preview'))
+            return;
+        e.preventDefault();
+        var url = 'ajax.php/'+elem.data('preview').substr(1);
+        // TODO - hash url to integer and use it as id.
+        var id= url.match(/\d/g).join("");
         var xoffset = 80;
-
         elem.data('timer', 0);
         if(!elem.data('id')) {
             elem.data('id', id);
@@ -240,33 +259,7 @@ jQuery(function() {
                 showtip(url,elem,xoffset);
             }
         }
-    }).live('mouseout', function(e) {
-        $(this).data('id', 0);
-        clearTimeout($(this).data('timer'));
-    });
-
-    //User preview
-    $('.userPreview').live('mouseover', function(e) {
-        e.preventDefault();
-        var elem = $(this);
-
-        var vars = elem.attr('href').split('=');
-        var url = 'ajax.php/users/'+vars[1]+'/preview';
-        var id='u'+vars[1];
-        var xoffset = 80;
-
-        elem.data('timer', 0);
-        if(!elem.data('id')) {
-            elem.data('id', id);
-            if(e.type=='mouseover') {
-                 /* wait about 1 sec - before showing the tip - mouseout kills the timeout*/
-                 elem.data('timer',setTimeout(function() { showtip(url,elem,xoffset);},750))
-            }else{
-                clearTimeout(elem.data('timer'));
-                showtip(url, elem, xoffset);
-            }
-        }
-    }).live('mouseout', function(e) {
+    }).on('mouseout', '.preview', function(e) {
         $(this).data('id', 0);
         clearTimeout($(this).data('timer'));
     });
@@ -277,7 +270,7 @@ jQuery(function() {
         $(this).parent().parent().remove();
     });
 
-    $(document).live('mouseup', function (e) {
+    $(document).on('mouseup', function (e) {
         var container = $('.tip_box');
         if (!container.is(e.target)
             && container.has(e.target).length === 0) {

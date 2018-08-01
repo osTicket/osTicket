@@ -48,8 +48,18 @@ function convert_html_to_text($html, $width=74) {
     $elements->getRoot()->addStylesheet(
         HtmlStylesheet::fromArray(array(
             'html' => array('white-space' => 'pre'), # Don't wrap footnotes
+            'center' => array('text-align' => 'center'),
             'p' => array('margin-bottom' => '1em'),
             'pre' => array('white-space' => 'pre'),
+            'u' => array('text-decoration' => 'underline'),
+            'a' => array('text-decoration' => 'underline'),
+            'b' => array('text-transform' => 'uppercase'),
+            'strong' => array('text-transform' => 'uppercase'),
+            'h4' => array('text-transform' => 'uppercase'),
+
+            // Crazy M$ styles
+            '.MsoNormal' => array('margin' => 0, 'margin-bottom' => 0.0001),
+            '.MsoPlainText' => array('margin' => 0, 'margin-bottom' => 0.0001),
         ))
     );
     $options = array();
@@ -108,6 +118,7 @@ function identify_node($node, $parent=null) {
         case "head":
         case "html":
         case "body":
+        case "center":
         case "div":
         case "p":
         case "pre":
@@ -129,13 +140,6 @@ function identify_node($node, $parent=null) {
         case "a":
             return new HtmlAElement($node, $parent);
 
-        case "b":
-        case "strong":
-            return new HtmlBElement($node, $parent);
-
-        case "u":
-            return new HtmlUElement($node, $parent);
-
         case "ol":
             return new HtmlListElement($node, $parent);
         case "ul":
@@ -152,8 +156,8 @@ function identify_node($node, $parent=null) {
 
         default:
             // print out contents of unknown tags
-            if ($node->hasChildNodes() && $node->childNodes->length == 1)
-                return identify_node($node->childNodes->item(0), $parent);
+            //if ($node->hasChildNodes() && $node->childNodes->length == 1)
+            //    return identify_node($node->childNodes->item(0), $parent);
 
             return new HtmlInlineElement($node, $parent);
     }
@@ -170,13 +174,14 @@ class HtmlInlineElement {
         $this->parent = $parent;
         $this->node = $node;
         $this->traverse($node);
+        $this->style = new CssStyleRules();
         if ($node instanceof DomElement
                 && ($style = $this->node->getAttribute('style')))
-            $this->style = new CssStyleRules($style);
+            $this->style->add($style);
     }
 
     function traverse($node) {
-        if ($node->hasChildNodes()) {
+        if ($node && $node->hasChildNodes()) {
             for ($i = 0; $i < $node->childNodes->length; $i++) {
                 $n = $node->childNodes->item($i);
                 $this->children[] = identify_node($n, $this);
@@ -188,6 +193,21 @@ class HtmlInlineElement {
         $output = '';
         $after_block = false;
         $this->ws = $this->getStyle('white-space', 'normal');
+        // Direction
+        if ($this->node)
+            $dir = $this->node->getAttribute('dir');
+
+        // Ensure we have a value, but don't emit a control char unless
+        // direction is declared
+        $this->dir = $dir ?: 'ltr';
+        switch (strtolower($dir)) {
+        case 'ltr':
+            $output .= "\xE2\x80\x8E"; # LEFT-TO-RIGHT MARK
+            break;
+        case 'rtl':
+            $output .= "\xE2\x80\x8F"; # RIGHT-TO-LEFT MARK
+            break;
+        }
         foreach ($this->children as $c) {
             if ($c instanceof DOMText) {
                 // Collapse white-space
@@ -201,6 +221,10 @@ class HtmlInlineElement {
                 case 'normal':
                 default:
                     if ($after_block) $more = ltrim($more);
+                    if ($this instanceof HtmlBlockElement && trim($more) == '')
+                        // Ignore pure whitespace in-between elements inside
+                        // block elements
+                        $more = '';
                     $more = preg_replace('/[ \r\n\t\f]+/mu', ' ', $more);
                 }
             }
@@ -209,6 +233,10 @@ class HtmlInlineElement {
             }
             else {
                 $more = $c;
+                if (!$after_block)
+                    // Prepend a newline. Block elements should start to the
+                    // far left
+                    $output .= "\n";
             }
             $after_block = ($c instanceof HtmlBlockElement);
             if ($more instanceof PreFormattedText)
@@ -216,7 +244,22 @@ class HtmlInlineElement {
             elseif (is_string($more))
                 $output .= $more;
         }
+        switch ($this->getStyle('text-transform', 'none')) {
+        case 'uppercase':
+            $output = mb_strtoupper($output);
+            break;
+        }
+        switch ($this->getStyle('text-decoration', 'none')) {
+        case 'underline':
+            // Split diacritics and underline chars which do not go below
+            // the baseline
+            if (class_exists('Normalizer'))
+                $output = Normalizer::normalize($output, Normalizer::FORM_D);
+            $output = preg_replace("/[a-fhik-or-xzA-PR-Z0-9#]/u", "$0\xcc\xb2", $output);
+            break;
+        }
         if ($this->footnotes) {
+            $output = rtrim($output, "\n");
             $output .= "\n\n" . str_repeat('-', $width/2) . "\n";
             $id = 1;
             foreach ($this->footnotes as $name=>$content)
@@ -232,20 +275,25 @@ class HtmlInlineElement {
                 if ($c instanceof HtmlInlineElement)
                     $this->weight += $c->getWeight();
                 elseif ($c instanceof DomText)
-                    $this->weight += mb_strwidth($c->wholeText);
+                    $this->weight += mb_strwidth2($c->wholeText);
             }
         }
         return $this->weight;
     }
 
+    function setStyle($property, $value) {
+        $this->style->set($property, $value);
+    }
+
     function getStyle($property, $default=null, $tag=false, $classes=false) {
         if ($this->style && $this->style->has($property))
-            return $this->style->get($property);
+            return $this->style->get($property, $default);
 
-        if ($tag === false)
+        if ($this->node && $tag === false)
             $tag = $this->node->nodeName;
+
         if ($classes === false) {
-            if ($c = $this->node->getAttribute('class'))
+            if ($this->node && ($c = $this->node->getAttribute('class')))
                 $classes = explode(' ', $c);
             else
                 $classes = array();
@@ -284,6 +332,14 @@ class HtmlInlineElement {
 
 class HtmlBlockElement extends HtmlInlineElement {
     var $min_width = false;
+    var $pad_left;
+    var $pad_right;
+
+    function __construct($node, $parent) {
+        parent::__construct($node, $parent);
+        $this->pad_left = str_repeat(' ', $this->getStyle('padding-left', 0.0));
+        $this->pad_right = str_repeat(' ', $this->getStyle('padding-right', 0.0));
+    }
 
     function render($width, $options) {
         // Allow room for the border.
@@ -295,11 +351,15 @@ class HtmlBlockElement extends HtmlInlineElement {
         $output = parent::render($width, $options);
         if ($output instanceof PreFormattedText)
             // TODO: Consider CSS rules
-            return new PreFormattedText("\n" . $output);
+            return $output;
 
+        // Leading and trailing whitespace is ignored in block elements
         $output = trim($output);
         if (!strlen($output))
             return "";
+
+        // Padding
+        $width -= strlen($this->pad_left) + strlen($this->pad_right);
 
         // Wordwrap the content to the width
         switch ($this->ws) {
@@ -313,17 +373,41 @@ class HtmlBlockElement extends HtmlInlineElement {
                 $output = mb_wordwrap($output, $width, "\n", true);
         }
 
-        // Apply stylesheet styles
-        // TODO: Padding
-        // TODO: Justification
+        // Justification
+        static $aligns = array(
+            'left' => STR_PAD_RIGHT,
+            'right' => STR_PAD_LEFT,
+            'center' => STR_PAD_BOTH,
+        );
+        $talign = $this->getStyle('text-align', 'none');
+        $self = $this;
+        if (isset($aligns[$talign])) {
+            // Explode lines, justify, implode again
+            $output = array_map(function($l) use ($talign, $aligns, $width, $self) {
+                return $self->pad_left.mb_str_pad($l, $width, ' ', $aligns[$talign]).$self->pad_right;
+            }, explode("\n", $output)
+            );
+            $output = implode("\n", $output);
+        }
+        // Apply left and right padding, if specified
+        elseif ($this->pad_left || $this->pad_right) {
+            $output = array_map(function($l) use ($self) {
+                return $self->pad_left.$l.$self->pad_right;
+            }, explode("\n", $output)
+            );
+            $output = implode("\n", $output);
+        }
+
         // Border
         if ($bw)
             $output = self::borderize($output, $width);
+
         // Margin
-        $mb = $this->getStyle('margin-bottom', 0);
+        $mb = $this->getStyle('margin-bottom', 0.0)
+            + $this->getStyle('padding-bottom', 0.0);
         $output .= str_repeat("\n", (int)$mb);
 
-        return "\n" . $output;
+        return $output."\n";
     }
 
     function borderize($what, $width) {
@@ -340,11 +424,11 @@ class HtmlBlockElement extends HtmlInlineElement {
                 if ($c instanceof HtmlBlockElement)
                     $this->min_width = max($c->getMinWidth(), $this->min_width);
                 elseif ($c instanceof DomText)
-                    $this->min_width = max(max(array_map('mb_strwidth',
+                    $this->min_width = max(max(array_map('mb_strwidth2',
                         explode(' ', $c->wholeText))), $this->min_width);
             }
         }
-        return $this->min_width;
+        return $this->min_width + strlen($this->pad_left) + strlen($this->pad_right);
     }
 }
 
@@ -353,25 +437,10 @@ class HtmlBrElement extends HtmlBlockElement {
         return "\n";
     }
 }
-class HtmlUElement extends HtmlInlineElement {
-    function render($width, $options) {
-        $output = parent::render($width, $options);
-        return "_".str_replace(" ", "_", $output)."_";
-    }
-    function getWeight() { return parent::getWeight() + 2; }
-}
-
-class HtmlBElement extends HtmlInlineElement {
-    function render($width, $options) {
-        $output = parent::render($width, $options);
-        return "*".$output."*";
-    }
-    function getWeight() { return parent::getWeight() + 2; }
-}
 
 class HtmlHrElement extends HtmlBlockElement {
     function render($width, $options) {
-        return "\n".str_repeat('-', $width)."\n";
+        return str_repeat("\xE2\x94\x80", $width)."\n";
     }
     function getWeight() { return 1; }
     function getMinWidth() { return 0; }
@@ -384,18 +453,19 @@ class HtmlHeadlineElement extends HtmlBlockElement {
             return "";
         switch ($this->node->nodeName) {
             case 'h1':
+                $line = "\xE2\x95\x90"; # U+2505
+                break;
             case 'h2':
-                $line = '=';
+                $line = "\xE2\x94\x81"; # U+2501
                 break;
             case 'h3':
-            case 'h4':
-                $line = '-';
+                $line = "\xE2\x94\x80"; # U+2500
                 break;
             default:
                 return $headline;
         }
-        $length = max(array_map('mb_strwidth', explode("\n", $headline)));
-        $headline .= "\n" . str_repeat($line, $length) . "\n";
+        $length = max(array_map('mb_strwidth2', explode("\n", $headline)));
+        $headline .= str_repeat($line, $length) . "\n";
         return $headline;
     }
 }
@@ -430,7 +500,7 @@ class HtmlImgElement extends HtmlInlineElement {
         return "[image:$alt$title] ";
     }
     function getWeight() {
-        return mb_strwidth($this->node->getAttribute("alt")) + 8;
+        return mb_strwidth2($this->node->getAttribute("alt")) + 8;
     }
 }
 
@@ -447,8 +517,8 @@ class HtmlAElement extends HtmlInlineElement {
         } elseif (strpos($href, 'mailto:') === 0) {
             $href = substr($href, 7);
             $output = (($href != $output) ? "$href " : '') . "<$output>";
-        } elseif (mb_strwidth($href) > $width / 2) {
-            if (mb_strwidth($output) > $width / 2) {
+        } elseif (mb_strwidth2($href) > $width / 2) {
+            if (mb_strwidth2($output) > $width / 2) {
                 // Parse URL and use relative path part
                 if ($PU = parse_url($output))
                     $output = $PU['host'] . $PU['path'];
@@ -491,17 +561,17 @@ class HtmlUnorderedListElement extends HtmlListElement {
 }
 
 class HtmlListItem extends HtmlBlockElement {
-    function HtmlListItem($node, $parent, $number) {
+    function __construct($node, $parent, $number) {
         parent::__construct($node, $parent);
         $this->number = $number;
     }
 
     function render($width, $options) {
         $prefix = sprintf($options['marker'], $this->number);
-        $lines = explode("\n", trim(parent::render($width-mb_strwidth($prefix), $options)));
+        $lines = explode("\n", trim(parent::render($width-mb_strwidth2($prefix), $options)));
         $lines[0] = $prefix . $lines[0];
         return new PreFormattedText(
-            implode("\n".str_repeat(" ", mb_strwidth($prefix)), $lines)."\n");
+            implode("\n".str_repeat(" ", mb_strwidth2($prefix)), $lines)."\n");
     }
 }
 
@@ -516,11 +586,23 @@ class HtmlCodeElement extends HtmlInlineElement {
 }
 
 class HtmlTable extends HtmlBlockElement {
+    var $body;
+    var $foot;
+    var $rows;
+    var $border = true;
+    var $padding = true;
+
     function __construct($node, $parent) {
         $this->body = array();
         $this->foot = array();
         $this->rows = &$this->body;
         parent::__construct($node, $parent);
+        $A = $this->node->getAttribute('border');
+        if (isset($A))
+            $this->border = (bool) $A;
+        $A = $this->node->getAttribute('cellpadding');
+        if (isset($A))
+            $this->padding = (bool) $A;
     }
 
     function getMinWidth() {
@@ -529,7 +611,7 @@ class HtmlTable extends HtmlBlockElement {
                 foreach ($r as $cell)
                     $this->min_width = max($this->min_width, $cell->getMinWidth());
         }
-        return $this->min_width + 4;
+        return $this->min_width + ($this->border ? 2 : 0) + ($this->padding ? 2 : 0);
     }
 
     function getWeight() {
@@ -628,6 +710,7 @@ class HtmlTable extends HtmlBlockElement {
             $i = 0;
             foreach ($r as $cell) {
                 for ($j=0; $j<$cell->cols; $j++) {
+                    // TODO: Use cell-specified width
                     $weights[$i] = max($weights[$i], $cell->getWeight());
                     $mins[$i] = max($mins[$i], $cell->getMinWidth());
                 }
@@ -636,7 +719,8 @@ class HtmlTable extends HtmlBlockElement {
         }
 
         # Subtract internal padding and borders from the available width
-        $inner_width = $width - $cols*3 - 1;
+        $inner_width = $width - ($this->border ? $cols + 1 : 0)
+            - ($this->padding ? $cols*2 : 0);
 
         # Optimal case, where the preferred width of all the columns is
         # doable
@@ -655,7 +739,9 @@ class HtmlTable extends HtmlBlockElement {
                 $widths[] = (int)($inner_width * $c / $total);
             $this->_fixupWidths($widths, $mins);
         }
-        $outer_width = array_sum($widths) + $cols*3 + 1;
+        $outer_width = array_sum($widths)
+            + ($this->border ? $cols + 1 : 0)
+            + ($this->padding ? $cols * 2 : 0);
 
         $contents = array();
         $heights = array();
@@ -671,7 +757,8 @@ class HtmlTable extends HtmlBlockElement {
                 # Compute the effective cell width for spanned columns
                 # Add extra space for the unneeded border padding for
                 # spanned columns
-                $cwidth = ($cell->cols - 1) * 3;
+                $cwidth = ($this->border ? ($cell->cols - 1) : 0)
+                    + ($this->padding ? ($cell->cols - 1) * 2 : 0);
                 for ($j = 0; $j < $cell->cols; $j++)
                     $cwidth += $widths[$x+$j];
                 # Stash the computed width so it doesn't need to be
@@ -679,7 +766,8 @@ class HtmlTable extends HtmlBlockElement {
                 $cell->width = $cwidth;
                 unset($data);
                 $data = explode("\n", $cell->render($cwidth, $options));
-                $heights[$y] = max(count($data), $heights[$y]);
+                // NOTE: block elements have trailing newline
+                $heights[$y] = max(count($data)-1, $heights[$y]);
                 $contents[$y][$i] = &$data;
                 $x += $cell->cols;
             }
@@ -687,29 +775,34 @@ class HtmlTable extends HtmlBlockElement {
 
         # Build the header
         $header = "";
-        for ($i = 0; $i < $cols; $i++)
-            $header .= "+-" . str_repeat("-", $widths[$i]) . "-";
-        $header .= "+";
+        if ($this->border) {
+            $padding = $this->padding ? '-' : '';
+            for ($i = 0; $i < $cols; $i++) {
+                $header .= '+'.$padding.str_repeat("-", $widths[$i]).$padding;
+            }
+            $header .= "+\n";
+        }
 
         # Emit the rows
-        $output = "\n";
         if (isset($this->caption)) {
             $this->caption = $this->caption->render($outer_width, $options);
         }
+        $border = $this->border ? '|' : '';
+        $padding = $this->padding ? ' ' : '';
         foreach ($rows as $y=>$r) {
-            $output .= $header . "\n";
+            $output .= $header;
             for ($x = 0, $k = 0; $k < $heights[$y]; $k++) {
-                $output .= "|";
+                $output .= $border;
                 foreach ($r as $x=>$cell) {
                     $content = (isset($contents[$y][$x][$k]))
                         ? $contents[$y][$x][$k] : "";
-                    $output .= " ".mb_str_pad($content, $cell->width)." |";
+                    $output .= $padding.mb_str_pad($content, $cell->width).$padding.$border;
                     $x += $cell->cols;
                 }
                 $output .= "\n";
             }
         }
-        $output .= $header . "\n";
+        $output .= $header;
         return new PreFormattedText($output);
     }
 }
@@ -722,10 +815,14 @@ class HtmlTableCell extends HtmlBlockElement {
 
         if (!$this->cols) $this->cols = 1;
         if (!$this->rows) $this->rows = 1;
+
+        // Upgrade old attributes
+        if ($A = $this->node->getAttribute('align'))
+            $this->setStyle('text-align', $A);
     }
 
     function render($width, $options) {
-        return ltrim(parent::render($width, $options));
+        return parent::render($width, $options);
     }
 
     function getWeight() {
@@ -784,13 +881,48 @@ class HtmlStylesheet {
 class CssStyleRules {
     var $rules = array();
 
-    function __construct($rules) {
+    static $compact_rules = array(
+        'padding' => 1,
+    );
+
+    function __construct($rules='') {
+        if ($rules)
+            $this->add($rules);
+    }
+
+    function add($rules) {
         foreach (explode(';', $rules) as $r) {
             if (strpos($r, ':') === false)
                 continue;
             list($prop, $val) = explode(':', $r);
-            $this->rules[trim($prop)] = trim($val);
+            $prop = trim($prop);
             // TODO: Explode compact rules, like 'border', 'margin', etc.
+            if (isset(self::$compact_rules[$prop]))
+                $this->expand($prop, trim($val));
+            else
+                $this->rules[$prop] = trim($val);
+        }
+    }
+
+    function expand($prop, $val) {
+        switch (strtolower($prop)) {
+        case 'padding':
+            @list($a, $b, $c, $d) = preg_split('/\s+/', $val);
+            if (!isset($b)) {
+                $d = $c = $b = $a;
+            }
+            elseif (!isset($c)) {
+                $d = $b;
+                $c = $a;
+            }
+            elseif (!isset($d)) {
+                $d = $b;
+            }
+            $this->rules['padding-top'] = $a;
+            $this->styles['padding-right'] = $b;
+            $this->rules['padding-bottom'] = $c;
+            $this->rules['padding-left'] = $d;
+
         }
     }
 
@@ -816,18 +948,26 @@ class CssStyleRules {
         return $val;
     }
 
-    static function convert($value, $units) {
+    function set($prop, $value) {
+        $this->rules[$prop] = $value;
+    }
+
+    static function convert($value, $units, $max=0) {
         if ($value === null)
             return $value;
 
         // Converts common CSS units to units of characters
         switch ($units) {
+            default:
+                if (substr($units, -1) == '%') {
+                    return ((float) $value) * 0.01 * $max;
+                }
             case 'px':
-                return $value / 20.0;
+                // 600px =~ 60chars
+                return (int) ($value / 10.0);
             case 'pt':
                 return $value / 12.0;
             case 'em':
-            default:
                 return $value;
         }
     }
@@ -853,6 +993,10 @@ if (!function_exists('mb_strwidth')) {
         return mb_strlen($string);
     }
 }
+function mb_strwidth2($string) {
+    $junk = array();
+    return mb_strwidth($string) - preg_match_all("/\p{M}/u", $string, $junk);
+}
 
 // Thanks http://www.php.net/manual/en/function.wordwrap.php#107570
 // @see http://www.tads.org/t3doc/doc/htmltads/linebrk.htm
@@ -864,7 +1008,8 @@ function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
   if ($cut) {
     // Match anything 1 to $width chars long followed by whitespace or EOS,
     // otherwise match anything $width chars long
-    $search = '/(.{1,'.$width.'})(?:\s|$|(\p{Ps}))|(.{'.$width.'})/uS';
+    $search = '/((?>[^\n\p{M}]\p{M}*){1,'.$width.'})(?:[ \n]|$|(\p{Ps}))|((?>[^\n\p{M}]\p{M}*){'
+          .$width.'})/uS'; # <?php
     $replace = '$1$3'.$break.'$2';
   } else {
     // Anchor the beginning of the pattern with a lookahead
@@ -878,8 +1023,10 @@ function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
 // Thanks http://www.php.net/manual/en/ref.mbstring.php#90611
 function mb_str_pad($input, $pad_length, $pad_string=" ",
         $pad_style=STR_PAD_RIGHT) {
+    $match = array();
+    $marks = preg_match_all('/\p{M}/u', $input, $match);
     return str_pad($input,
-        strlen($input)-mb_strwidth($input)+$pad_length, $pad_string,
+        strlen($input)-mb_strwidth($input)+$marks+$pad_length, $pad_string,
         $pad_style);
 }
 

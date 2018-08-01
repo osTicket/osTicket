@@ -19,30 +19,33 @@ include_once(INCLUDE_DIR.'class.sla.php');
 $sla=null;
 if($_REQUEST['id'] && !($sla=SLA::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
-        __('SLA plan'));
+        __('SLA Plan'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$sla){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'),
-                    __('SLA plan'));
+                    __('SLA Plan'));
             }elseif($sla->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this SLA plan'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'),
-                    __('this SLA plan'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this SLA plan')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
-            if(($id=SLA::create($_POST,$errors))){
-                $msg=sprintf(__('Successfully added %s'),
+            $_sla = SLA::create();
+            if (($_sla->update($_POST, $errors))) {
+                $msg=sprintf(__('Successfully added %s.'),
                     __('a SLA plan'));
                 $_REQUEST['a']=null;
-            }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this SLA plan'));
+            } elseif (!$errors['err']) {
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this SLA plan')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -53,10 +56,13 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.SLA_TABLE.' SET isactive=1 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = SLA::objects()->filter(array(
+                            'id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags' => SqlExpression::bitor(
+                                new SqlField('flags'), SLA::FLAG_ACTIVE)
+                        ));
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected SLA plan', 'selected SLA plans', $count));
@@ -69,9 +75,14 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.SLA_TABLE.' SET isactive=0 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = SLA::objects()->filter(array(
+                            'id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags' => SqlExpression::bitand(
+                                new SqlField('flags'), ~SLA::FLAG_ACTIVE)
+                        ));
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected SLA plan', 'selected SLA plans', $count));
@@ -85,7 +96,7 @@ if($_POST){
                         break;
                     case 'delete':
                         $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
+                        foreach ($_POST['ids'] as $k => $v) {
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete())
@@ -93,13 +104,13 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected SLA plan', 'selected SLA plans', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected SLA plan', 'selected SLA plans', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected SLA plan', 'selected SLA plans', $count));
                         break;
                     default:

@@ -25,20 +25,23 @@ if($_POST){
             if(!$team){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('team'));
             }elseif($team->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this team'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to update %s. Correct any error(s) below and try again.'),
-                    __('this team'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this team')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
-            if(($id=Team::create($_POST,$errors))){
-                $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['team']));
+            $team = Team::create();
+            if (($team->update($_POST, $errors))){
+                $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['team']));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this team'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this team')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -48,10 +51,16 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 '
-                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Team::objects()->filter(array(
+                            'team_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags' => SqlExpression::bitor(
+                                new SqlField('flags'),
+                                Team::FLAG_ENABLED
+                            )
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully activated %s'),
                                     _N('selected team', 'selected teams', $count));
@@ -64,10 +73,16 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 '
-                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Team::objects()->filter(array(
+                            'team_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags' => SqlExpression::bitand(
+                                new SqlField('flags'),
+                                ~Team::FLAG_ENABLED
+                            )
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected team', 'selected teams', $count));
@@ -85,13 +100,13 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected team', 'selected teams', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected team', 'selected teams', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected team', 'selected teams', $count));
                         break;
                     default:

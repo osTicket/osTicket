@@ -19,6 +19,7 @@ require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.dept.php');
 require_once(INCLUDE_DIR.'class.email.php');
 require_once(INCLUDE_DIR.'class.filter.php');
+require_once(INCLUDE_DIR.'class.banlist.php');
 require_once(INCLUDE_DIR.'tnef_decoder.php');
 
 class MailFetcher {
@@ -32,7 +33,7 @@ class MailFetcher {
 
     var $tnef = false;
 
-    function MailFetcher($email, $charset='UTF-8') {
+    function __construct($email, $charset='UTF-8') {
 
 
         if($email && is_numeric($email)) //email_id
@@ -193,6 +194,30 @@ class MailFetcher {
             $text=imap_binary($text);
             break;
             case 3:
+            if (strlen($text) > (1 << 20)) {
+                try {
+                    if (!($temp = tempnam(sys_get_temp_dir(), 'attachments'))
+                        || !($f = fopen($temp, 'w'))
+                        ) {
+                            throw new Exception();
+                    }
+                    $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
+                    if (!fwrite($f, $text))
+                        throw new Exception();
+                    stream_filter_remove($s_filter); 
+                    fclose($f);
+                    if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp))))
+                        throw new Exception();
+                    fclose($f);
+                    unlink($temp);
+                    break;
+                }
+                catch (Exception $e) {
+                    // Noop. Fall through to imap_base64 method below
+                    @fclose($f);
+                    @unlink($temp);
+                }
+            }
             // imap_base64 implies strict mode. If it refuses to decode the
             // data, then fallback to base64_decode in non-strict mode
             $text = (($conv=imap_base64($text))) ? $conv : base64_decode($text);
@@ -206,7 +231,7 @@ class MailFetcher {
 
     //Convert text to desired encoding..defaults to utf8
     function mime_encode($text, $charset=null, $encoding='utf-8') { //Thank in part to afterburner
-        return Format::encode($text, $charset, $encoding);
+        return Charset::transcode($text, $charset, $encoding);
     }
 
     function mailbox_encode($mailbox) {
@@ -240,7 +265,7 @@ class MailFetcher {
         if (function_exists('mb_detect_encoding'))
             if (($src_enc = mb_detect_encoding($text))
                     && (strcasecmp($src_enc, 'ASCII') !== 0))
-                return Format::encode($text, $src_enc, $encoding);
+                return Charset::transcode($text, $src_enc, $encoding);
 
         // Handle ASCII text and RFC-2047 encoding
         $str = '';
@@ -346,16 +371,21 @@ class MailFetcher {
 
         // Ensure we have a message-id. If unable to read it out of the
         // email, use the hash of the entire email headers
-        if (!$header['mid'] && $header['header'])
-            if (!($header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
-                    'message-id')))
+        if (!$header['mid'] && $header['header']) {
+            $header['mid'] = Mail_Parse::findHeaderEntry($header['header'],
+                    'message-id');
+
+            if (is_array($header['mid']))
+                $header['mid'] = array_pop(array_filter($header['mid']));
+            if (!$header['mid'])
                 $header['mid'] = '<' . md5($header['header']) . '@local>';
+        }
 
         return $header;
     }
 
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1, $recurseIntoRfc822=true) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -391,15 +421,21 @@ class MailFetcher {
                 && ($content = $this->tnef->getBody('text/html', $encoding)))
             return $content;
 
-        //Do recursive search
-        $text='';
-        if($struct && $struct->parts && $recurse) {
+        // Do recursive search
+        $text = '';
+        $ctype = $this->getMimeType($struct);
+        if ($struct && $struct->parts && $recurse
+            // Do not recurse into email (rfc822) attachments unless requested
+            && (strtolower($ctype) !== 'message/rfc822' || $recurseIntoRfc822)
+        ) {
             while(list($i, $substruct) = each($struct->parts)) {
-                if($partNumber)
+                if ($partNumber)
                     $prefix = $partNumber . '.';
-                if (($result=$this->getPart($mid, $mimeType, $encoding,
-                        $substruct, $prefix.($i+1), $recurse-1)))
-                    $text.=$result;
+                if ($result = $this->getPart($mid, $mimeType, $encoding,
+                    $substruct, $prefix.($i+1), $recurse-1, $recurseIntoRfc822)
+                ) {
+                    $text .= $result;
+                }
             }
         }
 
@@ -514,9 +550,13 @@ class MailFetcher {
         if (strtolower($ctype) == 'multipart/report') {
             foreach ($struct->parameters as $p) {
                 if (strtolower($p->attribute) == 'report-type'
-                        && $p->value == 'delivery-status') {
-                    return new TextThreadBody( $this->getPart(
-                                $mid, 'text/plain', $this->charset, $struct, false, 1));
+                    && $p->value == 'delivery-status'
+                ) {
+                    if ($body = $this->getPart(
+                        $mid, 'text/plain', $this->charset, $struct, false, 3, false
+                    )) {
+                        return new TextThreadEntryBody($body);
+                    }
                 }
             }
         }
@@ -543,31 +583,41 @@ class MailFetcher {
     }
 
     function getPriority($mid) {
-        if ($this->tnef && isset($this->tnef->Importance))
-            // PidTagImportance is 0, 1, or 2
+        if ($this->tnef && isset($this->tnef->Importance)) {
+            // PidTagImportance is 0, 1, or 2, 2 is high
             // http://msdn.microsoft.com/en-us/library/ee237166(v=exchg.80).aspx
-            return $this->tnef->Importance + 1;
-        return Mail_Parse::parsePriority($this->getHeader($mid));
+            $urgency = 4 - $this->tnef->Importance;
+        }
+        elseif ($priority = Mail_Parse::parsePriority($this->getHeader($mid))) {
+            $urgency = $priority + 1;
+        }
+        if ($urgency) {
+            $sql = 'SELECT `priority_id` FROM '.PRIORITY_TABLE
+                .' WHERE `priority_urgency`='.db_input($urgency)
+                .' LIMIT 1';
+            $id = db_result(db_query($sql));
+            return $id;
+        }
     }
 
     function getBody($mid) {
         global $cfg;
 
-        if ($cfg->isHtmlThreadEnabled()) {
+        if ($cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($mid, 'text/html', $this->charset))
-                $body = new HtmlThreadBody($html);
+                $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
-                $body = new TextThreadBody($text);
+                $body = new TextThreadEntryBody($text);
         }
         elseif ($text=$this->getPart($mid, 'text/plain', $this->charset))
-            $body = new TextThreadBody($text);
+            $body = new TextThreadEntryBody($text);
         elseif ($html=$this->getPart($mid, 'text/html', $this->charset))
-            $body = new TextThreadBody(
+            $body = new TextThreadEntryBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
 
         if (!isset($body))
-            $body = new TextThreadBody('');
+            $body = new TextThreadEntryBody('');
 
         if ($cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
@@ -579,6 +629,7 @@ class MailFetcher {
     function createTicket($mid) {
         global $ost;
 
+        unset($this->tnef);
         if(!($mailinfo = $this->getHeaderInfo($mid)))
             return false;
 
@@ -600,7 +651,7 @@ class MailFetcher {
         }
 
 	    //Is the email address banned?
-        if($mailinfo['email'] && TicketFilter::isBanned($mailinfo['email'])) {
+        if($mailinfo['email'] && Banlist::isBanned($mailinfo['email'])) {
 	        //We need to let admin know...
             $ost->logWarning(_S('Ticket denied'),
                 sprintf(_S('Banned email — %s'),$mailinfo['email']), false);
@@ -633,22 +684,22 @@ class MailFetcher {
         $vars['subject'] = $mailinfo['subject'] ?: '[No Subject]';
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
-        $vars['flags'] = new ArrayObject();
+        $vars['mailflags'] = new ArrayObject();
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
             if ($headers = $this->getOriginalMessageHeaders($mid)) {
                 $vars['references'] = $headers['references'];
-                $vars['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+                $vars['in-reply-to'] = $headers['message-id'] ?: @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
-            $vars['message'] = $this->getDeliveryStatusMessage($mid);
+            $vars['message'] = $this->getDeliveryStatusMessage($mid) ?: $this->getBody($mid);
             $vars['thread-type'] = 'N';
-            $vars['flags']['bounce'] = true;
+            $vars['mailflags']['bounce'] = true;
         }
         else {
             $vars['message'] = $this->getBody($mid);
-            $vars['flags']['bounce'] = TicketFilter::isBounce($info);
+            $vars['mailflags']['bounce'] = TicketFilter::isBounce($info);
         }
 
 
@@ -706,7 +757,8 @@ class MailFetcher {
 
                 // Validate and save immediately
                 try {
-                    $file['id'] = $fileField->uploadAttachment($file);
+                    if ($f = $fileField->uploadAttachment($file))
+                        $file['id'] = $f->getId();
                 }
                 catch (FileUploadError $ex) {
                     $file['error'] = $file['name'] . ': ' . $ex->getMessage();
@@ -720,23 +772,31 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
-        if (($thread = ThreadEntry::lookupByEmailHeaders($vars, $seen))
-                && ($t=$thread->getTicket())
-                && ($vars['staffId']
-                    || !$t->isClosed()
-                    || $t->isReopenable())
-                && ($message = $thread->postEmail($vars))) {
+        if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+            && ($message = $entry->postEmail($vars))
+        ) {
             if (!$message instanceof ThreadEntry)
                 // Email has been processed previously
                 return $message;
-            $ticket = $message->getTicket();
-        } elseif ($seen) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $message->getThread()->getObject();
+        }
+        elseif ($seen) {
             // Already processed, but for some reason (like rejection), no
             // thread item was created. Ignore the email
             return true;
-        } elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
+        }
+        // Allow continuation of thread without initial message or note
+        elseif (($thread = Thread::lookupByEmailHeaders($vars))
+            && ($message = $thread->postEmail($vars))
+        ) {
+            // NOTE: This might not be a "ticket"
+            $ticket = $thread->getObject();
+        }
+        elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
-        } else {
+        }
+        else {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 // Never process this email again!

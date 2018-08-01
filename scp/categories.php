@@ -17,7 +17,8 @@ require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.category.php');
 
 /* check permission */
-if(!$thisstaff || !$thisstaff->canManageFAQ()) {
+if(!$thisstaff ||
+        !$thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
     header('Location: kb.php');
     exit;
 }
@@ -25,41 +26,47 @@ if(!$thisstaff || !$thisstaff->canManageFAQ()) {
 
 $category=null;
 if($_REQUEST['id'] && !($category=Category::lookup($_REQUEST['id'])))
-    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('category'));
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('Category'));
 
 if($_POST){
     switch(strtolower($_POST['do'])) {
         case 'update':
             if(!$category) {
-                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('category'));
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('Category'));
             } elseif($category->update($_POST,$errors)) {
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this category'));
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Error updating %s. Correct error(s) below and try again.'), __('this category'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this category')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
-            if(($id=Category::create($_POST,$errors))) {
-                $msg=sprintf(__('Successfull added %s'), Format::htmlchars($_POST['name']));
+            $category = Category::create();
+            if ($category->update($_POST, $errors)) {
+                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this category'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this category')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']=sprintf(__('You must select at least %s'), __('one category'));
+                $errors['err']=sprintf(__('You must select at least %s.'), __('one category'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'make_public':
-                        $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=1 '
-                            .' WHERE category_id IN ('.implode(',', db_input($_POST['ids'])).')';
-
-                        if(db_query($sql) && ($num=db_affected_rows())) {
-                            if($num==$count)
+                        $num = Category::objects()->filter(array(
+                            'category_id__in'=>$_POST['ids']
+                        ))->update(array(
+                            'ispublic'=>true
+                        ));
+                        if ($num > 0) {
+                            if ($num==$count)
                                 $msg = sprintf(__('Successfully made %s PUBLIC'),
                                     _N('selected category', 'selected categories', $count));
                             else
@@ -71,10 +78,12 @@ if($_POST){
                         }
                         break;
                     case 'make_private':
-                        $sql='UPDATE '.FAQ_CATEGORY_TABLE.' SET ispublic=0 '
-                            .' WHERE category_id IN ('.implode(',', db_input($_POST['ids'])).')';
-
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = Category::objects()->filter(array(
+                            'category_id__in'=>$_POST['ids']
+                        ))->update(array(
+                            'ispublic'=>false
+                        ));
+                        if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully made %s PRIVATE'),
                                     _N('selected category', 'selected categories', $count));
@@ -87,20 +96,18 @@ if($_POST){
                         }
                         break;
                     case 'delete':
-                        $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
-                            if(($c=Category::lookup($v)) && $c->delete())
-                                $i++;
-                        }
+                        $i = Category::objects()->filter(array(
+                            'category_id__in'=>$_POST['ids']
+                        ))->delete();
 
-                        if($i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                        if ($i==$count)
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected category', 'selected categories', $count));
-                        elseif($i>0)
+                        elseif ($i > 0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected category', 'selected categories', $count));
-                        elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                        elseif (!$errors['err'])
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected category', 'selected categories', $count));
                         break;
                     default:

@@ -20,25 +20,29 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
 <?php } ?>
 <?php if ($form->getTitle()) { ?>
     <tr><th colspan="2">
-        <em><strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
-        <?php echo Format::htmlchars($form->getInstructions()); ?>
+        <em>
 <?php if ($options['mode'] == 'edit') { ?>
         <div class="pull-right">
     <?php if ($options['entry']
-                && $options['entry']->getForm()->get('type') == 'G') { ?>
+                && $options['entry']->getDynamicForm()->get('type') == 'G') { ?>
             <a href="#" title="Delete Entry" onclick="javascript:
                 $(this).closest('tbody').remove();
                 return false;"><i class="icon-trash"></i></a>&nbsp;
     <?php } ?>
             <i class="icon-sort" title="Drag to Sort"></i>
         </div>
-<?php } ?></em>
+<?php } ?>
+        <strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
+        <div><?php echo Format::display($form->getInstructions()); ?></div>
+        </em>
     </th></tr>
     <?php
     }
     foreach ($form->getFields() as $field) {
         try {
-            if (!$field->isVisibleToStaff())
+            if (!$field->isEnabled())
+                continue;
+            if ($options['mode'] == 'edit' && !$field->isEditableToStaff())
                 continue;
         }
         catch (Exception $e) {
@@ -50,18 +54,18 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <?php
             }
             else { ?>
-                <td class="multi-line <?php if ($field->get('required')) echo 'required';
+                <td class="multi-line <?php if ($field->isRequiredForStaff() || $field->isRequiredForClose()) echo 'required';
                 ?>" style="min-width:120px;" <?php if ($options['width'])
                     echo "width=\"{$options['width']}\""; ?>>
-                <?php echo Format::htmlchars($field->get('label')); ?>:</td>
+                <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
                 <td><div style="position:relative"><?php
             }
-            $field->render(); ?>
-            <?php if ($field->get('required')) { ?>
-                <font class="error">*</font>
+            $field->render($options); ?>
+            <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
+                <span class="error">*</span>
             <?php
             }
-            if (($a = $field->getAnswer()) && $a->isDeleted()) {
+            if ($field->isStorable() && ($a = $field->getAnswer()) && $a->isDeleted()) {
                 ?><a class="action-button float-right danger overlay" title="Delete this data"
                     href="#delete-answer"
                     onclick="javascript:if (confirm('<?php echo __('You sure?'); ?>'))
@@ -77,14 +81,19 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
                 ?>"> <i class="icon-trash"></i> </a></div><?php
             }
+            if ($a && !$a->getValue() && $field->isRequiredForClose()) {
+?><i class="icon-warning-sign help-tip warning"
+    data-title="<?php echo __('Required to close ticket'); ?>"
+    data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
+/></i><?php
+            }
             if ($field->get('hint') && !$field->isBlockLevel()) { ?>
                 <br /><em style="color:gray;display:inline-block"><?php
-                    echo Format::htmlchars($field->get('hint')); ?></em>
+                    echo Format::viewableImages($field->getLocal('hint')); ?></em>
             <?php
             }
             foreach ($field->errors() as $e) { ?>
-                <br />
-                <font class="error"><?php echo Format::htmlchars($e); ?></font>
+                <div class="error"><?php echo Format::htmlchars($e); ?></div>
             <?php } ?>
             </div></td>
         </tr>

@@ -25,6 +25,7 @@
     padding: 5px 10px 5px 20px;
     margin: 0;
     border-radius: 5px;
+    height:25px;
 }
 .rtl .filedrop .files .file {
     padding-left: 10px;
@@ -36,6 +37,10 @@
 .filedrop .files .file .filesize {
   margin: 0 1em;
   color: #999;
+}
+.filedrop .files .file > span {
+    padding:4px 0 0 0;
+    display:block;
 }
 .filedrop .files .file .upload-rate {
   margin: 0 10px;
@@ -53,8 +58,8 @@
 .filedrop .preview {
   width: auto;
   height: auto;
-  max-width: 60px;
-  max-height: 40px;
+  max-width: 100px;
+  max-height: 25px;
   display: inline-block;
   float: left;
   padding-right: 10px;
@@ -64,9 +69,9 @@
   padding-left: 10px;
   float: right;
 }
-.redactor_box + .filedrop .dropzone,
-.redactor_box + div > .filedrop .dropzone,
-.redactor_box + div > .filedrop .files {
+.redactor-box + .filedrop .dropzone,
+.redactor-box + div > .filedrop .dropzone,
+.redactor-box + div > .filedrop .files {
     border-top-width: 1px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
@@ -75,6 +80,7 @@
 .tooltip-preview img {
     max-width: 300px;
     max-height: 300px;
+    z-index:11;
 }
 
 /* Bootstrap 3.2 progress-bar */

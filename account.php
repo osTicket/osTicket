@@ -29,15 +29,17 @@ if (!$cfg || !$cfg->isClientRegistrationEnabled()) {
 elseif ($thisclient) {
     // Guest registering for an account
     if ($thisclient->isGuest()) {
-        foreach ($thisclient->getForms() as $f)
-            if ($f->get('type') == 'U')
+        foreach ($thisclient->getForms() as $f) {
+            if ($f->get('object_type') == 'U') {
                 $user_form = $f;
-        $user_form->getField('email')->configure('disabled', true);
+                $user_form->getField('email')->configure('disabled', true);
+            }
+        }    
     }
     // Existing client (with an account) updating profile
     else {
         $user = User::lookup($thisclient->getId());
-        $content = Page::lookup(Page::getIdByType('registration-thanks'));
+        $content = Page::lookupByType('registration-thanks');
         $inc = isset($_GET['confirmed'])
             ? 'register.confirmed.inc.php' : 'profile.inc.php';
     }
@@ -58,7 +60,7 @@ elseif ($_POST) {
         $user_form->getField('email')->value = $thisclient->getEmail();
     }
 
-    if (!$user_form->isValid(function($f) { return !$f->get('private'); }))
+    if (!$user_form->isValid(function($f) { return !$f->isVisibleToUsers(); }))
         $errors['err'] = __('Incomplete client information');
     elseif (!$_POST['backend'] && !$_POST['passwd1'])
         $errors['passwd1'] = __('New password is required');
@@ -94,7 +96,7 @@ elseif ($_POST) {
     if (!$errors) {
         switch ($_POST['do']) {
         case 'create':
-            $content = Page::lookup(Page::getIdByType('registration-confirm'));
+            $content = Page::lookupByType('registration-confirm');
             $inc = 'register.confirm.inc.php';
             $acct->sendConfirmEmail();
             break;

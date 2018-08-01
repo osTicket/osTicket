@@ -123,3 +123,17 @@ default_mta:
     content: >
         <span class="doc-desc-title">Default MTA</span> takes care of
         email delivery process for outgoing emails without SMTP setting.
+
+ticket_response_files:
+    title: Ticket Response Files
+    content: >
+        If enabled, any attachments an Agent may attach to a ticket response will
+        be also included in the email to the User.
+
+verify_email_addrs:
+    title: Verify Email Addresses
+    content: >
+        Enable this option to check if the email address has a mail
+        exchanger (MX) in the domain's DNS. This is useful to detect
+        incorrectly typed email addresses. This is perfomed in addition to
+        checking the email address wellformedness.

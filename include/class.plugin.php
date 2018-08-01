@@ -8,10 +8,10 @@ class PluginConfig extends Config {
     function __construct($name) {
         // Use parent constructor to place configurable information into the
         // central config table in a namespace of "plugin.<id>"
-        parent::Config("plugin.$name");
+        parent::__construct("plugin.$name");
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name))
-                $this->config[$name]['value'] = $field->to_php($this->get($name));
+                $this->config[$name]->value = $field->to_php($this->get($name));
             elseif ($default = $field->get('default'))
                 $this->defaults[$name] = $default;
         }
@@ -32,7 +32,7 @@ class PluginConfig extends Config {
      */
     function getForm() {
         if (!isset($this->form)) {
-            $this->form = new Form($this->getOptions());
+            $this->form = new SimpleForm($this->getOptions());
             if ($_SERVER['REQUEST_METHOD'] != 'POST')
                 $this->form->data($this->getInfo());
         }
@@ -81,7 +81,13 @@ class PluginConfig extends Config {
             $dbready = array();
             foreach ($config as $name => $val) {
                 $field = $f->getField($name);
-                $dbready[$name] = $field->to_database($val);
+                try {
+                    $dbready[$name] = $field->to_database($val);
+                }
+                catch (FieldUnchanged $e) {
+                    // Don't save the field value
+                    continue;
+                }
             }
             if ($this->updateAll($dbready)) {
                 if (!$msg)
@@ -164,15 +170,23 @@ class PluginManager {
             //      read all plugins
             $info = static::getInfoForPath(
                 INCLUDE_DIR . $ht['install_path'], $ht['isphar']);
+
             list($path, $class) = explode(':', $info['plugin']);
             if (!$class)
                 $class = $path;
             elseif ($ht['isphar'])
-                require_once('phar://' . INCLUDE_DIR . $ht['install_path']
+                @include_once('phar://' . INCLUDE_DIR . $ht['install_path']
                     . '/' . $path);
             else
-                require_once(INCLUDE_DIR . $ht['install_path']
+                @include_once(INCLUDE_DIR . $ht['install_path']
                     . '/' . $path);
+
+            if (!class_exists($class)) {
+                $class = 'DefunctPlugin';
+                $ht['isactive'] = false;
+                $info = array('name' => $ht['name'] . ' '. __('(defunct — missing)'));
+            }
+
             if ($ht['isactive']) {
                 static::$plugin_list[$ht['install_path']]
                     = new $class($ht['id']);
@@ -271,7 +285,9 @@ class PluginManager {
         if (!isset(static::$plugin_info[$install_path])) {
             // plugin.php is require to return an array of informaiton about
             // the plugin.
-            $info = array_merge($defaults, (include $path . '/plugin.php'));
+            if (!file_exists($path . '/plugin.php'))
+                return false;
+            $info = array_merge($defaults, (@include $path . '/plugin.php'));
             $info['install_path'] = $install_path;
 
             // XXX: Ensure 'id' key isset
@@ -284,11 +300,14 @@ class PluginManager {
         static $instances = array();
         if (!isset($instances[$path])
                 && ($ps = static::allInstalled())
-                && ($ht = $ps[$path])
-                && ($info = static::getInfoForPath($path))) {
+                && ($ht = $ps[$path])) {
+
+            $info = static::getInfoForPath($path);
+
             // $ht may be the plugin instance
             if ($ht instanceof Plugin)
                 return $ht;
+
             // Usually this happens when the plugin is being enabled
             list($path, $class) = explode(':', $info['plugin']);
             if (!$class)
@@ -351,7 +370,7 @@ abstract class Plugin {
 
     static $verify_domain = 'updates.osticket.com';
 
-    function Plugin($id) {
+    function __construct($id) {
         $this->id = $id;
         $this->load();
     }
@@ -402,7 +421,9 @@ abstract class Plugin {
         if (!db_query($sql) || !db_affected_rows())
             return false;
 
-        $this->getConfig()->purge();
+        if ($config = $this->getConfig())
+            $config->purge();
+
         return true;
     }
 
@@ -526,26 +547,21 @@ abstract class Plugin {
             return self::VERIFY_ERROR;
         }
 
-        require_once(PEAR_DIR.'Net/DNS2.php');
         $P = new Phar($phar);
         $sig = $P->getSignature();
         $info = array();
-        try {
-            $q = new Net_DNS2_Resolver();
-            $r = $q->query(strtolower($sig['hash']) . '.' . self::$verify_domain, 'TXT');
-            foreach ($r->answer as $rec) {
-                foreach ($rec->text as $txt) {
-                    foreach (explode(';', $txt) as $kv) {
-                        list($k, $v) = explode('=', trim($kv));
-                        $info[$k] = trim($v);
-                    }
-                    if ($info['v'] && $info['s'])
-                        break;
+        $ignored = null;
+        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain.'.',
+            DNS_TXT, $ignored, $ignored, true)
+        ) {
+            foreach ($r as $rec) {
+                foreach (explode(';', $rec['txt']) as $kv) {
+                    list($k, $v) = explode('=', trim($kv));
+                    $info[$k] = trim($v);
                 }
+                if ($info['v'] && $info['s'])
+                    break;
             }
-        }
-        catch (Net_DNS2_Exception $e) {
-            // TODO: Differenciate NXDOMAIN and DNS failure
         }
 
         if (is_array($info) && isset($info['v'])) {
@@ -683,4 +699,11 @@ abstract class Plugin {
     }
 }
 
+class DefunctPlugin extends Plugin {
+    function bootstrap() {}
+
+    function enable() {
+        return false;
+    }
+}
 ?>

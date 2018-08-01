@@ -1,0 +1,78 @@
+#
+# Default roles defined for the system
+#
+# Fields:
+# id - Primary id for the role
+# flags - (bit mask) role flags
+# name - (string) descriptive name for the role
+# notes - (string) internal notes
+# permissions: (list<keys>)
+#
+# NOTE: ------------------------------------
+# ---
+- id: 1
+  flags: 1
+  name: All Access
+  notes: |
+    Role with unlimited access
+
+  permissions: [
+    ticket.create,
+    ticket.edit,
+    ticket.assign,
+    ticket.transfer,
+    ticket.reply,
+    ticket.close,
+    ticket.delete,
+    task.create,
+    task.edit,
+    task.assign,
+    task.transfer,
+    task.reply,
+    task.close,
+    task.delete,
+    canned.manage,
+    thread.edit]
+
+- id: 2
+  flags: 1
+  name: Expanded Access
+  notes: |
+    Role with expanded access
+
+  permissions: [
+    ticket.create,
+    ticket.edit,
+    ticket.assign,
+    ticket.transfer,
+    ticket.reply,
+    ticket.close,
+    task.create,
+    task.edit,
+    task.assign,
+    task.transfer,
+    task.reply,
+    task.close,
+    canned.manage]
+
+- id: 3
+  flags: 1
+  name: Limited Access
+  notes: |
+    Role with limited access
+
+  permissions: [
+    ticket.create,
+    ticket.assign,
+    ticket.transfer,
+    ticket.reply
+    task.create,
+    task.assign,
+    task.transfer,
+    task.reply]
+
+- id: 4
+  flags: 1
+  name: View only
+  notes: Simple role with no permissions
+  permissions: []

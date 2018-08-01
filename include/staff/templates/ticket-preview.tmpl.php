@@ -6,7 +6,9 @@
 
 $staff=$ticket->getStaff();
 $lock=$ticket->getLock();
+$role=$thisstaff->getRole($ticket->getDeptId());
 $error=$msg=$warn=null;
+$thread = $ticket->getThread();
 
 if($lock && $lock->getStaffId()==$thisstaff->getId())
     $warn.='&nbsp;<span class="Icon lockedTicket">'
@@ -16,7 +18,7 @@ elseif($ticket->isOverdue())
 
 echo sprintf(
         '<div style="width:600px; padding: 2px 2px 0 5px;" id="t%s">
-         <h2>'.__('Ticket #%s').': %s</h2><br>',
+         <h2>'.__('Ticket #%s').': %s</h2>',
          $ticket->getNumber(),
          $ticket->getNumber(),
          Format::htmlchars($ticket->getSubject()));
@@ -28,20 +30,20 @@ elseif($msg)
 elseif($warn)
     echo sprintf('<div id="msg_warning">%s</div>',$warn);
 
-echo '<ul class="tabs">';
+echo '<ul class="tabs" id="ticket-preview">';
 
 echo '
-        <li><a id="preview_tab" href="#preview" class="active"
+        <li class="active"><a id="preview_tab" href="#preview"
             ><i class="icon-list-alt"></i>&nbsp;'.__('Ticket Summary').'</a></li>';
-if ($ticket->getNumCollaborators()) {
+if ($thread && $thread->getNumCollaborators()) {
 echo sprintf('
         <li><a id="collab_tab" href="#collab"
             ><i class="icon-fixed-width icon-group
             faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
-            $ticket->getNumCollaborators());
+            $thread->getNumCollaborators());
 }
 echo '</ul>';
-
+echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
 echo '<table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
 
@@ -62,14 +64,14 @@ echo sprintf('
             <th>'.__('Created').':</th>
             <td>%s</td>
         </tr>',$ticket_state,
-        Format::db_datetime($ticket->getCreateDate()));
+        Format::datetime($ticket->getCreateDate()));
 if($ticket->isClosed()) {
     echo sprintf('
             <tr>
                 <th>'.__('Closed').':</th>
                 <td>%s   <span class="faded">by %s</span></td>
             </tr>',
-            Format::db_datetime($ticket->getCloseDate()),
+            Format::datetime($ticket->getCloseDate()),
             ($staff?$staff->getName():'staff')
             );
 } elseif($ticket->getEstDueDate()) {
@@ -78,7 +80,7 @@ if($ticket->isClosed()) {
                 <th>'.__('Due Date').':</th>
                 <td>%s</td>
             </tr>',
-            Format::db_datetime($ticket->getEstDueDate()));
+            Format::datetime($ticket->getEstDueDate()));
 }
 echo '</table>';
 
@@ -116,17 +118,19 @@ echo '
     </table>';
 echo '</div>'; // ticket preview content.
 ?>
-<div class="tab_content" id="collab" style="display:none;">
+<div class="hidden tab_content" id="collab">
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
         <?php
-        if (($collabs=$ticket->getCollaborators())) {?>
+        if ($thread && ($collabs=$thread->getCollaborators())) {?>
         <?php
             foreach($collabs as $collab) {
-                echo sprintf('<tr><td %s><i class="icon-%s"></i>
+                echo sprintf('<tr><td %s>%s
                         <a href="users.php?id=%d" class="no-pjax">%s</a> <em>&lt;%s&gt;</em></td></tr>',
                         ($collab->isActive()? '' : 'class="faded"'),
-                        ($collab->isActive()? 'comments' :  'comment-alt'),
+                        (($U = $collab->getUser()) && ($A = $U->getAvatar()))
+                            ? $A->getImageTag(20) : sprintf('<i class="icon-%s"></i>',
+                                $collab->isActive() ? 'comments' :  'comment-alt'),
                         $collab->getUserId(),
                         $collab->getName(),
                         $collab->getEmail());
@@ -140,10 +144,11 @@ echo '</div>'; // ticket preview content.
     echo sprintf('<span><a class="collaborators"
                             href="#tickets/%d/collaborators">%s</a></span>',
                             $ticket->getId(),
-                            $ticket->getNumCollaborators()
+                            $thread && $thread->getNumCollaborators()
                                 ? __('Manage Collaborators') : __('Add Collaborator')
                                 );
     ?>
+</div>
 </div>
 <?php
 $options = array();
@@ -154,16 +159,16 @@ if($ticket->getNumNotes())
 if($ticket->isOpen())
     $options[]=array('action'=>__('Reply'),'url'=>"tickets.php?id=$tid#reply");
 
-if($thisstaff->canAssignTickets())
+if ($role->hasPerm(TicketModel::PERM_ASSIGN))
     $options[]=array('action'=>($ticket->isAssigned()?__('Reassign'):__('Assign')),'url'=>"tickets.php?id=$tid#assign");
 
-if($thisstaff->canTransferTickets())
-    $options[]=array('action'=>'Transfer','url'=>"tickets.php?id=$tid#transfer");
+if ($role->hasPerm(TicketModel::PERM_TRANSFER))
+    $options[]=array('action'=>__('Transfer'),'url'=>"tickets.php?id=$tid#transfer");
 
-$options[]=array('action'=>'Post Note','url'=>"tickets.php?id=$tid#note");
+$options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
-if($thisstaff->canEditTickets())
-    $options[]=array('action'=>'Edit Ticket','url'=>"tickets.php?id=$tid&a=edit");
+if ($role->hasPerm(TicketModel::PERM_EDIT))
+    $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {
     echo '<ul class="tip_menu">';

@@ -74,14 +74,15 @@ class Mail
     function &factory($driver, $params = array())
     {
         $driver = strtolower($driver);
-        @include_once 'Mail/' . $driver . '.php';
         $class = 'Mail_' . $driver;
-        if (class_exists($class)) {
-            $mailer = new $class($params);
-            return $mailer;
-        } else {
-            return PEAR::raiseError('Unable to find class for driver ' . $driver);
-        }
+        if (!class_exists($class))
+            include_once 'Mail/' . $driver . '.php';
+
+        if (!class_exists($class))
+            return PEAR::raiseError('Unable to find class for driver ' .  $driver);
+
+        $mailer = new $class($params);
+        return $mailer;
     }
 
     /**

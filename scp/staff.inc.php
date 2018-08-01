@@ -35,8 +35,6 @@ define('KB_PREMADE_TABLE',TABLE_PREFIX.'kb_premade');
 /* include what is needed on staff control panel */
 
 require_once(INCLUDE_DIR.'class.staff.php');
-require_once(INCLUDE_DIR.'class.group.php');
-require_once(INCLUDE_DIR.'class.nav.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 /* First order of the day is see if the user is logged in and with a valid session.
@@ -51,7 +49,9 @@ if(!function_exists('staffLoginPage')) { //Ajax interface can pre-declare the fu
         $_SESSION['_staff']['auth']['dest'] =
             '/' . ltrim($_SERVER['REQUEST_URI'], '/');
         $_SESSION['_staff']['auth']['msg']=$msg;
-        require(SCP_DIR.'login.php');
+
+        // Redirect here with full path for application-type plugins
+        Http::redirect(ROOT_PATH.'scp/login.php');
         exit;
     }
 }
@@ -78,7 +78,7 @@ if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
 //2) if not super admin..check system status and group status
 if(!$thisstaff->isAdmin()) {
     //Check for disabled staff or group!
-    if(!$thisstaff->isactive() || !$thisstaff->isGroupActive()) {
+    if (!$thisstaff->isactive()) {
         staffLoginPage(__('Access Denied. Contact Admin'));
         exit;
     }
@@ -103,12 +103,11 @@ if ($_POST  && !$ost->checkCSRFToken()) {
 //Add token to the header - used on ajax calls [DO NOT CHANGE THE NAME]
 $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'" />');
 
-/******* SET STAFF DEFAULTS **********/
-//Set staff's timezone offset.
-$_SESSION['TZ_OFFSET']=$thisstaff->getTZoffset();
-$_SESSION['TZ_DST']=$thisstaff->observeDaylight();
+// Load the navigation after the user in case some things are hidden
+require_once(INCLUDE_DIR.'class.nav.php');
 
-define('PAGE_LIMIT', $thisstaff->getPageLimit()?$thisstaff->getPageLimit():DEFAULT_PAGE_LIMIT);
+/******* SET STAFF DEFAULTS **********/
+define('PAGE_LIMIT', $thisstaff->getPageLimit() ?: DEFAULT_PAGE_LIMIT);
 
 $tabs=array();
 $submenu=array();

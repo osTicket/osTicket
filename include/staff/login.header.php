@@ -13,7 +13,7 @@ defined('OSTSCPINC') or die('Invalid path');
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $("input:not(.dp):visible:enabled:first").focus();

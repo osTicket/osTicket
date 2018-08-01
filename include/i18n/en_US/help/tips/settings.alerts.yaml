@@ -42,10 +42,10 @@ message_alert:
         href: /scp/templates.php?default_for=message.alert
 
 internal_note_alert:
-    title: New Internal Note Alert
+    title: New Internal Activity Alert
     content: >
-        Alert sent out to Agents when a new <span
-        class="doc-desc-title">Internal Note</span> is appended to a ticket.
+        Alert sent out to Agents when internal activity such as an internal
+        note or an agent reply is appended to a ticket.
     links:
       - title: Default Ticket Activity Template
         href: /scp/templates.php?default_for=note.alert
