@@ -2273,6 +2273,10 @@ class PriorityField extends ChoiceField {
         return ($value instanceof Priority) ? array($value->getId()) : null;
     }
 
+    function asVar($value, $id=false) {
+        return $this->to_php($value, $id);
+    }
+
     function getConfigurationOptions() {
         $choices = $this->getChoices();
         $choices[''] = __('System Default');
