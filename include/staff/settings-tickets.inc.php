@@ -15,6 +15,8 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         <?php echo __('Autoresponder'); ?></a></li>
     <li><a href="#alerts"><i class="icon-bell-alt"></i>
         <?php echo __('Alerts and Notices'); ?></a></li>
+    <li><a href="#merge"><i class="icon-code-fork"></i>
+        <?php echo __('Merge settings'); ?></a></li>
 </ul>
 <div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -237,6 +239,10 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
 <div class="hidden tab_content" id="alerts"
     data-tip-namespace="settings.alerts">
     <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
+</div>
+<div class="hidden tab_content" id="merge"
+    data-tip-namespace="settings.merge">
+    <?php include STAFFINC_DIR . 'settings-merge.inc.php'; ?>
 </div>
 
 <p style="text-align:center;">

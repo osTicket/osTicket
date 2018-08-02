@@ -23,12 +23,16 @@ if ($thisclient->isGuest())
 require_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
+global $cfg;
 if($_REQUEST['id']) {
     if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
         $errors['err']=__('Unknown or invalid ticket ID.');
     } elseif(!$ticket->checkUserAccess($thisclient)) {
         $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
         $ticket=null;
+    } elseif($ticket->isChild() && $cfg->getRedirectChildTicket()){
+        $_SESSION['_auth']['user-ticket'] = $ticket->getMaster()->number;
+        Http::redirect('tickets.php?id=' . $ticket->getMaster()->getId());
     }
 }
 

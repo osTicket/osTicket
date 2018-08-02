@@ -1,6 +1,55 @@
 <?php
 // Tickets mass actions based on logged in agent
 
+// Mass merge
+if ($agent->hasPerm(Ticket::PERM_MERGE, false)) {?>
+<form action="tickets.php" method="post" style="display: inline-block;" id="merge-form">
+    <?php csrf_token(); ?>
+    <input type="hidden" name="a" value="merge">
+    <input type="hidden" name="tids_merge" value="">
+    <div class="attached input" data-toggle="tooltip" title=" <?php echo __('Merge'); ?>" style="height: 26px;text-align:left">
+        <select id="masterid" name="masterid" style="width: 250px" class="js-example-basic-single">
+            <?php
+                $tickets = TicketModel::objects();
+                
+                // -- Open and assigned to me
+                $assigned = Q::any(array(
+                    'staff_id' => $agent->getId(),
+                ));
+                // -- Open and assigned to a team of mine
+                if ($teams = array_filter($agent->getTeams()))
+                    $assigned->add(array('team_id__in' => $teams));
+
+                $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
+
+                // -- Routed to a department of mine
+                if (!$agent->showAssignedOnly() && ($depts=$agent->getDepts()))
+                    $visibility->add(array('dept_id__in' => $depts));
+
+                $tickets->filter(Q::any($visibility));
+                
+                $tickets->filter(array('status__state'=>'open'));
+
+                $tickets->values('ticket_id', 'number', 'cdata__subject');
+                
+                foreach ($tickets as $T)
+                    echo "<option value='" . $T['ticket_id'] . "'>" . $T['number'] . " | " . $T['cdata__subject'] . "</option>";
+            ?>
+        </select>
+        <button type="submit" class="attached button"><i class="icon-code-fork"></i>
+        </button>
+    </div>
+</form>
+<form action="tickets.php" method="post" style="display: inline-block;" id="split-form">
+    <?php csrf_token(); ?>
+    <input type="hidden" name="a" value="split">
+    <input type="hidden" name="tids_split" value="">
+</form>
+<button type="submit" form="split-form" class="button"><i class="icon-code-fork"></i>
+</button>
+<?php
+}
+
 // Status change
 if ($agent->canManageTickets())
     echo TicketStatus::status_options();
@@ -74,9 +123,39 @@ $(function() {
             console.log(tids);
             $.dialog(url, [201], function (xhr) {
                 $.pjax.reload('#pjax-container');
-             });
+            });
         }
         return false;
     });
+    $('form#merge-form').submit(function(e) {
+        var $form = $('form#tickets');
+        var count = checkbox_checker($form, 1);
+        if (count) {
+            var tids = $('.ckb:checked', $form).map(function() {
+                return this.value;
+            }).get();
+            $(this).find("input[name='tids_merge']").val(tids);
+            return true;
+        }
+        e.preventDefault();
+    });
+    $('form#split-form').submit(function(e) {
+        var $form = $('form#tickets');
+        var count = checkbox_checker($form, 1);
+        if (count) {
+            var tids = $('.ckb:checked', $form).map(function() {
+                return this.value;
+            }).get();
+            $(this).find("input[name='tids_split']").val(tids);
+            return true;
+        }
+        e.preventDefault();
+     });
+    $(document).ready(function() {
+        $("#masterid").select2({
+            placeholder: "<?php echo __('Select a ticket'); ?>"
+        });
+    });
+    $('#masterid').val('');
 });
 </script>

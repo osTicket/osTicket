@@ -2925,3 +2925,13 @@ a.attachment {
  * Fixes a rendering issue on Safari
  */
 .select2-search__field{-webkit-appearance: textfield;}
+
+form#merge-form .select2-selection--single, form#merge-form .select2-selection__rendered {
+    height: 26px;
+    border-right: none;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+form#merge-form .select2-container{
+    margin-right: -1px;
+}

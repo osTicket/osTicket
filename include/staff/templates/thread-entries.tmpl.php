@@ -9,6 +9,11 @@ $cmp = function ($a, $b) use ($sort) {
         ? ($a < $b) : $a > $b;
 };
 
+function cmpCreateDate( $a, $b ) { 
+    if(  strtotime($a->getCreateDate()) ==  strtotime($b->getCreateDate()) ){ return 0 ; } 
+    return (strtotime($a->getCreateDate()) < strtotime($b->getCreateDate())) ? -1 : 1;
+}
+
 $events = $events->order_by($sort);
 $events = new IteratorIterator($events->getIterator());
 $events->rewind();
@@ -36,6 +41,21 @@ foreach (Attachment::objects()->filter(array(
                 $rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
             $buckets[$rel][] = $E;
         }
+        
+        global $cfg;
+        if($cfg->getCombineThreadStaff() && $this->getObjectType() == ObjectModel::OBJECT_TYPE_TICKET && $this->getObject()->isMaster()){
+            foreach($this->getObject()->getChildren() as $temp){
+                foreach ($temp->getThread()->getEntries() as $i=>$E) {
+                    // First item _always_ shows up
+                    if ($i != 0)
+                        // Set relative time resolution to 12 hours
+                        $rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
+                    $buckets[$rel][] = $E;
+                }
+            }
+        }
+        
+        usort($buckets[$rel], "cmpCreateDate");
 
         // Go back through the entries and render them on the page
         foreach ($buckets as $rel=>$entries) {

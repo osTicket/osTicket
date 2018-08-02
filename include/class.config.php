@@ -214,6 +214,13 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'copy_recipients' => 1,
+        'combine_thread_staff' => 1,
+        'combine_thread_client' => 0,
+        'redirect_child_ticket' => 1,
+        'default_status_child' => 3,
+        'permalock_child_ticket' => 0,
+        'duplicate_button' => 0,
     );
 
     function __construct($section=null) {
@@ -772,6 +779,34 @@ class OsticketConfig extends Config {
             array('Ticket', 'isTicketNumberUnique'));
     }
 
+    function getCopyRecipients() {
+        return ($this->get('copy_recipients'));
+    }
+
+    function getCombineThreadStaff() {
+        return ($this->get('combine_thread_staff'));
+    }
+
+    function getCombineThreadClient() {
+        return ($this->get('combine_thread_client'));
+    }
+
+    function getRedirectChildTicket() {
+        return ($this->get('redirect_child_ticket'));
+    }
+
+    function getDefaultStatusChild() {
+        return $this->get('default_status_child');
+    }
+
+    function getPermalockChildTicket() {
+        return ($this->get('permalock_child_ticket'));
+    }
+
+    function getDuplicateButton() {
+        return ($this->get('duplicate_button'));
+    }
+
     // Task sequence
     function getDefaultTaskSequence() {
         if ($this->get('task_sequence_id'))
@@ -1247,6 +1282,7 @@ class OsticketConfig extends Config {
 
         $this->updateAutoresponderSettings($vars, $errors);
         $this->updateAlertsSettings($vars, $errors);
+        $this->updateMergeSettings($vars, $errors);
 
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
@@ -1491,6 +1527,24 @@ class OsticketConfig extends Config {
             'message_autoresponder_collabs'=>isset($vars['message_autoresponder_collabs']) ? 1 : 0,
             'ticket_notice_active'=>isset($vars['ticket_notice_active']) ? 1 : 0,
             'overlimit_notice_active'=>isset($vars['overlimit_notice_active']) ? 1 : 0,
+        ));
+    }
+	
+    function updateMergeSettings($vars, &$errors) {
+        $f=array();
+        $f['merging_child_status'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+
+
+        if($errors) return false;
+
+        return $this->updateAll(array(
+            'copy_recipients'=>isset($vars['copy_recipients']) ? 1 : 0,
+            'combine_thread_staff'=>isset($vars['combine_thread_staff']) ? 1 : 0,
+            'combine_thread_client'=>isset($vars['combine_thread_client']) ? 1 : 0,
+            'redirect_child_ticket'=>isset($vars['redirect_child_ticket']) ? 1 : 0,
+            'default_status_child'=>$vars['default_status_child'],
+            'permalock_child_ticket'=>isset($vars['permalock_child_ticket']) ? 1 : 0,
+            'duplicate_button'=>isset($vars['duplicate_button']) ? 1 : 0,
         ));
     }
 
