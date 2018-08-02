@@ -408,7 +408,7 @@ class Mailer {
         foreach ($recipients as $recipient) {
             switch (true) {
                 case $recipient instanceof EmailRecipient:
-                    $addr = sprintf('%s <%s>',
+                    $addr = sprintf('"%s" <%s>',
                             $recipient->getName(),
                             $recipient->getEmail());
                     switch ($recipient->getType()) {
@@ -425,12 +425,12 @@ class Mailer {
                     break;
                 case $recipient instanceof TicketOwner:
                 case $recipient instanceof Staff:
-                    $mime->addTo(sprintf('%s <%s>',
+                    $mime->addTo(sprintf('"%s" <%s>',
                                 $recipient->getName(),
                                 $recipient->getEmail()));
                     break;
                 case $recipient instanceof Collaborator:
-                    $mime->addCc(sprintf('%s <%s>',
+                    $mime->addCc(sprintf('"%s" <%s>',
                                 $recipient->getName(),
                                 $recipient->getEmail()));
                     break;
