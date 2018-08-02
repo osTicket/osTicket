@@ -103,6 +103,11 @@ collaborator_ticket_visibility:
         If Disabled, Users will only be able to see their own Tickets
         when signing into the Web Portal.
 
+require_topic_to_close:
+    title: Require Help Topic to Close
+    content: >
+        If Enabled, a Ticket must have a Help Topic in order to be Closed by an Agent
+
 assigned_tickets:
     title: Assigned Tickets
     content: >

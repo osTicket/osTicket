@@ -229,6 +229,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isCloseable() {
+        global $cfg;
 
         if ($this->isClosed())
             return true;
@@ -242,6 +243,10 @@ implements RestrictedAccess, Threadable, Searchable {
         } elseif (($num=$this->getNumOpenTasks())) {
             $warning = sprintf(__('%1$s has %2$d open tasks and cannot be closed'),
                     __('This ticket'), $num);
+        } elseif ($cfg->requireTopicToClose() && !$this->getTopicId()) {
+            $warning = sprintf(
+                    __( '%1$s is missing a %2$s and cannot be closed'),
+                    __('This ticket'), __('Help Topic'), '');
         }
 
         return $warning ?: true;

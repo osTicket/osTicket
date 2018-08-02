@@ -105,7 +105,14 @@ if ($_POST)
                     }
                     ?>
                 </select>
+
                 <?php
+                if (!$info['topicId'] && $cfg->requireTopicToClose()) {
+                ?><i class="icon-warning-sign help-tip warning"
+                    data-title="<?php echo __('Required to close ticket'); ?>"
+                    data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
+                ></i><?php
+                }
                 if($warn) { ?>
                     &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $warn; ?></font>
                 <?php } ?>

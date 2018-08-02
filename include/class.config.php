@@ -198,6 +198,7 @@ class OsticketConfig extends Config {
         'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
         'collaborator_ticket_visibility' =>  true,
+        'require_topic_to_close' =>  false,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
         'message_autoresponder_collabs' => true,
@@ -924,6 +925,10 @@ class OsticketConfig extends Config {
         return $this->get('collaborator_ticket_visibility');
     }
 
+    function requireTopicToClose() {
+        return $this->get('require_topic_to_close');
+    }
+
     function getDefaultTicketQueueId() {
         return $this->get('default_ticket_queue');
     }
@@ -1277,6 +1282,7 @@ class OsticketConfig extends Config {
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
             'collaborator_ticket_visibility'=>isset($vars['collaborator_ticket_visibility'])?1:0,
+            'require_topic_to_close'=>isset($vars['require_topic_to_close'])?1:0,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
