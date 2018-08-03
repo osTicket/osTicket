@@ -96,7 +96,7 @@ if ($_POST)
                     if($topics=Topic::getHelpTopics()) {
                       if($ticket->topic_id && !array_key_exists($ticket->topic_id, $topics)) {
                         $topics[$ticket->topic_id] = $ticket->topic;
-                        $warn = sprintf(__('%s selected must be active'), __('Help Topic'));
+                        $errors['topicId'] = sprintf(__('%s selected must be active'), __('Help Topic'));
                       }
                         foreach($topics as $id =>$name) {
                             echo sprintf('<option value="%d" %s>%s</option>',
@@ -112,10 +112,8 @@ if ($_POST)
                     data-title="<?php echo __('Required to close ticket'); ?>"
                     data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
                 ></i><?php
-                }
-                if($warn) { ?>
-                    &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $warn; ?></font>
-                <?php } ?>
+                } ?>
+                &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
             </td>
         </tr>
         <tr>
