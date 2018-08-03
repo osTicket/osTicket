@@ -1293,7 +1293,8 @@ class CustomQueue extends VerySimpleModel {
 
         $queue = new static($vars);
         $queue->created = SqlFunction::NOW();
-        $queue->setFlag(self::FLAG_QUEUE);
+        if (!isset($vars['flags']))
+            $queue->setFlag(self::FLAG_QUEUE);
 
         return $queue;
     }
