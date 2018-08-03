@@ -195,7 +195,7 @@ var scp_prep = function() {
 
     $('form select#cannedResp').select2({width: '300px'});
     $('form select#cannedResp').on('select2:opening', function (e) {
-        var redactor = $('.richtext', e.target.closest('form')).data('redactor');
+        var redactor = $('.richtext', $(this).closest('form')).data('redactor');
         if (redactor)
             redactor.selection.save();
     });
