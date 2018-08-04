@@ -1408,6 +1408,8 @@ class TicketStatusChoiceField extends SelectionField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
+        if (!$value)
+            return false;
         switch ($method) {
         case '!includes':
             return Q::not(array("{$name}__in" => array_keys($value)));

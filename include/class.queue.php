@@ -118,12 +118,13 @@ class CustomQueue extends VerySimpleModel {
 
     function getCriteria($include_parent=false) {
         if (!isset($this->criteria)) {
-            $old = @$this->config[0] === '{';
             $this->criteria = is_string($this->config)
                 ? JsonDataParser::decode($this->config)
                 : $this->config;
+            // XXX: Drop this block in v1.12
             // Auto-upgrade v1.10 saved-search criteria to new format
             // But support new style with `conditions` support
+            $old = @$this->config[0] === '{';
             if ($old && is_array($this->criteria)
                 && !isset($this->criteria['conditions'])
             ) {
@@ -641,7 +642,10 @@ class CustomQueue extends VerySimpleModel {
             && $this->hasFlag(self::FLAG_INHERIT_COLUMNS)
             && $this->parent
         ) {
-            return $this->parent->getColumns();
+            $columns = $this->parent->getColumns();
+            foreach ($columns as $c)
+                $c->setQueue($this);
+            return $columns;
         }
         elseif (count($this->columns)) {
             return $this->columns;
@@ -1214,9 +1218,10 @@ class CustomQueue extends VerySimpleModel {
             $errors['criteria'] = __('Validation errors exist on criteria');
         }
         else {
+            $this->criteria = static::isolateCriteria($form->getClean(),
+                $this->getRoot());
             $this->config = JsonDataEncoder::encode([
-                'criteria' => self::isolateCriteria($form->getClean(),
-                    $this->getRoot()),
+                'criteria' => $this->criteria,
                 'conditions' => $conditions,
             ]);
             // Clear currently set criteria.and conditions.
@@ -1258,6 +1263,44 @@ class CustomQueue extends VerySimpleModel {
         return $this->columns->saveAll()
             && $this->exports->saveAll()
             && $this->sorts->saveAll();
+    }
+
+    /**
+     * Fetch a tree-organized listing of the queues. Each queue is listed in
+     * the tree exactly once, and every visible queue is represented. The
+     * returned structure is an array where the items are two-item arrays
+     * where the first item is a CustomQueue object an the second is a list
+     * of the children using the same pattern (two-item arrays of a CustomQueue
+     * and its children). Visually:
+     *
+     * [ [ $queue, [ [ $child, [] ], [ $child, [] ] ], [ $queue, ... ] ]
+     *
+     * Parameters:
+     * $staff - <Staff> staff object which should be used to determine
+     *      visible queues.
+     * $pid - <int> parent_id of root queue. Default is zero (top-level)
+     */
+    static function getHierarchicalQueues(Staff $staff, $pid=0) {
+        $all = static::objects()
+            ->filter(Q::any(array(
+                'flags__hasbit' => self::FLAG_PUBLIC,
+                'flags__hasbit' => static::FLAG_QUEUE,
+                'staff_id' => $staff->getId(),
+            )))
+            ->exclude(['flags__hasbit' => self::FLAG_DISABLED])
+            ->asArray();
+
+        // Find all the queues with a given parent
+        $for_parent = function($pid) use ($all, &$for_parent) {
+            $results = [];
+            foreach (new \ArrayIterator($all) as $q) {
+                if ($q->parent_id == $pid)
+                    $results[] = [ $q, $for_parent($q->getId()) ];
+            }
+            return $results;
+        };
+
+        return $for_parent($pid);
     }
 
     static function getOrmPath($name, $query=null) {
@@ -1684,7 +1727,8 @@ class QueueColumnCondition {
 
     // Add the annotation to a QuerySet
     function annotate($query) {
-        $Q = $this->getSearchQ($query);
+        if (!($Q = $this->getSearchQ($query)))
+            return $query;
 
         // Add an annotation to the query
         return $query->annotate(array(
@@ -1929,6 +1973,7 @@ extends VerySimpleModel {
 
     var $_annotations;
     var $_conditions;
+    var $_queue;            // Apparent queue if being inherited
 
     function getId() {
         return $this->id;
@@ -1947,7 +1992,15 @@ extends VerySimpleModel {
     // These getters fetch data from the annotated overlay from the
     // queue_column table
     function getQueue() {
-        return $this->queue;
+        return $this->_queue ?: $this->queue;
+    }
+    /**
+     * If a column is inherited into a child queue and there are conditions
+     * added to that queue, then the column will need to be linked at
+     * run-time to the child queue rather than the parent.
+     */
+    function setQueue(CustomQueue $queue) {
+        $this->_queue = $queue;
     }
 
     function getWidth() {
@@ -1993,7 +2046,7 @@ extends VerySimpleModel {
         $text = $this->renderBasicValue($row);
 
         // Filter
-        if ($filter = $this->getFilter()) {
+        if ($text && ($filter = $this->getFilter())) {
             $text = $filter->filter($text, $row) ?: $text;
         }
 

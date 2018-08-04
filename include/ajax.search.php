@@ -366,7 +366,7 @@ class SearchAjaxAPI extends AjaxController {
         $field_name = $_GET['field'];
         $id = $_GET['id'];
         $object_id = $_GET['object_id'];
-        $condition = new QueueColumnCondition();
+        $condition = new QueueColumnCondition(array());
         include STAFFINC_DIR . 'templates/queue-column-condition.tmpl.php';
     }
 
