@@ -301,6 +301,11 @@ implements Searchable {
 
             return false;
             break;
+        case $to instanceof Team:
+            //Referred to a Team
+            return ($this->getReferral($to->getId(),
+                        ObjectModel::OBJECT_TYPE_TEAM));
+            break;
         case $to instanceof Dept:
             // Refered to the dept
             return ($this->getReferral($to->getId(),
