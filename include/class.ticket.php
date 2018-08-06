@@ -221,7 +221,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function isReopenable() {
         return ($this->getStatus()->isReopenable() && $this->getDept()->allowsReopen()
-        && ($this->getTopic() ? $this->getTopic()->allowsReopen() : null));
+        && ($this->getTopic() ? $this->getTopic()->allowsReopen() : true));
     }
 
     function isClosed() {
