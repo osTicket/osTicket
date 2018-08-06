@@ -2273,6 +2273,10 @@ class PriorityField extends ChoiceField {
         return ($value instanceof Priority) ? array($value->getId()) : null;
     }
 
+    function asVar($value, $id=false) {
+        return $this->to_php($value, $id);
+    }
+
     function getConfigurationOptions() {
         $choices = $this->getChoices();
         $choices[''] = __('System Default');
@@ -3970,7 +3974,10 @@ class FileUploadWidget extends Widget {
         // Files already attached to the field are allowed
         foreach ($this->field->getFiles() as $F) {
             // FIXME: This will need special porting in v1.10
-            $allowed[$F->id] = 1;
+            if ($F instanceof Attachment)
+                $allowed[$F->getFileId()] = 1;
+            else
+                $allowed[$F->id] = 1;
         }
 
         // New files uploaded in this session are allowed
