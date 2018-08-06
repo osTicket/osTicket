@@ -782,7 +782,7 @@
             type: 'areaspline'
         },
         title: {
-            text: 'TICKETS (OPEN|CLOSED|BACKLOG)',
+            text: 'TICKETS (OPENED|CLOSED|BACKLOG)',
             style: {
                 color: '#797979',
                 fontSize: '14px',
@@ -843,7 +843,7 @@
             data: [<?php foreach ($results as $result) { echo $result['CLOSED'].',';}?>]
         }, {
             type: 'spline',
-            name: 'OPEN',
+            name: 'OPENED',
             data: [<?php foreach ($results as $result) { echo $result['OPEN'].',';}?>],
             color: '#e3c436'
             
