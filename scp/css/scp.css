@@ -3641,3 +3641,12 @@ img.avatar + img.avatar {
  */
 .select2-selection__rendered, .select2-search,
 .select2-search__field:not([placeholder='']){width: 100% !important;}
+/* Fix Canned Responses Select2 Height */
+#resp_sec .select2-results, #resp_sec .select2-results__choices {
+    height: auto;
+    max-height: 400px !important;
+}
+#select2-cannedResp-results {
+    height: auto;
+    max-height: 400px !important;
+}
