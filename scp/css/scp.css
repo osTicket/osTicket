@@ -3639,4 +3639,5 @@ img.avatar + img.avatar {
 /* Fixes Select2 placeholder bug where
  * placeholder is cutoff.
  */
+.select2-selection__rendered, .select2-search,
 .select2-search__field:not([placeholder='']){width: 100% !important;}

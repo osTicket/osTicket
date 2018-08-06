@@ -2294,8 +2294,9 @@ class EditEvent extends ThreadEvent {
                 $fields[$F->id] = $F;
             }
             foreach ($data['fields'] as $id=>$f) {
-                $field = $fields[$id];
-                if ($mode == self::MODE_CLIENT && !$field->isVisibleToUsers())
+                if (!($field = $fields[$id]))
+                   continue;
+                if ($mode == self::MODE_CLIENT &&  !$field->isVisibleToUsers())
                     continue;
                 list($old, $new) = $f;
                 $impl = $field->getImpl($field);
