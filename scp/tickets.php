@@ -93,7 +93,7 @@ if (!$ticket) {
 
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
     $queue_id = $queue_id ?: @$_GET['queue'] ?: $_SESSION[$queue_key]
-        ?: $cfg->getDefaultTicketQueueId();
+        ?: $thisstaff->getDefaultTicketQueueId() ?: $cfg->getDefaultTicketQueueId();
 
     // Recover advanced search, if requested
     if (isset($_SESSION['advsearch'])
