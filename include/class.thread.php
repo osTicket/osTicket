@@ -314,7 +314,7 @@ implements Searchable {
     function refer($to) {
 
         if ($this->isReferred($to, true))
-            return true;
+            return false;
 
         $vars = array('thread_id' => $this->getId());
         switch (true) {
