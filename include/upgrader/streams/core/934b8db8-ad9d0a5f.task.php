@@ -25,11 +25,12 @@ class QueueSortCreator extends MigrationTask {
 <<<<<<< HEAD
             // Only save entries with "valid" criteria
             if (!$row['title']
-                    || !($config = JsonDataParser::parse($row['config'], true))
-                    || !($criteria = self::isolateCriteria($config)))
+                    || !($config = JsonDataParser::parse($row['config'],
+                            true)))
                 continue;
 
             $row['root']   = 'T'; // Ticket Queue
+<<<<<<< HEAD
             $row['flags']  = 0; // Saved Search
             $row['config'] = JsonDataEncoder::encode(array(
                         'criteria' => $criteria, 'conditions' => array()));
@@ -39,6 +40,13 @@ class QueueSortCreator extends MigrationTask {
             $row['root'] = 'T';
 =======
 >>>>>>> SavedSearch Fixup
+=======
+            $row['flags']  = 16; // Saved Search
+            if (($criteria = self::isolateCriteria($config)))
+                $row['config'] = JsonDataEncoder::encode(array(
+                            'criteria' => $criteria,
+                            'conditions' => array()));
+>>>>>>> Upgrader: Old search criteria
             CustomQueue::__create(array_intersect_key($row, array_flip(
                             array('staff_id', 'title', 'config', 'flags',
                                 'root', 'created', 'updated'))));
