@@ -17,7 +17,8 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
                 echo __('Check Ticket Status');?></a>
 </p>
         </div>
-<?php } ?>
+<?php } 
+    if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
         <div class="content"><?php
     if ($cfg->isKnowledgebaseEnabled()
         && ($faqs = FAQ::getFeatured()->select_related('category')->limit(5))
@@ -30,7 +31,7 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
 <?php   } ?>
             </section>
 <?php
-    }
+    }}
     $resources = Page::getActivePages()->filter(array('type'=>'other'));
     if ($resources->all()) { ?>
             <section><div class="header"><?php echo __('Other Resources'); ?></div>
