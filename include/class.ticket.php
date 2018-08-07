@@ -2916,6 +2916,22 @@ implements RestrictedAccess, Threadable, Searchable {
         if (isset($vars['ccs']) && count($vars['ccs']))
             $this->addCollaborators($vars['ccs'], array(), $errors);
 
+        if ($collabs = $this->getCollaborators()) {
+            foreach ($collabs as $collaborator) {
+                $cid = $collaborator->getUserId();
+                // Enable collaborators if they were reselected
+                if (!$collaborator->isActive() && ($vars['ccs'] && in_array($cid, $vars['ccs'])))
+                    $collaborator->setFlag(Collaborator::FLAG_ACTIVE, true);
+                // Disable collaborators if they were unchecked
+                elseif ($collaborator->isActive() && (!$vars['ccs'] || !in_array($cid, $vars['ccs'])))
+                    $collaborator->setFlag(Collaborator::FLAG_ACTIVE, false);
+
+                $collaborator->save();
+            }
+        }
+        // clear db cache
+        $this->getThread()->_collaborators = null;
+
         // Get active recipients of the response
         $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
         if ($recipients instanceof MailingList)
