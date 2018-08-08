@@ -246,6 +246,7 @@ class CustomQueue extends VerySimpleModel {
     function getCurrentSearchFields($source=array(), $criteria=array()) {
         static $basic = array(
             'Ticket' => array(
+                'status__id',
                 'status__state',
                 'dept_id',
                 'assignee',
