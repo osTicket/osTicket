@@ -598,7 +598,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     )));
     $displayed = array();
     foreach($answers as $a) {
-        $displayed[] = array($a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'));
+        $displayed[] = array($a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'), ($a->getField() instanceof FileUploadField));
     }
     if (count($displayed) == 0)
         continue;
@@ -610,17 +610,22 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     <tbody>
 <?php
     foreach ($displayed as $stuff) {
-        list($label, $v, $id) = $stuff;
+        list($label, $v, $id, $isFile) = $stuff;
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
             <td>
-            <?php if ($role->hasPerm(Ticket::PERM_EDIT)) {?>
+            <?php if ($role->hasPerm(Ticket::PERM_EDIT)) {
+                    $isEmpty = strpos($v, '&mdash;');
+                    if ($isFile && !$isEmpty)
+                        echo $v.'<br>'; ?>
               <a class="ticket-action" id="inline-update" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
                   data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
                   href="#tickets/<?php echo $ticket->getId(); ?>/field/<?php echo $id; ?>/edit">
                   <?php
-                    if (strlen($v) > 200) {
+                    if (is_string($v) && $isFile && !$isEmpty) {
+                      echo "<i class=\"icon-edit\"></i>";
+                    } elseif (strlen($v) > 200) {
                       echo Format::truncate($v, 200);
                       echo "<br><i class=\"icon-edit\"></i>";
                     }
