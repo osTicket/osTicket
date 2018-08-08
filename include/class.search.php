@@ -912,6 +912,10 @@ extends SavedSearch {
         return false;
     }
 
+    function isOwner(Staff $staff) {
+        return $this->ht['staff_id'] == $staff->getId();
+    }
+
     function checkAccess($staff) {
         return true;
     }
@@ -921,6 +925,7 @@ extends SavedSearch {
     }
 
     function load($key) {
+        global $thisstaff;
 
         if (strpos($key, 'adhoc') === 0)
             list(, $key) = explode(',', $key, 2);
@@ -933,6 +938,7 @@ extends SavedSearch {
        $queue = new AdhocSearch(array(
                    'id' => "adhoc,$key",
                    'root' => 'T',
+                   'staff_id' => $thisstaff->getId(),
                    'title' => __('Advanced Search'),
                 ));
        $queue->config = $config;
