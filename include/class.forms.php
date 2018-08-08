@@ -2951,10 +2951,10 @@ class FileUploadField extends FormField {
 
     function display($value) {
         $links = array();
-        foreach ($this->getFiles() as $f) {
+        foreach ($this->getAttachments() as $a) {
             $links[] = sprintf('<a class="no-pjax" href="%s">%s</a>',
-                Format::htmlchars($f->file->getDownloadUrl()),
-                Format::htmlchars($f->file->name));
+                Format::htmlchars($a->file->getDownloadUrl()),
+                Format::htmlchars($a->getFilename()));
         }
         return implode('<br/>', $links);
     }
@@ -3896,28 +3896,27 @@ class FileUploadWidget extends Widget {
             function($t) { return strpos($t, '/') !== false; }
         );
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
-        $files = $F = array();
+        $files = array();
         $new = array_fill_keys($this->field->getClean(), 1);
         foreach ($attachments as $a) {
-            $F[] = $a->file;
             unset($new[$a->file_id]);
         }
         // Add in newly added files not yet saved (if redisplaying after an
         // error)
         if ($new) {
-            $F = array_merge($F, AttachmentFile::objects()
-                ->filter(array('id__in' => array_keys($new)))
+            $attachments = array_merge($attachments, GenericAttachment::objects()
+                ->filter(array('file_id__in' => array_keys($new)))
                 ->all()
             );
         }
 
-        foreach ($F as $file) {
+        foreach ($attachments as $att) {
             $files[] = array(
-                'id' => $file->getId(),
-                'name' => $file->getName(),
-                'type' => $file->getType(),
-                'size' => $file->getSize(),
-                'download_url' => $file->getDownloadUrl(),
+                'id' => $att->file->getId(),
+                'name' => $att->getFilename(),
+                'type' => $att->file->getType(),
+                'size' => $att->file->getSize(),
+                'download_url' => $att->file->getDownloadUrl(),
             );
         }
         ?><div id="<?php echo $id;
