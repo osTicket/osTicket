@@ -670,7 +670,7 @@ function refer($tid, $target=null) {
                     __('Release Confirmation')));
 
         $form = ReleaseForm::instantiate($_POST);
-        $hasData = ($_POST['sid'] || $_POST['tid']);
+        $hasData = $_POST['assignees'];
 
         $staff = $ticket->getStaff();
         $team = $ticket->getTeam();

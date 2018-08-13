@@ -2502,12 +2502,12 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function release($info=array(), &$errors) {
-        if ($info['sid'] && $info['tid'])
+        if ($info['assignees']['sid'] && $info['assignees']['tid'])
             return $this->unassign();
-        elseif ($info['sid'] && $this->setStaffId(0))
-            return true;
-        elseif ($info['tid'] && $this->setTeamId(0))
-            return true;
+        elseif ($info['assignees']['sid'])
+            return $this->setStaffId(0);
+        elseif ($info['assignees']['tid'])
+            return $this->setTeamId(0);
 
         return false;
     }
