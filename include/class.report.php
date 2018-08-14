@@ -77,26 +77,32 @@ class OverviewReport {
 
     function getPlotData() {
         list($start, $stop) = $this->getDateRange();
+        $states = array("created", "closed", "reopened", "assigned", "overdue", "transferred");
+        $event_ids = array();
+        foreach ($states as $state) {
+            $eid = Event::getIdByName($state);
+            $event_ids[] = $eid;
+        }
 
         # Fetch all types of events over the timeframe
         $res = db_query('SELECT DISTINCT(state) FROM '.THREAD_EVENT_TABLE
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
-            .' AND state IN ("created", "closed", "reopened", "assigned", "overdue", "transferred")'
+            .' AND event_id IN ('.implode($event_ids).')'
             .' ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
 
         # TODO: Handle user => db timezone offset
         # XXX: Implement annulled column from the %ticket_event table
-        $res = db_query('SELECT state, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
+        $res = db_query('SELECT event_id, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
                 .'COUNT(DISTINCT T.id)'
             .' FROM '.THREAD_EVENT_TABLE. ' E '
             .' JOIN '.THREAD_TABLE. ' T
                 ON (T.id = E.thread_id AND T.object_type = "T") '
             .' WHERE E.timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
-            .' AND E.state IN ("created", "closed", "reopened", "assigned", "overdue", "transferred")'
-            .' GROUP BY E.state, DATE_FORMAT(E.timestamp, \'%Y-%m-%d\')'
+            .' AND E.event_id IN ('.implode($event_ids).')'
+            .' GROUP BY E.event_id, DATE_FORMAT(E.timestamp, \'%Y-%m-%d\')'
             .' ORDER BY 2, 1');
         # Initialize array of plot values
         $plots = array();
@@ -148,8 +154,8 @@ class OverviewReport {
                ))
             ->constrain(array(
                 'thread__events' => array(
-                    'thread__events__state' => 'created',
-                    'state' => 'closed',
+                    'thread__events__event_id' => Event::getIdByName('created'),
+                    'event_id' => Event::getIdByName('closed'),
                     'annulled' => 0,
                     ),
                 ))
@@ -174,27 +180,27 @@ class OverviewReport {
                 ->aggregate(array(
                     'Opened' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('state' => 'created')), 1)
+                            ->when(new Q(array('event_id' => Event::getIdByName('created'))), 1)
                     ),
                     'Assigned' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('state' => 'assigned')), 1)
+                            ->when(new Q(array('event_id' => Event::getIdByName('assigned'))), 1)
                     ),
                     'Overdue' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('state' => 'overdue')), 1)
+                            ->when(new Q(array('event_id' => Event::getIdByName('overdue'))), 1)
                     ),
                     'Closed' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('state' => 'closed')), 1)
+                            ->when(new Q(array('event_id' => Event::getIdByName('closed'))), 1)
                     ),
                     'Reopened' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('state' => 'reopened')), 1)
+                            ->when(new Q(array('event_id' => Event::getIdByName('reopened'))), 1)
                     ),
                     'Deleted' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('state' => 'deleted')), 1)
+                            ->when(new Q(array('event_id' => Event::getIdByName('deleted'))), 1)
                     ),
                 ));
 

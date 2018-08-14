@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 86707325fc571e56242fccc46fd24466
 =======
 0ca8585781bc6656f3ca008212554441
@@ -23,3 +24,6 @@
 =======
 26fd79dc5443f37779f9d2c4108058f4
 >>>>>>> Final Additions For v1.11
+=======
+226da4e7298917160c7499cb63370f83
+>>>>>>> Optimize Upgrade: Remove ThreadEvent 'state' Enum

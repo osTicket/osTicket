@@ -5,10 +5,6 @@
 *
 * This patch is for final revisions needed for v1.11
 */
-
-ALTER TABLE `%TABLE_PREFIX%thread_event`
-    CHANGE `state` `state` enum('created','closed','reopened','assigned', 'released', 'transferred', 'referred', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL;
-
 ALTER TABLE `%TABLE_PREFIX%attachment`
     ADD INDEX `file_object` (`file_id`,`object_id`);
 
