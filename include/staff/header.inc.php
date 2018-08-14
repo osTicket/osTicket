@@ -177,7 +177,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 </a>
                                                                <!-- item-->
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=9" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-purple"><?php echo $MyImplementationTickets; ?></div>
+                                    <div class="notify-icon bg-purple"><?php echo $MyThridPartyTickets; ?></div>
                                     <p class="notify-details">3rd Party<small class="text-muted">Awaiting 3rd party</small></p>
                                 </a>
                                                                 <!-- item-->
