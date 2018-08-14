@@ -2979,6 +2979,7 @@ class MySqlCompiler extends SqlCompiler {
         $meta = $model::getMeta();
         $table = $this->quote($meta['table']).' '.$rootAlias;
         // Handle related tables
+        $need_group_by = false;
         if ($queryset->related) {
             $count = 0;
             $fieldMap = $theseFields = array();
@@ -3024,13 +3025,16 @@ class MySqlCompiler extends SqlCompiler {
         }
         // Support retrieving only a list of values rather than a model
         elseif ($queryset->values) {
+            $additional_group_by = array();
             foreach ($queryset->values as $alias=>$v) {
                 list($f) = $this->getField($v, $model);
                 $unaliased = $f;
                 if ($f instanceof SqlFunction) {
                     $fields[$f->toSql($this, $model, $alias)] = true;
                     if ($f instanceof SqlAggregate) {
-                        // Don't group_by aggregate expressions
+                        // Don't group_by aggregate expressions, but if there is an
+                        // aggergate expression, then we need a GROUP BY clause.
+                        $need_group_by = true;
                         continue;
                     }
                 }
@@ -3042,8 +3046,10 @@ class MySqlCompiler extends SqlCompiler {
                 // If there are annotations, add in these fields to the
                 // GROUP BY clause
                 if ($queryset->annotations && !$queryset->distinct)
-                    $group_by[] = $unaliased;
+                    $additional_group_by[] = $unaliased;
             }
+            if ($need_group_by && $additional_group_by)
+                $group_by = array_merge($group_by, $additional_group_by);
         }
         // Simple selection from one table
         elseif (!$queryset->aggregated) {
@@ -3064,6 +3070,8 @@ class MySqlCompiler extends SqlCompiler {
             foreach ($queryset->annotations as $alias=>$A) {
                 // The root model will receive the annotations, add in the
                 // annotation after the root model's fields
+                if ($A instanceof SqlAggregate)
+                    $need_group_by = true;
                 $T = $A->toSql($this, $model, $alias);
                 if ($fieldMap) {
                     array_splice($fields, count($fieldMap[0][0]), 0, array($T));
