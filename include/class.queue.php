@@ -1249,8 +1249,11 @@ class CustomQueue extends VerySimpleModel {
         $nopath = !isset($this->path);
         $path_changed = isset($this->dirty['parent_id']);
 
-        if ($this->dirty)
+        if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
+            // Refetch the queue counts
+            SavedQueue::clearCounts();
+        }
         if (!($rv = parent::save($refetch || $this->dirty)))
             return $rv;
 
