@@ -57,7 +57,9 @@ if ($lang) {
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/helptopic.css"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/loadingoverlay.min.css"/>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/loadingoverlay.min.js"></script>
     <link type="text/css" rel="stylesheet" href="./css/translatable.css"/>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/accordian.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/typeahead.css" media="screen">
@@ -434,6 +436,12 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                  
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/moment.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/footable.js"></script>
-
-                    
+<script>
+    $.busyLoadFull("show",  { 
+    text: "LOADING ...",
+    textColor: "#c82333",
+    color: "#c82333",
+    background: "rgba(0, 0, 0, 0.3)"
+});
+ </script>
                
