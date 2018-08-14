@@ -711,6 +711,15 @@ CREATE TABLE `%TABLE_PREFIX%lock` (
   KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%event`;
+CREATE TABLE `%TABLE_PREFIX%event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL,
+  `description` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_event`;
 CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

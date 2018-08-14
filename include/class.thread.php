@@ -2049,16 +2049,59 @@ class ThreadEvent extends VerySimpleModel {
                     $subclasses[$class::$state] = $class;
             }
         }
+        $this->state = Event::getNameById($this->event_id);
         if (!($class = $subclasses[$this->state]))
             return $this;
         return new $class($this->ht);
     }
 }
 
+class Event extends VerySimpleModel {
+    static $meta = array(
+        'table' => EVENT_TABLE,
+        'pk' => array('id'),
+    );
+
+    function getInfo() {
+        return $this->ht;
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function getName() {
+        return $this->name;
+    }
+
+    function getNameById($id) {
+        $row = Event::objects()
+            ->filter(array('id'=>$id))
+            ->values_flat('name')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
+
+    function getIdByName($name) {
+        $row = Event::objects()
+            ->filter(array('name'=>$name))
+            ->values_flat('id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
+
+    function getDescription() {
+        return $this->description;
+    }
+}
+
 class ThreadEvents extends InstrumentedList {
     function annul($event) {
+        $event_id = Event::getIdByName($event);
         $this->queryset
-            ->filter(array('state' => $event))
+            ->filter(array('event_id' => $event_id))
             ->update(array('annulled' => 1));
     }
 
@@ -2113,7 +2156,7 @@ class ThreadEvents extends InstrumentedList {
             }
         }
         $event->username = $username;
-        $event->state = $state;
+        $event->event_id = Event::getIdByName($state);
 
         if ($data) {
             if (is_array($data))

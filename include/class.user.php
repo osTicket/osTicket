@@ -635,7 +635,8 @@ implements TemplateVariable, Searchable {
     }
 
     function deleteAllTickets() {
-        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        $event_id = Event::getIdByName('deleted');
+        $deleted = TicketStatus::lookup(array('event_id' => $event_id));
         foreach($this->tickets as $ticket) {
             if (!$T = Ticket::lookup($ticket->getId()))
                 continue;
