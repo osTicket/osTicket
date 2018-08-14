@@ -251,7 +251,7 @@ class Filter {
             'starts'    => array('stripos', 0),
             'ends'      => array('iendsWith', true),
             'match'     => array('pregMatchB', 1),
-            'not_match' => array('pregMatchB', null, 0),
+            'not_match' => array('pregMatchB', null, 1),
         );
 
         $match = false;
