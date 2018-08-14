@@ -854,7 +854,15 @@ class SavedQueue extends CustomQueue {
         if (!$agent instanceof Staff)
             return array();
 
-        $queues = SavedQueue::objects()
+        if (function_exists('apcu_store')) {
+            $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
+            $cached = false;
+            $counts = apcu_fetch($key, $cached);
+            if ($cached === true)
+                return $counts;
+        }
+
+        $queues = static::objects()
             ->filter(Q::any(array(
                 'flags__hasbit' => CustomQueue::FLAG_QUEUE,
                 'staff_id' => $agent->getId(),
@@ -875,7 +883,23 @@ class SavedQueue extends CustomQueue {
             ));
         }
 
-        return $query->values()->one();
+        $counts = $query->values()->one();
+
+        if (function_exists('apcu_store')) {
+            $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
+            apcu_store($key, $counts, 3600);
+        }
+
+        return $counts;
+    }
+
+    static function clearCounts() {
+        if (function_exists('apcu_store')) {
+            $regex = '/^counts.queues.\d+.' . preg_quote(SECRET_SALT, '/') . '$/';
+            foreach (new APCUIterator($regex, APC_ITER_KEY) as $key) {
+                apcu_delete($key);
+            }
+        }
     }
 
     static function lookup($criteria) {
