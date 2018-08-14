@@ -2248,7 +2248,7 @@ extends VerySimpleModel {
             if ($include_queue && ($q = $this->getQueue())
                 && ($q_conds = $q->getConditions())
             ) {
-                $this->_conditions = array_merge($this->_conditions, $q_conds);
+                $this->_conditions = array_merge($q_conds, $this->_conditions);
             }
         }
         return $this->_conditions;
