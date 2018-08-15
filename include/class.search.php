@@ -899,6 +899,8 @@ class SavedQueue extends CustomQueue {
             foreach (new APCUIterator($regex, APC_ITER_KEY) as $key) {
                 apcu_delete($key);
             }
+            // Also clear rough counts
+            apcu_delete("rough.counts.".SECRET_SALT);
         }
     }
 
