@@ -1085,6 +1085,57 @@ class CustomQueue extends VerySimpleModel {
         $this->clearFlag(self::FLAG_DISABLED);
     }
 
+    function getRoughCount() {
+        if (($count = $this->getRoughCountAPC()) !== false)
+            return $count;
+
+        $query = Ticket::objects();
+        $Q = $this->getBasicQuery();
+        $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)),
+            new SqlField('ticket_id'));
+        $query = $query->aggregate(array(
+            "ticket_count" => SqlAggregate::COUNT($expr)
+        ));
+
+        $row = $query->values()->one();
+        return $row['ticket_count'];
+    }
+
+    function getRoughCountAPC() {
+        if (!function_exists('apcu_store'))
+            return false;
+
+        $key = "rough.counts.".SECRET_SALT;
+        $cached = false;
+        $counts = apcu_fetch($key, $cached);
+        if ($cached === true && isset($counts["q{$this->id}"]))
+            return $counts["q{$this->id}"];
+
+        // Fetch rough counts of all queues. That is, fetch a total of the
+        // counts based on the queue criteria alone. Do no consider agent
+        // access. This should be fast and "rought"
+        $queues = static::objects()
+            ->filter(['flags__hasbit' => CustomQueue::FLAG_PUBLIC])
+            ->exclude(['flags__hasbit' => CustomQueue::FLAG_DISABLED]);
+
+        $query = Ticket::objects();
+        $prefix = "";
+
+        foreach ($queues as $queue) {
+            $Q = $queue->getBasicQuery();
+            $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)),
+                new SqlField('ticket_id'));
+            $query = $query->aggregate(array(
+                "q{$queue->id}" => SqlAggregate::COUNT($expr)
+            ));
+        }
+
+        $counts = $query->values()->one();
+
+        apcu_store($key, $counts, 900);
+        return @$counts["q{$this->id}"];
+    }
+
     function updateExports($fields, $save=true) {
 
         if (!$fields)
