@@ -790,15 +790,16 @@
                 }
         },
         legend: {
-            layout: 'horizontal',
-            align: 'right',
-            verticalAlign: 'top',
-            x: -20,
-            y: 30,
-            floating: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
             borderWidth: 1,
-            backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            shadow: false
         },
+
         xAxis: {
             categories: [ <?php foreach ($results as $result) {echo "'".$result['WEEK']."',";}?>
                 
@@ -1521,8 +1522,8 @@ $(function () {
     
     Highcharts.chart('statusbyagent-chart-container1', {
         chart: {
-            type: 'column',
-            marginRight: 180
+            type: 'column'
+         
         },
         title: {
             text: 'TICKETS (TECH BY STATUS)',
@@ -1555,16 +1556,14 @@ $(function () {
             }
         },
         legend: {
-            align: 'right',
-            x: -20,
-            verticalAlign: 'top',
-            layout: 'verticle',
-            y: 30,
-            floating: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
             backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
             borderColor: '#CCC',
             borderWidth: 1,
-            shadow: true
+            shadow: false
         },
         tooltip: {
             headerFormat: '<b>{point.x}</b><br/>',
@@ -1603,8 +1602,8 @@ $(function () {
     
     Highcharts.chart('statusbyagent-chart-container2', {
         chart: {
-            type: 'column',
-            marginRight: 230
+            type: 'column'
+            
         },
         title: {
             text: 'TICKETS (STATUS BY TECH)',
@@ -1637,16 +1636,14 @@ $(function () {
             }
         },
         legend: {
-            align: 'right',
-            x: -0,
-            verticalAlign: 'top',
-            layout: 'verticle',
-            y: 30,
-            floating: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
             backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
             borderColor: '#CCC',
             borderWidth: 1,
-            shadow: true
+            shadow: false
         },
         tooltip: {
             headerFormat: '<b>{point.x}</b><br/>',
@@ -1696,8 +1693,7 @@ $(function () {
     
     Highcharts.chart('statusbylocation-chart-container1', {
         chart: {
-            type: 'column',
-            marginRight: 180
+            type: 'column'
         },
         title: {
             text: 'TICKETS (LOCATION BY STATUS)',
@@ -1730,16 +1726,14 @@ $(function () {
             }
         },
         legend: {
-            align: 'right',
-            x: -30,
-            verticalAlign: 'top',
-            layout: 'verticle',
-            y: 30,
-            floating: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
             backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
             borderColor: '#CCC',
             borderWidth: 1,
-            shadow: true
+            shadow: false
         },
         tooltip: {
             headerFormat: '<b>{point.x}</b><br/>',
@@ -1786,8 +1780,7 @@ $(function () {
     
     Highcharts.chart('statusbylocation-chart-container2', {
         chart: {
-            type: 'column',
-            marginRight: 230
+            type: 'column'
         },
         title: {
             text: 'TICKETS (STATUS BY LOCATION)',
@@ -1820,16 +1813,14 @@ $(function () {
             }
         },
         legend: {
-            align: 'right',
-            x: -5,
-            verticalAlign: 'top',
-            layout: 'verticle',
-            y: 30,
-            floating: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
             backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
             borderColor: '#CCC',
             borderWidth: 1,
-            shadow: true
+            shadow: false
         },
         tooltip: {
             headerFormat: '<b>{point.x}</b><br/>',
@@ -1977,7 +1968,7 @@ $sql="select * from (select cat,sum(COUNT) as COUNT, OWNER_NAME,CALENDARWEEK,CAL
 $(function () {
     Highcharts.chart('closedbytech-chart-container1', {
         chart: {
-            type: 'spline'
+            type: 'column'
         },
         title: {
             text: 'TICKETS CLOSED (TECH 1 YEARS)',
@@ -1999,16 +1990,46 @@ $(function () {
         yAxis: {
             title: {
                 text: 'Number of Tickets'
-            }
-        },
-        plotOptions: {
-        spline: {
-            marker: {
-                radius: 4,
-                lineColor: '#666666',
-                lineWidth: 1
+                          },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
             }
         }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+      
+        plotOptions: {
+           column: {
+                stacking: 'normal',
+            dataLabels: {
+                enabled: true,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 2) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+           }
         },
         
                series: [
@@ -2117,7 +2138,7 @@ $periods = db_query($sql);
 $(function () {
     Highcharts.chart('openedbylocation-chart-container1', {
         chart: {
-            type: 'spline'
+            type: 'column'
         },
         title: {
             text: 'TICKETS OPENED (LOCATION 1 YEARS)',
@@ -2139,18 +2160,47 @@ $(function () {
         yAxis: {
             title: {
                 text: 'Number of Tickets'
-            }
-        },
-        plotOptions: {
-        spline: {
-            marker: {
-                radius: 4,
-                lineColor: '#666666',
-                lineWidth: 1
+                          },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
             }
         }
         },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
         
+        plotOptions: {
+         column: {
+                stacking: 'normal',
+            dataLabels: {
+                enabled: true,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 2) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+        }
+        },
                series: [
         
          <?php
@@ -2257,7 +2307,7 @@ $periods = db_query($sql);
 $(function () {
     Highcharts.chart('closedbylocation-chart-container1', {
         chart: {
-            type: 'spline'
+            type: 'column'
         },
         title: {
             text: 'TICKETS CLOSED (LOCATION 1 YEARS)',
@@ -2279,15 +2329,45 @@ $(function () {
         yAxis: {
             title: {
                 text: 'Number of Tickets'
+            },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
             }
+        }
         },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+            headerFormat: '<b>{point.x}</b><br/>',
+            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        },
+        
         plotOptions: {
-        spline: {
-            marker: {
-                radius: 4,
-                lineColor: '#666666',
-                lineWidth: 1
-            }
+         column: {
+                stacking: 'normal',
+            dataLabels: {
+                enabled: true,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 2) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
         }
         },
         
