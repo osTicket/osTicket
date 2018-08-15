@@ -176,6 +176,20 @@ extends VerySimpleModel {
             $this->updated = SqlFunction::NOW();
         return parent::save($this->dirty || $refetch);
     }
+
+    // Clean password reset tokens that have expired
+    static function cleanPwResets() {
+        global $cfg;
+
+        if (!$cfg || !($period = $cfg->getPwResetWindow())) // In seconds
+            return false;
+
+        return ConfigItem::objects()
+             ->filter(array(
+                'namespace' => 'pwreset',
+                'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::SECOND($period)),
+            ))->delete();
+    }
 }
 
 class OsticketConfig extends Config {

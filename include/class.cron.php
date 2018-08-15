@@ -56,6 +56,11 @@ class Cron {
         DbSessionBackend::cleanup();
     }
 
+    function CleanPwResets() {
+        require_once(INCLUDE_DIR.'class.config.php');
+        ConfigItem::cleanPwResets();
+    }
+
     function MaybeOptimizeTables() {
         // Once a week on a 5-minute cron
         $chance = rand(1,2000);
@@ -106,6 +111,7 @@ class Cron {
         self::TicketMonitor();
         self::PurgeLogs();
         self::CleanExpiredSessions();
+        self::CleanPwResets();
         // Run file purging about every 10 cron runs
         if (mt_rand(1, 9) == 4)
             self::CleanOrphanedFiles();
