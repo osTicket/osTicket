@@ -894,17 +894,10 @@ class Format {
           return sprintf($timeDiff >= 0 ? __('%d hours ago') : __('in %d hours'), $absTimeDiff / 3600);
         }
 
-        // within 2 days
-        $days2 = 2 * 86400;
-        if ($absTimeDiff < $days2) {
-            // XXX: yesterday / tomorrow?
-          return $absTimeDiff >= 0 ? __('yesterday') : __('tomorrow');
-        }
-
         // within 29 days
         $days29 = 29 * 86400;
         if ($absTimeDiff < $days29) {
-          return sprintf($timeDiff >= 0 ? __('%d days ago') : __('in %d days'), $absTimeDiff / 86400);
+          return sprintf($timeDiff >= 0 ? __('%d days ago') : __('in %d days'), round($absTimeDiff / 86400));
         }
 
         // within 60 days
