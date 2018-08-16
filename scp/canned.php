@@ -37,6 +37,13 @@ $canned_form = new SimpleForm(array(
    )),
 ));
 
+// Set fields' attachments so exsting files stay put
+if ($canned
+    && $canned->attachments
+    && ($attachments = $canned_form->getField('attachments'))) {
+     $attachments->setAttachments($canned->attachments);
+}
+
 if ($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'update':
