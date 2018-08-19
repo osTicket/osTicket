@@ -196,6 +196,8 @@
         var i = this.uploads.indexOf(filenode);
         if (i !== -1)
             this.uploads.splice(i,1);
+        // Draft Drop Callback
+        this.options.dropCallback(filenode);
         filenode.slideUp('fast', function() { $(this).remove(); });
       }
     },
@@ -659,6 +661,9 @@
         upload.global_progress_index = global_progress_index;
         upload.startData = 0;
         upload.addEventListener("progress", progress, false);
+
+        // Reset Dropzone URL
+        opts.url = $('.dropzone').data('dropbox').options.url;
 
         // Allow url to be a method
         if (jQuery.isFunction(opts.url)) {

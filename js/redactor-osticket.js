@@ -23,7 +23,7 @@ RedactorPlugins.draft = function() {
         if (this.opts.draftObjectId)
             autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = this.opts.autoCreateUrl = autosave_url;
-        this.opts.autosaveInterval = 30;
+        this.opts.autosaveInterval = 5;
         this.opts.autosaveCallback = this.draft.afterUpdateDraft;
         this.opts.autosaveErrorCallback = this.draft.autosaveFailed;
         this.opts.imageUploadErrorCallback = this.draft.displayError;
@@ -79,6 +79,10 @@ RedactorPlugins.draft = function() {
         // If the draft was created, a draft_id will be sent back — update
         // the URL to send updates in the future
         if (!this.opts.draftId && data.draft_id) {
+            var area = this.$box.find('textarea');
+            area[0].dataset.draftId = data.draft_id;
+            $('.dropzone').data('dropbox').options.url =
+                'ajax.php/form/draft/' + data.draft_id + '/upload/attach';
             this.opts.draftId = data.draft_id;
             this.opts.autosave = 'ajax.php/draft/' + data.draft_id;
             this.opts.clipboardUploadUrl =
@@ -141,6 +145,19 @@ RedactorPlugins.draft = function() {
                 self.draft.deleteButton.hide();
                 self.draft.firstSave = false;
                 self.$box.trigger('draft:deleted');
+                // Reset Dropzone URL
+                $('.dropzone').data('dropbox').options.url =
+                    'ajax.php/form/upload/attach';
+                // Reset Image URLs
+                self.opts.imageUpload =
+                    self.opts.clipboardUploadUrl = self.opts.autosave + '/attach';
+                // Remove data-draft-id
+                var area = self.$box.find('textarea');
+                delete area[0].dataset.draftId;
+                // Trigger Attachment Deletion
+                $('div.file').each(function() {
+                    $('.dropzone').data('dropbox').deleteNode($(this), false);
+                });
             }
         });
     }
