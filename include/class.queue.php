@@ -246,6 +246,7 @@ class CustomQueue extends VerySimpleModel {
     function getCurrentSearchFields($source=array(), $criteria=array()) {
         static $basic = array(
             'Ticket' => array(
+                'status__id',
                 'status__state',
                 'dept_id',
                 'assignee',
@@ -937,10 +938,14 @@ class CustomQueue extends VerySimpleModel {
         return $agent && $this->isPrivate() && $this->checkOwnership($agent);
     }
 
+    function isSaved() {
+        return true;
+    }
+
     function ignoreVisibilityConstraints(Staff $agent) {
-        // For saved searches (not queues), some staff can have a permission to
+        // For searches (not queues), some staff can have a permission to
         // see all records
-        return (!$this->isASubQueue()
+        return ($this->isASearch()
                 && $this->isOwner($agent)
                 && $agent->canSearchEverything());
     }
@@ -992,6 +997,10 @@ class CustomQueue extends VerySimpleModel {
 
     function isAQueue() {
         return $this->hasFlag(self::FLAG_QUEUE);
+    }
+
+    function isASearch() {
+        return !$this->isAQueue() || !$this->isSaved();
     }
 
     function isPrivate() {
@@ -1992,7 +2001,16 @@ extends VerySimpleModel {
     // These getters fetch data from the annotated overlay from the
     // queue_column table
     function getQueue() {
-        return $this->_queue ?: $this->queue;
+        if (!isset($this->_queue)) {
+            $queue = $this->queue;
+
+            if (!$queue && ($queue_id = $this->queue_id))
+                $queue = CustomQueue::lookup($queue_id);
+
+            $this->_queue = $queue;
+        }
+
+        return $this->_queue;
     }
     /**
      * If a column is inherited into a child queue and there are conditions
@@ -2239,7 +2257,7 @@ extends VerySimpleModel {
             if ($include_queue && ($q = $this->getQueue())
                 && ($q_conds = $q->getConditions())
             ) {
-                $this->_conditions = array_merge($this->_conditions, $q_conds);
+                $this->_conditions = array_merge($q_conds, $this->_conditions);
             }
         }
         return $this->_conditions;
