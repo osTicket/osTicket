@@ -86,6 +86,7 @@ class Ticket2PDF extends mPDFWithLocalImages
             return;
         $html = ob_get_clean();
 
+        $this->SetAutoFont();
         $this->WriteHtml($html, 0, true, true);
     }
 }
@@ -115,6 +116,7 @@ class Task2PDF extends mPDFWithLocalImages {
         ob_start();
         include STAFFINC_DIR.'templates/task-print.tmpl.php';
         $html = ob_get_clean();
+        $this->SetAutoFont();
         $this->WriteHtml($html, 0, true, true);
 
     }
