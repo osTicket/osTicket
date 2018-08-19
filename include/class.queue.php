@@ -2001,7 +2001,16 @@ extends VerySimpleModel {
     // These getters fetch data from the annotated overlay from the
     // queue_column table
     function getQueue() {
-        return $this->_queue ?: $this->queue;
+        if (!isset($this->_queue)) {
+            $queue = $this->queue;
+
+            if (!$queue && ($queue_id = $this->queue_id))
+                $queue = CustomQueue::lookup($queue_id);
+
+            $this->_queue = $queue;
+        }
+
+        return $this->_queue;
     }
     /**
      * If a column is inherited into a child queue and there are conditions
