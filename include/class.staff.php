@@ -76,7 +76,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (isset($this->_config[$field]))
             return $this->_config[$field];
 
-        return parent::get($field, $default);
+        try {
+            return parent::get($field, $default);
+        } catch (Exception $e) {}
     }
 
     function getConfig() {
