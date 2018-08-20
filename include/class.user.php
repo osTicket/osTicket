@@ -1033,6 +1033,8 @@ class UserAccount extends VerySimpleModel {
 
     function setPassword($new) {
         $this->set('passwd', Passwd::hash($new));
+        // Clean sessions
+        Signal::send('auth.clean', $this->getUser());
     }
 
     protected function sendUnlockEmail($template) {
