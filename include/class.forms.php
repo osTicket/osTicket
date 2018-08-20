@@ -2688,6 +2688,7 @@ class FileUploadField extends FormField {
     static $widget = 'FileUploadWidget';
 
     protected $attachments;
+    protected $files;
 
     static function getFileTypes() {
         static $filetypes;
@@ -2859,7 +2860,7 @@ class FileUploadField extends FormField {
         return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
-    function getFiles() {
+    function getAttachments() {
         if (!isset($this->attachments) && ($a = $this->getAnswer())
             && ($e = $a->getEntry()) && ($e->get('id'))
         ) {
@@ -2873,6 +2874,18 @@ class FileUploadField extends FormField {
 
     function setAttachments(GenericAttachments $att) {
         $this->attachments = $att;
+    }
+
+    function getFiles() {
+        if (!isset($this->files)) {
+            $files = array();
+            foreach ($this->getAttachments() as $a) {
+                if ($a && ($f=$a->getFile()))
+                    $files[] = $f;
+            }
+            $this->files = $files;
+        }
+        return $this->files;
     }
 
     function getConfiguration() {
@@ -2932,8 +2945,8 @@ class FileUploadField extends FormField {
     // array. Then, inspect the difference between the files actually
     // attached to this field
     function to_database($value) {
-        $this->getFiles();
-        if (isset($this->attachments)) {
+        $this->getAttachments();
+        if (isset($this->attachments) && $this->attachments) {
             $this->attachments->keepOnlyFileIds($value);
         }
         return JsonDataEncoder::encode($value);
@@ -2962,21 +2975,22 @@ class FileUploadField extends FormField {
     function toString($value) {
         $files = array();
         foreach ($this->getFiles() as $f) {
-            $files[] = $f->file->name;
+            $files[] = $f->name;
         }
         return implode(', ', $files);
     }
 
     function db_cleanup($field=false) {
-        // Delete associated attachments from the database, if any
-        $this->getFiles();
-        if (isset($this->attachments)) {
+        if ($this->getAttachments()) {
             $this->attachments->deleteAll();
         }
     }
 
     function asVar($value, $id=false) {
-        return new FileFieldAttachments($this->getFiles());
+        if (($attachments = $this->getAttachments()))
+            $attachments = $attachments->all();
+
+        return new FileFieldAttachments($attachments ?: array());
     }
     function asVarType() {
         return 'FileFieldAttachments';
@@ -3015,18 +3029,22 @@ class FileUploadField extends FormField {
 }
 
 class FileFieldAttachments {
-    var $files;
+    var $attachments;
 
-    function __construct($files) {
-        $this->files = $files;
+    function __construct($attachments) {
+        $this->attachments = $attachments;
     }
 
     function __toString() {
         $files = array();
-        foreach ($this->files as $f) {
-            $files[] = $f->file->name;
+        foreach ($this->getAttachments() as $a) {
+            $files[] = $a->getFilename();
         }
         return implode(', ', $files);
+    }
+
+    function getAttachments() {
+        return $this->attachments ?: array();
     }
 
     function getVar($tag) {
@@ -3034,7 +3052,7 @@ class FileFieldAttachments {
         case 'names':
             return $this->__toString();
         case 'files':
-            throw new OOBContent(OOBContent::FILES, $this->files->all());
+            throw new OOBContent(OOBContent::FILES, $this->getAttachments());
         }
     }
 
@@ -3891,7 +3909,7 @@ class FileUploadWidget extends Widget {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
-        $attachments = $this->field->getFiles();
+        $attachments = $this->field->getAttachments();
         $mimetypes = array_filter($config['__mimetypes'],
             function($t) { return strpos($t, '/') !== false; }
         );
@@ -4048,21 +4066,22 @@ class FreeTextField extends FormField {
     }
 
     function getAttachments() {
-
         if (!isset($this->attachments))
             $this->attachments = GenericAttachments::forIdAndType($this->get('id'), 'I');
 
-        return $this->attachments;
+        return $this->attachments ?: array();
     }
 
     function getFiles() {
-
-        if (!($attachments = $this->getAttachments()))
-            return array();
-
-        return $attachments->all();
+        if (!isset($this->files)) {
+            $files = array();
+            if (($attachments=$this->getAttachments()))
+                foreach ($attachments->all() as $a)
+                    $files[] = $a->getFile();
+            $this->files = $files;
+        }
+        return $this->files;
     }
-
 }
 
 class FreeTextWidget extends Widget {
@@ -4084,10 +4103,10 @@ class FreeTextWidget extends Widget {
             echo Format::viewableImages($config['content']); ?></div>
         </div>
         <?php
-        if (($attachments=$this->field->getFiles())) { ?>
+        if (($attachments = $this->field->getAttachments()) && count($attachments)) { ?>
             <section class="freetext-files">
             <div class="title"><?php echo __('Related Resources'); ?></div>
-            <?php foreach ($attachments as $attach) { ?>
+            <?php foreach ($attachments->all() as $attach) { ?>
                 <div class="file">
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
                     target="_blank" download="<?php echo $attach->file->getDownloadUrl();

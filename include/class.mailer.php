@@ -422,10 +422,10 @@ class Mailer {
 
         // Add in extra attachments, if any from template variables
         if ($message instanceof TextWithExtras
-            && ($files = $message->getFiles())
+            && ($attachments = $message->getAttachments())
         ) {
-            foreach ($files as $F) {
-                $file = $F->getFile();
+            foreach ($attachments as $a) {
+                $file = $a->getFile();
                 $mime->addAttachment($file->getData(),
                     $file->getType(), $file->getName(), false);
             }
