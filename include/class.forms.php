@@ -3439,7 +3439,7 @@ class FileUploadField extends FormField {
     function display($value) {
         $links = array();
         foreach ($this->getAttachments() as $a) {
-            $links[] = sprintf('<a class="no-pjax" href="%s">%s</a>',
+            $links[] = sprintf('<a class="no-pjax" href="%s"><i class="icon-paperclip icon-flip-horizontal"></i> %s</a>',
                 Format::htmlchars($a->file->getDownloadUrl()),
                 Format::htmlchars($a->getFilename()));
         }
