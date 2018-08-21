@@ -76,7 +76,7 @@ if (!$sorted && isset($sort['queuesort'])) {
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
-$count = $queue->getRoughCount();
+$count = $queue->getCount($thisstaff);
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
