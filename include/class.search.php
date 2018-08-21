@@ -848,18 +848,40 @@ class SavedQueue extends CustomQueue {
         return (!$errors);
     }
 
-    static function ticketsCount($agent, $criteria=array(),
-            $prefix='') {
+    function getCount($agent, $cached=true) {
+        $criteria = $cached ? array() : array('id' => $this->getId());
+        $counts = self::counts($agent, $criteria, $cached);
+        return $counts["q{$this->getId()}"] ?: 0;
+    }
+
+    // Get ticket counts for queues the agent has acces to.
+    static function counts($agent, $criteria=array(), $cached=true) {
 
         if (!$agent instanceof Staff)
             return array();
 
-        if (function_exists('apcu_store')) {
-            $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
-            $cached = false;
-            $counts = apcu_fetch($key, $cached);
-            if ($cached === true)
-                return $counts;
+        // Cache TLS in seconds
+        $ttl = 3600;
+        // Cache key based on agent and salt of the installation
+        $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
+        if ($criteria && is_array($criteria)) // Consider additional criteria.
+            $key .= '.'.md5(serialize($criteria));
+
+        // only consider cache if requesed
+        if ($cached) {
+            if (function_exists('apcu_store')) {
+                $found = false;
+                $counts = apcu_fetch($key, $found);
+                if ($found === true)
+                    return $counts;
+            } elseif (isset($_SESSION[$key])
+                    && isset($_SESSION[$key]['qcount'])
+                    && (time() - $_SESSION[$key]['time']) < $ttl) {
+                return $_SESSION[$key]['qcount'];
+            } else {
+                // Auto clear missed session cache (if any)
+                unset($_SESSION[$key]);
+            }
         }
 
         $queues = static::objects()
@@ -868,7 +890,7 @@ class SavedQueue extends CustomQueue {
                 'staff_id' => $agent->getId(),
             )));
 
-        if ($criteria)
+        if ($criteria && is_array($criteria))
             $queues->filter($criteria);
 
         $query = Ticket::objects();
@@ -879,15 +901,18 @@ class SavedQueue extends CustomQueue {
             $Q = $queue->getBasicQuery();
             $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
             $query->aggregate(array(
-                "$prefix{$queue->id}" => SqlAggregate::COUNT($expr, true)
+                "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
             ));
         }
 
         $counts = $query->values()->one();
-
+        // Always cache the results
         if (function_exists('apcu_store')) {
-            $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
-            apcu_store($key, $counts, 3600);
+            apcu_store($key, $counts, $ttl);
+        } else {
+            // Poor man's cache
+            $_SESSION[$key]['qcount'] = $counts;
+            $_SESSION[$key]['time'] = time();
         }
 
         return $counts;
@@ -895,9 +920,11 @@ class SavedQueue extends CustomQueue {
 
     static function clearCounts() {
         if (function_exists('apcu_store')) {
-            $regex = '/^counts.queues.\d+.' . preg_quote(SECRET_SALT, '/') . '$/';
-            foreach (new APCUIterator($regex, APC_ITER_KEY) as $key) {
-                apcu_delete($key);
+            if (class_exists('APCUIterator')) {
+                $regex = '/^counts.queues.\d+.' . preg_quote(SECRET_SALT, '/') . '$/';
+                foreach (new APCUIterator($regex, APC_ITER_KEY) as $key) {
+                    apcu_delete($key);
+                }
             }
             // Also clear rough counts
             apcu_delete("rough.counts.".SECRET_SALT);
