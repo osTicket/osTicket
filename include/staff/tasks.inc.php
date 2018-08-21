@@ -119,19 +119,19 @@ if ($filters)
 // Impose visibility constraints
 // ------------------------------------------------------------
 // -- Open and assigned to me
-$visibility = array(
+$visibility = Q::any(
     new Q(array('flags__hasbit' => TaskModel::ISOPEN, 'staff_id' => $thisstaff->getId()))
 );
 // -- Routed to a department of mine
 if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-    $visibility[] = new Q(array('dept_id__in' => $depts));
+    $visibility->add(new Q(array('dept_id__in' => $depts)));
 // -- Open and assigned to a team of mine
 if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-    $visibility[] = new Q(array(
+    $visibility->add(new Q(array(
         'team_id__in' => array_filter($teams),
         'flags__hasbit' => TaskModel::ISOPEN
-    ));
-$tasks->filter(Q::any($visibility));
+    )));
+$tasks->filter(new Q($visibility));
 
 // Add in annotations
 $tasks->annotate(array(
