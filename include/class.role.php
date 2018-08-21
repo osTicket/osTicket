@@ -320,6 +320,16 @@ class RolePermission {
     }
 
     static function allPermissions() {
+        static $sorted = false;
+
+        if (!$sorted) {
+            // Sort permissions in alphabetical order
+            foreach (static::$_permissions as $k => $v) {
+                asort(static::$_permissions[$k]);
+            }
+            $sorted = true;
+        }
+
         return static::$_permissions;
     }
 

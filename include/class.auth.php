@@ -1313,7 +1313,35 @@ abstract class PasswordPolicy {
     static function register($policy) {
         static::$registry[] = $policy;
     }
+
+    static function cleanSessions($model, $user=null) {
+        $criteria = array();
+
+        switch (true) {
+            case ($model instanceof Staff):
+                $criteria['user_id'] = $model->getId();
+
+                if ($user && ($model->getId() == $user->getId()))
+                    array_push($criteria,
+                        Q::not(array('session_id' => $user->session->session_id)));
+                break;
+            case ($model instanceof User):
+                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
+                $criteria['user_id'] = 0;
+                $criteria['session_data__regex'] = $regexp;
+
+                if ($user)
+                    array_push($criteria,
+                        Q::not(array('session_id' => $user->session->session_id)));
+                break;
+            default:
+                return false;
+        }
+
+        return SessionData::objects()->filter($criteria)->delete();
+    }
 }
+Signal::connect('auth.clean', array('PasswordPolicy', 'cleanSessions'));
 
 class osTicketPasswordPolicy
 extends PasswordPolicy {
