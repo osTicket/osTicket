@@ -2826,7 +2826,8 @@ extends QueueColumnFilter {
     static $desc = /* @trans */ "Date and Time";
 
     function filter($text, $row) {
-        return $text->changeTo(Format::datetime($text->value));
+        return $text ?
+            $text->changeTo(Format::datetime($text->value)) : '';
     }
 }
 
