@@ -3525,6 +3525,12 @@ table.grid.form caption {
   margin-bottom: 5px;
 }
 
+.grid.form .field > .field-hint-text {
+  font-style: italic;
+  margin: 0 10px 5px 10px;
+  opacity: 0.8;
+}
+
 #basic_search {
   background-color: #f4f4f4;
   margin: -10px 0;
