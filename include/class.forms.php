@@ -4578,8 +4578,14 @@ class FreeTextWidget extends Widget {
         if (($attachments = $this->field->getAttachments()) && count($attachments)) { ?>
             <section class="freetext-files">
             <div class="title"><?php echo __('Related Resources'); ?></div>
+<<<<<<< HEAD
             <?php foreach ($attachments->all() as $attach) { ?>
 >>>>>>> Make getFiles() return files
+=======
+            <?php foreach ($attachments->all() as $attach) {
+                $filename = $attach->getFilename();
+                ?>
+>>>>>>> Lint: Lint text fixes
                 <div class="file">
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
                     target="_blank" download="<?php echo $filename; ?>"
