@@ -253,6 +253,7 @@ class CustomQueue extends VerySimpleModel {
                 'topic_id',
                 'created',
                 'est_duedate',
+                'duedate',
             )
         );
 
