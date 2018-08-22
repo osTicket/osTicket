@@ -2110,6 +2110,14 @@ extends ModelResultSet {
 
         return $object;
     }
+
+    function merge(InstrumentedList $list, $save=false) {
+       foreach ($list as $object)
+         $this->add($object, $save);
+
+       return $this;
+    }
+
     function remove($object, $delete=true) {
         if ($delete)
             $object->delete();
