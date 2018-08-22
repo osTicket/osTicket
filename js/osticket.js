@@ -45,6 +45,9 @@ $(document).ready(function(){
 
     $('form').submit(function() {
         $(window).unbind('beforeunload');
+        // Disable client-side Post Reply/Create Ticket buttons to help
+        // prevent duplicate POST
+        $(':submit', $(this)).attr('disabled', true);
         $('#overlay, #loading').show();
         return true;
        });
