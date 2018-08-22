@@ -4583,7 +4583,7 @@ class FreeTextWidget extends Widget {
 >>>>>>> Make getFiles() return files
 =======
             <?php foreach ($attachments->all() as $attach) {
-                $filename = $attach->getFilename();
+                $filename = Format::htmlchars($attach->getFilename());
                 ?>
 >>>>>>> Lint: Lint text fixes
                 <div class="file">
