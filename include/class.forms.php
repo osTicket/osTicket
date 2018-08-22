@@ -4604,7 +4604,9 @@ class FreeTextWidget extends Widget {
         if (($attachments = $this->field->getAttachments()) && count($attachments)) { ?>
             <section class="freetext-files">
             <div class="title"><?php echo __('Related Resources'); ?></div>
-            <?php foreach ($attachments->all() as $attach) { ?>
+            <?php foreach ($attachments->all() as $attach) {
+                $filename = $attach->getFilename();
+                ?>
                 <div class="file">
                 <a href="<?php echo $attach->file->getDownloadUrl(); ?>"
                     target="_blank" download="<?php echo $filename; ?>"

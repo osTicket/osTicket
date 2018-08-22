@@ -229,6 +229,7 @@ class Mail_mime {
 
 class mPDF {
     function Output() {}
+    function SetAutoFont() {}
 }
 
 class HashPassword {
