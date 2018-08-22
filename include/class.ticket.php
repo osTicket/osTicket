@@ -3708,15 +3708,15 @@ implements RestrictedAccess, Threadable, Searchable {
             $errors += $form->errors();
 
         if ($vars['topicId']) {
-            if ($topic=Topic::lookup($vars['topicId'])) {
+            if (($topic=Topic::lookup($vars['topicId']))
+                    && $topic->isActive()) {
                 foreach ($topic_forms as $topic_form) {
                     $TF = $topic_form->getForm($vars);
                     if (!$TF->isValid($field_filter('topic')))
                         $errors = array_merge($errors, $TF->errors());
                 }
-            }
-            else  {
-                $errors['topicId'] = 'Invalid help topic selected';
+            } else  {
+                $vars['topicId'] = 0;
             }
         }
 
