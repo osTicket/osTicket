@@ -333,6 +333,11 @@ class VerySimpleModel {
         return static::getMeta()->newInstance($row);
     }
 
+    function __wakeup() {
+        // If a model is stashed in a session, refresh the model from the database
+        $this->refetch();
+    }
+
     function get($field, $default=false) {
         if (array_key_exists($field, $this->ht))
             return $this->ht[$field];
@@ -1142,6 +1147,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     const OPT_NOSORT    = 'nosort';
     const OPT_NOCACHE   = 'nocache';
     const OPT_MYSQL_FOUND_ROWS = 'found_rows';
+    const OPT_INDEX_HINT = 'indexhint';
 
     const ITER_MODELS   = 1;
     const ITER_HASH     = 2;
@@ -1475,6 +1481,14 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
 
     function hasOption($option) {
         return isset($this->options[$option]);
+    }
+
+    function getOption($option) {
+        return @$this->options[$option] ?: false;
+    }
+
+    function setOption($option, $value) {
+        $this->options[$option] = $value;
     }
 
     function countSelectFields() {
@@ -3083,12 +3097,15 @@ class MySqlCompiler extends SqlCompiler {
         $group_by = $group_by ? ' GROUP BY '.implode(', ', $group_by) : '';
 
         $joins = $this->getJoins($queryset);
+        if ($hint = $queryset->getOption(QuerySet::OPT_INDEX_HINT)) {
+            $hint = " USE INDEX ({$hint})";
+        }
 
         $sql = 'SELECT ';
         if ($queryset->hasOption(QuerySet::OPT_MYSQL_FOUND_ROWS))
             $sql .= 'SQL_CALC_FOUND_ROWS ';
         $sql .= implode(', ', $fields).' FROM '
-            .$table.$joins.$where.$group_by.$having.$sort;
+            .$table.$hint.$joins.$where.$group_by.$having.$sort;
         // UNIONS
         if ($queryset->chain) {
             // If the main query is sorted, it will need parentheses
