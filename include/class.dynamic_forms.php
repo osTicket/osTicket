@@ -156,8 +156,12 @@ class DynamicForm extends VerySimpleModel {
         $inst = DynamicFormEntry::create(
             array('form_id'=>$this->get('id'), 'sort'=>$sort)
         );
+
         if ($data)
             $inst->setSource($data);
+
+        $inst->_fields = $this->_fields ?: null;
+
         return $inst;
     }
 
