@@ -313,7 +313,9 @@ class Format {
             array('', '', '', '', '<html', '$4'),
 =======
                   ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
+                  ':data-cid="[^"]*":',         # drop image cid attributes
             ),
+<<<<<<< HEAD
             array('', '', '', '', '<html', '$2 $3'),
 >>>>>>> issue: Drop Gmail "ltr" Attributes
 =======
@@ -321,6 +323,9 @@ class Format {
             ),
             array('', '', '', '', '<html', '$4'),
 >>>>>>> issue: Outlook _MailEndCompose
+=======
+            array('', '', '', '', '<html', '$4', '$2 $3', ''),
+>>>>>>> issue: Image CID Attributes
             $html);
 
         // HtmLawed specific config only
