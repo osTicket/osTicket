@@ -471,29 +471,9 @@ class Filter {
     }
 
     function save($id,$vars,&$errors) {
-      //get current filter actions (they're validated before saving)
-      self::save_actions($id, $vars, $errors);
-
-      if ($this) {
-        foreach ($this->getActions() as $A) {
-          $config = JsonDataParser::parse($A->configuration);
-          if ($A->type == 'dept') {
-            $dept = Dept::lookup($config['dept_id']);
-            $dept_action = $A->getId();
-          }
-
-          if ($A->type == 'topic') {
-            $topic = Topic::lookup($config['topic_id']);
-            $topic_action = $A->getId();
-          }
-        }
-      }
-
-      if($dept && !$dept->isActive() && (is_array($vars['actions']) && !in_array('D' . $dept_action,$vars['actions'])))
-        $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
-
-      if($topic && !$topic->isActive() && (is_array($vars['actions']) && !in_array('D' . $topic_action,$vars['actions'])))
-        $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
+        //validate filter actions before moving on
+        if (!self::validate_actions($vars, $errors))
+            return false;
 
         if(!$vars['execorder'])
             $errors['execorder'] = __('Order required');
@@ -551,42 +531,67 @@ class Filter {
         # Don't care about errors stashed in $xerrors
         $xerrors = array();
         self::save_rules($id,$vars,$xerrors);
+        self::save_actions($id, $vars, $errors);
 
         return count($errors) == 0;
     }
 
-    function validate_actions($action) {
-      $errors = array();
-      $config = json_decode($action->ht['configuration'], true);
-      switch ($action->ht['type']) {
-        case 'dept':
-          $dept = Dept::lookup($config['dept_id']);
-          if (!$dept || !$dept->isActive()) {
-            $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
-            return $errors;
-          }
-          break;
+    function validate_actions($vars, &$errors) {
+        if (!is_array(@$vars['actions']))
+            return;
 
-        case 'topic':
-          $topic = Topic::lookup($config['topic_id']);
-          if (!$topic || !$topic->isActive()) {
-            $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
-            return $errors;
-          }
-          break;
+      foreach ($vars['actions'] as $sort=>$v) {
+          if (is_array($v)) {
+              $info = $v['type'];
+              $sort = $v['sort'] ?: $sort;
+          } else
+              $info = substr($v, 1);
 
-        default:
-          foreach ($config as $key => $value) {
-            if (!$value) {
-              $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
-              return $errors;
-            }
+          $action = new FilterAction(array(
+              'type'=>$info,
+              'sort' => (int) $sort,
+          ));
+          $errors = array();
+          $action->setConfiguration($errors, $vars);
+
+          $config = json_decode($action->ht['configuration'], true);
+          if (is_numeric($action->ht['type'])) {
+              foreach ($config as $key => $value) {
+                  if ($key == 'topic_id') {
+                      $action->ht['type'] = 'topic';
+                      $config['topic_id'] = $value;
+                  }
+                  if ($key == 'dept_id') {
+                      $action->ht['type'] = 'dept';
+                      $config['dept_id'] = $value;
+                  }
+              }
           }
-          break;
+
+          switch ($action->ht['type']) {
+            case 'dept':
+              $dept = Dept::lookup($config['dept_id']);
+              if (!$dept || !$dept->isActive()) {
+                $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+              }
+              break;
+            case 'topic':
+              $topic = Topic::lookup($config['topic_id']);
+              if (!$topic || !$topic->isActive()) {
+                $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+              }
+              break;
+            default:
+              foreach ($config as $key => $value) {
+                if (!$value) {
+                  $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
+                }
+              }
+              break;
+          }
       }
 
-      return false;
-
+      return count($errors) == 0;
     }
 
     function save_actions($id, $vars, &$errors) {
@@ -598,7 +603,8 @@ class Filter {
                 $info = $v['type'];
                 $sort = $v['sort'] ?: $sort;
                 $action = 'N';
-            } else {
+            }
+            else {
                 $action = $v[0];
                 $info = substr($v, 1);
             }
@@ -612,23 +618,11 @@ class Filter {
                 ));
                 $I->setConfiguration($errors, $vars);
 
-                $invalid = self::validate_actions($I);
-                if ($invalid) {
-                  $errors['err'] = sprintf($invalid['err']);
-                  return;
-                }
-
                 $I->save();
                 break;
             case 'I': # existing filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
-
-                    $invalid = self::validate_actions($I);
-                    if ($invalid) {
-                      $errors['err'] = sprintf($invalid['err']);
-                      return;
-                    }
 
                     $I->sort = (int) $sort;
                     $I->save();
