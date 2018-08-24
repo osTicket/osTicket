@@ -1,41 +1,32 @@
-<div>
+    <div>
         <div class="pull-right">
-           <div class="btn-group btn-group-sm float-right m-b-10" role="group" aria-label="Button group with nested dropdown">
-                    
-                    <a class="btn btn-icon waves-effect waves-light btn-success"
-                       href="queues.php?t=tickets&amp;a=add" data-placement="bottom"
-                    data-toggle="tooltip" title="Add New Queue">
-                        <i class="fa fa-plus-square"></i>
-                    </a>
-
-                              
-            
-            <div class="btn-group btn-group-sm" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn btn-light dropdown-toggle" 
-            data-toggle="dropdown"><i class="fa fa-cog" data-placement="bottom" data-toggle="tooltip" 
-             title="More"></i>
-            </button>
-                    <div class="dropdown-menu dropdown-menu-right " aria-labelledby="btnGroupDrop1" id="actions">
-                    
+            <a href="queues.php?t=tickets&amp;a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php echo __('Add New Queue');?></a>
+            <span class="action-button" data-dropdown="#action-dropdown-more">
+                        <i class="icon-caret-down pull-right"></i>
+                        <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li>
                         <a class="queue-action no-pjax" data-action="enable" href="#queues.php">
                             <i class="icon-ok-sign icon-fixed-width"></i>
                             <?php echo __( 'Enable'); ?>
                         </a>
-                                        <a class="queue-action no-pjax" data-action="disable" href="#queues.php">
+                    </li>
+                    <li>
+                        <a class="queue-action no-pjax" data-action="disable" href="#queues.php">
                             <i class="icon-ban-circle icon-fixed-width"></i>
                             <?php echo __( 'Disable'); ?>
                         </a>
+                    </li>
+                    <li class="danger">
                         <a class="queue-action no-pjax" data-action="delete" href="#queues.php">
                             <i class="fa fa-trash icon-fixed-width"></i>
                             <?php echo __( 'Delete'); ?>
                         </a>
-                               
-                    </div>
-            </div>       
-            
-           </div>   
-        
-        <div class="clearfix"></div> 
+                    </li>
+                </ul>
+            </div>
         </div>
         <input type="hidden" name="do" value="mass_process" />
         <h3><?php echo __('Ticket Queues');?></h3>

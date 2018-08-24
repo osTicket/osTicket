@@ -27,8 +27,19 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
     }
    ?>
 </div>
-<!--<div class="btn-group btn-group-sm pull-right ticketbuttons" role="group" aria-label="Button group with nested dropdown">-->
+<div class="pull-right">
+   
+        <a
+        class="btn btn-sm btn-success  ticket-task-action" title="Add New Task" 
+        data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"
+        data-dialog-config='{"size":"large"}'
+        href="#tickets/<?php
+            echo $ticket->getId(); ?>/add-task">
+            <i class="fa fa-plus"></i>
+            </a>
+            
     <?php
+   
     if ($count)
         Task::getAgentActions($thisstaff, array(
                     'container' => '#tasks_content',
@@ -36,7 +47,7 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
                         $ticket->getId()),
                     'morelabel' => __('Options')));
     ?>
-<!--</div>-->
+</div>
 <div class="clear"></div>
 <div>
 <?php
