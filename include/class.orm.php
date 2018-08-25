@@ -1491,6 +1491,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         $this->options[$option] = $value;
     }
 
+    function clearOption($option) {
+        unset($this->options[$option]);
+    }
+
     function countSelectFields() {
         $count = count($this->values) + count($this->annotations);
         if (isset($this->extra['select']))
