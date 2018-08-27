@@ -4401,12 +4401,12 @@ class FileUploadWidget extends Widget {
         );
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = array();
-        $new = array_fill_keys($this->field->getClean(), 1);
+        $new = array_flip($this->field->getClean());
 
         //get file ids stored in session when creating tickets/tasks from thread
         if (!$new && is_array($_SESSION[':form-data'])
                   && array_key_exists($this->field->get('name'), $_SESSION[':form-data']))
-          $new = array_fill_keys($_SESSION[':form-data'][$this->field->get('name')], 1);
+          $new = $_SESSION[':form-data'][$this->field->get('name')];
 
         foreach ($attachments as $a) {
             unset($new[$a->file_id]);
@@ -4493,7 +4493,7 @@ class FileUploadWidget extends Widget {
         // Files attached to threads where we are creating tasks/tickets are allowed
         if (isset($_SESSION[':form-data'][$this->field->get('name')])) {
           foreach ($_SESSION[':form-data'][$this->field->get('name')] as $key => $value)
-            $allowed[$value] = 1;
+            $allowed[$key] = $value;
         }
 
         // Canned attachments initiated by this session
