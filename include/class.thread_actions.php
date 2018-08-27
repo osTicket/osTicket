@@ -528,7 +528,7 @@ JS
               unset($_SESSION[':form-data'][$k]);
               foreach ($this->entry->getAttachments() as $a)
                   if (!$a->inline && $a->file) {
-                    $_SESSION[':form-data'][$k][] = $a->file->getId();
+                    $_SESSION[':form-data'][$k][$a->file->getId()] = $a->getFilename();
                   }
         }
 
