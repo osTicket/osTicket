@@ -737,7 +737,7 @@
         $sql="select CALENDARWEEK as WEEK, 
                 max(case when Status = 'OPEN' then VALUE else 0 end)as OPEN, 
                 max(case when Status = 'CLOSED' then VALUE else 0 end) as CLOSED,
-                max(case when Status = 'BACKLOG' then VALUE else 0 end) as BACKLOG
+                max(case when Status = 'BACKLOG' then VALUE else '' end) as BACKLOG
                 from ( 
 
                 Select * from(                        
