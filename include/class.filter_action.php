@@ -69,7 +69,9 @@ class FilterAction extends VerySimpleModel {
 
     function getImpl() {
         if (!isset($this->_impl)) {
-            if (!($I = self::lookupByType($this->type, $this)))
+            //TODO: Figure out why $this->type gives an id
+            $existing = is_numeric($this->type) ? (self::lookup($this->type)) : $this;
+            if (!($I = self::lookupByType($existing->type, $existing)))
                 throw new Exception(sprintf(
                     '%s: No such filter action registered', $this->type));
             $this->_impl = $I;
