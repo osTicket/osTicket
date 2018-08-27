@@ -1004,21 +1004,30 @@ class AdvancedSearchSelectionField extends ChoiceField {
 }
 
 class HelpTopicChoiceField extends AdvancedSearchSelectionField {
+    static $_topics;
+
     function hasIdValue() {
         return true;
     }
 
     function getChoices($verbose=false) {
-        return Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        if (!isset($this->_topics))
+            $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+
+        return $this->_topics;
     }
 }
 
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends AdvancedSearchSelectionField {
-    var $_choices = null;
+    static $_depts;
+    var $_choices;
 
     function getChoices($verbose=false) {
-        return Dept::getDepartments();
+        if (!isset($this->_depts))
+            $this->_depts = Dept::getDepartments();
+
+        return $this->_depts;
     }
 
     function getQuickFilterChoices() {
@@ -1241,13 +1250,23 @@ trait ZeroMeansUnset {
 class AgentSelectionField extends AdvancedSearchSelectionField {
     use ZeroMeansUnset;
 
+    static $_agents;
+
     function getChoices($verbose=false) {
-        return array('M' => __('Me')) + Staff::getStaffMembers();
+        if (!isset($this->_agents)) {
+            $this->_agents = array('M' => __('Me')) +
+                Staff::getStaffMembers();
+        }
+        return $this->_agents;
     }
 
     function toString($value) {
+
         $choices =  $this->getChoices();
         $selection = array();
+        if (!is_array($value))
+            $value = array($value => $value);
+
         foreach ($value as $k => $v)
             if (isset($choices[$k]))
                 $selection[] = $choices[$k];
@@ -1278,9 +1297,13 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 }
 
 class DepartmentManagerSelectionField extends AgentSelectionField {
+    static $_members;
 
     function getChoices($verbose=false) {
-        return Staff::getStaffMembers();
+        if (isset($this->_members))
+            $this->_members = Staff::getStaffMembers();
+
+        return $this->_members;
     }
 
     function getSearchQ($method, $value, $name=false) {
@@ -1289,9 +1312,14 @@ class DepartmentManagerSelectionField extends AgentSelectionField {
 }
 
 class TeamSelectionField extends AdvancedSearchSelectionField {
+    static $_teams;
 
     function getChoices($verbose=false) {
-        return array('T' => __('One of my teams')) + Team::getTeams();
+        if (!isset($this->_teams))
+            $this->_teams = array('T' => __('One of my teams')) +
+                Team::getTeams();
+
+        return $this->_teams;
     }
 
     function getSearchQ($method, $value, $name=false) {
@@ -1315,6 +1343,19 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         $reverse = $reverse ? '-' : '';
         return $query->order_by("{$reverse}team__name");
     }
+
+    function toString($value) {
+        $choices =  $this->getChoices();
+        $selection = array();
+        if (!is_array($value))
+            $value = array($value => $value);
+        foreach ($value as $k => $v)
+            if (isset($choices[$k]))
+                $selection[] = $choices[$k];
+        return $selection ?  implode(',', $selection) :
+            parent::toString($value);
+    }
+
 }
 
 class TicketStateChoiceField extends AdvancedSearchSelectionField {
