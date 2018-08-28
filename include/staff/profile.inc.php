@@ -209,7 +209,7 @@ if ($avatar->isChangeable()) { ?>
 
                   foreach($options as $k=>$v) {
                       echo sprintf('<option value="%s" %s>%s</option>',
-                                $k,($staff->default_from_name==$k)?'selected="selected"':'',$v);
+                                $k,($staff->default_from_name && $staff->default_from_name==$k)?'selected="selected"':'',$v);
                   }
                   ?>
                 </select>

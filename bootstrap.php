@@ -319,6 +319,9 @@ define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved out
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
 
+define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
+define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
+
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
 define('CLI_DIR', INCLUDE_DIR.'cli/');
