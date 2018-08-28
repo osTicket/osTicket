@@ -443,6 +443,9 @@ function refer($tid, $target=null) {
         switch ($_POST['do']) {
         case 'refer':
             if ($form->isValid() && $ticket->refer($form, $errors)) {
+                $clean = $form->getClean();
+                if ($clean['comments'])
+                    $ticket->logNote('Referral', $clean['comments'], $thisstaff);
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
                         __('%s successfully'),
                         sprintf(
