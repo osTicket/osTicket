@@ -3,7 +3,7 @@
 // $q - <CustomQueue> object for this navigation entry
 // $children - <Array<CustomQueue>> all direct children of this queue
 $queue = $q;
-$hasChildren = count($children) > 0;
+$hasChildren = $children && (count($children) > 0);
 $selected = $_REQUEST['queue'] == $q->getId();
 global $thisstaff;
 ?>
