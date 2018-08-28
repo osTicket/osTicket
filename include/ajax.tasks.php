@@ -137,7 +137,17 @@ class TasksAjaxAPI extends AjaxController {
 
         include STAFFINC_DIR . 'templates/task-edit.tmpl.php';
     }
-
+    
+    function sort($tid) {
+        
+        $position = $_POST['position'];
+        $i=1;
+        foreach($position as $k=>$v){
+            $sql = "Update ost_task SET sort=".$i." WHERE id=".$v;
+            $locs = db_query($sql); 
+            $i++;
+        }
+    }
     function massProcess($action, $w=null)  {
         global $thisstaff, $cfg;
 

@@ -197,6 +197,7 @@ $dispatcher = patterns('',
         url('^(?P<tid>\d+)/reopen', 'reopen'),
         url_get('^(?P<tid>\d+)/view$', 'task'),
         url_post('^(?P<tid>\d+)$', 'task'),
+        url_post('^sort', 'sort'),
         url('^add$', 'add'),
         url('^lookup', 'lookup'),
         url('^mass/(?P<action>\w+)(?:/(?P<what>\w+))?', 'massProcess')

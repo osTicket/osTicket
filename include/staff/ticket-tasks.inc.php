@@ -5,7 +5,7 @@ $role = $thisstaff->getRole($ticket->getDeptId());
 
 $tasks = Task::objects()
     ->select_related('dept', 'staff', 'team')
-    ->order_by('-created');
+    ->order_by('sort');
 
 $tasks->filter(array(
             'object_id' => $ticket->getId(),
@@ -73,7 +73,7 @@ if ($count) { ?>
             <th width="200"><?php echo __('Assignee'); ?></th>
         </tr>
     </thead>
-    <tbody class="tasks">
+    <tbody class="tasks row_position">
     <?php
     foreach($tasks as $task) {
         $id = $task->getId();
@@ -96,6 +96,7 @@ if ($count) { ?>
 
         ?>
         <tr id="<?php echo $id; ?>">
+        <td><i class="fa fa-sort" title="Change Order"></i>
             <td align="center" class="nohover">
                 <input class="ckb" type="checkbox" name="tids[]"
                 value="<?php echo $id; ?>" <?php echo $sel?'checked="checked"':''; ?>>
@@ -191,10 +192,33 @@ $(function() {
             } else {
                 window.location.href = $redirect ? $redirect : window.location.href;
             }
-        }, $options);
+        }, $options); 
         return false;
     });
 
     $('#ticket-tasks-count').html(<?php echo $count; ?>);
+    
+    $( ".row_position" ).sortable({
+        delay: 150,
+        stop: function() {
+            var selectedData = new Array();
+            $('.row_position>tr').each(function() {
+                selectedData.push($(this).attr("id"));
+            });
+            updateOrder(selectedData);
+        }
+    });
+
+
+    function updateOrder(data) {
+         $.ajax({
+            url:"ajax.php/tasks/sort",
+            type:'post',
+            data:{position:data},
+            // success:function(){
+                // alert(data);
+            // }
+            })
+    }
 });
 </script>
