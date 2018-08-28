@@ -26,7 +26,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             $F = $F->instanciate();
             $F->isValidForClient();
         }
-        $forms[] = $F;
+        $forms[] = $F->getForm();
     }
 }
 
