@@ -16,7 +16,7 @@
 
 define('THIS_DIR', str_replace('\\', '/', Misc::realpath(dirname(__FILE__))) . '/'); //Include path..
 
-require_once(INCLUDE_DIR.'mpdf/mpdf.php');
+require_once(INCLUDE_DIR.'mpdf/vendor/autoload.php');
 
 class mPDFWithLocalImages extends mPDF {
     function WriteHtml($html) {
@@ -90,7 +90,7 @@ class Ticket2PDF extends mPDFWithLocalImages
             return;
         $html = ob_get_clean();
 
-        $this->SetAutoFont(AUTOFONT_RTL);
+        $this->autoScriptToLang;
         $this->WriteHtml($html, 0, true, true);
     }
 }
@@ -120,7 +120,7 @@ class Task2PDF extends mPDFWithLocalImages {
         ob_start();
         include STAFFINC_DIR.'templates/task-print.tmpl.php';
         $html = ob_get_clean();
-        $this->SetAutoFont(AUTOFONT_RTL);
+        $this->autoScriptToLang;
         $this->WriteHtml($html, 0, true, true);
 
     }
