@@ -180,7 +180,7 @@ extends VerySimpleModel {
         $rules = [];
         foreach ($this->rules as $r)
             $rules[] = array('w'=>$r->what,'h'=>$r->how,'v'=>$r->val);
-            
+
         return $rules;
     }
 
@@ -330,28 +330,11 @@ extends VerySimpleModel {
     }
 
     function update($vars,&$errors) {
+        //validate filter actions before moving on
+        if (!self::validate_actions($vars, $errors))
+            return false;
+
         $vars['flags'] = $this->flags;
-
-        if (!$this->__new__) {
-            foreach ($this->getActions() as $A) {
-                $config = JsonDataParser::parse($A->configuration);
-                if ($A->type == 'dept') {
-                    $dept = Dept::lookup($config['dept_id']);
-                    $dept_action = $A->getId();
-                }
-
-                if ($A->type == 'topic') {
-                    $topic = Topic::lookup($config['topic_id']);
-                    $topic_action = $A->getId();
-                }
-            }
-        }
-
-        if($dept && !$dept->isActive() && (is_array($vars['actions']) && !in_array('D' . $dept_action,$vars['actions'])))
-            $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Department'), __('Filter Action'));
-
-        if($topic && !$topic->isActive() && (is_array($vars['actions']) && !in_array('D' . $topic_action,$vars['actions'])))
-            $errors['err'] = sprintf(__('%s selected for %s must be active'), __('Help Topic'), __('Filter Action'));
 
         if(!$vars['execorder'])
             $errors['execorder'] = __('Order required');
@@ -403,7 +386,7 @@ extends VerySimpleModel {
         }
 
         // Attempt to create/update the actions. Collect the errors
-        $this->save_actions($vars, $errors);
+        $this->save_actions($this->getId(), $vars, $errors);
         if ($errors)
             return false;
 
@@ -418,6 +401,7 @@ extends VerySimpleModel {
 
     function delete() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         $id=$this->getId();
         $sql='DELETE FROM '.FILTER_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
@@ -431,6 +415,17 @@ extends VerySimpleModel {
 >>>>>>> filters: Move to the ORM
 
         return $num;
+=======
+        try {
+            parent::delete();
+            $this->rules->expunge();
+            $this->actions->expunge();
+        }
+        catch (OrmException $e) {
+            return false;
+        }
+        return true;
+>>>>>>> Adjust Filter Saving
     }
 
     /** static functions **/
@@ -592,6 +587,7 @@ extends VerySimpleModel {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     function validate_actions($vars, &$errors) {
         //allow the save if it is to set a filter flag
         if ($vars['pass'])
@@ -613,20 +609,23 @@ extends VerySimpleModel {
         if (!is_array(@$vars['actions']))
             return;
 
+=======
+    function validate_actions($vars, &$errors) {
+        if (!is_array(@$vars['actions']))
+            return;
+>>>>>>> Adjust Filter Saving
       foreach ($vars['actions'] as $sort=>$v) {
           if (is_array($v)) {
               $info = $v['type'];
               $sort = $v['sort'] ?: $sort;
           } else
               $info = substr($v, 1);
-
           $action = new FilterAction(array(
               'type'=>$info,
               'sort' => (int) $sort,
           ));
           $errors = array();
           $action->setConfiguration($errors, $vars);
-
           $config = json_decode($action->ht['configuration'], true);
           if (is_numeric($action->ht['type'])) {
               foreach ($config as $key => $value) {
@@ -640,6 +639,7 @@ extends VerySimpleModel {
                   }
               }
           }
+<<<<<<< HEAD
 
           // do not throw an error if we are deleting an action
           if (substr($v, 0, 1) != 'D') {
@@ -663,17 +663,35 @@ extends VerySimpleModel {
                     }
                   }
                   break;
+=======
+          switch ($action->ht['type']) {
+            case 'dept':
+              $dept = Dept::lookup($config['dept_id']);
+              if (!$dept || !$dept->isActive()) {
+                $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+              }
+              break;
+            case 'topic':
+              $topic = Topic::lookup($config['topic_id']);
+              if (!$topic || !$topic->isActive()) {
+                $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+              }
+              break;
+            default:
+              foreach ($config as $key => $value) {
+                if (!$value) {
+                  $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
+                }
+>>>>>>> Adjust Filter Saving
               }
           }
       }
-
       return count($errors) == 0;
     }
 
-    function save_actions($vars, &$errors) {
+    function save_actions($id, $vars, &$errors) {
         if (!is_array(@$vars['actions']))
             return;
-
         foreach ($vars['actions'] as $sort=>$v) {
             if (is_array($v)) {
                 $info = $v['type'];
@@ -684,14 +702,15 @@ extends VerySimpleModel {
                 $action = $v[0];
                 $info = substr($v, 1);
             }
-
             switch ($action) {
             case 'N': # new filter action
                 $I = new FilterAction(array(
                     'type'=>$info,
+                    'filter_id'=>$id,
                     'sort' => (int) $sort,
                 ));
                 $I->setConfiguration($errors, $vars);
+<<<<<<< HEAD
                 $this->actions->add($I);
 
 <<<<<<< HEAD
@@ -705,10 +724,14 @@ extends VerySimpleModel {
                     $I->save();
                 }
 >>>>>>> filters: Move to the ORM
+=======
+                $I->save();
+>>>>>>> Adjust Filter Saving
                 break;
             case 'I': # existing filter action
                 if ($I = FilterAction::lookup($info)) {
                     $I->setConfiguration($errors, $vars);
+<<<<<<< HEAD
 
 <<<<<<< HEAD
                     $I->sort = (int) $sort;
@@ -723,11 +746,15 @@ extends VerySimpleModel {
                         $I->save();
                     }
 >>>>>>> filters: Move to the ORM
+=======
+                    $I->sort = (int) $sort;
+                    $I->save();
+>>>>>>> Adjust Filter Saving
                 }
                 break;
             case 'D': # deleted filter action
                 if ($I = FilterAction::lookup($info))
-                    $this->actions->remove($I);
+                    $I->delete();
                 break;
             }
         }
