@@ -41,7 +41,8 @@ if($_POST){
             }
             break;
         case 'add':
-            if((Filter::create($_POST,$errors))){
+            $filter = new Filter();
+            if ($filter->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -58,9 +59,16 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.FILTER_TABLE.' SET isactive=1 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = 0;
+                        foreach (Filter::objects()->filter([
+                            'id__in' => $_POST['ids'],
+                        ]) as $F) {
+                            $F->isactive = 1;
+                            if ($F->save())
+                                $num++;
+                        }
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected ticket filter', 'selected ticket filters', $count));
@@ -73,9 +81,16 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.FILTER_TABLE.' SET isactive=0 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = 0;
+                        foreach (Filter::objects()->filter([
+                            'id__in' => $_POST['ids'],
+                        ]) as $F) {
+                            $F->isactive = 0;
+                            if ($F->save())
+                                $num++;
+                        }
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected ticket filter', 'selected ticket filters', $count));
