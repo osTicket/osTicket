@@ -2113,27 +2113,39 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'created' => new DatetimeField(array(
                 'label' => __('Create Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'duedate' => new DatetimeField(array(
                 'label' => __('Due Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'est_duedate' => new DatetimeField(array(
                 'label' => __('SLA Due Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'reopened' => new DatetimeField(array(
                 'label' => __('Reopen Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'closed' => new DatetimeField(array(
                 'label' => __('Close Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'lastupdate' => new DatetimeField(array(
                 'label' => __('Last Update'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'assignee' => new AssigneeChoiceField(array(
                 'label' => __('Assignee'),
