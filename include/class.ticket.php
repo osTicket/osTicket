@@ -4134,10 +4134,14 @@ implements RestrictedAccess, Threadable, Searchable {
            $attachments = array();
            $message = $ticket->getLastMessage();
            if ($cfg->emailAttachments()) {
-               if ($message)
-                 $attachments = $message->getAttachments();
-               if ($response && $response->getNumAttachments())
-                 $attachments = $attachments->merge($response->getAttachments());
+               if ($message && $message->getNumAttachments()) {
+                 foreach ($message->getNumAttachments() as $attachment)
+                     $attachments[] = $attachment;
+               }
+               if ($response && $response->getNumAttachments()) {
+                 foreach ($response->getAttachments() as $attachment)
+                     $attachments[] = $attachment;
+               }
            }
 
             if ($vars['signature']=='mine')
