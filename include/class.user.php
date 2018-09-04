@@ -678,7 +678,7 @@ implements TemplateVariable {
                 $this->getDomain());
 
         if ($this->getName())
-            $this->address = sprintf('%s <%s>',
+            $this->address = sprintf('"%s" <%s>',
                     $this->getName(),
                     $this->email);
     }
