@@ -45,15 +45,6 @@ $selected = (!isset($_REQUEST['a'])  && $_REQUEST['queue'] == $this_queue->getId
         }
         include 'queue-subnavigation.tmpl.php';
       } ?>
-      <!-- Personal Queues -->
-      <?php
-      $queues = $this_queue->getMyChildren();
-      if (count($queues)) { ?>
-      <li class="personalQ"></li>
-      <?php foreach ($queues as $q) {
-        include 'queue-subnavigation.tmpl.php';
-       }
-      }?>
     </ul>
     <!-- Add Queue button sticky at the bottom -->
     <div class="add-queue">
