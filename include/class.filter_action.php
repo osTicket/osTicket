@@ -561,8 +561,9 @@ class FA_SendEmail extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $choices = array('' => __('Default System Email'));
-        $choices += Email::getAddresses();
+        global $cfg;
+
+        $choices = Email::getAddresses();
 
         return array(
             'recipients' => new TextboxField(array(
@@ -608,7 +609,7 @@ class FA_SendEmail extends TriggerAction {
             'from' => new ChoiceField(array(
                 'label' => __('From Email'),
                 'choices' => $choices,
-                'default' => '',
+                'default' => $cfg->getDefaultEmail()->getId(),
             )),
         );
     }
