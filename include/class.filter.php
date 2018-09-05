@@ -369,6 +369,7 @@ class Filter {
         $sql='DELETE FROM '.FILTER_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
         if(db_query($sql) && ($num=db_affected_rows())) {
             db_query('DELETE FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
+            db_query('DELETE FROM '.FILTER_ACTION_TABLE.' WHERE filter_id='.db_input($id));
         }
 
         return $num;
