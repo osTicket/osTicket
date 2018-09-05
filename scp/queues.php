@@ -42,7 +42,6 @@ if ($_POST) {
 
     case 'create':
         $queue = CustomQueue::create(array(
-            'flags' => CustomQueue::FLAG_PUBLIC,
             'staff_id' => 0,
             'title' => $_POST['queue-name'],
             'root' => $_POST['root'] ?: 'T'
