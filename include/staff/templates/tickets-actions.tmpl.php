@@ -14,6 +14,7 @@ if ($agent->hasPerm(Ticket::PERM_ASSIGN, false)) {?>
     echo __('Assign'); ?>">
     <i class="icon-caret-down pull-right"></i>
     <a class="tickets-action" id="tickets-assign"
+        aria-label="<?php echo __('Assign'); ?>"
         href="#tickets/mass/assign"><i class="icon-user"></i></a>
 </span>
 <div id="action-dropdown-assign" class="action-dropdown anchor-right">
