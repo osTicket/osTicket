@@ -848,20 +848,24 @@ implements TemplateVariable {
     }
 
     function getBody() {
-
         if (!isset($this->_body)) {
             $body = $this->body;
             if ($body == null && $this->getNumAttachments()) {
-                foreach ($this->attachments as $a)
+                $attachments = Attachment::objects()
+                   ->filter(array(
+                               'inline' => 1,
+                               'object_id' => $this->getId(),
+                               'type' => ObjectModel::OBJECT_TYPE_THREAD,
+                               'file__type__in' => array('text/html','text/plain'))
+                           );
+                foreach ($attachments as $a)
                     if ($a->inline && ($f=$a->getFile()))
                         $body .= $f->getData();
             }
-
             $this->_body = ThreadEntryBody::fromFormattedText($body, $this->format,
                 array('balanced' => $this->hasFlag(self::FLAG_BALANCED))
             );
         }
-
         return $this->_body;
     }
 
