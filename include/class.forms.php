@@ -4395,7 +4395,6 @@ class FileUploadWidget extends Widget {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
-        $attachments = $this->field->getAttachments();
         $mimetypes = array_filter($config['__mimetypes'],
             function($t) { return strpos($t, '/') !== false; }
         );
@@ -4404,23 +4403,13 @@ class FileUploadWidget extends Widget {
         $new = array_flip($this->field->getClean());
 
         //get file ids stored in session when creating tickets/tasks from thread
+        //XXX: This shouldn't be here!!
         if (!$new && is_array($_SESSION[':form-data'])
                   && array_key_exists($this->field->get('name'), $_SESSION[':form-data']))
           $new = $_SESSION[':form-data'][$this->field->get('name')];
 
-        foreach ($attachments as $a) {
-            unset($new[$a->file_id]);
-        }
-        // Add in newly added files not yet saved (if redisplaying after an
-        // error)
-        if ($new) {
-            $attachments = array_merge($attachments, GenericAttachment::objects()
-                ->filter(array('file_id__in' => array_keys($new)))
-                ->all()
-            );
-        }
-
-        foreach ($attachments as $att) {
+        foreach ($this->field->getAttachments() as $att) {
+            unset($new[$att->file_id]);
             $files[] = array(
                 'id' => $att->file->getId(),
                 'name' => $att->getFilename(),
@@ -4429,6 +4418,25 @@ class FileUploadWidget extends Widget {
                 'download_url' => $att->file->getDownloadUrl(),
             );
         }
+
+        // Add in newly added files not yet saved (if redisplaying after an
+        // error)
+        if ($new) {
+            $F = AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($new)))
+                ->all();
+            foreach ($F as $f) {
+                $f->tmp_name = $new[$f->getId()];
+                $files[] = array(
+                    'id' => $f->getId(),
+                    'name' => $f->getName(),
+                    'type' => $f->getType(),
+                    'size' => $f->getSize(),
+                    'download_url' => $f->getDownloadUrl(),
+                );
+            }
+        }
+
         ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
             <div class="dropzone"><i class="icon-upload"></i>
