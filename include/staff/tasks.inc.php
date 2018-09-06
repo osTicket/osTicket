@@ -130,6 +130,11 @@ if ($filters)
 $visibility = Q::any(
     new Q(array('flags__hasbit' => TaskModel::ISOPEN, 'staff_id' => $thisstaff->getId()))
 );
+// -- Task for tickets assigned to me
+$visibility->add(new Q( array(
+                'ticket__staff_id' => $thisstaff->getId(),
+                'ticket__status__state' => 'open'))
+        );
 // -- Routed to a department of mine
 if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
     $visibility->add(new Q(array('dept_id__in' => $depts)));

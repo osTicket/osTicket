@@ -163,6 +163,9 @@ var scp_prep = function() {
 
     $('form.save, form:has(table.list)').submit(function() {
         $(window).unbind('beforeunload');
+        // Disable staff-side Post Reply/Open buttons to help prevent
+        // duplicate POST
+        $(':submit', $(this)).attr('disabled', true);
         $('#overlay, #loading').show();
         return true;
      });
