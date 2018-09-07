@@ -1566,8 +1566,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+             shared: true
         },
         plotOptions: {
             column: {
@@ -1646,8 +1645,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+             shared: true
         },
         plotOptions: {
             column: {
@@ -1736,8 +1734,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+            shared: true
         },
         plotOptions: {
             column: {
@@ -1823,8 +1820,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+            shared: true
         },
         plotOptions: {
             column: {
@@ -2010,8 +2006,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+             shared: true
         },
       
         plotOptions: {
@@ -2180,8 +2175,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+             shared: true
         },
         
         plotOptions: {
@@ -2349,8 +2343,7 @@ $(function () {
             shadow: false
         },
         tooltip: {
-            headerFormat: '<b>{point.x}</b><br/>',
-            pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+             shared: true
         },
         
         plotOptions: {
