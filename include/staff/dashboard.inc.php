@@ -1945,7 +1945,7 @@ $sql="select * from (select cat,sum(COUNT) as COUNT, OWNER_NAME,CALENDARWEEK,CAL
 	left join ost_ticket_status s on s.id = t.status_id
 	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH))b on 1=1) dat
     
-    group by  cat, OWNER_NAME) datb order by CALENDARYEAR, CALENDARWEEK";
+    group by  cat, OWNER_NAME) datb order by CALENDARYEAR, CALENDARWEEK, COUNT";
 
     $techsdata = db_query($sql);
     
@@ -1954,7 +1954,7 @@ $sql="select * from (select cat,sum(COUNT) as COUNT, OWNER_NAME,CALENDARWEEK,CAL
     concat(u.lastname, ', ', u.firstname) AS OWNER_NAME FROM ost_ticket t 
 	left join ost_staff u on u.staff_id = t.staff_id 
 	left join ost_ticket_status s on s.id = t.status_id
-	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH)";
+	where t.status_id = 3 AND t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(CURDATE() - INTERVAL 11 MONTH) order by concat(u.lastname, ', ', u.firstname)";
 
     $techs = db_query($sql);
     
