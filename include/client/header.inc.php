@@ -30,29 +30,20 @@ if ($lang) {
     <meta name="description" content="customer support platform">
     <meta name="keywords" content="osTicket, Customer support system, support ticket system">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
-    <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
+    <link rel="stylesheet" data-group="client" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
+    <link rel="stylesheet" data-group="client" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/print.css" media="print">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css"
-         media="screen" />
-    <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css"
-        rel="stylesheet" media="screen" />
-    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/thread.css" media="screen">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-1.11.2.min.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.10.3.custom.min.js"></script>
-    <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
-    <script src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
+    <link rel="stylesheet" data-group="client" href="<?php echo ROOT_PATH; ?>scp/css/typeahead.css" media="screen">
+    <link type="text/css"  data-group="client" href="//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet" media="screen" />
+    <link rel="stylesheet" data-group="client" href="<?php echo ROOT_PATH; ?>css/thread.css" media="all">
+    <link rel="stylesheet" data-group="client" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
+    <link type="text/css" rel="stylesheet" data-group="client" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css"/>
+    <link type="text/css" rel="stylesheet" data-group="client" href="<?php echo ROOT_PATH; ?>css/flags.css">
+    <link type="text/css" rel="stylesheet" data-group="client" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
+    <link type="text/css" rel="stylesheet" data-group="client" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css"/>
+    <!-- {#} CSS -->
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";

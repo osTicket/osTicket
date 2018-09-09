@@ -4,8 +4,8 @@
     </div> <!-- wizard -->
     <div id="footer" class="centered">Copyright &copy; <?php echo date('Y'); ?> <a target="_blank" href="http://osticket.com">osTicket.com</a></div>
 
-    <script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
-    <script type="text/javascript" src="../js/jstz.min.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jstimezonedetect/1.0.4/jstz.min.js"></script>
     <script type="text/javascript" src="js/setup.js"></script>
     <script type="text/javascript" src="js/tips.js"></script>
 </body>

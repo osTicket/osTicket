@@ -1078,6 +1078,11 @@ RedactorPlugins.imageannotate = function() {
     init: function() {
       var redactor = this,
           self = this.imageannotate;
+      if (typeof window.fabric === 'undefined' && !loadedFabric) {
+          $('<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.2/fabric.min.js"></script>')
+              .appendTo('head');
+          loadedFabric = true;
+      }
       $(document).on('click', '.redactor-box img', function() {
         var $image = $(this),
             image_box = $('#redactor-image-box');

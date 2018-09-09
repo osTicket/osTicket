@@ -14,6 +14,17 @@ if (($lang = Internationalization::getCurrentLanguage()) && $lang != 'en_US') { 
     <script type="text/javascript" src="ajax.php/i18n/<?php
         echo $lang; ?>/js"></script>
 <?php } ?>
+<script type="text/javascript" data-group="client" src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+<script data-group="client" src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
+<script type="text/javascript" data-group="client" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
+<script data-group="client" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript" data-group="client" src="<?php echo ROOT_PATH; ?>js/redactor.min.js"></script>
+<script type="text/javascript" data-group="client" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
+<script type="text/javascript" data-group="client" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
+<script type="text/javascript" data-group="client" src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script type="text/javascript" data-group="client" src="//cdnjs.cloudflare.com/ajax/libs/fabric.js/1.7.2/fabric.min.js"></script>
+<!-- {#} JS -->
+
 <script type="text/javascript">
     getConfig().resolve(<?php
         include INCLUDE_DIR . 'ajax.config.php';
