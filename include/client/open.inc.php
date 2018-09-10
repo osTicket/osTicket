@@ -30,11 +30,16 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     }
 }
 
+// Form Token
+if (!$mylock)
+    $mylock = Lock::acquire(0, $cfg->getLockTime() ?: 15);
 ?>
 <h1><?php echo __('Open a New Ticket');?></h1>
 <p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
 <form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
   <?php csrf_token(); ?>
+  <input type="hidden" name="lock_code" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
+  <input type="hidden" name="form_token" value="<?php echo $mylock ? $mylock->getToken() : ''; ?>">
   <input type="hidden" name="a" value="open">
   <table width="800" cellpadding="1" cellspacing="0" border="0">
     <tbody>

@@ -118,7 +118,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         return $this->json_encode(array(
             'id'=>$lock->getId(), 'time'=>$lock->getTime(),
-            'code' => $lock->getCode()
+            'code' => $lock->getCode(), 'token'=>$lock->getToken()
         ));
     }
 

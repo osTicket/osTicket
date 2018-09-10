@@ -178,6 +178,10 @@
       // to the lock.code retrieved (if any)
       if (lock.code)
         $(this.options.lockInput, this.$element).val(lock.code);
+      // If there is an input with the name 'form_token', then set the value
+      // to the lock.signature retrieved (if any)
+      if (lock.token)
+        $('input[name=form_token]', this.$element).val(lock.token);
 
       // Deadband renew to every 30 seconds
       this.nextRenew = new Date().getTime() + 30000;

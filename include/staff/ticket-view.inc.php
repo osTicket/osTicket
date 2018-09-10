@@ -715,6 +715,7 @@ if ($errors['err'] && isset($_POST['a'])) {
         <input type="hidden" name="msgId" value="<?php echo $msgId; ?>">
         <input type="hidden" name="a" value="reply">
         <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
+        <input type="hidden" name="form_token" value="<?php echo $mylock ? $mylock->getToken() : ''; ?>">
         <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
             <?php
             if ($errors['reply']) {?>

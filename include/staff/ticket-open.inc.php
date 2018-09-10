@@ -54,11 +54,17 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
+
+// Form Token
+if (!$mylock)
+    $mylock = Lock::acquire($thisstaff->getId(), $cfg->getLockTime() ?: 15);
 ?>
 <form action="tickets.php?a=open" method="post" class="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
  <input type="hidden" name="a" value="open">
+ <input type="hidden" name="lockCode" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
+ <input type="hidden" name="form_token" value="<?php echo $mylock ? $mylock->getToken() : ''; ?>">
 <div style="margin-bottom:20px; padding-top:5px;">
     <div class="pull-left flush-left">
         <h2><?php echo __('Open a New Ticket');?></h2>

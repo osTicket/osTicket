@@ -19,6 +19,15 @@ $ticket = null;
 $errors=array();
 if ($_POST) {
     $vars = $_POST;
+    // Validate Form Token to prevent form resubmissions
+    if (!$vars['form_token'] || !$vars['lock_code'])
+        $errors['err'] = __('Invalid Form Token');
+    if (!Lock::validateToken($vars['form_token'], $vars['lock_code'])) {
+        unset($_POST, $_REQUEST);
+        $errors['err'] = sprintf('%s %s',
+            __('Form Resubmission detected.'),
+            __('Action prohibited.'));
+    }
     $vars['deptId']=$vars['emailId']=0; //Just Making sure we don't accept crap...only topicId is expected.
     if ($thisclient) {
         $vars['uid']=$thisclient->getId();

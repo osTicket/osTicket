@@ -77,6 +77,15 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
         if (!$_POST['message'])
             $errors['message'] = __('Message required');
 
+        // Validate Form Token to prevent form resubmissions
+        if (!$_POST['form_token'] || !$_POST['lock_code'])
+            $errors['err'] = __('Invalid Form Token');
+
+        if (!Lock::validateToken($_POST['form_token'], $_POST['lock_code']))
+            $errors['err'] = sprintf('%s %s',
+                __('Form Resubmission detected.'),
+                __('Action prohibited.'));
+
         if(!$errors) {
             //Everything checked out...do the magic.
             $vars = array(
