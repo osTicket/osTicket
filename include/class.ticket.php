@@ -4135,7 +4135,7 @@ implements RestrictedAccess, Threadable, Searchable {
            $message = $ticket->getLastMessage();
            if ($cfg->emailAttachments()) {
                if ($message && $message->getNumAttachments()) {
-                 foreach ($message->getNumAttachments() as $attachment)
+                 foreach ($message->getAttachments() as $attachment)
                      $attachments[] = $attachment;
                }
                if ($response && $response->getNumAttachments()) {
