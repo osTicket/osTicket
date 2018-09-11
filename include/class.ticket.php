@@ -2182,6 +2182,18 @@ implements RestrictedAccess, Threadable, Searchable {
             'isassigned' => new AssignedField(array(
                         'label' => __('Assigned'),
             )),
+            'thread_count' => new TicketThreadCountField(array(
+                        'label' => __('Thread Count'),
+            )),
+            'attachment_count' => new ThreadAttachmentCountField(array(
+                        'label' => __('Attachment Count'),
+            )),
+            'collaborator_count' => new ThreadCollaboratorCountField(array(
+                        'label' => __('Collaborator Count'),
+            )),
+            'reopen_count' => new TicketReopenCountField(array(
+                        'label' => __('Reopen Count'),
+            )),
             'ip_address' => new TextboxField(array(
                 'label' => __('IP Address'),
                 'configuration' => array('validator' => 'ip'),

@@ -1436,6 +1436,7 @@ class OpenClosedTicketStatusList extends TicketStatusList {
         return $rv;
     }
 }
+
 class TicketStatusChoiceField extends SelectionField {
     static $widget = 'ChoicesWidget';
 
@@ -1465,6 +1466,50 @@ class TicketStatusChoiceField extends SelectionField {
         default:
             return parent::getSearchQ($method, $value, $name);
         }
+    }
+}
+
+class TicketThreadCountField extends NumericField {
+
+    function addToQuery($query, $name=false) {
+        return TicketThreadCount::addToQuery($query, $name);
+    }
+
+    function from_query($row, $name=false) {
+         return TicketThreadCount::from_query($row, $name);
+    }
+}
+
+class TicketReopenCountField extends NumericField {
+
+    function addToQuery($query, $name=false) {
+        return TicketReopenCount::addToQuery($query, $name);
+    }
+
+    function from_query($row, $name=false) {
+         return TicketReopenCount::from_query($row, $name);
+    }
+}
+
+class ThreadAttachmentCountField extends NumericField {
+
+    function addToQuery($query, $name=false) {
+        return ThreadAttachmentCount::addToQuery($query, $name);
+    }
+
+    function from_query($row, $name=false) {
+         return ThreadAttachmentCount::from_query($row, $name);
+    }
+}
+
+class ThreadCollaboratorCountField extends NumericField {
+
+    function addToQuery($query, $name=false) {
+        return ThreadCollaboratorCount::addToQuery($query, $name);
+    }
+
+    function from_query($row, $name=false) {
+         return ThreadCollaboratorCount::from_query($row, $name);
     }
 }
 
