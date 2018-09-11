@@ -1960,6 +1960,40 @@ class ChoiceField extends FormField {
     }
 }
 
+class NumericField extends FormField {
+
+    function getSearchMethods() {
+        return array(
+            'equal' =>   __('Equal'),
+            'greater' =>  __('Greater Than'),
+            'less' =>  __('Less Than'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'equal' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'greater' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'less' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+        );
+    }
+}
+
 class DatetimeField extends FormField {
     static $widget = 'DatetimePickerWidget';
 
