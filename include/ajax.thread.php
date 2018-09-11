@@ -222,20 +222,7 @@ class ThreadAjaxAPI extends AjaxController {
             Http::response(404, 'No such thread');
 
         $errors = $info = array();
-        if ($thread->updateCollaborators($_POST, $errors))
-            $users = array();
-            foreach ($thread->getCollaborators() as $c)
-                $users[] = array('id' => $c->getUserId(),
-                        'name' => $c->getName(),
-                        'email' => $c->getEmail());
-
-            Http::response(201, $this->json_encode(array(
-                            'id' => $thread->getId(),
-                            'users' => $users,
-                            'text' => sprintf('(%d)',
-                                $thread->getNumCollaborators())
-                            )
-                        ));
+        $thread->updateCollaborators($_POST, $errors);
 
         if($errors && $errors['err'])
             $info +=array('error' => $errors['err']);

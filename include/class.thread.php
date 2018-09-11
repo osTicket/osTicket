@@ -119,7 +119,7 @@ implements Searchable {
 
     // Collaborators
     function getNumCollaborators() {
-        return $this->collaborators->count();
+        return $this->getCollaborators()->count();
     }
 
     function getNumActiveCollaborators() {
