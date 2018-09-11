@@ -1508,6 +1508,17 @@ abstract class QueueColumnAnnotation {
     function isVisible($row) {
         return true;
     }
+
+    static function addToQuery($query, $name=false) {
+        $name = $name ?: static::$qname;
+        $annotation = new Static(array());
+        return $annotation->annotate($query, $name);
+    }
+
+    static function from_query($row, $name=false) {
+        $name = $name ?: static::$qname;
+        return $row[$name];
+    }
 }
 
 class TicketThreadCount

@@ -135,7 +135,7 @@ class SearchAjaxAPI extends AjaxController {
             $_SESSION[$key] = $keep;
         }
     }
-    
+
     function _hashCriteria($criteria, $size=10) {
         $parts = array();
         foreach ($criteria as $C) {
