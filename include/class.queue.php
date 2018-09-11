@@ -1473,7 +1473,7 @@ abstract class QueueColumnAnnotation {
     }
 
     // Add the annotation to a QuerySet
-    abstract function annotate($query);
+    abstract function annotate($query, $name);
 
     // Fetch some HTML to render the decoration on the page. This function
     // can return boolean FALSE to indicate no decoration should be applied
@@ -1516,9 +1516,10 @@ extends QueueColumnAnnotation {
     static $qname = '_thread_count';
     static $desc = /* @trans */ 'Thread Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
             ->aggregate(array('count' => SqlAggregate::COUNT('entries__id')))
@@ -1546,9 +1547,10 @@ extends QueueColumnAnnotation {
     static $qname = '_reopen_count';
     static $desc = /* @trans */ 'Reopen Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->filter(array('events__annulled' => 0, 'events__state' => 'reopened'))
             ->aggregate(array('count' => SqlAggregate::COUNT('events__id')))
@@ -1577,10 +1579,11 @@ extends QueueColumnAnnotation {
     static $qname = '_att_count';
     static $desc = /* @trans */ 'Attachment Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         // TODO: Convert to Thread attachments
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->filter(array('entries__attachments__inline' => 0))
             ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id')))
@@ -1607,9 +1610,10 @@ extends QueueColumnAnnotation {
     static $qname = '_collabs';
     static $desc = /* @trans */ 'Collaborator Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id')))
         ));
@@ -1634,7 +1638,7 @@ extends QueueColumnAnnotation {
     static $icon = 'exclamation';
     static $desc = /* @trans */ 'Overdue Icon';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('isoverdue');
     }
 
@@ -1653,7 +1657,7 @@ extends QueueColumnAnnotation {
     static $icon = 'phone';
     static $desc = /* @trans */ 'Ticket Source';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('source');
     }
 
@@ -1668,7 +1672,7 @@ extends QueueColumnAnnotation {
     static $icon = "lock";
     static $desc = /* @trans */ 'Locked';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         global $thisstaff;
 
         return $query
@@ -1695,7 +1699,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'Assignee Avatar';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('staff_id', 'team_id');
     }
 
@@ -1734,7 +1738,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'User Avatar';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('user_id');
     }
 
