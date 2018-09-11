@@ -383,7 +383,7 @@ if($ticket->isOverdue())
                               $recipients = 0;
 
                              echo sprintf('<span><a class="manage-collaborators preview"
-                                    href="#thread/%d/collaborators"><span id="t%d-recipients"><i class="icon-group"></i> (%s)</span></a></span>',
+                                    href="#thread/%d/collaborators"><span><i class="icon-group"></i> (<span id="t%d-collaborators">%s</span>)</span></a></span>',
                                     $ticket->getThreadId(),
                                     $ticket->getThreadId(),
                                     $recipients);
@@ -794,26 +794,26 @@ if ($errors['err'] && isset($_POST['a'])) {
                    <td>
                    <div style="margin-bottom:2px;">
                     <?php
-                         echo sprintf('<span><a id="show_ccs">
+                    if ($ticket->getThread()->getNumCollaborators())
+                        $recipients = sprintf(__('(%d of %d)'),
+                                $ticket->getThread()->getNumActiveCollaborators(),
+                                $ticket->getThread()->getNumCollaborators());
+
+                         echo sprintf('<span"><a id="show_ccs">
                                  <i id="arrow-icon" class="icon-caret-right"></i>&nbsp;%s </a>
                                  &nbsp;
                                  <a class="manage-collaborators
                                  collaborators preview noclick %s"
                                   href="#thread/%d/collaborators">
-                                 (%s)</a></span>',
+                                 %s</a></span>',
                                  __('Collaborators'),
                                  $ticket->getNumCollaborators()
                                   ? '' : 'hidden',
                                  $ticket->getThreadId(),
-                                 sprintf(__('%s of %s'),
-                                         sprintf('<span
-                                             class="collabselection__count">%d</span>',
-                                             $ticket->getNumActiveCollaborators()),
-                                         sprintf('<span
-                                             class="collabselection__total">%d</span>',
-                                              $ticket->getNumCollaborators())
-                                         )
-                                     );
+                                         sprintf('<span id="t%d-recipients">%s</span></a></span>',
+                                             $ticket->getThreadId(),
+                                             $recipients)
+                         );
                     ?>
                    </div>
                    <div id="ccs" class="hidden">
