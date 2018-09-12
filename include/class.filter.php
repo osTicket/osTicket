@@ -149,6 +149,7 @@ class Filter {
         else
             $this->ht['flags'] &= ~$flag;
         $vars['rules']= $this->getRules();
+        $this->ht['pass'] = true;
         $this->update($this->ht, $errors);
     }
 
@@ -538,6 +539,10 @@ class Filter {
     }
 
     function validate_actions($vars, &$errors) {
+        //allow the save if it is to set a filter flag
+        if ($vars['pass'])
+            return true;
+
         if (!is_array(@$vars['actions']))
             return;
 
@@ -569,26 +574,29 @@ class Filter {
               }
           }
 
-          switch ($action->ht['type']) {
-            case 'dept':
-              $dept = Dept::lookup($config['dept_id']);
-              if (!$dept || !$dept->isActive()) {
-                $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+          // do not throw an error if we are deleting an action
+          if (substr($v, 0, 1) != 'D') {
+              switch ($action->ht['type']) {
+                case 'dept':
+                  $dept = Dept::lookup($config['dept_id']);
+                  if (!$dept || !$dept->isActive()) {
+                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+                  }
+                  break;
+                case 'topic':
+                  $topic = Topic::lookup($config['topic_id']);
+                  if (!$topic || !$topic->isActive()) {
+                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+                  }
+                  break;
+                default:
+                  foreach ($config as $key => $value) {
+                    if (!$value) {
+                      $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
+                    }
+                  }
+                  break;
               }
-              break;
-            case 'topic':
-              $topic = Topic::lookup($config['topic_id']);
-              if (!$topic || !$topic->isActive()) {
-                $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
-              }
-              break;
-            default:
-              foreach ($config as $key => $value) {
-                if (!$value) {
-                  $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
-                }
-              }
-              break;
           }
       }
 
