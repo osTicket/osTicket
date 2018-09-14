@@ -42,7 +42,7 @@ class Http {
         if ($charset)
             $ct .= "; charset=$charset";
         header($ct);
-        if ($content) {
+        if (is_string($content)) {
             header('Content-Length: '.strlen($content)."\r\n\r\n");
             print $content;
             exit;

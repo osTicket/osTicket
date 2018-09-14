@@ -2,6 +2,7 @@
 $events = $events
     ->filter(array('state__in' => array('created', 'closed', 'reopened', 'edited', 'collab')))
     ->order_by('id');
+$eventCount = count($events);
 $events = new IteratorIterator($events->getIterator());
 $events->rewind();
 $event = $events->current();
@@ -50,7 +51,7 @@ while ($event) {
 }
 
 // This should never happen
-if (count($entries) + count($events) == 0) {
+if (count($entries) + $eventCount == 0) {
     echo '<p><em>'.__('No entries have been posted to this thread.').'</em></p>';
 }
 ?>

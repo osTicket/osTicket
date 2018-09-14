@@ -165,14 +165,14 @@ class Form {
         $this->validators[] = $function;
     }
 
-    function render($staff=true, $title=false, $options=array()) {
-        if ($title)
-            $this->title = $title;
+    function render($options=array()) {
+        if (isset($options['title']))
+            $this->title = $options['title'];
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
         $form = $this;
         $template = $options['template'] ?: 'dynamic-form.tmpl.php';
-        if ($staff)
+        if (isset($options['staff']) && $options['staff'])
             include(STAFFINC_DIR . 'templates/' . $template);
         else
             include(CLIENTINC_DIR . 'templates/' . $template);
@@ -4391,7 +4391,7 @@ class FileUploadWidget extends Widget {
         ),
     );
 
-    function render($options) {
+    function render($options=array()) {
         $config = $this->field->getConfiguration();
         $name = $this->field->getFormName();
         $id = substr(md5(spl_object_hash($this)), 10);
@@ -4884,7 +4884,7 @@ class AssignmentForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
+    function render($options=array()) {
 
         switch(strtolower($options['template'])) {
         case 'simple':
@@ -5128,7 +5128,7 @@ class ReferralForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
+    function render($options=array()) {
 
         switch(strtolower($options['template'])) {
         case 'simple':
@@ -5236,7 +5236,7 @@ class TransferForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
+    function render($options=array()) {
 
         switch(strtolower($options['template'])) {
         case 'simple':

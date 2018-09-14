@@ -26,8 +26,8 @@ class Export {
 
     static function dumpQuery($sql, $headers, $how='csv', $options=array()) {
         $exporters = array(
-            'csv' => CsvResultsExporter,
-            'json' => JsonResultsExporter
+            'csv' => 'CsvResultsExporter',
+            'json' => 'JsonResultsExporter'
         );
         $exp = new $exporters[$how]($sql, $headers, $options);
         return $exp->dump();
