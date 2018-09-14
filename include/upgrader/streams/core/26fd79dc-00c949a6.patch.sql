@@ -1,5 +1,5 @@
 /**
-* @signature 226da4e7298917160c7499cb63370f83
+* @signature 00c949a623b82848baaf3480b51307e3
 * @version v1.11.0
 * @title Database Optimization
 *
@@ -41,5 +41,5 @@ ALTER TABLE `%TABLE_PREFIX%thread_event`
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-   SET `value` = '226da4e7298917160c7499cb63370f83', `updated` = NOW()
+   SET `value` = '00c949a623b82848baaf3480b51307e3', `updated` = NOW()
    WHERE `key` = 'schema_signature' AND `namespace` = 'core';

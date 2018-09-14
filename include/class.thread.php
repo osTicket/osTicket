@@ -2095,6 +2095,21 @@ class Event extends VerySimpleModel {
     function getDescription() {
         return $this->description;
     }
+
+    static function create($vars=false, &$errors=array()) {
+        $event = new static($vars);
+        return $event;
+    }
+
+    static function __create($vars, &$errors=array()) {
+        $event = self::create($vars);
+        $event->save();
+        return $event;
+    }
+
+    function save($refetch=false) {
+        return parent::save($refetch);
+    }
 }
 
 class ThreadEvents extends InstrumentedList {
