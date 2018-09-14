@@ -64,6 +64,7 @@ class Internationalization {
             'ticket_status.yaml' => 'TicketStatus::__create',
             // Role
             'role.yaml' =>          'Role::__create',
+            'event.yaml' =>         'Event::__create',
             'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
             'queue_column.yaml' =>  'QueueColumn::__create',
