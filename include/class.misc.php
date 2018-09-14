@@ -95,6 +95,17 @@ class Misc {
             return $timestamp - $tz->getOffset($date);
         }
 
+        // Parse and remove the timezone from the datetime string to avoid
+        // fatal errors on DateTime::__construct()
+        $parsed = date_parse($timestamp);
+        $timestamp = date('Y-m-d H:i:s', mktime(
+                $parsed['hour'],
+                $parsed['minute'],
+                $parsed['second'],
+                $parsed['month'],
+                $parsed['day'],
+                $parsed['year']
+            ));
         $date = new DateTime($timestamp ?: 'now', $tz);
         return $date ? $date->getTimestamp() : $timestamp;
     }
