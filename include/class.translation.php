@@ -672,7 +672,7 @@ class Translation extends gettext_reader implements Serializable {
         list($this->charset, $this->encode, $this->cache_translations)
             = unserialize($what);
         $this->short_circuit = ! $this->enable_cache
-            = 0 < count($this->cache_translations);
+            = 0 < is_array($this->cache_translations) && count($this->cache_translations);
     }
 }
 
