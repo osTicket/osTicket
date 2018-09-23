@@ -20,6 +20,8 @@
 
 class Lock extends VerySimpleModel {
 
+    var $_token;
+
     static $meta = array(
         'table' => LOCK_TABLE,
         'pk' => array('lock_id'),
@@ -79,6 +81,13 @@ class Lock extends VerySimpleModel {
         return $this->code;
     }
 
+    function getToken() {
+        if (!$this->_token)
+            $this->_token = md5($this->lock_id.$this->code.strtotime($this->expire));
+
+        return $this->_token;
+    }
+
     //Renew existing lock.
     function renew($lockTime=0) {
         global $cfg;
@@ -90,6 +99,7 @@ class Lock extends VerySimpleModel {
             SqlFunction::NOW(),
             SqlInterval::MINUTE($lockTime)
         );
+        $this->_token = null;
         return $this->save(true);
     }
 
@@ -111,7 +121,7 @@ class Lock extends VerySimpleModel {
     //Create a ticket lock...this function assumes the caller checked for access & validity of ticket & staff x-ship.
     static function acquire($staffId, $lockTime) {
 
-        if (!$staffId or !$lockTime)
+        if (!is_int($staffId) or !$lockTime)
             return null;
 
         // Create the new lock.
@@ -145,6 +155,19 @@ class Lock extends VerySimpleModel {
         return static::objects()->filter(array(
             'expire__lt' => SqlFunction::NOW()
         ))->delete();
+    }
+
+    function validateToken($token=null, $code) {
+        if (!$code)
+            return false;
+
+        if (!($lock = Lock::lookup(array('code' => $code))))
+            return false;
+
+        if (strcmp($token, $lock->getToken()) !== 0)
+            return false;
+
+        return $lock->delete();
     }
 }
 ?>

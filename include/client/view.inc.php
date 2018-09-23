@@ -8,6 +8,10 @@ $dept = $ticket->getDept();
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(__('%s is marked as closed and cannot be reopened.'), __('This ticket'));
 
+// Form Token
+if (!$mylock)
+    $mylock = Lock::acquire(0, $cfg->getLockTime() ?: 15);
+
 //Making sure we don't leak out internal dept names
 if(!$dept || !$dept->isPublic())
     $dept = $cfg->getDefaultDept();
@@ -158,6 +162,8 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
 <form id="reply" action="tickets.php?id=<?php echo $ticket->getId();
 ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>
+    <input type="hidden" name="lock_code" value="<?php echo $mylock ? $mylock->getCode() : ''; ?>">
+    <input type="hidden" name="form_token" value="<?php echo $mylock ? $mylock->getToken() : ''; ?>">
     <h2><?php echo __('Post a Reply');?></h2>
     <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
     <input type="hidden" name="a" value="reply">

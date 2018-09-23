@@ -149,6 +149,15 @@ if($_POST && !$errors):
                 $errors['err'] = __('Action denied. Contact admin for access');
             } else {
                 $vars = $_POST;
+                // Validate Form Token to prevent form resubmissions
+                if (!$vars['form_token'] || !$vars['lockCode'])
+                    $errors['err'] = __('Invalid Form Token');
+
+                if (!Lock::validateToken($vars['form_token'], $vars['lockCode']))
+                    $errors['err'] = sprintf('%s %s',
+                        __('Form Resubmission detected.'),
+                        __('Action prohibited.'));
+
                 $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
                 $vars['response'] = ThreadEntryBody::clean($vars['response']);
                 if(!$vars['response'])
@@ -401,7 +410,16 @@ if($_POST && !$errors):
                              __('Contact admin for such access'));
                 } else {
                     $vars = $_POST;
+                    // Validate Form Token to prevent form resubmissions
+                    if (!$vars['form_token'] || !$vars['lockCode'])
+                        $errors['err'] = __('Invalid Form Token');
 
+                    if (!Lock::validateToken($vars['form_token'], $vars['lockCode'])) {
+                        unset($_POST, $_REQUEST);
+                        $errors['err'] = sprintf('%s %s',
+                            __('Form Resubmission detected.'),
+                            __('Action prohibited.'));
+                    }
                     if ($vars['uid'] && !($user=User::lookup($vars['uid'])))
                         $vars['uid'] = 0;
 
