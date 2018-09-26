@@ -53,7 +53,7 @@ if (!$ticket) {
             && $_GET['a'] !== 'open'
     ) {
         $criteria = [
-            ['user__name', 'equal', $user->name],
+            ['user__emails__address', 'equal', $user->getDefaultEmailAddress()],
             ['user_id', 'equal', $user->id],
         ];
         if ($S = $_GET['status'])
