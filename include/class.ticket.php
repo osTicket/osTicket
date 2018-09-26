@@ -534,7 +534,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getSource() {
-        return $this->source;
+        $sources = $this->getSources();
+        return $sources[$this->source] ?: $this->source;
     }
 
     function getIP() {
@@ -549,7 +550,7 @@ implements RestrictedAccess, Threadable, Searchable {
         global $cfg;
 
         return array(
-            'source'    => $this->getSource(),
+            'source'    => $this->source,
             'topicId'   => $this->getTopicId(),
             'slaId'     => $this->getSLAId(),
             'user_id'   => $this->getOwnerId(),
@@ -1028,7 +1029,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         'id' => $fid,
                         'name' => 'source',
                         'label' => __('Ticket Source'),
-                        'default' => $this->getSource(),
+                        'default' => $this->source,
                         'choices' => Ticket::getSources()
                         ));
             break;
