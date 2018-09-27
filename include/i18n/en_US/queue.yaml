@@ -76,6 +76,7 @@
 
 - id: 2
   title: Open
+<<<<<<< HEAD
   parent_id: 1
   flags: 0x2b
   root: T
@@ -122,6 +123,14 @@
   sort: 2
   sort_id: 4
   config: '{"criteria":[["isanswered","set",null]],"conditions":[]}'
+=======
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 1
+  sort_id: 4
+  config: '{"criteria":[["isanswered","nset",null]],"conditions":[]}'
+>>>>>>> Make Primary Queues Buckets
   columns:
     - column_id: 1
       bits: 1
@@ -154,12 +163,59 @@
       width: 160
       heading: Assigned To
 
+<<<<<<< HEAD
+=======
+- id: 3
+  title: Answered
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 1
+  sort_id: 4
+  config: '{"criteria":[["isanswered","set",null]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Updated
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Assigned To
+
+>>>>>>> Make Primary Queues Buckets
 - id: 4
   title: Overdue
   parent_id: 1
   flags: 0x2b
   root: T
+<<<<<<< HEAD
   sort: 3
+=======
+  sort: 2
+>>>>>>> Make Primary Queues Buckets
   sort_id: 4
   config: '{"criteria":[["isoverdue","set",null]],"conditions":[]}'
   columns:
@@ -445,6 +501,8 @@
       sort: 2
       width: 150
       heading: Date Closed
+<<<<<<< HEAD
+=======
     - column_id: 3
       bits: 1
       sort: 3
@@ -489,6 +547,7 @@
       sort: 2
       width: 150
       heading: Date Closed
+>>>>>>> Make Primary Queues Buckets
     - column_id: 3
       bits: 1
       sort: 3
@@ -514,6 +573,16 @@
     - sort_id: 6
     - sort_id: 7
 
+<<<<<<< HEAD
+- id: 11
+  parent_id: 8
+  title: This Week
+  flags: 0x2b
+  sort: 3
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","tw"]],"conditions":[]}'
+=======
 - id: 12
   parent_id: 8
   title: This Month
@@ -522,6 +591,7 @@
   root: T
   sort_id: 5
   config: '{"criteria":[["closed","period","tm"]],"conditions":[]}'
+>>>>>>> Make Primary Queues Buckets
   columns:
     - column_id: 1
       bits: 1
@@ -558,6 +628,16 @@
     - sort_id: 6
     - sort_id: 7
 
+<<<<<<< HEAD
+- id: 12
+  parent_id: 8
+  title: This Month
+  flags: 0x2b
+  sort: 4
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","tm"]],"conditions":[]}'
+=======
 - id: 13
   parent_id: 8
   title: This Quarter
@@ -566,6 +646,7 @@
   root: T
   sort_id: 6
   config: '{"criteria":[["closed","period","tq"]],"conditions":[]}'
+>>>>>>> Make Primary Queues Buckets
   columns:
     - column_id: 1
       bits: 1
@@ -601,6 +682,62 @@
     - sort_id: 4
     - sort_id: 6
     - sort_id: 7
+
+<<<<<<< HEAD
+- id: 13
+  parent_id: 8
+  title: This Quarter
+  flags: 0x2b
+  sort: 5
+  root: T
+  sort_id: 6
+  config: '{"criteria":[["closed","period","tq"]],"conditions":[]}'
+=======
+- id: 14
+  parent_id: 8
+  title: This Year
+  flags: 0x2b
+  sort: 6
+  root: T
+  sort_id: 7
+  config: '{"criteria":[["closed","period","ty"]],"conditions":[]}'
+>>>>>>> Make Primary Queues Buckets
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+<<<<<<< HEAD
 
 - id: 14
   parent_id: 8
@@ -645,3 +782,5 @@
     - sort_id: 4
     - sort_id: 6
     - sort_id: 7
+=======
+>>>>>>> Make Primary Queues Buckets
