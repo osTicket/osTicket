@@ -143,6 +143,85 @@ class Misc {
         return ((float)$usec + (float)$sec);
     }
 
+    // Date range for the period in a given time
+    function date_range($period, $time=false) {
+        $time = $time ?: self::gmtime();
+        if (!($dt = Format::parseDateTime($time)))
+            return null;
+        // Force UTC
+        $dt->setTimezone(new DateTimeZone('UTC'));
+
+        // Make dt Immutable.
+        $dt = DateTimeImmutable::createFromMutable($dt);
+        switch ($period) {
+            case 'td':
+            case 'today':
+                $start = $end = $dt->modify('today');
+                break;
+            case 'yd':
+            case 'yesterday':
+                $start = $end = $dt->modify('yesterday');
+                break;
+            case 'tw':
+            case 'this-week':
+                $N = $dt->format('N');
+                $start = $dt->modify($N == 1 ? 'today' : 'last monday');
+                $end = $start->modify('next sunday');
+                break;
+            case 'tm':
+            case 'this-month';
+                $start = $dt->modify('first day of this month');
+                $end = $dt->modify('last day of this month');
+                break;
+            case 'tq':
+            case 'this-quater':
+                $offset = ($dt->format('m') - 1) % 3;
+                $start = $dt->modify(" - $offset month")
+                    ->modify('first day of this month');
+                $end = $start->modify('+ 3 month')->modify('- 1 day');
+                break;
+            case 'ty':
+            case 'this-year':
+                $start = $dt->modify('january')->modify('first day of this month');
+                $end = $dt->modify('december')->modify('last day of this month');
+                break;
+            case 'lw':
+            case 'last-week':
+                //TODO: address edge cases
+                $start = $dt->modify('- 1 week')->modify('last monday');
+                $end = $start->modify('next sunday');
+                break;
+            case 'lm':
+            case 'last-month';
+                $start = $dt->modify('- 1 month')->modify('first day of this month');
+                $end = $start->modify('last day of this month');
+                break;
+            case 'lq':
+            case 'last-quater':
+                $offset = (($dt->format('m') - 1) % 3)+3;
+                $start = $dt->modify(" - $offset month")
+                    ->modify('first day of this month');
+                $end = $start->modify('+ 3 month')->modify('- 1 day');
+                break;
+            case 'ly':
+            case 'last-year':
+                $start = $dt->modify('- 1 year')
+                    ->modify('january')
+                    ->modify('first day of this month');
+                $end = $start->modify('december')->modify('last day of this month');
+                break;
+            default:
+                return null;
+        }
+
+        if ($start)
+            $start = $start->setTime(00, 00, 00);
+        if ($end)
+            $end = $end->setTime(23, 59, 59);
+
+        return (object) array('start' => $start, 'end' => $end);
+    }
+
     //Current page
     function currentURL() {
 
