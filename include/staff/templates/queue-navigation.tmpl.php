@@ -15,6 +15,9 @@ $selected = (!isset($_REQUEST['a'])  && $_REQUEST['queue'] == $this_queue->getId
   <div class="customQ-dropdown">
     <ul class="scroll-height">
       <!-- Add top-level queue (with count) -->
+
+      <?php
+      if (!$children) { ?>
       <li class="top-level">
         <span class="pull-right newItemQ queue-count"
           data-queue-id="<?php echo $q->id; ?>"><span class="faded-more">-</span>
@@ -25,9 +28,9 @@ $selected = (!isset($_REQUEST['a'])  && $_REQUEST['queue'] == $this_queue->getId
         <?php
           echo Format::htmlchars($q->getName()); ?>
         </a>
-        </h4>
       </li>
-
+      <?php
+      } ?>
       <!-- Start Dropdown and child queues -->
       <?php foreach ($childs as $_) {
           list($q, $children) = $_;

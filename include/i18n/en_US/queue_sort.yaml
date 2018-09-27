@@ -27,3 +27,7 @@
 - id: 6
   name: Create Date
   columns: '["-created"]'
+
+- id: 7
+  name: Update Date
+  columns: '["-lastupdate"]'

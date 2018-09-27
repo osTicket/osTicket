@@ -44,7 +44,7 @@ if ($_POST) {
         $queue = CustomQueue::create(array(
             'staff_id' => 0,
             'title' => $_POST['queue-name'],
-            'root' => $_POST['root'] ?: 'T'
+            'root' => 'T'
         ));
 
         if ($queue->update($_POST, $errors) && $queue->save(true)) {

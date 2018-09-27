@@ -855,7 +855,7 @@ class SavedQueue extends CustomQueue {
 
         $queues = SavedQueue::objects()
             ->filter(Q::any(array(
-                'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                'flags__hasbit' => CustomQueue::FLAG_QUEUE,
                 'staff_id' => $agent->getId(),
             )));
 
