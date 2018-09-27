@@ -4,10 +4,11 @@
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 
 $info = $qs = array();
-
+$parent = null;
 if (!$queue) {
     $queue = CustomQueue::create(array(
         'flags' => CustomQueue::FLAG_QUEUE,
+        'parent_id' => 0,
     ));
 }
 if ($queue->__new__) {
@@ -16,6 +17,7 @@ if ($queue->__new__) {
     $submit_text=__('Create');
 }
 else {
+    $parent = $queue->parent;
     $title=__('Manage Custom Queue');
     $action='update';
     $submit_text=__('Save Changes');
@@ -29,8 +31,6 @@ else {
   <input type="hidden" name="do" value="<?php echo $action; ?>">
   <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
   <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-  <input type="hidden" name="root" value="<?php echo Format::htmlchars($_REQUEST['t']); ?>">
-
   <h2><a href="settings.php?t=tickets#queues"><?php echo __('Ticket Queues'); ?></a>
       <i class="icon-caret-right" style="color:rgba(0,0,0,.3);"></i> <?php echo $title; ?>
       <?php if (isset($queue->id)) { ?><small>
@@ -63,20 +63,33 @@ else {
         <br/>
         <div class="error"><?php echo $errors['queue-name']; ?></div>
         <br/>
+        <div>
+          <div><strong><?php echo __("Parent Queue"); ?>:</strong></div>
+          <select name="parent_id" id="parent-id">
+            <option value="0">— <?php echo __('Top-Level Queue'); ?> —</option>
+  <?php foreach (CustomQueue::queues() as $cq) {
+          // Queue cannot be a descendent of itself
+          if ($cq->id == $queue->id)
+              continue;
+          if (strpos($cq->path, "/{$queue->id}/") !== false)
+              continue;
+  ?>
+            <option value="<?php echo $cq->id; ?>"
+              <?php if ($cq->getId() == $queue->parent_id) echo 'selected="selected"'; ?>
+              ><?php echo $cq->getFullName(); ?></option>
+  <?php } ?>
+          </select>
+          <span class="error"><?php echo Format::htmlchars($errors['parent_id']); ?></span>
+        </div>
+        <div class="faded <?php echo $parent ? ' ': 'hidden'; ?>"
+            id="inherited-parent" style="margin-top: 1em;">
+          <div><strong><i class="icon-caret-down"></i>&nbsp; <?php echo  __('Inherited Criteria'); ?></strong></div>
+          <div id="parent-criteria">
+            <?php echo $parent ? nl2br(Format::htmlchars($parent->describeCriteria())) : ''; ?>
+          </div>
+        </div>
+        <hr/>
         <div><strong><?php echo __("Queue Search Criteria"); ?></strong></div>
-        <label class="checkbox" style="line-height:1.3em">
-          <input type="checkbox" class="checkbox" name="inherit" <?php
-            if ($queue->inheritCriteria()) echo 'checked="checked"';
-            ?>/>
-          <?php echo __('Include parent search criteria');
-          if ($queue->parent) { ?>
-            <span id="parent_q_crit" class="faded">
-            <i class="icon-caret-right"></i>
-            <br/><?php
-              echo nl2br(Format::htmlchars($queue->parent->describeCriteria()));
-            ?></span>
-<?php     } ?>
-        </label>
         <hr/>
         <div class="error"><?php echo $errors['criteria']; ?></div>
         <div class="advanced-search">
@@ -89,27 +102,6 @@ else {
         </div>
       </td>
       <td style="width:35%; padding-left:40px; vertical-align:top">
-        <div><strong><?php echo __("Parent Queue"); ?>:</strong></div>
-        <select name="parent_id" onchange="javascript:
-        $('#parent_q_crit').toggle($(this).find(':selected').val()
-          == <?php echo $queue->parent_id ?: 0; ?>);">
-          <option value="0">— <?php echo __('Top-Level Queue'); ?> —</option>
-<?php foreach (CustomQueue::queues() as $cq) {
-        // Queue cannot be a descendent of itself
-        if ($cq->id == $queue->id)
-            continue;
-        if (strpos($cq->path, "/{$queue->id}/") !== false)
-            continue;
-?>
-          <option value="<?php echo $cq->id; ?>"
-            <?php if ($cq->getId() == $queue->parent_id) echo 'selected="selected"'; ?>
-            ><?php echo $cq->getFullName(); ?></option>
-<?php } ?>
-        </select>
-        <div class="error"><?php echo Format::htmlchars($errors['parent_id']); ?></div>
-
-        <br/>
-        <br/>
         <div><strong><?php echo __("Quick Filter"); ?></strong></div>
         <hr/>
         <select name="filter">
@@ -309,6 +301,27 @@ var Q = setInterval(function() {
   );
 } ?>
 }, 25);
+$('select#parent-id').change(function() {
+    var form = $(this).closest('form');
+    var qid = parseInt($(this).val(), 10) || 0;
+
+    if (qid > 0) {
+        $.ajax({
+            type: "GET",
+            url: 'ajax.php/queue/'+qid,
+            dataType: 'json',
+            success: function(queue) {
+                $('#parent-name', form).html(queue.name);
+                $('#parent-criteria', form).html(queue.criteria);
+                $('#inherited-parent', form).fadeIn();
+                }
+            })
+            .done(function() { })
+            .fail(function() { });
+    } else {
+        $('#inherited-parent', form).fadeOut();
+    }
+});
 }();
 </script>
         </table>

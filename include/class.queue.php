@@ -952,7 +952,8 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function inheritCriteria() {
-        return $this->flags & self::FLAG_INHERIT_CRITERIA;
+        return $this->flags & self::FLAG_INHERIT_CRITERIA &&
+            $this->parent_id;
     }
 
     function inheritColumns() {
@@ -1130,8 +1131,7 @@ class CustomQueue extends VerySimpleModel {
 
         // Set basic queue information
         $this->path = $this->buildPath();
-        $this->setFlag(self::FLAG_INHERIT_CRITERIA,
-            $this->parent_id > 0 && isset($vars['inherit']));
+        $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id);
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
             isset($vars['inherit-columns']));
         $this->setFlag(self::FLAG_INHERIT_EXPORT,
@@ -1346,8 +1346,10 @@ class CustomQueue extends VerySimpleModel {
 
         $queue = new static($vars);
         $queue->created = SqlFunction::NOW();
-        if (!isset($vars['flags']))
+        if (!isset($vars['flags'])) {
+            $queue->setFlag(self::FLAG_PUBLIC);
             $queue->setFlag(self::FLAG_QUEUE);
+        }
 
         return $queue;
     }

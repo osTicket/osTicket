@@ -129,3 +129,10 @@
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"
+
+- id: 14
+  name: "Team"
+  primary: "team_id"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
