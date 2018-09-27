@@ -529,6 +529,7 @@ JS
               foreach ($this->entry->getAttachments() as $a)
                   if (!$a->inline && $a->file) {
                     $_SESSION[':form-data'][$k][$a->file->getId()] = $a->getFilename();
+                    $_SESSION[':uploadedFiles'][$a->file->getId()] = $a->getFilename();
                   }
         }
 

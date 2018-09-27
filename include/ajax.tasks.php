@@ -84,8 +84,10 @@ class TasksAjaxAPI extends AjaxController {
     function add($tid=0, $vars=array()) {
         global $thisstaff;
 
-        if ($tid)
-          $originalTask = Task::lookup($tid);
+        if ($tid) {
+            $vars = array_merge($_SESSION[':form-data'], $vars);
+            $originalTask = Task::lookup($tid);
+        }
         else
           unset($_SESSION[':form-data']);
 

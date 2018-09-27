@@ -3234,7 +3234,7 @@ class FileUploadField extends FormField {
         $id = $F->getId();
 
         // This file is allowed for attachment in this session
-        $_SESSION[':uploadedFiles'][$id] = 1;
+        $_SESSION[':uploadedFiles'][$id] = $F->getName();
 
         return $id;
     }
@@ -4367,12 +4367,16 @@ class FileUploadWidget extends Widget {
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = array();
 <<<<<<< HEAD
+<<<<<<< HEAD
         $new = array_flip($this->field->getClean());
 
         //get file ids stored in session when creating tickets/tasks from thread
         if (!$new && is_array($_SESSION[':form-data'])
                   && array_key_exists($this->field->get('name'), $_SESSION[':form-data']))
           $new = $_SESSION[':form-data'][$this->field->get('name')];
+=======
+        $new = $this->field->getClean();
+>>>>>>> Form Attachment Issues
 
         foreach ($attachments as $a) {
             unset($new[$a->file_id]);
@@ -4466,41 +4470,40 @@ class FileUploadWidget extends Widget {
         // identified in the session
         //
         // If no value was sent, assume an empty list
-        if (!($files = parent::getValue()))
+        if (!($_files = parent::getValue()))
             return array();
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            foreach ($_files as $info) {
+                if (@list($id,$name) = explode(',', $info, 2))
+                    $files[$id] = $name;
+            }
+        }
+        else
+          $files = $_files;
 
         $allowed = array();
         // Files already attached to the field are allowed
         foreach ($this->field->getFiles() as $F) {
             // FIXME: This will need special porting in v1.10
-            $allowed[$F->id] = 1;
+            $allowed[$F->id] = $F->getName();
         }
 
         // New files uploaded in this session are allowed
         if (isset($_SESSION[':uploadedFiles']))
             $allowed += $_SESSION[':uploadedFiles'];
 
-        // Files attached to threads where we are creating tasks/tickets are allowed
-        if (isset($_SESSION[':form-data'][$this->field->get('name')])) {
-          foreach ($_SESSION[':form-data'][$this->field->get('name')] as $key => $value)
-            $allowed[$key] = $value;
-        }
-
         // Canned attachments initiated by this session
         if (isset($_SESSION[':cannedFiles']))
            $allowed += $_SESSION[':cannedFiles'];
 
         // Parse the files and make sure it's allowed.
-        foreach ($files as $info) {
-            @list($id, $name) = explode(',', $info, 2);
+        foreach ($files as $id => $name) {
             if (!isset($allowed[$id]))
                 continue;
 
             // Keep the values as the IDs
-            if ($name)
-                $ids[$name] = $id;
-            else
-                $ids[] = $id;
+            $ids[$id] = $name ?: $allowed[$id] ?: $id;
         }
 
         return $ids;
