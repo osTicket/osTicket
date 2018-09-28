@@ -1408,7 +1408,7 @@ function refer($tid, $target=null) {
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
-                    $vars['cannedattachments'] = $attachments->getClean();
+                    $vars['files'] = $attachments->getFiles();
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
@@ -1490,9 +1490,9 @@ function refer($tid, $target=null) {
             $vars = $_POST;
             switch ($_POST['a']) {
             case 'postnote':
-                $attachments = $note_attachments_form->getField('attachments')->getClean();
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+                $attachments = $note_attachments_form->getField('attachments')->getFiles();
+                $vars['files'] = array_merge(
+                    $vars['files'] ?: array(), $attachments);
                 if (($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list
@@ -1506,9 +1506,9 @@ function refer($tid, $target=null) {
                 }
                 break;
             case 'postreply':
-                $attachments = $reply_attachments_form->getField('attachments')->getClean();
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+                $attachments = $reply_attachments_form->getField('attachments')->getFiles();
+                $vars['files'] = array_merge(
+                    $vars['files'] ?: array(), $attachments);
                 if (($response=$task->postReply($vars, $errors))) {
                     $msg=__('Update posted successfully');
                     // Clear attachment list

@@ -84,7 +84,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
                     'poster' => (string) $thisclient->getName(),
                     'message' => $_POST['message']
                     );
-            $vars['cannedattachments'] = $attachments->getClean();
+            $vars['files'] = $attachments->getFiles();
             if (isset($_POST['draft_id']))
                 $vars['draft_id'] = $_POST['draft_id'];
 

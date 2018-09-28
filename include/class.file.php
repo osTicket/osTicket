@@ -248,7 +248,7 @@ class AttachmentFile extends VerySimpleModel {
         return hash_hmac('sha1', implode("\n", $pieces), SECRET_SALT);
     }
 
-    function download($disposition=false, $expires=false) {
+    function download($name=false, $disposition=false, $expires=false) {
         $disposition = $disposition ?: 'inline';
         $bk = $this->open();
         if ($bk->sendRedirectUrl($disposition))
@@ -258,7 +258,7 @@ class AttachmentFile extends VerySimpleModel {
         $type = $this->getType() ?: 'application/octet-stream';
         if (isset($_REQUEST['overridetype']))
             $type = $_REQUEST['overridetype'];
-        Http::download($this->getName(), $type, null, 'inline');
+        Http::download($name ?: $this->getName(), $type, null, 'inline');
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();

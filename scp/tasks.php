@@ -48,7 +48,7 @@ if($_POST && !$errors):
         switch(strtolower($_POST['a'])):
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            $vars['cannedattachments'] = $note_attachments_form->getField('attachments')->getClean();
+            $vars['files'] = $note_attachments_form->getField('attachments')->getFiles();
 
             $wasOpen = ($task->isOpen());
             if(($note=$task->postNote($vars, $errors, $thisstaff))) {
@@ -76,7 +76,7 @@ if($_POST && !$errors):
             break;
         case 'postreply': /* Post an update */
             $vars = $_POST;
-            $vars['cannedattachments'] = $reply_attachments_form->getField('attachments')->getClean();
+            $vars['files'] = $reply_attachments_form->getField('attachments')->getFiles();
 
             $wasOpen = ($task->isOpen());
             if (($response=$task->postReply($vars, $errors))) {

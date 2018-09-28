@@ -28,10 +28,11 @@ if (!$_GET['key']
 
 // Get the object type the file is attached to
 $type = '';
+$attachment = null;
 if ($_GET['id']
-        && ($a=$file->attachments->findFirst(array(
+        && ($attachment=$file->attachments->findFirst(array(
                     'id' => $_GET['id']))))
-    $type = $a->type;
+    $type = $attachment->type;
 
 // Enforce security settings if enabled.
 if ($cfg->isAuthRequiredForFiles()
@@ -62,7 +63,9 @@ if ($file->verifySignature($_GET['signature'], $_GET['expires'])) {
             return $file->display($s);
 
         // Download the file..
-        $file->download(@$_GET['disposition'] ?: false, $_GET['expires']);
+        $filename = $attachment ? $attachment->name : $file->getName();
+        $disposition = @$_GET['disposition'] ?: false;
+        $file->download($filename, $disposition, @$_GET['expires']);
     }
     catch (Exception $ex) {
         Http::response(500, 'Unable to find that file: '.$ex->getMessage());
