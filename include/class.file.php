@@ -248,7 +248,11 @@ class AttachmentFile extends VerySimpleModel {
         return hash_hmac('sha1', implode("\n", $pieces), SECRET_SALT);
     }
 
+<<<<<<< HEAD
     function download($name=false, $disposition=false, $expires=false) {
+=======
+    function download($disposition=false, $expires=false, $name=false) {
+>>>>>>> Attachment Names Issue
         $disposition = $disposition ?: 'inline';
         $bk = $this->open();
         if ($bk->sendRedirectUrl($disposition))
