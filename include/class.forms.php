@@ -3357,6 +3357,10 @@ class FileUploadField extends FormField {
                 if ($a && ($f=$a->getFile()))
                     $files[] = $f;
             }
+
+            foreach (@$this->getClean() as $key => $value)
+                $files[] = array('id' => $key, 'name' => $value);
+
             $this->files = $files;
         }
         return $this->files;
@@ -3427,9 +3431,7 @@ class FileUploadField extends FormField {
     }
 
     function parse($value) {
-        // Values in the database should be integer file-ids
-        return array_map(function($e) { return (int) $e; },
-            $value ?: array());
+        return $value;
     }
 
     function to_php($value) {
@@ -4419,6 +4421,7 @@ class FileUploadWidget extends Widget {
             $F = AttachmentFile::objects()
                 ->filter(array('id__in' => array_keys($new)))
                 ->all();
+
             foreach ($F as $f) {
                 $f->tmp_name = $new[$f->getId()];
                 $files[] = array(
@@ -4467,7 +4470,7 @@ class FileUploadWidget extends Widget {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
                     $F = $this->field->uploadFile($file);
-                    $ids[] = $F->getId();
+                    $ids[$F->getId()] = $F->getName();
                 }
                 catch (FileUploadError $ex) {}
             }
@@ -4478,17 +4481,17 @@ class FileUploadWidget extends Widget {
         // identified in the session
         //
         // If no value was sent, assume an empty list
-        if (!($_files = parent::getValue()))
+        if (!($files = parent::getValue()))
             return array();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            foreach ($_files as $info) {
-                if (@list($id,$name) = explode(',', $info, 2))
-                    $files[$id] = $name;
+            $_files = array();
+            foreach ($files as $info) {
+                if (@list($id, $name) = explode(',', $info, 2))
+                    $_files[$id] = $name;
             }
+            $files = $_files;
         }
-        else
-          $files = $_files;
 
         $allowed = array();
         // Files already attached to the field are allowed
@@ -4511,7 +4514,7 @@ class FileUploadWidget extends Widget {
                 continue;
 
             // Keep the values as the IDs
-            $ids[$id] = $name ?: $allowed[$id] ?: $id;
+            $ids[$id] = $name;
         }
 
         return $ids;

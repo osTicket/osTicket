@@ -60,6 +60,10 @@ class Attachment extends VerySimpleModel {
         return $this->name ?: $this->file->name;
     }
 
+    function getName() {
+        return $this->getFilename();
+    }
+
     function getHashtable() {
         return $this->ht;
     }
@@ -133,7 +137,7 @@ extends InstrumentedList {
         foreach ($files as $file) {
             if (is_numeric($file))
                 $fileId = $file;
-            elseif (is_array($file) && isset($file['id']) && $file['id'] != 0)
+            elseif (is_array($file) && isset($file['id']) && $file['id'])
                 $fileId = $file['id'];
             elseif (isset($file['tmp_name']) && ($F = AttachmentFile::upload($file)))
                 $fileId = $F->getId();

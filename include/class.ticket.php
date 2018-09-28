@@ -2836,9 +2836,9 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
         }
         $files = array();
-        foreach ($canned->attachments->getAll() as $file) {
-            $files[] = $file->file_id;
-            $_SESSION[':cannedFiles'][$file->file_id] = 1;
+        foreach ($canned->attachments->getAll() as $att) {
+            $files[] = array('id' => $att->file_id, 'name' => $att->getName());
+            $_SESSION[':cannedFiles'][$att->file_id] = $att->getName();
         }
 
         if ($cfg->isRichTextEnabled())
@@ -2851,7 +2851,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $info = array('msgId' => $message instanceof ThreadEntry ? $message->getId() : 0,
                       'poster' => __('SYSTEM (Canned Reply)'),
                       'response' => $response,
-                      'cannedattachments' => $files
+                      'files' => $files
         );
         $errors = array();
         if (!($response=$this->postReply($info, $errors, false, false)))
@@ -4087,8 +4087,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['note'] = ThreadEntryBody::clean($vars['note']);
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
-        $create_vars['cannedattachments']
-            = $tform->getField('message')->getWidget()->getAttachments()->getClean();
+        $create_vars['files']
+            = $tform->getField('message')->getWidget()->getAttachments()->getFiles();
 
         if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;
