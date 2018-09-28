@@ -53,7 +53,7 @@ if (!$ticket) {
             && $_GET['a'] !== 'open'
     ) {
         $criteria = [
-            ['user__name', 'equal', $user->name],
+            ['user__emails__address', 'equal', $user->getDefaultEmailAddress()],
             ['user_id', 'equal', $user->id],
         ];
         if ($S = $_GET['status'])
@@ -211,9 +211,7 @@ if($_POST && !$errors):
             break;
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            $attachments = $note_form->getField('attachments')->getClean();
-            $vars['cannedattachments'] = array_merge(
-                $vars['cannedattachments'] ?: array(), $attachments);
+            $vars['cannedattachments'] = $note_form->getField('attachments')->getClean();
             $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
             if ($cfg->isTicketLockEnabled()) {
@@ -418,6 +416,10 @@ if($_POST && !$errors):
                         $response_form->getField('attachments')->reset();
                         $_SESSION[':form-data'] = null;
                     } elseif(!$errors['err']) {
+                        // ensure that we retain the tid if ticket is created from thread
+                        if ($_SESSION[':form-data']['ticketId'] || $_SESSION[':form-data']['taskId'])
+                            $_GET['tid'] = $_SESSION[':form-data']['ticketId'] ?: $_SESSION[':form-data']['taskId'];
+
                         $errors['err']=sprintf('%s %s',
                             __('Unable to create the ticket.'),
                             __('Correct any errors below and try again.'));

@@ -1082,21 +1082,21 @@ implements TemplateVariable {
             $files = array($files);
 
         $ids = array();
-        foreach ($files as $name => $file) {
-            $F = array('inline' => is_array($file) && @$file['inline']);
+        foreach ($files as $id => $info) {
+            $F = array('inline' => is_array($info) && @$info['inline']);
 
-            if (is_numeric($file))
-                $fileId = $file;
-            elseif ($file instanceof AttachmentFile)
-                $fileId = $file->getId();
-            elseif (is_array($file) && isset($file['id']))
-                $fileId = $file['id'];
-            elseif ($AF = AttachmentFile::create($file))
+            if (is_numeric($id) && $id != 0)
+                $fileId = $id;
+            elseif ($info instanceof AttachmentFile)
+                $fileId = $info->getId();
+            elseif (is_array($info) && isset($info['id']))
+                $fileId = $info['id'];
+            elseif ($AF = AttachmentFile::create($info))
                 $fileId = $AF->getId();
             elseif ($add_error) {
-                $error = $file['error']
+                $error = $info['error']
                     ?: sprintf(_S('Unable to import attachment - %s'),
-                        $name ?: $file['name']);
+                        $id ?: $info['name']);
                 if (is_numeric($error) && isset($error_descriptions[$error])) {
                     $error = sprintf(_S('Error #%1$d: %2$s'), $error,
                         _S($error_descriptions[$error]));
@@ -1119,15 +1119,15 @@ implements TemplateVariable {
 
             $F['id'] = $fileId;
 
-            if (is_string($name))
-                $F['name'] = $name;
+            if (is_string($info))
+                $F['name'] = $info;
             if (isset($AF))
                 $F['file'] = $AF;
 
             // Add things like the `key` field, but don't change current
             // keys of the file array
-            if (is_array($file))
-                $F += $file;
+            if (is_array($info))
+                $F += $info;
 
             // Key is required for CID rewriting in the body
             if (!isset($F['key']) && ($AF = AttachmentFile::lookup($F['id'])))
