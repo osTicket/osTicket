@@ -1974,8 +1974,23 @@ class DatetimeField extends FormField {
             'w' => _N('week', 'weeks', $count),
             'm' => _N('month', 'months', $count),
         );
-
         return $i ? $intervals[$i] : $intervals;
+    }
+
+    static function periods($period='') {
+        $periods = array(
+                'td' => __('Today'),
+                'yd' => __('Yesterday'),
+                'tw' => __('This Week'),
+                'tm' => __('This Month'),
+                'tq' => __('This Quater'),
+                'ty' => __('This Year'),
+                'lw' => __('Last Week'),
+                'lm' => __('Last Month'),
+                'lq' => __('Last Quater'),
+                'ly' => __('Last Year'),
+        );
+        return $period ? $periods[$period] : $periods;
     }
 
     // Get php DatateTime object of the field  - null if value is empty
@@ -2190,6 +2205,7 @@ class DatetimeField extends FormField {
             'before' =>     __('before'),
             'after' =>      __('after'),
             'between' =>    __('between'),
+            'period' =>     __('period'),
             'ndaysago' =>   __('in the last n days'),
             'ndays' =>      __('in the next n days'),
             'future' =>     __('in the future'),
@@ -2239,6 +2255,9 @@ class DatetimeField extends FormField {
                     'right' => new DatetimeField(),
                 ),
             )),
+            'period' => array('ChoiceField', array(
+                'choices' => self::periods(),
+            )),
             'ndaysago' => array('InlineformField', array('form'=>$nday_form())),
             'ndays' => array('InlineformField', array('form'=>$nday_form())),
             'distfut' => array('InlineformField', array('form'=>$nday_form())),
@@ -2247,6 +2266,8 @@ class DatetimeField extends FormField {
     }
 
     function getSearchQ($method, $value, $name=false) {
+        global $cfg;
+
         static $intervals = array(
             'm' => 'MONTH',
             'w' => 'WEEK',
@@ -2257,10 +2278,9 @@ class DatetimeField extends FormField {
         $name = $name ?: $this->get('name');
         $now = SqlFunction::NOW();
         $config = $this->getConfiguration();
-
        if (is_int($value))
           $value = DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value;
-       elseif (is_string($value))
+       elseif (is_string($value) && strlen($value) > 2)
            $value = Format::parseDateTime($value) ?: $value;
 
         switch ($method) {
@@ -2322,6 +2342,27 @@ class DatetimeField extends FormField {
             return new Q(array(
                 "{$name}__gte" => $now->plus($interval),
             ));
+        case 'period':
+            // Get the period range boundaries - timezone doesn't matter
+            $period = Misc::date_range($value, Misc::gmtime('now'));
+            $tz = new DateTimeZone($cfg->getTimezone());
+            // Get datetime boundaries in user's effective timezone
+            $tz = new DateTimeZone($cfg->getTimezone());
+            $start = new DateTime($period->start->format('Y-m-d H:i:s'),
+                    $tz);
+            $end = new DateTime($period->end->format('Y-m-d H:i:s'), $tz);
+            // Convert boundaries to db time
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+            $start->setTimezone($dbtz);
+            $end->setTimezone($dbtz);
+            // Set the range
+            return new Q(array(
+                "{$name}__range" => array(
+                    $start->format('Y-m-d H:i:s'),
+                    $end->format('Y-m-d H:i:s')
+                    )
+                ));
+            break;
         default:
             return parent::getSearchQ($method, $value, $name);
         }
@@ -2347,6 +2388,8 @@ class DatetimeField extends FormField {
             return __('%1$s is in the future');
         case 'past':
             return __('%1$s is in the past');
+        case 'period':
+            return __('%1$s is %2$s');
         default:
             return parent::describeSearchMethod($method);
         }
@@ -2375,6 +2418,8 @@ class DatetimeField extends FormField {
             case 'before':
             case 'after':
                 return sprintf($desc, $name, $this->toString($value));
+            case 'period':
+                return sprintf($desc, $name, self::periods($value) ?: $value);
             default:
                 return parent::describeSearch($method, $value, $name);
         }
