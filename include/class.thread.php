@@ -1085,12 +1085,12 @@ implements TemplateVariable {
         foreach ($files as $id => $info) {
             $F = array('inline' => is_array($info) && @$info['inline']);
 
-            if (is_numeric($id) && $id != 0)
+            if (is_array($info) && isset($info['id']))
+                $fileId = $info['id'];
+            elseif (is_numeric($id) && $id != 0)
                 $fileId = $id;
             elseif ($info instanceof AttachmentFile)
                 $fileId = $info->getId();
-            elseif (is_array($info) && isset($info['id']))
-                $fileId = $info['id'];
             elseif ($AF = AttachmentFile::create($info))
                 $fileId = $AF->getId();
             elseif ($add_error) {
