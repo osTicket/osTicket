@@ -149,7 +149,7 @@ if($_POST && !$errors):
                 $errors['err'] = __('Action denied. Contact admin for access');
             } else {
                 $vars = $_POST;
-                $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+                $vars['files'] = $response_form->getField('attachments')->getFiles();
                 $vars['response'] = ThreadEntryBody::clean($vars['response']);
                 if(!$vars['response'])
                     $errors['response']=__('Response required');
@@ -211,7 +211,7 @@ if($_POST && !$errors):
             break;
         case 'postnote': /* Post Internal Note */
             $vars = $_POST;
-            $vars['cannedattachments'] = $note_form->getField('attachments')->getClean();
+            $vars['files'] = $note_form->getField('attachments')->getFiles();
             $vars['note'] = ThreadEntryBody::clean($vars['note']);
 
             if ($cfg->isTicketLockEnabled()) {
@@ -403,7 +403,7 @@ if($_POST && !$errors):
                     if ($vars['uid'] && !($user=User::lookup($vars['uid'])))
                         $vars['uid'] = 0;
 
-                    $vars['cannedattachments'] = $response_form->getField('attachments')->getClean();
+                    $vars['files'] = $response_form->getField('attachments')->getFiles();
 
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg=__('Ticket created successfully');
