@@ -13,7 +13,7 @@ subject: osTicket Upgraded!
 message: |
     <p>
     osTicket upgraded successfully! Please refer to the Release Notes
-    (http://osticket.com/wiki/Release_Notes) for more information about
+    (https://docs.osticket.com/en/latest/Developer%20Documentation/Changelog.html?highlight=notes) for more information about
     changes and new features.
     </p><p>
     Be sure to join the <a href="http://osticket.com/forums">osTicket
