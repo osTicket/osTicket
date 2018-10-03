@@ -84,8 +84,10 @@ class TasksAjaxAPI extends AjaxController {
     function add($tid=0, $vars=array()) {
         global $thisstaff;
 
-        if ($tid)
-          $originalTask = Task::lookup($tid);
+        if ($tid) {
+            $vars = array_merge($_SESSION[':form-data'], $vars);
+            $originalTask = Task::lookup($tid);
+        }
         else
           unset($_SESSION[':form-data']);
 
@@ -111,7 +113,7 @@ class TasksAjaxAPI extends AjaxController {
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
-                    $vars['cannedattachments'] = $attachments->getClean();
+                    $vars['files'] = $attachments->getFiles();
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
@@ -809,9 +811,9 @@ class TasksAjaxAPI extends AjaxController {
             switch ($_POST['a']) {
             case 'postnote':
                 $vars = $_POST;
-                $attachments = $note_form->getField('attachments')->getClean();
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+                $attachments = $note_form->getField('attachments')->getFiles();
+                $vars['files'] = array_merge(
+                    $vars['files'] ?: array(), $attachments);
                 if(($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list

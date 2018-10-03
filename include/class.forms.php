@@ -1974,8 +1974,23 @@ class DatetimeField extends FormField {
             'w' => _N('week', 'weeks', $count),
             'm' => _N('month', 'months', $count),
         );
-
         return $i ? $intervals[$i] : $intervals;
+    }
+
+    static function periods($period='') {
+        $periods = array(
+                'td' => __('Today'),
+                'yd' => __('Yesterday'),
+                'tw' => __('This Week'),
+                'tm' => __('This Month'),
+                'tq' => __('This Quater'),
+                'ty' => __('This Year'),
+                'lw' => __('Last Week'),
+                'lm' => __('Last Month'),
+                'lq' => __('Last Quater'),
+                'ly' => __('Last Year'),
+        );
+        return $period ? $periods[$period] : $periods;
     }
 
     // Get php DatateTime object of the field  - null if value is empty
@@ -2190,6 +2205,7 @@ class DatetimeField extends FormField {
             'before' =>     __('before'),
             'after' =>      __('after'),
             'between' =>    __('between'),
+            'period' =>     __('period'),
             'ndaysago' =>   __('in the last n days'),
             'ndays' =>      __('in the next n days'),
             'future' =>     __('in the future'),
@@ -2239,6 +2255,9 @@ class DatetimeField extends FormField {
                     'right' => new DatetimeField(),
                 ),
             )),
+            'period' => array('ChoiceField', array(
+                'choices' => self::periods(),
+            )),
             'ndaysago' => array('InlineformField', array('form'=>$nday_form())),
             'ndays' => array('InlineformField', array('form'=>$nday_form())),
             'distfut' => array('InlineformField', array('form'=>$nday_form())),
@@ -2247,6 +2266,8 @@ class DatetimeField extends FormField {
     }
 
     function getSearchQ($method, $value, $name=false) {
+        global $cfg;
+
         static $intervals = array(
             'm' => 'MONTH',
             'w' => 'WEEK',
@@ -2257,10 +2278,9 @@ class DatetimeField extends FormField {
         $name = $name ?: $this->get('name');
         $now = SqlFunction::NOW();
         $config = $this->getConfiguration();
-
        if (is_int($value))
           $value = DateTime::createFromFormat('U', !$config['gmt'] ? Misc::gmtime($value) : $value) ?: $value;
-       elseif (is_string($value))
+       elseif (is_string($value) && strlen($value) > 2)
            $value = Format::parseDateTime($value) ?: $value;
 
         switch ($method) {
@@ -2322,6 +2342,27 @@ class DatetimeField extends FormField {
             return new Q(array(
                 "{$name}__gte" => $now->plus($interval),
             ));
+        case 'period':
+            // Get the period range boundaries - timezone doesn't matter
+            $period = Misc::date_range($value, Misc::gmtime('now'));
+            $tz = new DateTimeZone($cfg->getTimezone());
+            // Get datetime boundaries in user's effective timezone
+            $tz = new DateTimeZone($cfg->getTimezone());
+            $start = new DateTime($period->start->format('Y-m-d H:i:s'),
+                    $tz);
+            $end = new DateTime($period->end->format('Y-m-d H:i:s'), $tz);
+            // Convert boundaries to db time
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+            $start->setTimezone($dbtz);
+            $end->setTimezone($dbtz);
+            // Set the range
+            return new Q(array(
+                "{$name}__range" => array(
+                    $start->format('Y-m-d H:i:s'),
+                    $end->format('Y-m-d H:i:s')
+                    )
+                ));
+            break;
         default:
             return parent::getSearchQ($method, $value, $name);
         }
@@ -2347,6 +2388,8 @@ class DatetimeField extends FormField {
             return __('%1$s is in the future');
         case 'past':
             return __('%1$s is in the past');
+        case 'period':
+            return __('%1$s is %2$s');
         default:
             return parent::describeSearchMethod($method);
         }
@@ -2375,6 +2418,8 @@ class DatetimeField extends FormField {
             case 'before':
             case 'after':
                 return sprintf($desc, $name, $this->toString($value));
+            case 'period':
+                return sprintf($desc, $name, self::periods($value) ?: $value);
             default:
                 return parent::describeSearch($method, $value, $name);
         }
@@ -3268,7 +3313,7 @@ class FileUploadField extends FormField {
         $id = $F->getId();
 
         // This file is allowed for attachment in this session
-        $_SESSION[':uploadedFiles'][$id] = 1;
+        $_SESSION[':uploadedFiles'][$id] = $F->getName();
 
         return $id;
     }
@@ -3357,6 +3402,10 @@ class FileUploadField extends FormField {
                 if ($a && ($f=$a->getFile()))
                     $files[] = $f;
             }
+
+            foreach (@$this->getClean() as $key => $value)
+                $files[] = array('id' => $key, 'name' => $value);
+
             $this->files = $files;
         }
         return $this->files;
@@ -3427,9 +3476,7 @@ class FileUploadField extends FormField {
     }
 
     function parse($value) {
-        // Values in the database should be integer file-ids
-        return array_map(function($e) { return (int) $e; },
-            $value ?: array());
+        return $value;
     }
 
     function to_php($value) {
@@ -4400,13 +4447,7 @@ class FileUploadWidget extends Widget {
         );
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = array();
-        $new = array_flip($this->field->getClean());
-
-        //get file ids stored in session when creating tickets/tasks from thread
-        //XXX: This shouldn't be here!!
-        if (!$new && is_array($_SESSION[':form-data'])
-                  && array_key_exists($this->field->get('name'), $_SESSION[':form-data']))
-          $new = $_SESSION[':form-data'][$this->field->get('name')];
+        $new = $this->field->getClean();
 
         foreach ($this->field->getAttachments() as $att) {
             unset($new[$att->file_id]);
@@ -4425,6 +4466,7 @@ class FileUploadWidget extends Widget {
             $F = AttachmentFile::objects()
                 ->filter(array('id__in' => array_keys($new)))
                 ->all();
+
             foreach ($F as $f) {
                 $f->tmp_name = $new[$f->getId()];
                 $files[] = array(
@@ -4473,7 +4515,7 @@ class FileUploadWidget extends Widget {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
                     $F = $this->field->uploadFile($file);
-                    $ids[] = $F->getId();
+                    $ids[$F->getId()] = $F->getName();
                 }
                 catch (FileUploadError $ex) {}
             }
@@ -4487,38 +4529,37 @@ class FileUploadWidget extends Widget {
         if (!($files = parent::getValue()))
             return array();
 
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $_files = array();
+            foreach ($files as $info) {
+                if (@list($id, $name) = explode(',', $info, 2))
+                    $_files[$id] = $name;
+            }
+            $files = $_files;
+        }
+
         $allowed = array();
         // Files already attached to the field are allowed
         foreach ($this->field->getFiles() as $F) {
             // FIXME: This will need special porting in v1.10
-            $allowed[$F->id] = 1;
+            $allowed[$F->id] = $F->getName();
         }
 
         // New files uploaded in this session are allowed
         if (isset($_SESSION[':uploadedFiles']))
             $allowed += $_SESSION[':uploadedFiles'];
 
-        // Files attached to threads where we are creating tasks/tickets are allowed
-        if (isset($_SESSION[':form-data'][$this->field->get('name')])) {
-          foreach ($_SESSION[':form-data'][$this->field->get('name')] as $key => $value)
-            $allowed[$key] = $value;
-        }
-
         // Canned attachments initiated by this session
         if (isset($_SESSION[':cannedFiles']))
            $allowed += $_SESSION[':cannedFiles'];
 
         // Parse the files and make sure it's allowed.
-        foreach ($files as $info) {
-            @list($id, $name) = explode(',', $info, 2);
+        foreach ($files as $id => $name) {
             if (!isset($allowed[$id]))
                 continue;
 
             // Keep the values as the IDs
-            if ($name)
-                $ids[$name] = $id;
-            else
-                $ids[] = $id;
+            $ids[$id] = $name;
         }
 
         return $ids;
