@@ -3330,7 +3330,10 @@ implements RestrictedAccess, Threadable, Searchable {
             $errors['field'] = sprintf(__('%s is already assigned this value'),
                     __($field->getLabel()));
         else {
-            if ($field->answer) {
+            if (!$field->isEditableToStaff())
+                $errors['field'] = sprintf(__('%s can not be edited'),
+                        __($field->getLabel()));
+            elseif ($field->answer) {
                 if (!$field->save())
                     $errors['field'] =  __('Unable to update field');
                 $changes['fields'] = array($field->getId() => $changes);
