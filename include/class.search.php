@@ -707,12 +707,9 @@ class SavedQueue extends CustomQueue {
      *
      */
     function getForm($source=null, $searchable=array()) {
-        global $thisstaff;
-
-        if (!$this->isAQueue())
-            $searchable =  $this->getCurrentSearchFields($source,
-                     parent::getCriteria());
-        else // Only allow supplemental matches.
+        $searchable = null;
+        if ($this->isAQueue())
+            // Only allow supplemental matches.
             $searchable = array_intersect_key($this->getCurrentSearchFields($source),
                     $this->getSupplementalMatches());
 

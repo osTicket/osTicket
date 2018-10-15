@@ -174,10 +174,7 @@ class CustomQueue extends VerySimpleModel {
      */
     function getForm($source=null, $searchable=null) {
         $fields = array();
-        $validator = false;
         if (!isset($searchable)) {
-            $searchable = $this->getCurrentSearchFields($source);
-            $validator = true;
             $fields = array(
                 ':keywords' => new TextboxField(array(
                     'id' => 3001,
@@ -188,11 +185,17 @@ class CustomQueue extends VerySimpleModel {
                         'classes' => 'full-width headline',
                         'placeholder' => __('Keywords — Optional'),
                     ),
+                    'validators' => function($self, $v) {
+                        if (mb_str_wc($v) > 3)
+                            $self->addError(__('Search term cannot have more than 3 keywords'));
+                    },
                 )),
             );
+
+            $searchable = $this->getCurrentSearchFields($source);
         }
 
-        foreach ($searchable as $path=>$field)
+        foreach ($searchable ?: array() as $path => $field)
             $fields = array_merge($fields, static::getSearchField($field, $path));
 
         $form = new AdvancedSearchForm($fields, $source);

@@ -79,16 +79,20 @@ if (!$ticket) {
     elseif (isset($_GET['a']) && $_GET['a'] === 'search'
         && ($_GET['query'])
     ) {
-        $key = substr(md5($_GET['query']), -10);
-        if ($_GET['search-type'] == 'typeahead') {
-            // Use a faster index
-            $criteria = ['user__emails__address', 'equal', $_GET['query']];
+        $wc = mb_str_wc($_GET['query']);
+        if ($wc < 4) {
+            $key = substr(md5($_GET['query']), -10);
+            if ($_GET['search-type'] == 'typeahead') {
+                // Use a faster index
+                $criteria = ['user__emails__address', 'equal', $_GET['query']];
+            } else {
+                $criteria = [':keywords', null, $_GET['query']];
+            }
+            $_SESSION['advsearch'][$key] = [$criteria];
+            $queue_id = "adhoc,{$key}";
+        } else {
+            $errors['err'] = __('Search term cannot have more than 3 keywords');
         }
-        else {
-            $criteria = [':keywords', null, $_GET['query']];
-        }
-        $_SESSION['advsearch'][$key] = [$criteria];
-        $queue_id = "adhoc,{$key}";
     }
 
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
