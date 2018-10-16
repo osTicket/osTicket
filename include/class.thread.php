@@ -2075,25 +2075,31 @@ class Event extends VerySimpleModel {
     }
 
     function getNameById($id) {
-        $row = Event::objects()
-            ->filter(array('id'=>$id))
-            ->values_flat('name')
-            ->first();
-
-        return $row ? $row[0] : 0;
+        return array_search($id, self::getIds());
     }
 
     function getIdByName($name) {
-        $row = Event::objects()
-            ->filter(array('name'=>$name))
-            ->values_flat('id')
-            ->first();
-
-        return $row ? $row[0] : 0;
+         $ids =  self::getIds();
+         return $ids[$name] ?: 0;
     }
 
     function getDescription() {
         return $this->description;
+    }
+
+    static function getIds() {
+        static $ids;
+
+        if (!isset($ids)) {
+            $ids = array();
+            $events = static::objects()->values_flat('id', 'name');
+            foreach ($events as $row) {
+                list($id, $name) = $row;
+                $ids[$name] = $id;
+            }
+        }
+
+        return $ids;
     }
 
     static function create($vars=false, &$errors=array()) {

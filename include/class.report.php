@@ -78,30 +78,29 @@ class OverviewReport {
     function getPlotData() {
         list($start, $stop) = $this->getDateRange();
         $states = array("created", "closed", "reopened", "assigned", "overdue", "transferred");
-        $event_ids = array();
-        foreach ($states as $state) {
-            $eid = Event::getIdByName($state);
-            $event_ids[] = $eid;
-        }
+        $event_ids = Event::getIds();
 
         # Fetch all types of events over the timeframe
-        $res = db_query('SELECT DISTINCT(state) FROM '.THREAD_EVENT_TABLE
+        $res = db_query('SELECT DISTINCT(E.name) FROM '.THREAD_EVENT_TABLE
+            .' T JOIN '.EVENT_TABLE . ' E ON E.id = T.event_id'
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
-            .' AND event_id IN ('.implode($event_ids).')'
+            .' AND T.event_id IN ('.implode(",",$event_ids).')'
             .' ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
 
         # TODO: Handle user => db timezone offset
         # XXX: Implement annulled column from the %ticket_event table
-        $res = db_query('SELECT event_id, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
+        $res = db_query('SELECT H.name, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
                 .'COUNT(DISTINCT T.id)'
             .' FROM '.THREAD_EVENT_TABLE. ' E '
+            . ' LEFT JOIN '.EVENT_TABLE. ' H
+                ON (E.event_id = H.id)'
             .' JOIN '.THREAD_TABLE. ' T
                 ON (T.id = E.thread_id AND T.object_type = "T") '
             .' WHERE E.timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
-            .' AND E.event_id IN ('.implode($event_ids).')'
+            .' AND E.event_id IN ('.implode(",",$event_ids).')'
             .' GROUP BY E.event_id, DATE_FORMAT(E.timestamp, \'%Y-%m-%d\')'
             .' ORDER BY 2, 1');
         # Initialize array of plot values
@@ -145,6 +144,11 @@ class OverviewReport {
     function getTabularData($group='dept') {
         global $thisstaff;
 
+        $event_ids = Event::getIds();
+        $event = function ($name) use ($event_ids) {
+            return $event_ids[$name];
+        };
+
         list($start, $stop) = $this->getDateRange();
         $times = ThreadEvent::objects()
             ->constrain(array(
@@ -154,8 +158,8 @@ class OverviewReport {
                ))
             ->constrain(array(
                 'thread__events' => array(
-                    'thread__events__event_id' => Event::getIdByName('created'),
-                    'event_id' => Event::getIdByName('closed'),
+                    'thread__events__event_id' => $event('created'),
+                    'event_id' => $event('closed'),
                     'annulled' => 0,
                     ),
                 ))
@@ -180,27 +184,27 @@ class OverviewReport {
                 ->aggregate(array(
                     'Opened' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('event_id' => Event::getIdByName('created'))), 1)
+                            ->when(new Q(array('event_id' => $event('created'))), 1)
                     ),
                     'Assigned' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('event_id' => Event::getIdByName('assigned'))), 1)
+                            ->when(new Q(array('event_id' => $event('assigned'))), 1)
                     ),
                     'Overdue' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('event_id' => Event::getIdByName('overdue'))), 1)
+                            ->when(new Q(array('event_id' => $event('overdue'))), 1)
                     ),
                     'Closed' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('event_id' => Event::getIdByName('closed'))), 1)
+                            ->when(new Q(array('event_id' => $event('closed'))), 1)
                     ),
                     'Reopened' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('event_id' => Event::getIdByName('reopened'))), 1)
+                            ->when(new Q(array('event_id' => $event('reopened'))), 1)
                     ),
                     'Deleted' => SqlAggregate::COUNT(
                         SqlCase::N()
-                            ->when(new Q(array('event_id' => Event::getIdByName('deleted'))), 1)
+                            ->when(new Q(array('event_id' => $event('deleted'))), 1)
                     ),
                 ));
 
