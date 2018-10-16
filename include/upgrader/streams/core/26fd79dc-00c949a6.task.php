@@ -13,11 +13,11 @@ class EventEnumRemoval extends MigrationTask {
         $this->queue = $stuff['queue'];
         $this->skipList = $stuff['skipList'];
         while (!$this->isFinished())
-            $this->do_batch(30, 500);
+            $this->do_batch(30, 5000);
     }
 
     function run($max_time) {
-        $this->do_batch($max_time * 0.9, 500);
+        $this->do_batch($max_time * 0.9, 5000);
     }
 
     function isFinished() {
@@ -69,8 +69,9 @@ class EventEnumRemoval extends MigrationTask {
         // Force the log message to the database
         $ost->logDebug("Thread Event Migration", 'Found '.db_num_rows($res)
             .' events to migrate', true);
-            if(!db_num_rows($res))
-                return 0;  //Nothing else to do!!
+
+        if(!db_num_rows($res))
+            return 0;  //Nothing else to do!!
 
         $this->queue = array();
         while (list($id, $state, $eventId, $eventName)=db_fetch_row($res)) {
