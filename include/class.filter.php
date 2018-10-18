@@ -420,36 +420,38 @@ extends VerySimpleModel {
         $types = array_keys(self::getSupportedMatchTypes());
         $rules = array();
         foreach ($vars['rules'] as $i=>$rule) {
-            if($rule["w"] || $rule["h"]) {
-                // Check for REGEX compile errors
-                if (in_array($rule["h"], array('match','not_match'))) {
-                    $wrapped = "/".$rule["v"]."/iu";
-                    if (false === @preg_match($rule["v"], ' ')
-                            && (false !== @preg_match($wrapped, ' ')))
-                        $rule["v"] = $wrapped;
+            if (is_array($rule)) {
+                if($rule["w"] || $rule["h"]) {
+                    // Check for REGEX compile errors
+                    if (in_array($rule["h"], array('match','not_match'))) {
+                        $wrapped = "/".$rule["v"]."/iu";
+                        if (false === @preg_match($rule["v"], ' ')
+                                && (false !== @preg_match($wrapped, ' ')))
+                            $rule["v"] = $wrapped;
+                    }
+
+                    if(!$rule["w"] || !in_array($rule["w"],$matches))
+                        $errors["rule_$i"]=__('Invalid match selection');
+                    elseif(!$rule["h"] || !in_array($rule["h"],$types))
+                        $errors["rule_$i"]=__('Invalid match type selection');
+                    elseif(!$rule["v"])
+                        $errors["rule_$i"]=__('Value required');
+                    elseif($rule["w"]=='email'
+                            && $rule["h"]=='equal'
+                            && !Validator::is_email($rule["v"]))
+                        $errors["rule_$i"]=__('Valid email required for the match type');
+                    elseif (in_array($rule["h"], array('match','not_match'))
+                            && (false === @preg_match($rule["v"], ' ')))
+                        $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
+                            preg_last_error());
+
+
+                    else //for everything-else...we assume it's valid.
+                        $rules[]=array('what'=>$rule["w"],
+                            'how'=>$rule["h"],'val'=>trim($rule["v"]));
+                }elseif($rule["v"]) {
+                    $errors["rule_$i"]=__('Incomplete selection');
                 }
-
-                if(!$rule["w"] || !in_array($rule["w"],$matches))
-                    $errors["rule_$i"]=__('Invalid match selection');
-                elseif(!$rule["h"] || !in_array($rule["h"],$types))
-                    $errors["rule_$i"]=__('Invalid match type selection');
-                elseif(!$rule["v"])
-                    $errors["rule_$i"]=__('Value required');
-                elseif($rule["w"]=='email'
-                        && $rule["h"]=='equal'
-                        && !Validator::is_email($rule["v"]))
-                    $errors["rule_$i"]=__('Valid email required for the match type');
-                elseif (in_array($rule["h"], array('match','not_match'))
-                        && (false === @preg_match($rule["v"], ' ')))
-                    $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
-                        preg_last_error());
-
-
-                else //for everything-else...we assume it's valid.
-                    $rules[]=array('what'=>$rule["w"],
-                        'how'=>$rule["h"],'val'=>trim($rule["v"]));
-            }elseif($rule["v"]) {
-                $errors["rule_$i"]=__('Incomplete selection');
             }
         }
 
