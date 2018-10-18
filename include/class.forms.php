@@ -671,12 +671,14 @@ class FormField {
      * $value - (string) input from the user
      */
     function validateEntry($value) {
+        global $thisclient, $thisstaff;
+
         if (!$value && count($this->_errors))
             return;
 
         # Validates a user-input into an instance of this field on a dynamic
         # form
-        if ($this->get('required') && !$value && $this->hasData())
+        if ($this->isEditable($thisstaff ?: $thisclient) && $this->get('required') && !$value && $this->hasData())
             $this->_errors[] = $this->getLocal('label')
                 ? sprintf(__('%s is a required field'), $this->getLocal('label'))
                 : __('This is a required field');
@@ -3785,7 +3787,9 @@ class TextboxWidget extends Widget {
             $type = $types[$config['validator']];
         $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
             $config['placeholder']));
-        ?>
+        if ($options['readonly'])
+            echo Format::htmlchars($this->value);
+        else { ?>
         <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
             <?php echo implode(' ', array_filter(array(
@@ -3795,6 +3799,7 @@ class TextboxWidget extends Widget {
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         <?php
     }
+  }
 }
 
 

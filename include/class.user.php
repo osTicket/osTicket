@@ -528,28 +528,57 @@ implements TemplateVariable, Searchable {
     }
 
     function updateInfo($vars, &$errors, $staff=false) {
+        global $thisclient, $thisstaff;
 
         $valid = true;
         $forms = $this->getForms($vars);
+        $formfields = array();
+
         foreach ($forms as $entry) {
+            $formfields[] = $entry->getFields();
             $entry->setSource($vars);
+            $email = $entry->getField('email');
+            $name = $entry->getField('name');
             if ($staff && !$entry->isValidForStaff())
                 $valid = false;
             elseif (!$staff && !$entry->isValidForClient())
                 $valid = false;
             elseif ($entry->getDynamicForm()->get('type') == 'U'
-                    && ($f=$entry->getField('email'))
-                    &&  $f->getClean()
-                    && ($u=User::lookup(array('emails__address'=>$f->getClean())))
+                    &&  $email->getClean()
+                    && ($u=User::lookup(array('emails__address'=>$email->getClean())))
                     && $u->id != $this->getId()) {
                 $valid = false;
-                $f->addError(__('Email is assigned to another user'));
+                $email->addError(__('Email is assigned to another user'));
+            }
+
+            if (!$email->isEditable($thisstaff ?: $thisclient)
+                    && $email->isVisible()
+                    && $email->getClean() != $this->getEmail()->email) {
+                $email->setValue($this->getEmail()->email);
+            }
+
+            if (!$name->isEditable($thisstaff ?: $thisclient)
+                    && $name->isVisible()
+                    && $name->getClean() != $this->getName()->name) {
+                $name->setValue($this->getName()->name);
             }
 
             if (!$valid)
                 $errors = array_merge($errors, $entry->errors());
         }
 
+            foreach ($formfields as $formfield) {
+                foreach ($formfield as $field) {
+                    if ($field->getAnswer()) {
+                        $changes = $field->getChanges();
+                        if (!$field->isEditable($thisstaff ?: $thisclient) && $field->isVisible() && $changes) {
+                                $field->addError(sprintf(__('%s can not be edited'),
+                                        __($field->getLabel())));
+                                $valid = false;
+                        }
+                    }
+                }
+            }
 
         if (!$valid)
             return false;

@@ -598,7 +598,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     )));
     $displayed = array();
     foreach($answers as $a) {
-        $displayed[] = array($a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'), ($a->getField() instanceof FileUploadField));
+        $displayed[] = array($a->getLocal('name'), $a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'), ($a->getField() instanceof FileUploadField));
     }
     if (count($displayed) == 0)
         continue;
@@ -610,15 +610,17 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     <tbody>
 <?php
     foreach ($displayed as $stuff) {
-        list($label, $v, $id, $isFile) = $stuff;
+        list($name, $label, $v, $id, $isFile) = $stuff;
+        $field = $form->getField($name);
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
             <td>
             <?php if ($role->hasPerm(Ticket::PERM_EDIT)) {
                     $isEmpty = strpos($v, '&mdash;');
-                    if ($isFile && !$isEmpty)
+                    if ($isFile && !$isEmpty && $field->isEditable($thisstaff))
                         echo $v.'<br>'; ?>
+              <?php if ($field->isEditable($thisstaff)) {?>
               <a class="ticket-action" id="inline-update" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
                   data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
                   href="#tickets/<?php echo $ticket->getId(); ?>/field/<?php echo $id; ?>/edit">
@@ -633,6 +635,11 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                       echo $v;
                   ?>
               </a>
+              <?php }
+              else {
+                  echo $v;
+              }
+              ?>
             <?php } else {
                 echo $v;
             } ?>

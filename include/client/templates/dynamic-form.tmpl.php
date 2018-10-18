@@ -40,7 +40,10 @@
             <br/>
             <?php
             }
-            $field->render(array('client'=>true));
+            if (!$field->isEditableToUsers())
+                print $field->getAnswer() ? $field->getAnswer()->display() : $field;
+            else {
+                $field->render(array('client'=>true));
             ?></label><?php
             foreach ($field->errors() as $e) { ?>
                 <div class="error"><?php echo $e; ?></div>
@@ -50,5 +53,6 @@
             </td>
         </tr>
         <?php
+        }
     }
 ?>

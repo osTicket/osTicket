@@ -60,6 +60,9 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>:</td>
                 <td><div style="position:relative"><?php
             }
+            if (!$field->isEditableToStaff())
+                print $field->getAnswer() ? $field->getAnswer()->display() : $field;
+            else {
             $field->render($options); ?>
             <?php if (!$field->isBlockLevel() && $field->isRequiredForStaff()) { ?>
                 <span class="error">*</span>
@@ -94,7 +97,8 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
             }
             foreach ($field->errors() as $e) { ?>
                 <div class="error"><?php echo Format::htmlchars($e); ?></div>
-            <?php } ?>
+            <?php }
+        } ?>
             </div></td>
         </tr>
     <?php }
