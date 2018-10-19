@@ -955,6 +955,10 @@ class SavedSearch extends SavedQueue {
     function isSaved() {
         return (!$this->__new__);
     }
+
+    function getCount($agent, $cached=true) {
+        return 500;
+    }
 }
 
 class AdhocSearch
