@@ -82,7 +82,7 @@ $tickets = $pageNav->paginateSimple($tickets);
 // criteria, sort, limit, and offset from the outer query.
 $criteria = clone $tickets;
 $criteria->annotations = $criteria->related = $criteria->aggregated = [];
-$tickets->constraints = $tickets->extra['tables'] = [];
+$tickets->constraints = $tickets->extra = [];
 $tickets = $tickets->filter(['ticket_id__in' => $criteria->values_flat('ticket_id')])
     ->limit(false)->offset(false)->order_by(false);
 # Index hint should be used on the $criteria query only

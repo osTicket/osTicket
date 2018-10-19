@@ -2629,10 +2629,7 @@ class SqlCompiler {
             foreach ($queryset->extra['tables'] as $S) {
                 $join = ' JOIN ';
                 // Left joins require an ON () clause
-                if ($lastparen = strrpos($S, '(')) {
-                    if (preg_match('/\bon\b/i', substr($S, $lastparen - 4, 4)))
-                        $join = ' LEFT' . $join;
-                }
+                // TODO: Have a way to indicate a LEFT JOIN
                 $sql .= $join.$S;
             }
         }
@@ -3087,7 +3084,7 @@ class MySqlCompiler extends SqlCompiler {
                 }
             }
             // If no group by has been set yet, use the root model pk
-            if (!$group_by && !$queryset->aggregated && !$queryset->distinct) {
+            if (!$group_by && !$queryset->aggregated && !$queryset->distinct && $need_group_by) {
                 foreach ($meta['pk'] as $pk)
                     $group_by[] = $rootAlias .'.'. $pk;
             }
