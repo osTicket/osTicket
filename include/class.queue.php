@@ -1081,6 +1081,57 @@ class CustomQueue extends VerySimpleModel {
         $this->clearFlag(self::FLAG_DISABLED);
     }
 
+    function getRoughCount() {
+        if (($count = $this->getRoughCountAPC()) !== false)
+            return $count;
+
+        $query = Ticket::objects();
+        $Q = $this->getBasicQuery();
+        $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)),
+            new SqlField('ticket_id'));
+        $query = $query->aggregate(array(
+            "ticket_count" => SqlAggregate::COUNT($expr)
+        ));
+
+        $row = $query->values()->one();
+        return $row['ticket_count'];
+    }
+
+    function getRoughCountAPC() {
+        if (!function_exists('apcu_store'))
+            return false;
+
+        $key = "rough.counts.".SECRET_SALT;
+        $cached = false;
+        $counts = apcu_fetch($key, $cached);
+        if ($cached === true && isset($counts["q{$this->id}"]))
+            return $counts["q{$this->id}"];
+
+        // Fetch rough counts of all queues. That is, fetch a total of the
+        // counts based on the queue criteria alone. Do no consider agent
+        // access. This should be fast and "rought"
+        $queues = static::objects()
+            ->filter(['flags__hasbit' => CustomQueue::FLAG_PUBLIC])
+            ->exclude(['flags__hasbit' => CustomQueue::FLAG_DISABLED]);
+
+        $query = Ticket::objects();
+        $prefix = "";
+
+        foreach ($queues as $queue) {
+            $Q = $queue->getBasicQuery();
+            $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)),
+                new SqlField('ticket_id'));
+            $query = $query->aggregate(array(
+                "q{$queue->id}" => SqlAggregate::COUNT($expr)
+            ));
+        }
+
+        $counts = $query->values()->one();
+
+        apcu_store($key, $counts, 900);
+        return @$counts["q{$this->id}"];
+    }
+
     function updateExports($fields, $save=true) {
 
         if (!$fields)
@@ -1296,8 +1347,11 @@ class CustomQueue extends VerySimpleModel {
         $nopath = !isset($this->path);
         $path_changed = isset($this->dirty['parent_id']);
 
-        if ($this->dirty)
+        if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
+            // Refetch the queue counts
+            SavedQueue::clearCounts();
+        }
         if (!($rv = parent::save($refetch || $this->dirty)))
             return $rv;
 
@@ -2645,6 +2699,7 @@ extends VerySimpleModel {
     );
 
     var $_columns;
+    var $_extra;
 
     function getRoot($hint=false) {
         switch ($hint ?: $this->root) {
@@ -2662,6 +2717,12 @@ extends VerySimpleModel {
         return $this->id;
     }
 
+    function getExtra() {
+        if (isset($this->extra) && !isset($this->_extra))
+            $this->_extra = JsonDataParser::decode($this->extra);
+        return $this->_extra;
+    }
+
     function applySort(QuerySet $query, $reverse=false, $root=false) {
         $fields = CustomQueue::getSearchableFields($this->getRoot($root));
         foreach ($this->getColumnPaths() as $path=>$descending) {
@@ -2671,6 +2732,10 @@ extends VerySimpleModel {
                 $query = $field->applyOrderBy($query, $descending,
                     CustomQueue::getOrmPath($path, $query));
             }
+        }
+        // Add index hint if defined
+        if (($extra = $this->getExtra()) && isset($extra['index'])) {
+            $query->setOption(QuerySet::OPT_INDEX_HINT, $extra['index']);
         }
         return $query;
     }
@@ -2702,6 +2767,11 @@ extends VerySimpleModel {
 
     function getDataConfigForm($source=false) {
         return new QueueSortDataConfigForm($source ?: $this->getDbFields(),
+            array('id' => $this->id));
+    }
+
+    function getAdvancedConfigForm($source=false) {
+        return new QueueSortAdvancedConfigForm($source ?: $this->getExtra(),
             array('id' => $this->id));
     }
 
@@ -2738,6 +2808,11 @@ extends VerySimpleModel {
                 $columns[] = ($descending ? '-' : '') . $path;
             }
             $this->columns = JsonDataEncoder::encode($columns);
+        }
+
+        if ($this->getExtra() !== null) {
+            $extra = $this->getAdvancedConfigForm($vars)->getClean();
+            $this->extra = JsonDataEncoder::encode($extra);
         }
 
         if (count($errors))
@@ -2994,6 +3069,27 @@ extends AbstractForm {
                     ? _H('queuesort.name.'.$this->options['id']) : false,
                 'configuration' => array(
                     'placeholder' => __('Sort Criteria Title'),
+                ),
+            )),
+        );
+    }
+}
+
+class QueueSortAdvancedConfigForm
+extends AbstractForm {
+    function getInstructions() {
+        return __('If unsure, leave these options blank and unset');
+    }
+
+    function buildFields() {
+        return array(
+            'index' => new TextboxField(array(
+                'label' => __('Database Index'),
+                'hint' => __('Use this index when sorting on this column'),
+                'required' => false,
+                'layout' => new GridFluidCell(12),
+                'configuration' => array(
+                    'placeholder' => __('Automatic'),
                 ),
             )),
         );
