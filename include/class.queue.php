@@ -1339,23 +1339,35 @@ class CustomQueue extends VerySimpleModel {
      *      visible queues.
      * $pid - <int> parent_id of root queue. Default is zero (top-level)
      */
-    static function getHierarchicalQueues(Staff $staff, $pid=0) {
-        $all = static::objects()
+    static function getHierarchicalQueues(Staff $staff, $pid=0,
+            $primary=true) {
+        $query = static::objects()
+            ->annotate(array('_sort' =>  SqlCase::N()
+                        ->when(array('sort' => 0), 999)
+                        ->otherwise(new SqlField('sort'))))
             ->filter(Q::any(array(
                 'flags__hasbit' => self::FLAG_PUBLIC,
                 'flags__hasbit' => static::FLAG_QUEUE,
                 'staff_id' => $staff->getId(),
             )))
             ->exclude(['flags__hasbit' => self::FLAG_DISABLED])
-            ->asArray();
-
+            ->order_by('parent_id', '_sort', 'title');
+        $all = $query->asArray();
         // Find all the queues with a given parent
-        $for_parent = function($pid) use ($all, &$for_parent) {
+        $for_parent = function($pid) use ($primary, $all, &$for_parent) {
             $results = [];
             foreach (new \ArrayIterator($all) as $q) {
-                if ($q->parent_id == $pid)
-                    $results[] = [ $q, $for_parent($q->getId()) ];
+                if ($q->parent_id != $pid)
+                    continue;
+
+                if ($pid == 0 && (
+                            ($primary &&  !$q->isAQueue())
+                            || (!$primary && $q->isAQueue())))
+                    continue;
+
+                $results[] = [ $q, $for_parent($q->getId()) ];
             }
+
             return $results;
         };
 

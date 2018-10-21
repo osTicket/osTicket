@@ -466,7 +466,7 @@ foreach ($queues as $_) {
                 || false !== strpos($queue->getPath(), "/{$q->getId()}/"));
         include STAFFINC_DIR . 'templates/queue-navigation.tmpl.php';
 
-        return ($child_selected || $selected);
+        return $child_selected;
     });
 }
 
@@ -477,10 +477,7 @@ $nav->addSubMenu(function() use ($queue) {
     // A queue is selected if it is the one being displayed. It is
     // "child" selected if its ID is in the path of the one selected
     $child_selected = $queue instanceof SavedSearch;
-    $searches = SavedSearch::forStaff($thisstaff)->getIterator();
-
     include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
-
     return ($child_selected || $selected);
 });
 
