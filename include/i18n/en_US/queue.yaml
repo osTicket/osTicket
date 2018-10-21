@@ -118,7 +118,7 @@
   parent_id: 1
   flags: 0x2b
   root: T
-  sort: 1
+  sort: 2
   sort_id: 4
   config: '{"criteria":[["isanswered","set",null]],"conditions":[]}'
   columns:
@@ -158,7 +158,7 @@
   parent_id: 1
   flags: 0x2b
   root: T
-  sort: 2
+  sort: 3
   sort_id: 4
   config: '{"criteria":[["isoverdue","set",null]],"conditions":[]}'
   columns:

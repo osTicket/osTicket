@@ -701,6 +701,10 @@ class SavedQueue extends CustomQueue {
         return $this->_columns;
     }
 
+    static function getHierarchicalQueues(Staff $staff) {
+        return CustomQueue::getHierarchicalQueues($staff, 0, false);
+    }
+
     /**
      * Fetch an AdvancedSearchForm instance for use in displaying or
      * configuring this search in the user interface.
