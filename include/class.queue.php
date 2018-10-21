@@ -574,7 +574,7 @@ class CustomQueue extends VerySimpleModel {
                 continue;
 
             $name = $f->get('name') ?: 'field_'.$f->get('id');
-            $key = 'cdata.'.$name;
+            $key = 'cdata__'.$name;
             $cdata[$key] = $f->getLocal('label');
         }
 
@@ -582,22 +582,22 @@ class CustomQueue extends VerySimpleModel {
         $fields = array(
                 'number' =>         __('Ticket Number'),
                 'created' =>        __('Date Created'),
-                'cdata.subject' =>  __('Subject'),
-                'user.name' =>      __('From'),
-                'user.default_email.address' => __('From Email'),
-                'cdata.:priority.priority_desc' => __('Priority'),
-                'dept::getLocalName' => __('Department'),
-                'topic::getName' => __('Help Topic'),
+                'cdata__subject' =>  __('Subject'),
+                'user__name' =>      __('From'),
+                'user__emails__address' => __('From Email'),
+                'cdata__priority' => __('Priority'),
+                'dept_id' => __('Department'),
+                'topic_id' => __('Help Topic'),
                 'source' =>         __('Source'),
-                'status::getName' =>__('Current Status'),
+                'status__id' =>__('Current Status'),
                 'lastupdate' =>     __('Last Updated'),
                 'est_duedate' =>    __('SLA Due Date'),
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
-                'staff::getName' => __('Agent Assigned'),
-                'team::getName' =>  __('Team Assigned'),
+                'staff_id' => __('Agent Assigned'),
+                'team_id' =>  __('Team Assigned'),
                 'thread_count' =>   __('Thread Count'),
                 'reopen_count' =>   __('Reopen Count'),
                 'attachment_count' => __('Attachment Count'),
@@ -627,6 +627,22 @@ class CustomQueue extends VerySimpleModel {
             $fields = $this->getExportableFields();
 
         return $fields;
+    }
+
+    function getExportColumns($fields=array()) {
+        $columns = array();
+        $fields = $fields ?: $this->getExportFields();
+        $i = 0;
+        foreach ($fields as $path => $label) {
+            $c = QueueColumn::placeholder(array(
+                        'id' => $i++,
+                        'heading' => $label,
+                        'primary' => $path,
+                        ));
+            $c->setQueue($this);
+            $columns[$path] = $c;
+        }
+        return $columns;
     }
 
     function getStandardColumns() {
@@ -775,13 +791,12 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function export($options=array()) {
+        global $thisstaff;
 
-        if (!($query=$this->getBasicQuery()))
+        if (!$thisstaff
+                || !($query=$this->getBasicQuery())
+                || !($fields=$this->getExportFields()))
             return false;
-
-        if (!($fields=$this->getExportFields()))
-            return false;
-
 
         $filename = sprintf('%s Tickets-%s.csv',
                 $this->getName(),
@@ -799,14 +814,45 @@ class CustomQueue extends VerySimpleModel {
                     $filename ="$filename.csv";
             }
 
-            if (isset($opts['delimiter']))
+            if (isset($opts['delimiter']) && !$options['delimiter'])
                 $options['delimiter'] = $opts['delimiter'];
 
         }
 
+        // Apply columns
+        $columns = $this->getExportColumns($fields);
+        $headers = array(); // Reset fields based on validity of columns
+        foreach ($columns as $column) {
+            $query = $column->mangleQuery($query, $this->getRoot());
+            $headers[] = $column->getHeading();
+        }
 
-        return Export::saveTickets($query, $fields, $filename, 'csv',
-                $options);
+        // Apply visibility
+        if (!$this->ignoreVisibilityConstraints($thisstaff))
+            $query->filter($thisstaff->getTicketsVisibility());
+
+        // Render Util
+        $render = function ($row) use($columns) {
+            if (!$row) return false;
+
+            $record = array();
+            foreach ($columns as $path => $column) {
+                $record[] = (string) $column->from_query($row) ?:
+                    $row[$path] ?: '';
+            }
+            return $record;
+        };
+
+        $delimiter = $options['delimiter'] ?:
+            Internationalization::getCSVDelimiter();
+        $output = fopen('php://output', 'w');
+        Http::download($filename, "text/csv");
+        fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fputcsv($output, $headers, $delimiter);
+        foreach ($query as $row)
+            fputcsv($output, $render($row), $delimiter);
+        fclose($output);
+        exit();
     }
 
     /**
@@ -1427,7 +1473,7 @@ abstract class QueueColumnAnnotation {
     }
 
     // Add the annotation to a QuerySet
-    abstract function annotate($query);
+    abstract function annotate($query, $name);
 
     // Fetch some HTML to render the decoration on the page. This function
     // can return boolean FALSE to indicate no decoration should be applied
@@ -1462,6 +1508,17 @@ abstract class QueueColumnAnnotation {
     function isVisible($row) {
         return true;
     }
+
+    static function addToQuery($query, $name=false) {
+        $name = $name ?: static::$qname;
+        $annotation = new Static(array());
+        return $annotation->annotate($query, $name);
+    }
+
+    static function from_query($row, $name=false) {
+        $name = $name ?: static::$qname;
+        return $row[$name];
+    }
 }
 
 class TicketThreadCount
@@ -1470,9 +1527,10 @@ extends QueueColumnAnnotation {
     static $qname = '_thread_count';
     static $desc = /* @trans */ 'Thread Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
             ->aggregate(array('count' => SqlAggregate::COUNT('entries__id')))
@@ -1500,9 +1558,10 @@ extends QueueColumnAnnotation {
     static $qname = '_reopen_count';
     static $desc = /* @trans */ 'Reopen Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->filter(array('events__annulled' => 0, 'events__state' => 'reopened'))
             ->aggregate(array('count' => SqlAggregate::COUNT('events__id')))
@@ -1531,10 +1590,11 @@ extends QueueColumnAnnotation {
     static $qname = '_att_count';
     static $desc = /* @trans */ 'Attachment Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         // TODO: Convert to Thread attachments
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->filter(array('entries__attachments__inline' => 0))
             ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id')))
@@ -1561,9 +1621,10 @@ extends QueueColumnAnnotation {
     static $qname = '_collabs';
     static $desc = /* @trans */ 'Collaborator Count';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
         return $query->annotate(array(
-        static::$qname => TicketThread::objects()
+            $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
             ->aggregate(array('count' => SqlAggregate::COUNT('collaborators__id')))
         ));
@@ -1588,7 +1649,7 @@ extends QueueColumnAnnotation {
     static $icon = 'exclamation';
     static $desc = /* @trans */ 'Overdue Icon';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('isoverdue');
     }
 
@@ -1607,7 +1668,7 @@ extends QueueColumnAnnotation {
     static $icon = 'phone';
     static $desc = /* @trans */ 'Ticket Source';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('source');
     }
 
@@ -1622,7 +1683,7 @@ extends QueueColumnAnnotation {
     static $icon = "lock";
     static $desc = /* @trans */ 'Locked';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         global $thisstaff;
 
         return $query
@@ -1649,7 +1710,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'Assignee Avatar';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('staff_id', 'team_id');
     }
 
@@ -1688,7 +1749,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'User Avatar';
 
-    function annotate($query) {
+    function annotate($query, $name=false) {
         return $query->values('user_id');
     }
 
@@ -1984,6 +2045,7 @@ extends VerySimpleModel {
     var $_annotations;
     var $_conditions;
     var $_queue;            // Apparent queue if being inherited
+    var $_fields;
 
     function getId() {
         return $this->id;
@@ -2020,6 +2082,25 @@ extends VerySimpleModel {
      */
     function setQueue(CustomQueue $queue) {
         $this->_queue = $queue;
+    }
+
+    function getFields() {
+        if (!isset($this->_fields)) {
+            $root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
+            $fields = CustomQueue::getSearchableFields($root);
+            $primary = CustomQueue::getOrmPath($this->primary);
+            $secondary = CustomQueue::getOrmPath($this->secondary);
+            if (($F = $fields[$primary]) && (list(,$field) = $F))
+                $this->_fields[$primary] = $field;
+            if (($F = $fields[$secondary]) && (list(,$field) = $F))
+                $this->_fields[$secondary] = $field;
+        }
+        return $this->_fields;
+    }
+
+    function getField($path=null) {
+        $fields = $this->getFields();
+        return @$fields[$path ?: $this->primary];
     }
 
     function getWidth() {
@@ -2089,29 +2170,36 @@ extends VerySimpleModel {
     }
 
     function renderBasicValue($row) {
-        $root = ($q = $this->getQueue()) ? $q->getRoot() : 'Ticket';
-        $fields = CustomQueue::getSearchableFields($root);
+        $fields = $this->getFields();
         $primary = CustomQueue::getOrmPath($this->primary);
         $secondary = CustomQueue::getOrmPath($this->secondary);
 
         // Return a lazily ::display()ed value so that the value to be
         // rendered by the field could be changed or display()ed when
         // converted to a string.
-
         if (($F = $fields[$primary])
-            && (list(,$field) = $F)
-            && ($T = $field->from_query($row, $primary))
+            && ($T = $F->from_query($row, $primary))
         ) {
-            return new LazyDisplayWrapper($field, $T);
+            return new LazyDisplayWrapper($F, $T);
         }
         if (($F = $fields[$secondary])
-            && (list(,$field) = $F)
-            && ($T = $field->from_query($row, $secondary))
+            && ($T = $F->from_query($row, $secondary))
         ) {
-            return new LazyDisplayWrapper($field, $T);
+            return new LazyDisplayWrapper($F, $T);
         }
 
-         return new LazyDisplayWrapper($field, '');
+         return new LazyDisplayWrapper($F, '');
+    }
+
+    function from_query($row) {
+        if (!($f = $this->getField($this->primary)))
+            return '';
+
+        $val = $f->to_php($f->from_query($row, $this->primary));
+        if (!is_string($val))
+            $val = $f->display($val);
+
+        return $val;
     }
 
     function applyTruncate($text, $row) {
@@ -2155,14 +2243,12 @@ extends VerySimpleModel {
 
     function mangleQuery($query, $root=null) {
         // Basic data
-        $fields = CustomQueue::getSearchableFields($root ?: $this->getQueue()->getRoot());
-        if ($primary = $fields[$this->primary]) {
-            list(,$field) = $primary;
+        $fields = $this->getFields();
+        if ($field = $fields[$this->primary]) {
             $query = $this->addToQuery($query, $field,
                 CustomQueue::getOrmPath($this->primary, $query));
         }
-        if ($secondary = $fields[$this->secondary]) {
-            list(,$field) = $secondary;
+        if ($field = $fields[$this->secondary]) {
             $query = $this->addToQuery($query, $field,
                 CustomQueue::getOrmPath($this->secondary, $query));
         }

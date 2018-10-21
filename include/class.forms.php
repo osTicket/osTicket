@@ -1960,6 +1960,40 @@ class ChoiceField extends FormField {
     }
 }
 
+class NumericField extends FormField {
+
+    function getSearchMethods() {
+        return array(
+            'equal' =>   __('Equal'),
+            'greater' =>  __('Greater Than'),
+            'less' =>  __('Less Than'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'equal' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'greater' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'less' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+        );
+    }
+}
+
 class DatetimeField extends FormField {
     static $widget = 'DatetimePickerWidget';
 
@@ -2043,7 +2077,7 @@ class DatetimeField extends FormField {
 
     function to_php($value) {
 
-        if (strtotime($value) <= 0)
+        if (!is_numeric($value) && strtotime($value) <= 0)
             return 0;
 
         return $value;
@@ -2056,8 +2090,9 @@ class DatetimeField extends FormField {
             return '';
 
         $config = $this->getConfiguration();
+        $format = $config['format'] ?: false;
         if ($config['gmt'])
-            return $this->format((int) $datetime->format('U'));
+            return $this->format((int) $datetime->format('U'), $format);
 
         // Force timezone if field has one.
         if ($config['timezone']) {
@@ -2066,10 +2101,10 @@ class DatetimeField extends FormField {
         }
 
         $value = $this->format($datetime->format('U'),
-                $datetime->getTimezone()->getName());
-
+                $datetime->getTimezone()->getName(),
+                $format);
         // No need to show timezone
-        if (!$config['time'])
+        if (!$config['time'] || $format)
             return $value;
 
         // Display is NOT timezone aware show entry's timezone.
@@ -2083,16 +2118,16 @@ class DatetimeField extends FormField {
         return ($timestamp > 0) ? $timestamp : '';
     }
 
-    function format($timestamp, $timezone=false) {
+    function format($timestamp, $timezone=false, $format=false) {
 
         if (!$timestamp || $timestamp <= 0)
             return '';
 
         $config = $this->getConfiguration();
         if ($config['time'])
-            $formatted = Format::datetime($timestamp, false, $timezone);
+            $formatted = Format::datetime($timestamp, false, $format,  $timezone);
         else
-            $formatted = Format::date($timestamp, false, false, $timezone);
+            $formatted = Format::date($timestamp, false, $format, $timezone);
 
         return $formatted;
     }
