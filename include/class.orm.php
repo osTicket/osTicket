@@ -1287,6 +1287,10 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $this;
     }
 
+    function addExtraJoin(array $join) {
+       return $this->extra(array('joins' => array($join)));
+    }
+
     function distinct() {
         foreach (func_get_args() as $D)
             $this->distinct[] = $D;
@@ -2633,6 +2637,18 @@ class SqlCompiler {
                 $sql .= $join.$S;
             }
         }
+
+        // Add extra joins from QuerySet
+        if (isset($queryset->extra['joins'])) {
+            foreach ($queryset->extra['joins'] as $J) {
+                list($base, $constraints, $alias) = $J;
+                $join = $constraints ? ' LEFT JOIN ' : ' JOIN ';
+                $sql .= "{$join}{$base} $alias";
+                if ($constraints instanceof Q)
+                    $sql .= ' ON ('.$this->compileQ($constraints, $queryset->model).')';
+            }
+        }
+
         return $sql;
     }
 

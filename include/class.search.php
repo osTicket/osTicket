@@ -902,6 +902,15 @@ class SavedQueue extends CustomQueue {
             $query->aggregate(array(
                 "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
             ));
+
+            // Add extra tables joins  (if any)
+            if ($Q->extra && isset($Q->extra['tables'])) {
+                $contraints = array();
+                if ($Q->constraints)
+                     $constraints = new Q($Q->constraints);
+                foreach ($Q->extra['tables'] as $T)
+                    $query->addExtraJoin(array($T, $constraints, ''));
+            }
         }
 
         $counts = $query->values()->one();
