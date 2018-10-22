@@ -47,7 +47,7 @@ require_once(INCLUDE_DIR.'class.cron.php');
 
 // Run tickets count every 3rd run or so... force new count by skipping cached
 // results
-if (mt_rand(1, 12) == 3)
+if ((mt_rand(1, 12) % 3) == 0)
     SavedQueue::counts($thisstaff, array(), false);
 
 // Clear staff obj to avoid false credit internal notes & auto-assignment
