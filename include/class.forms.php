@@ -1960,6 +1960,40 @@ class ChoiceField extends FormField {
     }
 }
 
+class NumericField extends FormField {
+
+    function getSearchMethods() {
+        return array(
+            'equal' =>   __('Equal'),
+            'greater' =>  __('Greater Than'),
+            'less' =>  __('Less Than'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'equal' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'greater' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'less' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+        );
+    }
+}
+
 class DatetimeField extends FormField {
     static $widget = 'DatetimePickerWidget';
 
@@ -2043,7 +2077,7 @@ class DatetimeField extends FormField {
 
     function to_php($value) {
 
-        if (strtotime($value) <= 0)
+        if (!is_numeric($value) && strtotime($value) <= 0)
             return 0;
 
         return $value;
@@ -2056,8 +2090,9 @@ class DatetimeField extends FormField {
             return '';
 
         $config = $this->getConfiguration();
+        $format = $config['format'] ?: false;
         if ($config['gmt'])
-            return $this->format((int) $datetime->format('U'));
+            return $this->format((int) $datetime->format('U'), $format);
 
         // Force timezone if field has one.
         if ($config['timezone']) {
@@ -2066,10 +2101,10 @@ class DatetimeField extends FormField {
         }
 
         $value = $this->format($datetime->format('U'),
-                $datetime->getTimezone()->getName());
-
+                $datetime->getTimezone()->getName(),
+                $format);
         // No need to show timezone
-        if (!$config['time'])
+        if (!$config['time'] || $format)
             return $value;
 
         // Display is NOT timezone aware show entry's timezone.
@@ -2083,16 +2118,16 @@ class DatetimeField extends FormField {
         return ($timestamp > 0) ? $timestamp : '';
     }
 
-    function format($timestamp, $timezone=false) {
+    function format($timestamp, $timezone=false, $format=false) {
 
         if (!$timestamp || $timestamp <= 0)
             return '';
 
         $config = $this->getConfiguration();
         if ($config['time'])
-            $formatted = Format::datetime($timestamp, false, $timezone);
+            $formatted = Format::datetime($timestamp, false, $format,  $timezone);
         else
-            $formatted = Format::date($timestamp, false, false, $timezone);
+            $formatted = Format::date($timestamp, false, $format, $timezone);
 
         return $formatted;
     }
@@ -3402,6 +3437,10 @@ class FileUploadField extends FormField {
                 if ($a && ($f=$a->getFile()))
                     $files[] = $f;
             }
+
+            foreach (@$this->getClean() as $key => $value)
+                $files[] = array('id' => $key, 'name' => $value);
+
             $this->files = $files;
         }
         return $this->files;
@@ -4462,6 +4501,7 @@ class FileUploadWidget extends Widget {
             $F = AttachmentFile::objects()
                 ->filter(array('id__in' => array_keys($new)))
                 ->all();
+
             foreach ($F as $f) {
                 $f->tmp_name = $new[$f->getId()];
                 $files[] = array(
@@ -4510,7 +4550,7 @@ class FileUploadWidget extends Widget {
             foreach (AttachmentFile::format($_FILES[$this->name]) as $file) {
                 try {
                     $F = $this->field->uploadFile($file);
-                    $ids[] = $F->getId();
+                    $ids[$F->getId()] = $F->getName();
                 }
                 catch (FileUploadError $ex) {}
             }
@@ -4521,17 +4561,17 @@ class FileUploadWidget extends Widget {
         // identified in the session
         //
         // If no value was sent, assume an empty list
-        if (!($_files = parent::getValue()))
+        if (!($files = parent::getValue()))
             return array();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            foreach ($_files as $info) {
-                if (@list($id,$name) = explode(',', $info, 2))
-                    $files[$id] = $name;
+            $_files = array();
+            foreach ($files as $info) {
+                if (@list($id, $name) = explode(',', $info, 2))
+                    $_files[$id] = $name;
             }
+            $files = $_files;
         }
-        else
-          $files = $_files;
 
         $allowed = array();
         // Files already attached to the field are allowed
@@ -4554,7 +4594,7 @@ class FileUploadWidget extends Widget {
                 continue;
 
             // Keep the values as the IDs
-            $ids[$id] = $name ?: $allowed[$id] ?: $id;
+            $ids[$id] = $name;
         }
 
         return $ids;

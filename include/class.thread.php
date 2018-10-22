@@ -1084,19 +1084,16 @@ implements TemplateVariable {
         $ids = array();
         foreach ($files as $id => $info) {
             $F = array('inline' => is_array($info) && @$info['inline']);
+            $AF = null;
 
-            if (is_array($info) && isset($info['id']))
-                $fileId = $info['id'];
-            elseif (is_numeric($id) && $id != 0)
-                $fileId = $id;
-            elseif ($info instanceof AttachmentFile)
+            if ($info instanceof AttachmentFile)
                 $fileId = $info->getId();
             elseif ($AF = AttachmentFile::create($info))
                 $fileId = $AF->getId();
             elseif ($add_error) {
                 $error = $info['error']
-                    ?: sprintf(_S('Unable to import attachment - %s'),
-                        $id ?: $info['name']);
+                    ?: sprintf(_S('Unable to save attachment - %s'),
+                        $info['name'] ?: $info['id']);
                 if (is_numeric($error) && isset($error_descriptions[$error])) {
                     $error = sprintf(_S('Error #%1$d: %2$s'), $error,
                         _S($error_descriptions[$error]));
@@ -1157,11 +1154,13 @@ implements TemplateVariable {
         elseif (is_string($name)) {
             $filename = $name;
         }
+
         if ($filename) {
             // This should be a noop since the ORM caches on PK
             $F = @$file['file'] ?: AttachmentFile::lookup($file['id']);
             // XXX: This is not Unicode safe
-            if ($F && 0 !== strcasecmp($F->name, $filename))
+            // TODO: fix name lookup
+            if ($F && strcasecmp($F->name, $filename) !== 0)
                 $att->name = $filename;
         }
 
@@ -1578,7 +1577,7 @@ implements TemplateVariable {
         $attached_files = array();
         foreach (array(
             // Web uploads and canned attachments
-            $vars['files'], $vars['cannedattachments'],
+            $vars['files'],
             // Emailed or API attachments
             $vars['attachments'],
             // Inline images (attached to the draft)

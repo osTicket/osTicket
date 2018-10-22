@@ -2114,27 +2114,39 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'created' => new DatetimeField(array(
                 'label' => __('Create Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'duedate' => new DatetimeField(array(
                 'label' => __('Due Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'est_duedate' => new DatetimeField(array(
                 'label' => __('SLA Due Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'reopened' => new DatetimeField(array(
                 'label' => __('Reopen Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'closed' => new DatetimeField(array(
                 'label' => __('Close Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'lastupdate' => new DatetimeField(array(
                 'label' => __('Last Update'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'assignee' => new AssigneeChoiceField(array(
                 'label' => __('Assignee'),
@@ -2170,6 +2182,18 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'isassigned' => new AssignedField(array(
                         'label' => __('Assigned'),
+            )),
+            'thread_count' => new TicketThreadCountField(array(
+                        'label' => __('Thread Count'),
+            )),
+            'attachment_count' => new ThreadAttachmentCountField(array(
+                        'label' => __('Attachment Count'),
+            )),
+            'collaborator_count' => new ThreadCollaboratorCountField(array(
+                        'label' => __('Collaborator Count'),
+            )),
+            'reopen_count' => new TicketReopenCountField(array(
+                        'label' => __('Reopen Count'),
             )),
             'ip_address' => new TextboxField(array(
                 'label' => __('IP Address'),
@@ -2837,9 +2861,9 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
         }
         $files = array();
-        foreach ($canned->attachments->getAll() as $file) {
-            $files[] = $file->file_id;
-            $_SESSION[':cannedFiles'][$file->file_id] = 1;
+        foreach ($canned->attachments->getAll() as $att) {
+            $files[] = array('id' => $att->file_id, 'name' => $att->getName());
+            $_SESSION[':cannedFiles'][$att->file_id] = $att->getName();
         }
 
         if ($cfg->isRichTextEnabled())
@@ -2852,7 +2876,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $info = array('msgId' => $message instanceof ThreadEntry ? $message->getId() : 0,
                       'poster' => __('SYSTEM (Canned Reply)'),
                       'response' => $response,
-                      'cannedattachments' => $files
+                      'files' => $files
         );
         $errors = array();
         if (!($response=$this->postReply($info, $errors, false, false)))
@@ -4088,8 +4112,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['note'] = ThreadEntryBody::clean($vars['note']);
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
-        $create_vars['cannedattachments']
-            = $tform->getField('message')->getWidget()->getAttachments()->getClean();
+        $create_vars['files']
+            = $tform->getField('message')->getWidget()->getAttachments()->getFiles();
 
         if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;
