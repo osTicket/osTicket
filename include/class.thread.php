@@ -2077,17 +2077,17 @@ class Event extends VerySimpleModel {
         return $this->name;
     }
 
-    function getNameById($id) {
+    function getDescription() {
+        return $this->description;
+    }
+
+    static function getNameById($id) {
         return array_search($id, self::getIds());
     }
 
-    function getIdByName($name) {
+    static function getIdByName($name) {
          $ids =  self::getIds();
          return $ids[$name] ?: 0;
-    }
-
-    function getDescription() {
-        return $this->description;
     }
 
     static function getIds() {
@@ -2095,7 +2095,7 @@ class Event extends VerySimpleModel {
 
         if (!isset($ids)) {
             $ids = array();
-            $events = static::objects()->values_flat('id', 'name');
+            $events = self::objects()->values_flat('id', 'name');
             foreach ($events as $row) {
                 list($id, $name) = $row;
                 $ids[$name] = $id;
