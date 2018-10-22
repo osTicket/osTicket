@@ -1055,8 +1055,7 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function isPrivate() {
-        return !$this->isAQueue() && !$this->isPublic() &&
-            $this->staff_id;
+        return !$this->isAQueue() && $this->staff_id;
     }
 
     function isPublic() {
