@@ -3200,6 +3200,9 @@ implements RestrictedAccess, Threadable, Searchable {
     function save($refetch=false) {
         if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
+            if (isset($this->dirty['status_id']))
+                // Refetch the queue counts
+                SavedQueue::clearCounts();
         }
         return parent::save($this->dirty || $refetch);
     }
@@ -4210,7 +4213,8 @@ implements RestrictedAccess, Threadable, Searchable {
          Punt for now
          */
 
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1'
+            .' USE INDEX (status_id)'
             .' INNER JOIN '.TICKET_STATUS_TABLE.' status
                 ON (status.id=T1.status_id AND status.state="open") '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '

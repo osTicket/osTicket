@@ -384,9 +384,11 @@ class MysqlSearchBackend extends SearchBackend {
             $criteria->extra(array(
                 'tables' => array(
                     str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
-                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, SUM({}) AS `relevance` FROM `:_search` Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN :ticket Z8 ON (Z8.`user_id` = Z6.`id`) WHERE {} GROUP BY `ticket_id`) Z1"),
-                )
+                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, Z1.relevance FROM (SELECT Z1.`object_id`, Z1.`object_type`, {} AS `relevance` FROM `:_search` Z1 WHERE {} ORDER BY relevance DESC) Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN `:ticket` Z8 ON (Z8.`user_id` = Z6.`id`)) Z1"),
+                ),
             ));
+            $criteria->extra(array('order_by' => array(array(new SqlCode('Z1.relevance', 'DESC')))));
+
             $criteria->filter(array('ticket_id'=>new SqlCode('Z1.`ticket_id`')));
             break;
 
@@ -481,7 +483,7 @@ class MysqlSearchBackend extends SearchBackend {
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
             AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
-            ORDER BY A1.`id` DESC LIMIT 500";
+            LIMIT 500";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -501,7 +503,7 @@ class MysqlSearchBackend extends SearchBackend {
         $sql = "SELECT A1.`ticket_id` FROM `".TICKET_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`ticket_id` = A2.`object_id` AND A2.`object_type`='T')
             WHERE A2.`object_id` IS NULL
-            ORDER BY A1.`ticket_id` DESC LIMIT 300";
+            LIMIT 300";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -524,8 +526,7 @@ class MysqlSearchBackend extends SearchBackend {
 
         $sql = "SELECT A1.`id` FROM `".USER_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='U')
-            WHERE A2.`object_id` IS NULL
-            ORDER BY A1.`id` DESC";
+            WHERE A2.`object_id` IS NULL";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -550,8 +551,7 @@ class MysqlSearchBackend extends SearchBackend {
 
         $sql = "SELECT A1.`id` FROM `".ORGANIZATION_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='O')
-            WHERE A2.`object_id` IS NULL
-            ORDER BY A1.`id` DESC";
+            WHERE A2.`object_id` IS NULL";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -575,8 +575,7 @@ class MysqlSearchBackend extends SearchBackend {
         require_once INCLUDE_DIR . 'class.faq.php';
         $sql = "SELECT A1.`faq_id` FROM `".FAQ_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`faq_id` = A2.`object_id` AND A2.`object_type`='K')
-            WHERE A2.`object_id` IS NULL
-            ORDER BY A1.`faq_id` DESC";
+            WHERE A2.`object_id` IS NULL";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -701,18 +700,19 @@ class SavedQueue extends CustomQueue {
         return $this->_columns;
     }
 
+    static function getHierarchicalQueues(Staff $staff) {
+        return CustomQueue::getHierarchicalQueues($staff, 0, false);
+    }
+
     /**
      * Fetch an AdvancedSearchForm instance for use in displaying or
      * configuring this search in the user interface.
      *
      */
     function getForm($source=null, $searchable=array()) {
-        global $thisstaff;
-
-        if (!$this->isAQueue())
-            $searchable =  $this->getCurrentSearchFields($source,
-                     parent::getCriteria());
-        else // Only allow supplemental matches.
+        $searchable = null;
+        if ($this->isAQueue())
+            // Only allow supplemental matches.
             $searchable = array_intersect_key($this->getCurrentSearchFields($source),
                     $this->getSupplementalMatches());
 
@@ -847,19 +847,49 @@ class SavedQueue extends CustomQueue {
         return (!$errors);
     }
 
-    static function ticketsCount($agent, $criteria=array(),
-            $prefix='') {
+    function getCount($agent, $cached=true) {
+        $criteria = $cached ? array() : array('id' => $this->getId());
+        $counts = self::counts($agent, $criteria, $cached);
+        return $counts["q{$this->getId()}"] ?: 0;
+    }
+
+    // Get ticket counts for queues the agent has acces to.
+    static function counts($agent, $criteria=array(), $cached=true) {
 
         if (!$agent instanceof Staff)
             return array();
 
-        $queues = SavedQueue::objects()
+        // Cache TLS in seconds
+        $ttl = 3600;
+        // Cache key based on agent and salt of the installation
+        $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
+        if ($criteria && is_array($criteria)) // Consider additional criteria.
+            $key .= '.'.md5(serialize($criteria));
+
+        // only consider cache if requesed
+        if ($cached) {
+            if (function_exists('apcu_store')) {
+                $found = false;
+                $counts = apcu_fetch($key, $found);
+                if ($found === true)
+                    return $counts;
+            } elseif (isset($_SESSION[$key])
+                    && isset($_SESSION[$key]['qcount'])
+                    && (time() - $_SESSION[$key]['time']) < $ttl) {
+                return $_SESSION[$key]['qcount'];
+            } else {
+                // Auto clear missed session cache (if any)
+                unset($_SESSION[$key]);
+            }
+        }
+
+        $queues = static::objects()
             ->filter(Q::any(array(
-                'flags__hasbit' => CustomQueue::FLAG_PUBLIC,
+                'flags__hasbit' => CustomQueue::FLAG_QUEUE,
                 'staff_id' => $agent->getId(),
             )));
 
-        if ($criteria)
+        if ($criteria && is_array($criteria))
             $queues->filter($criteria);
 
         $query = Ticket::objects();
@@ -870,11 +900,43 @@ class SavedQueue extends CustomQueue {
             $Q = $queue->getBasicQuery();
             $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
             $query->aggregate(array(
-                "$prefix{$queue->id}" => SqlAggregate::COUNT($expr, true)
+                "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
             ));
+
+            // Add extra tables joins  (if any)
+            if ($Q->extra && isset($Q->extra['tables'])) {
+                $contraints = array();
+                if ($Q->constraints)
+                     $constraints = new Q($Q->constraints);
+                foreach ($Q->extra['tables'] as $T)
+                    $query->addExtraJoin(array($T, $constraints, ''));
+            }
         }
 
-        return $query->values()->one();
+        $counts = $query->values()->one();
+        // Always cache the results
+        if (function_exists('apcu_store')) {
+            apcu_store($key, $counts, $ttl);
+        } else {
+            // Poor man's cache
+            $_SESSION[$key]['qcount'] = $counts;
+            $_SESSION[$key]['time'] = time();
+        }
+
+        return $counts;
+    }
+
+    static function clearCounts() {
+        if (function_exists('apcu_store')) {
+            if (class_exists('APCUIterator')) {
+                $regex = '/^counts.queues.\d+.' . preg_quote(SECRET_SALT, '/') . '$/';
+                foreach (new APCUIterator($regex, APC_ITER_KEY) as $key) {
+                    apcu_delete($key);
+                }
+            }
+            // Also clear rough counts
+            apcu_delete("rough.counts.".SECRET_SALT);
+        }
     }
 
     static function lookup($criteria) {
@@ -902,6 +964,10 @@ class SavedSearch extends SavedQueue {
 
     function isSaved() {
         return (!$this->__new__);
+    }
+
+    function getCount($agent, $cached=true) {
+        return 500;
     }
 }
 
