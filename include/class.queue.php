@@ -1349,11 +1349,10 @@ class CustomQueue extends VerySimpleModel {
         $nopath = !isset($this->path);
         $path_changed = isset($this->dirty['parent_id']);
 
-        if ($this->dirty) {
+        if ($this->dirty)
             $this->updated = SqlFunction::NOW();
-            // Refetch the queue counts
-            SavedQueue::clearCounts();
-        }
+
+        $clearCounts = ($this->dirty || $this->__new__);
         if (!($rv = parent::save($refetch || $this->dirty)))
             return $rv;
 
@@ -1372,6 +1371,11 @@ class CustomQueue extends VerySimpleModel {
             };
             $move_children($this);
         }
+
+        // Refetch the queue counts
+        if ($clearCounts)
+            SavedQueue::clearCounts();
+
         return $this->columns->saveAll()
             && $this->exports->saveAll()
             && $this->sorts->saveAll();
