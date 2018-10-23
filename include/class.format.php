@@ -667,20 +667,20 @@ class Format {
             '%x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function datetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
+    function datetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
-                $cfg->getDateTimeFormat(), $fromDb,
+                $format ?: $cfg->getDateTimeFormat(), $fromDb,
                 IDF_SHORT, IDF_SHORT,
                 '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function daydatetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
+    function daydatetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
-                $cfg->getDayDateTimeFormat(), $fromDb,
+                $format ?: $cfg->getDayDateTimeFormat(), $fromDb,
                 IDF_FULL, IDF_SHORT,
                 '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }

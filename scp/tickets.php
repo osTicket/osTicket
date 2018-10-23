@@ -79,16 +79,20 @@ if (!$ticket) {
     elseif (isset($_GET['a']) && $_GET['a'] === 'search'
         && ($_GET['query'])
     ) {
-        $key = substr(md5($_GET['query']), -10);
-        if ($_GET['search-type'] == 'typeahead') {
-            // Use a faster index
-            $criteria = ['user__emails__address', 'equal', $_GET['query']];
+        $wc = mb_str_wc($_GET['query']);
+        if ($wc < 4) {
+            $key = substr(md5($_GET['query']), -10);
+            if ($_GET['search-type'] == 'typeahead') {
+                // Use a faster index
+                $criteria = ['user__emails__address', 'equal', $_GET['query']];
+            } else {
+                $criteria = [':keywords', null, $_GET['query']];
+            }
+            $_SESSION['advsearch'][$key] = [$criteria];
+            $queue_id = "adhoc,{$key}";
+        } else {
+            $errors['err'] = __('Search term cannot have more than 3 keywords');
         }
-        else {
-            $criteria = [':keywords', null, $_GET['query']];
-        }
-        $_SESSION['advsearch'][$key] = [$criteria];
-        $queue_id = "adhoc,{$key}";
     }
 
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
@@ -462,7 +466,7 @@ foreach ($queues as $_) {
                 || false !== strpos($queue->getPath(), "/{$q->getId()}/"));
         include STAFFINC_DIR . 'templates/queue-navigation.tmpl.php';
 
-        return ($child_selected || $selected);
+        return $child_selected;
     });
 }
 
@@ -473,10 +477,7 @@ $nav->addSubMenu(function() use ($queue) {
     // A queue is selected if it is the one being displayed. It is
     // "child" selected if its ID is in the path of the one selected
     $child_selected = $queue instanceof SavedSearch;
-    $searches = SavedSearch::forStaff($thisstaff)->getIterator();
-
     include STAFFINC_DIR . 'templates/queue-savedsearches-nav.tmpl.php';
-
     return ($child_selected || $selected);
 });
 

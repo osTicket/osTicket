@@ -711,15 +711,24 @@ CREATE TABLE `%TABLE_PREFIX%lock` (
   KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%event`;
+CREATE TABLE `%TABLE_PREFIX%event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL,
+  `description` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_event`;
 CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `thread_id` int(11) unsigned NOT NULL default '0',
+  `event_id` int(11) unsigned DEFAULT NULL,
   `staff_id` int(11) unsigned NOT NULL,
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','released','transferred', 'referred', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL,
   `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
   `username` varchar(128) NOT NULL default 'SYSTEM',
   `uid` int(11) unsigned DEFAULT NULL,
@@ -727,8 +736,8 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `annulled` tinyint(1) unsigned NOT NULL default '0',
   `timestamp` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `ticket_state` (`thread_id`, `state`, `timestamp`),
-  KEY `ticket_stats` (`timestamp`, `state`)
+  KEY `ticket_state` (`thread_id`, `event_id`, `timestamp`),
+  KEY `ticket_stats` (`timestamp`, `event_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_referral`;

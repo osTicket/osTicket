@@ -1421,6 +1421,9 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function display() {
+
+        return $this->getLocalName();
+
         return sprintf('<a class="preview" href="#"
                 data-preview="#list/%d/items/%d/preview">%s</a>',
                 $this->getListId(),

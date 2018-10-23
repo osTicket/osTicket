@@ -258,7 +258,9 @@ class AttachmentFile extends VerySimpleModel {
         $type = $this->getType() ?: 'application/octet-stream';
         if (isset($_REQUEST['overridetype']))
             $type = $_REQUEST['overridetype'];
-        Http::download($name ?: $this->getName(), $type, null, 'inline');
+        elseif (!strcasecmp($disposition, 'attachment'))
+            $type = 'application/octet-stream';
+        Http::download($name ?: $this->getName(), $type, null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
