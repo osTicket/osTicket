@@ -5,6 +5,7 @@ class EventEnumRemoval extends MigrationTask {
     var $queue;
     var $skipList;
     var $errorList = array();
+    var $limit = 20000;
 
     function sleep() {
         return array('queue'=>$this->queue, 'skipList'=>$this->skipList);
@@ -13,11 +14,11 @@ class EventEnumRemoval extends MigrationTask {
         $this->queue = $stuff['queue'];
         $this->skipList = $stuff['skipList'];
         while (!$this->isFinished())
-            $this->do_batch(30, 5000);
+            $this->do_batch(30, $this->limit);
     }
 
     function run($max_time) {
-        $this->do_batch($max_time * 0.9, 5000);
+        $this->do_batch($max_time * 0.9, $this->limit);
     }
 
     function isFinished() {
@@ -49,40 +50,34 @@ class EventEnumRemoval extends MigrationTask {
         if(($qc=$this->getQueueLength()))
             return $qc;
 
-        $sql = "SELECT this.id, this.state, that.id, that.name FROM ".THREAD_EVENT_TABLE. " this
-            INNER JOIN (
-            SELECT id, name
-            FROM ". EVENT_TABLE. ") that
-            WHERE this.state = that.name
-            AND event_id IS NULL";
-
-        if(($skipList=$this->getSkipList()))
-            $sql.= ' AND this.id NOT IN('.implode(',', db_input($skipList)).')';
-
-        if($limit && is_numeric($limit))
-            $sql.=' LIMIT '.$limit;
+        $sql = "SELECT COUNT(t.id) FROM ".THREAD_EVENT_TABLE. " t
+            INNER JOIN ".EVENT_TABLE. " e ON (e.name=t.state)
+            WHERE t.event_id IS NULL";
 
         //XXX: Do a hard fail or error querying the database?
         if(!($res=db_query($sql)))
             return $this->error('Unable to query DB for Thread Event migration!');
 
+        $count = db_result($res);
+
         // Force the log message to the database
-        $ost->logDebug("Thread Event Migration", 'Found '.db_num_rows($res)
+        $ost->logDebug("Thread Event Migration", 'Found '.$count
             .' events to migrate', true);
 
-        if(!db_num_rows($res))
+        if($count == 0)
             return 0;  //Nothing else to do!!
 
+        $start = db_result(db_query("SELECT id FROM ".THREAD_EVENT_TABLE. "
+            WHERE event_id IS NULL
+            ORDER BY id ASC LIMIT 1"));
+
         $this->queue = array();
-        while (list($id, $state, $eventId, $eventName)=db_fetch_row($res)) {
-            $info=array(
-                'id'        => $id,
-                'state'     => $state,
-                'eventId'   => $eventId,
-                'eventName' => $eventName,
-            );
-            $this->enqueue($info);
-        }
+        $info=array(
+            'count'        => $count,
+            'start'        => $start,
+            'end'          => $start + $limit
+        );
+        $this->enqueue($info);
 
         return $this->getQueueLength();
     }
@@ -125,16 +120,12 @@ class EventEnumRemoval extends MigrationTask {
         # need to be recalculated for every shift() operation.
         $info = array_pop($this->queue);
 
-        if (!$info['state']) {
-            # Continue with next thread event
-            return $this->skip($info['eventId'],
-            sprintf('Thread Event ID %s: State is blank', $info['eventId']));
-        }
+        $sql = "UPDATE ".THREAD_EVENT_TABLE. " t
+            INNER JOIN ".EVENT_TABLE. " e ON (e.name=t.state)
+            SET t.event_id = e.id
+            WHERE t.event_id IS NULL AND t.id <= ". $info['end'];
 
-        db_query('update '.THREAD_EVENT_TABLE
-            .' set event_id='.db_input($info['eventId'])
-            .' where state='.db_input($info['eventName'])
-            .' and id='.db_input($info['id']));
+        db_query($sql);
 
         return true;
     }
