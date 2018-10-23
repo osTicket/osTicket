@@ -1088,6 +1088,8 @@ implements TemplateVariable {
 
             if ($info instanceof AttachmentFile)
                 $fileId = $info->getId();
+            elseif (is_array($info) && isset($info['id']))
+                $fileId = $info['id'];
             elseif ($AF = AttachmentFile::create($info))
                 $fileId = $AF->getId();
             elseif ($add_error) {
