@@ -635,11 +635,11 @@ implements TemplateVariable, Searchable {
     }
 
     function deleteAllTickets() {
-        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        $status_id = TicketStatus::lookup(array('state' => 'deleted'));
         foreach($this->tickets as $ticket) {
             if (!$T = Ticket::lookup($ticket->getId()))
                 continue;
-            if (!$T->setStatus($deleted))
+            if (!$T->setStatus($status_id))
                 return false;
         }
         $this->tickets->reset();

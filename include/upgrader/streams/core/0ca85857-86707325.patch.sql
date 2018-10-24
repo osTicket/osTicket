@@ -17,10 +17,6 @@ CREATE TABLE `%TABLE_PREFIX%thread_referral` (
   KEY `thread_id` (`thread_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-ALTER TABLE `%TABLE_PREFIX%thread_event`
-  CHANGE `state` `state` enum('created','closed','reopened','assigned','transferred', 'referred', 'overdue','edited','viewed','error','collab','resent', 'deleted') NOT NULL;
-
-
  -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '86707325fc571e56242fccc46fd24466'

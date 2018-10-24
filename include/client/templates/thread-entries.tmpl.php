@@ -1,6 +1,12 @@
 <?php
+$states = array('created', 'closed', 'reopened', 'edited', 'collab');
+$event_ids = array();
+foreach ($states as $state) {
+    $eid = Event::getIdByName($state);
+    $event_ids[] = $eid;
+}
 $events = $events
-    ->filter(array('state__in' => array('created', 'closed', 'reopened', 'edited', 'collab')))
+    ->filter(array('event_id__in' => $event_ids))
     ->order_by('id');
 $eventCount = count($events);
 $events = new IteratorIterator($events->getIterator());

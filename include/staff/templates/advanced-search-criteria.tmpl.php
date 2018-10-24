@@ -11,7 +11,7 @@ if (($search instanceof SavedQueue) && !$search->checkOwnership($thisstaff)) {
     echo '<div class="faded">'.  nl2br(Format::htmlchars($search->describeCriteria())).
                     '</div><br>';
     // Show any supplemental filters
-    if ($matches  && count($info)) {
+    if ($matches) {
         ?>
         <div id="ticket-flags"
             style="padding:5px; border-top: 1px dotted #777;">
