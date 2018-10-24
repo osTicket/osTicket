@@ -47,7 +47,15 @@ $(document).ready(function(){
         $(window).unbind('beforeunload');
         // Disable client-side Post Reply/Create Ticket buttons to help
         // prevent duplicate POST
-        $(':submit', $(this)).attr('disabled', true);
+        var form = $(this);
+        $(this).find('input[type="submit"]').each(function (index) {
+            // Clone original input
+            $(this).clone(false).removeAttr('id').prop('disabled', true).insertBefore($(this));
+
+            // Hide original input and add it to top of form
+            $(this).hide();
+            form.prepend($(this));
+        });
         $('#overlay, #loading').show();
         return true;
        });
