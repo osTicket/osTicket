@@ -88,7 +88,7 @@ $tickets = $tickets->filter(['ticket_id__in' => $criteria->values_flat('ticket_i
 # Index hint should be used on the $criteria query only
 $tickets->clearOption(QuerySet::OPT_INDEX_HINT);
 
-$count = $queue->getCount($thisstaff);
+$count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
