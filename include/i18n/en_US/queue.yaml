@@ -32,6 +32,7 @@
   parent_id: 0
   flags: 0x03
   sort: 1
+  sort_id: 1
   root: T
   config: '[["status__state","includes",{"open":"Open"}]]'
   columns:
@@ -204,6 +205,7 @@
   flags: 0x03
   root: T
   sort: 3
+  sort_id: 3
   config: '{"criteria":[["assignee","includes",{"M":"Me","T":"One of my teams"}],["status__state","includes",{"open":"Open"}]],"conditions":[]}'
   columns:
     - column_id: 1
