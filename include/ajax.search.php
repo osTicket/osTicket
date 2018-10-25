@@ -394,8 +394,7 @@ class SearchAjaxAPI extends AjaxController {
         $criteria = array();
         if ($ids && is_array($ids))
             $criteria = array('id__in' => $ids);
-
-        $counts = SavedQueue::counts($thisstaff, $criteria);
+        $counts = SavedQueue::counts($thisstaff, true, $criteria);
         Http::response(200, false, 'application/json');
         return $this->encode($counts);
     }
