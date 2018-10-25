@@ -1637,7 +1637,7 @@ extends QueueColumnAnnotation {
         return $query->annotate(array(
             $name => TicketThread::objects()
             ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
-            ->filter(array('events__annulled' => 0, 'events__state' => 'reopened'))
+            ->filter(array('events__annulled' => 0, 'events__event_id' => Event::getIdByName('reopened')))
             ->aggregate(array('count' => SqlAggregate::COUNT('events__id')))
         ));
     }

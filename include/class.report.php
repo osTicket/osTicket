@@ -215,7 +215,8 @@ class OverviewReport {
             $pk = 'dept__id';
             $stats = $stats
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                ->values('dept__id', 'dept__name', 'dept__flags');
+                ->values('dept__id', 'dept__name', 'dept__flags')
+                ->distinct('dept__id');
             $times = $times
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
                 ->values('dept__id');
@@ -227,7 +228,8 @@ class OverviewReport {
             $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
             $stats = $stats
                 ->values('topic_id', 'topic__topic', 'topic__flags')
-                ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0, 'topic_id__in' => array_keys($topics)));
+                ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0, 'topic_id__in' => array_keys($topics)))
+                ->distinct('topic_id');
             $times = $times
                 ->values('topic_id')
                 ->filter(array('topic_id__gt' => 0));
@@ -240,7 +242,8 @@ class OverviewReport {
             $staff = Staff::getStaffMembers();
             $stats = $stats
                 ->values('staff_id', 'staff__firstname', 'staff__lastname')
-                ->filter(array('staff_id__in' => array_keys($staff)));
+                ->filter(array('staff_id__in' => array_keys($staff)))
+                ->distinct('staff_id');
             $times = $times->values('staff_id');
             $depts = $thisstaff->getManagedDepartments();
             if ($thisstaff->hasPerm(ReportModel::PERM_AGENTS))
