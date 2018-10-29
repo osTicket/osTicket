@@ -767,6 +767,10 @@ class OsticketConfig extends Config {
         return $sequence;
     }
 
+    function showTopLevelTicketCounts() {
+        return ($this->get('queue_bucket_counts'));
+    }
+
     function getDefaultTicketNumberFormat() {
         return $this->get('ticket_number_format');
     }
@@ -1277,6 +1281,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
             'ticket_sequence_id'=>$vars['ticket_sequence_id'] ?: 0,
+            'queue_bucket_counts'=>isset($vars['queue_bucket_counts'])?1:0,
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],
