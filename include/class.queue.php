@@ -2377,7 +2377,7 @@ extends VerySimpleModel {
 
             $reverse = $reverse ? '-' : '';
             $query = $query->order_by("{$reverse}{$alias}");
-        } else {
+        } elseif($keys[0]) {
             list($path, $field) = $keys[0];
             $query = $field->applyOrderBy($query, $reverse, $path);
         }
