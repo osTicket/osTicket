@@ -120,7 +120,7 @@ class Form {
         }
     }
 
-    function getClean() {
+    function getClean($validate=true) {
         if (!$this->_clean) {
             $this->_clean = array();
             foreach ($this->getFields() as $key=>$field) {
@@ -131,7 +131,7 @@ class Form {
                 if (is_int($key) && $field->get('id'))
                     $key = $field->get('id');
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
-                    = $field->getClean();
+                    = $field->getClean($validate);
             }
             unset($this->_clean[""]);
         }
@@ -606,7 +606,7 @@ class FormField {
      * submitted via POST, in order to kick off parsing and validation of
      * user-entered data.
      */
-    function getClean() {
+    function getClean($validate=true) {
         if (!isset($this->_clean)) {
             $this->_clean = (isset($this->value))
                 // XXX: The widget value may be parsed already if this is
@@ -628,7 +628,7 @@ class FormField {
             if (!isset($this->_clean) && ($d = $this->get('default')))
                 $this->_clean = $d;
 
-            if ($this->isVisible())
+            if ($this->isVisible() && $validate)
                 $this->validateEntry($this->_clean);
         }
         return $this->_clean;
@@ -3438,7 +3438,7 @@ class FileUploadField extends FormField {
                     $files[] = $f;
             }
 
-            foreach (@$this->getClean() as $key => $value)
+            foreach ($this->getClean(false) ?: array() as $key => $value)
                 $files[] = array('id' => $key, 'name' => $value);
 
             $this->files = $files;
@@ -4482,7 +4482,7 @@ class FileUploadWidget extends Widget {
         );
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = array();
-        $new = $this->field->getClean();
+        $new = $this->field->getClean(false);
 
         foreach ($this->field->getAttachments() as $att) {
             unset($new[$att->file_id]);
@@ -4594,7 +4594,7 @@ class FileUploadWidget extends Widget {
                 continue;
 
             // Keep the values as the IDs
-            $ids[$id] = $name;
+            $ids[$id] = $name ?: $allowed[$id];
         }
 
         return $ids;
