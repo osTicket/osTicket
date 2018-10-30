@@ -534,9 +534,10 @@ var scp_prep = function() {
         url: 'ajax.php/queue/counts',
         dataType: 'json',
         success: function(json) {
-          $('li > span.queue-count').each(function(i, e) {
+          $('li span.queue-count').each(function(i, e) {
             var $e = $(e);
             $e.text(json['q' + $e.data('queueId')]);
+            $(e).parents().find('#queue-count-bucket').show();
           });
         }
       });
