@@ -503,6 +503,22 @@ class Format {
         return implode( $separator, $string );
     }
 
+    function number($number, $locale=false) {
+        if (is_array($number))
+            return array_map(array('Format','number'), $number);
+
+        if (!is_numeric($number))
+            return $number;
+
+        if (extension_loaded('intl') && class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create($locale ?: Internationalization::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            return $nf->format($number);
+        }
+
+        return number_format((int) $number);
+    }
+
     /* elapsed time */
     function elapsedTime($sec) {
 

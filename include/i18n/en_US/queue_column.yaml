@@ -69,8 +69,8 @@
   conditions: "[]"
 
 - id: 6
-  name: "Status Name"
-  primary: "status__name"
+  name: "Status"
+  primary: "status__id"
   truncate: "wrap"
   annotations: "[]"
   conditions: "[]"

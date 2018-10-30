@@ -1565,6 +1565,11 @@ class TicketStatusChoiceField extends SelectionField {
             return parent::getSearchQ($method, $value, $name);
         }
     }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}status__name");
+    }
 }
 
 class TicketThreadCountField extends NumericField {

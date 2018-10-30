@@ -23,6 +23,11 @@ require_once(INCLUDE_DIR.'class.json.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 require_once(INCLUDE_DIR.'class.export.php');       // For paper sizes
 
+
+
+// Fetch ticket queues organized by root and sub-queues
+$queues = CustomQueue::getHierarchicalQueues($thisstaff);
+
 $page='';
 $ticket = $user = null; //clean start.
 $redirect = false;
@@ -113,18 +118,21 @@ if (!$ticket) {
         $queue = AdhocSearch::load($key);
     }
 
-    // Make the current queue sticky
-    $_SESSION[$queue_key] = $queue_id;
-
-    if ((int) $queue_id && !$queue) {
+    if ((int) $queue_id && !$queue)
         $queue = SavedQueue::lookup($queue_id);
-    }
-    if (!$queue) {
-        $queue = SavedQueue::lookup($cfg->getDefaultTicketQueueId());
-    }
 
-    // Set the queue_id for navigation to turn a top-level item bold
-    $_REQUEST['queue'] = $queue->getId();
+    if (!$queue && ($qid=$cfg->getDefaultTicketQueueId()))
+        $queue = SavedQueue::lookup($qid);
+
+    if (!$queue && $queues)
+        list($queue,) = $queues[0];
+
+    if ($queue) {
+        // Set the queue_id for navigation to turn a top-level item bold
+        $_REQUEST['queue'] = $queue->getId();
+        // Make the current queue sticky
+         $_SESSION[$queue_key] = $queue->getId();
+    }
 }
 
 // Configure form for file uploads
@@ -449,9 +457,6 @@ if (isset($_GET['clear_filter']))
 //Navigation
 $nav->setTabActive('tickets');
 $nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
-
-// Fetch ticket queues organized by root and sub-queues
-$queues = CustomQueue::getHierarchicalQueues($thisstaff);
 
 // Start with all the top-level (container) queues
 foreach ($queues as $_) {
