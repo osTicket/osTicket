@@ -1017,11 +1017,11 @@ implements TemplateVariable {
         case 'short':
             return Format::date($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'long':
-            return Format::datetime($this->date, $this->fromdb, $this->timezone, $this->user);
+            return Format::datetime($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'time':
             return Format::time($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'full':
-            return Format::daydatetime($this->date, $this->fromdb, $this->timezone, $this->user);
+            return Format::daydatetime($this->date, $this->fromdb, false, $this->timezone, $this->user);
         }
     }
 
