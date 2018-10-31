@@ -25,9 +25,6 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                 if(!$dept){
                     $errors['err']=sprintf(__('%s: Unknown or invalid'), __('department'));
                 }elseif($dept->update($_POST,$errors)){
-                    if ($_POST["status"] != __('Active'))
-                      Dept::clearInactiveDept($dept->getId());
-
                     $msg=sprintf(__('Successfully updated %s.'),
                         __('this department'));
                 }elseif(!$errors['err']){
@@ -133,8 +130,6 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               FilterAction::setFilterFlag($filter_actions, 'dept', true);
                               if($d->save()) {
                                 $num++;
-                                //set dept_id to default for topics/emails using disabled dept
-                                Dept::clearInactiveDept($d->getId());
                               }
                             }
                             if ($num > 0) {
