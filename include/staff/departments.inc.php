@@ -143,7 +143,7 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                 echo Dept::getNameById($id); ?></a>&nbsp;<?php echo $default; ?>
                 </td>
                 <td><?php
-                  if($dept->getStatus() == __('Active'))
+                  if(!strcasecmp($dept->getStatus(), 'Active'))
                     echo $dept->getStatus();
                   else
                     echo '<b>'.$dept->getStatus();
