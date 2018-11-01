@@ -20,8 +20,10 @@ if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
+$isOpen = $ticket->isOpen(); //Check if ticket is open
 $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
 $canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
+$canAnswer = ($isManager || $role->hasPerm(Ticket::PERM_REPLY)); //Check if Agent can mark as answered/unanswered
 
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
@@ -155,13 +157,14 @@ if($ticket->isOverdue())
                                <i class="icon-unlock"></i> <?php echo __('Release (unassign) Ticket'); ?></a></li>
                  <?php
                  }
-                 if($ticket->isOpen() && $isManager) {
+                 if($isOpen && $isManager) {
                     if(!$ticket->isOverdue()) { ?>
                         <li><a class="confirm-action" id="ticket-overdue" href="#overdue"><i class="icon-bell"></i> <?php
                             echo __('Mark as Overdue'); ?></a></li>
                     <?php
                     }
-
+                 }
+                 if ($isOpen && $canAnswer) {
                     if($ticket->isAnswered()) { ?>
                     <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> <?php
                             echo __('Mark as Unanswered'); ?></a></li>
@@ -1088,8 +1091,9 @@ if ($errors['err'] && isset($_POST['a'])) {
                                     array('states' => $states)) as $s) {
                             if (!$s->isEnabled()) continue;
                             $selected = $statusId == $s->getId();
-                            echo sprintf('<option value="%d" %s>%s%s</option>',
+                            echo sprintf('<option value="%d" data-state="%s" %s>%s%s</option>',
                                     $s->getId(),
+                                    $s->getState(),
                                     $selected ? 'selected="selected"' : '',
                                     __($s->getName()),
                                     $selected ? (' ('.__('current').')') : ''
@@ -1098,6 +1102,12 @@ if ($errors['err'] && isset($_POST['a'])) {
                         ?>
                     </select>
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
+                    <?php if (!$ticket->isAnswered() && $canAnswer) { ?>
+                        <label class="checkbox inline" id="answered_container">
+                            <input type="checkbox" name="answered" id="answered"></i>
+                            <?php echo __('Mark as Answered'); ?>
+                        </label>
+                    <?php } ?>
                 </td>
             </tr>
         </table>
@@ -1318,5 +1328,22 @@ $(function() {
    }).on('select2:opening select2:closing', function(e) {
     $(this).parent().find('.select2-search__field').prop('disabled', true);
    });
+
+    // Toggle Internal Note "answered" checkbox visibility
+    function toggleAnswered() {
+        var state = $('select[name=note_status_id]').find(':selected').data('state');
+        if ($.inArray(state, ['closed', 'resolved']) == -1)
+            $('#answered_container').show();
+        else {
+            $('#answered_container').hide();
+            $('#answered').removeAttr('checked');
+        }
+    }
+
+    toggleAnswered();
+
+    $('select[name=note_status_id]').change(function() {
+        toggleAnswered();
+    });
 });
 </script>

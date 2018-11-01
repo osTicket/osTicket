@@ -1088,6 +1088,24 @@ function refer($tid, $target=null) {
         $state = strtolower($status->getState());
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
+            // Mark as Answered
+            if ($_POST['status_answered'] && ($_POST['status_answered'] == 'on')) {
+                if (!$ticket->getDept()->isManager($thisstaff)
+                  && !$role->hasPerm(Ticket::PERM_REPLY))
+                    $errors['err'] = sprintf(__('You do not have permission %s'),
+                                        __('to mark tickets as answered'));
+
+                if (!in_array($status, array('closed', 'resolved')))
+                    $errors['err'] = __('Cannot mark as answered if status is of closed/resolved state');
+
+                if ($ticket->markAnswered()) {
+                    $msg = sprintf(__('Ticket flagged as answered by %s'), $thisstaff->getName());
+                    $ticket->logActivity(__('Ticket Marked Answered'), $msg);
+                } else
+                    $errors['err'] = sprintf('%s %s',
+                        __('Problems marking the ticket answered.'),
+                        __('Please try again!'));
+            }
 
             if ($state == 'deleted') {
                 $msg = sprintf('%s %s',
@@ -1338,6 +1356,7 @@ function refer($tid, $target=null) {
 
         $info['status_id'] = $info['status_id'] ?: $ticket->getStatusId();
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+        $info['ticket_id'] = $ticket->getId();
 
         return self::_changeStatus($state, $info, $errors);
     }
