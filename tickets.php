@@ -53,14 +53,17 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
             foreach ($forms as $form) {
                 $form->filterFields(function($f) { return !$f->isStorable(); });
                 $form->setSource($_POST);
-                if (!$form->isValid())
+                if (!$form->isValidForClient(true))
                     $errors = array_merge($errors, $form->errors());
             }
         }
         if (!$errors) {
-            foreach ($forms as $f) {
-                $changes += $f->getChanges();
-                $f->save();
+            foreach ($forms as $form) {
+                $changes += $form->getChanges();
+                $form->saveAnswers(function ($f) {
+                        return $f->isVisibleToUsers()
+                         && $f->isEditableToUsers(); });
+
             }
             if ($changes) {
               $user = User::lookup($thisclient->getId());
@@ -127,9 +130,9 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
         $inc = 'edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
-        foreach ($forms as $f) {
-            $f->filterFields(function($f) { return !$f->isStorable(); });
-            $f->addMissingFields();
+        foreach ($forms as $form) {
+            $form->filterFields(function($f) { return !$f->isStorable(); });
+            $form->addMissingFields();
         }
     }
     else

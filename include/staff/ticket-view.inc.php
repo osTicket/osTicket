@@ -598,7 +598,9 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     )));
     $displayed = array();
     foreach($answers as $a) {
-        $displayed[] = array($a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'), ($a->getField() instanceof FileUploadField));
+        if (!$a->getField()->isVisibleToStaff())
+            continue;
+        $displayed[] = $a;
     }
     if (count($displayed) == 0)
         continue;
@@ -609,13 +611,18 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     </thead>
     <tbody>
 <?php
-    foreach ($displayed as $stuff) {
-        list($label, $v, $id, $isFile) = $stuff;
+    foreach ($displayed as $a) {
+        $id =  $a->getLocal('id');
+        $label = $a->getLocal('label');
+        $v = $a->display() ?: '<span class="faded">&mdash;' . __('Empty') .  '&mdash; </span>';
+        $field = $a->getField();
+        $isFile = ($field instanceof FileUploadField);
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
             <td>
-            <?php if ($role->hasPerm(Ticket::PERM_EDIT)) {
+            <?php if ($role->hasPerm(Ticket::PERM_EDIT)
+                    && $field->isEditableToStaff()) {
                     $isEmpty = strpos($v, '&mdash;');
                     if ($isFile && !$isEmpty)
                         echo $v.'<br>'; ?>
@@ -633,7 +640,8 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                       echo $v;
                   ?>
               </a>
-            <?php } else {
+            <?php
+            } else {
                 echo $v;
             } ?>
             </td>

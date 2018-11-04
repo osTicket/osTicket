@@ -1098,16 +1098,18 @@ class DynamicFormEntry extends VerySimpleModel {
         return !$this->_errors;
     }
 
-    function isValidForClient() {
-        $filter = function($f) {
-            return $f->isVisibleToUsers();
+    function isValidForClient($update=false) {
+        $filter = function($f) use($update) {
+            return $update ? $f->isEditableToUsers() :
+                $f->isVisibleToUsers();
         };
         return $this->isValid($filter);
     }
 
-    function isValidForStaff() {
-        $filter = function($f) {
-            return $f->isVisibleToStaff();
+    function isValidForStaff($update=false) {
+        $filter = function($f) use($update) {
+            return $update ? $f->isEditableToStaff() :
+                $f->isVisibleToStaff();
         };
         return $this->isValid($filter);
     }
@@ -1240,11 +1242,21 @@ class DynamicFormEntry extends VerySimpleModel {
     /**
      * Save the form entry and all associated answers.
      *
+     */
+
+    function save($refetch=false) {
+        return $this->saveAnswers(null, $refetch);
+    }
+
+    /**
+     * Save the form entry and all associated answers.
+     *
      * Returns:
      * (mixed) FALSE if updated failed, otherwise the number of dirty answers
      * which were save is returned (which may be ZERO).
      */
-    function save($refetch=false) {
+
+    function saveAnswers($isEditable=null, $refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
 
@@ -1254,12 +1266,12 @@ class DynamicFormEntry extends VerySimpleModel {
         $dirty = 0;
         foreach ($this->getAnswers() as $a) {
             $field = $a->getField();
-
             // Don't save answers for presentation-only fields or fields
-            // which are stored elsewhere
-            if (!$field->hasData() || !$field->isStorable()
-                || $field->isPresentationOnly()
-            ) {
+            // which are stored elsewhere or those which are not editable
+            if (!$field->hasData()
+                    || !$field->isStorable()
+                    || $field->isPresentationOnly()
+                    || ($isEditable && !$isEditable($field))) {
                 continue;
             }
             // Set the entry here so that $field->getClean() can use the

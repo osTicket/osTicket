@@ -839,8 +839,9 @@ $.confirm = function(message, title, options) {
 };
 
 $.userLookup = function (url, cb) {
-    $.dialog(url, 201, function (xhr) {
-        var user = $.parseJSON(xhr.responseText);
+    $.dialog(url, 201, function (xhr, user) {
+        if ($.type(user) == 'string')
+            user = $.parseJSON(user);
         if (cb) return cb(user);
     }, {
         onshow: function() { $('#user-search').focus(); }
@@ -848,8 +849,9 @@ $.userLookup = function (url, cb) {
 };
 
 $.orgLookup = function (url, cb) {
-    $.dialog(url, 201, function (xhr) {
-        var org = $.parseJSON(xhr.responseText);
+    $.dialog(url, 201, function (xhr, org) {
+        if ($.type(org) == 'string')
+            org = $.parseJSON(user);
         if (cb) cb(org);
     }, {
         onshow: function() { $('#org-search').focus(); }

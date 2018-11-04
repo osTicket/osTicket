@@ -93,7 +93,7 @@ class OrgsAjaxAPI extends AjaxController {
 
         $errors = array();
         if($org->update($_POST, $errors))
-             Http::response(201, $org->to_json());
+             Http::response(201, $org->to_json(), 'application/json');
 
         $forms = $org->getForms();
 
@@ -162,7 +162,7 @@ class OrgsAjaxAPI extends AjaxController {
             }
 
             if (!$info['error'] && $user && $user->setOrganization($org))
-                Http::response(201, $user->to_json());
+                Http::response(201, $user->to_json(), 'application/json');
             elseif (!$info['error'])
                 $info['error'] = sprintf('%s - %s', __('Unable to add user to the organization'), __('Please try again!'));
 
@@ -230,7 +230,7 @@ class OrgsAjaxAPI extends AjaxController {
         if ($_POST) {
             $form = OrganizationForm::getDefaultForm()->getForm($_POST);
             if (($org = Organization::fromForm($form)))
-                Http::response(201, $org->to_json());
+                Http::response(201, $org->to_json(), 'application/json');
 
             $info = array('error' =>sprintf('%s - %s', __('Error adding organization'), __('Please try again!')));
         }
@@ -274,7 +274,7 @@ class OrgsAjaxAPI extends AjaxController {
             $info += array('title' => __('Organization Lookup'));
 
         if ($_POST && ($org = Organization::lookup($_POST['orgid']))) {
-            Http::response(201, $org->to_json());
+            Http::response(201, $org->to_json(), 'application/json');
         }
 
         ob_start();
