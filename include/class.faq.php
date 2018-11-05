@@ -405,7 +405,7 @@ class FAQ extends VerySimpleModel {
         }
 
         $images = Draft::getAttachmentIds($vars['answer']);
-        $images = array_map(function($i) { return $i['id']; }, $images);
+        $images = array_flip(array_map(function($i) { return $i['id']; }, $images));
         $this->getAttachments()->keepOnlyFileIds($images, true);
 
         // Handle language-specific attachments

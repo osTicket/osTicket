@@ -282,7 +282,7 @@ class Page extends VerySimpleModel {
 
         // Attach inline attachments from the editor
         $keepers = Draft::getAttachmentIds($vars['body']);
-        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $keepers = array_flip(array_map(function($i) { return $i['id']; }, $keepers));
         $this->attachments->keepOnlyFileIds($keepers, true);
 
         if ($rv)
