@@ -43,7 +43,7 @@ class Form {
             $this->id = $options['id'];
 
         // Use POST data if source was not specified
-        $this->_source = ($source) ? $source : $_POST;
+        $this->_source = $source ?: $_POST;
     }
 
     function getFormId() {
@@ -87,6 +87,28 @@ class Form {
 
     function hasField($name) {
         return $this->getField($name);
+    }
+
+    function hasAnyEnabledFields() {
+        return $this->hasAnyVisibleFields(false);
+    }
+
+    function hasAnyVisibleFields($user=false) {
+        $visible = 0;
+        $isstaff = $user instanceof Staff;
+        foreach ($this->getFields() as $F) {
+            if (!$user) {
+                // Assume hasAnyEnabledFields
+                if ($F->isEnabled())
+                    $visible++;
+            } elseif($isstaff) {
+                if ($F->isVisibleToStaff())
+                    $visible++;
+            } elseif ($F->isVisibleToUsers()) {
+                $visible++;
+            }
+        }
+        return $visible > 0;
     }
 
     function getTitle() { return $this->title; }
@@ -836,7 +858,7 @@ class FormField {
      * Returns an HTML friendly value for the data in the field.
      */
     function display($value) {
-        return Format::htmlchars($this->toString($value));
+        return Format::htmlchars($this->toString($value ?: $this->value));
     }
 
     /**
