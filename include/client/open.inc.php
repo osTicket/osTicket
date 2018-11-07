@@ -89,7 +89,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tr>
     </tbody>
     <tbody id="dynamic-form">
-        <?php foreach ($forms as $form) {
+        <?php
+        $options = array('mode' => 'create');
+        foreach ($forms as $form) {
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
     </tbody>

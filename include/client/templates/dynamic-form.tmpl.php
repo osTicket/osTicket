@@ -16,6 +16,14 @@ $isCreate = (isset($options['mode']) && $options['mode'] == 'create');
     // Form fields, each with corresponding errors follows. Fields marked
     // 'private' are not included in the output for clients
     foreach ($form->getFields() as $field) {
+        try {
+            if (!$field->isEnabled())
+                continue;
+        }
+        catch (Exception $e) {
+            // Not connected to a DynamicFormField
+        }
+
         if ($isCreate) {
             if (!$field->isVisibleToUsers() && !$field->isRequiredForUsers())
                 continue;

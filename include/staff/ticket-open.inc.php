@@ -348,6 +348,7 @@ if ($_POST)
         </tbody>
         <tbody id="dynamic-form">
         <?php
+            $options = array('mode' => 'create');
             foreach ($forms as $form) {
                 print $form->getForm($_SESSION[':form-data'])->getMedia();
                 include(STAFFINC_DIR .  'templates/dynamic-form.tmpl.php');
