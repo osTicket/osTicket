@@ -1,5 +1,7 @@
+<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/highcharts.css" media="all">
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-3d.js"></script>
+<script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-more.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/exporting.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/export-data.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/pareto.js"></script>
@@ -18,119 +20,134 @@
 </div> 
 
 <div class="row">
-                            <div class="col-lg-1 col-xl-3">
-                                <div class="widget-bg-color-icon card-box">
-                                    <div class="bg-icon bg-icon-danger pull-left">
-                                        <i class="mdi mdi-ticket-confirmation text-danger"></i>
-                                    </div>
-                                    <div class="text-right">
-                                       <a href="tickets.php?queue=241&p=1"><h3 class="text-dark"><b class="counter"><?php echo $BacklogTotal;?></b></h3></a>
-                                        <p class="text-muted mb-0">Backlog</p>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-lg-1 col-xl-3">
-                                <div class="widget-bg-color-icon card-box">
-                                    <div class="bg-icon bg-icon-primary pull-left">
-                                        <i class="mdi mdi-ticket-account text-success"></i>
-                                    </div>
-                                    <div class="text-right">
-                                        <a href="tickets.php?queue=3&p=1"><h3 class="text-dark"><b class="counter"><?php echo $OpenTickets;?></b></h3></a>
-                                        <p class="text-muted mb-0">Open Tickets</p>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-xl-3">
-                                <div class="widget-bg-color-icon card-box">
-                                    <div class="bg-icon bg-icon-purple pull-left">
-                                        <i class="mdi mdi-ticket-account text-success"></i>
-                                    </div>
-                                    <div class="text-right">
-                                        <h3 class="text-dark"><b class="counter"><?php echo $averagedaysopen;?></b></h3>
-                                        <p class="text-muted mb-0">Average Days Open</p>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-xl-3">
-                                <div class="widget-bg-color-icon card-box">
-                                    <div class="bg-icon bg-icon-warning pull-left">
-                                        <i class="mdi mdi-ticket text-success"></i>
-                                    </div>
-                                    <div class="text-right">
-                                        <a href="tickets.php?queue=31&p=1"><h3 class="text-dark"><b class="counter"><?php echo $MyOpenTickets;?></b></h3></a>
-                                        <p class="text-muted mb-0">My Open Tickets</p>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-xl-3">
-                                <div class="widget-bg-color-icon card-box">
-                                    <div class="bg-icon bg-icon-success pull-left">
-                                        <i class="ti-light-bulb text-success"></i>
-                                    </div>
-                                    <div class="text-right">
-                                        <a href="tickets.php?queue=17&p=1"><h3 class="text-dark"><b class="counter"><?php echo $SuggestionAssignedTicket + $SuggestionThridPartyTicketsTicket + $SuggestionAwaitingQuoteTickets ?></b></h3></a>
-                                        <p class="text-muted mb-0">Open Suggestions</p>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-xl-3">
-                            <div class="widget-bg-color-icon card-box">
-                                <div class="bg-icon bg-icon-primary pull-left">
-                                    <i class="ti-info-alt text-success"></i>
-                                </div>
-                                <div class="text-right">
-                                    <a href="tickets.php?queue=14&p=1"><h3 class="text-dark"><b class="counter"><?php echo $OpenIssuesTickets;?></b></h3></a>
-                                    <p class="text-muted mb-0">Open Issues</p>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                         <div class="col-lg-1 col-xl-3">
-                            <div class="widget-bg-color-icon card-box">
-                                <div class="bg-icon bg-icon-danger pull-left">
-                                    <i class="ti-info-alt text-danger"></i>
-                                </div>
-                                <div class="text-right">
-                                    <a href="tickets.php?queue=33&p=1"><h3 class="text-dark"><b class="counter"><?php echo $MyOpenIssuesTickets;?></b></h3></a>
-                                    <p class="text-muted mb-0">My Open Issues</p>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-</div>
 
-<div class="row">
+    <div class="col-lg-6">
+        <div class="portlet" id="backlog-chart-container1"><!-- /primary heading -->
+           
+        </div>
+    </div>
     <div class="col-lg-3">
         <div class="portlet" id="backlog-chart-container" ><!-- /primary heading -->
             
         </div>
     </div>
-    
-    
-   
-    
     <div class="col-lg-3">
         <div class="portlet" id="ticketsbystatus-chart-container"><!-- /primary heading -->
             
         </div>
     </div>
-
+	    <div class="col-lg-6">
+        <div class="portlet" id="backlogT-chart-container1"><!-- /primary heading -->
+           
+        </div>
+    </div>
+	    <div class="col-lg-3">
+        <div class="portlet" id="backlogT-chart-container" ><!-- /primary heading -->
+            
+        </div>
+    </div>
     <div class="col-lg-3">
-        <div class="portlet" id="myticketsbystatus-chart-container"><!-- /primary heading -->
+        <div class="portlet" id="ticketsbystatusT-chart-container"><!-- /primary heading -->
+            
+        </div>
+    </div>
+	
+	    <div class="col-lg-6">
+        <div class="portlet" id="backlogS-chart-container1"><!-- /primary heading -->
+           
+        </div>
+    </div>
+	    <div class="col-lg-3">
+        <div class="portlet" id="backlogS-chart-container" ><!-- /primary heading -->
+            
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="portlet" id="ticketsbystatusS-chart-container"><!-- /primary heading -->
+            
+        </div>
+    </div>
+	
+    <div class="col-lg-6">
+        <div class="portlet" id="toptentopic-chart-container"><!-- /primary heading -->
+           
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="portlet" id="toptenclosedtopic-container"><!-- /primary heading -->
+           
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="portlet" id="toptenclosedpytopic-chart-container"><!-- /primary heading -->
+            
+            </div>
+        </div>
+       
+               <div class="col-lg-3">
+        <div class="portlet" id="toptenopenbyassociate-chart-container"><!-- /primary heading -->
+           </div>
+        </div>
+         <div class="col-lg-3">
+        <div class="portlet" id="toptenclosebyassociate-chart-container"><!-- /primary heading -->
+            
+                </div>
+            </div>   
+</div>
+
+<div class="row">
+  
+     <div class="col-lg-6">
+        <div class="portlet" id="statusbyagent-chart-container1"><!-- /primary heading -->
            
         </div>
     </div>
 
     
+ <div class="col-lg-6">
+        <div class="portlet" id="statusbyagent-chart-container2"><!-- /primary heading -->
+           
+        </div>
+    </div>
     
 </div>
-<div class="row">
+       <div class="row">
+    <div class="col-lg-6">
+        <div class="portlet" id="statusbylocation-chart-container1"><!-- /primary heading -->
+            
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="portlet" id="statusbylocation-chart-container2"><!-- /primary heading -->
+            
+        </div>
+    </div>
+
+
+ </div>
+ <div class="row">
+ 
+ 
+ <div class="col-lg-12">
+        <div class="portlet" id="closedbytech-chart-container1"><!-- /primary heading -->
+            
+        </div>
+    </div>
+ 
+  <div class="col-lg-12">
+        <div class="portlet" id="openedbylocation-chart-container1"><!-- /primary heading -->
+            
+        </div>
+    </div>
+   <div class="col-lg-12">
+        <div class="portlet" id="closedbylocation-chart-container1"><!-- /primary heading -->
+            
+        </div>
+    </div>
+
+ </div>
+
+ <div class="row">
     <div class="col-lg-12">
         <div class="portlet"><!-- /primary heading -->
             <div class="portlet-heading">
@@ -644,100 +661,13 @@
         </div>
     </div>
  </div>
-<div class="row">
-
-    <div class="col-lg-6">
-        <div class="portlet" id="backlog-chart-container1"><!-- /primary heading -->
-           
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="portlet" id="toptentopic-chart-container"><!-- /primary heading -->
-           
-        </div>
-    </div>
-    <div class="col-lg-3">
-        <div class="portlet" id="toptenclosedtopic-container"><!-- /primary heading -->
-           
-        </div>
-    </div>
-    <div class="col-lg-3">
-        <div class="portlet" id="toptenclosedpytopic-chart-container"><!-- /primary heading -->
-            
-            </div>
-        </div>
-       
-               <div class="col-lg-3">
-        <div class="portlet" id="toptenopenbyassociate-chart-container"><!-- /primary heading -->
-           </div>
-        </div>
-         <div class="col-lg-3">
-        <div class="portlet" id="toptenclosebyassociate-chart-container"><!-- /primary heading -->
-            
-                </div>
-            </div>   
-</div>
-
-<div class="row">
-  
-     <div class="col-lg-6">
-        <div class="portlet" id="statusbyagent-chart-container1"><!-- /primary heading -->
-           
-        </div>
-    </div>
-
-    
- <div class="col-lg-6">
-        <div class="portlet" id="statusbyagent-chart-container2"><!-- /primary heading -->
-           
-        </div>
-    </div>
-    
-</div>
-       <div class="row">
-    <div class="col-lg-6">
-        <div class="portlet" id="statusbylocation-chart-container1"><!-- /primary heading -->
-            
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="portlet" id="statusbylocation-chart-container2"><!-- /primary heading -->
-            
-        </div>
-    </div>
-
-
- </div>
- <div class="row">
- 
- 
- <div class="col-lg-12">
-        <div class="portlet" id="closedbytech-chart-container1"><!-- /primary heading -->
-            
-        </div>
-    </div>
- 
-  <div class="col-lg-12">
-        <div class="portlet" id="openedbylocation-chart-container1"><!-- /primary heading -->
-            
-        </div>
-    </div>
-   <div class="col-lg-12">
-        <div class="portlet" id="closedbylocation-chart-container1"><!-- /primary heading -->
-            
-        </div>
-    </div>
-
- </div>
-
- 
 <script>
 		
          <?php
         $sql="select CALENDARWEEK as WEEK, 
                 max(case when Status = 'OPEN' then VALUE else 0 end)as OPEN, 
                 max(case when Status = 'CLOSED' then VALUE else 0 end) as CLOSED,
-                max(case when Status = 'BACKLOG' then VALUE else '' end) as BACKLOG
+                max(case when Status = 'BACKLOG' then VALUE else '0' end) as BACKLOG
                 from ( 
 
                 Select * from(                        
@@ -782,7 +712,7 @@
             type: 'areaspline'
         },
         title: {
-            text: 'TICKETS (OPENED|CLOSED|BACKLOG)',
+            text: 'IT TICKETS (OPENED|CLOSED|BACKLOG)',
             style: {
                 color: '#797979',
                 fontSize: '14px',
@@ -816,7 +746,7 @@
                 value: 50, // Value of where the line will appear
                 width: 2, // Width of the line
                 label: {
-                    text: 'Target',
+                    text: '',
                     style: {
                     color: 'black',
                     fontWeight: 'bold'
@@ -850,7 +780,158 @@
             
         }, {
             name: 'BACKLOG',
-            data: [<?php foreach ($results as $result) { echo $result['BACKLOG'].',';}?>],
+            data: [<?php foreach ($results as $result) { 
+			$bvalue = ( $result['BACKLOG'] == 0 ? 'null':$result['BACKLOG'] );
+			echo $bvalue.',';}?>],
+			color: '#FF0000 !important'
+            
+          }]
+
+    });
+
+});      
+ 
+
+ 
+	
+       <?php
+        $sql="select CALENDARWEEK as WEEK, 
+                max(case when Status = 'OPEN' then VALUE else 0 end)as OPEN, 
+                max(case when Status = 'CLOSED' then VALUE else 0 end) as CLOSED,
+                max(case when Status = 'BACKLOG' then VALUE else '0' end) as BACKLOG
+                from ( 
+
+                Select * from(                        
+                                SELECT   COUNT(created) AS VALUE, 'OPEN' AS Status, FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) 
+                                                         - 2, 7)) AS CALENDARWEEK
+                                FROM         ost_ticket
+                                WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
+                                                         INTERVAL 4 month) AND CURRENT_DATE ()
+                                AND (topic_id != '12' 
+									AND topic_id != '14' 
+									AND topic_id != '94' 
+									AND topic_id != '13'
+									AND topic_id != '14'
+									AND topic_id != '15' 
+									AND topic_id != '16' 
+									AND topic_id != '17' 
+									AND topic_id != '18' 
+									AND topic_id != '19')
+                                GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
+                                
+                                Union all
+                                
+                                SELECT   COUNT(closed) AS VALUE, 'CLOSED' AS Status, FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) 
+                                                         - 2, 7)) AS CALENDARWEEK
+                                FROM         ost_ticket
+                                WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
+                                                         INTERVAL 4 month) AND CURRENT_DATE ()
+                               AND (topic_id != '12' 
+									AND topic_id != '14' 
+									AND topic_id != '94' 
+									AND topic_id != '13'
+									AND topic_id != '14'
+									AND topic_id != '15' 
+									AND topic_id != '16' 
+									AND topic_id != '17' 
+									AND topic_id != '18' 
+									AND topic_id != '19')
+                                GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
+                                
+                                UNION all 
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(RTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
+                STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
+
+                where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+
+                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE () and Type = 'IT'
+                group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+                                
+                Order by CALENDARWEEK, STATUS)dt
+
+                group by CALENDARWEEK;";
+        $results = db_query($sql); 
+        
+    ?> 
+    
+    
+ $(function() {        
+     Highcharts.chart('backlogT-chart-container1', {
+        chart: {
+            type: 'areaspline'
+        },
+        title: {
+            text: 'SUPPORT TICKETS (OPENED|CLOSED|BACKLOG)',
+            style: {
+                color: '#797979',
+                fontSize: '14px',
+                fontWeight: '600',
+                }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+
+        xAxis: {
+            categories: [ <?php foreach ($results as $result) {echo "'".$result['WEEK']."',";}?>
+                
+            ],
+            
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+            },
+              plotLines: [{
+                color: 'green', // Color value
+                dashStyle: 'shortdash', // Style of the plot line. Default to solid
+                value: 35, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                    text: '',
+                    style: {
+                    color: 'black',
+                    fontWeight: 'bold'
+                }
+                } ,
+                zIndex: 6                
+              }]
+                    },
+        tooltip: {
+            shared: true,
+            valueSuffix: ' tickets'
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+            areaspline: {
+                fillOpacity: 0.5
+            }
+        },
+        series: [
+        {
+            type: 'column',
+            name: 'CLOSED',
+            data: [<?php foreach ($results as $result) { echo $result['CLOSED'].',';}?>]
+        }, {
+            type: 'spline',
+            name: 'OPENED',
+            data: [<?php foreach ($results as $result) { echo $result['OPEN'].',';}?>],
+            color: '#e3c436'
+            
+        }, {
+            name: 'BACKLOG',
+            data: [<?php foreach ($results as $result) { 
+			$bvalue = ( $result['BACKLOG'] == 0 ? 'null':$result['BACKLOG'] );
+			echo $bvalue.',';}?>],
             color: '#dd3c37'
             
           }]
@@ -858,7 +939,144 @@
     });
 
 });      
+
+       <?php
+        $sql="select CALENDARWEEK as WEEK, 
+                max(case when Status = 'OPEN' then VALUE else 0 end)as OPEN, 
+                max(case when Status = 'CLOSED' then VALUE else 0 end) as CLOSED,
+                max(case when Status = 'BACKLOG' then VALUE else '0' end) as BACKLOG
+                from ( 
+
+                Select * from(                        
+                                SELECT   COUNT(created) AS VALUE, 'OPEN' AS Status, FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) 
+                                                         - 2, 7)) AS CALENDARWEEK
+                                FROM         ost_ticket
+                                WHERE     FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
+                                                         INTERVAL 4 month) AND CURRENT_DATE ()
+                                AND (topic_id = '13' 
+									OR topic_id = '15' 
+									OR topic_id = '16' 
+									OR topic_id = '17' 
+									OR topic_id = '18' 
+									OR topic_id = '19')
+                                GROUP BY FROM_DAYS(TO_DAYS(created) - MOD(TO_DAYS(created) - 2, 7)) 
+                                
+                                Union all
+                                
+                                SELECT   COUNT(closed) AS VALUE, 'CLOSED' AS Status, FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) 
+                                                         - 2, 7)) AS CALENDARWEEK
+                                FROM         ost_ticket
+                                WHERE     FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7)) BETWEEN DATE_SUB(CURRENT_DATE (), 
+                                                         INTERVAL 4 month) AND CURRENT_DATE ()
+                               AND (topic_id = '13' 
+									OR topic_id = '15' 
+									OR topic_id = '16' 
+									OR topic_id = '17' 
+									OR topic_id = '18' 
+									OR topic_id = '19')
+                                GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
+                                
+                                UNION all 
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(RTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
+                STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
+
+                where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+
+                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE () and Type = 'SE'
+                group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+                                
+                Order by CALENDARWEEK, STATUS)dt
+
+                group by CALENDARWEEK;";
+        $results = db_query($sql); 
+        
+    ?> 
     
+    
+ $(function() {        
+     Highcharts.chart('backlogS-chart-container1', {
+        chart: {
+            type: 'areaspline'
+        },
+        title: {
+            text: 'SHOPEDGE TICKETS (OPENED|CLOSED|BACKLOG)',
+            style: {
+                color: '#797979',
+                fontSize: '14px',
+                fontWeight: '600',
+                }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+
+        xAxis: {
+            categories: [ <?php foreach ($results as $result) {echo "'".$result['WEEK']."',";}?>
+                
+            ],
+            
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+            },
+              plotLines: [{
+                color: 'green', // Color value
+                dashStyle: 'shortdash', // Style of the plot line. Default to solid
+                value: 15, // Value of where the line will appear
+                width: 2, // Width of the line
+                label: {
+                    text: '',
+                    style: {
+                    color: 'black',
+                    fontWeight: 'bold'
+                }
+                } ,
+                zIndex: 6                
+              }]
+                    },
+        tooltip: {
+            shared: true,
+            valueSuffix: ' tickets'
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+            areaspline: {
+                fillOpacity: 0.5
+            }
+        },
+        series: [
+        {
+            type: 'column',
+            name: 'CLOSED',
+            data: [<?php foreach ($results as $result) { echo $result['CLOSED'].',';}?>]
+        }, {
+            type: 'spline',
+            name: 'OPENED',
+            data: [<?php foreach ($results as $result) { echo $result['OPEN'].',';}?>],
+            color: '#e3c436'
+            
+        }, {
+            name: 'BACKLOG',
+            data: [<?php foreach ($results as $result) { 
+			$bvalue = ( $result['BACKLOG'] == 0 ? 'null':$result['BACKLOG'] );
+			echo $bvalue.',';}?>],
+            color: '#dd3c37'
+            
+          }]
+
+    });
+
+});      	
 
 <?php
         $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
@@ -1239,7 +1457,7 @@ $(function() {
             }
         },
         title: {
-            text: 'BACKLOG',
+            text: 'BACKLOG (<?php echo $BacklogTotal;?>)',
             style: {
             color: '#797979',
             fontSize: '14px',
@@ -1303,8 +1521,185 @@ $(function() {
     });
 });
 
-		
+//Backlog
+$(function() {
+
+    Highcharts.chart('backlogT-chart-container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'SUPPORT BACKLOG (<?php echo $BacklogTTotal;?>)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+        credits: false,
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Backlog',
+            data: [
+            <?php if ($BacklogTTickets["CAN"]) { ?>
+            ["CAN", <?php echo $BacklogTTickets["CAN"]; ?>],
+            <?php } if ($BacklogTTickets["BRY"]) { ?>
+            ["BRY", <?php echo $BacklogTTickets["BRY"]; ?>],              
+            <?php } if ($BacklogTTickets["EXT"]) { ?>
+            ["EXT", <?php echo $BacklogTTickets["EXT"]; ?>], 
+            <?php } if ($BacklogTTickets["IND"]) { ?>
+            ["IND", <?php echo $BacklogTTickets["IND"]; ?>], 
+            <?php } if ($BacklogTTickets["MEX"]) { ?>
+            ["MEX", <?php echo $BacklogTTickets["MEX"]; ?>], 
+            <?php } if ($BacklogTTickets["NTC"]) { ?>
+            ["NTC", <?php echo $BacklogTTickets["NTC"]; ?>], 
+            <?php } if ($BacklogTTickets["OH"]) { ?>
+            ["OH", <?php echo $BacklogTTickets["OH"]; ?>],
+            <?php } if ($BacklogTTickets["PAU"]) { ?>
+            ["PAU", <?php echo $BacklogTTickets["PAU"]; ?>],
+            <?php } if ($BacklogTTickets["RTA"]) { ?>
+            ["RTA", <?php echo $BacklogTTickets["RTA"]; ?>], 
+            <?php } if ($BacklogTTickets["RTC"]) { ?>
+            ["RTC", <?php echo $BacklogTTickets["RTC"]; ?>],         
+             <?php } if ($BacklogTTickets["RVC"]) { ?>
+            ["RVC", <?php echo $BacklogTTickets["RVC"]; ?>],           
+            <?php } if ($BacklogTTickets["SS"]) { ?>
+            ["SS", <?php echo $BacklogTTickets["SS"]; ?>], 
+            <?php } if ($BacklogTTickets["TNN1"]) { ?>   
+            ["TNN1", <?php echo $BacklogTTickets["TNN1"]; ?>], 
+            <?php } if ($BacklogTTickets["TNN2"]) { ?>
+            ["TNN2", <?php echo $BacklogTTickets["TNN2"]; ?>], 
+            <?php } if ($BacklogTTickets["TNS"]) { ?>
+            ["TNS", <?php echo $BacklogTTickets["TNS"]; ?>],
+            <?php } if ($BacklogTTickets["VIP"]) { ?>
+            ["VIP", <?php echo $BacklogTTickets["VIP"]; ?>],
+            <?php } ?>
+            ]
+        }]
+    });
+});
+//Backlog
+<?php
+
+$sql="select count(a.ticket_id) as COUNT  from ost_ticket a 
+WHERE 
+a.status_id != '8' 
+AND a.status_id != '9' 
+AND a.status_id != '6' 
+AND a.status_id != '3' 
+AND a.status_id != '12' 
+AND (a.topic_id = '13' 
+OR a.topic_id = '15' 
+OR a.topic_id = '16' 
+OR a.topic_id = '17' 
+OR a.topic_id = '18' 
+OR a.topic_id = '19')";
+
+ $seTotals = db_query($sql); 
+
+$sql="select org.name as location, IFNULL(s.count,0) as COUNT from ost_organization org left join (
+ select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+WHERE 
+a.status_id != '8' 
+AND a.status_id != '9' 
+AND a.status_id != '6' 
+AND a.status_id != '3' 
+AND a.status_id != '12' 
+AND (a.topic_id = '13' 
+OR a.topic_id = '15' 
+OR a.topic_id = '16' 
+OR a.topic_id = '17' 
+OR a.topic_id = '18' 
+OR a.topic_id = '19')
+ group by o.name ) s on org.name = s.name order by org.name";
+ 
+  $SElocsdata = db_query($sql); 
+ 
+ ?>
+ 
+ 
+$(function() {
+
+    Highcharts.chart('backlogS-chart-container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'SHOPEDGE BACKLOG (<?php foreach ($seTotals as $seTotal) {echo $seTotal['COUNT'];}?>)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+        credits: false,
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Backlog',
+            data: [
+			     <?php
+        foreach ($SElocsdata as $SEloc) { ?>
+				["<?php echo $SEloc["location"]?>", <?php echo $SEloc["COUNT"] ?>],
+        <?php } ?>
+           ]
+        }]
+    });
+});		
 //Tickets By Status
+<?php
+$sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
+WHERE 
+a.status_id != '2' 
+AND a.status_id != '3' 
+AND a.status_id != '4' 
+AND a.status_id != '5' 
+AND a.status_id != '12' 
+AND (a.topic_id !=  '14' 
+AND a.topic_id !=  '12'
+AND a.topic_id !=  '92')
+";
+
+ $tTotals = db_query($sql); 
+ 
+ ?>
 $(function() {
 
     Highcharts.chart('ticketsbystatus-chart-container', {
@@ -1317,7 +1712,7 @@ $(function() {
             }
         },
         title: {
-            text: 'TICKETS (BY STATUS)',
+            text: 'TICKETS (<?php foreach ($tTotals as $tTotal) {echo $tTotal['COUNT'];}?>) BY STATUS',
             style: {
             color: '#797979',
             fontSize: '14px',
@@ -1358,11 +1753,60 @@ $(function() {
         }]
     });
 });
-//My Tickets By Status
 
+//Tickets By Status
+
+
+<?php
+
+$sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
+WHERE 
+a.status_id != '2' 
+AND a.status_id != '3' 
+AND a.status_id != '4' 
+AND a.status_id != '5' 
+AND a.status_id != '12' 
+AND (a.topic_id != '12' 
+AND a.topic_id != '13' 
+AND a.topic_id !=  '14' 
+AND a.topic_id !=  '15' 
+AND a.topic_id !=  '16' 
+AND a.topic_id !=  '17' 
+AND a.topic_id !=  '18' 
+AND a.topic_id !=  '19'
+AND a.topic_id !=  '12'
+AND a.topic_id !=  '92')
+";
+
+ $tTotals = db_query($sql); 
+
+$sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
+WHERE 
+a.status_id != '2' 
+AND a.status_id != '3' 
+AND a.status_id != '4' 
+AND a.status_id != '5' 
+AND a.status_id != '12' 
+AND (a.topic_id != '12' 
+AND a.topic_id != '13' 
+AND a.topic_id !=  '14' 
+AND a.topic_id !=  '15' 
+AND a.topic_id !=  '16' 
+AND a.topic_id !=  '17' 
+AND a.topic_id !=  '18' 
+AND a.topic_id !=  '19'
+AND a.topic_id !=  '12'
+AND a.topic_id !=  '92')
+group by s.name";
+ 
+  $tStatusesdata = db_query($sql); 
+ 
+ ?>
+ 
+ 
 $(function() {
 
-    Highcharts.chart('myticketsbystatus-chart-container', {
+    Highcharts.chart('ticketsbystatusT-chart-container', {
         chart: {
             type: 'pie',
             options3d: {
@@ -1372,7 +1816,7 @@ $(function() {
             }
         },
         title: {
-            text: 'MY TICKETS (BY STATUS)',
+            text: 'SUPPORT TICKETS (<?php foreach ($tTotals as $tTotal) {echo $tTotal['COUNT'];}?>) BY STATUS',
             style: {
             color: '#797979',
             fontSize: '14px',
@@ -1398,26 +1842,99 @@ $(function() {
             type: 'pie',
             name: 'Backlog',
             data: [
-            
-            <?php if ($MyHeldTickets) { ?>
-            ["Held", <?php echo $MyHeldTickets; ?>],             
-            <?php } if ($MyReplyTickets) { ?>
-            ["Agent Action", <?php echo $MyReplyTickets; ?>],
-            <?php } if ($MyTheirReplyTickets) { ?>
-            ["Submitter Action", <?php echo $MyTheirReplyTickets; ?>],
-            <?php } if ($MyThridPartyTicketsTickets) { ?>
-            ["3rd Party", <?php echo $MyThridPartyTicketsTickets; ?>] 
-             <?php } ?>
-            ]
+			     <?php
+        foreach ($tStatusesdata as $tStatusdata) { ?>
+				["<?php echo $tStatusdata["name"]?>", <?php echo $tStatusdata["COUNT"] ?>],
+        <?php } ?>
+           ]
         }]
     });
 });
+<?php
 
+$sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
+WHERE 
+a.status_id != '2' 
+AND a.status_id != '3' 
+AND a.status_id != '4' 
+AND a.status_id != '5' 
+AND a.status_id != '12' 
+AND (a.topic_id = '13' 
+OR a.topic_id = '15' 
+OR a.topic_id = '16' 
+OR a.topic_id = '17' 
+OR a.topic_id = '18' 
+OR a.topic_id = '19')
+";
 
+ $seTotals = db_query($sql); 
 
+$sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
+WHERE 
+a.status_id != '2' 
+AND a.status_id != '3' 
+AND a.status_id != '4' 
+AND a.status_id != '5' 
+AND a.status_id != '12' 
+AND (a.topic_id = '13' 
+OR a.topic_id = '15' 
+OR a.topic_id = '16' 
+OR a.topic_id = '17' 
+OR a.topic_id = '18' 
+OR a.topic_id = '19')
+group by s.name";
+ 
+  $SEStatusesdata = db_query($sql); 
+ 
+ ?>
+ 
+ 
+$(function() {
 
-
-
+    Highcharts.chart('ticketsbystatusS-chart-container', {
+        chart: {
+            type: 'pie',
+            options3d: {
+                enabled: true,
+                alpha: 45,
+                beta: 0
+            }
+        },
+        title: {
+            text: 'SHOPEDGE TICKETS (<?php foreach ($seTotals as $seTotal) {echo $seTotal['COUNT'];}?>) BY STATUS',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+        credits: false,
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> <b> ({point.y})</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                depth: 35,
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}'
+                }
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: 'Backlog',
+            data: [
+			     <?php
+        foreach ($SEStatusesdata as $SEStatusdata) { ?>
+				["<?php echo $SEStatusdata["name"]?>", <?php echo $SEStatusdata["COUNT"] ?>],
+        <?php } ?>
+           ]
+        }]
+    });
+});
     <?php
         $sql="	select distinct lastname, owner_name  from (            select sum(count) as COUNT, STATUS, OWNER_NAME,LASTNAME from
 				(Select COUNT(Status) as Count, STATUS, OWNER_NAME, LASTNAME from
