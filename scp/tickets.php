@@ -155,6 +155,8 @@ if($_POST && !$errors):
         $errors=array();
         $lock = $ticket->getLock(); //Ticket lock if any
         $role = $ticket->getRole($thisstaff);
+        $dept = $ticket->getDept();
+        $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
         switch(strtolower($_POST['a'])):
         case 'reply':
             if (!$role || !$role->hasPerm(Ticket::PERM_REPLY)) {
@@ -310,36 +312,13 @@ if($_POST && !$errors):
                     }
                     break;
                 case 'overdue':
-                    $dept = $ticket->getDept();
-                    if(!$dept || !$dept->isManager($thisstaff)) {
+                    if(!$dept || !$isManager) {
                         $errors['err']=__('Permission Denied. You are not allowed to flag tickets overdue');
                     } elseif($ticket->markOverdue()) {
                         $msg=sprintf(__('Ticket flagged as overdue by %s'),$thisstaff->getName());
                         $ticket->logActivity(__('Ticket Marked Overdue'),$msg);
                     } else {
                         $errors['err']=sprintf('%s %s', __('Problems marking the the ticket overdue.'), __('Please try again!'));
-                    }
-                    break;
-                case 'answered':
-                    $dept = $ticket->getDept();
-                    if(!$dept || !$dept->isManager($thisstaff)) {
-                        $errors['err']=__('Permission Denied. You are not allowed to flag tickets');
-                    } elseif($ticket->markAnswered()) {
-                        $msg=sprintf(__('Ticket flagged as answered by %s'),$thisstaff->getName());
-                        $ticket->logActivity(__('Ticket Marked Answered'),$msg);
-                    } else {
-                        $errors['err']=sprintf('%s %s', __('Problems marking the ticket answered.'), __('Please try again!'));
-                    }
-                    break;
-                case 'unanswered':
-                    $dept = $ticket->getDept();
-                    if(!$dept || !$dept->isManager($thisstaff)) {
-                        $errors['err']=__('Permission Denied. You are not allowed to flag tickets');
-                    } elseif($ticket->markUnAnswered()) {
-                        $msg=sprintf(__('Ticket flagged as unanswered by %s'),$thisstaff->getName());
-                        $ticket->logActivity(__('Ticket Marked Unanswered'),$msg);
-                    } else {
-                        $errors['err']=sprintf('%s %s', __('Problems marking the ticket unanswered.'), __('Please try again!'));
                     }
                     break;
                 case 'banemail':
