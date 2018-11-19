@@ -1336,6 +1336,25 @@ class AssignedField extends AssigneeChoiceField {
 
 }
 
+class MergedField extends FormField {
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('checked'),
+            'nset' =>    __('unchecked'),
+        );
+    }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('ticket_pid');
+    }
+
+    function from_query($row, $name=false) {
+        return ($row['ticket_pid'])
+            ? __('Yes') : __('No');
+    }
+
+}
+
 /**
  * Simple trait which changes the SQL for "has a value" and "does not have a
  * value" to check for zero or non-zero. Useful for not nullable fields.

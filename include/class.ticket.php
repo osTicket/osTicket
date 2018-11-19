@@ -101,9 +101,13 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_RELEASE  = 'ticket.release';
     const PERM_TRANSFER = 'ticket.transfer';
     const PERM_REFER    = 'ticket.refer';
+    const PERM_MERGE    = 'ticket.merge';
     const PERM_REPLY    = 'ticket.reply';
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
+
+    const FLAG_COMBINE_THREADS = 0x0001;
+    const FLAG_VISUAL_MERGE    = 0x0002;
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -136,6 +140,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Refer',
                 'desc'  =>
                 /* @trans */ 'Ability to manage ticket referrals'),
+            self::PERM_MERGE => array(
+                'title' =>
+                /* @trans */ 'Merge',
+                'desc'  =>
+                /* @trans */ 'Ability to merge tickets'),
             self::PERM_REPLY => array(
                 'title' =>
                 /* @trans */ 'Post Reply',
@@ -205,6 +214,42 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getId() {
         return $this->ticket_id;
+    }
+
+    function getPid() {
+        return $this->ticket_pid;
+    }
+
+    function getChildTickets($pid) {
+        return Ticket::objects()
+                ->filter(array('ticket_pid'=>$pid))
+                ->values_flat('ticket_id');
+    }
+
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    function hasChildAccess() {
+        global $thisstaff;
+
+        $children = Ticket::getChildTickets($this->getId());
+        if ($children) {
+            $res = db_query($children->getQuery());
+            $children = db_assoc_array($res);
+
+            foreach ($children as $c) {
+                if (!$child = Ticket::lookup($c['ticket_id']))
+                    continue;
+                if (!$child->checkStaffPerm($thisstaff))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    function isChild() {
+        return ($this->getPid() ? true : false);
     }
 
     function hasState($state) {
@@ -806,6 +851,16 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->getClientThread()->count();
     }
 
+    function getMergeType() {
+        // if ($this->hasFlag(self::FLAG_COMBINE_THREADS))
+        //     return 'combine';
+        // if ($this->hasFlag(self::FLAG_VISUAL_MERGE))
+        //     return 'visual';
+        // else
+        //     return 'separate';
+        return 'visual';
+    }
+
     function getNumMessages() {
         return $this->getThread()->getNumMessages();
     }
@@ -1238,6 +1293,41 @@ implements RestrictedAccess, Threadable, Searchable {
 
 
     /* -------------------- Setters --------------------- */
+    public function setFlag($flag, $val) {
+
+        if ($val)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
+
+    function setMergeType($combine=false) {
+        switch ($combine) {
+            case 0:
+                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
+                $this->setFlag(Ticket::FLAG_VISUAL_MERGE, false);
+                break;
+            case 1:
+                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, true);
+                $this->setFlag(Ticket::FLAG_VISUAL_MERGE, false);
+                break;
+            case 2:
+                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
+                $this->setFlag(Ticket::FLAG_VISUAL_MERGE, true);
+                break;
+        }
+
+        $this->save();
+    }
+
+    function setPid($pid) {
+        return $this->ticket_pid = $this->getId() != $pid ? $pid : NULL;
+    }
+
+    function setSort($sort) {
+        return $this->sort=$sort;
+    }
+
     function setLastMsgId($msgid) {
         return $this->lastMsgId=$msgid;
     }
@@ -2187,6 +2277,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'isassigned' => new AssignedField(array(
                         'label' => __('Assigned'),
             )),
+            'ticket_pid' => new MergedField(array(
+                'label' => __('Merged'),
+            )),
             'thread_count' => new TicketThreadCountField(array(
                         'label' => __('Thread Count'),
             )),
@@ -2270,6 +2363,50 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->sla = null;
 
         return $save ? $this->save() : true;
+    }
+
+    function merge($tickets) {
+        global $thisstaff;
+
+        $info = array();
+
+        //see if any tickets should be unmerged
+        if ($tickets['dtids']) {
+            foreach($tickets['dtids'] as $key => $value) {
+                if (is_numeric($key) && $ticket = Ticket::lookup($value)) {
+                    $pid = $ticket->getPid();
+                    $parent = Ticket::lookup($pid);
+                    $ticket->setPid(NULL);
+                    $ticket->setSort(1);
+                    $ticket->save();
+                    $ticket->logEvent('split', array('child' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $pid));
+                }
+            }
+        }
+
+        //see if any tickets should be merged
+        if ($tickets['tids']) {
+            foreach($tickets['tids'] as $key => $value) {
+                if ($ticket = Ticket::lookupByNumber($value)) {
+                    if ($key == 0)
+                        $parent = $ticket;
+                    else
+                        $ticket->logEvent('merged', array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
+
+                    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MERGE))
+                        return false;
+                    elseif ($ticket->getPid() != $parent->getId()) {
+                        $ticket->setPid($parent->getId());
+                        $ticket->setSort($key);
+                        $ticket->save();
+                    }
+                }
+            }
+        }
+
+        $parent->setMergeType($tickets['combine']);
+        $children = Ticket::getChildTickets($parent->getId());
+
     }
 
     //Dept Transfer...with alert.. done by staff

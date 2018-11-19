@@ -676,6 +676,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   `body` text NOT NULL,
   `format` varchar(16) NOT NULL default 'html',
   `ip_address` varchar(64) NOT NULL default '',
+  `extra` text,
   `recipients` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
@@ -700,6 +701,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry_email` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,
+  `ticket_pid` int(11) unsigned DEFAULT NULL,
   `number` varchar(20),
   `user_id` int(11) unsigned NOT NULL default '0',
   `user_email_id` int(11) unsigned NOT NULL default '0',
@@ -712,6 +714,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   `email_id` int(11) unsigned NOT NULL default '0',
   `lock_id` int(11) unsigned NOT NULL default '0',
   `flags` int(10) unsigned NOT NULL default '0',
+  `sort` int(11) unsigned NOT NULL DEFAULT '0',
   `ip_address` varchar(64) NOT NULL default '',
   `source` enum('Web','Email','Phone','API','Other') NOT NULL default 'Other',
   `source_extra` varchar(40) NULL default NULL,

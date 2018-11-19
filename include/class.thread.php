@@ -777,6 +777,7 @@ implements TemplateVariable {
     const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
     const FLAG_REPLY_ALL                = 0x00100;  // Agent response, reply all
     const FLAG_REPLY_USER               = 0x00200;  // Agent response, reply to User
+    const FLAG_CHILD                    = 0x00400;  // Entry is from a child Ticket
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -1883,6 +1884,8 @@ class ThreadEvent extends VerySimpleModel {
     const TRANSFERRED = 'transferred';
     const REFERRED = 'referred';
     const VIEWED    = 'viewed';
+    const MERGED    = 'merged';
+    const SPLIT    = 'split';
 
     const MODE_STAFF = 1;
     const MODE_CLIENT = 2;
@@ -1917,6 +1920,7 @@ class ThreadEvent extends VerySimpleModel {
             'closed'    => 'thumbs-up-alt',
             'reopened'  => 'rotate-right',
             'resent'    => 'reply-all icon-flip-horizontal',
+            'merged'    => 'code-fork',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -2488,6 +2492,26 @@ class TransferEvent extends ThreadEvent {
 
 class ViewEvent extends ThreadEvent {
     static $state = 'viewed';
+}
+
+class MergedEvent extends ThreadEvent {
+    static $icon = 'code-fork';
+    static $state = 'merged';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+                '<a href="tickets.php?id=', '">', '</a>');
+    }
+}
+
+class SplitEvent extends ThreadEvent {
+    static $icon = 'share-alt';
+    static $state = 'split';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return sprintf($this->template(__('<b>{somebody}</b> split this ticket from %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+                '<a href="tickets.php?id=', '">', '</a>');
+    }
 }
 
 class ThreadEntryBody /* extends SplString */ {
