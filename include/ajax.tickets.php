@@ -329,6 +329,55 @@ class TicketsAjaxAPI extends AjaxController {
         Http::response(201, 'Successfully managed');
     }
 
+    function mergeTickets($ticket_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($ticket = Ticket::lookup($ticket_id)))
+            Http::response(404, "No such ticket");
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+            Http::response(403, "Access Denied");
+
+        //retrieve the parent and child tickets
+        $parent = Ticket::objects()
+            ->filter(array('ticket_id'=>$ticket_id))
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort');
+        if ($ticket->getMergeType() == 'visual') {
+            $tickets =  Ticket::objects()
+                ->filter(array('ticket_pid'=>$ticket_id))
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort')
+                ->order_by('sort');
+            $tickets = $parent->union($tickets);
+        }
+        else
+            $tickets = $parent;
+
+        //fix sort of tickets
+        $sql = 'SELECT * FROM ('.
+                $tickets->getQuery()
+                . ') a ORDER BY sort';
+        $res = db_query($sql);
+        $tickets = db_assoc_array($res);
+
+        $info = array('action' => '#tickets/'.$ticket->getId().'/merge');
+
+        include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
+    }
+
+    function updateMerge($ticket_id) {
+        global $thisstaff;
+
+        $info = array();
+        if ($_POST['tids']) {
+            $parent = Ticket::lookupByNumber($_POST['tids'][0]);
+            if ($parent->merge($_POST))
+                Http::response(201, 'Successfully managed');
+        }
+
+
+    }
+
     function cannedResponse($tid, $cid, $format='text') {
         global $thisstaff, $cfg;
 
@@ -728,6 +777,9 @@ function refer($tid, $target=null) {
                 'refer' => array(
                     'verbed' => __('referred'),
                     ),
+                'merge' => array(
+                    'verbed' => __('merged'),
+                    ),
                 'claim' => array(
                     'verbed' => __('assigned'),
                     ),
@@ -758,6 +810,30 @@ function refer($tid, $target=null) {
             $count  =  $_REQUEST['count'];
         }
         switch ($action) {
+        case 'merge':
+            $inc = 'merge-tickets.tmpl.php';
+            $ticketIds = $_GET ? explode(',', $_GET['tids']) : explode(',', $_POST['tids']);
+            $tickets = array();
+            foreach ($ticketIds as $key => $value) {
+                if (!$ticket = Ticket::lookup($value))
+                    continue;
+                $tickets[$key]['ticket_id'] =  $value;
+                $tickets[$key]['number'] = $ticket->getNumber();
+                $role = $ticket->getRole($thisstaff);
+
+                // Generic permission check.
+                if (!$role->hasPerm(Ticket::PERM_MERGE)) {
+                    $info['error'] = sprintf(
+                            __('You do not have permission to %1$s %2$s'),
+                            __('merge'),
+                            _N('the selected Ticket', 'the selected Tickets', $count));
+                    $info = array_merge($info, Format::htmlchars($_POST));
+                }
+                else
+                    $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
+
+            }
+            break;
         case 'claim':
             $w = 'me';
         case 'assign':
@@ -1435,6 +1511,16 @@ function refer($tid, $target=null) {
             Http::response(404, 'Unknown ticket');
 
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
+    }
+
+    function relations($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+         include STAFFINC_DIR . 'ticket-relations.inc.php';
     }
 
     function addTask($tid, $vars=array()) {

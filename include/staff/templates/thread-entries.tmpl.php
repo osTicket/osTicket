@@ -22,6 +22,29 @@ foreach (Attachment::objects()->filter(array(
 ))->select_related('thread_entry', 'file') as $att) {
     $thread_attachments[$att->object_id][] = $att;
 }
+
+// get child thread entries
+$tid = $this->getObJectId();
+$ticket = Ticket::lookup($tid);
+//get entries for children tickets
+if ($ticket->getMergeType() == 'visual') {
+    $tickets = Ticket::getChildTickets($tid);
+    foreach ($tickets as $key => $ticket_id) {
+        if (!$cTicket = Ticket::lookup($ticket_id[0]))
+            continue;
+
+        //get attachments on child thread entries
+        foreach (Attachment::objects()->filter(array(
+            'thread_entry__thread__id' => $cTicket->getThreadId(),
+        ))->select_related('thread_entry', 'file') as $att) {
+            $thread_attachments[$att->object_id][] = $att;
+        }
+
+        $childEntries = $cTicket->getThread()->getEntries();
+        $entries = $entries->union($childEntries);
+    }
+}
+
 ?>
 <div id="<?php echo $htmlId; ?>">
     <div id="thread-items" data-thread-id="<?php echo $this->getId(); ?>">

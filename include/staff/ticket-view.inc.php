@@ -5,17 +5,20 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getI
 //Make sure the staff is allowed to access the page.
 if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access Denied');
 
+//Make sure the staff is allowed to access the Ticket's children
+if(!$ticket->hasChildAccess()) die('Access Denied');
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
 //Get the goodies.
-$dept  = $ticket->getDept();  //Dept
-$role  = $ticket->getRole($thisstaff);
-$staff = $ticket->getStaff(); //Assigned or closed by..
-$user  = $ticket->getOwner(); //Ticket User (EndUser)
-$team  = $ticket->getTeam();  //Assigned team.
-$sla   = $ticket->getSLA();
-$lock  = $ticket->getLock();  //Ticket lock obj
+$dept     = $ticket->getDept();  //Dept
+$role     = $ticket->getRole($thisstaff);
+$staff    = $ticket->getStaff(); //Assigned or closed by..
+$user     = $ticket->getOwner(); //Ticket User (EndUser)
+$team     = $ticket->getTeam();  //Assigned team.
+$sla      = $ticket->getSLA();
+$lock     = $ticket->getLock();  //Ticket lock obj
+$children = Ticket::getChildTickets($ticket->getId());
 if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
@@ -151,6 +154,15 @@ if($ticket->isOverdue())
                 <?php
                  }
 
+                 if ($role->hasPerm(Ticket::PERM_MERGE)) { ?>
+                     <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                         ?>/merge" onclick="javascript:
+                         $.dialog($(this).attr('href').substr(1), 201);
+                         return false"
+                         ><i class="icon-code-fork"></i> <?php echo __('Merge Tickets'); ?></a></li>
+                 <?php
+                  }
+
                  if ($ticket->isAssigned() && $canRelease) { ?>
                         <li><a href="#tickets/<?php echo $ticket->getId();
                             ?>/release" class="ticket-action"
@@ -246,6 +258,10 @@ if($ticket->isOverdue())
               </ul>
             </div>
                 <?php
+                if (count($children) != 0)
+                    echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('PARENT'));
+                elseif ($ticket->isChild())
+                    echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('CHILD'));
                 if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
                 <a href="#post-reply" class="post-response action-button"
                 data-placement="bottom" data-toggle="tooltip"
@@ -676,6 +692,21 @@ $tcount = $ticket->getThreadEntries($types)->count();
         if ($ticket->getNumTasks())
             echo sprintf('&nbsp;(<span id="ticket-tasks-count">%d</span>)', $ticket->getNumTasks());
         ?></a></li>
+    <?php
+    if ((count($children) != 0 || $ticket->isChild())) { ?>
+    <li><a href="#relations" id="ticket-relations-tab"
+        data-url="<?php
+        echo sprintf('#tickets/%d/relations', $ticket->getId()); ?>"
+        ><?php echo __('Related Tickets');
+        if (count($children))
+            echo sprintf('&nbsp;(<span id="ticket-relations-count">%d</span>)', count($children));
+        elseif ($ticket->isChild())
+            echo sprintf('&nbsp;(<span id="ticket-relations-count">%d</span>)', 1);
+        ?></a></li>
+    <?php
+    }
+    ?>
+
 </ul>
 
 <div id="ticket_tabs_container">
