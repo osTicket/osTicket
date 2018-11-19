@@ -598,6 +598,7 @@ class CustomQueue extends VerySimpleModel {
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
+                'ticket_pid' =>       __('Merged'),
                 'isanswered' =>     __('Answered'),
                 'staff_id' => __('Agent Assigned'),
                 'team_id' =>  __('Team Assigned'),
@@ -685,7 +686,7 @@ class CustomQueue extends VerySimpleModel {
                 "width" => 85,
                 "bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticketP",
-                "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
+                "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}, {"c":"MergedFlagDecoration","p":">"}]',
                 "conditions" => '[{"crit":["isanswered","nset",null],"prop":{"font-weight":"bold"}}]',
             )),
             QueueColumn::placeholder(array(
@@ -1738,6 +1739,25 @@ extends QueueColumnAnnotation {
 
     function isVisible($row) {
         return $row['isoverdue'];
+    }
+}
+
+class MergedFlagDecoration
+extends QueueColumnAnnotation {
+    static $icon = 'code-fork';
+    static $desc = /* @trans */ 'Merged Icon';
+
+    function annotate($query, $name=false) {
+        return $query->values('ticket_pid');
+    }
+
+    function getDecoration($row, $text) {
+        if ($row['ticket_pid'])
+            return '<i class="icon-code-fork"></i>';
+    }
+
+    function isVisible($row) {
+        return $row['ticket_pid'];
     }
 }
 
