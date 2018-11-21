@@ -1114,8 +1114,8 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->isValid($filter);
     }
 
-    function getClean() {
-        return $this->getForm()->getClean();
+    function getClean($validate = true) {
+        return $this->getForm()->getClean($validate);
     }
 
     /**

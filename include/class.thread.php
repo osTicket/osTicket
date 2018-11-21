@@ -2552,7 +2552,7 @@ class ThreadEntryBody /* extends SplString */ {
         return $this->type;
     }
 
-    function getClean() {
+    function getClean($validate = true ) {
         switch ($this->type) {
         case 'html':
             return trim($this->body, " <>br/\t\n\r") ? $this->body: '';
@@ -2616,7 +2616,7 @@ class TextThreadEntryBody extends ThreadEntryBody {
         parent::__construct($body, 'text', $options);
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         return Format::htmlchars(Format::html_balance(Format::stripEmptyLines(parent::getClean())));
     }
 
@@ -2663,7 +2663,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
         }, $body);
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         return Format::sanitize(parent::getClean());
     }
 

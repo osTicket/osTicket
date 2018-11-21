@@ -1389,7 +1389,7 @@ extends AbstractForm {
         );
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         $clean = parent::getClean();
         // Index permissions as ['ticket.edit' => 1]
         $clean['perms'] = array_keys($clean['perms']);
@@ -1441,7 +1441,7 @@ extends AbstractForm {
         return __('Change the primary department and primary role of the selected agents');
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         $clean = parent::getClean();
         $clean['eavesdrop'] = $clean['eavesdrop'] ? 1 : 0;
         return $clean;
@@ -1536,7 +1536,7 @@ extends AbstractForm {
         );
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         $clean = parent::getClean();
         list($clean['username'],) = preg_split('/[^\w.-]/u', $clean['email'], 2);
         if (mb_strlen($clean['username']) < 3 || Staff::lookup($clean['username']))

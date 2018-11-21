@@ -962,8 +962,8 @@ extends Form {
         );
     }
 
-    function getClean() {
-        $clean = parent::getClean();
+    function getClean($validate = true) {
+        $clean = parent::getClean($validate);
 
         $clean['ispublic'] = !$clean['private'];
         unset($clean['private']);
