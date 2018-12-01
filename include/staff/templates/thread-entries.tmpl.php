@@ -25,9 +25,10 @@ foreach (Attachment::objects()->filter(array(
 
 // get child thread entries
 $tid = $this->getObJectId();
-$ticket = Ticket::lookup($tid);
+if ($this->getObJectType() == 'T')
+	$ticket = Ticket::lookup($tid);
 //get entries for children tickets
-if ($ticket->getMergeType() == 'visual') {
+if ($ticket && $ticket->getMergeType() == 'visual') {
     $tickets = Ticket::getChildTickets($tid);
     foreach ($tickets as $key => $ticket_id) {
         if (!$cTicket = Ticket::lookup($ticket_id[0]))
