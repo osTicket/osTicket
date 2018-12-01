@@ -156,7 +156,7 @@ class Misc {
 
         // Make dt Immutable.
         $dt = DateTimeImmutable::createFromMutable($dt);
-        switch ($period) {
+	 switch ($period) {
             case 'td':
             case 'today':
                 $start = $end = $dt->modify('today');
