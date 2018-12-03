@@ -1256,6 +1256,70 @@ function refer($tid, $target=null) {
         return self::_changeSelectedTicketsStatus($state, $info, $errors);
     }
 
+    function markAs($tid, $action='') {
+        global $thisstaff;
+
+        // Standard validation
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_REPLY) && !$thisstaff->isManager())
+            Http::response(403, __('Permission denied'));
+
+        $errors = array();
+        $info = array(':title' => __('Please Confirm'));
+
+        // Instantiate form for comment field
+        $form = MarkAsForm::instantiate($_POST);
+
+        // Mark as answered or unanswered
+        if ($_POST) {
+            switch($action) {
+                case 'answered':
+                    if($ticket->isAnswered())
+                        $errors['err'] = __('Ticket is already marked as answered');
+                    elseif (!$ticket->markAnswered())
+                        $errors['err'] = __('Cannot mark ticket as answered');
+                    break;
+
+                case 'unanswered':
+                    if(!$ticket->isAnswered())
+                        $errors['err'] = __('Ticket is already marked as unanswered');
+                    elseif (!$ticket->markUnanswered())
+                        $errors['err'] - __('Cannot mark ticket as unanswered');
+                    break;
+
+                default:
+                    Http::response(404, __('Unknown action'));
+            }
+
+            // Retrun errors to form (if any)
+            if($errors) {
+                $info['error'] = $errors['err'] ?: sprintf(__('Unable to mark ticket as %s'), $action);
+                $form->addErrors($errors);
+            } else {
+                // Add comment (if provided)
+                $comments = $form->getComments();
+                if ($comments) {
+                    $title = __(sprintf('Ticket Marked %s', ucfirst($action)));
+                    $_errors = array();
+
+                    $ticket->postNote(
+                        array('note' => $comments, 'title' => $title),
+                        $_errors, $thisstaff, false);
+                }
+
+                // Add success messages and log activity
+                $_SESSION['::sysmsgs']['msg'] = sprintf(__('Ticket marked as %s successfully'), $action);
+                $msg = sprintf(__('Ticket flagged as %s by %s'), $action, $thisstaff->getName());
+                $ticket->logActivity(sprintf(__('Ticket Marked %s'), ucfirst($action)), $msg);
+                Http::response(201, $ticket->getId());
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/mark-as.tmpl.php';
+    }
+
     function triggerThreadAction($ticket_id, $thread_id, $action) {
         $thread = ThreadEntry::lookup($thread_id);
         if (!$thread)
