@@ -575,6 +575,9 @@ class CustomQueue extends VerySimpleModel {
             // Ignore non-data fields
             elseif (!$f->hasData() || $f->isPresentationOnly())
                 continue;
+            // Ignore disabled fields
+            elseif (!$f->hasFlag(DynamicFormField::FLAG_ENABLED))
+                continue;
 
             $name = $f->get('name') ?: 'field_'.$f->get('id');
             $key = 'cdata__'.$name;
