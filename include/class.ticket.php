@@ -3280,6 +3280,14 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!parent::delete())
             return false;
 
+        if ($children = Ticket::getChildTickets($this->getId())) {
+            foreach ($children as $childId) {
+                $child = Ticket::lookup($childId[0]);
+                $child->setPid(NULL);
+                $child->save();
+            }
+        }
+
         $this->logEvent('deleted');
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)

@@ -60,7 +60,7 @@ if ($user && $cfg->isAvatarsEnabled())
         if ($entry->flags & ThreadEntry::FLAG_REPLY_USER) { ?>
             <span class="label label-bare"><i class="icon-user"></i></span>
 <?php   }
-        if ($entry->thread_id != $ticket->getThreadId()) { ?>
+        if (get_class($this) != 'TaskThread' && $entry->thread_id != $ticket->getThreadId()) { ?>
             <span data-toggle="tooltip" title="<?php echo __('Merged'); ?>" class="label label-bare"><i class="icon-code-fork"></i></span>
         <?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'M') { ?>
