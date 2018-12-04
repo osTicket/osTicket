@@ -52,8 +52,7 @@ foreach ($tickets as $t) { ?>
     var select = $(this).parent().find('select'),
         $sel = select.find('option:selected'),
         id = $sel.val();
-    if (!id || !parseInt(id))
-        return;
+
     if ($sel.prop('disabled'))
         return;
     $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
