@@ -59,11 +59,21 @@ if ($_POST) {
     // use a different CSRF token. This will help ward off both parallel and
     // serial brute force attacks, because new tokens will have to be
     // requested for each attempt.
+<<<<<<< HEAD
     if (!$ost->checkCSRFToken()) {
         $_SESSION['_staff']['auth']['msg'] = __('Valid CSRF Token Required');
         $redirect($_SERVER['REQUEST_URI']);
     }
 
+=======
+    if (!$ost->checkCSRFToken())
+        Http::response(400, __('Valid CSRF Token Required'));
+
+    // Rotate the CSRF token (original cannot be reused)
+    $ost->getCSRF()->rotate();
+}
+if ($_POST && isset($_POST['userid'])) {
+>>>>>>> Improve the Staff login
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
@@ -94,8 +104,11 @@ elseif ($_GET['do']) {
 // Consider single sign-on authentication backends
 elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
     if (($user = StaffAuthenticationBackend::processSignOn($errors, false))
-            && ($user instanceof StaffSession))
-       Http::redirect($dest);
+            && ($user instanceof StaffSession)) {
+        Http::redirect($dest);
+    } else if (isset($_SESSION['_staff']['auth']['msg'])) {
+        $msg = $_SESSION['_staff']['auth']['msg'];
+    }
 }
 
 // Browsers shouldn't suggest saving that username/password
