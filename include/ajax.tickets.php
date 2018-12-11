@@ -1285,7 +1285,7 @@ function refer($tid, $target=null) {
                 case 'unanswered':
                     if(!$ticket->isAnswered())
                         $errors['err'] = __('Ticket is already marked as unanswered');
-                    elseif (!$ticket->markUnanswered())
+                    elseif (!$ticket->markUnAnswered())
                         $errors['err'] - __('Cannot mark ticket as unanswered');
                     break;
 
