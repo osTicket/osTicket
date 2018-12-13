@@ -166,7 +166,15 @@ var scp_prep = function() {
         $.toggleOverlay(true);
         // Disable staff-side Post Reply/Open buttons to help prevent
         // duplicate POST
-        $(':submit', $(this)).attr('disabled', true);
+        var form = $(this);
+        $(this).find('input[type="submit"]').each(function (index) {
+            // Clone original input
+            $(this).clone(false).removeAttr('id').prop('disabled', true).insertBefore($(this));
+
+            // Hide original input and add it to top of form
+            $(this).hide();
+            form.prepend($(this));
+        });
         $('#overlay, #loading').show();
         return true;
      });
@@ -526,9 +534,10 @@ var scp_prep = function() {
         url: 'ajax.php/queue/counts',
         dataType: 'json',
         success: function(json) {
-          $('li > span.queue-count').each(function(i, e) {
+          $('li span.queue-count').each(function(i, e) {
             var $e = $(e);
             $e.text(json['q' + $e.data('queueId')]);
+            $(e).parents().find('#queue-count-bucket').show();
           });
         }
       });
@@ -826,8 +835,9 @@ $.confirm = function(message, title, options) {
 };
 
 $.userLookup = function (url, cb) {
-    $.dialog(url, 201, function (xhr) {
-        var user = $.parseJSON(xhr.responseText);
+    $.dialog(url, 201, function (xhr, user) {
+        if ($.type(user) == 'string')
+            user = $.parseJSON(user);
         if (cb) return cb(user);
     }, {
         onshow: function() { $('#user-search').focus(); }
@@ -835,8 +845,9 @@ $.userLookup = function (url, cb) {
 };
 
 $.orgLookup = function (url, cb) {
-    $.dialog(url, 201, function (xhr) {
-        var org = $.parseJSON(xhr.responseText);
+    $.dialog(url, 201, function (xhr, org) {
+        if ($.type(org) == 'string')
+            org = $.parseJSON(user);
         if (cb) cb(org);
     }, {
         onshow: function() { $('#org-search').focus(); }

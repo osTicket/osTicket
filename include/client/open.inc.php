@@ -42,7 +42,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         if (!$thisclient) {
             $uform = UserForm::getUserForm()->getForm($_POST);
             if ($_POST) $uform->isValid();
-            $uform->render(array('staff' => false));
+            $uform->render(false, false, array('mode' => 'create'));
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
@@ -89,7 +89,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </tr>
     </tbody>
     <tbody id="dynamic-form">
-        <?php foreach ($forms as $form) {
+        <?php
+        $options = array('mode' => 'create');
+        foreach ($forms as $form) {
             include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
         } ?>
     </tbody>

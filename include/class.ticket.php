@@ -3300,22 +3300,25 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$this->save())
             return false;
 
-	$vars['note'] = ThreadEntryBody::clean($vars['note']);
+        $vars['note'] = ThreadEntryBody::clean($vars['note']);
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
         // Update dynamic meta-data
-        foreach ($forms as $f) {
-            if ($C = $f->getChanges())
+        foreach ($forms as $form) {
+            if ($C = $form->getChanges())
                 $changes['fields'] = ($changes['fields'] ?: array()) + $C;
             // Drop deleted forms
-            $idx = array_search($f->getId(), $vars['forms']);
+            $idx = array_search($form->getId(), $vars['forms']);
             if ($idx === false) {
-                $f->delete();
+                $form->delete();
             }
             else {
-                $f->set('sort', $idx);
-                $f->save();
+                $form->set('sort', $idx);
+                $form->saveAnswers(function($f) {
+                        return $f->isVisibleToStaff()
+                        && $f->isEditableToStaff(); }
+                        );
             }
         }
 
@@ -3358,7 +3361,10 @@ implements RestrictedAccess, Threadable, Searchable {
                     __($field->getLabel()));
         else {
             if ($field->answer) {
-                if (!$field->save())
+                if (!$field->isEditableToStaff())
+                    $errors['field'] = sprintf(__('%s can not be edited'),
+                            __($field->getLabel()));
+                elseif (!$field->save())
                     $errors['field'] =  __('Unable to update field');
                 $changes['fields'] = array($field->getId() => $changes);
             } else {

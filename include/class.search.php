@@ -847,41 +847,45 @@ class SavedQueue extends CustomQueue {
         return (!$errors);
     }
 
+    function getTotal($agent=null) {
+        $query = $this->getQuery();
+        if ($agent)
+            $query = $agent->applyVisibility($query);
+        $query->limit(false)->offset(false)->order_by(false);
+        try {
+            return $query->count();
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
     function getCount($agent, $cached=true) {
-        $criteria = $cached ? array() : array('id' => $this->getId());
-        $counts = self::counts($agent, $criteria, $cached);
-        return $counts["q{$this->getId()}"] ?: 0;
+        $count = null;
+        if ($cached && ($counts = self::counts($agent, $cached)))
+            $count = $counts["q{$this->getId()}"];
+
+        if ($count == null)
+            $count = $this->getTotal($agent);
+
+        return $count;
     }
 
     // Get ticket counts for queues the agent has acces to.
-    static function counts($agent, $criteria=array(), $cached=true) {
+    static function counts($agent, $cached=true, $criteria=array()) {
 
         if (!$agent instanceof Staff)
-            return array();
+            return null;
 
         // Cache TLS in seconds
-        $ttl = 3600;
+        $ttl = 5*60;
         // Cache key based on agent and salt of the installation
         $key = "counts.queues.{$agent->getId()}.".SECRET_SALT;
         if ($criteria && is_array($criteria)) // Consider additional criteria.
             $key .= '.'.md5(serialize($criteria));
 
         // only consider cache if requesed
-        if ($cached) {
-            if (function_exists('apcu_store')) {
-                $found = false;
-                $counts = apcu_fetch($key, $found);
-                if ($found === true)
-                    return $counts;
-            } elseif (isset($_SESSION[$key])
-                    && isset($_SESSION[$key]['qcount'])
-                    && (time() - $_SESSION[$key]['time']) < $ttl) {
-                return $_SESSION[$key]['qcount'];
-            } else {
-                // Auto clear missed session cache (if any)
-                unset($_SESSION[$key]);
-            }
-        }
+        if ($cached && ($counts=self::getCounts($key, $ttl)))
+            return $counts;
 
         $queues = static::objects()
             ->filter(Q::any(array(
@@ -913,17 +917,45 @@ class SavedQueue extends CustomQueue {
             }
         }
 
-        $counts = $query->values()->one();
+        try {
+            $counts = $query->values()->one();
+        }  catch (Exception $ex) {
+            foreach ($queues as $q)
+                $counts['q'.$q->getId()] = $q->getTotal();
+        }
+
         // Always cache the results
+        self::storeCounts($key, $counts, $ttl);
+
+        return $counts;
+    }
+
+    static function getCounts($key, $ttl) {
+
+        if (!$key) {
+            return array();
+        } elseif (function_exists('apcu_store')) {
+            $found = false;
+            $counts = apcu_fetch($key, $found);
+            if ($found === true)
+                return $counts;
+        } elseif (isset($_SESSION['qcounts'][$key])
+                && (time() - $_SESSION['qcounts'][$key]['time']) < $ttl) {
+            return $_SESSION['qcounts'][$key]['counts'];
+        } else {
+            // Auto clear missed session cache (if any)
+            unset($_SESSION['qcounts'][$key]);
+        }
+    }
+
+    static function storeCounts($key, $counts, $ttl) {
         if (function_exists('apcu_store')) {
             apcu_store($key, $counts, $ttl);
         } else {
             // Poor man's cache
-            $_SESSION[$key]['qcount'] = $counts;
-            $_SESSION[$key]['time'] = time();
+            $_SESSION['qcounts'][$key]['counts'] = $counts;
+            $_SESSION['qcounts'][$key]['time'] = time();
         }
-
-        return $counts;
     }
 
     static function clearCounts() {
@@ -1532,6 +1564,11 @@ class TicketStatusChoiceField extends SelectionField {
         default:
             return parent::getSearchQ($method, $value, $name);
         }
+    }
+
+    function applyOrderBy($query, $reverse=false, $name=false) {
+        $reverse = $reverse ? '-' : '';
+        return $query->order_by("{$reverse}status__name");
     }
 }
 

@@ -503,6 +503,22 @@ class Format {
         return implode( $separator, $string );
     }
 
+    function number($number, $locale=false) {
+        if (is_array($number))
+            return array_map(array('Format','number'), $number);
+
+        if (!is_numeric($number))
+            return $number;
+
+        if (extension_loaded('intl') && class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create($locale ?: Internationalization::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            return $nf->format($number);
+        }
+
+        return number_format((int) $number);
+    }
+
     /* elapsed time */
     function elapsedTime($sec) {
 
@@ -1001,11 +1017,11 @@ implements TemplateVariable {
         case 'short':
             return Format::date($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'long':
-            return Format::datetime($this->date, $this->fromdb, $this->timezone, $this->user);
+            return Format::datetime($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'time':
             return Format::time($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'full':
-            return Format::daydatetime($this->date, $this->fromdb, $this->timezone, $this->user);
+            return Format::daydatetime($this->date, $this->fromdb, false, $this->timezone, $this->user);
         }
     }
 

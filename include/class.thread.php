@@ -2964,6 +2964,14 @@ implements TemplateVariable {
         return $resp;
     }
 
+    function __toString() {
+        return $this->asVar();
+    }
+
+    function asVar() {
+        return $this->getVar('complete');
+    }
+
     function getVar($name) {
         switch ($name) {
         case 'original':
@@ -2984,11 +2992,22 @@ implements TemplateVariable {
                 return $entry->getBody();
 
             break;
+        case 'complete':
+            $content = '';
+            $thread = $this;
+            ob_start();
+            include INCLUDE_DIR.'client/templates/thread-export.tmpl.php';
+            $content = ob_get_contents();
+            ob_end_clean();
+            return $content;
+
+            break;
         }
     }
 
     static function getVarScope() {
       return array(
+        'complete' => __('Thread Correspondence'),
         'original' => array('class' => 'MessageThreadEntry', 'desc' => __('Original Message')),
         'lastmessage' => array('class' => 'MessageThreadEntry', 'desc' => __('Last Message')),
       );

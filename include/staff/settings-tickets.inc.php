@@ -65,6 +65,12 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#sequence_id"></i>
             </td>
         </tr>
+        <tr><td width="220"><?php echo __('Top-Level Ticket Counts'); ?>:</td>
+            <td>
+                <input type="checkbox" name="queue_bucket_counts" <?php echo $config['queue_bucket_counts']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#queue_bucket_counts"></i>
+            </td>
+        </tr>
         <tr>
             <td width="180" class="required">
                 <?php echo __('Default Status'); ?>:

@@ -72,11 +72,13 @@ if ($_POST) {
                 if ($queue->save()) $updated++;
                 break;
             case 'delete':
-                if ($queue->delete()) $updated++;
+                if ($queue->getId() == $cfg->getDefaultTicketQueueId())
+                    $err = __('This queue is the default queue. Unable to delete. ');
+                elseif ($queue->delete()) $updated++;
             }
         }
         if (!$updated) {
-            Messages::error(__(
+            Messages::error($err ?: __(
                 'Unable to manage any of the selected queues'));
         }
         elseif ($_POST['count'] && $updated != $_POST['count']) {
