@@ -135,7 +135,7 @@ class SearchAjaxAPI extends AjaxController {
             $_SESSION[$key] = $keep;
         }
     }
-    
+
     function _hashCriteria($criteria, $size=10) {
         $parts = array();
         foreach ($criteria as $C) {
@@ -394,9 +394,8 @@ class SearchAjaxAPI extends AjaxController {
         $criteria = array();
         if ($ids && is_array($ids))
             $criteria = array('id__in' => $ids);
-
-        $counts = SavedQueue::ticketsCount($thisstaff, $criteria, 'q');
+        $counts = SavedQueue::counts($thisstaff, true, $criteria);
         Http::response(200, false, 'application/json');
-        return $this->encode($counts);
+        return $this->encode(Format::number($counts));
     }
 }

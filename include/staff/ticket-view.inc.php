@@ -22,6 +22,7 @@ $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
 $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
 $canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
+$canAnswer = ($isManager || $role->hasPerm(Ticket::PERM_REPLY)); //Check if Agent can mark as answered/unanswered
 
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
@@ -161,13 +162,20 @@ if($ticket->isOverdue())
                             echo __('Mark as Overdue'); ?></a></li>
                     <?php
                     }
+                 } elseif($ticket->isOpen() && $canAnswer) {
 
                     if($ticket->isAnswered()) { ?>
-                    <li><a class="confirm-action" id="ticket-unanswered" href="#unanswered"><i class="icon-circle-arrow-left"></i> <?php
+                    <li><a href="#tickets/<?php echo $ticket->getId();
+                        ?>/mark/unanswered" class="ticket-action"
+                            data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>">
+                            <i class="icon-circle-arrow-left"></i> <?php
                             echo __('Mark as Unanswered'); ?></a></li>
                     <?php
                     } else { ?>
-                    <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> <?php
+                    <li><a href="#tickets/<?php echo $ticket->getId();
+                        ?>/mark/answered" class="ticket-action"
+                            data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>">
+                            <i class="icon-circle-arrow-right"></i> <?php
                             echo __('Mark as Answered'); ?></a></li>
                     <?php
                     }
@@ -598,7 +606,9 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     )));
     $displayed = array();
     foreach($answers as $a) {
-        $displayed[] = array($a->getLocal('label'), $a->display() ?: '<span class="faded">&mdash;' . __('Empty') . '&mdash; </span>', $a->getLocal('id'), ($a->getField() instanceof FileUploadField));
+        if (!$a->getField()->isVisibleToStaff())
+            continue;
+        $displayed[] = $a;
     }
     if (count($displayed) == 0)
         continue;
@@ -609,13 +619,18 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     </thead>
     <tbody>
 <?php
-    foreach ($displayed as $stuff) {
-        list($label, $v, $id, $isFile) = $stuff;
+    foreach ($displayed as $a) {
+        $id =  $a->getLocal('id');
+        $label = $a->getLocal('label');
+        $v = $a->display() ?: '<span class="faded">&mdash;' . __('Empty') .  '&mdash; </span>';
+        $field = $a->getField();
+        $isFile = ($field instanceof FileUploadField);
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
             <td>
-            <?php if ($role->hasPerm(Ticket::PERM_EDIT)) {
+            <?php if ($role->hasPerm(Ticket::PERM_EDIT)
+                    && $field->isEditableToStaff()) {
                     $isEmpty = strpos($v, '&mdash;');
                     if ($isFile && !$isEmpty)
                         echo $v.'<br>'; ?>
@@ -633,7 +648,8 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                       echo $v;
                   ?>
               </a>
-            <?php } else {
+            <?php
+            } else {
                 echo $v;
             } ?>
             </td>

@@ -503,6 +503,22 @@ class Format {
         return implode( $separator, $string );
     }
 
+    function number($number, $locale=false) {
+        if (is_array($number))
+            return array_map(array('Format','number'), $number);
+
+        if (!is_numeric($number))
+            return $number;
+
+        if (extension_loaded('intl') && class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create($locale ?: Internationalization::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            return $nf->format($number);
+        }
+
+        return number_format((int) $number);
+    }
+
     /* elapsed time */
     function elapsedTime($sec) {
 
@@ -667,20 +683,20 @@ class Format {
             '%x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function datetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
+    function datetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
-                $cfg->getDateTimeFormat(), $fromDb,
+                $format ?: $cfg->getDateTimeFormat(), $fromDb,
                 IDF_SHORT, IDF_SHORT,
                 '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function daydatetime($timestamp, $fromDb=true, $timezone=false, $user=false) {
+    function daydatetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
-                $cfg->getDayDateTimeFormat(), $fromDb,
+                $format ?: $cfg->getDayDateTimeFormat(), $fromDb,
                 IDF_FULL, IDF_SHORT,
                 '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
@@ -1001,11 +1017,11 @@ implements TemplateVariable {
         case 'short':
             return Format::date($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'long':
-            return Format::datetime($this->date, $this->fromdb, $this->timezone, $this->user);
+            return Format::datetime($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'time':
             return Format::time($this->date, $this->fromdb, false, $this->timezone, $this->user);
         case 'full':
-            return Format::daydatetime($this->date, $this->fromdb, $this->timezone, $this->user);
+            return Format::daydatetime($this->date, $this->fromdb, false, $this->timezone, $this->user);
         }
     }
 

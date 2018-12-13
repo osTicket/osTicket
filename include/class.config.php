@@ -30,10 +30,6 @@ class Config {
     # new settings and the corresponding default values.
     var $defaults = array();                # List of default values
 
-
-    # Items
-    var $items = null;
-
     function __construct($section=null, $defaults=array()) {
         if ($section)
             $this->section = $section;
@@ -133,18 +129,11 @@ class Config {
 
     function destroy() {
         unset($this->session);
-        if ($this->items)
-            $this->items->delete();
-
-        return true;
+        return $this->items()->delete() > 0;
     }
 
     function items() {
-
-        if (!isset($this->items))
-            $this->items = ConfigItem::items($this->section, $this->section_column);
-
-        return $this->items;
+        return ConfigItem::items($this->section, $this->section_column);
     }
 }
 
@@ -778,6 +767,10 @@ class OsticketConfig extends Config {
         return $sequence;
     }
 
+    function showTopLevelTicketCounts() {
+        return ($this->get('queue_bucket_counts'));
+    }
+
     function getDefaultTicketNumberFormat() {
         return $this->get('ticket_number_format');
     }
@@ -1288,6 +1281,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'ticket_number_format'=>$vars['ticket_number_format'] ?: '######',
             'ticket_sequence_id'=>$vars['ticket_sequence_id'] ?: 0,
+            'queue_bucket_counts'=>isset($vars['queue_bucket_counts'])?1:0,
             'default_priority_id'=>$vars['default_priority_id'],
             'default_help_topic'=>$vars['default_help_topic'],
             'default_ticket_status_id'=>$vars['default_ticket_status_id'],

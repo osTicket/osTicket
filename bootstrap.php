@@ -102,6 +102,7 @@ class Bootstrap {
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+        define('EVENT_TABLE',$prefix.'event');
 
         define('TASK_TABLE', $prefix.'task');
         define('TASK_CDATA_TABLE', $prefix.'task__cdata');
@@ -293,6 +294,10 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        function mb_str_wc($str) {
+            return count(preg_split('~[^\p{L}\p{N}\'].+~u', trim($str)));
+        }
     }
 
     function croak($message) {

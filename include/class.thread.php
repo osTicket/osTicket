@@ -2054,16 +2054,80 @@ class ThreadEvent extends VerySimpleModel {
                     $subclasses[$class::$state] = $class;
             }
         }
+        $this->state = Event::getNameById($this->event_id);
         if (!($class = $subclasses[$this->state]))
             return $this;
         return new $class($this->ht);
     }
 }
 
+class Event extends VerySimpleModel {
+    static $meta = array(
+        'table' => EVENT_TABLE,
+        'pk' => array('id'),
+    );
+
+    function getInfo() {
+        return $this->ht;
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function getName() {
+        return $this->name;
+    }
+
+    function getDescription() {
+        return $this->description;
+    }
+
+    static function getNameById($id) {
+        return array_search($id, self::getIds());
+    }
+
+    static function getIdByName($name) {
+         $ids =  self::getIds();
+         return $ids[$name] ?: 0;
+    }
+
+    static function getIds() {
+        static $ids;
+
+        if (!isset($ids)) {
+            $ids = array();
+            $events = self::objects()->values_flat('id', 'name');
+            foreach ($events as $row) {
+                list($id, $name) = $row;
+                $ids[$name] = $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    static function create($vars=false, &$errors=array()) {
+        $event = new static($vars);
+        return $event;
+    }
+
+    static function __create($vars, &$errors=array()) {
+        $event = self::create($vars);
+        $event->save();
+        return $event;
+    }
+
+    function save($refetch=false) {
+        return parent::save($refetch);
+    }
+}
+
 class ThreadEvents extends InstrumentedList {
     function annul($event) {
+        $event_id = Event::getIdByName($event);
         $this->queryset
-            ->filter(array('state' => $event))
+            ->filter(array('event_id' => $event_id))
             ->update(array('annulled' => 1));
     }
 
@@ -2118,7 +2182,7 @@ class ThreadEvents extends InstrumentedList {
             }
         }
         $event->username = $username;
-        $event->state = $state;
+        $event->event_id = Event::getIdByName($state);
 
         if ($data) {
             if (is_array($data))
@@ -2900,6 +2964,14 @@ implements TemplateVariable {
         return $resp;
     }
 
+    function __toString() {
+        return $this->asVar();
+    }
+
+    function asVar() {
+        return $this->getVar('complete');
+    }
+
     function getVar($name) {
         switch ($name) {
         case 'original':
@@ -2920,11 +2992,22 @@ implements TemplateVariable {
                 return $entry->getBody();
 
             break;
+        case 'complete':
+            $content = '';
+            $thread = $this;
+            ob_start();
+            include INCLUDE_DIR.'client/templates/thread-export.tmpl.php';
+            $content = ob_get_contents();
+            ob_end_clean();
+            return $content;
+
+            break;
         }
     }
 
     static function getVarScope() {
       return array(
+        'complete' => __('Thread Correspondence'),
         'original' => array('class' => 'MessageThreadEntry', 'desc' => __('Original Message')),
         'lastmessage' => array('class' => 'MessageThreadEntry', 'desc' => __('Last Message')),
       );

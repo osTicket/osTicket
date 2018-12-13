@@ -359,7 +359,7 @@ implements TemplateVariable, Searchable {
                 'email' => (string) $this->getEmail(),
                 'phone' => (string) $this->getPhoneNumber());
 
-        return JsonDataEncoder::encode($info);
+        return Format::json_encode($info);
     }
 
     function __toString() {
@@ -451,19 +451,20 @@ implements TemplateVariable, Searchable {
         return $vars;
     }
 
-    function getForms($data=null) {
+    function getForms($data=null, $cb=null) {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
+            $cb = $cb ?: function ($f) use($data) { return ($data); };
             foreach ($this->getDynamicData() as $entry) {
                 $entry->addMissingFields();
-                if(!$data
-                        && ($form = $entry->getDynamicForm())
+                if(($form = $entry->getDynamicForm())
                         && $form->get('type') == 'U' ) {
+
                     foreach ($entry->getFields() as $f) {
-                        if ($f->get('name') == 'name')
+                        if ($f->get('name') == 'name' && !$cb($f))
                             $f->value = $this->getFullName();
-                        elseif ($f->get('name') == 'email')
+                        elseif ($f->get('name') == 'email' && !$cb($f))
                             $f->value = $this->getEmail();
                     }
                 }
@@ -529,17 +530,23 @@ implements TemplateVariable, Searchable {
 
     function updateInfo($vars, &$errors, $staff=false) {
 
+
+        $isEditable = function ($f) use($staff) {
+            return ($staff ? $f->isEditableToStaff() :
+                    $f->isEditableToUsers());
+        };
         $valid = true;
-        $forms = $this->getForms($vars);
+        $forms = $this->getForms($vars, $isEditable);
         foreach ($forms as $entry) {
             $entry->setSource($vars);
-            if ($staff && !$entry->isValidForStaff())
+            if ($staff && !$entry->isValidForStaff(true))
                 $valid = false;
-            elseif (!$staff && !$entry->isValidForClient())
+            elseif (!$staff && !$entry->isValidForClient(true))
                 $valid = false;
             elseif ($entry->getDynamicForm()->get('type') == 'U'
                     && ($f=$entry->getField('email'))
-                    &&  $f->getClean()
+                    && $isEditable($f)
+                    && $f->getClean()
                     && ($u=User::lookup(array('emails__address'=>$f->getClean())))
                     && $u->id != $this->getId()) {
                 $valid = false;
@@ -558,7 +565,7 @@ implements TemplateVariable, Searchable {
         foreach ($forms as $entry) {
             if ($entry->getDynamicForm()->get('type') == 'U') {
                 //  Name field
-                if (($name = $entry->getField('name'))) {
+                if (($name = $entry->getField('name')) && $isEditable($name) ) {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
@@ -566,14 +573,15 @@ implements TemplateVariable, Searchable {
                 }
 
                 // Email address field
-                if (($email = $entry->getField('email'))) {
+                if (($email = $entry->getField('email'))
+                        && $isEditable($email)) {
                     $this->default_email->address = $email->getClean();
                     $this->default_email->save();
                 }
             }
 
-            // DynamicFormEntry::save returns the number of answers updated
-            if ($entry->save()) {
+            // DynamicFormEntry::saveAnswers returns the number of answers updated
+            if ($entry->saveAnswers($isEditable)) {
                 $this->updated = SqlFunction::NOW();
             }
         }
@@ -635,11 +643,11 @@ implements TemplateVariable, Searchable {
     }
 
     function deleteAllTickets() {
-        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        $status_id = TicketStatus::lookup(array('state' => 'deleted'));
         foreach($this->tickets as $ticket) {
             if (!$T = Ticket::lookup($ticket->getId()))
                 continue;
-            if (!$T->setStatus($deleted))
+            if (!$T->setStatus($status_id))
                 return false;
         }
         $this->tickets->reset();

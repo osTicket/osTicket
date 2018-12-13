@@ -43,7 +43,7 @@ class Form {
             $this->id = $options['id'];
 
         // Use POST data if source was not specified
-        $this->_source = ($source) ? $source : $_POST;
+        $this->_source = $source ?: $_POST;
     }
 
     function getFormId() {
@@ -89,6 +89,28 @@ class Form {
         return $this->getField($name);
     }
 
+    function hasAnyEnabledFields() {
+        return $this->hasAnyVisibleFields(false);
+    }
+
+    function hasAnyVisibleFields($user=false) {
+        $visible = 0;
+        $isstaff = $user instanceof Staff;
+        foreach ($this->getFields() as $F) {
+            if (!$user) {
+                // Assume hasAnyEnabledFields
+                if ($F->isEnabled())
+                    $visible++;
+            } elseif($isstaff) {
+                if ($F->isVisibleToStaff())
+                    $visible++;
+            } elseif ($F->isVisibleToUsers()) {
+                $visible++;
+            }
+        }
+        return $visible > 0;
+    }
+
     function getTitle() { return $this->title; }
     function getInstructions() { return $this->instructions; }
     function getSource() { return $this->_source; }
@@ -120,7 +142,7 @@ class Form {
         }
     }
 
-    function getClean() {
+    function getClean($validate=true) {
         if (!$this->_clean) {
             $this->_clean = array();
             foreach ($this->getFields() as $key=>$field) {
@@ -131,7 +153,7 @@ class Form {
                 if (is_int($key) && $field->get('id'))
                     $key = $field->get('id');
                 $this->_clean[$key] = $this->_clean[$field->get('name')]
-                    = $field->getClean();
+                    = $field->getClean($validate);
             }
             unset($this->_clean[""]);
         }
@@ -606,7 +628,7 @@ class FormField {
      * submitted via POST, in order to kick off parsing and validation of
      * user-entered data.
      */
-    function getClean() {
+    function getClean($validate=true) {
         if (!isset($this->_clean)) {
             $this->_clean = (isset($this->value))
                 // XXX: The widget value may be parsed already if this is
@@ -628,7 +650,7 @@ class FormField {
             if (!isset($this->_clean) && ($d = $this->get('default')))
                 $this->_clean = $d;
 
-            if ($this->isVisible())
+            if ($this->isVisible() && $validate)
                 $this->validateEntry($this->_clean);
         }
         return $this->_clean;
@@ -836,7 +858,7 @@ class FormField {
      * Returns an HTML friendly value for the data in the field.
      */
     function display($value) {
-        return Format::htmlchars($this->toString($value));
+        return Format::htmlchars($this->toString($value ?: $this->value));
     }
 
     /**
@@ -1960,6 +1982,40 @@ class ChoiceField extends FormField {
     }
 }
 
+class NumericField extends FormField {
+
+    function getSearchMethods() {
+        return array(
+            'equal' =>   __('Equal'),
+            'greater' =>  __('Greater Than'),
+            'less' =>  __('Less Than'),
+        );
+    }
+
+    function getSearchMethodWidgets() {
+        return array(
+            'equal' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'greater' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+            'less' => array('TextboxField', array(
+                    'configuration' => array(
+                        'validator' => 'number',
+                        'size' => 6
+                        ),
+            )),
+        );
+    }
+}
+
 class DatetimeField extends FormField {
     static $widget = 'DatetimePickerWidget';
 
@@ -2043,7 +2099,7 @@ class DatetimeField extends FormField {
 
     function to_php($value) {
 
-        if (strtotime($value) <= 0)
+        if (!is_numeric($value) && strtotime($value) <= 0)
             return 0;
 
         return $value;
@@ -2056,8 +2112,9 @@ class DatetimeField extends FormField {
             return '';
 
         $config = $this->getConfiguration();
+        $format = $config['format'] ?: false;
         if ($config['gmt'])
-            return $this->format((int) $datetime->format('U'));
+            return $this->format((int) $datetime->format('U'), $format);
 
         // Force timezone if field has one.
         if ($config['timezone']) {
@@ -2066,10 +2123,10 @@ class DatetimeField extends FormField {
         }
 
         $value = $this->format($datetime->format('U'),
-                $datetime->getTimezone()->getName());
-
+                $datetime->getTimezone()->getName(),
+                $format);
         // No need to show timezone
-        if (!$config['time'])
+        if (!$config['time'] || $format)
             return $value;
 
         // Display is NOT timezone aware show entry's timezone.
@@ -2083,16 +2140,16 @@ class DatetimeField extends FormField {
         return ($timestamp > 0) ? $timestamp : '';
     }
 
-    function format($timestamp, $timezone=false) {
+    function format($timestamp, $timezone=false, $format=false) {
 
         if (!$timestamp || $timestamp <= 0)
             return '';
 
         $config = $this->getConfiguration();
         if ($config['time'])
-            $formatted = Format::datetime($timestamp, false, $timezone);
+            $formatted = Format::datetime($timestamp, false, $format,  $timezone);
         else
-            $formatted = Format::date($timestamp, false, false, $timezone);
+            $formatted = Format::date($timestamp, false, $format, $timezone);
 
         return $formatted;
     }
@@ -3403,7 +3460,7 @@ class FileUploadField extends FormField {
                     $files[] = $f;
             }
 
-            foreach (@$this->getClean() as $key => $value)
+            foreach ($this->getClean(false) ?: array() as $key => $value)
                 $files[] = array('id' => $key, 'name' => $value);
 
             $this->files = $files;
@@ -4447,7 +4504,7 @@ class FileUploadWidget extends Widget {
         );
         $maxfilesize = ($config['size'] ?: 1048576) / 1048576;
         $files = array();
-        $new = $this->field->getClean();
+        $new = $this->field->getClean(false);
 
         foreach ($this->field->getAttachments() as $att) {
             unset($new[$att->file_id]);
@@ -4559,7 +4616,7 @@ class FileUploadWidget extends Widget {
                 continue;
 
             // Keep the values as the IDs
-            $ids[$id] = $name;
+            $ids[$id] = $name ?: $allowed[$id];
         }
 
         return $ids;
@@ -5018,6 +5075,49 @@ class ReleaseForm extends Form {
                         'html' => true,
                         'size' => 'small',
                         'placeholder' => __('Optional reason for releasing assignment'),
+                        ),
+                    )
+                ),
+            );
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getField($name) {
+        if (($fields = $this->getFields())
+                && isset($fields[$name]))
+            return $fields[$name];
+    }
+
+    function isValid($include=false) {
+        if (!parent::isValid($include))
+            return false;
+
+        return !$this->errors();
+    }
+
+    function getComments() {
+        return $this->getField('comments')->getClean();
+    }
+}
+
+class MarkAsForm extends Form {
+    static $id = 'markAs';
+
+    function getFields() {
+        if ($this->fields)
+            return $this->fields;
+
+        $fields = array(
+            'comments' => new TextareaField(array(
+                    'id' => 1, 'label'=> '', 'required'=>false, 'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'small',
+                        'placeholder' => __('Optional reason for marking ticket as (un)answered'),
                         ),
                     )
                 ),

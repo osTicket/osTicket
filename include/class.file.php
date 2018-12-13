@@ -197,6 +197,18 @@ class AttachmentFile extends VerySimpleModel {
                 $options);
     }
 
+    // Generates full download URL for external sources.
+    // e.g. https://domain.tld/file.php?args=123
+    function getExternalDownloadUrl($options=array()) {
+        global $cfg;
+
+        $download = self::getDownloadUrl($options);
+        // Separate URL handle and args
+        list($handle, $args) = explode('file.php?', $download);
+
+        return (string) rtrim($cfg->getBaseUrl(), '/').'/file.php?'.$args;
+    }
+
     static function generateDownloadUrl($id, $key, $hash, $options = array()) {
 
         // Expire at the nearest midnight, allow at least12 hrs access
@@ -258,7 +270,9 @@ class AttachmentFile extends VerySimpleModel {
         $type = $this->getType() ?: 'application/octet-stream';
         if (isset($_REQUEST['overridetype']))
             $type = $_REQUEST['overridetype'];
-        Http::download($name ?: $this->getName(), $type, null, 'inline');
+        elseif (!strcasecmp($disposition, 'attachment'))
+            $type = 'application/octet-stream';
+        Http::download($name ?: $this->getName(), $type, null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();

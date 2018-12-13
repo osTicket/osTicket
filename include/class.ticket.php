@@ -2114,27 +2114,39 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'created' => new DatetimeField(array(
                 'label' => __('Create Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'duedate' => new DatetimeField(array(
                 'label' => __('Due Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'est_duedate' => new DatetimeField(array(
                 'label' => __('SLA Due Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'reopened' => new DatetimeField(array(
                 'label' => __('Reopen Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'closed' => new DatetimeField(array(
                 'label' => __('Close Date'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'lastupdate' => new DatetimeField(array(
                 'label' => __('Last Update'),
-                'configuration' => array('fromdb' => true),
+                'configuration' => array(
+                    'fromdb' => true, 'time' => true,
+                    'format' => 'y-MM-dd HH:mm:ss'),
             )),
             'assignee' => new AssigneeChoiceField(array(
                 'label' => __('Assignee'),
@@ -2170,6 +2182,18 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'isassigned' => new AssignedField(array(
                         'label' => __('Assigned'),
+            )),
+            'thread_count' => new TicketThreadCountField(array(
+                        'label' => __('Thread Count'),
+            )),
+            'attachment_count' => new ThreadAttachmentCountField(array(
+                        'label' => __('Attachment Count'),
+            )),
+            'collaborator_count' => new ThreadCollaboratorCountField(array(
+                        'label' => __('Collaborator Count'),
+            )),
+            'reopen_count' => new TicketReopenCountField(array(
+                        'label' => __('Reopen Count'),
             )),
             'ip_address' => new TextboxField(array(
                 'label' => __('IP Address'),
@@ -3176,6 +3200,9 @@ implements RestrictedAccess, Threadable, Searchable {
     function save($refetch=false) {
         if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
+            if (isset($this->dirty['status_id']))
+                // Refetch the queue counts
+                SavedQueue::clearCounts();
         }
         return parent::save($this->dirty || $refetch);
     }
@@ -3273,22 +3300,25 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$this->save())
             return false;
 
-	$vars['note'] = ThreadEntryBody::clean($vars['note']);
+        $vars['note'] = ThreadEntryBody::clean($vars['note']);
         if ($vars['note'])
             $this->logNote(_S('Ticket Updated'), $vars['note'], $thisstaff);
 
         // Update dynamic meta-data
-        foreach ($forms as $f) {
-            if ($C = $f->getChanges())
+        foreach ($forms as $form) {
+            if ($C = $form->getChanges())
                 $changes['fields'] = ($changes['fields'] ?: array()) + $C;
             // Drop deleted forms
-            $idx = array_search($f->getId(), $vars['forms']);
+            $idx = array_search($form->getId(), $vars['forms']);
             if ($idx === false) {
-                $f->delete();
+                $form->delete();
             }
             else {
-                $f->set('sort', $idx);
-                $f->save();
+                $form->set('sort', $idx);
+                $form->saveAnswers(function($f) {
+                        return $f->isVisibleToStaff()
+                        && $f->isEditableToStaff(); }
+                        );
             }
         }
 
@@ -3331,7 +3361,10 @@ implements RestrictedAccess, Threadable, Searchable {
                     __($field->getLabel()));
         else {
             if ($field->answer) {
-                if (!$field->save())
+                if (!$field->isEditableToStaff())
+                    $errors['field'] = sprintf(__('%s can not be edited'),
+                            __($field->getLabel()));
+                elseif (!$field->save())
                     $errors['field'] =  __('Unable to update field');
                 $changes['fields'] = array($field->getId() => $changes);
             } else {
@@ -4186,7 +4219,8 @@ implements RestrictedAccess, Threadable, Searchable {
          Punt for now
          */
 
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1'
+            .' USE INDEX (status_id)'
             .' INNER JOIN '.TICKET_STATUS_TABLE.' status
                 ON (status.id=T1.status_id AND status.state="open") '
             .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '
