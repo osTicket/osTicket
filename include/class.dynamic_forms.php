@@ -1183,7 +1183,8 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function render($options=array()) {
-        $options += array('staff' => true);
+        if (is_array($options))
+            $options += array('staff' => true);
         return $this->getForm()->render($options);
     }
 

@@ -76,6 +76,7 @@ if (!$sorted && isset($sort['queuesort'])) {
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
+<<<<<<< HEAD
 
 if (isset($tickets->extra['tables'])) {
     // Creative twist here. Create a new query copying the query criteria, sort, limit,
@@ -93,6 +94,8 @@ if (isset($tickets->extra['tables'])) {
     $tickets->distinct('ticket_id');
 }
 
+=======
+>>>>>>> This commit fixes several PHP 7.2 compatibility issues
 $count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);

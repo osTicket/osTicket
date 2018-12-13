@@ -700,7 +700,8 @@ class SavedQueue extends CustomQueue {
         return $this->_columns;
     }
 
-    static function getHierarchicalQueues(Staff $staff) {
+    static function getHierarchicalQueues(Staff $staff, $pid=0,
+            $primary=true) {
         return CustomQueue::getHierarchicalQueues($staff, 0, false);
     }
 
