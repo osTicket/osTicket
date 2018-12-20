@@ -162,8 +162,8 @@ if($ticket->isOverdue())
                             echo __('Mark as Overdue'); ?></a></li>
                     <?php
                     }
-                 } elseif($ticket->isOpen() && $canAnswer) {
-
+                 }
+                 if($ticket->isOpen() && $canAnswer) {
                     if($ticket->isAnswered()) { ?>
                     <li><a href="#tickets/<?php echo $ticket->getId();
                         ?>/mark/unanswered" class="ticket-action"
