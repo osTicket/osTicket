@@ -1312,6 +1312,13 @@ class AssigneeChoiceField extends ChoiceField {
 
 class AssignedField extends AssigneeChoiceField {
 
+    function getChoices($verbose=false) {
+        return array(
+            'assigned' =>   __('Assigned'),
+            '!assigned' =>  __('Unassigned'),
+        );
+    }
+
     function getSearchMethods() {
         return array(
             'assigned' =>   __('assigned'),
@@ -1403,8 +1410,14 @@ class DepartmentManagerSelectionField extends AgentSelectionField {
     static $_members;
 
     function getChoices($verbose=false) {
-        if (isset($this->_members))
-            $this->_members = Staff::getStaffMembers();
+        if (!isset($this->_members)) {
+            $managers = array();
+            $staff = Staff::objects()->filter(array('dept__manager_id__gt' => 0));
+            foreach ($staff as $s) {
+                $managers['s'.$s->getId()] = $s->getName()->name;
+            }
+            $this->_members = $managers;
+        }
 
         return $this->_members;
     }
@@ -1418,9 +1431,9 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
     static $_teams;
 
     function getChoices($verbose=false) {
-        if (!isset($this->_teams))
+        if (!isset($this->_teams) && $teams = Team::getTeams())
             $this->_teams = array('T' => __('One of my teams')) +
-                Team::getTeams();
+                $teams;
 
         return $this->_teams;
     }
