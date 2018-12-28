@@ -372,9 +372,9 @@ if (!$ticket) { ?>
                         <th><?php echo __('Collaborators');?>:</th>
                         <td>
                             <?php
-                            $collaborators = __('Add Participants');
+                            $collaborators = __('Collaborators');
                             if ($task->getThread()->getNumCollaborators())
-                                $collaborators = sprintf(__('Participants (%d)'),
+                                $collaborators = sprintf(__('Collaborators (%d)'),
                                         $task->getThread()->getNumCollaborators());
 
                             echo sprintf('<span><a class="collaborators preview"
@@ -486,9 +486,9 @@ else
                         style="display:<?php echo $thread->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
-                    $recipients = __('Add Participants');
+                    $recipients = __('Collaborators');
                     if ($thread->getNumCollaborators())
-                        $recipients = sprintf(__('Recipients (%d of %d)'),
+                        $recipients = sprintf(__('Collaborators (%d of %d)'),
                                 $thread->getNumActiveCollaborators(),
                                 $thread->getNumCollaborators());
 
