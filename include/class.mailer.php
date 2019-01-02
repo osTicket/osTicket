@@ -277,7 +277,7 @@ class Mailer {
         $to = preg_replace("/(\r\n|\r|\n)/s",'', trim($to));
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
         $headers = array (
-            'From' => $this->getFromAddress(),
+            'From' => $this->getFromAddress($options),
             'To' => $to,
             'Subject' => $subject,
             'Date'=> date('D, d M Y H:i:s O'),
