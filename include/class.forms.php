@@ -4657,7 +4657,7 @@ class FreeTextField extends FormField {
 
     function to_config($config) {
         if ($config && isset($config['attachments']))
-            $keepers = $config['attachments'] = array_values($config['attachments']);
+            $keepers = $config['attachments'];
         $this->getAttachments()->keepOnlyFileIds($keepers);
 
         return $config;
