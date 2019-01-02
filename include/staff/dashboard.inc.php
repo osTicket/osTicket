@@ -122,4 +122,16 @@ foreach ($groups as $g=>$desc) {
 </form>
 <script>
     $.drawPlots(<?php echo JsonDataEncoder::encode($report->getPlotData()); ?>);
+    // Set Selected Period For Dashboard Stats and Export
+    <?php if ($report && $report->end) { ?>
+        $("div#basic_search select option").each(function(){
+            // Remove default selection
+            if ($(this)[0].selected)
+                $(this).removeAttr('selected');
+            // Set the selected period by the option's value (periods equal
+            // option's values)
+            if ($(this).val() == "<?php echo $report->end; ?>")
+                $(this).attr("selected","selected");
+        });
+    <?php } ?>
 </script>
