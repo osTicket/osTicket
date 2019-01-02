@@ -1141,9 +1141,6 @@ class CustomQueue extends VerySimpleModel {
             return false;
 
         $order = array_keys($fields);
-        // Filter exportable fields
-        if (!($fields = array_intersect_key($this->getExportableFields(), $fields)))
-            return false;
 
         $new = $fields;
         foreach ($this->exports as $f) {
