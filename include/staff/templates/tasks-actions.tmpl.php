@@ -7,57 +7,23 @@ if ($agent->hasPerm(Task::PERM_CLOSE, false)) {
 
     if (isset($options['status'])) {
         $status = $options['status'];
-    ?>
-        <span
-            class="action-button"
-            data-dropdown="#action-dropdown-tasks-status">
-            <i class="icon-caret-down pull-right"></i>
-            <a class="tasks-status-action"
-                href="#statuses"
-                data-placement="bottom"
-                data-toggle="tooltip"
-                title="<?php echo __('Change Status'); ?>"><i
-                class="icon-flag"></i></a>
-        </span>
-        <div id="action-dropdown-tasks-status"
-            class="action-dropdown anchor-right">
-            <ul>
-                <?php
-                if (!$status || !strcasecmp($status, 'closed')) { ?>
-                <li>
-                    <a class="no-pjax tasks-action"
-                        href="#tasks/mass/reopen"><i
-                        class="icon-fixed-width icon-undo"></i> <?php
-                        echo __('Reopen');?> </a>
-                </li>
-                <?php
-                }
-                if (!$status || !strcasecmp($status, 'open')) {
-                ?>
-                <li>
-                    <a class="no-pjax tasks-action"
-                        href="#tasks/mass/close"><i
-                        class="icon-fixed-width icon-ok-circle"></i> <?php
-                        echo __('Close');?> </a>
-                </li>
-                <?php
-                } ?>
-            </ul>
-        </div>
-<?php
-    } else {
 
-        $actions += array(
-                'reopen' => array(
-                    'icon' => 'icon-undo',
-                    'action' => __('Reopen')
-                ));
+        if (strpos($status, 'closed') !== false) {
+            $actions += array(
+                    'reopen' => array(
+                        'icon' => 'icon-undo',
+                        'action' => __('Reopen')
+                    ));
+        }
 
-        $actions += array(
-                'close' => array(
-                    'icon' => 'icon-ok-circle',
-                    'action' => __('Close')
-                ));
+
+        if (strpos($status, 'open') !== false) {
+            $actions += array(
+                    'close' => array(
+                        'icon' => 'icon-ok-circle',
+                        'action' => __('Close')
+                    ));
+        }
     }
 }
 
@@ -95,7 +61,7 @@ if ($agent->hasPerm(Task::PERM_DELETE, false)) {
                 'action' => __('Delete')
             ));
 }
-if ($actions && !isset($options['status'])) {
+if ($actions && isset($options['status'])) {
     $more = $options['morelabel'] ?: __('More');
     ?>
     <span
