@@ -153,6 +153,10 @@ class Filter {
         $this->update($this->ht, $errors);
     }
 
+    function hasFlag($flag) {
+        return 0 !== ($this->ht['flags'] & $flag);
+    }
+
     function stopOnMatch() {
         return ($this->ht['stop_onmatch']);
     }
@@ -503,6 +507,10 @@ class Filter {
             $emailId = $vars['target'];
             $vars['target'] = 'Email';
         }
+
+        //Note: this will be set when validating filters
+        if ($vars['email_id'])
+            $emailId = $vars['email_id'];
 
         $sql=' updated=NOW() '
             .',isactive='.db_input($vars['isactive'])
