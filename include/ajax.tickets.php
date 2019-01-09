@@ -1174,26 +1174,50 @@ function refer($tid, $target=null) {
         $state = strtolower($status->getState());
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
+            $failures = array();
 
-            if ($state == 'deleted') {
-                $msg = sprintf('%s %s',
-                        sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                        __('deleted sucessfully')
-                        );
-            } elseif ($state != 'open') {
-                 $msg = sprintf(__('%s status changed to %s'),
-                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                         $status->getName());
-            } else {
-                $msg = sprintf(
-                        __('%s status changed to %s'),
-                        __('Ticket'),
-                        $status->getName());
+            // Set children statuses (if applicable)
+            if ($_REQUEST['children']) {
+                $children = $ticket->getChildTickets($ticket->getId());
+
+                foreach ($children as $cid) {
+                    $child = Ticket::lookup($cid[0]);
+                    if (!$child->setStatus($status, '', $errors))
+                        $failures[$cid[0]] = $child->getNumber();
+                }
             }
 
-            $_SESSION['::sysmsgs']['msg'] = $msg;
+            if (!$failures) {
+                if ($state == 'deleted') {
+                    $msg = sprintf('%s %s',
+                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                            __('deleted sucessfully')
+                            );
+                } elseif ($state != 'open') {
+                    $msg = sprintf(__('%s status changed to %s'),
+                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                            $status->getName());
+                } else {
+                    $msg = sprintf(
+                           __('%s status changed to %s'),
+                           __('Ticket'),
+                           $status->getName());
+                }
 
-            Http::response(201, 'Successfully processed');
+                $_SESSION['::sysmsgs']['msg'] = $msg;
+
+                Http::response(201, 'Successfully processed');
+            } else {
+                $tickets = array();
+                foreach ($failures as $id=>$num) {
+                    $tickets[] = sprintf('<a href="tickets.php?id=%d"><b>#%s</b></a>',
+                                    $id,
+                                    $num);
+                }
+                $info['warn'] = sprintf(__('Error updating ticket status for %s'),
+                                 ($tickets) ? implode(', ', $tickets) : __('child tickets')
+                                 );
+            }
         } elseif (!$errors['err']) {
             $errors['err'] =  __('Error updating ticket status');
         }
@@ -1488,6 +1512,9 @@ function refer($tid, $target=null) {
 
         $info['status_id'] = $info['status_id'] ?: $ticket->getStatusId();
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+
+        // Has Children?
+        $info['children'] = ($ticket->getChildTickets($ticket->getId())->count());
 
         return self::_changeStatus($state, $info, $errors);
     }
