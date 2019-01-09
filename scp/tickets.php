@@ -214,7 +214,7 @@ if($_POST && !$errors):
                     $ticket = null;
 
                 $redirect = 'tickets.php';
-                if ($ticket)
+                if ($ticket && $thisstaff->getReplyRedirect() == 'Ticket')
                     $redirect = 'tickets.php?id='.$ticket->getId();
 
             } elseif (!$errors['err']) {
