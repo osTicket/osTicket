@@ -55,7 +55,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="text" size="10" name="grace_period" value="<?php echo $info['grace_period']; ?>">
-                <em>( <?php echo __('in hours');?> )</em>
+                <em>( <?php echo __('in minute');?> )</em>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['grace_period']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#grace_period"></i>
             </td>
         </tr>

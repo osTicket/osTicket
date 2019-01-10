@@ -110,7 +110,7 @@ implements TemplateVariable {
         if (!$vars['grace_period'])
             $errors['grace_period'] = __('Grace period required');
         elseif (!is_numeric($vars['grace_period']))
-            $errors['grace_period'] = __('Numeric value required (in hours)');
+            $errors['grace_period'] = __('Numeric value required (in minute)');
 
         if (!$vars['name'])
             $errors['name'] = __('Name is required');
@@ -178,7 +178,7 @@ implements TemplateVariable {
         $entries = array();
         foreach ($slas as $row) {
             $row[2] = $row[2] & self::FLAG_ACTIVE;
-            $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
+            $entries[$row[0]] = sprintf(__('%s (%d minute - %s)'
                         /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
                         self::getLocalById($row[0], 'name', $row[1]),
                         $row[3],
