@@ -84,7 +84,7 @@ if ($user) { ?>
     <table width="100%" class="fixed">
     <?php
         $form = $form ?: UserForm::getInstance();
-        $form->render(true, __('Create New User'), array('mode' => 'create')); ?>
+        $form->render(['staff' => true, 'title' => __('Create New User'), 'mode' => 'create']); ?>
     </table>
     <hr>
     <p class="full-width">
