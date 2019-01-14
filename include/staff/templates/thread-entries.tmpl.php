@@ -42,7 +42,7 @@ if ($ticket && $ticket->getMergeType() == 'visual') {
         }
 
         $childEntries = $cTicket->getThread()->getEntries();
-        $entries = $entries->union($childEntries);
+        $entries = $entries->union($childEntries, false);
     }
 }
 
