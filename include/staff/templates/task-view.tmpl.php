@@ -665,7 +665,10 @@ $(function() {
                 .slideUp();
             }
         })
-        .done(function() { })
+        .done(function() {
+            $('#loading').hide();
+            $.toggleOverlay(false);
+        })
         .fail(function() { });
      });
     <?php
