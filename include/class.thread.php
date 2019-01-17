@@ -263,6 +263,17 @@ implements Searchable {
         return $this->_participants;
     }
 
+    // MailingList of recipients (collaborators)
+    function getRecipients() {
+        $list = new MailingList();
+        if ($collabs = $this->getActiveCollaborators()) {
+            foreach ($collabs as $c)
+                $list->addCc($c);
+        }
+
+        return $list;
+    }
+
     function getReferral($id, $type) {
 
         return $this->referrals->findFirst(array(

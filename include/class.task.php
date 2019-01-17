@@ -1189,7 +1189,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         global $cfg;
 
         if (!$entry instanceof ThreadEntry
-            || !($recipients=$this->getThread()->getParticipants())
+            || !($recipients=$this->getThread()->getRecipients())
             || !($dept=$this->getDept())
             || !($tpl=$dept->getTemplate())
             || !($msg=$tpl->getTaskActivityNoticeMsgTemplate())
