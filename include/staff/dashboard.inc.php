@@ -743,7 +743,7 @@
               plotLines: [{
                 color: 'green', // Color value
                 dashStyle: 'shortdash', // Style of the plot line. Default to solid
-                value: 50, // Value of where the line will appear
+                value: 45, // Value of where the line will appear
                 width: 2, // Width of the line
                 label: {
                     text: '',
@@ -1030,7 +1030,7 @@
               plotLines: [{
                 color: 'green', // Color value
                 dashStyle: 'shortdash', // Style of the plot line. Default to solid
-                value: 15, // Value of where the line will appear
+                value: 10, // Value of where the line will appear
                 width: 2, // Width of the line
                 label: {
                     text: '',
