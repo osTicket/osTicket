@@ -195,7 +195,7 @@ if ($user ) {
               $filename = sprintf('%s-audits-%s.csv',
                       $user->getName(), strftime('%Y%m%d'));
               $tableInfo = AuditEntry::getTableInfo($user, true);
-              if (!Export::audits($tableInfo, $user, $filename, 'csv'))
+              if (!Export::audits('user', $filename, $tableInfo, $user, 'csv'))
                   $errors['err'] = __('Unable to dump query results.')
                       .' '.__('Internal error occurred');
           }

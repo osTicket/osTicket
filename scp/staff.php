@@ -47,6 +47,8 @@ if($_POST){
             if ($staff->update($_POST,$errors)) {
                 unset($_SESSION['new-agent-passwd']);
                 $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['firstname']));
+                $type = array('type' => 'Created');
+                Signal::send('object.created', $staff, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
@@ -101,8 +103,12 @@ if($_POST){
                     case 'delete':
                         $i = 0;
                         foreach($members as $s) {
-                            if ($s->staff_id != $thisstaff->getId() && $s->delete())
-                                $i++;
+                            if ($s->staff_id != $thisstaff->getId()) {
+                              $type = array('type' => 'Deleted');
+                              Signal::send('object.deleted', $s, $type);
+                              $s->delete();
+                              $i++;
+                            }
                         }
 
                         if($i && $i==$count)

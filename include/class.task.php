@@ -555,6 +555,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
             $ecb = function ($t) use($thisstaff) {
                 $t->logEvent('reopened', false, null, 'closed');
+
+                $type = array('type' => 'Reopened', 'data' => array('name' => $this->getNumber()));
+                Signal::send('object.edited', $this, $type);
+
                 if ($t->ticket) {
                     $t->ticket->reopen();
                     $vars = array(
@@ -582,6 +586,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $this->closed = SqlFunction::NOW();
             $ecb = function($t) use($thisstaff) {
                 $t->logEvent('closed');
+
+                $type = array('type' => 'Closed', 'data' => array('name' => $t->getNumber()));
+                Signal::send('object.edited', $t, $type);
                 if ($t->ticket) {
                     $vars = array(
                             'title' => sprintf('Task %s Closed',
@@ -698,6 +705,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $this->logEvent('assigned', $data);
 
+        $type = array('type' => 'Assigned', 'data' => array('name' => $this->getNumber(), 'staff' => $staff->getName()->name));
+        Signal::send('object.edited', $this, $type);
+
         return true;
     }
 
@@ -706,6 +716,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         global $thisstaff;
 
         $evd = array();
+        $audit = array();
         $assignee = $form->getAssignee();
         if ($assignee instanceof Staff) {
             $dept = $this->getDept();
@@ -725,6 +736,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     $evd['claim'] = true;
                 else
                     $evd['staff'] = array($assignee->getId(), $assignee->getName());
+                    $audit = array('name' => $this->getNumber(), 'staff' => $assignee->getName()->name);
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -735,6 +747,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             } else {
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
+                $audit = array('name' => $this->getNumber(), 'team' => $assignee->getName());
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
@@ -744,6 +757,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return false;
 
         $this->logEvent('assigned', $evd);
+
+        $type = array('type' => 'Assigned', 'data' => $audit);
+        Signal::send('object.edited', $this, $type);
 
         $this->onAssignment($assignee,
                 $form->getField('comments')->getClean(),
@@ -846,6 +862,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         // Log transfer event
         $this->logEvent('transferred');
+
+        $type = array('type' => 'Transferred', 'data' => array('name' => $this->getNumber(), 'dept' => $dept->getName()));
+        Signal::send('object.edited', $this, $type);
 
         // Post internal note if any
         $note = $form->getField('comments')->getClean();
@@ -1298,6 +1317,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($changes)
             $this->logEvent('edited', array('fields' => $changes));
 
+        $type = array('type' => 'Edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
+        Signal::send('object.edited', $this, $type);
         Signal::send('model.updated', $this);
         return $this->save();
     }
@@ -1349,6 +1370,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $task->logEvent('created', null, $thisstaff);
 
+        $type = array('type' => 'Created');
+        Signal::send('object.created', $task, $type);
+
         // Get role for the dept
         $role = $thisstaff->getRole($task->getDept());
         // Assignment
@@ -1381,6 +1405,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $thread->delete();
         $this->logEvent('deleted');
+
+        $type = array('type' => 'Deleted', 'data' => array('name' => $this->getNumber()));
+        Signal::send('object.deleted', $this, $type);
 
         Draft::deleteForNamespace('task.%.' . $this->getId());
 

@@ -488,6 +488,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
+        $type = array('type' => 'Login', 'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name));
+        Signal::send('staff.login', $staff, $type);
+
         // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
 
@@ -528,6 +531,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
 
+        $type = array('type' => 'Logout', 'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name));
+        Signal::send('staff.logout', $staff, $type);
         Signal::send('auth.logout', $staff);
     }
 
@@ -677,7 +682,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
-        // Allow audit and other external interaction
         $type = array('type' => 'Login', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
         Signal::send('user.login', $user, $type);
 
@@ -717,7 +721,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
 
-        // Allow audit and other external interaction
         $type = array('type' => 'Logout', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
         Signal::send('user.logout', $user, $type);
     }
@@ -898,6 +901,19 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
             $admin_alert = ($cfg->alertONLoginError() == 1) ? TRUE : FALSE;
             $ost->logWarning(sprintf(_S('Excessive login attempts (%s)'),$username),
                     $alert, $admin_alert);
+
+              if ($username) {
+                $staffId = Staff::objects()->filter(array('username'=>$username))->values_flat('staff_id')->first();
+                if ($staffId)
+                    $staff = Staff::lookup($staffId[0]);
+                if ($staff) {
+                  $type = array('type' => 'Login',
+                    'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name,
+                                    'msg' => 'Excessive login attempts (' . $authsession['strikes'] . ')'));
+                  Signal::send('staff.login', $staff, $type);
+                }
+              }
+
             return new AccessDenied(__('Forgot your login info? Contact Admin.'));
         //Log every other third failed login attempt as a warning.
         } elseif($authsession['strikes']%3==0) {
@@ -959,7 +975,6 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
             $admin_alert = ($cfg->alertONLoginError() == 1 ? TRUE : FALSE);
             $ost->logError(_S('Excessive login attempts (user)'), $alert, $admin_alert);
 
-            // Allow audit and other external interaction
             if ($username) {
               $account = UserAccount::lookupByUsername($username);
               $id = UserEmailModel::getIdByEmail($username);
