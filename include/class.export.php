@@ -327,6 +327,40 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
             );
     exit;
   }
+
+  static function audits($tableInfo, $user, $filename='', $how='csv') {
+      $sql = AuditEntry::objects()->filter(array('user_id'=>$user->getId()))->order_by('timestamp');
+      // Filename or stream to export to
+      $filename = $filename ?: sprintf('%s-%s.csv', $user->getName()->name,
+              strftime('%Y%m%d'));
+      Http::download($filename, "text/$how");
+      echo self::dumpQuery($sql, array(
+                  0 =>   'ID',
+                  1 =>   'User Class',
+                  2 =>   'User Name',
+                  3 =>   'Object',
+                  4 =>   'Description',
+                  5 =>   'Timestamp',
+                  6 =>   'IP',
+                ),
+              $how,
+              array('modify' => function(&$record, $keys, $obj) use ($tableInfo) {
+                foreach ($tableInfo as $k => $v) {
+                  if (is_numeric($k) && ($i = in_array($obj->id, $v)) !== false) {
+                      $record[0] = $v['id'];
+                      $record[1] = $v['class'];
+                      $record[2] = $v['name'];
+                      $record[3] = $v['object'];
+                      $record[4] = $v['description'];
+                      $record[5] = $v['timestamp'];
+                      $record[6] = $v['ip'];
+                  }
+                }
+                 return $record;
+                })
+              );
+      exit;
+    }
 }
 
 

@@ -189,6 +189,17 @@ if ($user ) {
                     .' '.__('Internal error occurred');
         }
         break;
+      case 'audits':
+          if ($_REQUEST['a'] == 'export') {
+             require_once(INCLUDE_DIR.'plugins/audit-ticket/class.audit.php');
+              $filename = sprintf('%s-audits-%s.csv',
+                      $user->getName(), strftime('%Y%m%d'));
+              $tableInfo = AuditEntry::getTableInfo($user, true);
+              if (!Export::audits($tableInfo, $user, $filename, 'csv'))
+                  $errors['err'] = __('Unable to dump query results.')
+                      .' '.__('Internal error occurred');
+          }
+          break;
     }
 }
 
