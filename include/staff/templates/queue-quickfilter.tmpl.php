@@ -36,7 +36,7 @@ $.pjax({
     url: '?' + query,
     timeout: 2000,
     container: '#pjax-container'});">
-  <ul>
+  <ul <?php if (count($choices) > 20) echo 'style="height:500px;overflow-x:hidden;overflow-y:scroll;"'; ?>>
   <?php foreach ($choices as $k=>$desc) {
     $selected = isset($quick_filter) && $quick_filter == $k;
   ?>
