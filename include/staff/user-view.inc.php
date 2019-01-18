@@ -70,8 +70,20 @@ $org = $user->getOrganization();
                     return false"
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
-<?php } ?>
-
+<?php }
+                  // Allow extensions to add extra items to this user.
+                  // $extras should be a array of [url=>, name=>, icon=>]
+                  $extras = new ArrayObject();
+                  Signal::send('user.view.more', $user, $extras);
+                  foreach ($extras as $li) {
+                      ?><li><a href="#<?php echo $li['url']; ?>"
+                      onclick="javascript:
+                      $.dialog($(this).attr('href').substr(1), 201);
+                      return false"
+                      ><i class="<?php echo $li['icon'] ?: 'icon-cogs'; ?>"></i>
+                      <?php echo $li['name'] ?: (string) $li; ?>
+                      </a></li>
+                  <?php           } ?>
               </ul>
             </div>
         </td>

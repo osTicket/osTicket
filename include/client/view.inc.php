@@ -3,6 +3,10 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
+// Allow audit and other external interaction
+$type = array('type' => 'Viewed');
+Signal::send('object.view', $ticket, $type);
+
 $dept = $ticket->getDept();
 
 if ($ticket->isClosed() && !$ticket->isReopenable())

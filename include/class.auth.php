@@ -677,6 +677,10 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
+        // Allow audit and other external interaction
+        $type = array('type' => 'Login', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
+        Signal::send('user.login', $user, $type);
+
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
 
@@ -712,6 +716,10 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $ost->logDebug(_S('User logout'),
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
+
+        // Allow audit and other external interaction
+        $type = array('type' => 'Logout', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
+        Signal::send('user.logout', $user, $type);
     }
 
     protected function getAuthKey($user) {
@@ -950,6 +958,24 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                     _S('Attempts').": {$authsession['strikes']}";
             $admin_alert = ($cfg->alertONLoginError() == 1 ? TRUE : FALSE);
             $ost->logError(_S('Excessive login attempts (user)'), $alert, $admin_alert);
+
+            // Allow audit and other external interaction
+            if ($username) {
+              $account = UserAccount::lookupByUsername($username);
+              $id = UserEmailModel::getIdByEmail($username);
+              if ($account)
+                  $user = User::lookup($account->user_id);
+              elseif ($id)
+                $user = User::lookup($id);
+
+              if ($user) {
+                $type = array('type' => 'Login',
+                  'data' => array('id' => $user->getId(), 'name' => $user->getName()->name,
+                                  'msg' => 'Excessive login attempts (' . $authsession['strikes'] . ')'));
+                Signal::send('user.login', $user, $type);
+              }
+            }
+
             return new AccessDenied(__('Access denied'));
         } elseif($authsession['strikes']%3==0) { //Log every third failed login attempt as a warning.
             $alert=_S('Username').": {$username}\n".
