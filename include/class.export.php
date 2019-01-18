@@ -322,32 +322,46 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
     exit;
   }
 
-  static function audits($tableInfo, $user, $filename='', $how='csv') {
-      $sql = AuditEntry::objects()->filter(array('user_id'=>$user->getId()))->order_by('timestamp');
-      // Filename or stream to export to
-      $filename = $filename ?: sprintf('%s-%s.csv', $user->getName()->name,
-              strftime('%Y%m%d'));
+  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv') {
+      $headings = array('Description', 'Timestamp', 'IP');
+      switch ($type) {
+          case 'audit':
+              $state = $_REQUEST['state'];
+              $sql = AuditEntry::objects()->filter(array('object_type'=>$_REQUEST['type']));
+              if ($state && $state != 'All')
+                  $sql = $sql->filter(array('state'=>$state));
+
+              if ($_REQUEST['starttime'] && $_REQUEST['endtime'])
+                $sql = $sql->filter(array('timestamp__range' =>
+                                    array('"'.$_REQUEST['starttime'].'"', '"'.$_REQUEST['endtime'].'"', true)));
+
+              $sql = $sql->order_by('timestamp');
+              $tableInfo = $sql;
+              break;
+          case 'user':
+              $sql = AuditEntry::objects()->filter(array('user_id'=>$object->getId()))->order_by('timestamp');
+              break;
+          case 'staff':
+              // code...
+              break;
+      }
+      //Download the file
       Http::download($filename, "text/$how");
-      echo self::dumpQuery($sql, array(
-                  0 =>   'ID',
-                  1 =>   'User Class',
-                  2 =>   'User Name',
-                  3 =>   'Object',
-                  4 =>   'Description',
-                  5 =>   'Timestamp',
-                  6 =>   'IP',
-                ),
+      echo self::dumpQuery($sql, $headings,
               $how,
               array('modify' => function(&$record, $keys, $obj) use ($tableInfo) {
                 foreach ($tableInfo as $k => $v) {
-                  if (is_numeric($k) && ($i = in_array($obj->id, $v)) !== false) {
-                      $record[0] = $v['id'];
-                      $record[1] = $v['class'];
-                      $record[2] = $v['name'];
-                      $record[3] = $v['object'];
-                      $record[4] = $v['description'];
-                      $record[5] = $v['timestamp'];
-                      $record[6] = $v['ip'];
+                  if (is_object($v)) {
+                      $description = AuditEntry::getDescription($v, true);
+                      $v = $v->ht;
+                  }
+
+                  if (is_numeric($k) && ($i = in_array(
+                                        is_array($obj->ht) ? $obj->ht['id'] : $obj->id,
+                                        $v)) !== false) {
+                      $record[0] = $description ?: $v['description'];
+                      $record[1] = $v['timestamp'];
+                      $record[2] = $v['ip'];
                   }
                 }
                  return $record;

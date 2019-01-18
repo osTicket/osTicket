@@ -46,6 +46,8 @@ if($_POST){
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
+                $type = array('type' => 'Created');
+                Signal::send('object.created', $category, $type);
                 $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
                 $errors['err'] = sprintf('%s %s',

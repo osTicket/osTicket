@@ -38,6 +38,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                 if(($_dept->update($_POST,$errors))){
                     $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['name']));
                     $_REQUEST['a']=null;
+                    $type = array('type' => 'Created');
+                    Signal::send('object.created', $_dept, $type);
                 }elseif(!$errors['err']){
                     $errors['err']=sprintf('%s %s',
                         sprintf(__('Unable to add %s.'), __('this department')),
@@ -183,8 +185,13 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             else {
                                 $i=0;
                                 foreach($_POST['ids'] as $k=>$v) {
-                                    if($v!=$cfg->getDefaultDeptId() && ($d=Dept::lookup($v)) && $d->delete())
-                                        $i++;
+                                    if($v!=$cfg->getDefaultDeptId() && ($d=Dept::lookup($v))) {
+                                      $type = array('type' => 'Deleted');
+                                      Signal::send('object.deleted', $d, $type);
+                                      $d->delete();
+                                      $i++;
+                                    }
+
                                 }
                                 if($i && $i==$count)
                                     $msg = sprintf(__('Successfully deleted %s.'),

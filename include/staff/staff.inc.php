@@ -33,6 +33,17 @@ else {
     $info['id'] = $staff->getId();
     $qs += array('id' => $staff->getId());
 }
+
+// Allow extensions to add extra items to this form.
+// $extras should be a array of [url=>, tab=>]
+$extras = new ArrayObject();
+Signal::send('agent.audit', $staff, $extras);
+
+foreach ($extras as $extra) {
+  $tabTitle = str_replace('-', ' ', $extra['tab']);
+}
+
+
 ?>
 
 <form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" autocomplete="off">
@@ -52,6 +63,7 @@ else {
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
     <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
+    <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li>
   </ul>
 
   <div class="tab_content" id="account">
@@ -440,6 +452,13 @@ foreach ($staff->teams as $TM) {
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- ============== Audits =================== -->
+  <div class="hidden tab_content" id=<?php echo $extra['tab']; ?>>
+    <?php
+    include $extra['url'];
+    ?>
   </div>
 
   <p style="text-align:center;">

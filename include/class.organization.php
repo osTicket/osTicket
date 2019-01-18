@@ -521,6 +521,8 @@ implements TemplateVariable, Searchable {
         }
 
         Signal::send('organization.created', $org);
+        $type = array('type' => 'Created');
+        Signal::send('object.created', $org, $type);
         return $org;
     }
 

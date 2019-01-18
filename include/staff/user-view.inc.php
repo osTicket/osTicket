@@ -75,6 +75,10 @@ $org = $user->getOrganization();
                   // $extras should be a array of [url=>, name=>, icon=>]
                   $extras = new ArrayObject();
                   Signal::send('user.view.more', $user, $extras);
+
+                  foreach ($extras as $extra) {
+                    $tabTitle = str_replace('-', ' ', $extra['tab']);
+                  }
                   foreach ($extras as $li) {
                       ?><li><a href="#<?php echo $li['url']; ?>"
                       onclick="javascript:
@@ -163,6 +167,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
+    <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li>
 </ul>
 <div id="user-view-tabs_container">
     <div id="tickets" class="tab_content">
@@ -177,6 +182,12 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     $create_note_url = 'users/'.$user->getId().'/note';
     include STAFFINC_DIR . 'templates/notes.tmpl.php';
     ?>
+    </div>
+
+    <div class="hidden tab_content" id=<?php echo $extra['tab']; ?>>
+      <?php
+      include $extra['url'];
+      ?>
     </div>
 </div>
 <div class="hidden dialog" id="confirm-action">
