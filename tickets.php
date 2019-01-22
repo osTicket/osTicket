@@ -69,7 +69,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
               $user = User::lookup($thisclient->getId());
               $ticket->logEvent('edited', array('fields' => $changes), $user);
 
-              $type = array('type' => 'Edited', 'data' => array('fields' => $changes));
+              $type = array('type' => 'edited', 'data' => array('fields' => $changes));
               Signal::send('object.edited', $ticket, $type);
             }
             $_REQUEST['a'] = null; //Clear edit action - going back to view.

@@ -586,7 +586,7 @@ implements TemplateVariable, Searchable {
                 $this->updated = SqlFunction::NOW();
             }
         }
-        $type = array('type' => 'Edited', 'data' => array('id' => $this->getId(), 'name' => $this->getName()->name));
+        $type = array('type' => 'edited', 'data' => array('id' => $this->getId(), 'name' => $this->getName()->name));
         Signal::send('object.edited', $this, $type);
 
         return $this->save();

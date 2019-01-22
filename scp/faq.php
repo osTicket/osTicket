@@ -80,7 +80,7 @@ if ($_POST) {
             $faq = FAQ::create();
             if($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($faq->getQuestion()));
-                $type = array('type' => 'Created');
+                $type = array('type' => 'created');
                 Signal::send('object.created', $faq, $type);
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
@@ -128,7 +128,7 @@ if ($_POST) {
                         $category = $faq->getCategory();
                         if($faq->delete()) {
                             $msg=sprintf(__('Successfully deleted %s.'), Format::htmlchars($faq->getQuestion()));
-                            $type = array('type' => 'Deleted');
+                            $type = array('type' => 'deleted');
                             Signal::send('object.deleted', $faq, $type);
                             $faq=null;
                         } else {

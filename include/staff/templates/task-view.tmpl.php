@@ -86,7 +86,7 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
 
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-$type = array('type' => 'Viewed');
+$type = array('type' => 'viewed');
 Signal::send('object.view', $task, $type);
 
 if ($task->isOverdue())
