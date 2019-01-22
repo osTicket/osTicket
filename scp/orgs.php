@@ -73,7 +73,7 @@ if ($_POST) {
             switch (strtolower($_POST['do'])) {
             case 'delete':
                 foreach ($orgs as $O) {
-                  $type = array('type' => 'Deleted');
+                  $type = array('type' => 'deleted');
                   Signal::send('object.deleted', $O, $type);
                   if ($O->delete())
                       $count++;

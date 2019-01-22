@@ -193,7 +193,7 @@ implements Searchable {
               )
           );
 
-          $type = array('type' => 'Collaborator', 'data' => array('name' => $this->getObject()->getNumber(), 'add' => array($user->getId() => array(
+          $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(), 'add' => array($user->getId() => array(
                   'name' => $user->getName()->name,
                   'src' => @$vars['source'],
               ))));
@@ -222,7 +222,7 @@ implements Searchable {
                      'del' => array($c->user_id => array('name' => $c->getName()->getOriginal()))
                  ));
 
-                 $type = array('type' => 'Collaborator', 'data' => array('name' => $this->getObject()->getNumber(), 'del' => array($c->user_id => array('name' => $c->getName()->name))));
+                 $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(), 'del' => array($c->user_id => array('name' => $c->getName()->name))));
                  Signal::send('object.deleted', $this->getObject(), $type);
             }
         }
@@ -2220,6 +2220,18 @@ class Event extends VerySimpleModel {
         }
 
         return $ids;
+    }
+
+    static function getStates($dropdown=false) {
+        $names = array();
+        if ($dropdown)
+            $names = array(__('All'));
+
+        $events = self::objects()->values_flat('name');
+        foreach ($events as $val)
+            $names[] = ucfirst($val[0]);
+
+        return $names;
     }
 
     static function create($vars=false, &$errors=array()) {

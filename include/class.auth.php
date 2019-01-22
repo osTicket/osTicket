@@ -488,8 +488,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
-        $type = array('type' => 'Login', 'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name));
-        Signal::send('staff.login', $staff, $type);
+        $type = array('type' => 'login', 'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name));
+        Signal::send('staff.login', Staff::lookup($staff->getId()), $type);
 
         // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
@@ -531,8 +531,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
 
-        $type = array('type' => 'Logout', 'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name));
-        Signal::send('staff.logout', $staff, $type);
+        $type = array('type' => 'logout', 'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name));
+        Signal::send('staff.logout', Staff::lookup($staff->getId()), $type);
         Signal::send('auth.logout', $staff);
     }
 
@@ -682,8 +682,8 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
-        $type = array('type' => 'Login', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
-        Signal::send('user.login', $user, $type);
+        $type = array('type' => 'login', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
+        Signal::send('user.login', User::lookup($user->getId()), $type);
 
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
@@ -721,8 +721,8 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
 
-        $type = array('type' => 'Logout', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
-        Signal::send('user.logout', $user, $type);
+        $type = array('type' => 'logout', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
+        Signal::send('user.logout', User::lookup($user->getId()), $type);
     }
 
     protected function getAuthKey($user) {
@@ -907,10 +907,10 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
                 if ($staffId)
                     $staff = Staff::lookup($staffId[0]);
                 if ($staff) {
-                  $type = array('type' => 'Login',
+                  $type = array('type' => 'login',
                     'data' => array('id' => $staff->getId(), 'name' => $staff->getName()->name,
                                     'msg' => 'Excessive login attempts (' . $authsession['strikes'] . ')'));
-                  Signal::send('staff.login', $staff, $type);
+                  Signal::send('staff.login', Staff::lookup($staff->getId()), $type);
                 }
               }
 
@@ -984,10 +984,10 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                 $user = User::lookup($id);
 
               if ($user) {
-                $type = array('type' => 'Login',
+                $type = array('type' => 'login',
                   'data' => array('id' => $user->getId(), 'name' => $user->getName()->name,
                                   'msg' => 'Excessive login attempts (' . $authsession['strikes'] . ')'));
-                Signal::send('user.login', $user, $type);
+                Signal::send('user.login', User::lookup($user->getId()), $type);
               }
             }
 

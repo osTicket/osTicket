@@ -1255,7 +1255,7 @@ implements RestrictedAccess, Threadable, Searchable {
                      $collabs[] = (string) $c;
             }
             $this->logEvent('collab', array('del' => $collabs));
-            $type = array('type' => 'Collaborator', 'data' => array('name' => $this->getNumber(), 'del' => $collabs));
+            $type = array('type' => 'collab', 'data' => array('name' => $this->getNumber(), 'del' => $collabs));
             Signal::send('object.deleted', $this, $type);
         }
 
@@ -1495,7 +1495,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
 
-                    $type = array('type' => 'Closed', 'data' => array('name' => $t->getNumber()));
+                    $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber()));
                     Signal::send('object.edited', $t, $type);
 
                     $t->deleteDrafts();
@@ -1508,7 +1508,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
 
-                        $type = array('type' => 'Reopened', 'data' => array('name' => $t->getNumber()));
+                        $type = array('type' => 'reopened', 'data' => array('name' => $t->getNumber()));
                         Signal::send('object.edited', $t, $type);
                     };
                 }
@@ -2625,7 +2625,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Log transfer event
         $this->logEvent('transferred');
 
-        $type = array('type' => 'Transferred', 'data' => array('name' => $this->getNumber(), 'dept' => $dept->getName()));
+        $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(), 'dept' => $dept->getName()));
         Signal::send('object.edited', $this, $type);
 
         // Post internal note if any
@@ -2742,7 +2742,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
-        $type = array('type' => 'Assigned', 'data' => array('name' => $this->getNumber(), 'staff' => $staff->getName()->name));
+        $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(), 'staff' => $staff->getName()->name));
         Signal::send('object.edited', $this, $type);
 
         return true;
@@ -2820,7 +2820,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $evd);
 
-        $type = array('type' => 'Assigned', 'data' => $audit);
+        $type = array('type' => 'assigned', 'data' => $audit);
         Signal::send('object.edited', $this, $type);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
@@ -2853,12 +2853,20 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function release($info=array(), &$errors) {
-        if ($info['sid'] && $info['tid'])
+        $type = array('type' => 'released', 'data' => array('name' => $this->getNumber()));
+
+        if ($info['sid'] && $info['tid']) {
+            Signal::send('object.edited', $this, $type);
             return $this->unassign();
-        elseif ($info['sid'] && $this->setStaffId(0))
+        }
+        elseif ($info['sid'] && $this->setStaffId(0)) {
+            Signal::send('object.edited', $this, $type);
             return true;
-        elseif ($info['tid'] && $this->setTeamId(0))
+        }
+        elseif ($info['tid'] && $this->setTeamId(0)) {
+            Signal::send('object.edited', $this, $type);
             return true;
+        }
 
         return false;
     }
@@ -2921,7 +2929,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('referred', $evd);
 
-        $type = array('type' => 'Referred', 'data' => $audit);
+        $type = array('type' => 'referred', 'data' => $audit);
         Signal::send('object.edited', $this, $type);
 
         return true;
@@ -2975,7 +2983,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('edited', array('owner' => $user->getId()));
 
-        $type = array('type' => 'Edited', 'data' => array('name' => $this->getNumber(), 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
+        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
         Signal::send('object.edited', $this, $type);
 
         return true;
@@ -3168,7 +3176,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        $type = array('type' => 'Message', 'uid' => $vars['userId']);
+        $type = array('type' => 'message', 'uid' => $vars['userId']);
         Signal::send('object.created', $this, $type);
 
         return $message;
@@ -3516,7 +3524,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('deleted');
 
-        $type = array('type' => 'Deleted', 'data' => array('name' => $this->getNumber()));
+        $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber()));
         Signal::send('object.deleted', $this, $type);
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
@@ -3672,7 +3680,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($changes) {
           $this->logEvent('edited', $changes);
 
-          $type = array('type' => 'Edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
+          $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
           Signal::send('object.edited', $this, $type);
         }
 
@@ -3764,7 +3772,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Record the changes
         $this->logEvent('edited', $changes);
 
-        $type = array('type' => 'Edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
+        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
         Signal::send('object.edited', $this, $type);
 
         // Log comments (if any)
@@ -4274,7 +4282,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
-        $type = array('type' => 'Created');
+        $type = array('type' => 'created');
         Signal::send('object.created', $ticket, $type);
 
         // Add collaborators (if any)
