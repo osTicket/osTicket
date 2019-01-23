@@ -5,6 +5,7 @@ require_once INCLUDE_DIR . 'class.variable.php';
 // Used by the email system
 interface EmailContact {
     function getId();
+    function getUserId();
     function getName();
     function getEmail();
 }
@@ -26,6 +27,10 @@ implements EmailContact {
 
     function getId() {
         return $this->contact->getId();
+    }
+
+    function getUserId() {
+        return $this->contact->getUserId();
     }
 
     function getEmail() {
