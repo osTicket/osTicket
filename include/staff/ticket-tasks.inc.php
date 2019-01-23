@@ -40,12 +40,17 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
             print __('Add New Task'); ?></a>
     <?php
     }
+    foreach ($tasks as $task)
+        $taskStatus .= $task->isOpen() ? 'open' : 'closed';
+
     if ($count)
         Task::getAgentActions($thisstaff, array(
                     'container' => '#tasks_content',
                     'callback_url' => sprintf('ajax.php/tickets/%d/tasks',
                         $ticket->getId()),
-                    'morelabel' => __('Options')));
+                    'morelabel' => __('Options'),
+                    'status' => $taskStatus ? $taskStatus : '')
+                );
     ?>
 </div>
 <div class="clear"></div>
