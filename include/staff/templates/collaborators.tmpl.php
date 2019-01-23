@@ -81,10 +81,10 @@ if(($users=$thread->getCollaborators())) {?>
 
 if ($_POST && $thread && $thread->getNumCollaborators()) {
 
-    $collaborators = sprintf('Participants (%d)',
+    $collaborators = sprintf('Collaborators (%d)',
             $thread->getNumCollaborators());
 
-    $recipients = sprintf(__('Recipients (%d of %d)'),
+    $recipients = sprintf(__('Collaborators (%d of %d)'),
           $thread->getNumActiveCollaborators(),
           $thread->getNumCollaborators());
     ?>

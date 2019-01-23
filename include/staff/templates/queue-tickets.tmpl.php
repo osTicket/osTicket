@@ -77,16 +77,21 @@ $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
 
-// Creative twist here. Create a new query copying the query criteria, sort, limit,
-// and offset. Then join this new query to the $tickets query and clear the
-// criteria, sort, limit, and offset from the outer query.
-$criteria = clone $tickets;
-$criteria->annotations = $criteria->related = $criteria->aggregated = [];
-$tickets->constraints = $tickets->extra = [];
-$tickets = $tickets->filter(['ticket_id__in' => $criteria->values_flat('ticket_id')])
-    ->limit(false)->offset(false)->order_by(false);
-# Index hint should be used on the $criteria query only
-$tickets->clearOption(QuerySet::OPT_INDEX_HINT);
+if (isset($tickets->extra['tables'])) {
+    // Creative twist here. Create a new query copying the query criteria, sort, limit,
+    // and offset. Then join this new query to the $tickets query and clear the
+    // criteria, sort, limit, and offset from the outer query.
+    $criteria = clone $tickets;
+    $criteria->limit(500);
+    $criteria->annotations = $criteria->related = $criteria->aggregated =
+        $criteria->annotations = $criteria->ordering = [];
+    $tickets->constraints = $tickets->extra = [];
+    $tickets = $tickets->filter(['ticket_id__in' =>
+            $criteria->values_flat('ticket_id')]);
+    # Index hint should be used on the $criteria query only
+    $tickets->clearOption(QuerySet::OPT_INDEX_HINT);
+    $tickets->distinct('ticket_id');
+}
 
 $count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
 $pageNav->setTotal($count, true);
