@@ -1135,7 +1135,11 @@ if ($.support.pjax) {
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
         && $this.attr('href').charAt(0) != '#')
+<<<<<<< HEAD
       $.pjax.click(event, {container: $this.data('pjaxContainer') || $('#pjax-container'), timeout: 30000});
+=======
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 2000});
+>>>>>>> jq: Update To jQuery-3.3.1
   })
 }
 
