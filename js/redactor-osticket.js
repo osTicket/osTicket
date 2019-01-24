@@ -274,7 +274,7 @@ $(function() {
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
                 'tabFocus': false,
-                'toolbarFixedBox': true,
+                'toolbarFixed': false,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
                 'initCallback': function() {
                     if (this.$element.data('width'))
@@ -373,7 +373,6 @@ $(function() {
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
-    $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
 });
 
