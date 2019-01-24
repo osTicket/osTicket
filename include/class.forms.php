@@ -1480,8 +1480,7 @@ class TextboxField extends FormField {
     }
 
     function display($value) {
-        $value = $value ?: $this->value;
-        return ($value == 0) ? '&#48' : Format::htmlchars($this->toString($value));
+        return ($value == '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
     }
 }
 
