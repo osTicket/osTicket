@@ -192,10 +192,11 @@ if ($user ) {
       case 'audits':
           if ($_REQUEST['a'] == 'export') {
              require_once(INCLUDE_DIR.'plugins/audit-ticket/class.audit.php');
+              $show = AuditEntry::$show_view_audits;
               $filename = sprintf('%s-audits-%s.csv',
                       $user->getName(), strftime('%Y%m%d'));
               $tableInfo = AuditEntry::getTableInfo($user, true);
-              if (!Export::audits('user', $filename, $tableInfo, $user, 'csv'))
+              if (!Export::audits('user', $filename, $tableInfo, $user, 'csv', $show))
                   $errors['err'] = __('Unable to dump query results.')
                       .' '.__('Internal error occurred');
           }

@@ -179,6 +179,17 @@ $page='staffmembers.inc.php';
 $tip_namespace = 'staff.agent';
 if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
 
+  if (strtolower($_REQUEST['t']) == 'audits') {
+    require_once(INCLUDE_DIR.'plugins/audit-ticket/class.audit.php');
+    $show = AuditEntry::$show_view_audits;
+     $filename = sprintf('%s-audits-%s.csv',
+             $staff->getName(), strftime('%Y%m%d'));
+     $tableInfo = AuditEntry::getTableInfo($staff, true);
+     if (!Export::audits('staff', $filename, $tableInfo, $staff, 'csv', $show))
+         $errors['err'] = __('Unable to dump query results.')
+             .' '.__('Internal error occurred');
+  }
+
   if ($staff && ($pdept=$staff->getDept()) && !$pdept->isActive())
     $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Agent'), __('Primary Department'));
 
