@@ -328,7 +328,7 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
     exit;
   }
 
-  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv') {
+  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true) {
       $headings = array('Description', 'Timestamp', 'IP');
       switch ($type) {
           case 'audit':
@@ -348,9 +348,15 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
               $sql = AuditEntry::objects()->filter(array('user_id'=>$object->getId()))->order_by('timestamp');
               break;
           case 'staff':
-              // code...
+              $sql = AuditEntry::objects()->filter(array('staff_id'=>$object->getId()))->order_by('timestamp');
+              break;
+          case 'ticket':
+              $sql = AuditEntry::objects()->filter(array('object_id'=>$object->getId(), 'object_type'=>'T'))->order_by('timestamp');
               break;
       }
+      if (!$show_viewed)
+          $sql = $sql->filter(Q::not(array('event_id'=>Event::getIdByName('viewed'))))->order_by('timestamp');
+
       //Download the file
       Http::download($filename, "text/$how");
       echo self::dumpQuery($sql, $headings,
@@ -365,7 +371,8 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
                   if (is_numeric($k) && ($i = in_array(
                                         is_array($obj->ht) ? $obj->ht['id'] : $obj->id,
                                         $v)) !== false) {
-                      $record[0] = $description ?: $v['description'];
+                      $description = $description ?: $v['description'];
+                      $record[0] = $description;
                       $record[1] = $v['timestamp'];
                       $record[2] = $v['ip'];
                   }
