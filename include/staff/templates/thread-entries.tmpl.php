@@ -41,8 +41,10 @@ if ($ticket && $ticket->getMergeType() == 'visual') {
             $thread_attachments[$att->object_id][] = $att;
         }
 
-        $childEntries = $cTicket->getThread()->getEntries();
-        $entries = $entries->union($childEntries, false);
+        if ($ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)) {
+            $childEntries = $cTicket->getThread()->getEntries() ;
+            $entries = $entries->union($childEntries, false);
+        }
     }
 }
 

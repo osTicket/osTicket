@@ -40,6 +40,11 @@ foreach ($tickets as $t) { ?>
 </div>
 <?php } ?>
 </div>
+<br/>
+<label class="inline checkbox">
+    <?php echo __('Show Children Threads') ?>
+    <input type="checkbox" name="show_children" value="1" <?php echo $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)?'checked="checked"':''; ?> >
+</label>
 <hr/>
 <div>
 <i class="icon-plus"></i>&nbsp;
