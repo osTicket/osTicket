@@ -108,6 +108,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     const FLAG_COMBINE_THREADS = 0x0001;
     const FLAG_VISUAL_MERGE    = 0x0002;
+    const FLAG_SHOW_CHILDREN   = 0x0004;  //Show children threads in parent tickets
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -2403,6 +2404,12 @@ implements RestrictedAccess, Threadable, Searchable {
                 }
             }
         }
+
+        //see if child entries should be shown on parent tickets
+        if ($tickets['show_children'])
+            $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, true);
+        else
+            $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, false);
 
         $parent->setMergeType($tickets['combine']);
         $children = Ticket::getChildTickets($parent->getId());
