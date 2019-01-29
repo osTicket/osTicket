@@ -2579,7 +2579,11 @@ class ThreadEntryBody /* extends SplString */ {
     }
 
     function toHtml() {
-        return $this->display('html');
+        $data = array(
+            "html" => $this->display("html")
+        );
+        Signal::send('threadentry.rendered', $this, $data);
+        return $data["html"];
     }
 
     function prepend($what) {
