@@ -91,6 +91,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                         'datetime_format'   => '',
                         'thread_view_order' => '',
                         'default_ticket_queue_id' => 0,
+                        'reply_redirect' => 'Ticket',
                         ));
             $this->_config = $_config->getInfo();
         }
@@ -345,6 +346,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function getDefaultPaperSize() {
         return $this->default_paper_size;
+    }
+
+    function getReplyRedirect() {
+        return $this->reply_redirect;
     }
 
     function forcePasswdChange() {
@@ -744,6 +749,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'default_from_name' => $vars['default_from_name'],
                     'thread_view_order' => $vars['thread_view_order'],
                     'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
+                    'reply_redirect' => ($vars['reply_redirect'] == 'Queue') ? 'Queue' : 'Ticket',
                     )
                 );
         $this->_config = $_config->getInfo();

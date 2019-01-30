@@ -1478,6 +1478,10 @@ class TextboxField extends FormField {
     function parse($value) {
         return Format::striptags($value);
     }
+
+    function display($value) {
+        return ($value == '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
+    }
 }
 
 class PasswordField extends TextboxField {

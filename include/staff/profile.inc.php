@@ -300,6 +300,23 @@ if ($avatar->isChangeable()) { ?>
                 <div class="error"><?php echo $errors['default_paper_size']; ?></div>
             </td>
         </tr>
+        <tr>
+            <td><?php echo __('Reply Redirect'); ?>:
+                <div class="faded"><?php echo __('Redirect URL used after replying to a ticket.');?></div>
+            </td>
+            <td>
+                <select name="reply_redirect">
+                  <?php
+                  $options=array('Queue'=>__('Queue'),'Ticket'=>__('Ticket'));
+                  foreach($options as $key=>$opt) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $key,($staff->reply_redirect==$key)?'selected="selected"':'',$opt);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['reply_redirect']; ?></div>
+            </td>
+        </tr>
       </tbody>
       <tbody>
         <tr class="header">
