@@ -65,6 +65,7 @@ if ($_POST) {
         $redirect($_SERVER['REQUEST_URI']);
     }
 
+<<<<<<< HEAD
 =======
     if (!$ost->checkCSRFToken())
         Http::response(400, __('Valid CSRF Token Required'));
@@ -74,6 +75,10 @@ if ($_POST) {
 }
 if ($_POST && isset($_POST['userid'])) {
 >>>>>>> Improve the Staff login
+=======
+}
+if ($_POST && isset($_POST['userid'])) {
+>>>>>>> Changes Made:
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,

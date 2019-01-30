@@ -67,7 +67,7 @@ class Ticket2PDF extends mPDFWithLocalImages
         $this->ticket = $ticket;
         $this->includenotes = $notes;
 
-	parent::__construct(['mode' => 'utf-8', 'format' => $psize, 'tempDir'=>INCLUDE_DIR.'mpdf/ttfontdata']);
+	parent::__construct(['mode' => 'utf-8', 'format' => $psize, 'tempDir'=>sys_get_temp_dir()]);
 
         $this->_print();
 	}
