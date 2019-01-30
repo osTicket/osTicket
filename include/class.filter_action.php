@@ -7,6 +7,11 @@ class FilterAction extends VerySimpleModel {
         'table' => FILTER_ACTION_TABLE,
         'pk' => array('id'),
         'ordering' => array('sort'),
+        'joins' => array(
+            'filter' => array(
+                'constraint' => array('filter_id' => 'Filter.id'),
+            ),
+        ),
     );
 
     static $registry = array();

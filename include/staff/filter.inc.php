@@ -265,7 +265,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         if($_warn) {
                             ?>&nbsp;<span class="error">*&nbsp;<?php echo $_warn; ?></span>
                         <?php } ?>
-                        <input type="hidden" name="actions[]" value="I<?php echo $A->getId(); ?>"/>
+                        <input type="hidden" name="actions[]" value="<?php
+                            echo $A->getId() ? "I".$A->getId() : "N".$A->getImpl()->getType(); ?>"/>
                         <div class="pull-right" style="position:absolute;top:2px;right:2px;">
                             <a href="#" title="<?php echo __('clear'); ?>" onclick="javascript:
                                 if (!confirm(__('You sure?')))

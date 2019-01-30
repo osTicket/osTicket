@@ -8,7 +8,7 @@
 <table width="800" class="padded">
 <?php
 foreach ($user->getForms() as $f) {
-    $f->render(false);
+    $f->render(['staff' => false]);
 }
 if ($acct = $thisclient->getAccount()) {
     $info=$acct->getInfo();
