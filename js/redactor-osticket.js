@@ -394,3 +394,7 @@ $(document).ajaxError(function(event, request, settings) {
             __('Refresh the current page to restore and continue your draft.'));
     }
 });
+
+// .size() is deprecated as of jQuery 1.8 and should move to .length, but
+// the packed Redactor code uses the deprecated function
+$.fn.size = function() { return this.length; }
