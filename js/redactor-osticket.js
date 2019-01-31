@@ -245,9 +245,9 @@ $(function() {
         });
         return html;
     },
-    redact = $.redact = function(el, options) {
+    redact = $.fn.redact = function(el, options) {
         var el = $(el),
-            sizes = {'small': 75, 'medium': 150, 'large': 225},
+            sizes = {'small': '75px', 'medium': '150px', 'large': '225px'},
             selectedSize = sizes['medium'];
         $.each(sizes, function(k, v) {
             if (el.hasClass(k)) selectedSize = v;
@@ -255,20 +255,21 @@ $(function() {
         var options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'buttons': el.hasClass('no-bar')
-                  ? ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'link', 'image']
-                  : ['html', '|', 'formatting', '|', 'bold',
-                    'italic', 'underline', 'deleted', '|', 'unorderedlist',
-                    'orderedlist', 'outdent', 'indent', '|', 'image', 'video',
-                    'file', 'table', 'link', '|', 'alignment', '|',
-                    'horizontalrule'],
+                  ? ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'ul', 'ol', 'outdent', 'indent', '|', 'link', 'image']
+                  : ['html', 'formatting', 'fontcolor', 'fontfamily', 'bold',
+                    'italic', 'underline', 'deleted', 'ul',
+                    'ol', 'outdent', 'indent', 'image', 'video',
+                    'file', 'table', 'link', 'alignment',
+                    'line', 'fullscreen'],
                 'buttonSource': !el.hasClass('no-bar'),
                 'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
                 'maxHeight': el.closest('.dialog').length ? selectedSize : false,
                 'minHeight': selectedSize,
+                'maxWidth': '850px',
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
-                  : ['imagemanager','imageannotate','table','video','definedlinks','autolock'],
+                  : ['imagemanager','imageannotate','table','video','definedlinks','autolock','fullscreen'],
                 'imageUpload': el.hasClass('draft'),
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
