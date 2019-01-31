@@ -274,7 +274,7 @@ $(function() {
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
                 'tabFocus': false,
-                'toolbarFixedBox': true,
+                'toolbarFixed': false,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
                 'initCallback': function() {
                     if (this.$element.data('width'))
@@ -373,7 +373,6 @@ $(function() {
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
-    $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
 });
 
@@ -395,3 +394,7 @@ $(document).ajaxError(function(event, request, settings) {
             __('Refresh the current page to restore and continue your draft.'));
     }
 });
+
+// .size() is deprecated as of jQuery 1.8 and should move to .length, but
+// the packed Redactor code uses the deprecated function
+$.fn.size = function() { return this.length; }
