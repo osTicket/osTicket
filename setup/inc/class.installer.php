@@ -116,6 +116,8 @@ class Installer extends SetupWizard {
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('TABLE_PREFIX',$vars['prefix']); //Table prefix
+        if (!defined('SECRET_SALT'))
+            define('SECRET_SALT',md5(TABLE_PREFIX.ADMIN_EMAIL));
         Bootstrap::defineTables(TABLE_PREFIX);
         Bootstrap::loadCode();
 

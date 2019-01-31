@@ -1182,8 +1182,10 @@ class DynamicFormEntry extends VerySimpleModel {
             ->filter(array('object_id'=>$object_id, 'object_type'=>$object_type));
     }
 
-    function render($staff=true, $title=false, $options=array()) {
-        return $this->getForm()->render($staff, $title, $options);
+    function render($options=array()) {
+        if (is_array($options))
+            $options += array('staff' => true);
+        return $this->getForm()->render($options);
     }
 
     function getChanges() {
