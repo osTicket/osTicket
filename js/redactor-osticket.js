@@ -272,9 +272,9 @@ $(function() {
                 'imageUpload': el.hasClass('draft'),
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
-                'linebreaks': true,
+                'breakline': true,
                 'tabFocus': false,
-                'toolbarFixed': false,
+                'toolbarFixed': true,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
                 'initCallback': function() {
                     if (this.$element.data('width'))

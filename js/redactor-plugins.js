@@ -1,949 +1,1035 @@
 if (!RedactorPlugins) var RedactorPlugins = {};
 
-(function($)
-{
-    $.Redactor.prototype.definedlinks = function()
-    {
-        return {
-            init: function()
-            {
-                if (!this.opts.definedLinks) return;
-
-                this.modal.addCallback('link', $.proxy(this.definedlinks.load, this));
-
-            },
-            load: function()
-            {
-                var $select = $('<select id="redactor-defined-links" />');
-                $('#redactor-modal-link-insert').prepend($select);
-
-                this.definedlinks.storage = {};
-
-                $.getJSON(this.opts.definedLinks, $.proxy(function(data)
-                {
-                    $.each(data, $.proxy(function(key, val)
-                    {
-                        this.definedlinks.storage[key] = val;
-                        $select.append($('<option>').val(key).html(val.name));
-
-                    }, this));
-
-                    $select.on('change', $.proxy(this.definedlinks.select, this));
-
-                }, this));
-
-            },
-            select: function(e)
-            {
-                var key = $(e.target).val();
-                var name = '', url = '';
-                if (key !== 0)
-                {
-                    name = this.definedlinks.storage[key].name;
-                    url = this.definedlinks.storage[key].url;
-                }
-
-                $('#redactor-link-url').val(url);
-
-                var $el = $('#redactor-link-url-text');
-                if ($el.val() === '') $el.val(name);
-            }
-        };
-    };
-})(jQuery);
-
-RedactorPlugins.fontcolor = function()
-{
-	return {
-		init: function()
-		{
-			var colors = [
-				'#ffffff', '#000000', '#eeece1', '#1f497d', '#4f81bd', '#c0504d', '#9bbb59', '#8064a2', '#4bacc6', '#f79646', '#ffff00',
-				'#f2f2f2', '#7f7f7f', '#ddd9c3', '#c6d9f0', '#dbe5f1', '#f2dcdb', '#ebf1dd', '#e5e0ec', '#dbeef3', '#fdeada', '#fff2ca',
-				'#d8d8d8', '#595959', '#c4bd97', '#8db3e2', '#b8cce4', '#e5b9b7', '#d7e3bc', '#ccc1d9', '#b7dde8', '#fbd5b5', '#ffe694',
-				'#bfbfbf', '#3f3f3f', '#938953', '#548dd4', '#95b3d7', '#d99694', '#c3d69b', '#b2a2c7', '#b7dde8', '#fac08f', '#f2c314',
-				'#a5a5a5', '#262626', '#494429', '#17365d', '#366092', '#953734', '#76923c', '#5f497a', '#92cddc', '#e36c09', '#c09100',
-				'#7f7f7f', '#0c0c0c', '#1d1b10', '#0f243e', '#244061', '#632423', '#4f6128', '#3f3151', '#31859b',  '#974806', '#7f6000'
-			];
-
-			var buttons = ['fontcolor', 'backcolor'];
-
-			for (var i = 0; i < 2; i++)
-			{
-				var name = buttons[i];
-
-				var button = this.button.addBefore('deleted', name, this.lang.get(name));
-				var $dropdown = this.button.addDropdown(button);
-
-				$dropdown.width(242);
-				this.fontcolor.buildPicker($dropdown, name, colors);
-
-			}
-		},
-		buildPicker: function($dropdown, name, colors)
-		{
-			var rule = (name == 'backcolor') ? 'background-color' : 'color';
-
-			var len = colors.length;
-			var self = this;
-			var func = function(e)
-			{
-				e.preventDefault();
-                var $this = $(e.target);
-				self.fontcolor.set(rule, $this.attr('rel'));
-			};
-            $dropdown.on('click', 'a.redactor.color-swatch', func);
-
-            var template = $('<a class="redactor color-swatch" href="#"></a>');
-
-			for (var z = 0; z < len; z++)
-			{
-				var color = colors[z];
-				var $swatch = template.clone().attr('rel', color);
-				$swatch.css('background-color', color);
-				$dropdown.append($swatch);
-			}
-
-			var $elNone = $('<a href="#" style="redactor uncolor"></a>').html(this.lang.get('none'));
-			$elNone.on('click', $.proxy(function(e)
-			{
-				e.preventDefault();
-				this.fontcolor.remove(rule);
-
-			}, this));
-
-			$dropdown.append($elNone);
-		},
-		set: function(rule, type)
-		{
-			this.inline.format('span', 'style', rule + ': ' + type + ';');
-		},
-		remove: function(rule)
-		{
-			this.inline.removeStyleRule(rule);
-		}
-	};
-};
-
-RedactorPlugins.fontfamily = function()
-{
-	return {
-		init: function ()
-		{
-			var fonts = [ 'Arial', 'Helvetica', 'Georgia', 'Times New Roman', 'Monospace' ];
-			var that = this;
-			var dropdown = {};
-
-			$.each(fonts, function(i, s)
-			{
-				dropdown['s' + i] = { title: '<span style="font-family:' + s.toLowerCase() + ';">' +
-                    s + '</span>', func: function() { that.fontfamily.set(s); }};
-			});
-
-			dropdown.remove = { title: __('Remove Font Family'), func: that.fontfamily.reset };
-
-			var button = this.button.addBefore('bold', 'fontfamily', __('Change Font Family'));
-			this.button.addDropdown(button, dropdown);
-
-		},
-		set: function (value)
-		{
-			this.inline.format('span', 'style', 'font-family:' + value + ';');
-		},
-		reset: function()
-		{
-			this.inline.removeStyleRule('font-family');
-		}
-	};
-};
-
-RedactorPlugins.fullscreen = function()
-{
-	return {
-		init: function()
-		{
-			this.fullscreen.isOpen = false;
-
-			var button = this.button.add('fullscreen', 'Fullscreen');
-			this.button.addCallback(button, this.fullscreen.toggle);
-
-			if (this.opts.fullscreen) this.fullscreen.toggle();
-		},
-		enable: function()
-		{
-			this.button.changeIcon('fullscreen', 'normalscreen');
-			this.button.setActive('fullscreen');
-			this.fullscreen.isOpen = true;
-
-			if (this.opts.toolbarExternal)
-			{
-				this.fullscreen.toolcss = {};
-				this.fullscreen.boxcss = {};
-				this.fullscreen.toolcss.width = this.$toolbar.css('width');
-				this.fullscreen.toolcss.top = this.$toolbar.css('top');
-				this.fullscreen.toolcss.position = this.$toolbar.css('position');
-				this.fullscreen.boxcss.top = this.$box.css('top');
-			}
-
-			this.fullscreen.height = this.$editor.height();
-
-			if (this.opts.maxHeight) this.$editor.css('max-height', '');
-			if (this.opts.minHeight) this.$editor.css('min-height', '');
-
-			if (!this.$fullscreenPlaceholder) this.$fullscreenPlaceholder = $('<div/>');
-			this.$fullscreenPlaceholder.insertAfter(this.$box);
-
-			this.$box.appendTo(document.body);
-
-			this.$box.addClass('redactor-box-fullscreen');
-			$('body, html').css('overflow', 'hidden');
-
-			this.fullscreen.resize();
-			$(window).on('resize.redactor.fullscreen', $.proxy(this.fullscreen.resize, this));
-			$(document).scrollTop(0, 0);
-
-			this.$editor.focus();
-			this.observe.load();
-		},
-		disable: function()
-		{
-			this.button.removeIcon('fullscreen', 'normalscreen');
-			this.button.setInactive('fullscreen');
-			this.fullscreen.isOpen = false;
-
-			$(window).off('resize.redactor.fullscreen');
-			$('body, html').css('overflow', '');
-
-			this.$box.insertBefore(this.$fullscreenPlaceholder);
-			this.$fullscreenPlaceholder.remove();
-
-			this.$box.removeClass('redactor-box-fullscreen').css({ width: 'auto', height: 'auto' });
-
-			this.code.sync();
-
-			if (this.opts.toolbarExternal)
-			{
-				this.$box.css('top', this.fullscreen.boxcss.top);
-				this.$toolbar.css({
-					'width': this.fullscreen.toolcss.width,
-					'top': this.fullscreen.toolcss.top,
-					'position': this.fullscreen.toolcss.position
-				});
-			}
-
-			if (this.opts.minHeight) this.$editor.css('minHeight', this.opts.minHeight);
-			if (this.opts.maxHeight) this.$editor.css('maxHeight', this.opts.maxHeight);
-
-			this.$editor.css('height', 'auto');
-			this.$editor.focus();
-			this.observe.load();
-		},
-		toggle: function()
-		{
-			if (this.fullscreen.isOpen)
-			{
-				this.fullscreen.disable();
-			}
-			else
-			{
-				this.fullscreen.enable();
-			}
-		},
-		resize: function()
-		{
-			if (!this.fullscreen.isOpen) return;
-
-			var toolbarHeight = this.$toolbar.height();
-
-			var height = $(window).height() - toolbarHeight;
-			this.$box.width($(window).width() - 2).height(height + toolbarHeight);
-
-			if (this.opts.toolbarExternal)
-			{
-				this.$toolbar.css({
-					'top': '0px',
-					'position': 'absolute',
-					'width': '100%'
-				});
-
-				this.$box.css('top', toolbarHeight + 'px');
-			}
-
-			this.$editor.height(height - 14);
-		}
-	};
-};
-
-(function($)
-{
-    $.Redactor.prototype.imagemanager = function()
-    {
-        return {
-            init: function()
-            {
-                if (!this.opts.imageManagerJson) return;
-
-                this.modal.addCallback('image', this.imagemanager.load);
-            },
-            load: function()
-            {
-                var $modal = this.modal.getModal();
-
-                this.modal.createTabber($modal);
-                this.modal.addTab(1, 'Upload', 'active');
-                this.modal.addTab(2, 'Choose');
-
-                $('#redactor-modal-image-droparea').addClass('redactor-tab redactor-tab1');
-
-                var $box = $('<div id="redactor-image-manager-box" style="overflow: auto; height: 300px;" class="redactor-tab redactor-tab2">').hide();
-                $modal.append($box);
-
-                $.ajax({
-                  dataType: "json",
-                  cache: false,
-                  url: this.opts.imageManagerJson,
-                  success: $.proxy(function(data)
-                    {
-                        $.each(data, $.proxy(function(key, val)
-                        {
-                            // title
-                            var thumbtitle = '';
-                            if (typeof val.title !== 'undefined') thumbtitle = val.title;
-
-                            var img = $('<img src="' + val.thumb + '" rel="' + val.image + '" title="' + thumbtitle + '" style="width: 100px; height: 75px; cursor: pointer;" />');
-                            $('#redactor-image-manager-box').append(img);
-                            $(img).click($.proxy(this.imagemanager.insert, this));
-
-                        }, this));
-
-
-                    }, this)
-                });
-
-
-            },
-            insert: function(e)
-            {
-                this.image.insert('<img src="' + $(e.target).attr('rel') + '" alt="' + $(e.target).attr('title') + '">');
-            }
-        };
-    };
-})(jQuery);
-
-(function($)
-{
-    $.Redactor.prototype.table = function()
-    {
-        return {
-            getTemplate: function()
-            {
-                return String()
-                + '<section id="redactor-modal-table-insert">'
-                    + '<label>' + this.lang.get('rows') + '</label>'
-                    + '<input type="text" size="5" value="2" id="redactor-table-rows" />'
-                    + '<label>' + this.lang.get('columns') + '</label>'
-                    + '<input type="text" size="5" value="3" id="redactor-table-columns" />'
-                + '</section>';
-            },
-            init: function()
-            {
-                var dropdown = {};
-
-                dropdown.insert_table = {
-                                    title: this.lang.get('insert_table'),
-                                    func: this.table.show,
-                                    observe: {
-                                        element: 'table',
-                                        'in': {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.insert_row_above = {
-                                    title: this.lang.get('insert_row_above'),
-                                    func: this.table.addRowAbove,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.insert_row_below = {
-                                    title: this.lang.get('insert_row_below'),
-                                    func: this.table.addRowBelow,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.insert_row_below = {
-                                    title: this.lang.get('insert_row_below'),
-                                    func: this.table.addRowBelow,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.insert_column_left = {
-                                    title: this.lang.get('insert_column_left'),
-                                    func: this.table.addColumnLeft,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.insert_column_right = {
-                                    title: this.lang.get('insert_column_right'),
-                                    func: this.table.addColumnRight,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.add_head = {
-                                    title: this.lang.get('add_head'),
-                                    func: this.table.addHead,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.delete_head = {
-                                    title: this.lang.get('delete_head'),
-                                    func: this.table.deleteHead,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.delete_column = {
-                                    title: this.lang.get('delete_column'),
-                                    func: this.table.deleteColumn,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.delete_row = {
-                                    title: this.lang.get('delete_row'),
-                                    func: this.table.deleteRow,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                dropdown.delete_row = {
-                                    title: this.lang.get('delete_table'),
-                                    func: this.table.deleteTable,
-                                    observe: {
-                                        element: 'table',
-                                        out: {
-                                            attr: {
-                                                'class': 'redactor-dropdown-link-inactive',
-                                                'aria-disabled': true,
-                                            }
-                                        }
-                                    }
-                                };
-
-                this.observe.addButton('td', 'table');
-                this.observe.addButton('th', 'table');
-
-                var button = this.button.addBefore('link', 'table', this.lang.get('table'));
-                this.button.addDropdown(button, dropdown);
-            },
-            show: function()
-            {
-                this.modal.addTemplate('table', this.table.getTemplate());
-
-                this.modal.load('table', this.lang.get('insert_table'), 300);
-                this.modal.createCancelButton();
-
-                var button = this.modal.createActionButton(this.lang.get('insert'));
-                button.on('click', this.table.insert);
-
-                this.selection.save();
-                this.modal.show();
-
-                $('#redactor-table-rows').focus();
-
-            },
-            insert: function()
-            {
-                this.placeholder.remove();
-
-                var rows = $('#redactor-table-rows').val(),
-                    columns = $('#redactor-table-columns').val(),
-                    $tableBox = $('<div>'),
-                    tableId = Math.floor(Math.random() * 99999),
-                    $table = $('<table id="table' + tableId + '"><tbody></tbody></table>'),
-                    i, $row, z, $column;
-
-                for (i = 0; i < rows; i++)
-                {
-                    $row = $('<tr>');
-
-                    for (z = 0; z < columns; z++)
-                    {
-                        $column = $('<td>' + this.opts.invisibleSpace + '</td>');
-
-                        // set the focus to the first td
-                        if (i === 0 && z === 0)
-                        {
-                            $column.append(this.selection.getMarker());
-                        }
-
-                        $($row).append($column);
-                    }
-
-                    $table.append($row);
-                }
-
-                $tableBox.append($table);
-                var html = $tableBox.html();
-
-                this.modal.close();
-                this.selection.restore();
-
-                if (this.table.getTable()) return;
-
-                this.buffer.set();
-
-                var current = this.selection.getBlock() || this.selection.getCurrent();
-                if (current && current.tagName != 'BODY')
-                {
-                    if (current.tagName == 'LI') current = $(current).closest('ul, ol');
-                    $(current).after(html);
-                }
-                else
-                {
-                    this.insert.html(html, false);
-                }
-
-                this.selection.restore();
-
-                var table = this.$editor.find('#table' + tableId);
-
-                var p = table.prev("p");
-
-                if (p.length > 0 && this.utils.isEmpty(p.html()))
-                {
-                    p.remove();
-                }
-
-                if (!this.opts.linebreaks && (this.utils.browser('mozilla') || this.utils.browser('msie')))
-                {
-                    var $next = table.next();
-                    if ($next.length === 0)
-                    {
-                         table.after(this.opts.emptyHtml);
-                    }
-                }
-
-                this.observe.buttons();
-
-                table.find('span.redactor-selection-marker').remove();
-                table.removeAttr('id');
-
-                this.code.sync();
-                this.core.setCallback('insertedTable', table);
-            },
-            getTable: function()
-            {
-                var $table = $(this.selection.getParent()).closest('table');
-
-                if (!this.utils.isRedactorParent($table)) return false;
-                if ($table.size() === 0) return false;
-
-                return $table;
-            },
-            restoreAfterDelete: function($table)
-            {
-                this.selection.restore();
-                $table.find('span.redactor-selection-marker').remove();
-                this.code.sync();
-            },
-            deleteTable: function()
-            {
-                var $table = this.table.getTable();
-                if (!$table) return;
-
-                this.buffer.set();
-
-
-                var $next = $table.next();
-                if (!this.opts.linebreaks && $next.length !== 0)
-                {
-                    this.caret.setStart($next);
-                }
-                else
-                {
-                    this.caret.setAfter($table);
-                }
-
-
-                $table.remove();
-
-                this.code.sync();
-            },
-            deleteRow: function()
-            {
-            var $table = this.table.getTable();
-            if (!$table) return;
-
-            var $current = $(this.selection.getCurrent());
-
-            this.buffer.set();
-
-            var $current_tr = $current.closest('tr');
-            var $focus_tr = $current_tr.prev().length ? $current_tr.prev() : $current_tr.next();
-            if ($focus_tr.length)
-            {
-                var $focus_td = $focus_tr.children('td, th').first();
-                if ($focus_td.length) $focus_td.prepend(this.selection.getMarker());
-            }
-
-            $current_tr.remove();
-            this.table.restoreAfterDelete($table);
-        },
-            deleteColumn: function()
-            {
-            var $table = this.table.getTable();
-            if (!$table) return;
-
-            this.buffer.set();
-
-            var $current = $(this.selection.getCurrent());
-            var $current_td = $current.closest('td, th');
-            var index = $current_td[0].cellIndex;
-
-            $table.find('tr').each($.proxy(function(i, elem)
-            {
-                var $elem = $(elem);
-                var focusIndex = index - 1 < 0 ? index + 1 : index - 1;
-                if (i === 0) $elem.find('td, th').eq(focusIndex).prepend(this.selection.getMarker());
-
-                $elem.find('td, th').eq(index).remove();
-
-            }, this));
-
-            this.table.restoreAfterDelete($table);
-        },
-            addHead: function()
-            {
-                var $table = this.table.getTable();
-                if (!$table) return;
-
-                this.buffer.set();
-
-                if ($table.find('thead').size() !== 0)
-                {
-                    this.table.deleteHead();
-                    return;
-                }
-
-                var tr = $table.find('tr').first().clone();
-                tr.find('td').replaceWith($.proxy(function()
-                {
-                    return $('<th>').html(this.opts.invisibleSpace);
-                }, this));
-
-                $thead = $('<thead></thead>').append(tr);
-                $table.prepend($thead);
-
-                this.code.sync();
-
-            },
-            deleteHead: function()
-            {
-                var $table = this.table.getTable();
-                if (!$table) return;
-
-                var $thead = $table.find('thead');
-                if ($thead.size() === 0) return;
-
-                this.buffer.set();
-
-                $thead.remove();
-                this.code.sync();
-            },
-            addRowAbove: function()
-            {
-                this.table.addRow('before');
-            },
-            addRowBelow: function()
-            {
-                this.table.addRow('after');
-            },
-            addColumnLeft: function()
-            {
-                this.table.addColumn('before');
-            },
-            addColumnRight: function()
-            {
-                this.table.addColumn('after');
-            },
-            addRow: function(type)
-            {
-                var $table = this.table.getTable();
-                if (!$table) return;
-
-                this.buffer.set();
-
-                var $current = $(this.selection.getCurrent());
-                var $current_tr = $current.closest('tr');
-                var new_tr = $current_tr.clone();
-
-                new_tr.find('th').replaceWith(function()
-                {
-                    var $td = $('<td>');
-                    $td[0].attributes = this.attributes;
-
-                    return $td.append($(this).contents());
-                });
-
-                new_tr.find('td').html(this.opts.invisibleSpace);
-
-                if (type == 'after')
-                {
-                    $current_tr.after(new_tr);
-                }
-                else
-                {
-                    $current_tr.before(new_tr);
-                }
-
-                this.code.sync();
-            },
-            addColumn: function (type)
-            {
-                var $table = this.table.getTable();
-                if (!$table) return;
-
-                var index = 0;
-                var current = $(this.selection.getCurrent());
-
-                this.buffer.set();
-
-                var $current_tr = current.closest('tr');
-                var $current_td = current.closest('td, th');
-
-                $current_tr.find('td, th').each($.proxy(function(i, elem)
-                {
-                    if ($(elem)[0] === $current_td[0]) index = i;
-
-                }, this));
-
-                $table.find('tr').each($.proxy(function(i, elem)
-                {
-                    var $current = $(elem).find('td, th').eq(index);
-
-                    var td = $current.clone();
-                    td.html(this.opts.invisibleSpace);
-
-                    if (type == 'after')
-                    {
-                        $current.after(td);
-                    }
-                    else
-                    {
-                        $current.before(td);
-                    }
-
-                }, this));
-
-                this.code.sync();
-            }
-        };
-    };
-})(jQuery);
-
-RedactorPlugins.textdirection = function() {
-  return {
-    init: function()
-    {
-        var that = this;
-        var dropdown = {};
-
-        dropdown.ltr = { title: __('Left to Right'), callback: this.setLtr };
-        dropdown.rtl = { title: __('Right to Left'), callback: this.setRtl };
-
-        var button = this.button.add('textdirection', __('Change Text Direction'),
-            false, dropdown);
-
-        if (this.opts.direction == 'rtl')
-            this.setRtl();
+(function ($R) {
+  $R.add('plugin', 'definedlinks', {
+    init: function (app) {
+      this.app = app;
+      this.opts = app.opts;
+      this.component = app.component;
+      // local
+      this.links = [];
     },
-    setRtl: function()
-    {
-        var c = this.getCurrent(), s = this.getSelection();
-        this.buffer.set();
-        if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
-            this.linebreakHack(s);
+    // messages
+    onmodal: {
+      link: {
+        open: function ($modal, $form) {
+          if (!this.opts.definedlinks) return;
+          this.$modal = $modal;
+          this.$form = $form;
+          this._load();
         }
-        else if (!c) {
-            var repl = '<div dir="rtl">' + this.get() + '</div>';
-            this.set(repl, false);
-        }
-        $(this.getCurrent()).attr('dir', 'rtl');
-        this.sync();
+      }
     },
-    setLtr: function()
-    {
-        var c = this.getCurrent(), s = this.getSelection();
-        this.buffer.set();
-        if (s.type == 'Range' && s.focusNode.nodeName != 'div') {
-            this.linebreakHack(s);
-        }
-        else if (!c) {
-            var repl = '<div dir="ltr">' + this.get() + '</div>';
-            this.set(repl, false);
-        }
-        $(this.getCurrent()).attr('dir', 'ltr');
-        this.sync();
+    // private
+    _load: function () {
+      if (typeof this.opts.definedlinks === 'object') {
+        this._build(this.opts.definedlinks);
+      } else {
+        $R.ajax.get({
+          url: this.opts.definedlinks,
+          success: this._build.bind(this)
+        });
+      }
     },
-    linebreakHack: function(sel) {
-        var range = sel.getRangeAt(0);
-        var wrapper = document.createElement('div');
-        wrapper.appendChild(range.extractContents());
-        range.insertNode(wrapper);
-        this.selectionElement(wrapper);
+    _build: function (data) {
+      var $selector = this.$modal.find('#redactor-defined-links');
+      if ($selector.length === 0) {
+        var $body = this.$modal.getBody();
+        var $item = $R.dom('<div class="form-item" />');
+        var $selector = $R.dom('<select id="redactor-defined-links" />');
+        $item.append($selector);
+        $body.prepend($item);
+      }
+      this.links = [];
+      $selector.html('');
+      $selector.off('change');
+      for (var key in data) {
+        if (!data.hasOwnProperty(key) || typeof data[key] !== 'object') {
+          continue;
+        }
+        this.links[key] = data[key];
+        var $option = $R.dom('<option>');
+        $option.val(key);
+        $option.html(data[key].name);
+        $selector.append($option);
+      }
+      $selector.on('change', this._select.bind(this));
+    },
+    _select: function (e) {
+      var formData = this.$form.getData();
+      var key = $R.dom(e.target)
+        .val();
+      var data = {
+        text: '',
+        url: ''
+      };
+      if (key !== '0') {
+        data.text = this.links[key].name;
+        data.url = this.links[key].url;
+      }
+      if (formData.text !== '') {
+        data = {
+          url: data.url
+        };
+      }
+      this.$form.setData(data);
     }
-  };
-};
+  });
 
-(function($)
-{
-    $.Redactor.prototype.video = function()
-    {
-        return {
-            reUrlYoutube: /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube\.com\S*[^\w\-\s])([\w\-]{11})(?=[^\w\-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig,
-            reUrlVimeo: /https?:\/\/(www\.)?vimeo.com\/(\d+)($|\/)/,
-            getTemplate: function()
-            {
-                return String()
-                + '<section id="redactor-modal-video-insert">'
-                    + '<label>' + this.lang.get('video_html_code') + '</label>'
-                    + '<textarea id="redactor-insert-video-area" style="height: 160px;"></textarea>'
-                + '</section>';
-            },
-            init: function()
-            {
-                var button = this.button.addAfter('image', 'video', this.lang.get('video'));
-                this.button.addCallback(button, this.video.show);
-            },
-            show: function()
-            {
-                this.modal.addTemplate('video', this.video.getTemplate());
+  $R.add('plugin', 'fontcolor', {
+    translations: {
+      en: {
+        "fontcolor": "Text Color",
+        "text": "Text",
+        "highlight": "Highlight"
+      }
+    },
+    init: function (app) {
+      this.app = app;
+      this.opts = app.opts;
+      this.lang = app.lang;
+      this.inline = app.inline;
+      this.toolbar = app.toolbar;
+      this.selection = app.selection;
+      // local
+      this.colors = (this.opts.fontcolors) ? this.opts.fontcolors : ['#ffffff', '#000000', '#eeece1', '#1f497d', '#4f81bd', '#c0504d', '#9bbb59', '#8064a2', '#4bacc6', '#f79646', '#ffff00', '#f2f2f2', '#7f7f7f', '#ddd9c3', '#c6d9f0', '#dbe5f1', '#f2dcdb', '#ebf1dd', '#e5e0ec', '#dbeef3', '#fdeada', '#fff2ca', '#d8d8d8', '#595959', '#c4bd97', '#8db3e2', '#b8cce4', '#e5b9b7', '#d7e3bc', '#ccc1d9', '#b7dde8', '#fbd5b5', '#ffe694', '#bfbfbf', '#3f3f3f', '#938953', '#548dd4', '#95b3d7', '#d99694', '#c3d69b', '#b2a2c7', '#b7dde8', '#fac08f', '#f2c314', '#a5a5a5', '#262626', '#494429', '#17365d', '#366092', '#953734', '#76923c', '#5f497a', '#92cddc', '#e36c09', '#c09100', '#7f7f7f', '#0c0c0c', '#1d1b10', '#0f243e', '#244061', '#632423', '#4f6128', '#3f3151', '#31859b', '#974806', '#7f6000'];
+    },
+    // messages
+    onfontcolor: {
+      set: function (rule, value) {
+        this._set(rule, value);
+      },
+      remove: function (rule) {
+        this._remove(rule);
+      }
+    },
+    // public
+    start: function () {
+      var btnObj = {
+        title: this.lang.get('fontcolor')
+      };
+      var $dropdown = this._buildDropdown();
+      this.$button = this.toolbar.addButton('fontcolor', btnObj);
+      this.$button.setIcon('<i class="re-icon-fontcolor"></i>');
+      this.$button.setDropdown($dropdown);
+    },
+    // private
+    _buildDropdown: function () {
+      var $dropdown = $R.dom('<div class="redactor-dropdown-cells">');
+      this.$selector = this._buildSelector();
+      this.$selectorText = this._buildSelectorItem('text', this.lang.get('text'));
+      this.$selectorText.addClass('active');
+      this.$selectorBack = this._buildSelectorItem('back', this.lang.get('highlight'));
+      this.$selector.append(this.$selectorText);
+      this.$selector.append(this.$selectorBack);
+      this.$pickerText = this._buildPicker('textcolor');
+      this.$pickerBack = this._buildPicker('backcolor');
+      $dropdown.append(this.$selector);
+      $dropdown.append(this.$pickerText);
+      $dropdown.append(this.$pickerBack);
+      this._buildSelectorEvents();
+      $dropdown.width(242);
+      return $dropdown;
+    },
+    _buildSelector: function () {
+      var $selector = $R.dom('<div>');
+      $selector.addClass('redactor-dropdown-selector');
+      return $selector;
+    },
+    _buildSelectorItem: function (name, title) {
+      var $item = $R.dom('<span>');
+      $item.attr('rel', name)
+        .html(title);
+      $item.addClass('redactor-dropdown-not-close');
+      return $item;
+    },
+    _buildSelectorEvents: function () {
+      this.$selectorText.on('mousedown', function (e) {
+        e.preventDefault();
+        this.$selector.find('span')
+          .removeClass('active');
+        this.$pickerBack.hide();
+        this.$pickerText.show();
+        this.$selectorText.addClass('active');
+      }.bind(this));
+      this.$selectorBack.on('mousedown', function (e) {
+        e.preventDefault();
+        this.$selector.find('span')
+          .removeClass('active');
+        this.$pickerText.hide();
+        this.$pickerBack.show();
+        this.$selectorBack.addClass('active');
+      }.bind(this));
+    },
+    _buildPicker: function (name) {
+      var $box = $R.dom('<div class="re-dropdown-box-' + name + '">');
+      var rule = (name == 'backcolor') ? 'background-color' : 'color';
+      var len = this.colors.length;
+      var self = this;
+      var func = function (e) {
+        e.preventDefault();
+        var $el = $R.dom(e.target);
+        self._set($el.data('rule'), $el.attr('rel'));
+      };
+      for (var z = 0; z < len; z++) {
+        var color = this.colors[z];
+        var $swatch = $R.dom('<span>');
+        $swatch.attr({
+          'rel': color,
+          'data-rule': rule
+        });
+        $swatch.css({
+          'background-color': color,
+          'font-size': 0,
+          'border': '2px solid #fff',
+          'width': '22px',
+          'height': '22px'
+        });
+        $swatch.on('mousedown', func);
+        $box.append($swatch);
+      }
+      var $el = $R.dom('<a>');
+      $el.attr({
+        'href': '#'
+      });
+      $el.css({
+        'display': 'block',
+        'clear': 'both',
+        'padding': '8px 5px',
+        'font-size': '12px',
+        'line-height': 1
+      });
+      $el.html(this.lang.get('none'));
+      $el.on('click', function (e) {
+        e.preventDefault();
+        self._remove(rule);
+      });
+      $box.append($el);
+      if (name == 'backcolor') $box.hide();
+      return $box;
+    },
+    _set: function (rule, value) {
+      var style = {};
+      style[rule] = value;
+      var args = {
+        tag: 'span',
+        style: style,
+        type: 'toggle'
+      };
+      this.inline.format(args);
+    },
+    _remove: function (rule) {
+      this.inline.remove({
+        style: rule
+      });
+    }
+  });
 
-                this.modal.load('video', this.lang.get('video'), 700);
-                this.modal.createCancelButton();
-
-                var button = this.modal.createActionButton(this.lang.get('insert'));
-                button.on('click', this.video.insert);
-
-                this.selection.save();
-                this.modal.show();
-
-                $('#redactor-insert-video-area').focus();
-
-            },
-            insert: function()
-            {
-                var data = $('#redactor-insert-video-area').val();
-
-                if (!data.match(/<iframe|<video/gi))
-                {
-                    data = this.clean.stripTags(data);
-
-                    // parse if it is link on youtube & vimeo
-                    var iframeStart = '<iframe style="width: 500px; height: 281px;" src="',
-                        iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
-
-                    if (data.match(this.video.reUrlYoutube))
-                    {
-                        data = data.replace(this.video.reUrlYoutube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
-                    }
-                    else if (data.match(this.video.reUrlVimeo))
-                    {
-                        data = data.replace(this.video.reUrlVimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
-                    }
-                }
-
-                this.selection.restore();
-                this.modal.close();
-
-                var current = this.selection.getBlock() || this.selection.getCurrent();
-
-                if (current) $(current).after(data);
-                else
-                {
-                    this.insert.html(data);
-                }
-
-                this.code.sync();
-            }
-
+  $R.add('plugin', 'fontfamily', {
+    translations: {
+      en: {
+        "fontfamily": "Font",
+        "remove-font-family": "Remove Font Family"
+      }
+    },
+    init: function (app) {
+      this.app = app;
+      this.opts = app.opts;
+      this.lang = app.lang;
+      this.inline = app.inline;
+      this.toolbar = app.toolbar;
+      // local
+      this.fonts = (this.opts.fontfamily) ? this.opts.fontfamily : ['Arial', 'Helvetica', 'Georgia', 'Times New Roman', 'Monospace'];
+    },
+    // public
+    start: function () {
+      var dropdown = {};
+      for (var i = 0; i < this.fonts.length; i++) {
+        var font = this.fonts[i].replace(/'/g, '');
+        dropdown[i] = {
+          title: $R.dom('<span>').css('font-family', font).text(font).get().outerHTML,
+          api: 'plugin.fontfamily.set',
+          args: font,
         };
-    };
-})(jQuery);
+      }
+      dropdown.remove = {
+        title: this.lang.get('remove-font-family'),
+        api: 'plugin.fontfamily.remove'
+      };
+      var $button = this.toolbar.addButton('fontfamily', {
+        title: this.lang.get('fontfamily')
+      });
+      $button.setIcon('<i class="re-icon-fontfamily"></i>');
+      $button.setDropdown(dropdown);
+    },
+    set: function (value) {
+      var args = {
+        tag: 'span',
+        style: {
+          'font-family': value
+        },
+        type: 'toggle'
+      };
+      this.inline.format(args);
+    },
+    remove: function () {
+      this.inline.remove({
+        style: 'font-family'
+      });
+    }
+  });
+
+  $R.add('plugin', 'table', {
+    translations: {
+      en: {
+        "table": "Table",
+        "insert-table": "Insert table",
+        "insert-row-above": "Insert row above",
+        "insert-row-below": "Insert row below",
+        "insert-column-left": "Insert column left",
+        "insert-column-right": "Insert column right",
+        "add-head": "Add head",
+        "delete-head": "Delete head",
+        "delete-column": "Delete column",
+        "delete-row": "Delete row",
+        "delete-table": "Delete table"
+      }
+    },
+    init: function (app) {
+      this.app = app;
+      this.lang = app.lang;
+      this.opts = app.opts;
+      this.caret = app.caret;
+      this.editor = app.editor;
+      this.toolbar = app.toolbar;
+      this.component = app.component;
+      this.inspector = app.inspector;
+      this.insertion = app.insertion;
+      this.selection = app.selection;
+    },
+    // messages
+    ondropdown: {
+      table: {
+        observe: function (dropdown) {
+          this._observeDropdown(dropdown);
+        }
+      }
+    },
+    onbottomclick: function () {
+      this.insertion.insertToEnd(this.editor.getLastNode(), 'table');
+    },
+    // public
+    start: function () {
+      var dropdown = {
+        observe: 'table',
+        'insert-table': {
+          title: this.lang.get('insert-table'),
+          api: 'plugin.table.insert'
+        },
+        'insert-row-above': {
+          title: this.lang.get('insert-row-above'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.addRowAbove'
+        },
+        'insert-row-below': {
+          title: this.lang.get('insert-row-below'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.addRowBelow'
+        },
+        'insert-column-left': {
+          title: this.lang.get('insert-column-left'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.addColumnLeft'
+        },
+        'insert-column-right': {
+          title: this.lang.get('insert-column-right'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.addColumnRight'
+        },
+        'add-head': {
+          title: this.lang.get('add-head'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.addHead'
+        },
+        'delete-head': {
+          title: this.lang.get('delete-head'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.deleteHead'
+        },
+        'delete-column': {
+          title: this.lang.get('delete-column'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.deleteColumn'
+        },
+        'delete-row': {
+          title: this.lang.get('delete-row'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.deleteRow'
+        },
+        'delete-table': {
+          title: this.lang.get('delete-table'),
+          classname: 'redactor-table-item-observable',
+          api: 'plugin.table.deleteTable'
+        }
+      };
+      var obj = {
+        title: this.lang.get('table')
+      };
+      var $button = this.toolbar.addButtonBefore('link', 'table', obj);
+      $button.setIcon('<i class="re-icon-table"></i>');
+      $button.setDropdown(dropdown);
+    },
+    insert: function () {
+      var rows = 2;
+      var columns = 3;
+      var $component = this.component.create('table');
+      for (var i = 0; i < rows; i++) {
+        $component.addRow(columns);
+      }
+      $component = this.insertion.insertHtml($component);
+      this.caret.setStart($component);
+    },
+    addRowAbove: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        var $row = $component.addRowTo(current, 'before');
+        this.caret.setStart($row);
+      }
+    },
+    addRowBelow: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        var $row = $component.addRowTo(current, 'after');
+        this.caret.setStart($row);
+      }
+    },
+    addColumnLeft: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        this.selection.save();
+        $component.addColumnTo(current, 'left');
+        this.selection.restore();
+      }
+    },
+    addColumnRight: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        this.selection.save();
+        $component.addColumnTo(current, 'right');
+        this.selection.restore();
+      }
+    },
+    addHead: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        this.selection.save();
+        $component.addHead();
+        this.selection.restore();
+      }
+    },
+    deleteHead: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        var $head = $R.dom(current)
+          .closest('thead');
+        if ($head.length !== 0) {
+          $component.removeHead();
+          this.caret.setStart($component);
+        } else {
+          this.selection.save();
+          $component.removeHead();
+          this.selection.restore();
+        }
+      }
+    },
+    deleteColumn: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        var $currentCell = $R.dom(current)
+          .closest('td, th');
+        var nextCell = $currentCell.nextElement()
+          .get();
+        var prevCell = $currentCell.prevElement()
+          .get();
+        $component.removeColumn(current);
+        if (nextCell) this.caret.setStart(nextCell);
+        else if (prevCell) this.caret.setEnd(prevCell);
+        else this.deleteTable();
+      }
+    },
+    deleteRow: function () {
+      var $component = this._getComponent();
+      if ($component) {
+        var current = this.selection.getCurrent();
+        var $currentRow = $R.dom(current)
+          .closest('tr');
+        var nextRow = $currentRow.nextElement()
+          .get();
+        var prevRow = $currentRow.prevElement()
+          .get();
+        $component.removeRow(current);
+        if (nextRow) this.caret.setStart(nextRow);
+        else if (prevRow) this.caret.setEnd(prevRow);
+        else this.deleteTable();
+      }
+    },
+    deleteTable: function () {
+      var table = this._getTable();
+      if (table) {
+        this.component.remove(table);
+      }
+    },
+    // private
+    _getTable: function () {
+      var current = this.selection.getCurrent();
+      var data = this.inspector.parse(current);
+      if (data.isTable()) {
+        return data.getTable();
+      }
+    },
+    _getComponent: function () {
+      var current = this.selection.getCurrent();
+      var data = this.inspector.parse(current);
+      if (data.isTable()) {
+        var table = data.getTable();
+        return this.component.create('table', table);
+      }
+    },
+    _observeDropdown: function (dropdown) {
+      var table = this._getTable();
+      var items = dropdown.getItemsByClass('redactor-table-item-observable');
+      var tableItem = dropdown.getItem('insert-table');
+      if (table) {
+        this._observeItems(items, 'enable');
+        tableItem.disable();
+      } else {
+        this._observeItems(items, 'disable');
+        tableItem.enable();
+      }
+    },
+    _observeItems: function (items, type) {
+      for (var i = 0; i < items.length; i++) {
+        items[i][type]();
+      }
+    }
+  });
+
+  $R.add('class', 'table.component', {
+    mixins: ['dom', 'component'],
+    init: function (app, el) {
+      this.app = app;
+      // init
+      return (el && el.cmnt !== undefined) ? el : this._init(el);
+    },
+    // public
+    addHead: function () {
+      this.removeHead();
+      var columns = this.$element.find('tr')
+        .first()
+        .children('td, th')
+        .length;
+      var $head = $R.dom('<thead>');
+      var $row = this._buildRow(columns, '<th>');
+      $head.append($row);
+      this.$element.prepend($head);
+    },
+    addRow: function (columns) {
+      var $row = this._buildRow(columns);
+      this.$element.append($row);
+      return $row;
+    },
+    addRowTo: function (current, type) {
+      return this._addRowTo(current, type);
+    },
+    addColumnTo: function (current, type) {
+      var $current = $R.dom(current);
+      var $currentRow = $current.closest('tr');
+      var $currentCell = $current.closest('td, th');
+      var index = 0;
+      $currentRow.find('td, th')
+        .each(function (node, i) {
+          if (node === $currentCell.get()) index = i;
+        });
+      this.$element.find('tr')
+        .each(function (node) {
+          var $node = $R.dom(node);
+          var origCell = $node.find('td, th')
+            .get(index);
+          var $origCell = $R.dom(origCell);
+          var $td = $origCell.clone();
+          $td.html('');
+          if (type === 'right') $origCell.after($td);
+          else $origCell.before($td);
+        });
+    },
+    removeHead: function () {
+      var $head = this.$element.find('thead');
+      if ($head.length !== 0) $head.remove();
+    },
+    removeRow: function (current) {
+      var $current = $R.dom(current);
+      var $currentRow = $current.closest('tr');
+      $currentRow.remove();
+    },
+    removeColumn: function (current) {
+      var $current = $R.dom(current);
+      var $currentRow = $current.closest('tr');
+      var $currentCell = $current.closest('td, th');
+      var index = 0;
+      $currentRow.find('td, th')
+        .each(function (node, i) {
+          if (node === $currentCell.get()) index = i;
+        });
+      this.$element.find('tr')
+        .each(function (node) {
+          var $node = $R.dom(node);
+          var origCell = $node.find('td, th')
+            .get(index);
+          var $origCell = $R.dom(origCell);
+          $origCell.remove();
+        });
+    },
+    // private
+    _init: function (el) {
+      var wrapper, element;
+      if (typeof el !== 'undefined') {
+        var $node = $R.dom(el);
+        var node = $node.get();
+        var $figure = $node.closest('figure');
+        if ($figure.length !== 0) {
+          wrapper = $figure;
+          element = $figure.find('table')
+            .get();
+        } else if (node.tagName === 'TABLE') {
+          element = node;
+        }
+      }
+      this._buildWrapper(wrapper);
+      this._buildElement(element);
+      this._initWrapper();
+    },
+    _addRowTo: function (current, position) {
+      var $current = $R.dom(current);
+      var $currentRow = $current.closest('tr');
+      if ($currentRow.length !== 0) {
+        var columns = $currentRow.children('td, th')
+          .length;
+        var $newRow = this._buildRow(columns);
+        $currentRow[position]($newRow);
+        return $newRow;
+      }
+    },
+    _buildRow: function (columns, tag) {
+      tag = tag || '<td>';
+      var $row = $R.dom('<tr>');
+      for (var i = 0; i < columns; i++) {
+        var $cell = $R.dom(tag);
+        $cell.attr('contenteditable', true);
+        $row.append($cell);
+      }
+      return $row;
+    },
+    _buildElement: function (node) {
+      if (node) {
+        this.$element = $R.dom(node);
+      } else {
+        this.$element = $R.dom('<table>');
+        this.append(this.$element);
+      }
+    },
+    _buildWrapper: function (node) {
+      node = node || '<figure>';
+      this.parse(node);
+    },
+    _initWrapper: function () {
+      this.addClass('redactor-component');
+      this.attr({
+        'data-redactor-type': 'table',
+        'tabindex': '-1',
+        'contenteditable': false
+      });
+    }
+  });
+
+  $R.add('plugin', 'imagemanager', {
+    translations: {
+      en: {
+        "choose": "Choose"
+      }
+    },
+    init: function (app) {
+      this.app = app;
+      this.lang = app.lang;
+      this.opts = app.opts;
+    },
+    // messages
+    onmodal: {
+      image: {
+        open: function ($modal, $form) {
+          if (!this.opts.imageManagerJson) return;
+          this._load($modal)
+        }
+      }
+    },
+    // private
+    _load: function ($modal) {
+      var $body = $modal.getBody();
+      this.$box = $R.dom('<div>');
+      this.$box.attr('data-title', this.lang.get('choose'));
+      this.$box.addClass('redactor-modal-tab');
+      this.$box.hide();
+      this.$box.css({
+        overflow: 'auto',
+        height: '300px',
+        'line-height': 1
+      });
+      $body.append(this.$box);
+      $R.ajax.get({
+        url: this.opts.imageManagerJson,
+        success: this._parse.bind(this)
+      });
+    },
+    _parse: function (data) {
+      for (var key in data) {
+        var obj = data[key];
+        if (typeof obj !== 'object') continue;
+        var $img = $R.dom('<img>');
+        var url = (obj.thumb) ? obj.thumb : obj.url;
+        $img.attr('src', url);
+        $img.attr('data-params', encodeURI(JSON.stringify(obj)));
+        $img.css({
+          width: '96px',
+          height: '72px',
+          margin: '0 4px 2px 0',
+          cursor: 'pointer'
+        });
+        $img.on('click', this._insert.bind(this));
+        this.$box.append($img);
+      }
+    },
+    _insert: function (e) {
+      e.preventDefault();
+      var $el = $R.dom(e.target);
+      var data = JSON.parse(decodeURI($el.attr('data-params')));
+      this.app.api('module.image.insert', {
+        image: data
+      });
+    }
+  });
+
+  $R.add('plugin', 'fullscreen', {
+    translations: {
+      en: {
+        "fullscreen": "Fullscreen"
+      }
+    },
+    init: function (app) {
+      this.app = app;
+      this.opts = app.opts;
+      this.lang = app.lang;
+      this.$win = app.$win;
+      this.$doc = app.$doc;
+      this.$body = app.$body;
+      this.editor = app.editor;
+      this.toolbar = app.toolbar;
+      this.container = app.container;
+      this.selection = app.selection;
+      // local
+      this.isOpen = false;
+      this.docScroll = 0;
+    },
+    // public
+    start: function () {
+      var data = {
+        title: this.lang.get('fullscreen'),
+        api: 'plugin.fullscreen.toggle'
+      };
+      var button = this.toolbar.addButton('fullscreen', data);
+      button.setIcon('<i class="re-icon-expand"></i>');
+      this.$target = (this.toolbar.isTarget()) ? this.toolbar.getTargetElement() : this.$body;
+      if (this.opts.fullscreen) this.toggle();
+    },
+    toggle: function () {
+      return (this.isOpen) ? this.close() : this.open();
+    },
+    open: function () {
+      this.docScroll = this.$doc.scrollTop();
+      this._createPlacemarker();
+      this.selection.save();
+      var $container = this.container.getElement();
+      var $editor = this.editor.getElement();
+      var $html = (this.toolbar.isTarget()) ? $R.dom('body, html') : this.$target;
+      if (this.opts.toolbarExternal) this._buildInternalToolbar();
+      this.$target.prepend($container);
+      this.$target.addClass('redactor-body-fullscreen');
+      $container.addClass('redactor-box-fullscreen');
+      if (this.isTarget) $container.addClass('redactor-box-fullscreen-target');
+      $html.css('overflow', 'hidden');
+      if (this.opts.maxHeight) $editor.css('max-height', '');
+      if (this.opts.minHeight) $editor.css('min-height', '');
+      this._resize();
+      this.$win.on('resize.redactor-plugin-fullscreen', this._resize.bind(this));
+      this.$doc.scrollTop(0);
+      var button = this.toolbar.getButton('fullscreen');
+      button.setIcon('<i class="re-icon-retract"></i>');
+      this.selection.restore();
+      this.isOpen = true;
+      this.opts.zindex = 1051;
+    },
+    close: function () {
+      this.isOpen = false;
+      this.opts.zindex = false;
+      this.selection.save();
+      var $container = this.container.getElement();
+      var $editor = this.editor.getElement();
+      var $html = $R.dom('body, html');
+      if (this.opts.toolbarExternal) this._buildExternalToolbar();
+      this.$target.removeClass('redactor-body-fullscreen');
+      this.$win.off('resize.redactor-plugin-fullscreen');
+      $html.css('overflow', '');
+      $container.removeClass('redactor-box-fullscreen redactor-box-fullscreen-target');
+      $editor.css('height', 'auto');
+      if (this.opts.minHeight) $editor.css('minHeight', this.opts.minHeight);
+      if (this.opts.maxHeight) $editor.css('maxHeight', this.opts.maxHeight);
+      var button = this.toolbar.getButton('fullscreen');
+      button.setIcon('<i class="re-icon-expand"></i>');
+      this._removePlacemarker($container);
+      this.selection.restore();
+      this.$doc.scrollTop(this.docScroll);
+    },
+    // private
+    _resize: function () {
+      var $toolbar = this.toolbar.getElement();
+      var $editor = this.editor.getElement();
+      var height = this.$win.height() - $toolbar.height();
+      $editor.height(height);
+    },
+    _buildInternalToolbar: function () {
+      var $wrapper = this.toolbar.getWrapper();
+      var $toolbar = this.toolbar.getElement();
+      $wrapper.addClass('redactor-toolbar-wrapper');
+      $wrapper.append($toolbar);
+      $toolbar.removeClass('redactor-toolbar-external');
+      $container.prepend($wrapper);
+    },
+    _buildExternalToolbar: function () {
+      var $wrapper = this.toolbar.getWrapper();
+      var $toolbar = this.toolbar.getElement();
+      this.$external = $R.dom(this.opts.toolbarExternal);
+      $toolbar.addClass('redactor-toolbar-external');
+      this.$external.append($toolbar);
+      $wrapper.remove();
+    },
+    _createPlacemarker: function () {
+      var $container = this.container.getElement();
+      this.$placemarker = $R.dom('<span />');
+      $container.after(this.$placemarker);
+    },
+    _removePlacemarker: function ($container) {
+      this.$placemarker.before($container);
+      this.$placemarker.remove();
+    }
+  });
+
+  $R.add('plugin', 'video', {
+    translations: {
+      en: {
+        "video": "Video",
+        "video-html-code": "Video Embed Code or Youtube/Vimeo Link"
+      }
+    },
+    modals: {
+      'video':
+        '<form action=""> \
+           <div class="form-item"> \
+             <label for="modal-video-input">## video-html-code ## <span class="req">*</span></label> \
+             <textarea id="modal-video-input" name="video" style="height: 160px;"></textarea> \
+           </div> \
+         </form>'
+    },
+    init: function (app) {
+      this.app = app;
+      this.lang = app.lang;
+      this.opts = app.opts;
+      this.toolbar = app.toolbar;
+      this.component = app.component;
+      this.insertion = app.insertion;
+      this.inspector = app.inspector;
+    },
+    // messages
+    onmodal: {
+      video: {
+        opened: function ($modal, $form) {
+          $form.getField('video')
+            .focus();
+        },
+        insert: function ($modal, $form) {
+          var data = $form.getData();
+          this._insert(data);
+        }
+      }
+    },
+    oncontextbar: function (e, contextbar) {
+      var data = this.inspector.parse(e.target)
+      if (data.isComponentType('video')) {
+        var node = data.getComponent();
+        var buttons = {
+          "remove": {
+            title: this.lang.get('delete'),
+            api: 'plugin.video.remove',
+            args: node
+          }
+        };
+        contextbar.set(e, node, buttons, 'bottom');
+      }
+    },
+    // public
+    start: function () {
+      var obj = {
+        title: this.lang.get('video'),
+        api: 'plugin.video.open'
+      };
+      var $button = this.toolbar.addButtonAfter('image', 'video', obj);
+      $button.setIcon('<i class="re-icon-video"></i>');
+    },
+    open: function () {
+      var options = {
+        title: this.lang.get('video'),
+        width: '600px',
+        name: 'video',
+        handle: 'insert',
+        commands: {
+          insert: {
+            title: this.lang.get('insert')
+          },
+          cancel: {
+            title: this.lang.get('cancel')
+          }
+        }
+      };
+      this.app.api('module.modal.build', options);
+    },
+    remove: function (node) {
+      this.component.remove(node);
+    },
+    // private
+    _insert: function (data) {
+      this.app.api('module.modal.close');
+      if (data.video.trim() === '') {
+        return;
+      }
+      // parsing
+      data.video = this._matchData(data.video);
+      // inserting
+      if (this._isVideoIframe(data.video)) {
+        var $video = this.component.create('video', data.video);
+        this.insertion.insertHtml($video);
+      }
+    },
+    _isVideoIframe: function (data) {
+      return (data.match(/<iframe|<video/gi) !== null);
+    },
+    _matchData: function (data) {
+      var iframeStart = '<iframe style="width: 500px; height: 281px;" src="';
+      var iframeEnd = '" frameborder="0" allowfullscreen></iframe>';
+      if (this._isVideoIframe(data)) {
+        var allowed = ['iframe', 'video', 'source'];
+        var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+        data = data.replace(tags, function ($0, $1) {
+          return (allowed.indexOf($1.toLowerCase()) === -1) ? '' : $0;
+        });
+      }
+      if (data.match(this.opts.regex.youtube)) {
+        data = data.replace(this.opts.regex.youtube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
+      } else if (data.match(this.opts.regex.vimeo)) {
+        data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
+      }
+      return data;
+    }
+  });
+  $R.add('class', 'video.component', {
+    mixins: ['dom', 'component'],
+    init: function (app, el) {
+      this.app = app;
+      // init
+      return (el && el.cmnt !== undefined) ? el : this._init(el);
+    },
+    // private
+    _init: function (el) {
+      if (typeof el !== 'undefined') {
+        var $node = $R.dom(el);
+        var $wrapper = $node.closest('figure');
+        if ($wrapper.length !== 0) {
+          this.parse($wrapper);
+        } else {
+          this.parse('<figure>');
+          this.append(el);
+        }
+      } else {
+        this.parse('<figure>');
+      }
+      this._initWrapper();
+    },
+    _initWrapper: function () {
+      this.addClass('redactor-component');
+      this.attr({
+        'data-redactor-type': 'video',
+        'tabindex': '-1',
+        'contenteditable': false
+      });
+    }
+  });
+  $R.add('plugin', 'textdirection', {
+    translations: {
+      en: {
+        "change-text-direction": "RTL-LTR",
+        "left-to-right": "Left to Right",
+        "right-to-left": "Right to Left"
+      }
+    },
+    init: function (app) {
+      this.app = app;
+      this.lang = app.lang;
+      this.block = app.block;
+      this.toolbar = app.toolbar;
+    },
+    // public
+    start: function () {
+      var dropdown = {};
+      dropdown.ltr = {
+        title: this.lang.get('left-to-right'),
+        api: 'plugin.textdirection.set',
+        args: 'ltr'
+      };
+      dropdown.rtl = {
+        title: this.lang.get('right-to-left'),
+        api: 'plugin.textdirection.set',
+        args: 'rtl'
+      };
+      var $button = this.toolbar.addButton('textdirection', {
+        title: this.lang.get('change-text-direction')
+      });
+      $button.setIcon('<i class="re-icon-textdirection"></i>');
+      $button.setDropdown(dropdown);
+    },
+    set: function (type) {
+      if (type === 'rtl') this.block.add({
+        attr: {
+          dir: 'rtl'
+        }
+      });
+      else this.block.remove({
+        attr: 'dir'
+      });
+    }
+  });
+})(Redactor);
 
 RedactorPlugins.imagepaste = function() {
   return {
