@@ -77,7 +77,7 @@ $manage = (!$target);
    <form class="mass-action" method="post"
     name="referrals"
     id="rf"
-    action="<?php echo sprintf('#/tickets/%d/referrals', $ticket->getId()); ?>">
+    action="<?php echo sprintf('#tickets/%d/referrals', $ticket->getId()); ?>">
      <input type='hidden' name='do' value='manage'>
     <table width="100%">
         <tbody>
