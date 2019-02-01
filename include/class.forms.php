@@ -2125,6 +2125,8 @@ class DatetimeField extends FormField {
     }
 
     function toString($value) {
+        if (is_array($value))
+            return '';
 
         $timestamp = is_int($value) ? $value : (int) strtotime($value);
         if ($timestamp <= 0)
