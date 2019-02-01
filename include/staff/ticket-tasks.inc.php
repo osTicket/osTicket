@@ -164,7 +164,7 @@ $(function() {
             var url = 'ajax.php/'+$(this).attr('href').substr(1);
             var $container = $('div#task_content');
             var $stop = $('ul#ticket_tabs').offset().top;
-            $.pjax({url: url, container: $container, push: false, scrollTo: $stop})
+            $.pjax({url: url, container: 'div#task_content', push: false, scrollTo: $stop})
             .done(
                 function() {
                 $container.show();
