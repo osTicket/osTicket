@@ -2657,52 +2657,25 @@ implements RestrictedAccess, Threadable, Searchable {
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
         $errors = array();
-
-        $hdr = Mail_parse::splitHeaders($vars['header'], true);
-        $existingCollab = Collaborator::getIdByUserId($vars['userId'], $this->getThreadId());
-
-        if (($vars['userId'] != $this->user_id) && (!$existingCollab)) {
-          if ($vars['userId'] == 0) {
-            $emailStream = '<<<EOF' . $vars['header'] . 'EOF';
-            $parsed = EmailDataParser::parse($emailStream);
-            $email = $parsed['email'];
-            if (!$existinguser = User::lookupByEmail($email)) {
-              $name = $parsed['name'];
-              $user = User::fromVars(array('name' => $name, 'email' => $email));
-              $vars['userId'] = $user->getId();
+        if ($vars['userId'] != $this->user_id) {
+            if ($vars['userId']) {
+                $user = User::lookup($vars['userId']);
+             } elseif ($vars['header']
+                    && ($hdr= Mail_parse::splitHeaders($vars['header'], true))
+                    && $hdr['From']
+                    && ($addr= Mail_Parse::parseAddressList($hdr['From']))) {
+                $info = array(
+                        'name' => $addr[0]->personal,
+                        'email' => $addr[0]->mailbox.'@'.$addr[0]->host);
+                if ($user=User::fromVars($info))
+                    $vars['userId'] = $user->getId();
             }
-          }
-          else
-            $user = User::lookup($vars['userId']);
 
-          $c = $this->getThread()->addCollaborator($user,array(), $errors);
-
-          $addresses = array();
-          foreach (array('To', 'TO', 'Cc', 'CC') as $k) {
-            if ($user && isset($hdr[$k]) && $hdr[$k])
-              $addresses[] = Mail_Parse::parseAddressList($hdr[$k]);
-          }
-          if (count($addresses) > 1) {
-            $isMsg = true;
-            $c->setCc();
-          }
-        }
-        else {
-          $c = Collaborator::lookup($existingCollab);
-          if ($c && !$c->isCc()) {
-            foreach (array('To', 'TO', 'Cc', 'CC') as $k) {
-              if (isset($hdr[$k]) && $hdr[$k])
-                $addresses[] = Mail_Parse::parseAddressList($hdr[$k]);
+            if ($user) {
+                $c = $this->getThread()->addCollaborator($user,array(),
+                        $errors);
             }
-            if (count($addresses) > 1) {
-              $isMsg = true;
-              $c->setCc();
-            }
-          }
-        }
-
-        if ($vars['userId'] == $this->user_id)
-          $isMsg = true;
+       }
 
       // Get active recipients of the response
       // Initial Message from Tickets created by Agent
@@ -3428,7 +3401,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         return true;
     }
-
 
    /*============== Static functions. Use Ticket::function(params); =============nolint*/
     static function getIdByNumber($number, $email=null, $ticket=false) {
