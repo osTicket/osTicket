@@ -210,35 +210,38 @@
         this.app = app;
     },
     start: function() {
-        var $el = $(this.app.rootElement),
-            inner = $('<div class="inner"></div>');
-        if ($el.data('signatureField')) {
-            this.$signatureBox = $('<div class="selected-signature"></div>')
-                .append(inner)
-                .appendTo(this.app.rootElement);
+        var $el = $R.dom(this.app.rootElement),
+            $box = this.app.editor.getElement(),
+            inner = $R.dom('<div class="inner"></div>'),
+            $form = $el.closest('form'),
+            signatureField = $el.data('signature-field');
+        if (signatureField) {
+            this.$signatureBox = $R.dom('<div class="selected-signature"></div>')
+                .append(inner);
+            this.app.editor.getElement().parent().find('.redactor-statusbar').before(this.$signatureBox);
             if ($el.data('signature'))
                 inner.html($el.data('signature'));
             else
                 this.$signatureBox.hide();
-            $('input[name='+$el.data('signatureField')+']', $el.closest('form'))
-                .on('change', false, false, $.proxy(this.updateSignature, this));
-            if ($el.data('deptField'))
-                $(':input[name='+$el.data('deptField')+']', $el.closest('form'))
-                    .on('change', false, false, $.proxy(this.updateSignature, this));
+            $R.dom('input[name='+signatureField+']', $form)
+                .on('change', this.updateSignature.bind(this));
+            if ($el.data('dept-field'))
+                $R.dom(':input[name='+$el.data('dept-field')+']', $form)
+                    .on('change', this.updateSignature.bind(this));
             // Expand on hover
             var outer = this.$signatureBox,
                 inner = $('.inner', this.$signatureBox).get(0),
                 originalHeight = outer.height(),
                 hoverTimeout = undefined,
                 originalShadow = this.$signatureBox.css('box-shadow');
-            this.$signatureBox.hover(function() {
-                hoverTimeout = setTimeout($.proxy(function() {
+            this.$signatureBox.on('hover', function() {
+                hoverTimeout = setTimeout(function() {
                     originalHeight = Math.max(originalHeight, outer.height());
                     $(this).animate({
                         'height': inner.offsetHeight
                     }, 'fast');
                     $(this).css('box-shadow', 'none', 'important');
-                }, this), 250);
+                }.bind(this), 250);
             }, function() {
                 clearTimeout(hoverTimeout);
                 $(this).stop().animate({
@@ -251,29 +254,36 @@
     },
     updateSignature: function(e) {
         var $el = $(this.app.rootElement),
-            selected = $(':input:checked[name='+$el.data('signatureField')+']', $el.closest('form')).val(),
-            type = $(e.target).val(),
-            dept = $(':input[name='+$el.data('deptField')+']', $el.closest('form')).val(),
+            signatureField = $el.data('signature-field'),
+            $form = $el.closest('form'),
+            selected = $(':input:checked[name='+signatureField+']', $form).val(),
+            type = $R.dom(e.target).val(),
+            dept = $R.dom(':input[name='+$el.data('dept-field')+']', $form).val(),
             url = 'ajax.php/content/signature/',
-            inner = $('.inner', this.$signatureBox);
+            inner = $R.dom('.inner', this.$signatureBox);
         e.preventDefault && e.preventDefault();
-        if (selected == 'dept' && $el.data('deptId'))
-            url += 'dept/' + $el.data('deptId');
-        else if (selected == 'dept' && $el.data('deptField')) {
+        if (selected == 'dept' && $el.data('dept-id'))
+            url += 'dept/' + $el.data('dept-id');
+        else if (selected == 'dept' && $el.data('dept-field')) {
             if (dept)
                 url += 'dept/' + dept;
             else
                 return inner.empty().parent().hide();
         }
-        else if (selected == 'theirs' && $el.data('posterId')) {
-            url += 'agent/' + $el.data('posterId');
+        else if (selected == 'theirs' && $el.data('poster-id')) {
+            url += 'agent/' + $el.data('poster-id');
         }
         else if (type == 'none')
            return inner.empty().parent().hide();
         else
             url += selected;
 
-        inner.load(url).parent().show();
+        $R.ajax.get({
+            url: url,
+            success: function(html) {
+                inner.html(html).parent().show();
+            }
+        });
     }
   });
 })(Redactor);
@@ -424,7 +434,7 @@ $(function() {
         $('.richtext').each(function() {
             var redactor = $(this).data('redactor');
             if (redactor)
-                redactor.core.destroy();
+                redactor.stop();
         });
     };
     findRichtextBoxes();

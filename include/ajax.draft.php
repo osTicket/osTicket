@@ -363,7 +363,7 @@ class DraftAjaxAPI extends AjaxController {
                 // Don't send special sizing for thread items 'cause they
                 // should be cached already by the client
                 'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
-                'image'=>$url,
+                'url'=>$url,
                 'title'=>$name ?: $f->getName(),
             );
         }
