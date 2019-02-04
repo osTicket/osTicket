@@ -56,11 +56,8 @@ class DraftAjaxAPI extends AjaxController {
 
         # Fixup for expected multiple attachments
         if (isset($_FILES['file'])) {
-            foreach ($_FILES['file'] as $k=>$v)
-                $_FILES['image'][$k] = array($v);
-            unset($_FILES['file']);
+            $file = AttachmentFile::format($_FILES['file']);
 
-            $file = AttachmentFile::format($_FILES['image']);
             # Allow for data-uri uploaded files
             $fp = fopen($file[0]['tmp_name'], 'rb');
             if (fread($fp, 5) == 'data:') {
@@ -130,12 +127,14 @@ class DraftAjaxAPI extends AjaxController {
             return Http::response(500, 'Unable to attach image');
 
         echo JsonDataEncoder::encode(array(
+            $f->getName() => array(
             'content_id' => 'cid:'.$f->getKey(),
+            'id' => $f->getKey(),
             // Return draft_id to connect the auto draft creation
             'draft_id' => $draft->getId(),
-            'filelink' => $f->getDownloadUrl(
+            'url' => $f->getDownloadUrl(
                 ['type' => 'D', 'deposition' => 'inline']),
-        ));
+        )));
     }
 
     // Client interface for drafts =======================================
