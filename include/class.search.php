@@ -700,7 +700,8 @@ class SavedQueue extends CustomQueue {
         return $this->_columns;
     }
 
-    static function getHierarchicalQueues(Staff $staff) {
+    static function getHierarchicalQueues(Staff $staff, $pid=0,
+            $primary=true) {
         return CustomQueue::getHierarchicalQueues($staff, 0, false);
     }
 
@@ -1014,7 +1015,7 @@ extends SavedSearch {
         return $this->ht['staff_id'] == $staff->getId();
     }
 
-    function checkAccess($staff) {
+    function checkAccess(Staff $staff) {
         return true;
     }
 
@@ -1433,7 +1434,7 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         return parent::getSearchQ($method, $value, $name);
     }
 
-    function getSortKeys() {
+    function getSortKeys($path) {
         return array('team__name');
     }
 

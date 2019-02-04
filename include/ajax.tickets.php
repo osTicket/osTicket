@@ -792,7 +792,15 @@ function refer($tid, $target=null) {
                                 );
 
                     if ($depts) {
-                        $members->filter(Q::any( array(
+                        $all_agent_depts = Dept::objects()->filter(
+                            Q::all( array('id__in' => $depts,
+                            Q::not(array('flags__hasbit'
+                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY)),
+                            Q::not(array('flags__hasbit'
+                                => Dept::FLAG_ASSIGN_PRIMARY_ONLY))
+                            )))->values_flat('id');
+                        if (!count($all_agent_depts)) {
+                            $members->filter(Q::any( array(
                                         'dept_id__in' => $depts,
                                         Q::all(array(
                                             'dept_access__dept__id__in' => $depts,
@@ -802,6 +810,7 @@ function refer($tid, $target=null) {
                                                     => Dept::FLAG_ASSIGN_PRIMARY_ONLY))
                                             ))
                                         )));
+                        }
                     }
 
                     switch ($cfg->getAgentNameFormat()) {

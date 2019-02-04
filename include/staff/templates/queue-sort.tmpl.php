@@ -30,7 +30,8 @@ var $et = $(event.target),
 $.pjax({
     url: '?' + query,
     timeout: 2000,
-    container: '#pjax-container'});">
+    container: '#pjax-container'});
+return false;">
   <ul class="bleed-left">
     <?php foreach ($queue->getSortOptions() as $qs) {
     $desc = $qs->getName();
