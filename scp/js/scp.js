@@ -213,7 +213,7 @@ var scp_prep = function() {
     $('form select#cannedResp').on('select2:opening', function (e) {
         var redactor = $('.richtext', $(this).closest('form')).data('redactor');
         if (redactor)
-            redactor.selection.save();
+            redactor.api('selection.save');
     });
 
     $('form select#cannedResp').change(function() {
@@ -234,17 +234,14 @@ var scp_prep = function() {
                 cache: false,
                 success: function(canned){
                     //Canned response.
-                    var box = $('#response',fObj),
-                        redactor = box.data('redactor');
-                    if(canned.response) {
+                    var box = $('#response', fObj),
+                        redactor = $R('#response');
+                    if (canned.response) {
                         if (redactor) {
-                            redactor.selection.restore();
-                            redactor.insert.html(canned.response);
+                            redactor.api('selection.restore');
+                            redactor.insertion.insertHtml(canned.response);
                         } else
                             box.val(box.val() + canned.response);
-
-                        if (redactor)
-                            redactor.observe.load();
                     }
                     //Canned attachments.
                     var ca = $('.attachments', fObj);

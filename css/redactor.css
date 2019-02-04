@@ -1370,3 +1370,8 @@
 .redactor-box.redactor-styles-on.redactor-source-view .redactor-toolbar.redactor-toolbar {
   background-color: rgba(0, 0, 0, 0.97);
 }
+
+.redactor-toolbar a.re-button-icon.re-button-icon,
+.redactor-air a.re-button-icon.re-button-icon {
+  padding: 9px 12px 6px 12px;
+}

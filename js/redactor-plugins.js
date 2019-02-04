@@ -752,6 +752,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       };
       var button = this.toolbar.addButton('fullscreen', data);
       button.setIcon('<i class="re-icon-expand"></i>');
+      button.addClass('pull-right');
       this.$target = (this.toolbar.isTarget()) ? this.toolbar.getTargetElement() : this.$body;
       if (this.opts.fullscreen) this.toggle();
     },
@@ -773,6 +774,9 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       $html.css('overflow', 'hidden');
       if (this.opts.maxHeight) $editor.css('max-height', '');
       if (this.opts.minHeight) $editor.css('min-height', '');
+      if (this.opts.maxWidth) {
+        this.toolbar.$wrapper.css({'max-width': this.opts.maxWidth, 'margin': 'auto'});
+      }
       this._resize();
       this.$win.on('resize.redactor-plugin-fullscreen', this._resize.bind(this));
       this.$doc.scrollTop(0);
@@ -797,6 +801,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       $editor.css('height', 'auto');
       if (this.opts.minHeight) $editor.css('minHeight', this.opts.minHeight);
       if (this.opts.maxHeight) $editor.css('maxHeight', this.opts.maxHeight);
+      if (this.opts.maxWidth) this.toolbar.$wrapper.css('max-width', '');
       var button = this.toolbar.getButton('fullscreen');
       button.setIcon('<i class="re-icon-expand"></i>');
       this._removePlacemarker($container);
@@ -1029,90 +1034,77 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       });
     }
   });
-})(Redactor);
 
-var loadedFabric = false;
-RedactorPlugins.imageannotate = function() {
-  return {
-    annotateButton: false,
-    init: function() {
-      var redactor = this,
-          self = this.imageannotate;
-      $(document).on('click', '.redactor-box img', function() {
-        var $image = $(this),
-            image_box = $('#redactor-image-box');
-        if (!image_box.length || !redactor.image.editter)
-            return;
+  // Monkey patch context bar to have ability to add a button
+  var contextbar = $R[$R.env['module']]['contextbar'];
+  $R.add('module', 'contextbar', $R.extend(contextbar.prototype, {
+    append: function(e, button) {
+      var $btn = $R.create('contextbar.button', this.app, button);
+      if ($btn.html() !== '')
+      {
+          this.$contextbar.append($btn);
+      }
+      var pos = this._buildPosition(e, this.$el);
+      this.$contextbar.css(pos);
+    }
+  }));
 
-        var edit_size = redactor.image.editter.outerWidth();
+  var loadedFabric = false;
+  $R.add('plugin', 'imageannotate', {
+    init: function(app) {
+      this.app = app;
+    },
+    oncontextbar: function(e, contextbar) {
+        var current = this.app.selection.getCurrent();
+        var data = this.app.inspector.parse(current);
 
-        self.annotateButton = redactor.image.editter
-          .on('remove.annotate',
-            function() { self.teardownAnnotate.call(redactor, image_box); })
-          .clone()
-          .text(' '+__('Annotate'))
-          .prepend('<i class="icon-pencil"></i>')
-          .addClass('annotate-button')
-          .insertAfter(redactor.image.editter)
-          .data('image', this)
-          .on('click',
-            function() { self.startAnnotate.call(redactor, $image) });
-        var diff = (edit_size - self.annotateButton.outerWidth()) / 2;
-        self.annotateButton.css('margin-left',
-          (diff + 5) + 'px');
-        redactor.image.editter.css('margin-left',
-          (-edit_size + diff - 5) + 'px');
-      });
+        if (!data.isFigcaption() && data.isComponentType('image')) {
+          contextbar.append(e, {
+            title: __('Annotate'),
+            api: 'plugin.imageannotate.startAnnotate',
+            args: [data.getComponent()]
+          });
+        }
     },
     startAnnotate: function(img) {
-        canvas = this.imageannotate.initCanvas(img);
-        this.imageannotate.buildToolbar(img);
-        this.image.editter.hide();
-        this.imageannotate.annotateButton.hide();
+        canvas = this.initCanvas(img);
+        this.$image = img;
+        this.buildToolbar(img);
     },
-    teardownAnnotate: function(box) {
-        this.image.editter.off('.annotate');
-        this.opts.keydownCallback = false;
-        this.opts.keyupCallback = false;
+    teardownAnnotate: function() {
+        var box = this.app.editor.getElement();
         box.find('.annotate-toolbar').remove();
-        box.find('.annotate-button').remove();
-        var img = box.find('img')[0],
-            $img = $(img),
-            fcanvas = $img.data('canvas'),
+        var fcanvas = this.$image.data('canvas'),
             state = fcanvas.toObject();
         // Capture current annotations
         delete state.backgroundImage;
-        $img.attr('data-annotations', btoa(JSON.stringify(state)));
+        this.$image.attr('data-annotations', btoa(JSON.stringify(state)));
         // Drop the canvas
         fcanvas.dispose();
         box.find('canvas').parent().remove();
-        $img.data('canvas', false);
-        // Deselect the image
-        this.image.hideResize();
+        this.$image.data('canvas', false);
         // Show the original image
-        $img.removeClass('hidden');
+        this.$image.removeClass('hidden');
     },
     buildToolbar: function(img) {
-        var box = img.parent(),
-            redactor = this,
-            plugin = this.imageannotate,
+        var box = $R.dom(img).parent(),
             shapes = $('<span>')
               .attr('data-redactor', 'verified')
               .attr('contenteditable', 'false')
               .css({'display': 'inline-block', 'vertical-align': 'top'}),
             swatches = shapes.clone(),
             actions = shapes.clone(),
-            container = $('<div></div>')
+            container = $R.dom('<div></div>')
               .addClass('annotate-toolbar')
               .attr('data-redactor', 'verified')
               .attr('contenteditable', 'false')
               .css({position: 'absolute', bottom: 0, 'min-height': '28px',
                 width: '100%', 'background-color': 'rgba(0,0,0,0.5)',
                 margin: 0, 'padding-top': '4px' })
-              .appendTo(box)
               .append(shapes)
               .append(swatches)
               .append(actions);
+        box.append(container);
 
         var button = $('<a></a>')
             .attr('href', '#')
@@ -1124,22 +1116,22 @@ RedactorPlugins.imageannotate = function() {
         shapes
             .append(button.clone()
               .append($('<i class="icon-arrow-right icon-large"></i>')
-              .on('click', plugin.drawArrow.bind(redactor))
+              .on('click', this.drawArrow.bind(this))
               .attr('title', __('Add Arrow')))
             )
             .append(button.clone()
               .append($('<i class="icon-check-empty icon-large"></i>')
-              .on('click', plugin.drawBox.bind(redactor))
+              .on('click', this.drawBox.bind(this))
               .attr('title', __('Add Rectangle')))
             )
             .append(button.clone()
               .append($('<i class="icon-circle-blank icon-large"></i>')
-              .on('click', plugin.drawEllipse.bind(redactor))
+              .on('click', this.drawEllipse.bind(this))
               .attr('title', __('Add Ellipse')))
             )
             .append(button.clone()
               .append($('<i class="icon-text-height icon-large"></i>')
-              .on('click', plugin.drawText.bind(redactor))
+              .on('click', this.drawText.bind(this))
               .attr('title', __('Add Text')))
             );
 
@@ -1161,7 +1153,7 @@ RedactorPlugins.imageannotate = function() {
         $swatch.css({'background-color': color, 'border': '1px dotted rgba(255,255,255,0.4)'});
         $swatch.attr('data-redactor', 'verified');
         $swatch.attr('contenteditable', 'false');
-        $swatch.on('click', plugin.setColor.bind(redactor));
+        $swatch.on('click', this.setColor.bind(this));
 
         swatches.append($swatch);
       }
@@ -1182,7 +1174,7 @@ RedactorPlugins.imageannotate = function() {
                     'text-shadow': '0 0 2px black', 'font-size':'80%'})
                 )
               )
-              .on('click', plugin.smallerFont.bind(redactor))
+              .on('click', this.smallerFont.bind(this))
               .attr('title', __('Decrease Font Size'))
             )
             .append(button.clone()
@@ -1194,7 +1186,7 @@ RedactorPlugins.imageannotate = function() {
                     'text-shadow': '0 0 2px black'})
                 )
               )
-              .on('click', plugin.biggerFont.bind(redactor))
+              .on('click', this.biggerFont.bind(this))
               .attr('title', __('Increase Font Size'))
             )
             .append(button.clone()
@@ -1206,7 +1198,7 @@ RedactorPlugins.imageannotate = function() {
                   .css({position: 'absolute', left: '4.5px', top: 0})
                 )
               )
-              .on('click', plugin.paintStroke.bind(redactor))
+              .on('click', this.paintStroke.bind(this))
               .attr('title', __('Set Stroke'))
             )
             .append(button.clone()
@@ -1217,45 +1209,41 @@ RedactorPlugins.imageannotate = function() {
                   .css({position: 'absolute', left: '4px', top: '2px'})
                 )
               )
-              .on('click', plugin.paintFill.bind(redactor))
+              .on('click', this.paintFill.bind(this))
               .attr('title', __('Set Fill'))
             )
             .append(button.clone()
               .append($('<i class="icon-eye-close icon-large"></i>'))
-              .on('click', plugin.setOpacity.bind(redactor))
+              .on('click', this.setOpacity.bind(this))
               .attr('title', __('Toggle Opacity'))
             )
             .append(button.clone()
               .append($('<i class="icon-double-angle-up icon-large"></i>'))
-              .on('click', plugin.bringForward.bind(redactor))
+              .on('click', this.bringForward.bind(this))
               .attr('title', __('Bring Forward'))
             )
             .append(button.clone()
               .append($('<i class="icon-trash icon-large"></i>'))
-              .on('click', plugin.discard.bind(redactor))
+              .on('click', this.discard.bind(this))
               .attr('title', __('Delete Object'))
             );
 
         container.append(button.clone()
           .append($('<i class="icon-save icon-large"></i>'))
-          .on('click', plugin.commit.bind(redactor))
+          .on('click', this.commit.bind(this))
           .addClass('pull-right')
           .attr('title', __('Commit Annotations'))
         );
-        plugin.paintStroke();
+        this.paintStroke();
     },
 
     setColor: function(e) {
       e.preventDefault();
-      var plugin = this.imageannotate,
-          redactor = this,
-          swatch = e.target,
-          image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas');
+      var swatch = e.target,
+          fcanvas = this.$image.data('canvas');
       $.each(fcanvas.getObjects(), function() {
         if (this.get('active')) {
-          if (plugin.paintMode == 'fill')
+          if (this.paintMode == 'fill')
             this.setFill($(e.target).attr('rel'));
           else
             this.setStroke($(e.target).attr('rel'));
@@ -1267,15 +1255,12 @@ RedactorPlugins.imageannotate = function() {
     // Shapes
     drawShape: function(ondown, onmove, onup, cursor) {
       // @see http://jsfiddle.net/URWru/
-      var plugin = this.imageannotate,
-          redactor = this,
-          image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas'),
+      var fcanvas = this.$image.data('canvas'),
           isDown, shape,
+          that = this,
           mousedown = function(o) {
             isDown = true;
-            plugin.setBuffer();
+            that.app.api('module.buffer.trigger');
             var pointer = fcanvas.getPointer(o.e);
             shape = ondown(pointer, o.e);
             fcanvas.add(shape);
@@ -1328,7 +1313,7 @@ RedactorPlugins.imageannotate = function() {
     drawArrow: function(e) {
       e.preventDefault();
       var top, left;
-      return this.imageannotate.drawShape(
+      return this.drawShape(
         function(pointer) {
           top = pointer.y;
           left = pointer.x;
@@ -1400,7 +1385,7 @@ RedactorPlugins.imageannotate = function() {
 
     drawEllipse: function(e) {
       e.preventDefault();
-      return this.imageannotate.drawShape(
+      return this.drawShape(
         function(pointer) {
           return new fabric.Ellipse({
             top: pointer.y,
@@ -1431,7 +1416,7 @@ RedactorPlugins.imageannotate = function() {
 
     drawBox: function(e) {
       e.preventDefault();
-      return this.imageannotate.drawShape(
+      return this.drawShape(
         function(pointer) {
           return new fabric.Rect({
             top: pointer.y,
@@ -1459,7 +1444,7 @@ RedactorPlugins.imageannotate = function() {
 
     drawText: function(e) {
       e.preventDefault();
-      return this.imageannotate.drawShape(
+      return this.drawShape(
         function(pointer) {
           return new fabric.IText(__('Text'), {
             top: pointer.y,
@@ -1495,9 +1480,7 @@ RedactorPlugins.imageannotate = function() {
     // Action buttons
     biggerFont: function(e) {
       e.preventDefault();
-      var image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
       $.each(fcanvas.getObjects(), function() {
         if (this.get('active') && this instanceof fabric.IText) {
           if (this.getSelectedText()) {
@@ -1515,9 +1498,7 @@ RedactorPlugins.imageannotate = function() {
     },
     smallerFont: function(e) {
       e.preventDefault();
-      var image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
       $.each(fcanvas.getObjects(), function() {
         if (this.get('active') && this instanceof fabric.IText) {
           if (this.getSelectedText()) {
@@ -1537,21 +1518,19 @@ RedactorPlugins.imageannotate = function() {
     paintStroke: function(e) {
       $('#annotate-set-stroke').css({'background-color': 'rgba(255,255,255,0.3)'});
       $('#annotate-set-fill').css({'background-color': 'transparent'});
-      this.imageannotate.paintMode = 'stroke';
+      this.paintMode = 'stroke';
       return false;
     },
     paintFill: function(e) {
       $('#annotate-set-fill').css({'background-color': 'rgba(255,255,255,0.3)'});
       $('#annotate-set-stroke').css({'background-color': 'transparent'});
-      this.imageannotate.paintMode = 'fill';
+      this.paintMode = 'fill';
       return false;
     },
 
     setOpacity: function(e) {
       e.preventDefault();
-      var image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
       $.each(fcanvas.getObjects(), function() {
         if (this.get('active')) {
           if (this.getOpacity() != 1)
@@ -1566,9 +1545,7 @@ RedactorPlugins.imageannotate = function() {
 
     bringForward: function(e) {
       e.preventDefault();
-      var image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
       $.each(fcanvas.getObjects(), function() {
         if (this.get('active')) {
           this.bringForward();
@@ -1577,9 +1554,7 @@ RedactorPlugins.imageannotate = function() {
     },
 
     keydown: function(e) {
-      var image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          fcanvas = $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
 
       if (!fcanvas)
           return;
@@ -1606,7 +1581,7 @@ RedactorPlugins.imageannotate = function() {
 
       // Check if [delete] was pressed with selected objects
       if (e.keyCode == 8 || e.keyCode == 46)
-        return this.imageannotate.discard(e);
+        return this.discard(e);
       else if (e.keyCode == 90 && (e.metaKey || e.ctrlKey)) {
         fcanvas.loadFromJSON(atob($(img).attr('data-annotations')));
         return false;
@@ -1614,16 +1589,14 @@ RedactorPlugins.imageannotate = function() {
     },
 
     discard: function(e) {
-      var image_box = $('#redactor-image-box', this.$editor),
-          img = image_box && image_box.find('img')[0],
-          fcanvas = img && $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
 
       if (!fcanvas)
         // Not annotating
         return;
 
       e.preventDefault();
-      this.imageannotate.setBuffer();
+      this.app.api('module.buffer.trigger');
       $.each(fcanvas.getObjects(), function() {
         if (this.get('active'))
           this.remove();
@@ -1634,15 +1607,11 @@ RedactorPlugins.imageannotate = function() {
 
     commit: function(e) {
       e.preventDefault();
-      var redactor = this,
-          image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          $img = $(img),
-          fcanvas = $(img).data('canvas');
+      var fcanvas = this.$image.data('canvas');
       fcanvas.deactivateAll();
 
       // Upload to server
-      redactor.buffer.set();
+      this.app.api('module.buffer.trigger');
       var annotated = fcanvas.toDataURL({
             format: 'jpg', quality: 4,
             multiplier: 1/fcanvas.getZoom()
@@ -1650,17 +1619,17 @@ RedactorPlugins.imageannotate = function() {
           file = new Blob([annotated], {type: 'image/jpeg'});
 
       // Fallback to the data URL — show while the image is being uploaded
-      var origSrc = $img.attr('src');
-      $img.attr('src', annotated);
+      var origSrc = this.$image.attr('src');
+      this.$image.attr('src', annotated);
 
-      var origCallback = redactor.opts.imageUploadCallback,
-          origErrorCbk = redactor.opts.imageUploadErrorCallback;
+      var origCallback = this.app.opts.imageUploadCallback,
+          origErrorCbk = this.app.opts.imageUploadErrorCallback;
 
       // After successful upload, replace the old image with the new one.
       // Transfer the annotation state to the new image for replay.
-      redactor.opts.imageUploadCallback = function(image, json) {
-        redactor.opts.imageUploadCallback = origCallback;
-        redactor.opts.imageUploadErrorCallback = origErrorCbk;
+      this.app.opts.imageUploadCallback = function(image, json) {
+        this.app.opts.imageUploadCallback = origCallback;
+        this.app.opts.imageUploadErrorCallback = origErrorCbk;
         // Transfer the annotation JSON data and drop the original image.
         image.attr('data-annotations', $img.attr('data-annotations'));
         // Record the image that was originally annotated. If the committed
@@ -1668,9 +1637,9 @@ RedactorPlugins.imageannotate = function() {
         // the annotations placed live on the original image. The image
         // being committed here will be discarded.
         image.attr('data-orig-annotated-image-src',
-          $img.attr('data-orig-annotated-image-src') || origSrc
+          this.$image.attr('data-orig-annotated-image-src') || origSrc
         );
-        $img.remove();
+        this.$image.remove();
         // Redactor will add <br> before and after the image in linebreaks
         // mode
         var N = image.next();
@@ -1680,13 +1649,14 @@ RedactorPlugins.imageannotate = function() {
       };
 
       // Handle upload issues
+      // FIXME: Change to Redactor 3 API
       redactor.opts.imageUploadErrorCallback = function(json) {
         redactor.opts.imageUploadCallback = origCallback;
         redactor.opts.imageUploadErrorCallback = origErrorCbk;
-        $img.show();
+        this.$image.show();
       };
-      redactor.imageannotate.teardownAnnotate(image_box);
-      $img.css({opacity: 0.5});
+      this.teardownAnnotate(image_box);
+      this.$image.css({opacity: 0.5});
       redactor.upload.directUpload(file, e);
       return false;
     },
@@ -1712,21 +1682,17 @@ RedactorPlugins.imageannotate = function() {
       }
     },
     setBuffer: function() {
-      var image_box = $('#redactor-image-box'),
-          img = image_box.find('img')[0],
-          $img = $(img),
-          fcanvas = $img.data('canvas'),
+      var fcanvas = this.$image.data('canvas'),
           state = fcanvas.toObject();
       // Capture current annotations
       delete state.backgroundImage;
-      $img.attr('data-annotations', btoa(JSON.stringify(state)));
+      this.$image.attr('data-annotations', btoa(JSON.stringify(state)));
     },
 
     // Startup
 
     initCanvas: function(img) {
       var self = this,
-          plugin = this.imageannotate,
           $img = $(img);
       if ($img.data('canvas'))
         return;
@@ -1744,8 +1710,8 @@ RedactorPlugins.imageannotate = function() {
           previous = $(img).attr('data-annotations');
 
       // Catch [delete] key and map to delete object
-      self.opts.keydownCallback = plugin.keydown.bind(self);
-      self.opts.keyupCallback = plugin.keydown.bind(self);
+      //self.opts.keydownCallback = plugin.keydown.bind(self);
+      //self.opts.keyupCallback = plugin.keydown.bind(self);
 
       var I = new Image(), scale;
       I.src = $img.attr('src');
@@ -1767,7 +1733,7 @@ RedactorPlugins.imageannotate = function() {
           originX: 'left',
           originY: 'top'
         })
-        .on('object:scaling', plugin.resizeShape.bind(self));
+        .on('object:scaling', this.resizeShape.bind(self));
       if (previous) {
         fcanvas.loadFromJSON(atob(previous));
         fcanvas.forEachObject(function(o) {
@@ -1782,31 +1748,254 @@ RedactorPlugins.imageannotate = function() {
       $img.data('canvas', fcanvas).addClass('hidden');
       return fcanvas;
     }
-  };
-};
+  });
 
-RedactorPlugins.contexttypeahead = function() {
-  return {
+  $R.add('plugin', 'variable', {
+    translations: {
+        en: {
+            "change": "Change",
+            "variable": "Variable",
+            "variable-select": "Please, select a variable"
+        }
+    },
+    modals: {
+        'variable': ''
+    },
+    init: function(app)
+    {
+        this.app = app;
+        this.lang = app.lang;
+        this.opts = app.opts;
+        this.toolbar = app.toolbar;
+        this.component = app.component;
+        this.insertion = app.insertion;
+        this.inspector = app.inspector;
+        this.selection = app.selection;
+    },
+
+    // messages
+    onmodal: {
+        variable: {
+            open: function($modal, $form)
+            {
+                this._build($modal);
+            }
+        }
+    },
+    oncontextbar: function(e, contextbar)
+    {
+        var data = this.inspector.parse(e.target)
+        if (data.isComponentType('variable'))
+        {
+            var node = data.getComponent();
+            var buttons = {
+                "change": {
+                    title: this.lang.get('change'),
+                    api: 'plugin.variable.open',
+                    args: node
+                },
+                "remove": {
+                    title: this.lang.get('delete'),
+                    api: 'plugin.variable.remove',
+                    args: node
+                }
+            };
+
+            contextbar.set(e, node, buttons, 'bottom');
+        }
+
+
+    },
+
+    // public
+    _start: function()
+    {
+        if (!this.opts.variables) return;
+
+        var obj = {
+            title: this.lang.get('variable'),
+            api: 'plugin.variable.open'
+        };
+
+        var $button = this.toolbar.addButton('variable', obj);
+        $button.setIcon('<i class="re-icon-variable"></i>');
+    },
+    open: function()
+		{
+            var options = {
+                title: this.lang.get('variable'),
+                width: '600px',
+                name: 'variable'
+            };
+
+            this.$currentItem = this._getCurrent();
+            this.app.api('module.modal.build', options);
+		},
+		insert: function($item)
+		{
+    		this.app.api('module.modal.close');
+
+            var type = $item.attr('data-type');
+            var $variable = this.component.create('variable');
+            $variable.html(type);
+
+            this.insertion.insertRaw($variable);
+		},
+        remove: function(node)
+        {
+            this.component.remove(node);
+        },
+
+        // private
+		_getCurrent: function()
+		{
+    		var current = this.selection.getCurrent();
+    		var data = this.inspector.parse(current);
+    		if (data.isComponentType('variable'))
+    		{
+        		return this.component.build(data.getComponent());
+    		}
+		},
+		_build: function($modal)
+		{
+            var $body = $modal.getBody();
+            var $label = this._buildLabel();
+            var $list = this._buildList();
+
+            this._buildItems($list);
+
+            $body.html('');
+            $body.append($label);
+            $body.append($list);
+		},
+		_buildLabel: function()
+		{
+            var $label = $R.dom('<label>');
+            $label.html(this.lang.parse('## variable-select ##:'));
+
+    		return $label;
+		},
+		_buildList: function()
+		{
+    		var $list = $R.dom('<ul>');
+            $list.addClass('redactor-variables-list');
+
+            return $list;
+		},
+		_buildItems: function($list)
+		{
+    		var selectedType = this._getCurrentType();
+    		var items = this.opts.variables;
+
+    		for (var i = 0; i < items.length; i++)
+            {
+                var type = items[i].trim();
+                var $li = $R.dom('<li>');
+                var $item = $R.dom('<span>');
+
+                $item.attr('data-type', type);
+                $item.html(type);
+                $item.on('click', this._toggle.bind(this));
+
+                if (selectedType === type)
+                {
+                    $item.addClass('redactor-variables-item-selected');
+                }
+
+                $li.append($item);
+                $list.append($li);
+            }
+		},
+		_getCurrentType: function()
+		{
+    		if (this.$currentItem)
+    		{
+        		var variableData = this.$currentItem.getData();
+
+        		return variableData.type;
+            }
+
+    		return false;
+		},
+		_toggle: function(e)
+		{
+            var $item = $R.dom(e.target);
+
+            this.app.api('plugin.variable.insert', $item);
+		}
+    });
+
+    $R.add('class', 'variable.component', {
+        mixins: ['dom', 'component'],
+        init: function(app, el)
+        {
+            this.app = app;
+            this.utils = app.utils;
+
+            // init
+            return (el && el.cmnt !== undefined) ? el : this._init(el);
+        },
+        // public
+        getData: function()
+        {
+            return {
+                type: this._getType()
+            };
+        },
+
+        // private
+        _init: function(el)
+        {
+            el = el || '<span>';
+
+            this.parse(el);
+            this._initWrapper();
+        },
+        _getType: function()
+        {
+            var text = this.text().trim();
+
+            return this.utils.removeInvisibleChars(text);
+        },
+        _initWrapper: function()
+        {
+            this.addClass('redactor-component');
+            this.attr({
+                'data-redactor-type': 'variable',
+                'tabindex': '-1',
+                'contenteditable': false
+            });
+        }
+    });
+
+  $R.add('plugin', 'contexttypeahead', {
     typeahead: false,
     context: false,
     variables: false,
 
-    init: function() {
+    init: function(app) {
+      this.app = app;
+    },
+
+    start: function() {
+      this.$editor = this.app.editor.getElement();
+      this.$element = $(this.app.rootElement);
       if (!this.$element.data('rootContext'))
         return;
 
-      this.opts.keyupCallback = this.contexttypeahead.watch.bind(this);
-      this.opts.keydownCallback = this.contexttypeahead.watch.bind(this);
-      this.$editor.on('click', this.contexttypeahead.watch.bind(this));
+      this.$editor.on('keyup', this.watch.bind(this));
+      this.$editor.on('keydown', this.watch.bind(this));
+      this.$editor.on('click', this.watch.bind(this));
     },
 
     watch: function(e) {
-      var current = this.selection.getCurrent(),
+      var current = this.app.api('selection.getCurrent'),
           allText = this.$editor.text(),
-          offset = this.caret.getOffset(),
-          lhs = allText.substring(0, offset),
+          offset = this.app.api('offset.get', this.app.editor.$editor),
+          lhs = allText.substring(0, offset.start),
           search = new RegExp(/%\{([^}]*)$/),
-          match;
+          match,
+          e = $.Event(e);
 
       if (!lhs) {
         return !e.isDefaultPrevented();
@@ -1814,26 +2003,26 @@ RedactorPlugins.contexttypeahead = function() {
 
       if (e.which == 27 || !(match = search.exec(lhs)))
         // No longer in a element — close typeahead
-        return this.contexttypeahead.destroy();
+        return this.destroy();
 
       if (e.type == 'click')
         return;
 
       // Locate the position of the cursor and the number of characters back
       // to the `%{` symbols
-      var sel         = this.selection.get(),
-          range       = this.sel.getRangeAt(0),
+      var sel         = this.app.api('selection.get'),
+          range       = sel.getRangeAt(0),
           content     = current.textContent,
           clientRects = range.getClientRects(),
           position    = clientRects[0],
           backText    = match[1],
-          parent      = this.selection.getParent() || this.$editor,
-          plugin      = this.contexttypeahead;
+          parent      = this.app.api('selection.getParent') || this.$element,
+          that        = this;
 
       // Insert a hidden text input to receive the typed text and add a
       // typeahead widget
-      if (!this.contexttypeahead.typeahead) {
-        this.contexttypeahead.typeahead = $('<input type="text">')
+      if (!this.typeahead) {
+        this.typeahead = $('<input type="text">')
           .css({position: 'absolute', visibility: 'hidden'})
           .width(0).height(position.height - 4)
           .appendTo(document.body)
@@ -1846,7 +2035,7 @@ RedactorPlugins.contexttypeahead = function() {
               var base = $.fn.typeahead.Constructor.prototype.highlighter
                     .call(this, variable),
                   further = new RegExp(variable + '\\.'),
-                  extendable = Object.keys(plugin.variables).some(function(v) {
+                  extendable = Object.keys(that.variables).some(function(v) {
                     return v.match(further);
                   }),
                   arrow = extendable ? this.options.arrow.clone() : '';
@@ -1857,7 +2046,7 @@ RedactorPlugins.contexttypeahead = function() {
                   .wrap('<div>').parent().html();
             },
             item: '<li><a href="#" style="display:block"></a></li>',
-            source: this.contexttypeahead.getContext.bind(this),
+            source: this.getContext.bind(this),
             sorter: function(items) {
               items.sort(
                 function(a,b) {return a.variable > b.variable ? 1 : -1;}
@@ -1870,16 +2059,16 @@ RedactorPlugins.contexttypeahead = function() {
 
               return (this.query.match(/\./g) || []).length == (item.match(/\./g) || []).length;
             },
-            onselect: this.contexttypeahead.select.bind(this),
+            onselect: this.select.bind(this),
             scroll: true,
             items: 100
           });
       }
 
       if (position) {
-        var width = plugin.textWidth(
+        var width = this.textWidth(
               backText,
-              this.selection.getParent() || $('<div class="redactor-editor">')
+              this.app.api('selection.getParent') || $('<div class="redactor-editor">')
             ),
             pleft = $(parent).offset().left,
             left = position.left - width;
@@ -1888,21 +2077,21 @@ RedactorPlugins.contexttypeahead = function() {
             // This is a bug in chrome, but I'm not sure how to adjust it
             left += pleft;
 
-        plugin.typeahead
-          .css({top: position.top + $(window).scrollTop(), left: left});
+        this.typeahead
+          .css({top: position.top + this.app.$win.scrollTop(), left: left});
       }
 
-      plugin.typeahead
+      this.typeahead
         .val(match[1])
-        .trigger(e);
+        .triggerHandler(e);
 
       return !e.isDefaultPrevented();
     },
 
     getContext: function(typeahead, query) {
-      var dfd, that=this.contexttypeahead,
+      var dfd, that=this,
           root = this.$element.data('rootContext');
-      if (!this.contexttypeahead.context) {
+      if (!this.context) {
         dfd = $.Deferred();
         $.ajax('ajax.php/content/context', {
           data: {root: root},
@@ -1914,10 +2103,10 @@ RedactorPlugins.contexttypeahead = function() {
             dfd.resolve(items);
           }
         });
-        this.contexttypeahead.context = dfd;
+        this.context = dfd;
       }
       // Only fetch the context once for this redactor box
-      this.contexttypeahead.context.then(function(items) {
+      this.context.then(function(items) {
         typeahead.process(items);
       });
     },
@@ -1937,22 +2126,21 @@ RedactorPlugins.contexttypeahead = function() {
     },
 
     destroy: function() {
-      if (this.contexttypeahead.typeahead) {
-        this.contexttypeahead.typeahead.typeahead('hide');
-        this.contexttypeahead.typeahead.remove();
-        this.contexttypeahead.typeahead = false;
+      if (this.typeahead) {
+        this.typeahead.typeahead('hide');
+        this.typeahead.remove();
+        this.typeahead = false;
       }
     },
 
     select: function(item, event) {
       // Collapse multiple textNodes together
-      (this.selection.getBlock() || this.$editor.get(0)).normalize();
-      var current = this.selection.getCurrent(),
-          sel     = this.selection.get(),
-          range   = this.sel.getRangeAt(0),
+      (this.app.api('selection.getBlock') || this.$element.get(0)).normalize();
+      var current = this.app.api('selection.getCurrent'),
+          sel     = this.app.api('selection.get'),
+          range   = sel.getRangeAt(0),
           cursorAt = range.endOffset,
           // TODO: Consume immediately following `}` symbols
-          plugin  = this.contexttypeahead,
           search  = new RegExp(/%\{([^}]*)(\}?)$/);
 
       // FIXME: ENTER will end up here, but current will be empty
@@ -1971,21 +2159,19 @@ RedactorPlugins.contexttypeahead = function() {
         // Drop the remaining part of a variable block, if any
         + right.replace(/[^%}]*?[%}]/, '');
 
-      this.range.setStart(current, newLeft.length - 1);
-      this.range.setEnd(current, newLeft.length - 1);
-      this.selection.addRange();
+      range.setStart(current, newLeft.length - 1);
+      range.setEnd(current, newLeft.length - 1);
+      this.app.api('selection.setRange', range);
       if (!autoExpand)
-          return plugin.destroy();
+          return this.destroy();
 
-      plugin.typeahead.val(selected);
-      plugin.typeahead.typeahead('lookup');
+      this.typeahead.val(selected);
+      this.typeahead.typeahead('lookup');
       return false;
     }
-  };
-};
+  });
 
-RedactorPlugins.translatable = function() {
-  return {
+  $R.add('plugin', 'translatable', {
     langs: undefined,
     config: undefined,
     textareas: {},
@@ -2141,5 +2327,5 @@ RedactorPlugins.translatable = function() {
       }
       return urlcache[ url ].done( callback );
     },
-  };
-};
+  });
+})(Redactor);
