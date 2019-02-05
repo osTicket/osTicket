@@ -161,10 +161,19 @@ implements Searchable {
         return $collaborators;
     }
 
+    function isCollaborator($user) {
+        return $this->collaborators->findFirst(array(
+                    'user_id'     => $user->getId(),
+                    'thread_id'   => $this->getId()));
+    }
+
     function addCollaborator($user, $vars, &$errors, $event=true) {
 
         if (!$user)
             return null;
+
+        if ($this->isCollaborator($user))
+            return false;
 
         $vars = array_merge(array(
                 'threadId' => $this->getId(),

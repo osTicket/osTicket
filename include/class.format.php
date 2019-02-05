@@ -546,6 +546,10 @@ class Format {
         if (!$timestamp || !($datetime = DateTime::createFromFormat('U', $timestamp)))
             return '';
 
+        // Normalize timezone
+        if ($timezone)
+            $timezone = Format::timezone($timezone);
+
         // Set the desired timezone (caching since it will be mostly same
         // for most date formatting.
         $timezone = Format::timezone($timezone, $cfg->getTimezone());

@@ -149,7 +149,7 @@ class CustomQueue extends VerySimpleModel {
         $all = $this->getSupportedMatches($this->getRoot());
         $items = array();
         $criteria = $criteria ?: $this->getCriteria(true);
-        foreach ($criteria as $C) {
+        foreach ($criteria ?: array() as $C) {
             list($path, $method, $value) = $C;
             if ($path === ':keywords') {
                 $items[] = Format::htmlchars("\"{$value}\"");
