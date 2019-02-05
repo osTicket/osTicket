@@ -6,7 +6,7 @@ class VarDump extends Test {
 
     function testFindShortOpens() {
         $re = '/^(([\t ]*?)var_dump\(.*[\)|,|;])((?!nolint).)*$/m';
-        foreach ($this->getAllScripts() as $s) {
+        foreach (static::getAllScripts() as $s) {
             $matches = array();
             $content = file_get_contents($s);
             if (preg_match_all($re,

@@ -5,7 +5,7 @@ class ShortOpenTag extends Test {
     var $name = "PHP Short Open Checks";
 
     function testFindShortOpens() {
-        foreach ($this->getAllScripts() as $s) {
+        foreach (static::getAllScripts() as $s) {
             $matches = array();
             $content = file_get_contents($s);
             if (preg_match_all('/<\?\s*(?!php|xml).*$/m',

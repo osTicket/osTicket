@@ -6,7 +6,7 @@ class GitConflicts extends Test {
 
     function testFindGitConflicts() {
         $regex = '/^[\t ]*?<{3,} ?HEAD[\t ]*?|^[\t ]*?>{3,}[\t ]*?/m';
-        foreach ($this->getAllScripts('*') as $s) {
+        foreach (static::getAllScripts('*') as $s) {
             $matches = array();
             $content = file_get_contents($s);
             if (preg_match_all($regex,
