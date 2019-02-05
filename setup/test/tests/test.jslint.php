@@ -6,7 +6,7 @@ class JsSyntaxTest extends Test {
 
     function testLintErrors() {
         $exit = 0;
-        foreach ($this->getAllScripts('*.js') as $s) {
+        foreach (static::getAllScripts('*.js') as $s) {
             ob_start();
             system("jsl -process $s", $exit);
             $line = ob_get_contents();
