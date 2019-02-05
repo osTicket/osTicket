@@ -98,6 +98,10 @@ class DateTimeZone {
     static function listIdentifiers() {}
 }
 
+class DateTimeImmutable {
+    function createFromMutable() {}
+}
+
 class Phar {
     static function isValidPharFilename() {}
     function setStub() {}

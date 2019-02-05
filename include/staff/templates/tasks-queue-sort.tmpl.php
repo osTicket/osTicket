@@ -9,7 +9,8 @@ var query = addSearchParam({'sort': $(event.target).data('mode'), 'dir': $(event
 $.pjax({
     url: '?' + query,
     timeout: 2000,
-    container: '#pjax-container'});">
+    container: '#pjax-container'});
+return false;">
   <ul class="bleed-left">
     <?php foreach ($queue_sort_options as $mode) {
     $desc = $sort_options[$mode];

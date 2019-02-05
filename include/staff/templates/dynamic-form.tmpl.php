@@ -78,7 +78,8 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                                 success: $.proxy(function() {
                                     $(this).closest('tr').fadeOut();
                                 }, this)
-                            });"
+                            });
+                        return false;"
                         data-field-id="<?php echo $field->getAnswer()->get('field_id');
                     ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
                     ?>"> <i class="icon-trash"></i> </a></div><?php
