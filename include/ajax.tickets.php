@@ -1516,7 +1516,7 @@ function refer($tid, $target=null) {
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
-                            'note' => sprintf(__('This Task was created from Ticket %1$s', $ticketLink))
+                            'note' => sprintf(__('This Task was created from Ticket %1$s'), $ticketLink),
                     );
 
                     $task->postNote($note, $errors, $thisstaff);
