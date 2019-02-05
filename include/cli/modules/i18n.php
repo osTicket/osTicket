@@ -637,7 +637,7 @@ class i18n_Compiler extends Module {
         );
         $root = realpath($options['root'] ?: ROOT_DIR);
         $domain = $options['domain'] ? '('.$options['domain'].')/' : '';
-        $files = Test::getAllScripts(true, $root);
+        $files = Test::getAllScripts("*.php", $root);
         $strings = array();
         foreach ($files as $f) {
             $F = str_replace($root.'/', $domain, $f);
