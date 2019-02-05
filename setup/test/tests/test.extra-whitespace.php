@@ -5,7 +5,7 @@ class ExtraWhitespace extends Test {
     var $name = "PHP Leading and Trailing Whitespace";
 
     function testFindWhitespace() {
-        foreach ($this->getAllScripts() as $s) {
+        foreach (static::getAllScripts() as $s) {
             $matches = array();
             $content = file_get_contents($s);
             if (preg_match_all('/^\s+<\?php|\?>\n\s+$/s',

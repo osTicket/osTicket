@@ -3955,8 +3955,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
           $note = array(
                   'title' => __('Ticket Created From Thread Entry'),
-                  'body' => sprintf(__('This Ticket was created from %s '. $link),
-                            $oldTicket ? 'Ticket' : 'Task')
+                  'body' => sprintf(__(
+                        // %1$s is the word Ticket or Task, %2$s will be a link to it
+                        'This Ticket was created from %1$s %2$s'),
+                        $oldTicket ? __('Ticket') : __('Task'), $link)
                   );
 
           $ticket->logNote($note['title'], $note['body'], $thisstaff);
@@ -3973,13 +3975,15 @@ implements RestrictedAccess, Threadable, Searchable {
 
           $ticketNote = array(
               'title' => __('Ticket Created From Thread Entry'),
-              'body' => __('Ticket ' . $ticketLink).
-              '<br /> Thread Entry: ' . $entryLink);
+              'body' => sprintf(__('Ticket %1$s<br/> Thread Entry: %2$s'),
+                $ticketLink, $entryLink)
+          );
 
           $taskNote = array(
               'title' => __('Ticket Created From Thread Entry'),
-              'note' => __('Ticket ' . $ticketLink).
-              '<br /> Thread Entry: ' . $entryLink);
+              'note' => sprintf(__('Ticket %1$s<br/> Thread Entry: %2$s'),
+                $ticketLink, $entryLink)
+          );
 
           if ($oldTicket)
             $oldTicket->logNote($ticketNote['title'], $ticketNote['body'], $thisstaff);

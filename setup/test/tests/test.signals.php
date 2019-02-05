@@ -8,7 +8,7 @@ class SignalsTest extends Test {
      * Ensures that each signal subscribed to has a sender somewhere else
      */
     function testFindSignalPublisher() {
-        $scripts = $this->getAllScripts();
+        $scripts = static::getAllScripts();
         $matches = $published_signals = array();
         foreach ($scripts as $s)
             if (preg_match_all("/^ *Signal::send\('([^']+)'/m",
