@@ -174,7 +174,7 @@ class Misc {
                 $end = $dt->modify('last day of this month');
                 break;
             case 'tq':
-            case 'this-quater':
+            case 'this-quarter':
                 $offset = ($dt->format('m') - 1) % 3;
                 $start = $dt->modify(" - $offset month")
                     ->modify('first day of this month');
@@ -197,7 +197,7 @@ class Misc {
                 $end = $start->modify('last day of this month');
                 break;
             case 'lq':
-            case 'last-quater':
+            case 'last-quarter':
                 $offset = (($dt->format('m') - 1) % 3)+3;
                 $start = $dt->modify(" - $offset month")
                     ->modify('first day of this month');

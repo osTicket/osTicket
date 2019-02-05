@@ -2043,11 +2043,11 @@ class DatetimeField extends FormField {
                 'yd' => __('Yesterday'),
                 'tw' => __('This Week'),
                 'tm' => __('This Month'),
-                'tq' => __('This Quater'),
+                'tq' => __('This Quarter'),
                 'ty' => __('This Year'),
                 'lw' => __('Last Week'),
                 'lm' => __('Last Month'),
-                'lq' => __('Last Quater'),
+                'lq' => __('Last Quarter'),
                 'ly' => __('Last Year'),
         );
         return $period ? $periods[$period] : $periods;
