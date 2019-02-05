@@ -1500,8 +1500,11 @@ function refer($tid, $target=null) {
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
-                            'body' => __('Task ' . $taskLink .
-                            '<br /> Thread Entry: ' . $entryLink)
+                            'body' => sprintf(__(
+                                // %1$s is the task ID number and %2$s is the thread
+                                // entry date
+                                'Task %1$s<br/> Thread Entry: %2$s'),
+                                $taskLink, $entryLink)
                             );
 
                   $ticket->logNote($note['title'], $note['body'], $thisstaff);
@@ -1513,7 +1516,8 @@ function refer($tid, $target=null) {
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
-                            'note' => __('This Task was created from Ticket ' . $ticketLink));
+                            'note' => sprintf(__('This Task was created from Ticket %1$s', $ticketLink))
+                    );
 
                     $task->postNote($note, $errors, $thisstaff);
                   }

@@ -130,8 +130,11 @@ class TasksAjaxAPI extends AjaxController {
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
-                            'note' => __('Task ' . $taskLink .
-                            '<br /> Thread Entry: ' . $entryLink)
+                            'note' => sprintf(__(
+                                // %1$s is the task ID number and %2$s is the thread
+                                // entry date
+                                'Task %1$s<br/> Thread Entry: %2$s'),
+                                $taskLink, $entryLink)
                             );
 
                     $originalTask->postNote($note, $errors, $thisstaff);
@@ -143,7 +146,7 @@ class TasksAjaxAPI extends AjaxController {
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
-                            'note' => __('This Task was created from Task ' . $taskLink));
+                            'note' => sprintf(__('This Task was created from Task %1$s'), $taskLink));
 
                     $task->postNote($note, $errors, $thisstaff);
                   }
