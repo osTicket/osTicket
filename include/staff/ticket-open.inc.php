@@ -130,6 +130,7 @@ if ($_POST)
                   var newUser = new Option(user.email + ' - ' + user.name, user.id, true, true);
                   return $(&quot;#user-name&quot;).append(newUser).trigger('change');
                 });
+                return false;
                 "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
 
                 <span class="error">*</span>
@@ -158,6 +159,7 @@ if ($_POST)
               var newUser = new Option(user.name, user.id, true, true);
               return $(&quot;#cc_users_open&quot;).append(newUser).trigger('change');
             });
+            return false;
             "><i class="icon-plus"></i> <?php echo __('Add New'); ?></a>
 
             <br/><span class="error"><?php echo $errors['ccs']; ?></span>
