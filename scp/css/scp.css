@@ -1849,6 +1849,7 @@ ul.tabs.vertical li a {
 }
 
 ul.tabs.alt {
+  height: auto;
   background-color:initial;
   border-bottom:2px solid #ccc;
   border-bottom-color: rgba(0,0,0,0.1);
