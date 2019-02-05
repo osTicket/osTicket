@@ -73,15 +73,16 @@ class TicketsAjaxAPI extends AjaxController {
             $email = $T['user__default_email__address'];
             $count = $T['tickets'];
             if ($T['number']) {
-                $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
                     'info'=>"{$T['number']} — {$email}",
                     'matches'=>$_REQUEST['q']);
             }
             else {
-                $tickets[] = array('email'=>$email, 'value'=>$email,
+                $tickets[$email] = array('email'=>$email, 'value'=>$email,
                     'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
             }
         }
+        $tickets = array_values($tickets);
 
         return $this->json_encode($tickets);
     }

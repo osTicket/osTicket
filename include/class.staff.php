@@ -598,7 +598,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
 
         // -- Routed to a department of mine
-        if (!$this->showAssignedOnly() && ($depts=$this->getDepts())) {
+        if (($depts=$this->getDepts()) && count($depts)) {
             $visibility->add(array('dept_id__in' => $depts));
             $visibility->add(array('thread__referrals__dept__id__in' => $depts));
         }
