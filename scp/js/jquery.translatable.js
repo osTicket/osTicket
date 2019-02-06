@@ -27,7 +27,7 @@
     fetch: function( url, data, callback ) {
       if ( !urlcache[ url ] ) {
         urlcache[ url ] = $.Deferred(function( defer ) {
-          $.ajax( url, { data: data, dataType: 'json' } )
+          $.ajax( url, { data: data, dataType: 'json', global: false } )
             .then( defer.resolve, defer.reject );
         }).promise();
       }

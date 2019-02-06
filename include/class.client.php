@@ -436,7 +436,6 @@ class ClientAccount extends UserAccount {
         if ($errors) return false;
 
         $this->set('timezone', $vars['timezone']);
-        $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);
         Internationalization::setCurrentLanguage(null);

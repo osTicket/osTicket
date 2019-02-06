@@ -79,10 +79,9 @@ class i18n_Compiler extends Module {
             self::$crowdin_api_url);
 
         $args += array('key' => $this->key);
-        foreach ($args as &$a)
-            $a = urlencode($a);
-        unset($a);
-        $url .= '?' . Format::array_implode('=', '&', $args);
+        if ($branch = $this->getOption('branch', false))
+            $args += array('branch' => $branch);
+        $url .= '?' . Http::build_query($args);
 
         return $this->_http_get($url);
     }
@@ -189,7 +188,7 @@ class i18n_Compiler extends Module {
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
-            if (fnmatch('*/messages*.po', $info['name']) !== false) {
+            if (strpos($info['name'], '/messages.po') !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
                 continue;
@@ -222,10 +221,10 @@ class i18n_Compiler extends Module {
             $this->stderr->write($lang . ": Unable to fetch Redactor language file\n");
 
         // JQuery UI Datepicker
-        // http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-de.js
+        // https://github.com/jquery/jquery-ui/tree/master/ui/i18n
         foreach ($langs as $l) {
             list($code, $js) = $this->_http_get(
-                'http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-'
+                'https://raw.githubusercontent.com/jquery/jquery-ui/master/ui/i18n/datepicker-'
                     .str_replace('_','-',$l).'.js');
             // If locale-specific version is not available, use the base
             // language version (de if de_CH is not available)
@@ -673,7 +672,7 @@ class i18n_Compiler extends Module {
                     $this->stdout->write(sprintf(
                         "'%s' (%s) and '%s' (%s)\n",
                        $orig, $usage, $other_orig, $other_usage
-                    )); 
+                    ));
                 }
             }
         }

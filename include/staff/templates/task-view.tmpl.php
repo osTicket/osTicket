@@ -146,7 +146,7 @@ if ($task->isOverdue())
                 <ul>
 
                     <?php
-                    if ($task->isOpen()) { ?>
+                    if (!$task->isOpen()) { ?>
                     <li>
                         <a class="no-pjax task-action"
                             href="#tasks/<?php echo $task->getId(); ?>/reopen"><i
@@ -665,7 +665,10 @@ $(function() {
                 .slideUp();
             }
         })
-        .done(function() { })
+        .done(function() {
+            $('#loading').hide();
+            $.toggleOverlay(false);
+        })
         .fail(function() { });
      });
     <?php
