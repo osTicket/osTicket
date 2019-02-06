@@ -165,30 +165,6 @@
     },
   }));
 
-  // Monkey patch the breakline feature to also enclose in the markup tag if
-  // the markup tag is <div>
-  var stockInsert = $R[$R.env['service']]['insertion'];
-  $R.add('service', 'insertion', $R.extend(stockInsert.prototype, {
-    insertBreakLine: function() {
-        var el = this.selection.getCurrent(),
-            rv = this.insertNode(document.createElement('br'), 'after');
-
-        if (this.opts.markup === 'div') {
-            var editor = this.app.editor.getElement().get();
-            while (el != editor) {
-                if (el.nodeName === 'div')
-                    break;
-                el = el.parentElement;
-            }
-            if (el != editor) {
-                this.caret.setAfter(el);
-                rv = this.insertNode(document.createElement('div'), 'start');
-            }
-        }
-        return rv;
-    }
-  }));
-
   R$.add('plugin', 'autolock', {
     init: function (app) {
         this.app = app;
@@ -326,7 +302,7 @@ $(function() {
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
-                  : ['imagemanager','imageannotate','table','video','definedlinks','autolock'],
+                  : ['imagemanager','table','video','definedlinks','autolock'],
                 'imageUpload': el.hasClass('draft'),
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'imagePosition': true,
@@ -409,10 +385,6 @@ $(function() {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     Redactor.lang[c.short_lang])
                 options['lang'] = c.short_lang;
-            if (c.has_rtl)
-                options['plugins'].push('textdirection');
-            if (el.find('rtl').length)
-                options['direction'] = 'rtl';
             el.data('redactor', el.redactor(options));
         });
     },
