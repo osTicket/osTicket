@@ -13,7 +13,7 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
                             && in_array(basename($_SERVER['SCRIPT_NAME']),$item['urls'])
                             )
                         )))
-            $class="$class active";
+            $class="$class";
         if (!($id=$item['id']))
             $id="subnav$k";
 
