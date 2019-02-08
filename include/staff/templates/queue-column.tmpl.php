@@ -86,6 +86,7 @@ foreach (Internationalization::sortKeyedList($annotations) as $class=>$desc) {
           position.attr('name', position.data('name'));
           if (pos)
             position.val(pos);
+          clone.removeClass('hidden');
           template.closest('.tab_content').find('.empty').hide();
         };
         $('select.add-annotation', '#annotations').change(function() {
