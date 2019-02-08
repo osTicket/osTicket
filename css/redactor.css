@@ -1375,3 +1375,7 @@
 .redactor-air a.re-button-icon.re-button-icon {
   padding: 9px 12px 6px 12px;
 }
+
+.redactor-in[style*=' width:'], .redactor-in[style^='width:'] {
+  border-right: 1px dashed #999;
+}
