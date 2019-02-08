@@ -197,7 +197,8 @@ extends VerySimpleModel {
         $rule = array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule = new FilterRule($rule);
         $this->rules->add($rule);
-        $rule->save();
+        if ($rule->save())
+            return true;
     }
 
     function removeRule($what, $how, $val) {
@@ -213,7 +214,7 @@ extends VerySimpleModel {
     }
 
     function getRuleById($id) {
-        return FilterRule::lookup($id, $this->getId());
+        return FilterRule::lookup(array('id'=>$id, 'filter_id'=>$this->getId()));
     }
 
     function containsRule($what, $how, $val) {

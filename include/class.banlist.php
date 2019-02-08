@@ -81,7 +81,7 @@ class Banlist {
     }
 
     function getSystemBanList() {
-        return new Filter(self::ensureSystemBanList());
+        return self::ensureSystemBanList();
     }
 
     static function getFilter() {
