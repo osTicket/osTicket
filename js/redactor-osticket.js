@@ -298,7 +298,7 @@ $(function() {
                 'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
                 'maxHeight': el.closest('.dialog').length ? selectedSize : false,
                 'minHeight': selectedSize,
-                'maxWidth': el.hasClass('fullscreen') ? '850px' : false,
+                'maxWidth': el.hasClass('fullscreen') ? '950px' : false,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
@@ -317,14 +317,17 @@ $(function() {
                 'toolbarFixed': true,
                 'callbacks': {
                     '_focus': function(e) { $(this.app.rootElement).addClass('no-pjax'); },
-                    '_start': function() {
-                        var $editor = this.app.editor.$editor;
-                        if (this.$element.data('width'))
-                            this.$editor.width(this.$element.data('width'));
-                        this.$editor.attr('spellcheck', 'true');
-                        var lang = this.$editor.closest('[lang]').attr('lang');
+                    'start': function() {
+                        var $element = $R.dom(this.rootElement),
+                            $editor = this.editor.$editor;
+                        if ($element.data('width'))
+                            $editor.width($element.data('width'));
+                        $editor.attr('spellcheck', 'true');
+                        var lang = $element.closest('[lang]').attr('lang');
                         if (lang)
-                            this.$editor.attr('lang', lang);
+                            $editor.attr('lang', lang);
+                        // Fixup class for
+                        $element.parent().closest(':not(.redactor-box)').addClass('-redactor-container')
                     },
                 },
                 'linkSize': 100000,
