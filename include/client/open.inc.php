@@ -42,7 +42,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
         if (!$thisclient) {
             $uform = UserForm::getUserForm()->getForm($_POST);
             if ($_POST) $uform->isValid();
-            $uform->render(false, false, array('mode' => 'create'));
+            $uform->render(array('staff' => false, 'mode' => 'create'));
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>
