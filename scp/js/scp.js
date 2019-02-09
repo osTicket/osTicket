@@ -1248,3 +1248,27 @@ window.relativeAdjust = setInterval(function() {
   });
 }, 20000);
 
+// Add 'afterShow' event to jQuery elements,
+// thanks http://stackoverflow.com/a/1225238/1025836
+jQuery(function($) {
+    var _oldShow = $.fn.show;
+
+    // This should work with jQuery 3 with or without jQuery UI
+    $.fn.show = function() {
+        var argsArray = Array.prototype.slice.call(arguments),
+            arg = argsArray[0],
+            options = {};
+        if (typeof(arg) === 'number')
+            options.duration = arg;
+        else
+            options.effect = arg;
+        return this.each(function () {
+            var obj = $(this);
+            _oldShow.call(obj, $.extend(options, {
+                complete: function() {
+                    obj.trigger('afterShow');
+                }
+            }));
+        });
+    }
+});
