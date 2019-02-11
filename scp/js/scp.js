@@ -1301,49 +1301,25 @@ window.relativeAdjust = setInterval(function() {
 
 // Add 'afterShow' event to jQuery elements,
 // thanks http://stackoverflow.com/a/1225238/1025836
-(function ($) {
+jQuery(function($) {
     var _oldShow = $.fn.show;
 
-    $.fn.show = function (/*speed, easing, callback*/) {
+    // This should work with jQuery 3 with or without jQuery UI
+    $.fn.show = function() {
         var argsArray = Array.prototype.slice.call(arguments),
-            duration = argsArray[0],
-            easing,
-            callback,
-            callbackArgIndex;
-
-        // jQuery recursively calls show sometimes; we shouldn't
-        //  handle such situations. Pass it to original show method.
-        if (!this.selector) {
-            _oldShow.apply(this, argsArray);
-            return this;
-        }
-
-        if (argsArray.length === 2) {
-            if ($.isFunction(argsArray[1])) {
-                callback = argsArray[1];
-                callbackArgIndex = 1;
-            } else {
-                easing = argsArray[1];
-            }
-        } else if (argsArray.length === 3) {
-            easing = argsArray[1];
-            callback = argsArray[2];
-            callbackArgIndex = 2;
-        }
-        return $(this).each(function () {
-            var obj = $(this),
-                oldCallback = callback,
-                newCallback = function () {
-                    if ($.isFunction(oldCallback)) {
-                        oldCallback.apply(obj);
-                    }
-                };
-            if (callback) {
-                argsArray[callbackArgIndex] = newCallback;
-            }
-            obj.trigger('beforeShow');
-            _oldShow.apply(obj, argsArray);
-            obj.trigger('afterShow');
+            arg = argsArray[0],
+            options = {};
+        if (typeof(arg) === 'number')
+            options.duration = arg;
+        else
+            options.effect = arg;
+        return this.each(function () {
+            var obj = $(this);
+            _oldShow.call(obj, $.extend(options, {
+                complete: function() {
+                    obj.trigger('afterShow');
+                }
+            }));
         });
-    };
-})(jQuery);
+    }
+});
