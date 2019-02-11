@@ -148,6 +148,9 @@
   R$.add('module', 'autosave', $R.extend(stockAutosave.prototype, {
     onsynced: function() {
         if (this.opts.autosave) {
+            // Don't send to backend if empty
+            if (!this.source.getCode())
+                return;
             if (this.opts.autosaveDelay) {
                 if (this.delayTimer)
                     clearInterval(this.delayTimer);
@@ -293,7 +296,6 @@ $(function() {
                     'italic', 'underline', 'deleted', 'lists', 'image', 'video',
                     'file', 'table', 'link', 'alignment',
                     'line', 'fullscreen'],
-                preClass: 'prettyprint linenums',
                 'buttonSource': !el.hasClass('no-bar'),
                 'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
                 'maxHeight': el.closest('.dialog').length ? selectedSize : false,
@@ -311,7 +313,6 @@ $(function() {
                 },
                 'imageResizable': true,
                 'syncBeforeCallback': captureImageSizes,
-                'markup': 'div',
                 'breakline': true,
                 'tabFocus': false,
                 'toolbarFixed': true,
