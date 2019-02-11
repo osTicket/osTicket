@@ -102,15 +102,18 @@ if($_POST){
                         }
                         break;
                     case 'delete':
-                        $i = Topic::objects()->filter(array(
+                        $topics = Topic::objects()->filter(array(
                             'topic_id__in'=>$_POST['ids']
-                        ))->delete();
+                        ));
 
-                        if($i && $i==$count)
+                        foreach ($topics as $t)
+                            $t->delete();
+
+                        if($topics && $topics==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
-                        elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                        elseif($topics>0)
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $topics, $count,
                                 _N('selected help topic', 'selected help topics', $count));
                         elseif(!$errors['err'])
                             $errors['err']  = sprintf(__('Unable to delete %s.'),
