@@ -303,7 +303,7 @@ class FAQ extends VerySimpleModel {
         try {
             parent::delete();
             // Cleanup help topics.
-            $this->topics->delete();
+            $this->topics->expunge();
             // Cleanup attachments.
             $this->attachments->deleteAll();
         }
@@ -393,10 +393,10 @@ class FAQ extends VerySimpleModel {
         $this->notes = Format::sanitize($vars['notes']);
         $this->keywords = ' ';
 
-        $this->updateTopics($vars['topics']);
-
         if (!$this->save())
             return false;
+
+        $this->updateTopics($vars['topics']);
 
         // General attachments (for all languages)
         // ---------------------
