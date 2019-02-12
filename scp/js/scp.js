@@ -1308,7 +1308,7 @@ jQuery(function($) {
     $.fn.show = function() {
         var argsArray = Array.prototype.slice.call(arguments),
             arg = argsArray[0],
-            options = {};
+            options = argsArray[1] || {duration: 0};
         if (typeof(arg) === 'number')
             options.duration = arg;
         else
