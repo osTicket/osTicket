@@ -1255,151 +1255,153 @@ if (!RedactorPlugins) var RedactorPlugins = {};
   $R.add('plugin', 'translatable', {
     langs: undefined,
     config: undefined,
-    textareas: {},
     current: undefined,
     primary: undefined,
-    button: undefined,
+    changed: {},
 
-    init: function() {
-      $.ajax({
-        url: 'ajax.php/i18n/langs/all',
-        success: this.translatable.setLangs.bind(this)
-      });
-      getConfig().then(this.translatable.setConfig.bind(this));
-      this.opts.keydownCallback = this.translatable.showCommit.bind(this);
-      this.translatable.translateTag = this.$textarea.data('translateTag');
+    init: function(app) {
+      this.app = app;
+      this.statusbar = app.statusbar;
+      this.$textarea = $R.dom(this.app.rootElement);
+      this.$editor = app.editor.getElement();
+    },
+
+    start: function() {
+      this.fetch('ajax.php/i18n/langs/all')
+        .then(this.setLangs.bind(this));
+      getConfig().then(this.setConfig.bind(this));
+      $editor = this.app.editor.getElement();
+      this.translateTag = this.$textarea.data()['translateTag'];
     },
 
     setLangs: function(langs) {
-      this.translatable.langs = langs;
-      this.translatable.buildDropdown();
+      this.langs = langs;
+      this.buildDropdown();
     },
 
     setConfig: function(config) {
-      this.translatable.config = config;
-      this.translatable.buildDropdown();
+      this.config = config;
+      this.buildDropdown();
     },
 
     buildDropdown: function() {
-      if (!this.translatable.config || !this.translatable.langs)
+      if (!this.config || !this.langs)
         return;
 
-      var plugin = this.translatable,
-          primary = this.$textarea,
-          primary_lang = plugin.config.primary_language.replace('-','_'),
-          primary_info = plugin.langs[primary_lang],
-          dropdown = {},
-          items = {};
+      var primary = this.$textarea,
+          primary_lang = this.config.primary_language.replace('-','_'),
+          primary_info = this.langs[primary_lang],
+          items = {},
+          dropdown = {
+            primary_lang: {
+              title: '<i class="flag flag-'+primary_info.flag+'"></i> '+primary_info.name,
+              api: 'plugin.translatable.switchTo',
+              args: primary_lang,
+            },
+          },
+          button = this.app.toolbar.addButton('flag', {
+            title: __('Translate'),
+          });
 
-      langs = plugin.langs;
-      plugin.textareas[primary_lang] = primary;
-      plugin.primary = plugin.current = primary_lang;
+      this.primary = this.current = primary_lang;
+      this.button = button;
 
-      dropdown[primary_lang] = {
-        title: '<i class="flag flag-'+primary_info.flag+'"></i> '+primary_info.name,
-        func: function() { plugin.switchTo(primary_lang); }
-      }
-
-      $.each(langs, function(lang, info) {
+      $.each(this.langs, function(lang, info) {
         if (lang == primary_lang)
           return;
         dropdown[lang] = {
           title: '<i class="flag flag-'+info.flag+'"></i> '+info.name,
-          func: function() { plugin.switchTo(lang); }
+          api: 'plugin.translatable.switchTo',
+          args: lang,
         };
-        plugin.textareas[lang] = primary.clone(false).attr({
-          lang: lang,
-          dir: info['direction'],
-          'class': '',
-        })
-        .removeAttr('name').removeAttr('data-translate-tag')
-        .text('')
-        .insertAfter(primary);
       });
 
       // Add the button to the toolbar
-      plugin.button = this.button.add('translate', __('Translate')),
-      this.button.setAwesome('translate', 'flag flag-' + plugin.config.primary_lang_flag);
-      plugin.button.parent().addClass('pull-right');
-      this.button.addDropdown(plugin.button, dropdown);
+      button.setDropdown(dropdown);
 
       // Flip back to primary language before submitting
-      this.$textarea.closest('form').submit(function() {
-        plugin.switchTo(primary_lang);
+      var that=this;
+      this.app.editor.getElement().closest('form').on('submit', function() {
+        that.switchTo(primary_lang);
       });
+
+      this.showStatus(this.primary);
+    },
+
+    showStatus: function(lang) {
+      var tstatus = $R.dom('<span>').text('lang: ')
+      tstatus.append($R.dom('<i class="flag flag-'+this.langs[this.current].flag+'"></i>'))
+      tstatus.append(document.createTextNode(' ' + this.current))
+      this.statusbar.add('translatable', tstatus);
+
+      this.button.setIcon('<i class="flag flag-'+this.langs[lang].flag+'"></i>');
     },
 
     switchTo: function(lang) {
+      if (lang == this.current)
+        return;
+
       var that = this;
-
-      if (lang == this.translatable.current)
-        return;
-
-      if (this.translatable.translations === undefined) {
-        this.translatable.fetch('ajax.php/i18n/translate/' + this.translatable.translateTag)
+      this.fetch('ajax.php/i18n/translate/' + this.translateTag)
         .then(function(json) {
-          that.translatable.translations = json;
-          $.each(json, function(l, text) {
-            that.translatable.textareas[l].val(text);
-          });
-          // Now switch to the language
-          that.translatable.switchTo(lang);
+          // Preserve current text
+          json[that.current] = that.app.source.getCode();
+          that.current = lang;
+          that.app.insertion.set(json[lang] || '', false, true);
+          that.app.api('module.source.sync');
+
+          that.app.editor.getElement()
+            .attr({lang: lang, dir: that.langs[lang].direction});
+
+          that.showStatus(lang);
+          that.showCommit();
         });
-        return;
-      }
+    },
 
-      var html = this.$editor.html();
-      this.$textarea.val(this.clean.onSync(html));
-      this.$textarea = this.translatable.textareas[lang];
-      this.code.set(this.$textarea.val());
-      this.translatable.current = lang;
-
-      this.button.setAwesome('translate', 'flag flag-' + this.translatable.langs[lang].flag);
-      this.$editor.attr({lang: lang, dir: this.translatable.langs[lang].direction});
+    onchanged: function() {
+        this.showCommit();
+        this.changed[this.current] = true;
     },
 
     showCommit: function() {
-      var plugin = this.translatable;
-
-      if (this.translatable.current == this.translatable.primary) {
-        if (this.translatable.$commit)
-          this.translatable.$commit
-          .slideUp(function() { $(this).remove(); plugin.$commit = undefined; });
+      if (this.current == this.primary) {
+        this.statusbar.remove('translatable:commit');
         return true;
       }
 
-      if (this.translatable.$commit)
+      if (!this.changed[this.current])
         return true;
 
-      this.translatable.$commit = $('<div class="language-commit"></div>')
-      .hide()
-      .appendTo(this.$box)
-      .append($('<button type="button" class="white button commit"><i class="fa fa-save icon-save"></i> '+__('Save')+'</button>')
-        .on('click', $.proxy(this.translatable.commit, this))
-      )
-      .slideDown();
+      var tstatus = $R.dom('<a href="#"></a>')
+        .text(__('save translation'))
+        .on('click', this.commit.bind(this))
+      this.statusbar.add('translatable:commit', tstatus);
     },
 
     commit: function() {
-      var changes = {}, self = this,
-          plugin = this.translatable,
-          $commit = plugin.$commit;
-      $commit.find('button').empty().text(' '+__('Saving'))
-          .prop('disabled', true)
-          .prepend($('<i>').addClass('fa icon-spin icon-spinner'));
-      changes[plugin.current] = this.code.get();
-      $.ajax('ajax.php/i18n/translate/' + plugin.translateTag, {
+      if (!this.changed[this.current])
+          return this.app.statusbar.remove('translatable:commit');
+
+      var changes = {}, self = this;
+
+      this.app.statusbar.add('translatable:commit', __('saving...'))
+      changes[this.current] = this.app.source.getCode();
+
+      $.ajax('ajax.php/i18n/translate/' + this.translateTag, {
         type: 'post',
         data: changes,
         success: function() {
-          $commit.slideUp(function() { $(this).remove(); plugin.$commit = undefined; });
+          self.changed[self.current] = false;
+          self.app.statusbar.remove('translatable:commit');
         }
       });
+      // Don't bubble the click event
+      return false;
     },
 
     urlcache: {},
     fetch: function( url, data, callback ) {
-      var urlcache = this.translatable.urlcache;
+      var urlcache = this.urlcache;
       if ( !urlcache[ url ] ) {
         urlcache[ url ] = $.Deferred(function( defer ) {
           $.ajax( url, { data: data, dataType: 'json' } )
