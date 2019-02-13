@@ -3173,7 +3173,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function save($refetch=false) {
         if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
-            if (isset($this->dirty['status_id']))
+            if (isset($this->dirty['status_id']) && PHP_SAPI !== 'cli')
                 // Refetch the queue counts
                 SavedQueue::clearCounts();
         }
