@@ -1116,15 +1116,16 @@ $(document).on('change', 'select[data-quick-add]', function() {
 });
 
 // Quick note interface
-$(document).on('click.note', '.quicknote .action.edit-note', function() {
+$(document).on('click.note', '.quicknote .action.edit-note', function(e) {
+    // Prevent Auto-Scroll to top of page
+    e.preventDefault();
     var note = $(this).closest('.quicknote'),
         body = note.find('.body'),
         T = $('<textarea>').text(body.html());
     if (note.closest('.dialog, .tip_box').length)
         T.addClass('no-bar small');
     body.replaceWith(T);
-    $.redact(T);
-    $(T).redactor('focus.setStart');
+    $.redact(T, { focusEnd: true });
     note.find('.action.edit-note').hide();
     note.find('.action.save-note').show();
     note.find('.action.cancel-edit').show();
@@ -1197,8 +1198,7 @@ $(document).on('click', '#new-note', function() {
     note.replaceWith(T);
     $('<p>').addClass('submit').css('text-align', 'center')
         .append(button).appendTo(T.parent());
-    $.redact(T);
-    $(T).redactor('focus.setStart');
+    $.redact(T, { focusEnd: true });
     return false;
 });
 
