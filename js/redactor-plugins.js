@@ -1275,6 +1275,8 @@ if (!RedactorPlugins) var RedactorPlugins = {};
     },
 
     setLangs: function(langs) {
+      if (Object.keys(langs).length < 2)
+        return;
       this.langs = langs;
       this.buildDropdown();
     },
