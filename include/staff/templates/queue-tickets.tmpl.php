@@ -94,14 +94,17 @@ if (isset($tickets->extra['tables'])) {
             $criteria->values_flat('ticket_id')]);
     # Index hint should be used on the $criteria query only
     $tickets->clearOption(QuerySet::OPT_INDEX_HINT);
-    $tickets->distinct('ticket_id');
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> This commit fixes several PHP 7.2 compatibility issues
 =======
 >>>>>>> Changes Made:
+=======
+$tickets->distinct('ticket_id');
+>>>>>>> Issue: Duplicate Tickets in Closed Queue
 $count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
