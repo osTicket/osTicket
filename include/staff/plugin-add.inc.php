@@ -21,7 +21,7 @@ foreach ($ost->plugins->allInfos() as $info) {
             value="<?php echo $info['install_path'];
             ?>"><?php echo __('Install'); ?></button></td>
         <td>
-    <div><strong><?php echo $info['name']; ?></strong><br/>
+    <div><strong><?php echo $info['name']; ?> (<?php echo $info['install_path']; ?>)</strong><br/>
         <div><?php echo $info['description']; ?></div>
         <div class="faded"><em><?php echo __('Version'); ?>: <?php echo $info['version']; ?></em></div>
         <div class="faded"><em><?php echo __('Author'); ?>: <?php echo $info['author']; ?></em></div>
