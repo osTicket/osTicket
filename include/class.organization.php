@@ -486,6 +486,9 @@ implements TemplateVariable, Searchable {
         if (!parent::delete())
             return false;
 
+        // Clear organization from session to avoid refetch failure
+        unset($_SESSION[':Q:orgs'], $_SESSION[':O:tickets']);
+
         // Remove users from this organization
         User::objects()
             ->filter(array('org' => $this))
