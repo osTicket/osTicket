@@ -79,8 +79,10 @@ class UsersAjaxAPI extends AjaxController {
                     'org__name__contains' => $q,
                     'account__username__contains' => $q,
                 ));
-                if (UserForm::getInstance()->getField('phone'))
+                if (UserForm::getInstance()->getField('phone')) {
+                    UserForm::ensureDynamicDataView();
                     $filter->add(array('cdata__phone__contains' => $q));
+                }
 
                 $users->filter($filter);
             }
