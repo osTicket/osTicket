@@ -48,6 +48,10 @@ if ($file->verifySignature($_GET['signature'], $_GET['expires'])) {
         if (($s = @$_GET['s']) && strpos($file->getType(), 'image/') === 0)
             return $file->display($s);
 
+        // PDF to be downloaded inline
+        if (strpos($file->getType(), 'application/pdf') === 0)
+            return $file->display($s);
+
         // Download the file..
         $file->download(@$_GET['disposition'] ?: false, $_GET['expires']);
     }
