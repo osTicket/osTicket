@@ -261,7 +261,6 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isAssigned($to=null) {
-
         if (!$this->isOpen())
             return false;
 
@@ -308,8 +307,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // check department access first
         if (!$staff->canAccessDept($this->getDept())
-                // no restrictions
-                && !$staff->isAccessLimited()
                 // check assignment
                 && !$this->isAssigned($staff)
                 // check referral
