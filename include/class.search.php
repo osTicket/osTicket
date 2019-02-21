@@ -1000,7 +1000,12 @@ class SavedSearch extends SavedQueue {
     }
 
     function getCount($agent, $cached=true) {
-        return 500;
+        $count = null;
+        if ($cached && ($counts = self::counts($agent, $cached)))
+            $count = $counts["q{$this->getId()}"];
+        if ($count == null)
+            $count = $this->getTotal($agent);
+        return $count;
     }
 }
 
