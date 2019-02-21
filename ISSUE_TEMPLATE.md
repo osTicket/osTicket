@@ -23,6 +23,6 @@ For more information on how to write a good [bug report](https://github.com/osTi
 
 ### Versions
 
-Admin panel -> Dashboard -> Information which also additionally gives you information about you server.
+Admin panel -> Dashboard -> Information which also additionally gives you information about your server.
 
 Also, please include the OS and what version of the OS you're running. As well as your browser and browser version.
