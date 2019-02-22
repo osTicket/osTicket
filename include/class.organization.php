@@ -489,7 +489,7 @@ implements TemplateVariable, Searchable {
         if (!$id || !$thisstaff)
             return false;
 
-        return ROOT_PATH . sprintf('orgs.php?id=%s', $id);
+        return ROOT_PATH . sprintf('scp/orgs.php?id=%s', $id);
     }
 
     static function fromVars($vars) {
