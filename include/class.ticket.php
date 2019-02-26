@@ -4120,7 +4120,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         // Not assigned...save optional note if any
-        if (!$ticket->isAssigned() && $vars['note']) {
+        if (!$vars['assignId'] && $vars['note']) {
             if (!$cfg->isRichTextEnabled())
                 $vars['note'] = new TextThreadEntryBody($vars['note']);
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
