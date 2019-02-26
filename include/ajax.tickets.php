@@ -364,7 +364,7 @@ class TicketsAjaxAPI extends AjaxController {
             $format.='.plain';
 
         $varReplacer = function (&$var) use($ticket) {
-            return $ticket->replaceVars($var);
+            return $ticket->replaceVars($var, array('recipient' => $ticket->getOwner()));
         };
 
         include_once(INCLUDE_DIR.'class.canned.php');
