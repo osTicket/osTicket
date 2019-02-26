@@ -251,6 +251,8 @@ implements TemplateVariable, Searchable {
             catch (OrmException $e) {
                 return null;
             }
+            $type = array('type' => 'created', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
+            Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
         }
         elseif ($update) {
@@ -640,6 +642,9 @@ implements TemplateVariable, Searchable {
         foreach ($this->getDynamicData() as $entry) {
             $entry->delete();
         }
+
+        $type = array('type' => 'deleted', 'data' => array('id' => $this->getId(), 'name' => $this->getName()->name));
+        Signal::send('object.deleted', $this, $type);
 
         // Delete user
         return parent::delete();

@@ -105,6 +105,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               FilterAction::setFilterFlag($filter_actions, 'dept', false);
                               if($d->save())
                                 $num++;
+                              $type = array('type' => 'edited', 'data' => array('type' => 'Enabled'));
+                              Signal::send('object.edited', $d, $type);
                             }
 
                             if ($num > 0) {
@@ -131,6 +133,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
                               FilterAction::setFilterFlag($filter_actions, 'dept', true);
                               if($d->save()) {
+                                $type = array('type' => 'edited', 'data' => array('type' => 'Disabled'));
+                                Signal::send('object.edited', $d, $type);
                                 $num++;
                               }
                             }

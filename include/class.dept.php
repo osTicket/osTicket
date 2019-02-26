@@ -905,6 +905,9 @@ implements TemplateVariable, Searchable {
                 // The ID wasn't available until after the commit
                 $this->path = $this->getFullPath();
                 $this->save();
+            } else {
+                $type = array('type' => 'edited');
+                Signal::send('object.edited', $this, $type);
             }
             return true;
         }

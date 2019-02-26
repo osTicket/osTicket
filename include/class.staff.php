@@ -817,6 +817,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 );
         $this->_config = $_config->getInfo();
 
+        $type = array('type' => 'edited');
+        Signal::send('object.edited', $this, $type);
+
         return $this->save();
     }
 
@@ -1208,6 +1211,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if ($this->save()) {
             if ($vars['welcome_email'])
                 $this->sendResetEmail('registration-staff', false);
+
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $this, $type);
             return true;
         }
 

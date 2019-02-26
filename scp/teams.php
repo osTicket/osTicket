@@ -27,6 +27,8 @@ if($_POST){
             }elseif($team->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this team'));
+                $type = array('type' => 'edited');
+                Signal::send('object.edited', $team, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this team')),

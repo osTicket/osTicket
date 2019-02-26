@@ -30,6 +30,8 @@ if($_POST){
             }elseif($topic->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this help topic'));
+                $type = array('type' => 'edited');
+                Signal::send('object.edited', $topic, $type);
             }elseif(!$errors['err']){
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this help topic')),
@@ -41,6 +43,8 @@ if($_POST){
             if ($_topic->update($_POST, $errors)) {
                 $topic = $_topic;
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['topic']));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $topic, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',

@@ -37,6 +37,8 @@ if ($_POST) {
                     __('Role'));
         } elseif ($role->update($_POST, $errors)) {
             $msg = __('Role updated successfully');
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $role, $type);
         } elseif ($errors) {
             $errors['err'] = $errors['err'] ?: sprintf('%s %s',
                 sprintf(__('Unable to update %s.'), __('this role')),
@@ -53,6 +55,8 @@ if ($_POST) {
             unset($_REQUEST['a']);
             $msg = sprintf(__('Successfully added %s.'),
                     __('role'));
+            $type = array('type' => 'created');
+            Signal::send('object.created', $_role, $type);
         } elseif ($errors) {
             $errors['err'] = sprintf('%s %s',
                 sprintf(__('Unable to add %s.'), __('this role')),
@@ -113,8 +117,11 @@ if ($_POST) {
             case 'delete':
                 $i=0;
                 foreach ($_POST['ids'] as $k=>$v) {
-                    if (($r=Role::lookup($v)) && $r->isDeleteable() && $r->delete())
+                    if (($r=Role::lookup($v)) && $r->isDeleteable() && $r->delete()) {
+                        $type = array('type' => 'deleted');
+                        Signal::send('object.deleted', $r, $type);
                         $i++;
+                    }
                 }
                 if ($i && $i==$count)
                     $msg = sprintf(__('Successfully deleted %s.'),

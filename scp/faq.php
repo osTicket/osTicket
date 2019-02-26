@@ -102,6 +102,8 @@ if ($_POST) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this FAQ article')),
                     __('Correct any errors below and try again.'));
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $faq, $type);
             break;
         case 'manage-faq':
             if(!$faq) {

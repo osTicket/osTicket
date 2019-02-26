@@ -462,6 +462,9 @@ implements TemplateVariable, Searchable {
                 ));
         }
 
+        $type = array('type' => 'edited');
+        Signal::send('object.edited', $this, $type);
+
         return $this->save();
     }
 

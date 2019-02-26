@@ -87,6 +87,8 @@ if($_POST) {
                     $list->_items = null;
                     $msg = sprintf(__('Successfully updated %s.'),
                         __('this custom list'));
+                    $type = array('type' => 'edited');
+                    Signal::send('object.edited', $list, $type);
                 }
 
             } elseif ($errors)
@@ -102,6 +104,8 @@ if($_POST) {
             if ($list=DynamicList::add($_POST, $errors)) {
                  $form = $list->getForm(true);
                  Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
+                 $type = array('type' => 'created');
+                 Signal::send('object.created', $list, $type);
                  // Redirect to list page
                  $redirect = "lists.php?id={$list->id}#items";
             } elseif ($errors) {
@@ -124,8 +128,11 @@ if($_POST) {
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=DynamicList::lookup($v)) && $t->delete())
+                            if(($t=DynamicList::lookup($v)) && $t->delete()) {
+                                $type = array('type' => 'deleted');
+                                Signal::send('object.deleted', $t, $type);
                                 $i++;
+                            }
                         }
                         if ($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),

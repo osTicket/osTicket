@@ -41,14 +41,16 @@ if($_POST){
                     sprintf(__('Unable to update %s.'), __('this category')),
                     __('Correct any errors below and try again.'));
             }
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $category, $type);
             break;
         case 'create':
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
+                $_REQUEST['a']=null;
                 $type = array('type' => 'created');
                 Signal::send('object.created', $category, $type);
-                $_REQUEST['a']=null;
             } elseif(!$errors['err']) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this category')),
