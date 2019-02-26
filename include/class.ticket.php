@@ -2742,7 +2742,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
-        $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(), 'staff' => $staff->getName()->name));
+        $type = array('type' => 'assigned', 'data' => array('claim' => true));
         Signal::send('object.edited', $this, $type);
 
         return true;

@@ -678,6 +678,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($errors)
             return false;
 
+        $type = array('type' => 'assigned', 'data' => array('claim' => true));
+        Signal::send('object.edited', $this, $type);
+
         return $this->assignToStaff($assignee, $form->getComments(), false);
     }
 
@@ -704,9 +707,6 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $data['staff'] = $staff->getId();
 
         $this->logEvent('assigned', $data);
-
-        $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(), 'staff' => $staff->getName()->name));
-        Signal::send('object.edited', $this, $type);
 
         return true;
     }
