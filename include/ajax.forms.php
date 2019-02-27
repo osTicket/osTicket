@@ -149,6 +149,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
     function saveListItem($list_id, $item_id) {
         global $thisstaff;
 
+        $errors = array();
+
         if (!$thisstaff)
             Http::response(403, 'Login required');
 
@@ -177,7 +179,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
                     'name' =>   $basic['name'],
                     'value' =>  $basic['value'],
                     'abbrev' =>  $basic['extra'],
-                ]);
+                ], $errors);
             }
         }
 
