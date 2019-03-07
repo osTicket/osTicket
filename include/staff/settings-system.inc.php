@@ -132,6 +132,13 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Allow iFrames'); ?>:</td>
+            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>">
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+                <i class="help-tip icon-question-sign" href="#allow_iframes"></i>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Date and Time Options'); ?></b>&nbsp;
                 <i class="help-tip icon-question-sign" href="#date_time_options"></i>
