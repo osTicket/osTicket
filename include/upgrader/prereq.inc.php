@@ -39,7 +39,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
     <div class="sidebar pull-right">
             <h3><?php echo __('Upgrade Tips');?></h3>
             <p>1. <?php echo __('Remember to back up your osTicket database');?></p>
-            <p>2. <?php echo sprintf(__('Refer to %1$s Upgrade Guide %2$s for the latest tips'), '<a href="http://osticket.com/wiki/Upgrade_and_Migration" target="_blank">', '</a>');?></p>
+            <p>2. <?php echo sprintf(__('Refer to %1$s Upgrade Guide %2$s for the latest tips'), '<a href="https://docs.osticket.com/en/latest/Getting%20Started/Upgrade%20and%20Migration.html" target="_blank">', '</a>');?></p>
             <p>3. <?php echo __('If you experience any problems, you can always restore your files/database backup.');?></p>
             <p>4. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="http://osticket.com/support/" target="_blank">', '</a>');?></p>
 

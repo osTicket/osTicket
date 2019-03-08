@@ -143,7 +143,7 @@ if ($_POST) {
 }
 
 $inc='faq-categories.inc.php'; //FAQs landing page.
-if($faq) {
+if($faq && $faq->getId()) {
     $inc='faq-view.inc.php';
     if ($_REQUEST['a']=='edit'
             && $thisstaff->hasPerm(FAQ::PERM_MANAGE))
