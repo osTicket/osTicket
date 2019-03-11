@@ -685,7 +685,7 @@ class AnnotatedModel {
     function __get($what) {
         return $this->get($what);
     }
-    function get($what) {
+    function get($what, $default=false) {
         if (isset($this->annotations[$what]))
             return $this->annotations[$what];
         return $this->model->get($what, null);
