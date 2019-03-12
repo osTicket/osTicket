@@ -39,7 +39,7 @@ class mPDFWithLocalImages extends Mpdf {
                 if (!($file = @$images[strtolower($match[1])]))
                     return $match[0];
                 $key = "__attached_file_".$filenumber++;
-                $self->{$key} = $file->getData();
+                $self->imageVars[$key] = $file->getData();
                 return 'var:'.$key;
             },
             $html
