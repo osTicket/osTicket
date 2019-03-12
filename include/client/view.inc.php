@@ -98,7 +98,7 @@ if ($thisclient && $thisclient->isGuest()
         <td colspan="2">
 <!-- Custom Data -->
 <?php
-$sections = array();
+$sections = $forms = array();
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $i=>$form) {
     // Skip core fields shown earlier in the ticket view
     $answers = $form->getAnswers()->exclude(Q::any(array(
@@ -111,11 +111,13 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $i=>$form) {
         if ($v = $a->display())
             $sections[$i][$j] = array($v, $a);
     }
+    // Set form titles
+    $forms[$i] = $form->getTitle();
 }
 foreach ($sections as $i=>$answers) {
     ?>
         <table class="custom-data" cellspacing="0" cellpadding="4" width="100%" border="0">
-        <tr><td colspan="2" class="headline flush-left"><?php echo $form->getTitle(); ?></th></tr>
+        <tr><td colspan="2" class="headline flush-left"><?php echo $forms[$i]; ?></th></tr>
 <?php foreach ($answers as $A) {
     list($v, $a) = $A; ?>
         <tr>
