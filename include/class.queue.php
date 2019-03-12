@@ -723,7 +723,7 @@ class CustomQueue extends VerySimpleModel {
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
-                "id" => 6,
+                "id" => 8,
                 "heading" => "Assignee",
                 "primary" => 'assignee',
                 "width" => 100,
@@ -1229,7 +1229,7 @@ class CustomQueue extends VerySimpleModel {
         $this->path = $this->buildPath();
         $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id);
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
-            isset($vars['inherit-columns']));
+            $this->parent_id > 0 && isset($vars['inherit-columns']));
         $this->setFlag(self::FLAG_INHERIT_EXPORT,
             $this->parent_id > 0 && isset($vars['inherit-exports']));
         $this->setFlag(self::FLAG_INHERIT_SORTING,
