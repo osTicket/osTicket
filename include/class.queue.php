@@ -1144,25 +1144,23 @@ class CustomQueue extends VerySimpleModel {
 
         $new = $fields;
         foreach ($this->exports as $f) {
+            $heading = $f->getHeading();
             $key = $f->getPath();
             if (!isset($fields[$key])) {
                 $this->exports->remove($f);
                 continue;
             }
 
-            $info = $fields[$key];
-            if (is_array($info))
-                $heading = $info['heading'];
-            else
-                $heading = $info;
-
             $f->set('heading', $heading);
             $f->set('sort', array_search($key, $order)+1);
             unset($new[$key]);
         }
 
+        $exportableFields = CustomQueue::getExportableFields();
         foreach ($new as $k => $field) {
-            if (is_array($field))
+            if (isset($exportableFields[$k]))
+                $heading = $exportableFields[$k];
+            elseif (is_array($field))
                 $heading = $field['heading'];
             else
                 $heading = $field;
