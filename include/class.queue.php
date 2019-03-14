@@ -807,9 +807,17 @@ class CustomQueue extends VerySimpleModel {
         // See if we have cached export preference
         if (isset($_SESSION['Export:Q'.$this->getId()])) {
             $opts = $_SESSION['Export:Q'.$this->getId()];
-            if (isset($opts['fields']))
+            if (isset($opts['fields'])) {
                 $fields = array_intersect_key($fields,
                         array_flip($opts['fields']));
+                $exportableFields = CustomQueue::getExportableFields();
+                foreach ($opts['fields'] as $key => $name) {
+                    if (is_null($fields[$name]) && isset($exportableFields)) {
+                        $fields[$name] = $exportableFields[$name];
+                    }
+                 }
+            }
+
             if (isset($opts['filename'])
                     && ($parts = pathinfo($opts['filename']))) {
                 $filename = $opts['filename'];
