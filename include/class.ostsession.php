@@ -201,7 +201,7 @@ extends SessionBackend {
         catch (OrmException $e) {
             return false;
         }
-        return $this->data->session_data;
+        return (string) $this->data->session_data;
     }
 
     function update($id, $data){
@@ -297,7 +297,7 @@ extends SessionBackend {
         // No session data on record -- new session
         $this->isnew = $data === false;
 
-        return $data;
+        return (string) $data;
     }
 
     function update($id, $data) {
