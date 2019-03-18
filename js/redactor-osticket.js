@@ -204,9 +204,6 @@
                 this.$signatureBox.hide();
             $R.dom('input[name='+signatureField+']', $form)
                 .on('change', this.updateSignature.bind(this));
-            if ($el.data('dept-field'))
-                $R.dom(':input[name='+$el.data('dept-field')+']', $form)
-                    .on('change', this.updateSignature.bind(this));
             // Expand on hover
             var outer = this.$signatureBox,
                 inner = $('.inner', this.$signatureBox).get(0),

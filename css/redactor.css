@@ -1379,3 +1379,8 @@
 .redactor-in[style*=' width:'], .redactor-in[style^='width:'] {
   border-right: 1px dashed #999;
 }
+
+.redactor-toolbar.redactor-toolbar,
+.redactor-air.redactor-air {
+  z-index: 9;
+}
