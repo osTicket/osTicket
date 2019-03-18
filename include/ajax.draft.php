@@ -334,37 +334,39 @@ class DraftAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required for file queries");
 
+        $search = Q::any([
+            Q::all([
+                'attachments__type__in' => array('C', 'F', 'T', 'P'),
+                'attachments__inline' => 1,
+            ]),
+            'ft' => 'L',
+        ]);
+
         if (isset($_GET['threadId']) && is_numeric($_GET['threadId'])
             && ($thread = Thread::lookup($_GET['threadId']))
             && ($object = $thread->getObject())
             && ($thisstaff->canAccess($object))
         ) {
-            $union = ' UNION SELECT f.id, a.id as aid, a.`type`, a.`name` FROM '.THREAD_TABLE.' t
-                JOIN '.THREAD_ENTRY_TABLE.' th ON (th.thread_id = t.id)
-                JOIN '.ATTACHMENT_TABLE.' a ON (a.object_id = th.id AND a.`type` = \'H\')
-                JOIN '.FILE_TABLE.' f ON (a.file_id = f.id)
-                WHERE a.`inline` = 1 AND t.id='.db_input($_GET['threadId']);
+            $search->add(Q::all([
+                'attachments__thread_entry__thread_id' => $_GET['threadId'],
+                'attachments__inline' => 1,
+            ]));
         }
 
-        $sql = 'SELECT distinct f.id, a.id as aid, COALESCE(a.type, f.ft), a.`name` FROM '.FILE_TABLE
-            .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
-            WHERE ((a.`type` IN (\'C\', \'F\', \'T\', \'P\') AND a.`inline` = 1) OR f.ft = \'L\')'
-                .' AND f.`type` LIKE \'image/%\'';
-        if (!($res = db_query($sql.$union)))
-            Http::response(500, 'Unable to lookup files');
+        $images = AttachmentFile::objects()->filter([
+                $search,
+                'type__startswith' => 'image/',
+            ])->distinct('id');
 
         $files = array();
-        while (list($id, $aid, $type, $name) = db_fetch_row($res)) {
-            if (!($f = AttachmentFile::lookup((int) $id)))
-                continue;
-
-            $url = $f->getDownloadUrl(['id' => $aid]);
+        foreach ($images as $f) {
+            $url = $f->getDownloadUrl();
             $files[] = array(
                 // Don't send special sizing for thread items 'cause they
                 // should be cached already by the client
-                'thumb'=>$url.($type != 'H' ? '&s=128' : ''),
-                'url'=>$url,
-                'title'=>$name ?: $f->getName(),
+                'thumb' => $url.($f->type != 'H' ? '&s=128' : ''),
+                'url' => $url,
+                'title' => $f->getName(),
             );
         }
         echo JsonDataEncoder::encode($files);
