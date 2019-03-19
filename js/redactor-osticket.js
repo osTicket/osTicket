@@ -11,6 +11,26 @@
  * so one user will not retrieve drafts for another user.
  */
 (function(R$) {
+  // Monkey patch incorrect code in the inpection module
+  var stockInspectorParser = $R[$R.env['class']]['inspector.parser'];
+  R$.add('class', 'inspector.parser', $R.extend(stockInspectorParser.prototype, {
+    _getClosestUpNode: function(selector)
+    {
+        var $el = this.$el.parents(selector, '.redactor-in-' + this.uuid).last();
+        return ($el.length !== 0) ? $el.get() : false;
+    },
+    _getClosestNode: function(selector)
+    {
+        var $el = this.$el.closest(selector, '.redactor-in-' + this.uuid);
+        return ($el.length !== 0) ? $el.get() : false;
+    },
+    _getClosestElement: function(selector)
+    {
+        var $el = this.$el.closest(selector, '.redactor-in-' + this.uuid);
+        return ($el.length !== 0) ? $el : false;
+    },
+  }));
+
   R$.add('plugin', 'draft', {
     init: function (app) {
         this.app = app;
