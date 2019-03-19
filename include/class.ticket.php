@@ -35,6 +35,7 @@ require_once(INCLUDE_DIR.'class.user.php');
 require_once(INCLUDE_DIR.'class.collaborator.php');
 require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.faq.php');
+require_once(INCLUDE_DIR.'class.supportday.php');
 
 class Ticket extends VerySimpleModel
 implements RestrictedAccess, Threadable, Searchable {
@@ -444,9 +445,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getSLADueDate($datetime=null) {
         if ($sla = $this->getSLA()) {
             $dt = new DateTime($datetime ?: $this->getReopenDate() ?: $this->getCreateDate());
-            return $dt
-                ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
-                ->format('Y-m-d H:i:s');
+            return $sla->getDueDate($dt)->format('Y-m-d H:i:s');
         }
     }
 

@@ -69,6 +69,149 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
             </td>
         </tr>
+
+        <tr>
+            <td width="180">
+                Work Hours:
+            </td>
+            <td>
+    <table style="text-align:center;">
+  <tbody>
+  <tr>
+    <th></th>
+    <th>None</th>
+    <th>24 hrs</th>
+    <th>Timed</th>
+    <th>Working hours</th>
+  </tr>
+  <tr>
+    <td>Sunday</td>
+    <td>
+         <input type="radio" name="sun_mode" value="0" onclick="$('.work-hours').prop('disabled', false); $('.work-hours').prop('disabled', true); $('#sun-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sun-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' );$('#sun-time1').val(''); $('#sun-time').val('');" <?php echo ($info['sun_mode']==0)?'checked="checked"':''; ?>>
+    </td>
+    <td>
+        <input type="radio" name="sun_mode" value="1" onclick="$('.work-hours').prop('disabled', false); $('.work-hours').prop('disabled', true); $('#sun-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sun-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sun-time1').val(''); $('#sun-time').val('');" <?php echo ($info['sun_mode']==1)?'checked="checked"':''; ?>>
+    </td>
+    <td>
+    <input type="radio" name="sun_mode" value="2" onclick="$('.work-hours').prop('disabled', false); $('#sun-time' ).removeClass( 'disable-time' ); $('#sun-time1' ).removeClass( 'disable-time' );" <?php echo ($info['sun_mode']==2)?'checked="checked"':''; ?>>
+    </td>
+    <td>
+        <input type="time" name="sun_start_time" placeholder="e.g. 00:00" id="sun-time" class="work-hours <?php echo ($info['sun_mode']!=2)?'disable-time':''; ?> " <?php echo ($info['sun_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['sun_start_time']) && $info['sun_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['sun_start_time'] . ':00')) . '"') ?>> to 
+        <input type="time" name="sun_end_time" placeholder="e.g. 00:00" id="sun-time1" class="work-hours <?php echo ($info['sun_mode']!=2)?'disable-time':''; ?> " <?php echo ($info['sun_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['sun_end_time']) && $info['sun_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['sun_end_time'] . ':00')) . '"') ?>>
+        &nbsp;<span class="error">*&nbsp;<?php echo $errors['sun_start_time']; ?></span>
+    </td>
+  </tr>
+  <tr>
+    <td>Monday</td>
+     <td>
+        <input type="radio" name="mon_mode" value="0" onclick="$('.work-hours1').prop('disabled', false); $('.work-hours1').prop('disabled', true); $('#mon-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#mon-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#mon-time1').val(''); $('#mon-time').val('');"<?php echo ($info['mon_mode']==0)?'checked="checked"':''; ?>>		</td>
+    <td>
+        <input type="radio" name="mon_mode" value="1" onclick="$('.work-hours1').prop('disabled', false); $('.work-hours1').prop('disabled', true); $('#mon-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#mon-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#mon-time1').val(''); $('#mon-time').val('');"<?php echo ($info['mon_mode']==1)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+        <input type="radio" name="mon_mode" value="2" onclick="$('.work-hours1').prop('disabled', false); $('#mon-time' ).removeClass( 'disable-time' ); $('#mon-time1' ).removeClass( 'disable-time' );" <?php echo ($info['mon_mode']==2)?'checked="checked"':''; ?>>
+      </td>
+      <td>
+      <input type="time" name="mon_start_time" placeholder="e.g. 00:00" id="mon-time" class="work-hours1 <?php echo ($info['mon_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['mon_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['mon_start_time']) && $info['mon_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['mon_start_time'] . ':00')) . '"') ?>> to 
+      <input type="time" name="mon_end_time" placeholder="e.g. 00:00" id="mon-time1" class="work-hours1 <?php echo ($info['mon_mode']!=2)?'disable-time':''; ?>"<?php echo ($info['mon_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['mon_end_time']) && $info['mon_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['mon_end_time'] . ':00')) . '"') ?>>
+      &nbsp;<span class="error">*&nbsp;<?php echo $errors['mon_start_time']; ?></span>
+
+      </td>
+  </tr>
+  <tr>
+    <td>Tuesday</td>
+     <td>
+        <input type="radio" name="tue_mode" value="0" onclick="$('.work-hours2').prop('disabled', false); $('.work-hours2').prop('disabled', true); $('#tue-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#tue-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#tue-time1').val(''); $('#tue-time').val('');"<?php echo ($info['tue_mode']==0)?'checked="checked"':''; ?>>		</td>
+    <td>
+        <input type="radio" name="tue_mode" value="1" onclick="$('.work-hours2').prop('disabled', false); $('.work-hours2').prop('disabled', true); $('#tue-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#tue-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#tue-time1').val(''); $('#tue-time').val('');"<?php echo ($info['tue_mode']==1)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+        <input type="radio" name="tue_mode" value="2" onclick="$('.work-hours2').prop('disabled', false); $('#tue-time' ).removeClass( 'disable-time' ); $('#tue-time1' ).removeClass( 'disable-time' );"<?php echo ($info['tue_mode']==2)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+       <input type="time" name="tue_start_time" placeholder="e.g. 00:00" id="tue-time" class="work-hours2 <?php echo ($info['tue_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['tue_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['tue_start_time']) && $info['tue_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['tue_start_time'] . ':00')) . '"') ?>> to 
+       <input type="time" name="tue_end_time" placeholder="e.g. 00:00" id="tue-time1" class="work-hours2 <?php echo ($info['tue_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['tue_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['tue_end_time']) && $info['tue_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['tue_end_time'] . ':00')) . '"') ?>>
+       &nbsp;<span class="error">*&nbsp;<?php echo $errors['tue_start_time']; ?></span>
+       
+
+
+      </td>
+  </tr>
+  <tr>
+    <td>Wednesday</td>
+     <td>
+        <input type="radio" name="wed_mode" value="0" onclick="$('.work-hours3').prop('disabled', false); $('.work-hours3').prop('disabled', true);  $('#wed-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#wed-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#wed-time1').val(''); $('#wed-time').val('');"<?php echo ($info['wed_mode']==0)?'checked="checked"':''; ?>>		</td>
+    <td>
+        <input type="radio" name="wed_mode" value="1"onclick="$('.work-hours3').removeClass('disable-time'); $('.work-hours3').addClass('disable-time'); $('#wed-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#wed-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#wed-time1').val(''); $('#wed-time').val('');"<?php echo ($info['wed_mode']==1)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+        <input type="radio" name="wed_mode" value="2" onclick="$('.work-hours3').prop('disabled', false); $('#wed-time' ).removeClass( 'disable-time' ); $('#wed-time1' ).removeClass( 'disable-time' );"<?php echo ($info['wed_mode']==2)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+       <input type="time" name="wed_start_time" placeholder="e.g. 00:00" id="wed-time" class="work-hours3 <?php echo ($info['wed_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['wed_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['wed_start_time']) && $info['wed_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['wed_start_time'] . ':00')) . '"') ?>> to 
+       <input type="time" name="wed_end_time" placeholder="e.g. 00:00" id="wed-time1" class="work-hours3 <?php echo ($info['wed_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['wed_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['wed_end_time']) && $info['wed_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['wed_end_time'] . ':00')) . '"') ?>>
+       &nbsp;<span class="error">*&nbsp;<?php echo $errors['wed_start_time']; ?></span>
+
+      </td>
+  </tr>
+  <tr>
+    <td>Thursday</td>
+    <td>
+        <input type="radio" name="thu_mode" value="0" onclick="$('.work-hours4').prop('disabled', false); $('.work-hours4').prop('disabled', true); $('#thu-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#thu-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#thu-time1').val(''); $('#thu-time').val('');"<?php echo ($info['thu_mode']==0)?'checked="checked"':''; ?>>		</td>
+    <td>
+        <input type="radio" name="thu_mode" value="1" onclick="$('.work-hours4').prop('disabled', false); $('.work-hours4').prop('disabled', true); $('#thu-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#thu-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#thu-time1').val(''); $('#thu-time').val('');"<?php echo ($info['thu_mode']==1)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+        <input type="radio" name="thu_mode" value="2" onclick="$('.work-hours4').prop('disabled', false); $('#thu-time' ).removeClass( 'disable-time' ); $('#thu-time1' ).removeClass( 'disable-time' );"<?php echo ($info['thu_mode']==2)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+       <input type="time" name="thu_start_time" placeholder="e.g. 00:00" id="thu-time" class="work-hours4 <?php echo ($info['thu_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['thu_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['thu_start_time']) && $info['thu_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['thu_start_time'] . ':00')) . '"') ?>> to 
+       <input type="time" name="thu_end_time" placeholder="e.g. 00:00" id="thu-time1" class="work-hours4 <?php echo ($info['thu_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['thu_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['thu_end_time']) && $info['thu_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['thu_end_time'] . ':00')) . '"') ?>>
+       &nbsp;<span class="error">*&nbsp;<?php echo $errors['thu_start_time']; ?></span>
+
+      </td>
+  </tr>
+  <tr>
+    <td>Friday</td>
+     <td>
+        <input type="radio" name="fri_mode" value="0" onclick="$('.work-hours5').prop('disabled', false); $('.work-hours5').prop('disabled', true); $('#fri-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#fri-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#fri-time1').val(''); $('#fri-time').val('');"<?php echo ($info['fri_mode']==0)?'checked="checked"':''; ?>>		</td>
+    <td>
+        <input type="radio" name="fri_mode" value="1" onclick="$('.work-hours5').prop('disabled', false); $('.work-hours5').prop('disabled', true); $('#fri-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#fri-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#fri-time1').val(''); $('#fri-time').val('');"<?php echo ($info['fri_mode']==1)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+        <input type="radio" name="fri_mode" value="2" onclick="$('.work-hours5').prop('disabled', false); $('#fri-time' ).removeClass( 'disable-time' ); $('#fri-time1' ).removeClass( 'disable-time' );"<?php echo ($info['fri_mode']==2)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+       <input type="time" name="fri_start_time" placeholder="e.g. 00:00" id="fri-time" class="work-hours5 <?php echo ($info['fri_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['fri_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['fri_start_time']) && $info['fri_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['fri_start_time'] . ':00')) . '"') ?>> to 
+       <input type="time" name="fri_end_time" placeholder="e.g. 00:00" id="fri-time1" class="work-hours5 <?php echo ($info['fri_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['fri_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['fri_end_time']) && $info['fri_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['fri_end_time'] . ':00')) . '"') ?>>
+       &nbsp;<span class="error">*&nbsp;<?php echo $errors['fri_start_time']; ?></span>
+
+
+      </td>
+  </tr>
+  <tr>
+    <td>Saturday</td>
+     <td>
+        <input type="radio" name="sat_mode" value="0" onclick="$('.work-hours6').prop('disabled', false); $('.work-hours6').prop('disabled', true); $('#sat-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sat-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sat-time1').val(''); $('#sat-time').val('');"<?php echo ($info['sat_mode']==0)?'checked="checked"':''; ?>>		</td>
+    <td>
+        <input type="radio" name="sat_mode" value="1" onclick="$('.work-hours6').prop('disabled', false); $('.work-hours6').prop('disabled', true); $('#sat-time' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sat-time1' ).removeClass( 'disable-time' ).addClass( 'disable-time' ); $('#sat-time1').val(''); $('#sat-time').val('');"<?php echo ($info['sat_mode']==1)?'checked="checked"':''; ?>>
+      </td>
+       <td>
+        <input type="radio" name="sat_mode" value="2" onclick="$('.work-hours6').prop('disabled', false); $('#sat-time' ).removeClass( 'disable-time' ); $('#sat-time1' ).removeClass( 'disable-time' );"<?php echo ($info['sat_mode']==2)?'checked="checked"':''; ?>>
+      </td>
+      <td >
+         <input type="time" name="sat_start_time" placeholder="e.g. 00:00" id="sat-time" class="work-hours6 <?php echo ($info['sat_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['sat_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['sat_start_time']) && $info['sat_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['sat_start_time'] . ':00')) . '"') ?>> to 
+         <input type="time" name="sat_end_time" placeholder="e.g. 00:00" id="sat-time1" class="work-hours6 <?php echo ($info['sat_mode']!=2)?'disable-time':''; ?>" <?php echo ($info['sat_mode']!=2)?'disabled="disabled"':''; ?> <?php if (isset($info['sat_end_time']) && $info['sat_mode'] == 2) echo __(' value="' . date('H:i', strtotime('1970-01-01 ' . $info['sat_end_time'] . ':00')) . '"') ?>>
+         &nbsp;<span class="error">*&nbsp;<?php echo $errors['sat_start_time']; ?></span>
+
+      </td>
+  </tr>
+</tbody></table>
+    
+             
+            </td>
+        </tr>
+
         <tr>
             <td width="180">
                 <?php echo __('Transient'); ?>:
