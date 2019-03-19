@@ -3657,3 +3657,7 @@ img.avatar + img.avatar {
     height: auto;
     max-height: 400px !important;
 }
+input[type="time"]:disabled {
+    background-color: #eee;
+    color: #888;
+}
