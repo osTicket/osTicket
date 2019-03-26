@@ -597,6 +597,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         $visibility = Q::any(new Q(array('status__state'=>'open', $assigned)));
 
+        // -- If access is limited to assigned only, return assigned
+        if ($this->isAccessLimited())
+            return $visibility;
+
         // -- Routed to a department of mine
         if (($depts=$this->getDepts()) && count($depts)) {
             $visibility->add(array('dept_id__in' => $depts));
