@@ -123,6 +123,14 @@ class Validator {
                 if(!is_numeric($this->input[$k]) || (strlen($this->input[$k])!=5))
                     $this->errors[$k]=$field['error'];
                 break;
+            case 'cs-domain': // Comma separated list of domains
+                if($values=explode(',', $this->input[$k]))
+                    foreach($values as $v)
+                        if(!preg_match_all(
+                                '/^(https?:\/\/)?((\*\.|\w+\.)?[\w-]+(\.[a-zA-Z]+)?(:([0-9]+|\*))?)+$/',
+                                ltrim($v)))
+                            $this->errors[$k]=$field['error'];
+                break;
             default://If param type is not set...or handle..error out...
                 $this->errors[$k]=$field['error'].' '.__('(type not set)');
             endswitch;
