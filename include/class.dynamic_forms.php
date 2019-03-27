@@ -1194,11 +1194,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $field = $a->getField();
             if (!$field->hasData() || $field->isPresentationOnly())
                 continue;
-            $after = $field->to_database($field->getClean());
-            $before = $field->to_database($a->getValue());
-            if ($before == $after)
+            $changes = $field->getChanges();
+            if (!$changes)
                 continue;
-            $fields[$field->get('id')] = array($before, $after);
+            $fields[$field->get('id')] = $changes;
         }
         return $fields;
     }

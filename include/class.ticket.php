@@ -261,7 +261,6 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isAssigned($to=null) {
-
         if (!$this->isOpen())
             return false;
 
@@ -308,8 +307,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // check department access first
         if (!$staff->canAccessDept($this->getDept())
-                // no restrictions
-                && !$staff->isAccessLimited()
                 // check assignment
                 && !$this->isAssigned($staff)
                 // check referral
@@ -3173,7 +3170,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function save($refetch=false) {
         if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
-            if (isset($this->dirty['status_id']))
+            if (isset($this->dirty['status_id']) && PHP_SAPI !== 'cli')
                 // Refetch the queue counts
                 SavedQueue::clearCounts();
         }

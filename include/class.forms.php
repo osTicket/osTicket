@@ -1677,6 +1677,24 @@ class BooleanField extends FormField {
         return ($value) ? __('Yes') : __('No');
     }
 
+    function getClean($validate=true) {
+        if (!isset($this->_clean)) {
+            $this->_clean = (isset($this->value))
+                ? $this->value : $this->getValue();
+
+            if ($this->isVisible() && $validate)
+                $this->validateEntry($this->_clean);
+        }
+        return $this->_clean;
+    }
+
+    function getChanges() {
+        $new = $this->getValue();
+        $old = $this->answer ? $this->answer->getValue() : $this->get('default');
+
+        return ($old != $new) ? array($this->to_database($old), $this->to_database($new)) : false;
+    }
+
     function getSearchMethods() {
         return array(
             'set' =>        __('checked'),
@@ -1980,6 +1998,24 @@ class ChoiceField extends FormField {
     }
 
     function applyQuickFilter($query, $qf_value, $name=false) {
+        global $thisstaff;
+
+        //special assignment quick filters
+        switch (true) {
+            case ($qf_value == 'assigned'):
+            case ($qf_value == '!assigned'):
+                $result = AssigneeChoiceField::getSearchQ($qf_value, $qf_value);
+                return $query->filter($result);
+            case (strpos($qf_value, 's') !== false):
+            case (strpos($qf_value, 't') !== false):
+            case ($qf_value == 'M'):
+            case ($qf_value == 'T'):
+                $value = array($qf_value => $qf_value);
+                $result = AssigneeChoiceField::getSearchQ('includes', $value);
+                return $query->filter($result);
+                break;
+        }
+
         return $query->filter(array(
             $name ?: $this->get('name') => $qf_value,
         ));
