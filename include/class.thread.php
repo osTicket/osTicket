@@ -2989,7 +2989,7 @@ implements TemplateVariable {
     }
 
     function asVar() {
-        return $this->getVar('complete');
+        return new ThreadEntries($this);
     }
 
     function getVar($name) {
@@ -3013,21 +3013,14 @@ implements TemplateVariable {
 
             break;
         case 'complete':
-            $content = '';
-            $thread = $this;
-            ob_start();
-            include INCLUDE_DIR.'client/templates/thread-export.tmpl.php';
-            $content = ob_get_contents();
-            ob_end_clean();
-            return $content;
-
+            return $this->asVar();
             break;
         }
     }
 
     static function getVarScope() {
       return array(
-        'complete' => __('Thread Correspondence'),
+        'complete' =>array('class' => 'ThreadEntries', 'desc' => __('Thread Correspondence')),
         'original' => array('class' => 'MessageThreadEntry', 'desc' => __('Original Message')),
         'lastmessage' => array('class' => 'MessageThreadEntry', 'desc' => __('Last Message')),
       );
@@ -3044,6 +3037,43 @@ implements TemplateVariable {
             $class = get_called_class();
 
         return $class::lookup($criteria);
+    }
+}
+
+class ThreadEntries {
+    var $thread;
+
+    function __construct($thread) {
+        $this->thread = $thread;
+    }
+
+    function asVar() {
+        return $this->getVar();
+    }
+
+    function getVar($name='') {
+
+        $order = '';
+        switch ($name) {
+        case 'reversed':
+            $order = '-';
+        default:
+            $content = '';
+            $thread = $this->thread;
+            ob_start();
+            include INCLUDE_DIR.'client/templates/thread-export.tmpl.php';
+            $content = ob_get_contents();
+            ob_end_clean();
+            return $content;
+            break;
+        }
+    }
+
+    static function getVarScope() {
+      return array(
+        'reversed' => sprintf('%s %s', __('Thread Correspondence'),
+            __('in reversed order')),
+      );
     }
 }
 
