@@ -1514,7 +1514,7 @@ implements TemplateVariable {
                 $vars['body'] = new TextThreadEntryBody($vars['body']);
         }
 
-        if (!($body = $vars['body']->getClean()))
+        if (!($body = Format::strip_emoticons($vars['body']->getClean())))
             $body = '-'; //Special tag used to signify empty message as stored.
 
         $poster = $vars['poster'];

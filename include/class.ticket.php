@@ -1532,7 +1532,7 @@ implements RestrictedAccess, Threadable, Searchable {
             }
 
             // Account manager
-            if ($cfg->alertAcctManagerONNewMessage()
+            if ($cfg->alertAcctManagerONNewTicket()
                 && ($org = $this->getOwner()->getOrganization())
                 && ($acct_manager = $org->getAccountManager())
             ) {
