@@ -1049,6 +1049,812 @@ if (!RedactorPlugins) var RedactorPlugins = {};
     }
   }));
 
+  $R.add('plugin', 'imageannotate', {
+    init: function(app) {
+        this.app = app;
+        this.lang = app.lang;
+        this.colors = [
+          '#ffffff', '#888888', '#000000', 'fuchsia', 'blue', 'red',
+          'lime', 'blueviolet', 'cyan', '#f4a63b', 'yellow']
+        .concat(app.instances.fontcolor.colors.slice(11));
+        this.loadedFabric = false;
+    },
+    modals: {
+        'annotate':
+            '<div class="toolbar" style="margin-top:-24px;margin-bottom:10px"></div>'
+           +'<div class="canvas" style="position:relative"></div>',
+    },
+    onmodal: {
+        annotate: {
+            open: function($modal, $form) {
+                this._build($modal);
+            },
+            commit: function ($modal, $form) {
+                this.commit();
+            }
+        },
+    },
+    oncontextbar: function(e, contextbar) {
+        var current = this.app.selection.getCurrent();
+        var data = this.app.inspector.parse(current);
+
+        if (!data.isFigcaption() && data.isComponentType('image')) {
+          contextbar.append(e, {
+            title: __('Annotate'),
+            api: 'plugin.imageannotate.startAnnotate',
+            args: [data.getComponent()]
+          });
+        }
+    },
+    _build: function($modal) {
+        var $body = $modal.getBody();
+        this._buildToolbar($body.find('.toolbar'));
+
+        this.$image = $R.dom(this.image).find('img');
+        canvas = this.initCanvas(this.$image, $body);
+    },
+    startAnnotate: function(img) {
+        this.image = img;
+        var that=this;
+        if (!this.loadedFabric) {
+            getConfig().then(function(c) {
+                $.getScript(c.path + 'js/fabric.min.js', function() {
+                    that.loadedFabric = true;
+                });
+            });
+        }
+        var options = {
+            title: __('Annotate Image'),
+            width: '850px',
+            name: 'annotate',
+            handle: 'commit',
+            commands: {
+              commit: {
+                title: __('Commit')
+              },
+              cancel: {
+                title: this.lang.get('cancel')
+              }
+            }
+        };
+
+        // Await loading of Fabric framework
+        var that = this, I = setInterval(function() {
+            if (that.loadedFabric) {
+                clearInterval(I);
+                that.app.api('module.modal.build', options);
+            }
+        }, 25);
+    },
+    teardownAnnotate: function() {
+        var state = this.canvas.toObject(), places = 2;
+        // Capture current annotations
+        delete state.backgroundImage;
+        this.$image.attr('data-annotations',
+            btoa(JSON.stringify(state, function(key, value) {
+                // limit precision of floats
+                if (typeof value === 'number') {
+                    return parseFloat(value.toFixed(places));
+                }
+                return value;
+            }))
+        );
+        this.app.api('module.modal.close');
+    },
+    _buildToolbar: function($body) {
+        var T = this.toolbar = $R.create('toolbar', this.app);
+        T.getWrapper().addClass('redactor-toolbar-wrapper');
+        T.getElement().addClass('redactor-toolbar');
+        $body.append(T.getWrapper());
+
+        var $button = T.addButton('drawshape', {
+            title: __('Add Shape'),
+            dropdown: {
+                arrow: {
+                    title: '<span><i class="icon-long-arrow-right icon-fixed-width"></i> {}</span>'
+                        .replace('{}', __('Add Arrow')),
+                    api: 'plugin.imageannotate.drawArrow'
+                },
+                box: {
+                    title: '<span><i class="icon-check-empty icon-fixed-width"></i> {}</span>'
+                        .replace('{}', __('Add Box')),
+                    api: 'plugin.imageannotate.drawBox'
+                },
+                ellipse: {
+                    title: '<span><i class="icon-circle-blank icon-fixed-width"></i> {}</span>'
+                        .replace('{}', __('Add Ellipse')),
+                    api: 'plugin.imageannotate.drawEllipse'
+                },
+                text: {
+                    title: '<span><i class="icon-font icon-fixed-width"></i> {}</span>'
+                        .replace('{}', __('Add Text')),
+                    api: 'plugin.imageannotate.drawText'
+                },
+                scribble: {
+                    title: '<span><i class="icon-pencil icon-fixed-width"></i> {}</span>'
+                        .replace('{}', __('Add Scribble')),
+                    api: 'plugin.imageannotate.drawFree'
+                },
+            },
+            icon: '<i class="icon-plus"></i>',
+        }, 'first');
+
+        T.addButton('sel_color', {
+            title: __('Shape Color'),
+            icon: '<i class="icon-tint"></i>',
+            dropdown: this._buildDropdown(),
+        });
+
+        var dropdown = {}, sizes = [15,20,25,30,40,50];
+        sizes.forEach(function(i) {
+            var text = '' + i + 'px';
+            dropdown['size' + i] = {
+                title: $R.dom('<span>').css('font-size', '' + i + 'px').text(text).get().outerHTML,
+                api: 'plugin.imageannotate.setFontSize',
+                args: i,
+            };
+        });
+        var $button = T.addButton('sel_textsize', {
+            title: __('Font Size'),
+            icon: '<i class="icon-text-height"></i>',
+            dropdown: dropdown,
+        });
+
+        var dropdown = {};
+        var fonts = ['Arial', 'Times New Roman', 'Monospace', 'Fantasy', 'Cursive'];
+        fonts.forEach(function(i) {
+            dropdown[i] = {
+                title: $R.dom('<span>').css('font-family', i).text(i).get().outerHTML,
+                api: 'plugin.imageannotate.setFontFamily',
+                args: i,
+            };
+        });
+        $button = T.addButton('sel_fontfamily', {
+            title: __('Font Family'),
+            icon: '<i class="icon-font"></i>',
+            dropdown: dropdown,
+        });
+
+        var $button = T.addButton('sel_strokewidth', {
+            title: __('Outline'),
+            icon: '<i class="icon-check-empty"></i>',
+        });
+        var dropdown = {}, sizes = [0,2.5,5,7.5,10,15];
+        sizes.forEach(function(i) {
+            var text = '' + i + 'px';
+            dropdown['size' + i] = {
+                title: $R.dom('<span>').css('border-left', '' + i + 'px solid black')
+                    .append($R.dom('<span>').text(text))
+                    .get().outerHTML,
+                api: 'plugin.imageannotate.setStrokeWidth',
+                args: i,
+            };
+        });
+        $button.setDropdown(dropdown);
+
+        T.addButton('sel_layerup', {
+            title: __('Bring Forward'),
+            icon: '<i class="icon-double-angle-up"></i>',
+            api: 'plugin.imageannotate.bringForward',
+        });
+        T.addButton('sel_opacity', {
+            title: __('Toggle Opacity'),
+            icon: '<i class="icon-eye-close"></i>',
+            api: 'plugin.imageannotate.setOpacity',
+        });
+
+        T.addButton('sel_trash', {
+            title: __('Delete Shape'),
+            icon: '<i class="icon-trash"></i>',
+            api: 'plugin.imageannotate.discard',
+        });
+
+        this.disableContextualButtons();
+    },
+
+    updateSelection: function() {
+        if (this.canvas.getActiveObjects().length > 0)
+            this.enableContextualButtons();
+        else
+            this.disableContextualButtons();
+    },
+
+    enableContextualButtons: function() {
+        this.toolbar.getButtons().forEach(function(b) {
+            if (b.name.indexOf('sel_') == 0)
+                b.enable();
+        });
+    },
+
+    disableContextualButtons: function() {
+        this.toolbar.getButtons().forEach(function(b) {
+            if (b.name.indexOf('sel_') == 0)
+                b.disable();
+        });
+    },
+
+    _setColor: function(attr, color) {
+      $.each(this.canvas.getActiveObjects(), function() {
+          this.set(attr, color);
+      });
+      this.canvas.renderAll();
+    },
+
+    _removeColor: function(attr) {
+      $.each(this.canvas.getActiveObjects(), function() {
+          this.set(attr, 'rgba(0, 0, 0, 0)');
+      });
+      this.canvas.renderAll();
+    },
+
+    // Color picker -- copied from `fontcolor` plugin
+    _buildDropdown: function () {
+      var $dropdown = $R.dom('<div class="redactor-dropdown-cells">');
+      this.$selector = this._buildSelector();
+      this.$selectorFill = this._buildSelectorItem('fill', __('Fill'));
+      this.$selectorFill.addClass('active');
+      this.$selectorStroke = this._buildSelectorItem('stroke', __('Outline'));
+      this.$selector.append(this.$selectorFill);
+      this.$selector.append(this.$selectorStroke);
+      this.$pickerFill = this._buildPicker('fill');
+      this.$pickerStroke = this._buildPicker('stroke');
+      $dropdown.append(this.$selector);
+      $dropdown.append(this.$pickerFill);
+      $dropdown.append(this.$pickerStroke);
+      this._buildSelectorEvents();
+      $dropdown.width(242);
+      return $dropdown;
+    },
+    _buildSelector: function () {
+      var $selector = $R.dom('<div>');
+      $selector.addClass('redactor-dropdown-selector');
+      return $selector;
+    },
+    _buildSelectorItem: function (name, title) {
+      var $item = $R.dom('<span>');
+      $item.attr('rel', name)
+        .html(title);
+      $item.addClass('redactor-dropdown-not-close');
+      return $item;
+    },
+    _buildSelectorEvents: function () {
+      this.$selectorFill.on('mousedown', function (e) {
+        e.preventDefault();
+        this.$selector.find('span')
+          .removeClass('active');
+        this.$pickerStroke.hide();
+        this.$pickerFill.show();
+        this.$selectorFill.addClass('active');
+      }.bind(this));
+      this.$selectorStroke.on('mousedown', function (e) {
+        e.preventDefault();
+        this.$selector.find('span')
+          .removeClass('active');
+        this.$pickerFill.hide();
+        this.$pickerStroke.show();
+        this.$selectorStroke.addClass('active');
+      }.bind(this));
+    },
+    _buildPicker: function (name) {
+      var $box = $R.dom('<div class="re-dropdown-box-' + name + '">');
+      var len = this.colors.length;
+      var self = this;
+      var func = function (e) {
+        e.preventDefault();
+        var $el = $R.dom(e.target);
+        self._setColor($el.data('rule'), $el.attr('rel'));
+      };
+      for (var z = 0; z < len; z++) {
+        var color = this.colors[z];
+        var $swatch = $R.dom('<span>');
+        $swatch.attr({
+          'rel': color,
+          'data-rule': name
+        });
+        $swatch.css({
+          'background-color': color,
+          'font-size': 0,
+          'border': '2px solid #fff',
+          'width': '22px',
+          'height': '22px'
+        });
+        $swatch.on('mousedown', func);
+        $box.append($swatch);
+      }
+      var $el = $R.dom('<a>');
+      $el.attr({
+        'href': '#'
+      });
+      $el.css({
+        'display': 'block',
+        'clear': 'both',
+        'padding': '8px 5px',
+        'font-size': '12px',
+        'line-height': 1
+      });
+      $el.html(this.lang.get('none'));
+      $el.on('click', function (e) {
+        e.preventDefault();
+        self._removeColor(name);
+      });
+      $box.append($el);
+      if (name == 'stroke') $box.hide();
+      return $box;
+    },
+
+    // Shapes
+    drawShape: function(ondown, onmove, onup, cursor) {
+      // @see http://jsfiddle.net/URWru/
+      var fcanvas = this.canvas,
+          scale = this.scale,
+          isDown, shape,
+          that = this,
+          mousedown = function(o) {
+            isDown = true;
+            that.app.api('module.buffer.trigger');
+            var pointer = fcanvas.getPointer(o.e);
+            shape = ondown(pointer, o.e);
+            if (shape) fcanvas.add(shape);
+          },
+          mousemove = function(o) {
+            if (!isDown) return;
+            onmove(shape, fcanvas.getPointer(o.e), o.e);
+            fcanvas.requestRenderAll();
+          },
+          mouseup = function(o) {
+            isDown = false;
+            if (onup) {
+              if (shape2 = onup(shape, fcanvas.getPointer(o.e))) {
+                shape.remove();
+                fcanvas.add(shape2);
+                shape = shape2;
+              }
+            }
+            if (shape) shape.setCoords()
+            fcanvas.calcOffset()
+              .off('mouse:down', mousedown)
+              .off('mouse:up', mouseup)
+              .off('mouse:move', mousemove)
+              .discardActiveObject()
+              .renderAll();
+
+            if (shape) fcanvas.setActiveObject(shape);
+            fcanvas.selection = true;
+            fcanvas.defaultCursor = 'default';
+          };
+
+        fcanvas.selection = false;
+        fcanvas.defaultCursor = cursor || 'crosshair';
+        // Ensure double presses of same button are squelched
+        fcanvas.off('mouse:down');
+        fcanvas.off('mouse:up');
+        fcanvas.off('mouse:move');
+        fcanvas.on('mouse:down', mousedown);
+        fcanvas.on('mouse:up', mouseup);
+        fcanvas.on('mouse:move', mousemove);
+        return false;
+    },
+
+    drawFree: function() {
+      var scale = this.scale, fcanvas = this.canvas;
+      fcanvas.isDrawingMode = true;
+      fcanvas.freeDrawingBrush = new fabric.PencilBrush(fcanvas)
+      fcanvas.freeDrawingBrush.width = 5 * scale;
+      fcanvas.freeDrawingBrush.color = 'red';
+      return this.drawShape(
+          function() {},
+          function() {},
+          function(shape, pointer, event) {
+              fcanvas.isDrawingMode = false;
+          }
+      );
+    },
+
+    drawArrow: function() {
+      var top, left, scale = this.scale
+      return this.drawShape(
+        function(pointer) {
+          top = pointer.y;
+          left = pointer.x;
+          return new fabric.Group([
+            new fabric.Line([0, 5 * scale, 0, 5 * scale], {
+              strokeWidth: 5 * scale,
+              fill: 'red',
+              stroke: 'red',
+              originX: 'center',
+              originY: 'center',
+              selectable: false,
+              hasBorders: false
+            }),
+            new fabric.Polygon([
+              {x: 20 * scale, y: 0},
+              {x: 0, y: -5 * scale},
+              {x: 0, y: 5 * scale}
+              ], {
+              strokeWidth: 0,
+              fill: 'red',
+              originX: 'center',
+              originY: 'center',
+              selectable: false,
+              hasBorders: false
+            })
+          ], {
+            left: pointer.x,
+            top: pointer.y,
+            originX: 'center',
+            originY: 'center'
+          });
+        },
+        function(group, pointer) {
+          var dx = pointer.x - left,
+              dy = pointer.y - top,
+              angle = Math.atan(dy / dx),
+              d = Math.sqrt(dx * dx + dy * dy) - 10,
+              sign = dx < 0 ? -1 : 1,
+              dy2 = Math.sin(angle) * d * sign;
+              dx2 = Math.cos(angle) * d * sign,
+          group.item(0)
+            .set({ x2: dx2, y2: dy2 });
+          group.item(1)
+            .set({
+              angle: angle * 180 / Math.PI,
+              flipX: dx < 0,
+              flipY: dy < 0
+            })
+            .setPositionByOrigin(new fabric.Point(dx, dy),
+                'center', 'center');
+        },
+        function(shape, pointer) {
+          var dx = pointer.x - left,
+              dy = pointer.y - top,
+              angle = Math.atan(dy / dx),
+              d = Math.sqrt(dx * dx + dy * dy);
+          // Mess with the next two lines and you *will* be sorry!
+          shape.forEachObject(function(e) { shape.removeWithUpdate(e); });
+          return new fabric.Path(
+            'M '+left+' '+top+' l '+(d-15*scale)+' 0 0 -a b a -b a 0 -a z'
+              .replace(/a/g, 3 * scale).replace(/b/g, 15 * scale),
+            {
+            angle: angle * 180 / Math.PI + (dx < 0 ? 180 : 0),
+            strokeWidth: 5 * scale,
+            fill: 'red',
+            stroke: 'red'
+          });
+        }
+      );
+    },
+
+    drawEllipse: function() {
+      var scale = this.scale
+      return this.drawShape(
+        function(pointer) {
+          return new fabric.Ellipse({
+            top: pointer.y,
+            left: pointer.x,
+            strokeWidth: 5 * scale,
+            fill: 'transparent',
+            stroke: 'red',
+            originX: 'left',
+            originY: 'top'
+          });
+        },
+        function(circle, pointer, event) {
+          var x = circle.get('left'), y = circle.get('top'),
+              dx = pointer.x - x, dy = pointer.y - y,
+              sw = circle.strokeWidth / 2;
+          // Use SHIFT to draw circles
+          if (event.shiftKey) {
+            dy = dx = Math.max(dx, dy);
+          }
+          circle.set({
+            rx: Math.max(0, Math.abs(dx/2) - sw),
+            ry: Math.max(0, Math.abs(dy/2) - sw),
+            originX: dx < 0 ? 'right' : 'left',
+            originY: dy < 0 ? 'bottom' : 'top'});
+        }
+      );
+    },
+
+    drawBox: function() {
+      var scale = this.scale
+      return this.drawShape(
+        function(pointer) {
+          return new fabric.Rect({
+            top: pointer.y,
+            left: pointer.x,
+            strokeWidth: 5 * scale,
+            fill: 'transparent',
+            stroke: 'red',
+            originX: 'left',
+            originY: 'top'
+          });
+        },
+        function(rect, pointer, event) {
+          var x = rect.get('left'), y = rect.get('top'),
+              dx = pointer.x - x, dy = pointer.y - y;
+          // Use SHIFT to draw squares
+          if (event.shiftKey) {
+            dy = dx = Math.max(dx, dy);
+          }
+          rect.set({ width: Math.abs(dx), height: Math.abs(dy),
+            originX: dx < 0 ? 'right' : 'left',
+            originY: dy < 0 ? 'bottom' : 'top'});
+        }
+      );
+    },
+
+    drawText: function() {
+      var fcanvas = this.canvas, scale = this.scale;
+      return this.drawShape(
+        function(pointer) {
+          return new fabric.IText(__('Text'), {
+            top: pointer.y,
+            left: pointer.x,
+            fill: 'red',
+            originX: 'left',
+            originY: 'top',
+            fontFamily: 'sans-serif',
+            fontSize: 30 * scale
+          });
+        },
+        function(rect, pointer, event) {
+          rect.set({width: 75 * scale, height: 30 * scale,
+            originX: 'left', originY: 'top'});
+        },
+        function(shape) {
+          shape.on('editing:exited', function() {
+            if (!shape.get('text'))
+              fcanvas.remove(shape);
+          });
+        },
+        'text'
+      );
+    },
+
+    // Action buttons
+    _setFont: function(attr, value) {
+        var obj = {};
+        obj[attr] = value;
+        $.each(this.canvas.getActiveObjects(), function(element) {
+            if (this instanceof fabric.IText) {
+                if (this.getSelectedText()) {
+                    this.setSelectionStyles(obj);
+                }
+                else {
+                    this.set(attr, value);
+                }
+            }
+        });
+        this.canvas.renderAll();
+    },
+
+    setFontSize: function(pixels) {
+        var scale = this.scale;
+        this._setFont('fontSize', pixels * scale);
+    },
+
+    setFontFamily: function(name) {
+        this._setFont('fontFamily', name);
+    },
+
+    setStrokeWidth: function(pixels) {
+        var scale = this.scale;
+        $.each(this.canvas.getActiveObjects(), function() {
+            this.set('strokeWidth', pixels * scale);
+        });
+        this.canvas.renderAll();
+    },
+
+    setOpacity: function() {
+        $.each(this.canvas.getActiveObjects(), function() {
+            if (this.get('opacity') != 1)
+                this.set('opacity', 1);
+            else
+                this.set('opacity', 0.6);
+        });
+        this.canvas.renderAll();
+    },
+
+    bringForward: function(e) {
+        $.each(this.canvas.getActiveObjects(), function() {
+            this.bringForward();
+        });
+    },
+
+    keydown: function(e) {
+        // Check if [delete] was pressed with selected objects
+        if (e.keyCode == 8 || e.keyCode == 46)
+            return this.discard(e);
+        // Revert to previous state for CTRL+Z or CMD+Z
+        else if (e.keyCode == 90 && (e.metaKey || e.ctrlKey)) {
+            this.canvas.loadFromJSON(atob(this.$image.attr('data-annotations')));
+            return false;
+        }
+    },
+
+    discard: function(e) {
+        this.setBuffer();
+        var that = this;
+        $.each(this.canvas.getActiveObjects(), function() {
+            that.canvas.remove(this); }
+        );
+        this.canvas.renderAll();
+    },
+
+    commit: function() {
+        this.canvas.discardActiveObject();
+
+        // Upload the annotated image to server
+        this.app.api('module.buffer.trigger');
+        this.setBuffer();
+        var annotated = this.canvas.toDataURL({
+              format: 'jpg', quality: 4,
+              multiplier: 1 / this.canvas.getZoom()
+            }),
+            file = new Blob([annotated], {type: 'image/jpeg'});
+
+        // Fallback to the data URL — show while the image is being uploaded
+        this.origSrc = this.$image.attr('src');
+        this.$image.attr('src', annotated);
+
+        this.teardownAnnotate();
+        this.app.api('module.upload.send', {
+            url: this.app.opts.imageUpload,
+            data: this.app.opts.imageData,
+            paramName: this.app.opts.imageUploadParam,
+            name: 'imageannotate',
+            files: [file],
+        });
+
+        this.toolbar.destroy();
+        return false;
+    },
+
+    // Fired from module.upload.send() after completion
+    onupload: {
+        imageannotate: {
+            complete: function(response) {
+                response.imageannotate = true;
+                this.app.api('module.image.insert', response);
+            },
+        },
+    },
+      
+    onimage: {
+        uploaded: function(image, response) {
+            // This is called for all uploads, but we only care about the
+            // ones initiated from this plugin
+            if (!this.$image || !response.imageannotate)
+                return;
+
+            // After successful upload, replace the old image with the new one.
+            // Transfer the annotation state to the new image for replay.
+            var $image = $R.dom(image).find('img');
+            // Transfer the annotation JSON data and drop the original image.
+            $image.attr('data-annotations', this.$image.attr('data-annotations'));
+            // Record the image that was originally annotated. If the committed
+            // image is annotated again, it should be the original image with
+            // the annotations placed live on the original image. The image
+            // being committed here will be discarded.
+            $image.attr('data-orig-annotated-image-src',
+                this.$image.attr('data-orig-annotated-image-src') || this.origSrc
+            );
+            // Out with the old
+            this.$image.remove();
+        },
+    },
+
+    // Keep the scale at 1.0 so that the stroke size is not stretched when
+    // the size and shape of the object is stretched.
+    resizeShape: function(o) {
+      var shape = o.target;
+      if (shape instanceof fabric.Ellipse) {
+        shape.set({
+          rx: shape.get('rx') * shape.get('scaleX'),
+          ry: shape.get('ry') * shape.get('scaleY'),
+          scaleX: 1,
+          scaleY: 1
+        });
+      }
+      else if (shape instanceof fabric.Rect) {
+        shape.set({
+          width: shape.get('width') * shape.get('scaleX'),
+          height: shape.get('height') * shape.get('scaleY'),
+          scaleX: 1,
+          scaleY: 1
+        });
+      }
+    },
+    setBuffer: function() {
+      var state = this.canvas.toObject(), places = 2;
+      // Capture current annotations
+      delete state.backgroundImage;
+      this.$image.attr('data-annotations',
+          btoa(JSON.stringify(state, function(key, value) {
+              // limit precision of floats
+              if (typeof value === 'number') {
+                  return parseFloat(value.toFixed(places));
+              }
+              return value;
+          }))
+      );
+    },
+
+    // Startup
+
+    initCanvas: function($img, $body) {
+      var canvas = $R.dom('<canvas>').css({
+            width: '100%', height: '100%'
+          });
+      $body.find('.canvas').append(canvas);
+      var fcanvas = new fabric.Canvas(canvas.get(), {
+            backgroundColor: 'rgba(0,0,0,0)',
+            includeDefaultValues: false,
+            width: canvas.width(),
+            height: canvas.height(),
+          }),
+          previous = $img.attr('data-annotations');
+
+      // Catch [delete] key and map to delete object
+      //self.opts.keydownCallback = this.keydown.bind(self);
+      //self.opts.keyupCallback = this.keydown.bind(self);
+
+      var I = new Image();
+      I.src = $img.attr('src');
+      // Determine the scaling adjustment to fit the image in the modal
+      // dialog. Also note, that both the width and height should be
+      // considered to ensure very tall images do not float off the
+      // screen.
+      var width = Math.min(canvas.width(), $img.width()),
+          viewscale = width / $img.width(),
+          height = $img.height() * viewscale,
+          maxheight = $(window).height() - 300;
+
+      if (height > maxheight) {
+          viewscale *= maxheight / height;
+          height = maxheight;
+          width = $img.width() * viewscale;
+      }
+
+      var drawscale = width / I.width,
+          scaleWidth = width / drawscale,
+          scaleHeight = height / drawscale;
+      this.scale = 1 / drawscale;
+
+      // Set default control appearance for all objects
+      fabric.Object.prototype.set({
+        transparentCorners: false,
+        borderColor: 'rgba(102,153,255,0.9)',
+        cornerColor: 'rgba(102,153,255,0.5)',
+        cornerSize: 8,
+      });
+
+      fcanvas
+        .setDimensions({width: width, height: height})
+        .setZoom(drawscale)
+        .setBackgroundImage(
+            $img.attr('data-orig-annotated-image-src') || $img.attr('src'),
+            fcanvas.renderAll.bind(fcanvas), {
+          width: scaleWidth,
+          height: scaleHeight,
+          // Needed to position overlayImage at 0/0
+          originX: 'left',
+          originY: 'top'
+        })
+        .on('object:scaling', this.resizeShape.bind(this))
+        .on('selection:updated', this.updateSelection.bind(this))
+        .on('selection:created', this.updateSelection.bind(this))
+        .on('selection:cleared', this.updateSelection.bind(this));
+
+      if (previous) {
+        fcanvas.loadFromJSON(atob(previous));
+      }
+
+      this.canvas = fcanvas;
+      return fcanvas;
+    }
+  });
+
   $R.add('plugin', 'contexttypeahead', {
     typeahead: false,
     context: false,
@@ -1251,6 +2057,34 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       return false;
     }
   });
+
+  // Make the toolbar a class rather than a service, so it can be reused in
+  // a dialog
+  var ToolbarService = $R[$R.env['service']]['toolbar'];
+  $R.add('class', 'toolbar', $R.extend(ToolbarService.prototype, {
+    init: function(app) {
+        this.app = app
+        this._oldtoolbar = app.toolbar;
+        this.app.toolbar = this;
+        // Connect what's normally available in a service module
+        this.opts = app.opts;
+        this.detector = app.detector;
+
+        this.buttons = [];
+        this.dropdownOpened = false;
+        this.buttonsObservers = {};
+
+        // Start immediately
+        this.create();
+        this.$wrapper.append(this.$toolbar);
+    },
+    is: function() {
+        return true;
+    },
+    destroy: function() {
+        this.app.toolbar = this._oldtoolbar;
+    }
+  }));
 
   $R.add('plugin', 'translatable', {
     langs: undefined,

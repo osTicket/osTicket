@@ -50,7 +50,6 @@
             autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = this.autoCreateUrl = autosave_url;
         this.opts.autosaveDelay = 4000;
-        this.opts.imageUploadErrorCallback = this.displayError;
         if (this.opts.draftId) {
             this.statusbar.add('draft', __('all changes saved'));
             this._setup(this.opts.draftId);
@@ -60,7 +59,6 @@
             // and will be configured locally in the afterUpateDraft()
             this.opts.clipboardUpload =
             this.opts.imageUpload = this.autoCreateUrl + '/attach';
-            this.opts.imageUploadCallback = this.afterUpdateDraft;
         }
         this.opts.autosaveData = {
             '__CSRFToken__': $("meta[name=csrf_token]").attr("content")
@@ -155,6 +153,8 @@
                 self.app.statusbar.remove('draft');
                 self.app.source.setCode(self.opts.draftOriginal || '');
                 self.opts.autosave = self.autoCreateUrl;
+                self.opts.clipboardUpload =
+                self.opts.imageUpload = self.autoCreateUrl + '/attach';
                 self.deleteButton.hide();
                 self.app.broadcast('draft.deleted');
             }
@@ -334,12 +334,12 @@ $(function() {
                 'tabFocus': false,
                 'toolbarFixed': true,
                 'callbacks': {
-                    '_focus': function(e) { $(this.app.rootElement).addClass('no-pjax'); },
                     'start': function() {
                         var $element = $R.dom(this.rootElement),
                             $editor = this.editor.$editor;
                         if ($element.data('width'))
                             $editor.width($element.data('width'));
+                        $editor.addClass('no-pjax');
                         $editor.attr('spellcheck', 'true');
                         var lang = $element.closest('[lang]').attr('lang');
                         if (lang)
@@ -391,6 +391,7 @@ $(function() {
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
+            options['plugins'].push('imageannotate');
             options.draftDelete = el.hasClass('draft-delete');
         }
         if (true || 'scp') { // XXX: Add this to SCP only
