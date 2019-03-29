@@ -440,7 +440,6 @@ class Format {
                 '/[\x{1F6D0}-\x{1F6D2}]/u', # Sign/P.O.W./Cart
                 '/[\x{1F500}-\x{1F5FF}]/u', # Uncategorized
                 '/[\x{1F300}-\x{1F3FF}]/u', # Cyclone/Amphora
-                '/[\x{24C2}-\x{1F251}]/u',  # Enclosed
                 '/[\x{2702}-\x{27B0}]/u',   # Dingbats
                 '/[\x{00A9}-\x{00AE}]/u',   # Copyright/Registered
                 '/[\x{23F0}-\x{23FF}]/u',   # Clock/Buttons
