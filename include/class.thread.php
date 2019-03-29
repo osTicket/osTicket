@@ -3047,6 +3047,10 @@ class ThreadEntries {
         $this->thread = $thread;
     }
 
+    function __tostring() {
+        return (string) $this->getVar();
+    }
+
     function asVar() {
         return $this->getVar();
     }
