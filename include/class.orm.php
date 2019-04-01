@@ -2585,8 +2585,7 @@ class SqlCompiler {
         }
         $glue = $Q->ored ? ' OR ' : ' AND ';
         $clause = implode($glue, $filter);
-        if (($Q->negated || $parens) && count($filter) > 1)
-            $clause = '(' . $clause . ')';
+        $clause = '(' . $clause . ')';
         if ($Q->negated)
             $clause = 'NOT '.$clause;
         return new CompiledExpression($clause, $type);
