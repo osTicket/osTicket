@@ -1258,7 +1258,10 @@ class AssigneeChoiceField extends ChoiceField {
                     $agents[] = (int) substr($id, 1);
                     break;
                 case 'T':
-                    $teams = array_merge($thisstaff->getTeams());
+                    if (!$thisstaff || !($staffTeams = $thisstaff->getTeams()))
+                        return Q::any(['team_id' => null]);
+
+                    $teams = array_merge($staffTeams);
                     break;
                 case 't':
                     $teams[] = (int) substr($id, 1);
@@ -1545,12 +1548,13 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         global $thisstaff;
 
         // Unpack my teams
-        if (isset($value['T']) && $thisstaff
-                && ($teams = $thisstaff->getTeams())) {
+        if (isset($value['T'])) {
+             if (!$thisstaff || !($teams = $thisstaff->getTeams()))
+                return Q::any(['team_id' => null]);
+
             unset($value['T']);
             $value = $value + array_flip($teams);
         }
-
         return parent::getSearchQ($method, $value, $name);
     }
 
