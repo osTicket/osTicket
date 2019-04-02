@@ -155,7 +155,8 @@ class FAQ extends VerySimpleModel {
         include STAFFINC_DIR . 'templates/faq-print.tmpl.php';
         $html = ob_get_clean();
 
-        $pdf = new mPDFWithLocalImages('', $paper);
+        $pdf = new mPDFWithLocalImages(['mode' => 'utf-8', 'format' =>
+               $paper, 'tempDir'=>sys_get_temp_dir()]);
         // Setup HTML writing and load default thread stylesheet
         $pdf->WriteHtml(
             '<style>

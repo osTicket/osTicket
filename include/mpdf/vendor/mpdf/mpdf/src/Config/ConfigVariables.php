@@ -262,7 +262,7 @@ class ConfigVariables
 			// Reduce memory usage processing tables (but with increased processing time)
 			'packTableData' => false,
 
-			'ignore_table_percents' => true,
+			'ignore_table_percents' => false,
 			'ignore_table_widths' => true,
 			// If table width set > page width, force resizing but keep relative sizes
 			// Also forces respect of cell widths set by %
