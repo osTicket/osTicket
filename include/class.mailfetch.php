@@ -390,6 +390,10 @@ class MailFetcher {
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
 
+        //Don't read parts from rfc822 message parts as this is a attached message
+        if(strcasecmp('message/rfc822', $this->getMimeType($struct))==0){
+            return '';
+        }
         //Match the mime type.
         if($struct
                 && strcasecmp($mimeType, $this->getMimeType($struct))==0
@@ -475,8 +479,8 @@ class MailFetcher {
 
      */
     function getAttachments($part, $index=0) {
-
-        if($part && !$part->parts) {
+        $mime=$this->getMimeType($part);
+        if($part && (!$part->parts || strcasecmp('message/rfc822',$mime ) == 0)) {
             //Check if the part is an attachment.
             $filename = false;
             if ($part->ifdisposition && $part->ifdparameters
@@ -489,6 +493,24 @@ class MailFetcher {
             if (!$filename && $part->ifparameters && $part->parameters
                     && $part->type > 0) {
                 $filename = $this->findFilename($part->parameters);
+            }
+            if (!$filename && strcasecmp('message/rfc822',$mime ) == 0
+                    && $part->type > 0
+                ) {
+                $headers = imap_rfc822_parse_headers(imap_fetchbody($this->mbox, 1, $index));
+                    if ($headers) {
+                        if($headers->Subject)
+                            $subject = $headers->Subject;
+                        if($headers->message_id)
+                            $subject = $headers->message_id;
+                        if (isset($subject)) {
+                            $subject = preg_replace("/[^a-zA-Z0-9\\s\\-_\\.]/",'', $subject);
+                            if (isset($subject) && strlen($subject) > 2)
+                                $filename = Format::truncate($subject,40,true). ".eml";
+                        }
+                    }else{
+                        $filename = "unknown.eml";
+                    }
             }
 
             $content_id = ($part->ifid)
