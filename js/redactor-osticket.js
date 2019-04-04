@@ -330,7 +330,6 @@ $(function() {
                 },
                 'imageResizable': true,
                 'syncBeforeCallback': captureImageSizes,
-                'breakline': true,
                 'tabFocus': false,
                 'toolbarFixed': true,
                 'callbacks': {
@@ -407,6 +406,10 @@ $(function() {
             if (c.lang && c.lang.toLowerCase() != 'en_us' &&
                     Redactor.lang[c.short_lang])
                 options['lang'] = c.short_lang;
+            if (c.has_rtl)
+                options['plugins'].push('textdirection');
+            if (el.find('rtl').length)
+                options['direction'] = 'rtl';
             el.data('redactor', el.redactor(options));
         });
     },
