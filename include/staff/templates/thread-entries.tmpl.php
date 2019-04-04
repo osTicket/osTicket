@@ -26,7 +26,8 @@ foreach (Attachment::objects()->filter(array(
 // get child thread entries
 $tid = $this->getObJectId();
 if ($this->getObjectType() == 'T')
-	$ticket = Ticket::lookup($tid);
+    $ticket = Ticket::lookup($tid);
+
 //get entries for children tickets
 if ($ticket && $ticket->getMergeType() == 'visual') {
     $tickets = Ticket::getChildTickets($tid);
@@ -55,30 +56,54 @@ if ($ticket && $ticket->getMergeType() == 'visual') {
     if ($entries->exists(true)) {
         // Go through all the entries and bucket them by time frame
         $buckets = array();
-        $rel = 0;
+        $childEntries = array();
         foreach ($entries as $i=>$E) {
-            // First item _always_ shows up
-            if ($i != 0)
-                // Set relative time resolution to 12 hours
-                $rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
-            $buckets[$rel][] = $E;
+            if ($ticket) {
+                $extra = json_decode($E->extra, true);
+                //separated entries
+                if ($ticket->getMergeType() == 'separate') {
+                    if ($extra['thread'])
+                        $childEntries[$E->getId()] = $E;
+                    else
+                        $buckets[$E->getId()] = $E;
+                }
+                else
+                    $buckets[$E->getId()] = $E;
+            }
         }
 
-        // Go back through the entries and render them on the page
-        foreach ($buckets as $rel=>$entries) {
-            // TODO: Consider adding a date boundary to indicate significant
-            //       changes in dates between thread items.
-            foreach ($entries as $entry) {
-                // Emit all events prior to this entry
-                while ($event && $cmp($event->timestamp, $entry->created)) {
-                    $event->render(ThreadEvent::MODE_STAFF);
-                    $events->next();
-                    $event = $events->current();
+        if ($ticket->getMergeType() == 'separate')
+            $buckets = $buckets + $childEntries;
+
+        // TODO: Consider adding a date boundary to indicate significant
+        //       changes in dates between thread items.
+
+        foreach ($buckets as $entry) {
+            if ($entry->hasFlag(ThreadEntry::FLAG_CHILD) && $entry->extra) {
+                $extra = json_decode($entry->extra, true);
+                $indent = true;
+                if ($extra['number'])
+                    $number = $extra['number'];
+                else {
+                    if (!$thread = Thread::lookup($extra['thread']))
+                        continue;
+                    $threadExtra = json_decode($thread->extra, true);
+                    $number = $threadExtra['number'];
                 }
-                ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
-                include STAFFINC_DIR . 'templates/thread-entry.tmpl.php';
-                ?></div><?php
+
             }
+            else
+                $number = null;
+
+            // Emit all events prior to this entry
+            while ($event && $cmp($event->timestamp, $entry->created)) {
+                $event->render(ThreadEvent::MODE_STAFF);
+                $events->next();
+                $event = $events->current();
+            }
+            ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
+            include STAFFINC_DIR . 'templates/thread-entry.tmpl.php';
+            ?></div><?php
         }
     }
 
