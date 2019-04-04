@@ -26,12 +26,15 @@ $id    = $ticket->getId();    //Ticket ID.
 $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
 $canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
 $canAnswer = ($isManager || $role->hasPerm(Ticket::PERM_REPLY)); //Check if Agent can mark as answered/unanswered
-
+$blockReply = $ticket->isChild() && $ticket->getMergeType() != 'visual';
+var_dump('hello?', $ticket->getMergeType());
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(
             __('Current ticket status (%s) does not allow the end user to reply.'),
             $ticket->getStatus());
+elseif ($blockReply)
+    $warn = __('Child Tickets do not allow the end user or agent to reply.');
 elseif ($ticket->isAssigned()
         && (($staff && $staff->getId()!=$thisstaff->getId())
             || ($team && !$team->hasMember($thisstaff))
@@ -393,12 +396,14 @@ if($ticket->isOverdue())
                             </div>
                             <?php
                             if ($role->hasPerm(Ticket::PERM_EDIT)) {
-                            $numCollaborators = $ticket->getThread()->getNumCollaborators();
-                             if ($ticket->getThread()->getNumCollaborators())
-                                $recipients = sprintf(__('%d'),
-                                        $numCollaborators);
-                            else
-                              $recipients = 0;
+                                if ($ticket->getThread()) {
+                                    $numCollaborators = $ticket->getThread()->getNumCollaborators();
+                                    if ($ticket->getThread()->getNumCollaborators())
+                                        $recipients = sprintf(__('%d'),
+                                                $numCollaborators);
+                                }
+                               else
+                                  $recipients = 0;
 
                              echo sprintf('<span><a class="manage-collaborators preview"
                                     href="#thread/%d/collaborators"><span><i class="icon-group"></i> (<span id="t%d-collaborators">%s</span>)</span></a></span>',
@@ -680,7 +685,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 <div class="clear"></div>
 
 <?php
-$tcount = $ticket->getThreadEntries($types)->count();
+$tcount = $ticket->getThreadEntries($types) ? $ticket->getThreadEntries($types)->count() : 0;
 ?>
 <ul  class="tabs clean threads" id="ticket_tabs" >
     <li class="active"><a id="ticket-thread-tab" href="#ticket_thread"><?php
@@ -714,14 +719,15 @@ $tcount = $ticket->getThreadEntries($types)->count();
 
 <?php
     // Render ticket thread
-    $ticket->getThread()->render(
-            array('M', 'R', 'N'),
-            array(
-                'html-id'   => 'ticketThread',
-                'mode'      => Thread::MODE_STAFF,
-                'sort'      => $thisstaff->thread_view_order
-                )
-            );
+    if ($ticket->getThread())
+        $ticket->getThread()->render(
+                array('M', 'R', 'N'),
+                array(
+                    'html-id'   => 'ticketThread',
+                    'mode'      => Thread::MODE_STAFF,
+                    'sort'      => $thisstaff->thread_view_order
+                    )
+                );
 ?>
 <div class="clear"></div>
 <?php
@@ -740,18 +746,21 @@ if ($errors['err'] && isset($_POST['a'])) {
 >
     <ul class="tabs" id="response-tabs">
         <?php
-        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+        if ($role->hasPerm(Ticket::PERM_REPLY) && !($blockReply)) { ?>
         <li class="active <?php
             echo isset($errors['reply']) ? 'error' : ''; ?>"><a
             href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
-        } ?>
+        }
+        if (!($blockReply)) { ?>
         <li><a href="#note" <?php
             echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
+        <?php
+        } ?>
     </ul>
     <?php
-    if ($role->hasPerm(Ticket::PERM_REPLY)) {
+    if ($role->hasPerm(Ticket::PERM_REPLY) && !($blockReply)) {
         $replyTo = $_POST['reply-to'] ?: 'all';
         $emailReply = ($replyTo != 'none');
         ?>
@@ -1073,7 +1082,9 @@ if ($errors['err'] && isset($_POST['a'])) {
         </p>
     </form>
     <?php
-    } ?>
+    }
+    if (!($blockReply)) {
+    ?>
     <form id="note" class="hidden tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
@@ -1159,6 +1170,7 @@ if ($errors['err'] && isset($_POST['a'])) {
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
+   <?php } ?>
  </div>
  </div>
 </div>

@@ -77,6 +77,14 @@ adv_date_range:
     content: >
         Definition here
 
+merge_types:
+    title: Merge Types
+    content: >
+        <b>Combine Threads:</b>
+          Threads from all Tickets will be displayed chronologically.</br>
+        <b>Separate Threads:</b>
+          Threads from Tickets will be displayed one Ticket at a time.
+
 reply_types:
     title: Reply Types
     content: >

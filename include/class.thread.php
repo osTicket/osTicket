@@ -255,6 +255,13 @@ implements Searchable {
         return true;
     }
 
+    function getIdByExtra($extra) {
+        return Thread::objects()
+            ->filter(array('extra'=>$extra))
+            ->values_flat('id')
+            ->first();
+    }
+
 
     //UserList of participants (collaborators)
     function getParticipants() {
@@ -567,8 +574,13 @@ implements Searchable {
         switch ($vars['thread-type']) {
         case 'M':
             $vars['message'] = $body;
-            if ($object instanceof Threadable)
-                return $object->postThreadEntry('M', $vars);
+            if ($object instanceof Threadable) {
+                $entry = $object->postThreadEntry('M', $vars);
+                if ($this->getObjectType() == 'C') {
+                    ThreadEntry::setExtra(array($entry), array('thread' => $this->getId()), $object->getThread()->getId());
+                }
+                return $entry;
+            }
             elseif ($this instanceof ObjectThread)
                 return $this->addMessage($vars, $errors);
             break;
@@ -604,6 +616,13 @@ implements Searchable {
         return Collaborator::objects()
             ->filter(array('thread_id'=>$this->getId()))
             ->delete();
+    }
+
+    function setExtra($mergedThread, $info='') {
+        $this->object_type = 'C';
+        $this->object_id = $mergedThread->getObjectId();
+        ThreadEntry::setExtra($this->getEntries(), array('thread' => $this->getId()), $mergedThread->getId());
+        $this->save();
     }
 
     /**
@@ -1496,6 +1515,17 @@ implements TemplateVariable {
             return false;
 
         return $entry;
+    }
+
+    function setExtra($entries, $info=NULL, $thread_id=NULL) {
+        foreach ($entries as $entry) {
+            if (!$entry->extra) {
+                $entry->thread_id = $thread_id ?: $thread_id;
+                $entry->extra = !is_null($info) ? json_encode($info) : NULL;
+                $entry->setFlag(ThreadEntry::FLAG_CHILD, true);
+                $entry->save();
+            }
+        }
     }
 
     //new entry ... we're trusting the caller to check validity of the data.

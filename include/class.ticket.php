@@ -106,9 +106,9 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
 
-    const FLAG_COMBINE_THREADS = 0x0001;
-    const FLAG_VISUAL_MERGE    = 0x0002;
-    const FLAG_SHOW_CHILDREN   = 0x0004;  //Show children threads in parent tickets
+    const FLAG_COMBINE_THREADS     = 0x0001;
+    const FLAG_SEPARATE_THREADS    = 0x0002;
+    const FLAG_SHOW_CHILDREN       = 0x0004; //Show children threads in parent tickets
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -307,6 +307,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isAssigned($to=null) {
+
         if (!$this->isOpen())
             return false;
 
@@ -823,7 +824,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $this->getLastMsgId(), $this->getThreadId());
 
             if (!$this->last_message)
-                $this->last_message = $this->getThread()->getLastMessage();
+                $this->last_message = $this->getThread() ? $this->getThread()->getLastMessage() : '';
         }
         return $this->last_message;
     }
@@ -845,6 +846,11 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getThread() {
+        if (is_null($this->thread)) {
+            $extra = json_encode(array('ticket_id' => $this->getId(), 'number' => $this->getNumber()));
+            $threadId = Thread::getIdByExtra($extra);
+            return Thread::lookup($threadId[0]);
+        }
         return $this->thread;
     }
 
@@ -853,12 +859,12 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getMergeType() {
-        // if ($this->hasFlag(self::FLAG_COMBINE_THREADS))
-        //     return 'combine';
-        // if ($this->hasFlag(self::FLAG_VISUAL_MERGE))
-        //     return 'visual';
-        // else
-        //     return 'separate';
+        if ($this->hasFlag(self::FLAG_COMBINE_THREADS))
+            return 'combine';
+        if ($this->hasFlag(self::FLAG_SEPARATE_THREADS))
+            return 'separate';
+        else
+            return 'visual';
         return 'visual';
     }
 
@@ -895,9 +901,11 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getThreadEntries($type=false) {
-        $entries = $this->getThread()->getEntries();
-        if ($type && is_array($type))
-            $entries->filter(array('type__in' => $type));
+        if ($this->getThread()) {
+            $entries = $this->getThread()->getEntries();
+            if ($type && is_array($type))
+                $entries->filter(array('type__in' => $type));
+        }
 
         return $entries;
     }
@@ -928,19 +936,19 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getCollaborators() {
-        return $this->getThread()->getCollaborators();
+        return $this->getThread() ? $this->getThread()->getCollaborators() : '';
     }
 
     function getNumCollaborators() {
-        return $this->getThread()->getNumCollaborators();
+        return $this->getThread() ? $this->getThread()->getNumCollaborators() : '';
     }
 
     function getActiveCollaborators() {
-        return $this->getThread()->getActiveCollaborators();
+        return $this->getThread() ? $this->getThread()->getActiveCollaborators() : '';
     }
 
     function getNumActiveCollaborators() {
-        return $this->getThread()->getNumActiveCollaborators();
+        return $this->getThread() ? $this->getThread()->getNumActiveCollaborators() : '';
     }
 
     function getAssignmentForm($source=null, $options=array()) {
@@ -1304,17 +1312,17 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function setMergeType($combine=false) {
         switch ($combine) {
-            case 0:
+            case 0: //separate
                 $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
-                $this->setFlag(Ticket::FLAG_VISUAL_MERGE, false);
+                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, true);
                 break;
-            case 1:
+            case 1: //combine
                 $this->setFlag(Ticket::FLAG_COMBINE_THREADS, true);
-                $this->setFlag(Ticket::FLAG_VISUAL_MERGE, false);
+                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, false);
                 break;
-            case 2:
+            case 2: //visual
                 $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
-                $this->setFlag(Ticket::FLAG_VISUAL_MERGE, true);
+                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, false);
                 break;
         }
 
@@ -2415,8 +2423,14 @@ implements RestrictedAccess, Threadable, Searchable {
             $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, false);
 
         $parent->setMergeType($tickets['combine']);
-        $children = Ticket::getChildTickets($parent->getId());
-
+        if ($parent->getMergeType() != 'visual') {
+            $children = Ticket::getChildTickets($parent->getId());
+            foreach ($children as $child) {
+                $child = Ticket::lookup($child[0]);
+                $child->setMergeType($tickets['combine']);
+                $child->getThread()->setExtra($parent->getThread());
+            }
+        }
     }
 
     //Dept Transfer...with alert.. done by staff
@@ -2807,8 +2821,14 @@ implements RestrictedAccess, Threadable, Searchable {
         elseif (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
+        //see if message should go to a parent ticket
+        if ($this->isChild() && $this->getMergeType() != 'visual')
+            $parent = self::lookup($this->getPid());
+
+        $ticket = $parent ?: $this;
+
         $errors = array();
-        if ($vars['userId'] != $this->user_id) {
+        if ($vars['userId'] != $ticket->user_id) {
             if ($vars['userId']) {
                 $user = User::lookup($vars['userId']);
              } elseif ($vars['header']
@@ -2823,7 +2843,7 @@ implements RestrictedAccess, Threadable, Searchable {
             }
 
             if ($user) {
-                $c = $this->getThread()->addCollaborator($user,array(),
+                $c = $ticket->getThread()->addCollaborator($user,array(),
                         $errors);
             }
        }
@@ -2831,10 +2851,10 @@ implements RestrictedAccess, Threadable, Searchable {
       // Get active recipients of the response
       // Initial Message from Tickets created by Agent
       if ($vars['reply-to'])
-          $recipients = $this->getRecipients($vars['reply-to'], $vars['ccs']);
+          $recipients = $ticket->getRecipients($vars['reply-to'], $vars['ccs']);
       // Messages from Web Portal
       elseif (strcasecmp($origin, 'email')) {
-          $recipients = $this->getRecipients('all');
+          $recipients = $ticket->getRecipients('all');
           foreach ($recipients as $key => $recipient) {
               if (!$recipientContact = $recipient->getContact())
                   continue;
@@ -2848,10 +2868,10 @@ implements RestrictedAccess, Threadable, Searchable {
       if ($recipients && $recipients instanceof MailingList)
           $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
 
-        if (!($message = $this->getThread()->addMessage($vars, $errors)))
+        if (!($message = $ticket->getThread()->addMessage($vars, $errors)))
             return null;
 
-        $this->setLastMessage($message);
+        $ticket->setLastMessage($message);
 
         // Add email recipients as collaborators...
         if ($vars['recipients']
@@ -2862,7 +2882,7 @@ implements RestrictedAccess, Threadable, Searchable {
             //New collaborators added by other collaborators are disable --
             // requires staff approval.
             $info = array(
-                'isactive' => ($message->getUserId() == $this->getUserId())? 1: 0);
+                'isactive' => ($message->getUserId() == $ticket->getUserId())? 1: 0);
             $collabs = array();
             foreach ($vars['recipients'] as $recipient) {
                 // Skip virtual delivered-to addresses
@@ -2870,8 +2890,8 @@ implements RestrictedAccess, Threadable, Searchable {
                     continue;
 
                 if (($cuser=User::fromVars($recipient))) {
-                  if (!$existing = Collaborator::getIdByUserId($cuser->getId(), $this->getThreadId())) {
-                    if ($c=$this->addCollaborator($cuser, $info, $errors, false)) {
+                  if (!$existing = Collaborator::getIdByUserId($cuser->getId(), $ticket->getThreadId())) {
+                    if ($c=$ticket->addCollaborator($cuser, $info, $errors, false)) {
                       $c->setCc();
 
                       // FIXME: This feels very unwise — should be a
@@ -2888,7 +2908,7 @@ implements RestrictedAccess, Threadable, Searchable {
             }
             // TODO: Can collaborators add others?
             if ($collabs) {
-                $this->logEvent('collab', array('add' => $collabs), $message->user);
+                $ticket->logEvent('collab', array('add' => $collabs), $message->user);
             }
         }
 
@@ -2902,22 +2922,22 @@ implements RestrictedAccess, Threadable, Searchable {
         elseif ($autorespond && isset($vars['autorespond']))
             $autorespond = $vars['autorespond'];
 
-        $this->onMessage($message, ($autorespond && $alerts), $reopen); //must be called b4 sending alerts to staff.
+        $ticket->onMessage($message, ($autorespond && $alerts), $reopen); //must be called b4 sending alerts to staff.
 
         if ($autorespond && $alerts
             && $cfg && $cfg->notifyCollabsONNewMessage()
             && strcasecmp($origin, 'email')) {
           //when user replies, this is where collabs notified
-          $this->notifyCollaborators($message, array('signature' => ''));
+          $ticket->notifyCollaborators($message, array('signature' => ''));
         }
 
         if (!($alerts && $autorespond))
             return $message; //Our work is done...
 
-        $dept = $this->getDept();
+        $dept = $ticket->getDept();
         $variables = array(
             'message' => $message,
-            'poster' => ($vars['poster'] ? $vars['poster'] : $this->getName())
+            'poster' => ($vars['poster'] ? $vars['poster'] : $ticket->getName())
         );
 
         $options = array('thread'=>$message);
@@ -2928,18 +2948,18 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($tpl = $dept->getTemplate())
             && ($msg = $tpl->getNewMessageAlertMsgTemplate())
         ) {
-            $msg = $this->replaceVars($msg->asArray(), $variables);
+            $msg = $ticket->replaceVars($msg->asArray(), $variables);
             // Build list of recipients and fire the alerts.
             $recipients = array();
             //Last respondent.
-            if ($cfg->alertLastRespondentONNewMessage() && ($lr = $this->getLastRespondent()))
+            if ($cfg->alertLastRespondentONNewMessage() && ($lr = $ticket->getLastRespondent()))
                 $recipients[] = $lr;
 
             //Assigned staff if any...could be the last respondent
-            if ($cfg->alertAssignedONNewMessage() && $this->isAssigned()) {
-                if ($staff = $this->getStaff())
+            if ($cfg->alertAssignedONNewMessage() && $ticket->isAssigned()) {
+                if ($staff = $ticket->getStaff())
                     $recipients[] = $staff;
-                elseif ($team = $this->getTeam())
+                elseif ($team = $ticket->getTeam())
                     $recipients = array_merge($recipients, $team->getMembers());
             }
 
@@ -3179,7 +3199,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // History log -- used for statistics generation (pretty reports)
     function logEvent($state, $data=null, $user=null, $annul=null) {
-        $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
+        if ($this->getThread())
+            $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
 
     //Insert Internal Notes
@@ -3593,9 +3614,9 @@ implements RestrictedAccess, Threadable, Searchable {
     static function isTicketNumberUnique($number) {
         $num = static::objects()
             ->filter(array('number' => $number))
-	    ->count();
+        ->count();
 
-	return ($num === 0);
+    return ($num === 0);
     }
 
     /* Quick client's tickets stats
