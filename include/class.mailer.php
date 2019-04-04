@@ -406,6 +406,8 @@ class Mailer {
         if (!is_array($recipients) && (!$recipients instanceof MailingList))
             $recipients =  array($recipients);
         foreach ($recipients as $recipient) {
+            if ($recipient instanceof ClientSession)
+                $recipient = $recipient->getSessionUser();
             switch (true) {
                 case $recipient instanceof EmailRecipient:
                     $addr = sprintf('"%s" <%s>',
