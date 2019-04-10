@@ -16,8 +16,6 @@
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.csrf.php');
-$info=array();
-$info['subj']='osTicket test email';
 
 if($_POST){
     $errors=array();
@@ -43,9 +41,9 @@ if($_POST){
             Draft::deleteForNamespace('email.diag');
         }
         else
-            $errors['err']=__('Error sending email - try again.');
+            $errors['err']=sprintf('%s - %s', __('Error sending email'), __('Please try again!'));
     }elseif($errors['err']){
-        $errors['err']=__('Error sending email - try again.');
+        $errors['err']=sprintf('%s - %s', __('Error sending email'), __('Please try again!'));
     }
 }
 $nav->setTabActive('emails');
@@ -53,9 +51,11 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />'
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 
+$info=array();
+$info['subj']='osTicket test email';
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
-<form action="emailtest.php" method="post" id="save">
+<form action="emailtest.php" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <h2><?php echo __('Test Outgoing Email');?></h2>

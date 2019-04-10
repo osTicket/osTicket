@@ -26,7 +26,7 @@ body: |
              <strong>From</strong>:
         </td>
         <td>
-             %{ticket.name} &lt;%{ticket.email}&gt;
+             %{poster.name} &lt;%{ticket.email}&gt;
         </td>
     </tr>
     <tr>

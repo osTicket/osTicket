@@ -35,7 +35,7 @@ else {
 }
 ?>
 
-<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" autocomplete="off">
+<form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" autocomplete="off">
   <?php csrf_token(); ?>
   <input type="hidden" name="do" value="<?php echo $action; ?>">
   <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -50,7 +50,7 @@ else {
   <ul class="clean tabs">
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
-    <li><a href="#permissions"><?php echo __('Permisions'); ?></a></li>
+    <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
   </ul>
 
@@ -228,15 +228,25 @@ if (count($bks) > 1) {
             <select name="dept_id" id="dept_id" data-quick-add="department">
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
-              foreach (Dept::getDepartments() as $id=>$name) {
-                $sel=($staff->dept_id==$id)?'selected="selected"':'';
-                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+              if($depts = Dept::getPublicDepartments()) {
+                if($staff->dept_id && !array_key_exists($staff->dept_id, $depts))
+                {
+                  $depts[$staff->dept_id] = $staff->dept;
+                  $warn = sprintf(__('%s selected must be active'), __('Department'));
+                }
+                  foreach($depts as $id =>$name) {
+                    $sel=($staff->dept_id==$id)?'selected="selected"':'';
+                      echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                  }
               }
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
-            <div class="error"><?php echo $errors['dept_id']; ?></div>
+            <?php
+            if($warn) { ?>
+                &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+            <?php } ?>
           </td>
           <td style="vertical-align:top">
             <select name="role_id" data-quick-add="role">
@@ -518,6 +528,7 @@ $('#join_team').find('button').on('click', function() {
 
 <?php
 foreach ($staff->dept_access as $dept_access) {
+  if (!$dept_access->dept_id) continue;
   echo sprintf('addAccess(%d, %s, %d, %d, %s);', $dept_access->dept_id,
     JsonDataEncoder::encode($dept_access->dept->getName()),
     $dept_access->role_id,

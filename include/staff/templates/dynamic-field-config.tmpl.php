@@ -99,7 +99,7 @@
     <hr class="faded"/>
 
     <div class="span4">
-        <div style="margin-bottom:5px"><strong><?php __('Data Integrity');
+        <div style="margin-bottom:5px"><strong><?php echo __('Data Integrity');
     ?></strong>
         <i class="help-tip icon-question-sign"
             data-title="<?php echo __('Required to close a thread'); ?>"

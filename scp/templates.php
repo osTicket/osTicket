@@ -146,7 +146,7 @@ if($_POST){
                                 _N('selected template set', 'selected template sets', $count));
                         break;
                     default:
-                        $errors['err']=__('Unknown action - get technical help.');
+                        $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;

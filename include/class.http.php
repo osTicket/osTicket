@@ -42,7 +42,7 @@ class Http {
         if ($charset)
             $ct .= "; charset=$charset";
         header($ct);
-        if ($content) {
+        if (is_string($content)) {
             header('Content-Length: '.strlen($content)."\r\n\r\n");
             print $content;
             exit;
@@ -106,6 +106,9 @@ class Http {
     }
 
     function download($filename, $type, $data=null, $disposition='attachment') {
+        if (strpos($type, 'image/') !== false && preg_match('/image\/.*\+.*/', $type))
+          $disposition='attachment';
+
         header('Pragma: private');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Cache-Control: private', false);

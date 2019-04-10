@@ -57,7 +57,7 @@ class Page extends VerySimpleModel {
         return $this->name;
     }
     function getLocalName($lang=false) {
-        return $this->getLocal('name', $lang);
+        return $this->_getLocal('name', $lang);
     }
     function getNameAsSlug() {
         return urlencode(Format::slugify($this->name));
@@ -70,7 +70,7 @@ class Page extends VerySimpleModel {
         return $this->_getLocal('body', $lang);
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getLocalBody());
+        return Format::viewableImages($this->getLocalBody(), ['type' => 'P']);
     }
 
     function _getLocal($what, $lang=false) {
@@ -254,7 +254,7 @@ class Page extends VerySimpleModel {
         }
 
         if (isset($this->id) && $this->getId() != $vars['id'])
-            $errors['err'] = __('Internal error. Try again');
+            $errors['err'] = sprintf('%s - %s', __('Internal error occurred'), __('Please try again!'));
 
         if(!$vars['type'])
             $errors['type'] = __('Type is required');
@@ -282,7 +282,7 @@ class Page extends VerySimpleModel {
 
         // Attach inline attachments from the editor
         $keepers = Draft::getAttachmentIds($vars['body']);
-        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $keepers = array_flip(array_map(function($i) { return $i['id']; }, $keepers));
         $this->attachments->keepOnlyFileIds($keepers, true);
 
         if ($rv)
@@ -319,7 +319,7 @@ class Page extends VerySimpleModel {
                 return false;
         }
         // New translations (?)
-        foreach ($vars['trans'] as $lang=>$parts) {
+        foreach ($vars['trans'] ?: array() as $lang=>$parts) {
             $content = array('name' => @$parts['title'], 'body' => Format::sanitize(@$parts['body']));
             if (!array_filter($content))
                 continue;

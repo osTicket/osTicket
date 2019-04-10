@@ -27,6 +27,9 @@ class Deployment extends Unpacker {
             'action'=>'store_true',
             'help'=>'Use `git ls-files -s` as files source. Eliminates
                 possibility of deploying untracked files');
+        $this->options['force'] = array('-f', '--force',
+            'action'=>'store_true',
+            'help'=>'Deploy all files, even if they have not changed');
         # super(*args);
         call_user_func_array(array('parent', '__construct'), func_get_args());
     }
@@ -45,13 +48,14 @@ class Deployment extends Unpacker {
      * Removes files from the deployment location that no longer exist in
      * the local repository
      */
-    function clean($local, $destination, $recurse=0, $exclude=false) {
+    function clean($local, $destination, $root, $recurse=0, $exclude=false) {
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $dryrun || $this->getOption('verbose');
         $destination = rtrim($destination, '/') . '/';
         $contents = glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT);
         foreach ($contents as $i=>$file) {
-            if ($this->exclude($exclude, $file))
+            $relative = str_replace($root, "", $file);
+            if ($this->exclude($exclude, $relative))
                 continue;
             if (is_file($file)) {
                 $ltarget = $local . '/' . basename($file);
@@ -74,12 +78,13 @@ class Deployment extends Unpacker {
             foreach ($folders as $dir) {
                 if (in_array(basename($dir), array('.','..')))
                     continue;
-                elseif ($this->exclude($exclude, $dir))
+                $relative = str_replace($root, "", $dir);
+                if ($this->exclude($exclude, "$relative/"))
                     continue;
                 $this->clean(
                     $local.'/'.basename($dir),
                     $destination.basename($dir),
-                    $recurse - 1, $exclude);
+                    $root, $recurse - 1, $exclude);
             }
         }
         if (!$contents || !glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT)) {
@@ -123,6 +128,7 @@ class Deployment extends Unpacker {
             return false;
 
         $source = file_get_contents($src);
+        $original = crc32($source);
         $source = preg_replace(':<script(.*) src="([^"]+)\.js"></script>:',
             '<script$1 src="$2.js?'.$short.'"></script>',
             $source);
@@ -142,11 +148,20 @@ class Deployment extends Unpacker {
             "$1ini_set('$2', '0'); // Set by installer",
             $source);
 
-        return $source;
+        // return FALSE if the edited contents do not differ from the
+        // original contents
+        return $original != crc32($source) ? $source : false;
     }
 
-    function copyFile($source, $dest, $hash=false, $mode=0644) {
-        $contents = $this->getEditedContents($source);
+    function isChanged($source, $hash=false) {
+        $local = str_replace($this->source.'/', '', $source);
+        $hash = $hash ?: $this->hashFile($source);
+        list($shash, $flag) = explode(':', $this->readManifest($local));
+        return ($flag === 'rewrite') ? $flag : $shash != $hash;
+    }
+
+    function copyFile($source, $dest, $hash=false, $mode=0644, $contents=false) {
+        $contents = $contents ?: $this->getEditedContents($source);
         if ($contents === false)
             // Regular file
             return parent::copyFile($source, $dest, $hash, $mode);
@@ -154,7 +169,7 @@ class Deployment extends Unpacker {
         if (!file_put_contents($dest, $contents))
             $this->fail($dest.": Unable to apply rewrite rules");
 
-        $this->updateManifest($source, $hash);
+        $this->updateManifest($source, "$hash:rewrite");
         return chmod($dest, $mode);
     }
 
@@ -188,16 +203,21 @@ class Deployment extends Unpacker {
 
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $this->getOption('verbose') || $dryrun;
+        $force = $this->getOption('force');
         while ($line = stream_get_line($pipes[1], 255, "\x00")) {
             list($mode, $hash, , $path) = preg_split('/\s+/', $line);
             $src = $source.$local.$path;
             if ($this->exclude($exclude, $src))
                 continue;
-            if (!$this->isChanged($src, $hash))
+            if (!$force && false === ($flag = $this->isChanged($src, $hash)))
                 continue;
             $dst = $destination.$path;
-            if ($verbose)
-                $this->stdout->write($dst."\n");
+            if ($verbose) {
+                $msg = $dst;
+                if (is_string($flag))
+                    $msg = "$msg ({$flag})";
+                $this->stdout->write("$msg\n");
+            }
             if ($dryrun)
                 continue;
             if (!is_dir(dirname($dst)))
@@ -241,7 +261,7 @@ class Deployment extends Unpacker {
             $exclusions);
         # Unpack the include folder
         $this->unpackage("$root/include/{,.}*", $include, -1,
-            array("*/include/ost-config.php"));
+            array("*/include/ost-config.php", "*.sw[a-z]"));
         if (!$options['dry-run']) {
             if ($include != "{$this->destination}/include/")
                 $this->change_include_dir($include);
@@ -249,14 +269,16 @@ class Deployment extends Unpacker {
 
         if ($options['clean']) {
             // Clean everything but include folder first
-            $this->clean($root, $this->destination, -1,
-                array($include, "setup/"));
-            $this->clean("$root/include", $include, -1,
+            $local_include = str_replace($this->destination, "", $include);
+            $this->clean($root, $this->destination, $this->destination, -1,
+                array($local_include, "setup/"));
+            $this->clean("$root/include", $include, $include, -1,
                 array("ost-config.php","settings.php","plugins/",
-                "*/.htaccess"));
+                "*/.htaccess", ".MANIFEST"));
         }
 
-        $this->writeManifest($this->destination);
+        if (!$options['dry-run'])
+            $this->writeManifest($this->destination);
     }
 }
 

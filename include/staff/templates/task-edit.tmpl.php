@@ -2,7 +2,7 @@
 global $cfg;
 
 if (!$info['title'])
-    $info['title'] = sprintf(__('%s Tasks #%s'),
+    $info['title'] = sprintf(__('%s Task #%s'),
             __('Edit'), $task->getNumber()
             );
 

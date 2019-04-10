@@ -19,6 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once(INCLUDE_DIR.'class.ajax.php');
 require_once(INCLUDE_DIR.'class.task.php');
+include_once INCLUDE_DIR . 'class.thread_actions.php';
 
 class TasksAjaxAPI extends AjaxController {
 
@@ -57,8 +58,38 @@ class TasksAjaxAPI extends AjaxController {
         return $this->json_encode($tasks);
     }
 
-    function add() {
+    function triggerThreadAction($task_id, $thread_id, $action) {
+        $thread = ThreadEntry::lookup($thread_id);
+        if (!$thread)
+            Http::response(404, 'No such task thread entry');
+        if ($thread->getThread()->getObjectId() != $task_id)
+            Http::response(404, 'No such task thread entry');
+
+        $valid = false;
+        foreach ($thread->getActions() as $group=>$list) {
+            foreach ($list as $name=>$A) {
+                if ($A->getId() == $action) {
+                    $valid = true; break;
+                }
+            }
+        }
+
+        if (!$valid)
+          Http::response(400, 'Not a valid action for this thread');
+
+
+        $thread->triggerAction($action);
+    }
+
+    function add($tid=0, $vars=array()) {
         global $thisstaff;
+
+        if ($tid) {
+            $vars = array_merge($_SESSION[':form-data'], $vars);
+            $originalTask = Task::lookup($tid);
+        }
+        else
+          unset($_SESSION[':form-data']);
 
         $info=$errors=array();
         if ($_POST) {
@@ -82,15 +113,57 @@ class TasksAjaxAPI extends AjaxController {
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
-                    $vars['cannedattachments'] = $attachments->getClean();
+                    $vars['files'] = $attachments->getFiles();
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
-                if (($task=Task::create($vars, $errors)))
-                    Http::response(201, $task->getId());
+                if (($task=Task::create($vars, $errors))) {
+                  if ($_SESSION[':form-data']['eid']) {
+                    //add internal note to original task:
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
+                        $task->getId(),
+                        $task->getNumber());
+
+                    $entryLink = sprintf('<a href="#entry-%d"><b>%s</b></a>',
+                        $_SESSION[':form-data']['eid'],
+                        Format::datetime($_SESSION[':form-data']['timestamp']));
+
+                    $note = array(
+                            'title' => __('Task Created From Thread Entry'),
+                            'note' => sprintf(__(
+                                // %1$s is the task ID number and %2$s is the thread
+                                // entry date
+                                'Task %1$s<br/> Thread Entry: %2$s'),
+                                $taskLink, $entryLink)
+                            );
+
+                    $originalTask->postNote($note, $errors, $thisstaff);
+
+                    //add internal note to new task:
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
+                        $originalTask->getId(),
+                        $originalTask->getNumber());
+
+                    $note = array(
+                            'title' => __('Task Created From Thread Entry'),
+                            'note' => sprintf(__('This Task was created from Task %1$s'), $taskLink));
+
+                    $task->postNote($note, $errors, $thisstaff);
+                  }
+
+                  Http::response(201, $task->getId());
+                }
+              }
+              $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
             }
 
-            $info['error'] = __('Error adding task - try again!');
+        if ($originalTask) {
+          $info['action'] = sprintf('#tasks/%d/add', $originalTask->getId());
+          $info['title'] = sprintf(
+                  __( 'Task #%1$s: %2$s'),
+                  $originalTask->getNumber(),
+                  __('Add New Task')
+                  );
         }
 
         include STAFFINC_DIR . 'templates/task.tmpl.php';
@@ -220,7 +293,9 @@ class TasksAjaxAPI extends AjaxController {
                                     Q::all(array(
                                         'dept_access__dept__id__in' => $depts,
                                         Q::not(array('dept_access__dept__flags__hasbit'
-                                            => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                            => Dept::FLAG_ASSIGN_MEMBERS_ONLY,
+                                            'dept_access__dept__flags__hasbit'
+                                                => Dept::FLAG_ASSIGN_PRIMARY_ONLY))
                                         ))
                                     )));
                 }
@@ -336,20 +411,18 @@ class TasksAjaxAPI extends AjaxController {
                 $info[':title'] = sprintf('Reopen %s',
                          _N('selected task', 'selected tasks', $count));
 
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('REOPEN %s'),
+                $info['warn'] = sprintf(__('Are you sure you want to REOPEN %s?'),
                              _N('selected task', 'selected tasks', $count)
-                             ));
+                             );
                 break;
             case 'closed':
                 $perm = Task::PERM_CLOSE;
                 $info[':title'] = sprintf('Close %s',
                          _N('selected task', 'selected tasks', $count));
 
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('CLOSE %s'),
+                $info['warn'] = sprintf(__('Are you sure you want to CLOSE %s?'),
                              _N('selected task', 'selected tasks', $count)
-                             ));
+                             );
                 break;
             default:
                 Http::response(404, __('Unknown action'));
@@ -424,7 +497,7 @@ class TasksAjaxAPI extends AjaxController {
 
             // Assume success
             if ($i==$count) {
-                $msg = sprintf(__('Successfully %s %s.'),
+                $msg = sprintf(__('Successfully %1$s %2$s.' /* Tokens are <actioned> <x selected task(s)> */),
                         $actions[$action]['verbed'],
                         sprintf('%1$d %2$s',
                             $count,
@@ -531,7 +604,7 @@ class TasksAjaxAPI extends AjaxController {
                     $target ? "/$target" : ''),
                 );
         if ($task->isAssigned()) {
-            $info['notice'] = sprintf(__('%s is currently assigned to %s'),
+            $info['notice'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
                     __('Task'),
                     $task->getAssigned());
         }
@@ -690,8 +763,8 @@ class TasksAjaxAPI extends AjaxController {
             if (($m=$task->isCloseable()) !== true)
                 $errors['err'] = $info['error'] = $m;
             else
-                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
-                        sprintf(__('change status of %s'), __('this task')));
+                $info['warn'] = sprintf(__('Are you sure you want to change status of %s?'),
+                        __('this task'));
             break;
         default:
             Http::response(404, __('Unknown status'));
@@ -741,9 +814,9 @@ class TasksAjaxAPI extends AjaxController {
             switch ($_POST['a']) {
             case 'postnote':
                 $vars = $_POST;
-                $attachments = $note_form->getField('attachments')->getClean();
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+                $attachments = $note_form->getField('attachments')->getFiles();
+                $vars['files'] = array_merge(
+                    $vars['files'] ?: array(), $attachments);
                 if(($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list

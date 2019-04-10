@@ -13,6 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once INCLUDE_DIR . 'class.forms.php';
 
 class RoleModel extends VerySimpleModel {
     static $meta = array(
@@ -320,6 +321,16 @@ class RolePermission {
     }
 
     static function allPermissions() {
+        static $sorted = false;
+
+        if (!$sorted) {
+            // Sort permissions in alphabetical order
+            foreach (static::$_permissions as $k => $v) {
+                asort(static::$_permissions[$k]);
+            }
+            $sorted = true;
+        }
+
         return static::$_permissions;
     }
 
@@ -376,7 +387,7 @@ extends AbstractForm {
         );
     }
 
-    function getClean() {
+    function getClean($validate = true) {
         $clean = parent::getClean();
         // Index permissions as ['ticket.edit' => 1]
         $clean['perms'] = array_keys($clean['perms']);

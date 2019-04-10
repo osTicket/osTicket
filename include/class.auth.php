@@ -887,8 +887,9 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
                    ._S('Time').": ".date('M j, Y, g:i a T')."\n\n"
                    ._S('Attempts').": {$authsession['strikes']}\n"
                    ._S('Timeout').": ".sprintf(_N('%d minute', '%d minutes', $timeout), $timeout)."\n\n";
+            $admin_alert = ($cfg->alertONLoginError() == 1) ? TRUE : FALSE;
             $ost->logWarning(sprintf(_S('Excessive login attempts (%s)'),$username),
-                    $alert, $cfg->alertONLoginError());
+                    $alert, $admin_alert);
             return new AccessDenied(__('Forgot your login info? Contact Admin.'));
         //Log every other third failed login attempt as a warning.
         } elseif($authsession['strikes']%3==0) {
@@ -947,14 +948,15 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                     _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".
                     _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
                     _S('Attempts').": {$authsession['strikes']}";
-            $ost->logError(_S('Excessive login attempts (user)'), $alert, ($cfg->alertONLoginError()));
+            $admin_alert = ($cfg->alertONLoginError() == 1 ? TRUE : FALSE);
+            $ost->logError(_S('Excessive login attempts (user)'), $alert, $admin_alert);
             return new AccessDenied(__('Access denied'));
         } elseif($authsession['strikes']%3==0) { //Log every third failed login attempt as a warning.
             $alert=_S('Username').": {$username}\n".
                     _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".
                     _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
                     _S('Attempts').": {$authsession['strikes']}";
-            $ost->logWarning(_S('Failed login attempt (user)'), $alert);
+            $ost->logWarning(_S('Failed login attempt (user)'), $alert, false);
         }
 
     }
@@ -1313,7 +1315,35 @@ abstract class PasswordPolicy {
     static function register($policy) {
         static::$registry[] = $policy;
     }
+
+    static function cleanSessions($model, $user=null) {
+        $criteria = array();
+
+        switch (true) {
+            case ($model instanceof Staff):
+                $criteria['user_id'] = $model->getId();
+
+                if ($user && ($model->getId() == $user->getId()))
+                    array_push($criteria,
+                        Q::not(array('session_id' => $user->session->session_id)));
+                break;
+            case ($model instanceof User):
+                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
+                $criteria['user_id'] = 0;
+                $criteria['session_data__regex'] = $regexp;
+
+                if ($user)
+                    array_push($criteria,
+                        Q::not(array('session_id' => $user->session->session_id)));
+                break;
+            default:
+                return false;
+        }
+
+        return SessionData::objects()->filter($criteria)->delete();
+    }
 }
+Signal::connect('auth.clean', array('PasswordPolicy', 'cleanSessions'));
 
 class osTicketPasswordPolicy
 extends PasswordPolicy {

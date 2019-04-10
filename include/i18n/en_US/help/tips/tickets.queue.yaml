@@ -76,3 +76,13 @@ adv_date_range:
     title: Search by Date Range
     content: >
         Definition here
+
+reply_types:
+    title: Reply Types
+    content: >
+        <b>Reply All:</b>
+          This reply is sent to the User and the Collaborators you choose to include.</br>
+        <b>Reply to User:</b>
+          This reply is sent to the User only, no Collaborators.</br>
+        <b>Do Not Email Reply:</b>
+          No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.

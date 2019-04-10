@@ -94,6 +94,7 @@ RedactorPlugins.draft = function() {
             // No change yet — dont't show the button
             return;
         }
+        this.$box.find('textarea').attr('data-draft-id', this.opts.draftId);
         if (data && this.code.get()) {
             this.$draft_saved.show().delay(5000).fadeOut();
         }
@@ -273,7 +274,7 @@ $(function() {
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
                 'tabFocus': false,
-                'toolbarFixedBox': true,
+                'toolbarFixed': false,
                 'focusCallback': function() { this.$box.addClass('no-pjax'); },
                 'initCallback': function() {
                     if (this.$element.data('width'))
@@ -290,10 +291,20 @@ $(function() {
         var reset = $('input[type=reset]', el.closest('form'));
         if (reset) {
             reset.click(function() {
-                if (el.hasClass('draft'))
-                    el.redactor('deleteDraft');
-                else
-                    el.redactor('set', '', false, false);
+                var file = $('.file', el.closest('form'));
+                if (file)
+                    file.remove();
+                if (el.attr('data-draft-id'))
+                    el.redactor('draft.deleteDraft').attr('data-draft-id', '');
+                else {
+                    try {
+                        el.redactor('insert.set', '', false, false);
+                    }
+                    catch (error) {
+                        el.redactor(); //reinitialize redactor
+                        el.redactor('insert.set', '', false, false);
+                    }
+                }
             });
         }
         $('input[type=submit]', el.closest('form')).on('click', function() {
@@ -301,7 +312,13 @@ $(function() {
             // where Redactor does not sync properly after adding an image.
             // Therefore, the ::get() call will not include text added after
             // the image was inserted.
-            el.redactor('code.sync');
+            try {
+                el.redactor('code.sync');
+            }
+            catch (error) {
+                el.redactor(); //reinitialize redactor
+                el.redactor('code.sync');
+            }
         });
         if (!$.clientPortal) {
             options['plugins'] = options['plugins'].concat(
@@ -356,7 +373,6 @@ $(function() {
     };
     findRichtextBoxes();
     $(document).ajaxStop(findRichtextBoxes);
-    $(document).on('pjax:success', findRichtextBoxes);
     $(document).on('pjax:start', cleanupRedactorElements);
 });
 
@@ -378,3 +394,7 @@ $(document).ajaxError(function(event, request, settings) {
             __('Refresh the current page to restore and continue your draft.'));
     }
 });
+
+// .size() is deprecated as of jQuery 1.8 and should move to .length, but
+// the packed Redactor code uses the deprecated function
+$.fn.size = function() { return this.length; }

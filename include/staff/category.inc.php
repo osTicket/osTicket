@@ -36,7 +36,7 @@ if($category && $_REQUEST['a']!='add'){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -51,9 +51,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <div style="margin:8px 0"><strong><?php echo __('Category Type');?>:</strong>
         <span class="error">*</span></div>
     <div style="margin-left:5px">
-    <input type="radio" name="ispublic" value="2" <?php echo $info['ispublic']?'checked="checked"':''; ?>><b><?php echo __('Featured');?></b> <?php echo __('(on front-page sidebar)');?>
+    <input type="radio" name="ispublic" value="2" <?php echo $info['ispublic']==2?'checked="checked"':''; ?>><b><?php echo __('Featured');?></b> <?php echo __('(on front-page sidebar)');?>
     <br/>
-    <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>><b><?php echo __('Public');?></b> <?php echo __('(publish)');?>
+    <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']==1?'checked="checked"':''; ?>><b><?php echo __('Public');?></b> <?php echo __('(publish)');?>
     <br/>
     <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><?php echo __('Private');?> <?php echo __('(internal)');?>
     <br/>
@@ -107,6 +107,32 @@ if (count($langs) > 1) { ?>
       ?>" id="lang-<?php echo $tag; ?>"
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
     >
+    <div style="padding-bottom:8px;">
+        <b><?php echo __('Parent');?></b>:
+        <div class="faded"><?php echo __('Parent Category');?></div>
+    </div>
+    <div style="padding-bottom:8px;">
+        <select name="pid">
+            <option value="">&mdash; <?php echo __('Top-Level Category'); ?> &mdash;</option>
+            <?php
+            foreach (Category::getCategories() as $id=>$name) {
+                if ($info['id'] && $id == $info['id'])
+                    continue; ?>
+                <option value="<?php echo $id; ?>" <?php
+                    if ($info['category_pid'] == $id) echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+            <?php
+            } ?>
+        </select>
+        <script>
+            $('select[name=pid]').on('change', function() {
+                var val = this.value;
+                $('select[name=pid]').each(function() {
+                    $(this).val(val);
+                });
+            });
+        </script>
+    </div>
     <div style="padding-bottom:8px;">
         <b><?php echo __('Category Name');?></b>:
         <span class="error">*</span>

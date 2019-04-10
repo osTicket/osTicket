@@ -45,6 +45,17 @@ $(document).ready(function(){
 
     $('form').submit(function() {
         $(window).unbind('beforeunload');
+        // Disable client-side Post Reply/Create Ticket buttons to help
+        // prevent duplicate POST
+        var form = $(this);
+        $(this).find('input[type="submit"]').each(function (index) {
+            // Clone original input
+            $(this).clone(false).removeAttr('id').prop('disabled', true).insertBefore($(this));
+
+            // Hide original input and add it to top of form
+            $(this).hide();
+            form.prepend($(this));
+        });
         $('#overlay, #loading').show();
         return true;
        });
@@ -173,13 +184,21 @@ getConfig = (function() {
 
 $.translate_format = function(str) {
     var translation = {
-        'd':'dd',
-        'j':'d',
-        'z':'o',
-        'm':'mm',
-        'F':'MM',
-        'n':'m',
-        'Y':'yy'
+        'DD':   'oo',
+        'D':    'o',
+        'EEEE': 'DD',
+        'EEE':  'D',
+        'MMMM': '||',   // Double replace necessary
+        'MMM':  '|',
+        'MM':   'mm',
+        'M':    'm',
+        '||':   'MM',
+        '|':    'M',
+        'yyyy': '`',
+        'yyy':  '`',
+        'yy':   'y',
+        'y':    'yy',
+        '`':    'yy'
     };
     // Change PHP formats to datepicker ones
     $.each(translation, function(php, jqdp) {

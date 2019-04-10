@@ -21,7 +21,7 @@ if($canned && $_REQUEST['a']!='add'){
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form action="canned.php?<?php echo Http::build_query($qs); ?>" method="post" id="save" enctype="multipart/form-data">
+<form action="canned.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -57,7 +57,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="dept_id">
                     <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
                     <?php
-                    if (($depts=Dept::getDepartments())) {
+                    if (($depts=Dept::getDepartments(array('publiconly' => true)))) {
                         foreach($depts as $id => $name) {
                             $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);

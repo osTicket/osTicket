@@ -1,228 +1,279 @@
-<div id="advanced-search">
-<h3 class="drag-handle"><?php echo __('Advanced Ticket Search');?></h3>
+<?php
+global $thisstaff;
+
+$parent_id = $_REQUEST['parent_id'] ?: $search->parent_id;
+if ($parent_id
+    && is_numeric($parent_id)
+    && (!($parent = SavedQueue::lookup($parent_id)))
+) {
+    $parent_id = 0;
+}
+
+$editable = $search->checkOwnership($thisstaff);
+$queues = array();
+foreach (CustomQueue::queues() as  $q)
+    $queues[$q->id] = $q->getFullName();
+asort($queues);
+$queues = array(0 => ('—'.__("My Searches").'—')) + $queues;
+$queue = $search;
+$qname = $search->getName() ?:  __('Advanced Ticket Search');
+?>
+<div id="advanced-search" class="advanced-search">
+<h3 class="drag-handle"><?php echo Format::htmlchars($qname); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
-<form action="#tickets/search" method="post" name="search">
-<div class="row">
-<div class="span6">
-    <input type="hidden" name="a" value="search">
 <?php
-foreach ($form->errors(true) ?: array() as $message) {
-    ?><div class="error-banner"><?php echo $message;?></div><?php
+$info['error'] = $info['error'] ?: $errors['err'];
+if ($info['error']) {
+    echo sprintf('<p id="msg_error">%s</p>', $info['error']);
+} elseif ($info['warn']) {
+    echo sprintf('<p id="msg_warning">%s</p>', $info['warn']);
+} elseif ($info['msg']) {
+    echo sprintf('<p id="msg_notice">%s</p>', $info['msg']);
 }
 
-$info = $search->getSearchFields($form);
-foreach (array_keys($info) as $F) {
-    ?><input type="hidden" name="fields[]" value="<?php echo $F; ?>"/><?php
-}
-$errors = !!$form->errors();
-$inbody = false;
-$first_field = true;
-foreach ($form->getFields() as $name=>$field) {
-    @list($name, $sub) = explode('+', $field->get('name'), 2);
-    if ($sub === 'search') {
-        if (!$first_field) {
-            echo '</div></div>';
-        }
-        echo '<div class="adv-search-field-container">';
-        $inbody = false;
-        $first_field = false;
-    }
-    elseif (!$first_field && !$inbody) {
-        echo sprintf('<div class="adv-search-field-body %s">',
-            !$errors && isset($info[$name]) && $info[$name]['active'] ? 'hidden' : '');
-        $inbody = true;
-    }
+// Form action
+$action = '#tickets/search';
+if ($search->isSaved() && $search->getId())
+    $action .= sprintf('/%s/save', $search->getId());
+elseif (!$search instanceof AdhocSearch)
+    $action .= '/save';
 ?>
-    <fieldset id="field<?php echo $field->getWidget()->id; ?>" <?php
-        $class = array();
-        if (!$field->isVisible())
-            $class[] = "hidden";
-        if ($sub === 'method')
-            $class[] = "adv-search-method";
-        elseif ($sub === 'search')
-            $class[] = "adv-search-field";
-        elseif ($field->get('__searchval__'))
-            $class[] = "adv-search-val";
-        if ($class)
-            echo 'class="'.implode(' ', $class).'"';
-        ?>>
-        <?php echo $field->render(); ?>
-        <?php if (!$errors && $sub === 'search' && isset($info[$name]) && $info[$name]['active']) { ?>
-            <span style="padding-left: 5px">
-            <a href="#"  data-name="<?php echo Format::htmlchars($name); ?>" onclick="javascript:
-    var $this = $(this),
-        name = $this.data('name'),
-        expanded = $this.data('expanded') || false;
-    $this.closest('.adv-search-field-container').find('.adv-search-field-body').slideDown('fast');
-    $this.find('span.faded').hide();
-    $this.find('i').removeClass('icon-caret-right').addClass('icon-caret-down');
-    return false;
-"><i class="icon-caret-right"></i>
-            <span class="faded"><?php echo $search->describeField($info[$name]); ?></span>
-            </a>
-            </span>
-        <?php } ?>
-        <?php foreach ($field->errors() as $E) {
-            ?><div class="error"><?php echo $E; ?></div><?php
-        } ?>
-    </fieldset>
-    <?php if ($name[0] == ':' && substr($name, -7) == '+search') {
-        list($N,) = explode('+', $name, 2);
-?>
-    <input type="hidden" name="fields[]" value="<?php echo $N; ?>"/>
-    <?php }
-}
-if (!$first_field)
-    echo '</div></div>';
-?>
-<div id="extra-fields"></div>
-<hr/>
-<select id="search-add-new-field" name="new-field" style="max-width: 300px;">
-    <option value="">— <?php echo __('Add Other Field'); ?> —</option>
+<form action="<?php echo $action; ?>" method="post" name="search" id="advsearch"
+    class="<?php echo ($search->isSaved() || $parent) ? 'savedsearch' : 'adhocsearch'; ?>">
+  <input type="hidden" name="id" value="<?php echo $search->getId(); ?>">
 <?php
-foreach ($matches as $name => $fields) { ?>
-    <optgroup label="<?php echo $name; ?>">
-<?php
-    foreach ($fields as $id => $desc) { ?>
-        <option value="<?php echo $id; ?>" <?php
-            if (isset($state[$id])) echo 'disabled="disabled"';
-        ?>><?php echo ($desc instanceof FormField ? $desc->getLocal('label') : $desc); ?></option>
-<?php } ?>
-    </optgroup>
-<?php } ?>
-</select>
-
-</div>
-<div class="span6" style="border-left:1px solid #888;position:relative;padding-bottom:26px;">
-<div style="margin-bottom: 0.5em;"><b style="font-size: 110%;"><?php echo __('Saved Searches'); ?></b></div>
-<hr>
-<div id="saved-searches" class="accordian" style="max-height:200px;overflow-y:auto;">
-<?php foreach (SavedSearch::forStaff($thisstaff) as $S) { ?>
-    <dt class="saved-search">
-        <a href="#" class="load-search"><?php echo $S->title; ?>
-        <i class="icon-chevron-down pull-right"></i>
-        </a>
-    </dt>
-    <dd>
-        <span>
-            <button type="button" onclick="javascript:$(this).closest('form').attr({
-'method': 'get', 'action': '#tickets/search/<?php echo $S->id; ?>'}).trigger('submit');"><i class="icon-chevron-left"></i> <?php echo __('Load'); ?></button>
-            <button type="button" onclick="javascript:
-var that = this;
-$.ajax({
-    url: 'ajax.php/tickets/search/<?php echo $S->id; ?>',
-    type: 'POST',
-    data: {'form': $(this).closest('.dialog').find('form[name=search]').serializeArray()},
-    dataType: 'json',
-    success: function(json) {
-      if (!json.id)
-        return;
-      $(that).closest('dd').effect('highlight');
-    }
-});
-return false;
-"><i class="icon-save"></i> <?php echo __('Update'); ?></button>
-        </span>
-        <span class="pull-right">
-            <button type="button" title="<?php echo __('Delete'); ?>" onclick="javascript:
-    if (!confirm(__('You sure?'))) return false;
-    var that = this;
-    $.ajax({
-        'url': 'ajax.php/tickets/search/<?php echo $S->id; ?>',
-        'type': 'delete',
-        'dataType': 'json',
-        'success': function(json) {
-            if (json.success) {
-                $(that).closest('dd').prev('dt').slideUp().next('dd').slideUp();
-            }
-        }
-    });
-    return false;
-"><i class="icon-trash"></i></button>
-        </span>
-    </dd>
-<?php } ?>
-</div>
-<div style="position:absolute;bottom:0">
-<hr>
-    <form method="post">
-    <div class="attached input">
-    <input name="title" type="text" size="27" placeholder="<?php
-        echo __('Enter a title for the search'); ?>"/>
-        <a class="attached button" href="#tickets/search/create" onclick="javascript:
-$.ajax({
-    url: 'ajax.php/' + $(this).attr('href').substr(1),
-    type: 'POST',
-    data: {'name': $(this).closest('form').find('[name=title]').val(),
-           'form': $(this).closest('.dialog').find('form[name=search]').serializeArray()},
-    dataType: 'json',
-    success: function(json) {
-      if (!json.id)
-        return;
-      $('<dt>')
-        .append($('<a>').text(' ' + json.title)
-          .prepend($('<i>').addClass('icon-chevron-left'))
-        ).appendTo($('#saved-searches'));
-    }
-});
-return false;
-"><i class="icon-save"></i></a>
+if ($editable) {
+    ?>
+  <div class="flex row">
+    <div class="span12">
+      <select id="parent" name="parent_id" >
+          <?php
+foreach ($queues as $id => $name) {
+    ?>
+          <option value="<?php echo $id; ?>"
+              <?php if ($parent_id == $id) echo 'selected="selected"'; ?>
+              ><?php echo $name; ?></option>
+<?php       } ?>
+      </select>
     </div>
-</div>
-</div>
+   </div>
+<?php
+} ?>
+<ul class="clean tabs">
+    <li class="active"><a href="#criteria"><i class="icon-search"></i> <?php echo __('Criteria'); ?></a></li>
+    <li><a href="#columns"><i class="icon-columns"></i> <?php echo __('Columns'); ?></a></li>
+    <?php
+    if ($search->isSaved()) { ?>
+    <li><a href="#settings"><i class="icon-cog"></i> <?php echo __('Settings'); ?></a></li>
+    <?php
+    } ?>
+</ul>
+
+<div class="tab_content" id="criteria">
+  <div class="flex row">
+    <div class="span12" style="overflow-y: auto; height:auto;">
+      <div class="error"><?php echo Format::htmlchars($errors['criteria']); ?></div>
+      <div class="faded <?php echo $parent ? ' ': 'hidden'; ?>"
+            id="inherited-parent" style="margin-bottom: 1em">
+
+      <div>
+        <strong><a href="#" id="parent-info"><i class="icon-caret-right"></i>&nbsp;<?php
+            echo sprintf('%s (<span id="parent-name">%s</span>)',
+                __('Inherited Criteria'),
+                $parent ? $parent->getName() : '');
+      ?></a></strong>
+      </div>
+      <div id="parent-criteria" class="hidden">
+        <?php echo $parent ? nl2br(Format::htmlchars($parent->describeCriteria())) : ''; ?>
+      </div>
+      </div>
+      <input type="hidden" name="a" value="search">
+     <?php
+        include STAFFINC_DIR . 'templates/advanced-search-criteria.tmpl.php';
+     ?>
+    </div>
+  </div>
+
 </div>
 
-<hr/>
+<div class="tab_content hidden" id="columns">
+    <?php
+    include STAFFINC_DIR . "templates/queue-columns.tmpl.php";
+    ?>
+</div>
+<?php
+if ($search->isSaved()) { ?>
+<div class="tab_content hidden" id="settings">
+    <?php
+    include STAFFINC_DIR . "templates/savedqueue-settings.tmpl.php";
+    ?>
+</div>
+<?php
+} else { // Not saved.
+    $save = (($parent && !$search->isSaved()) || isset($_POST['queue-name']));
+?>
 <div>
-    <div id="search-hint" class="pull-left">
-    </div>
-    <div class="buttons pull-right">
-        <button class="button" type="submit" id="do_search"><i class="icon-search"></i>
-            <?php echo __('Search'); ?></button>
-    </div>
-</div>
-
+  <div style="margin-top:10px;"><a href="#"
+    id="save"><i class="icon-caret-<?php echo $save ? 'down' : 'right';
+    ?>"></i>&nbsp;<span><?php echo __('Save Search'); ?></span></a></div>
+  <div id="save-changes" class="<?php echo $save ? '' : 'hidden'; ?>" style="padding:5px; border-top: 1px dotted #777;">
+      <div><input name="queue-name" type="text" size="40"
+        value="<?php echo Format::htmlchars($search->isSaved() ? $search->getName() :
+        $_POST['queue-name']); ?>"
+        placeholder="<?php echo __('Search Title'); ?>">
+        <?php
+        if ($search instanceof AdhocSearch && !$search->isSaved()) { ?>
+        <span class="buttons">
+             <button class="save button" type="button"  name="save-search"
+             value="save"><i class="icon-save"></i>  <?php echo $search->id
+             ? __('Save Changes') : __('Save'); ?></button>
+        </span>
+        <?php
+        } ?>
+        </div>
+      <div class="error" id="name-error"><?php echo
+      Format::htmlchars($errors['queue-name']); ?></div>
+  </div>
+ </div>
+<?php
+} ?>
+  <hr/>
+ <div>
+  <p class="full-width">
+    <span class="buttons pull-left">
+        <input type="button"  name="cancel"  class="close" value="<?php echo __('Cancel'); ?>">
+        <?php
+        if ($search->isSaved()) { ?>
+        <input type="button" name="done" class="done" value="<?php echo
+            __('Done'); ?>" >
+        <?php
+        } ?>
+    </span>
+    <span class="buttons pull-right">
+      <?php
+      if (!$search instanceof AdhocSearch) { ?>
+      <button class="save button" type="submit" name="save" value="save"
+        id="do_save"><i class="icon-save"></i>
+        <?php echo __('Save'); ?></button>
+      <?php
+      } else { ?>
+      <button class="button" type="submit" name="submit" value="search"
+        id="do_search"><i class="icon-search"></i>
+        <?php echo __('Search'); ?></button>
+      <?php
+      } ?>
+    </span>
+   </p>
+ </div>
 </form>
 
-<style type="text/css">
-#advanced-search .span6 .select2 {
-  max-width: 300px !important;
-}
-</style>
-
-<script type="text/javascript">
-$(function() {
-  $('#advanced-search [data-dropdown]').dropdown();
-
-  var I = setInterval(function() {
-    var A = $('#saved-searches.accordian');
-    if (!A.length) return;
-    clearInterval(I);
-
-    var allPanels = $('dd', A).hide();
-    $('dt > a', A).click(function() {
-      $('dt', A).removeClass('active');
-      allPanels.slideUp();
-      $(this).parent().addClass('active').next().slideDown();
-      return false;
+<script>
++function() {
+   // Return a helper with preserved width of cells
+   var fixHelper = function(e, ui) {
+      ui.children().each(function() {
+          $(this).width($(this).width());
+      });
+      return ui;
+   };
+   // Sortable tables for dynamic forms objects
+   $('.sortable-rows').sortable({
+       'helper': fixHelper,
+       'cursor': 'move',
+       'stop': function(e, ui) {
+           var attr = ui.item.parent('tbody').data('sort'),
+               offset = parseInt($('#sort-offset').val(), 10) || 0;
+           warnOnLeave(ui.item);
+           $('input[name^='+attr+']', ui.item.parent('tbody')).each(function(i, el) {
+               $(el).val(i + 1 + offset);
+           });
+       }
     });
-  }, 200);
 
-  $('#search-add-new-field').on('change', function() {
-    var that=this;
-    $.ajax({
-      url: 'ajax.php/tickets/search/field/'+$(this).val(),
-      type: 'get',
-      dataType: 'json',
-      success: function(json) {
-        if (!json.success)
-          return false;
-        ff_uid = json.ff_uid;
-        $(that).find(':selected').prop('disabled', true);
-        $('#extra-fields').append($(json.html));
-      }
+    $('a#parent-info').click(function() {
+        var $this = $(this);
+        $('#parent-criteria').slideToggle('fast', function(){
+           if ($(this).is(":hidden"))
+            $this.find('i').removeClass('icon-caret-down').addClass('icon-caret-right');
+           else
+            $this.find('i').removeClass('icon-caret-right').addClass('icon-caret-down');
+        });
+        return false;
     });
-  });
-});
+
+    $('form select#parent').change(function() {
+        var form = $(this).closest('form');
+        var qid = parseInt($(this).val(), 10) || 0;
+
+        if (qid > 0) {
+            $.ajax({
+                type: "GET",
+                url: 'ajax.php/queue/'+qid,
+                dataType: 'json',
+                success: function(queue) {
+                    $('#parent-name', form).html(queue.name);
+                    $('#parent-criteria', form).html(queue.criteria);
+                    $('#inherited-parent', form).fadeIn();
+                    }
+                })
+                .done(function() { })
+                .fail(function() { });
+        } else {
+            $('#inherited-parent', form).fadeOut();
+        }
+    });
+
+    $('a#save').click(function() {
+        var $this = $(this);
+        $('#save-changes').slideToggle('fast', function(){
+           if ($(this).is(":hidden"))
+            $this.find('i').removeClass('icon-caret-down').addClass('icon-caret-right');
+           else
+            $this.find('i').removeClass('icon-caret-right').addClass('icon-caret-down');
+        });
+        return false;
+    });
+
+    $('form#advsearch').on('keyup change paste', 'input, select, textarea', function() {
+
+        var form = $(this).closest('form');
+        $this = $('#save-changes', form);
+        $('button.save', form).addClass('save pending');
+        $('div.error, div.error-banner', form).html('').hide();
+     });
+
+    $(document).on('click', 'form#advsearch input#reset', function(e) {
+        var f = $(this).closest('form');
+        $('button.save', f).removeClass('save pending');
+        $('div#save-changes', f).hide();
+    });
+
+    $('button[name=save-search]').click(function() {
+        var $form = $(this).closest('form');
+        var id = parseInt($('input[name=id]', $form).val(), 10) || 0;
+        var name = $('input[name=queue-name]', $form).val();
+        if (name.length) {
+            var action = '#tickets/search';
+            if (id > 0)
+                action = action + '/'+id;
+            $form.prop('action', action+'/save');
+            $form.submit();
+        } else {
+            $('div#name-error', $form).html('<?php echo __('Name required');
+                    ?>').show();
+        }
+
+        return false;
+    });
+
+    $('input.done').click(function() {
+        var $form = $(this).closest('form');
+        var id = parseInt($('input[name=id]', $form).val(), 10) || 0;
+        if ($('button.save', $form).hasClass('pending'))
+            alert('Unsaved Changes - save or cancel to discard!');
+        else
+            window.location.href = 'tickets.php?queue='+id;
+    });
+}();
 </script>

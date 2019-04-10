@@ -13,6 +13,11 @@
 # must match the HTML #ids put into the page template.
 #
 ---
+status:
+    title: Status
+    content: >
+        If disabled or archived, this <span class="doc-desc-title">Department</span>
+        will not be available.
 type:
     title: Type
     content: >
@@ -67,15 +72,14 @@ group_membership:
         class="doc-desc-title">Alerts &amp; Notices</span>.
     links:
       - title: Configure Alerts &amp; Notices
-        href: /scp/settings.php?t=alerts
+        href: "/scp/settings.php?t=tickets#alerts"
 
 sandboxing:
     title: Ticket Assignment Restrictions
     content: >
-        Enable this to restrict ticket assignment to include only members
-        of this Department. Department membership can be extended to Groups,
-        if <span class="doc-desc-title">Alerts &amp; Notices
-        Recipients</span> includes groups members.
+        Determine if Tickets can be assigned to all agents,
+        agents with Primary or Extended Department access,
+        or only agents with Primary Department access.
 
 disable_auto_claim:
     title: Disable Auto Claim

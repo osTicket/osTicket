@@ -7,6 +7,8 @@ if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('custom form'));
 
 if($_POST) {
+    $_POST = Format::htmlchars($_POST, true);
+    $_POST['instructions'] = Format::htmldecode($_POST['instructions']);
     $fields = array('title', 'notes', 'instructions');
     $required = array('title');
     $max_sort = 0;

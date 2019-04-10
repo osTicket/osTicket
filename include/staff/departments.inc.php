@@ -5,6 +5,7 @@ if (!defined('OSTADMININC') || !$thisstaff->isAdmin())
 $qs = array();
 $sortOptions=array(
     'name' => 'name',
+    'status' => 'flags',
     'type' => 'ispublic',
     'members'=> 'members_count',
     'email'=> 'email__name',
@@ -53,9 +54,28 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
             </span>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
                 <ul id="actions">
+                    <li>
+                        <a class="confirm" data-name="enable" href="departments.php?a=enable">
+                            <i class="icon-ok-sign icon-fixed-width"></i>
+                            <?php echo __( 'Enable'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="confirm" data-name="disable" href="departments.php?a=disable">
+                            <i class="icon-ban-circle icon-fixed-width"></i>
+                            <?php echo __( 'Disable'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="confirm" data-name="archive" href="departments.php?a=archive">
+                            <i class="icon-folder-close icon-fixed-width"></i>
+                            <?php echo __( 'Archive'); ?>
+                        </a>
+                    </li>
                     <li class="danger"><a class="confirm" data-name="delete" href="departments.php?a=delete">
                         <i class="icon-trash icon-fixed-width"></i>
-                        <?php echo __('Delete'); ?></a></li>
+                        <?php echo __('Delete'); ?></a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -70,8 +90,11 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
         <tr>
             <th width="4%">&nbsp;</th>
             <th width="28%"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="8%"><a <?php echo $status_sort; ?> href="departments.php?<?php echo $qstr;?>&sort=status"><?php echo __('Status');?></a></th>
+            <!-- <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th> -->
             <th width="8%"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
-            <th width="8%"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Agents');?></a></th>
+            <!-- <th width="8%"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Agents');?></a></th> -->
+            <th width="8%"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=members"><?php echo __('Agents');?></a></th>
             <th width="30%"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
             <th width="22%"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager"><?php echo __('Manager');?></a></th>
         </tr>
@@ -115,8 +138,17 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                   <?php echo $sel? 'checked="checked"' : ''; ?>
                   <?php echo $default? 'disabled="disabled"' : ''; ?> >
                 </td>
-                <td><a href="departments.php?id=<?php echo $id; ?>"><?php
-                echo Dept::getNameById($id); ?></a>&nbsp;<?php echo $default; ?></td>
+                <td>
+                  <a href="departments.php?id=<?php echo $id; ?>"><?php
+                echo Dept::getNameById($id); ?></a>&nbsp;<?php echo $default; ?>
+                </td>
+                <td><?php
+                  if(!strcasecmp($dept->getStatus(), 'Active'))
+                    echo $dept->getStatus();
+                  else
+                    echo '<b>'.$dept->getStatus();
+                  ?>
+                </td>
                 <td><?php echo $dept->isPublic() ? __('Public') :'<b>'.__('Private').'</b>'; ?></td>
                 <td>&nbsp;&nbsp;
                     <b>
@@ -136,7 +168,7 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
         } ?>
     <tfoot>
      <tr>
-        <td colspan="6">
+        <td colspan="7">
             <?php
             if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;
@@ -168,6 +200,18 @@ endif;
     </p>
     <p class="confirm-action" style="display:none;" id="make_private-confirm">
         <?php echo sprintf(__('Are you sure you want to make %s <b>private</b> (internal)?'),
+            _N('selected department', 'selected departments', 2));?>
+    </p>
+    <p class="confirm-action" style="display:none;" id="enable-confirm">
+        <?php echo sprintf(__('Are you sure you want to <b>enable</b> %s?'),
+            _N('selected department', 'selected departments', 2));?>
+    </p>
+    <p class="confirm-action" style="display:none;" id="disable-confirm">
+        <?php echo sprintf(__('Are you sure you want to <b>disable</b> %s?'),
+            _N('selected department', 'selected departments', 2));?>
+    </p>
+    <p class="confirm-action" style="display:none;" id="archive-confirm">
+        <?php echo sprintf(__('Are you sure you want to <b>archive</b> %s?'),
             _N('selected department', 'selected departments', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">

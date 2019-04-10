@@ -23,7 +23,8 @@ if($_POST) {
                     $inc = 'pwreset.sent.php';
                 }
                 else
-                    $banner = __('Unable to send reset email. Internal error');
+                    $banner = __('Unable to send reset email.')
+                        .' '.__('Internal error occurred');
             }
             else
                 $banner = sprintf(__('Unable to verify username %s'),
@@ -72,12 +73,8 @@ elseif ($_GET['token']) {
     else
         Http::redirect('index.php');
 }
-elseif ($cfg->allowPasswordReset()) {
-    $banner = __('Enter your username or email address below');
-}
 else {
-    $_SESSION['_staff']['auth']['msg']=__('Password resets are disabled');
-    return header('Location: index.php');
+    $banner = __('Enter your username or email address below');
 }
 
 $nav = new UserNav();

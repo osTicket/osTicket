@@ -4,7 +4,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 $gmtime = Misc::gmtime();
 ?>
 <h2><?php echo __('System Settings and Preferences');?> <small>— <span class="ltr">osTicket (<?php echo $cfg->getVersion(); ?>)</span></small></h2>
-<form action="settings.php?t=system" method="post" id="save">
+<form action="settings.php?t=system" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
@@ -129,6 +129,13 @@ $gmtime = Misc::gmtime();
                 echo $config['enable_richtext'] ? 'checked="checked"' : ''; ?>>
                 <?php echo __('Enable html in thread entries and email correspondence.'); ?>
                 <i class="help-tip icon-question-sign" href="#enable_richtext"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Allow iFrames'); ?>:</td>
+            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>">
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+                <i class="help-tip icon-question-sign" href="#allow_iframes"></i>
             </td>
         </tr>
         <tr>

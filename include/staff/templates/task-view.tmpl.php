@@ -1,7 +1,7 @@
 <?php
 if (!defined('OSTSCPINC')
     || !$thisstaff || !$task
-    || !($role = $thisstaff->getRole($task->getDeptId())))
+    || !($role = $thisstaff->getRole($task->getDept())))
     die('Invalid path');
 
 global $cfg;
@@ -78,7 +78,7 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
             'delete' => array(
                 'href' => sprintf('#tasks/%d/delete', $task->getId()),
                 'icon' => 'icon-trash',
-                'class' => 'red button',
+                'class' => (strpos($_SERVER['REQUEST_URI'], 'tickets.php') !== false) ? 'danger' : 'red button',
                 'label' => __('Delete'),
                 'redirect' => 'tasks.php'
             ));
@@ -146,7 +146,7 @@ if ($task->isOverdue())
                 <ul>
 
                     <?php
-                    if ($task->isOpen()) { ?>
+                    if (!$task->isOpen()) { ?>
                     <li>
                         <a class="no-pjax task-action"
                             href="#tasks/<?php echo $task->getId(); ?>/reopen"><i
@@ -154,7 +154,7 @@ if ($task->isOverdue())
                             echo __('Reopen');?> </a>
                     </li>
                     <?php
-                    } else {
+                    } elseif ($canClose) {
                     ?>
                     <li>
                         <a class="no-pjax task-action"
@@ -212,7 +212,7 @@ if ($task->isOverdue())
                                 echo __('Reopen');?> </a>
                         </li>
                         <?php
-                        } else {
+                        } elseif ($canClose) {
                         ?>
                         <li>
                             <a class="no-pjax task-action"
@@ -268,7 +268,7 @@ if ($task->isOverdue())
                 <?php
                 foreach ($actions as $action) {?>
                 <span class="action-button <?php echo $action['class'] ?: ''; ?>">
-                    <a class="task-action"
+                    <a class="<?php echo ($action['class'] == 'no-pjax') ? '' : 'task-action'; ?>"
                         <?php
                         if ($action['dialog'])
                             echo sprintf("data-dialog-config='%s'", $action['dialog']);
@@ -372,9 +372,9 @@ if (!$ticket) { ?>
                         <th><?php echo __('Collaborators');?>:</th>
                         <td>
                             <?php
-                            $collaborators = __('Add Participants');
+                            $collaborators = __('Collaborators');
                             if ($task->getThread()->getNumCollaborators())
-                                $collaborators = sprintf(__('Participants (%d)'),
+                                $collaborators = sprintf(__('Collaborators (%d)'),
                                         $task->getThread()->getNumCollaborators());
 
                             echo sprintf('<span><a class="collaborators preview"
@@ -469,7 +469,7 @@ else
     </ul>
     <?php
     if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
-    <form id="task_reply" class="tab_content spellcheck"
+    <form id="task_reply" class="tab_content spellcheck save"
         action="<?php echo $action; ?>"
         name="task_reply" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -486,9 +486,9 @@ else
                         style="display:<?php echo $thread->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
-                    $recipients = __('Add Participants');
+                    $recipients = __('Collaborators');
                     if ($thread->getNumCollaborators())
-                        $recipients = sprintf(__('Recipients (%d of %d)'),
+                        $recipients = sprintf(__('Collaborators (%d of %d)'),
                                 $thread->getNumActiveCollaborators(),
                                 $thread->getNumCollaborators());
 
@@ -559,7 +559,7 @@ else
     } ?>
     <form id="task_note"
         action="<?php echo $action; ?>"
-        class="tab_content spellcheck <?php
+        class="tab_content spellcheck save <?php
             echo $role->hasPerm(TaskModel::PERM_REPLY) ? 'hidden' : ''; ?>"
         name="task_note"
         method="post" enctype="multipart/form-data">
@@ -619,7 +619,6 @@ else
 <?php
 echo $reply_attachments_form->getMedia();
 ?>
-
 <script type="text/javascript">
 $(function() {
     $(document).off('.tasks-content');
@@ -665,7 +664,10 @@ $(function() {
                 .slideUp();
             }
         })
-        .done(function() { })
+        .done(function() {
+            $('#loading').hide();
+            $.toggleOverlay(false);
+        })
         .fail(function() { });
      });
     <?php

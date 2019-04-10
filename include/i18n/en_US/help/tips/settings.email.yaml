@@ -72,7 +72,7 @@ enable_autocron_fetch:
         is highly recommended for predictable fetch intervals.
     links:
       - title: Using External Task Scheduler
-        href: http://osticket.com/wiki/POP3/IMAP_Setting_Guide#Schedule_Polling
+        href: https://docs.osticket.com/en/latest/Getting%20Started/POP3-IMAP%20Settings.html
 
 strip_quoted_reply:
     title: Strip Quoted Reply

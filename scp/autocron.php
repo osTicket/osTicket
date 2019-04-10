@@ -45,6 +45,11 @@ if ($sec < 180 || !$ost || $ost->isUpgradePending())
 
 require_once(INCLUDE_DIR.'class.cron.php');
 
+// Run tickets count every 3rd run or so... force new count by skipping cached
+// results
+if ((mt_rand(1, 12) % 3) == 0)
+    SavedQueue::counts($thisstaff, false);
+
 // Clear staff obj to avoid false credit internal notes & auto-assignment
 $thisstaff = null;
 
@@ -66,7 +71,7 @@ if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enab
 }
 
 $data = array('autocron'=>true);
-Signal::send('cron', $data);
+Signal::send('cron', null, $data);
 
 ob_end_clean();
 ?>

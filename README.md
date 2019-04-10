@@ -37,12 +37,12 @@ install the software and track updates is to clone the public repository.
 Create a folder on you web server (using whatever method makes sense for
 you) and cd into it. Then clone the repository (the folder must be empty!):
 
-    git clone https://github.com/osTicket/osTicket-1.8 .
+    git clone https://github.com/osTicket/osTicket
 
 And deploy the code into somewhere in your server's www root folder, for
 instance
 
-    cd osTicket-1.8
+    cd osTicket
     php manage.php deploy --setup /var/www/htdocs/osticket/
 
 Then you can configure your server if necessary to serve that folder, and
@@ -60,8 +60,8 @@ osTicket supports upgrading from 1.6-rc1 and later versions. As with any
 upgrade, strongly consider a backup of your attachment files, database, and
 osTicket codebase before embarking on an upgrade.
 
-To trigger the update process, fetch the osTicket-1.8 tarball from either
-the osTicket [github](http://github.com/osTicket/osTicket-1.8/releases) page
+To trigger the update process, fetch the osTicket tarball from either
+the osTicket [github](http://github.com/osTicket/osTicket/releases) page
 or from the [osTicket website](http://osticket.com). Extract the tarball
 into the folder of your osTicket codebase. This can also be accomplished
 with the zip file, and a FTP client can of course be used to upload the new

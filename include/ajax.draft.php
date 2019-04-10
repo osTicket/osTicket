@@ -133,7 +133,8 @@ class DraftAjaxAPI extends AjaxController {
             'content_id' => 'cid:'.$f->getKey(),
             // Return draft_id to connect the auto draft creation
             'draft_id' => $draft->getId(),
-            'filelink' => $f->getDownloadUrl(false, 'inline'),
+            'filelink' => $f->getDownloadUrl(
+                ['type' => 'D', 'deposition' => 'inline']),
         ));
     }
 
@@ -339,14 +340,14 @@ class DraftAjaxAPI extends AjaxController {
             && ($object = $thread->getObject())
             && ($thisstaff->canAccess($object))
         ) {
-            $union = ' UNION SELECT f.id, a.`type`, a.`name` FROM '.THREAD_TABLE.' t
+            $union = ' UNION SELECT f.id, a.id as aid, a.`type`, a.`name` FROM '.THREAD_TABLE.' t
                 JOIN '.THREAD_ENTRY_TABLE.' th ON (th.thread_id = t.id)
                 JOIN '.ATTACHMENT_TABLE.' a ON (a.object_id = th.id AND a.`type` = \'H\')
                 JOIN '.FILE_TABLE.' f ON (a.file_id = f.id)
                 WHERE a.`inline` = 1 AND t.id='.db_input($_GET['threadId']);
         }
 
-        $sql = 'SELECT distinct f.id, COALESCE(a.type, f.ft), a.`name` FROM '.FILE_TABLE
+        $sql = 'SELECT distinct f.id, a.id as aid, COALESCE(a.type, f.ft), a.`name` FROM '.FILE_TABLE
             .' f LEFT JOIN '.ATTACHMENT_TABLE.' a ON (a.file_id = f.id)
             WHERE ((a.`type` IN (\'C\', \'F\', \'T\', \'P\') AND a.`inline` = 1) OR f.ft = \'L\')'
                 .' AND f.`type` LIKE \'image/%\'';
@@ -354,9 +355,11 @@ class DraftAjaxAPI extends AjaxController {
             Http::response(500, 'Unable to lookup files');
 
         $files = array();
-        while (list($id, $type, $name) = db_fetch_row($res)) {
-            $f = AttachmentFile::lookup((int) $id);
-            $url = $f->getDownloadUrl();
+        while (list($id, $aid, $type, $name) = db_fetch_row($res)) {
+            if (!($f = AttachmentFile::lookup((int) $id)))
+                continue;
+
+            $url = $f->getDownloadUrl(['id' => $aid]);
             $files[] = array(
                 // Don't send special sizing for thread items 'cause they
                 // should be cached already by the client

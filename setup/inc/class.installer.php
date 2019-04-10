@@ -116,6 +116,8 @@ class Installer extends SetupWizard {
         /*************** We're ready to install ************************/
         define('ADMIN_EMAIL',$vars['admin_email']); //Needed to report SQL errors during install.
         define('TABLE_PREFIX',$vars['prefix']); //Table prefix
+        if (!defined('SECRET_SALT'))
+            define('SECRET_SALT',md5(TABLE_PREFIX.ADMIN_EMAIL));
         Bootstrap::defineTables(TABLE_PREFIX);
         Bootstrap::loadCode();
 
@@ -146,7 +148,7 @@ class Installer extends SetupWizard {
                 $schemaFile = INC_DIR."streams/$stream/install-mysql.sql";
                 if (!file_exists($schemaFile) || !($fp2 = fopen($schemaFile, 'rb')))
                     $this->errors['err'] = sprintf(
-                        __('%s: Internal Error - please make sure your download is the latest (#1)'),
+                        __('%s: Internal error occurred - please make sure your download is the latest (#1)'),
                         $stream);
                 elseif (
                         // TODO: Make the hash algo configurable in the streams
@@ -209,6 +211,18 @@ class Installer extends SetupWizard {
             $this->errors['err'] = __('Unable to create admin user (#6)');
             return false;
         }
+
+        // Extended Access
+        foreach (Dept::objects()
+                ->filter(Q::not(array('id' => $dept_id)))
+                ->values_flat('id') as $row) {
+            $da = new StaffDeptAccess(array(
+                        'dept_id' => $row[0],
+                        'role_id' => $role_id
+                        ));
+            $staff->dept_access->add($da);
+        }
+        $staff->dept_access->saveAll();
 
         // Create default emails!
         $email = $vars['email'];

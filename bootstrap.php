@@ -50,11 +50,7 @@ class Bootstrap {
     }
 
     function https() {
-       return
-            (isset($_SERVER['HTTPS'])
-                && strtolower($_SERVER['HTTPS']) == 'on')
-            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+       return osTicket::is_https();
     }
 
     static function defineTables($prefix) {
@@ -102,9 +98,11 @@ class Bootstrap {
         define('TICKET_TABLE',$prefix.'ticket');
         define('TICKET_CDATA_TABLE', $prefix.'ticket__cdata');
         define('THREAD_EVENT_TABLE',$prefix.'thread_event');
+        define('THREAD_REFERRAL_TABLE',$prefix.'thread_referral');
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+        define('EVENT_TABLE',$prefix.'event');
 
         define('TASK_TABLE', $prefix.'task');
         define('TASK_CDATA_TABLE', $prefix.'task__cdata');
@@ -137,6 +135,12 @@ class Bootstrap {
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
         define('QUEUE_TABLE', $prefix.'queue');
+        define('COLUMN_TABLE', $prefix.'queue_column');
+        define('QUEUE_COLUMN_TABLE', $prefix.'queue_columns');
+        define('QUEUE_SORT_TABLE', $prefix.'queue_sort');
+        define('QUEUE_SORTING_TABLE', $prefix.'queue_sorts');
+        define('QUEUE_EXPORT_TABLE', $prefix.'queue_export');
+        define('QUEUE_CONFIG_TABLE', $prefix.'queue_config');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
@@ -210,7 +214,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
-        require_once INCLUDE_DIR.'class.search.php';
+        require_once INCLUDE_DIR.'class.queue.php';
     }
 
     function i18n_prep() {
@@ -290,6 +294,16 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        if (intval(phpversion()) < 7) {
+            function random_int($a, $b) {
+                return rand($a, $b);
+            }
+        }
+
+        function mb_str_wc($str) {
+            return count(preg_split('~[^\p{L}\p{N}\'].+~u', trim($str)));
+        }
     }
 
     function croak($message) {
@@ -310,6 +324,9 @@ unset($here); unset($h);
 define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
+
+define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
+define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
 
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
@@ -335,6 +352,7 @@ ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR)
 require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
 require(INCLUDE_DIR.'class.http.php');
+require(INCLUDE_DIR.'class.validator.php');
 
 // Determine the path in the URI used as the base of the osTicket
 // installation
@@ -346,12 +364,7 @@ Bootstrap::init();
 #CURRENT EXECUTING SCRIPT.
 define('THISPAGE', Misc::currentURL());
 
-define('DEFAULT_MAX_FILE_UPLOADS',ini_get('max_file_uploads')?ini_get('max_file_uploads'):5);
-define('DEFAULT_PRIORITY_ID',1);
+define('DEFAULT_MAX_FILE_UPLOADS', ini_get('max_file_uploads') ?: 5);
+define('DEFAULT_PRIORITY_ID', 1);
 
-#Global override
-if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-    // Take the left-most item for X-Forwarded-For
-    $_SERVER['REMOTE_ADDR'] = trim(array_pop(
-        explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])));
 ?>

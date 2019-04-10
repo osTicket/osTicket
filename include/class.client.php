@@ -59,19 +59,33 @@ implements EmailContact, ITicketUser, TemplateVariable {
         case 'ticket_link':
             $qstr = array();
             if ($cfg && $cfg->isAuthTokenEnabled()
-                    && ($ticket=$this->getTicket()))
-                $qstr['auth'] = $ticket->getAuthToken($this);
+                    && ($ticket=$this->getTicket())) {
+                      if (!$ticket->getThread()->getNumCollaborators()) {
+                          $qstr['auth'] = $ticket->getAuthToken($this);
+                          return sprintf('%s/view.php?%s',
+                               $cfg->getBaseUrl(),
+                               Http::build_query($qstr, false)
+                               );
+                      }
+                      else {
+                          return sprintf('%s/tickets.php?id=%s',
+                               $cfg->getBaseUrl(),
+                               $ticket->getId()
+                               );
+                      }
+                    }
 
-            return sprintf('%s/view.php?%s',
-                    $cfg->getBaseUrl(),
-                    Http::build_query($qstr, false)
-                    );
+
+
             break;
         }
     }
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }
     function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
+    function getName() {
+        return ($this->user) ? $this->user->getName() : null;
+    }
 
     static function lookupByToken($token) {
 
@@ -148,6 +162,11 @@ class TicketOwner extends  TicketUser {
         $this->ticket = $ticket;
     }
 
+    function __toString() {
+        return (string) $this->getName();
+    }
+
+
     function getTicket() {
         return $this->ticket;
     }
@@ -162,7 +181,7 @@ class TicketOwner extends  TicketUser {
  *
  */
 
-class  EndUser extends BaseAuthenticatedUser {
+class EndUser extends BaseAuthenticatedUser {
 
     protected $user;
     protected $_account = false;
@@ -303,6 +322,7 @@ class  EndUser extends BaseAuthenticatedUser {
     }
 
     private function getStats() {
+        global $cfg;
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
             ->values('status__state', 'topic_id')
@@ -320,10 +340,11 @@ class  EndUser extends BaseAuthenticatedUser {
         // one index. Therefore, to scan two indexes (by user_id and
         // thread.collaborators.user_id), we need two queries. A union will
         // help out with that.
-        $mine->union($collab->filter(array(
-            'thread__collaborators__user_id' => $this->getId(),
-            Q::not(array('user_id' => $this->getId()))
-        )));
+        if ($cfg->collaboratorTicketsVisibility())
+            $mine->union($collab->filter(array(
+                'thread__collaborators__user_id' => $this->getId(),
+                Q::not(array('user_id' => $this->getId()))
+            )));
 
         if ($orgid = $this->getOrgId()) {
             // Also generate a separate query for all the tickets owned by
@@ -396,7 +417,7 @@ class ClientAccount extends UserAccount {
         global $cfg;
 
         // FIXME: Updates by agents should go through UserAccount::update()
-        global $thisstaff;
+        global $thisstaff, $thisclient;
         if ($thisstaff)
             return parent::update($vars, $errors);
 
@@ -436,7 +457,6 @@ class ClientAccount extends UserAccount {
         if ($errors) return false;
 
         $this->set('timezone', $vars['timezone']);
-        $this->set('dst', isset($vars['dst']) ? 1 : 0);
         // Change language
         $this->set('lang', $vars['lang'] ?: null);
         Internationalization::setCurrentLanguage(null);
@@ -454,18 +474,14 @@ class ClientAccount extends UserAccount {
             Signal::send('auth.pwchange', $this->getUser(), $info);
             $this->cancelResetTokens();
             $this->clearStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
+            // Clean sessions
+            Signal::send('auth.clean', $this->getUser(), $thisclient);
         }
 
         return $this->save();
     }
 }
 
-// Used by the email system
-interface EmailContact {
-    // function getId()
-    // function getName()
-    // function getEmail()
-}
 
 interface ITicketUser {
 /* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue

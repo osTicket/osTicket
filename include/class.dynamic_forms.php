@@ -121,8 +121,9 @@ class DynamicForm extends VerySimpleModel {
         $fields = $this->getFields();
         $form = new SimpleForm($fields, $source, array(
             'title' => $this->getLocal('title'),
-            'instructions' => $this->getLocal('instructions'))
-        );
+            'instructions' => $this->getLocal('instructions'),
+            'id' => $this->getId(),
+        ));
         return $form;
     }
 
@@ -155,8 +156,12 @@ class DynamicForm extends VerySimpleModel {
         $inst = DynamicFormEntry::create(
             array('form_id'=>$this->get('id'), 'sort'=>$sort)
         );
+
         if ($data)
             $inst->setSource($data);
+
+        $inst->_fields = $this->_fields ?: null;
+
         return $inst;
     }
 
@@ -556,6 +561,9 @@ class DynamicFormField extends VerySimpleModel {
                 'null' => true,
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
+            'answers' => array(
+                'reverse' => 'DynamicFormEntryAnswer.field',
+            ),
         ),
     );
 
@@ -836,6 +844,10 @@ class DynamicFormField extends VerySimpleModel {
             && $this->hasFlag(self::FLAG_CLIENT_VIEW);
     }
 
+    function addToQuery($query, $name=false) {
+        return $query->values($name ?: $this->get('name'));
+    }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form
@@ -864,6 +876,8 @@ class DynamicFormField extends VerySimpleModel {
     }
 
     function delete() {
+        $values = $this->answers->count();
+
         // Don't really delete form fields with data as that will screw up the data
         // model. Instead, just drop the association with the form which
         // will give the appearance of deletion. Not deleting means that
@@ -878,7 +892,7 @@ class DynamicFormField extends VerySimpleModel {
         $impl->db_cleanup(true);
 
         // Short-circuit deletion if the field has data.
-        if ($impl->hasData())
+        if ($impl->hasData() && $values)
             return $this->save();
 
         // Delete the field for realz
@@ -924,7 +938,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
             'answers' => array(
-                'reverse' => 'DynamicFormEntryAnswer.entry'
+                'reverse' => 'DynamicFormEntryAnswer.entry',
             ),
         ),
     );
@@ -937,6 +951,9 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function getId() {
         return $this->get('id');
+    }
+    function getFormId() {
+        return $this->form_id;
     }
 
     function getAnswers() {
@@ -951,15 +968,11 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function setAnswer($name, $value, $id=false) {
-        foreach ($this->getAnswers() as $ans) {
+
+        if ($ans=$this->getAnswer($name)) {
             $f = $ans->getField();
-            if ($f->isStorable() && $f->get('name') == $name) {
-                $f->reset();
-                $ans->set('value', $value);
-                if ($id !== false)
-                    $ans->set('value_id', $id);
-                break;
-            }
+            if ($f->isStorable())
+                $ans->setValue($value, $id);
         }
     }
 
@@ -993,7 +1006,8 @@ class DynamicFormEntry extends VerySimpleModel {
             $source = $source ?: $this->getSource();
             $options += array(
                 'title' => $this->getTitle(),
-                'instructions' => $this->getInstructions()
+                'instructions' => $this->getInstructions(),
+                'id' => $this->form_id,
                 );
             $this->_form = new CustomForm($fields, $source, $options);
         }
@@ -1084,16 +1098,18 @@ class DynamicFormEntry extends VerySimpleModel {
         return !$this->_errors;
     }
 
-    function isValidForClient() {
-        $filter = function($f) {
-            return $f->isVisibleToUsers();
+    function isValidForClient($update=false) {
+        $filter = function($f) use($update) {
+            return $update ? $f->isEditableToUsers() :
+                $f->isVisibleToUsers();
         };
         return $this->isValid($filter);
     }
 
-    function isValidForStaff() {
-        $filter = function($f) {
-            return $f->isVisibleToStaff();
+    function isValidForStaff($update=false) {
+        $filter = function($f) use($update) {
+            return $update ? $f->isEditableToStaff() :
+                $f->isVisibleToStaff();
         };
         return $this->isValid($filter);
     }
@@ -1166,8 +1182,10 @@ class DynamicFormEntry extends VerySimpleModel {
             ->filter(array('object_id'=>$object_id, 'object_type'=>$object_type));
     }
 
-    function render($staff=true, $title=false, $options=array()) {
-        return $this->getForm()->render($staff, $title, $options);
+    function render($options=array()) {
+        if (is_array($options))
+            $options += array('staff' => true);
+        return $this->getForm()->render($options);
     }
 
     function getChanges() {
@@ -1176,11 +1194,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $field = $a->getField();
             if (!$field->hasData() || $field->isPresentationOnly())
                 continue;
-            $after = $field->to_database($field->getClean());
-            $before = $field->to_database($a->getValue());
-            if ($before == $after)
+            $changes = $field->getChanges();
+            if (!$changes)
                 continue;
-            $fields[$field->get('id')] = array($before, $after);
+            $fields[$field->get('id')] = $changes;
         }
         return $fields;
     }
@@ -1226,11 +1243,21 @@ class DynamicFormEntry extends VerySimpleModel {
     /**
      * Save the form entry and all associated answers.
      *
+     */
+
+    function save($refetch=false) {
+        return $this->saveAnswers(null, $refetch);
+    }
+
+    /**
+     * Save the form entry and all associated answers.
+     *
      * Returns:
      * (mixed) FALSE if updated failed, otherwise the number of dirty answers
      * which were save is returned (which may be ZERO).
      */
-    function save($refetch=false) {
+
+    function saveAnswers($isEditable=null, $refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
 
@@ -1240,12 +1267,12 @@ class DynamicFormEntry extends VerySimpleModel {
         $dirty = 0;
         foreach ($this->getAnswers() as $a) {
             $field = $a->getField();
-
             // Don't save answers for presentation-only fields or fields
-            // which are stored elsewhere
-            if (!$field->hasData() || !$field->isStorable()
-                || $field->isPresentationOnly()
-            ) {
+            // which are stored elsewhere or those which are not editable
+            if (!$field->hasData()
+                    || !$field->isStorable()
+                    || $field->isPresentationOnly()
+                    || ($isEditable && !$isEditable($field))) {
                 continue;
             }
             // Set the entry here so that $field->getClean() can use the
@@ -1269,7 +1296,7 @@ class DynamicFormEntry extends VerySimpleModel {
             }
             if ($a->dirty)
                 $dirty++;
-            $a->save();
+            $a->save($refetch);
         }
         return $dirty;
     }
@@ -1347,14 +1374,24 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
     }
 
     function getValue() {
-        if (!isset($this->_value) && isset($this->value)) {
+
+        if (!isset($this->_value)) {
             //XXX: We're settting the value here to avoid infinite loop
             $this->_value = false;
-            $this->_value = $this->getField()->to_php(
-                $this->get('value'), $this->get('value_id'));
+            if (isset($this->value))
+                $this->_value = $this->getField()->to_php(
+                        $this->get('value'), $this->get('value_id'));
         }
 
         return $this->_value;
+    }
+
+    function setValue($value, $id=false) {
+        $this->getField()->reset();
+        $this->_value = null;
+        $this->set('value', $value);
+        if ($id !== false)
+            $this->set('value_id', $id);
     }
 
     function getLocal($tag) {
@@ -1444,6 +1481,28 @@ class SelectionField extends FormField {
             $widgetClass = 'TextboxSelectionWidget';
 
         return parent::getWidget($widgetClass);
+    }
+
+    function display($value) {
+        global $thisstaff;
+
+        if (!is_array($value)
+                || !$thisstaff // Only agents can preview for now
+                || !($list=$this->getList()))
+            return parent::display($value);
+
+        $display = array();
+        foreach ($value as $k => $v) {
+            if (is_numeric($k)
+                    && ($i=$list->getItem((int) $k))
+                    && $i->hasProperties())
+                $display[] = $i->display();
+            else // Perhaps deleted  entry
+                $display[] = $v;
+        }
+
+        return implode(',', $display);
+
     }
 
     function parse($value) {
@@ -1597,8 +1656,10 @@ class SelectionField extends FormField {
                 }
             } elseif ($config['typeahead']
                     && ($entered = $this->getWidget()->getEnteredValue())
-                    && !in_array($entered, $entry))
+                    && !in_array($entered, $entry)
+                    && $entered != $entry) {
                 $this->_errors[] = __('Select a value from the list');
+           }
         }
     }
 
@@ -1751,7 +1812,7 @@ class SelectionField extends FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'notset' =>     __('does not have a value'),
+            'nset' =>     __('does not have a value'),
             'includes' =>   __('includes'),
             '!includes' =>  __('does not include'),
         );
@@ -1760,7 +1821,7 @@ class SelectionField extends FormField {
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'notset' => null,
+            'nset' => null,
             'includes' => array('ChoiceField', array(
                 'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
@@ -1774,11 +1835,14 @@ class SelectionField extends FormField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
+        $val = $value;
+        if ($value && is_array($value))
+            $val = '"?'.implode('("|,|$)|"?', array_keys($value)).'("|,|$)';
         switch ($method) {
         case '!includes':
-            return Q::not(array("{$name}__intersect" => array_keys($value)));
+            return Q::not(array("{$name}__regex" => $val));
         case 'includes':
-            return new Q(array("{$name}__intersect" => array_keys($value)));
+            return new Q(array("{$name}__regex" => $val));
         default:
             return parent::getSearchQ($method, $value, $name);
         }

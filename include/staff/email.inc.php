@@ -39,7 +39,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     — <?php echo $info['email']; ?></small>
     <?php } ?>
 </h2>
-<form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
@@ -87,7 +87,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			    <option value="0" selected="selected">&mdash; <?php
                 echo __('System Default'); ?> &mdash;</option>
 			    <?php
-                if (($depts=Dept::getDepartments())) {
+                if ($depts=Dept::getPublicDepartments()) {
+                  if($info['dept_id'] && !array_key_exists($info['dept_id'], $depts))
+                  {
+                    $depts[$info['dept_id']] = $email->dept;
+                    $warn = sprintf(__('%s selected must be active'), __('Department'));
+                  }
+
                     foreach ($depts as $id => $name) {
 				        $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
 				        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
@@ -95,9 +101,12 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			    }
 			    ?>
 			</select>
+      <?php
+      if($warn) { ?>
+          &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+      <?php } ?>
 			<i class="help-tip icon-question-sign" href="#new_ticket_department"></i>
         </span>
-			&nbsp;<span class="error"><?php echo $errors['dept_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -133,12 +142,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			<select name="topic_id">
                 <option value="0" selected="selected">&mdash; <?php echo __('System Default'); ?> &mdash;</option>
 			    <?php
+                    $warn = '';
                     $topics = Topic::getHelpTopics();
+                    if($info['topic_id'] && !array_key_exists($info['topic_id'], $topics)) {
+                      $topics[$info['topic_id']] = $email->topic;
+                      $warn = sprintf(__('%s selected must be active'), __('Help Topic'));
+                    }
                     while (list($id,$topic) = each($topics)) { ?>
                         <option value="<?php echo $id; ?>"<?php echo ($info['topic_id']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
                     <?php
                     } ?>
 			</select>
+      <?php
+      if($warn) { ?>
+          &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+      <?php } ?>
 			<i class="help-tip icon-question-sign" href="#new_ticket_help_topic"></i>
 		</span>
                 <span class="error">
@@ -152,7 +170,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <label><input type="checkbox" name="noautoresp" value="1" <?php echo $info['noautoresp']?'checked="checked"':''; ?> >
-                <?php echo __('<strong>Disable</strong> for this Email Address'); ?>
+                <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this email')); ?>
                 </label>
                 <i class="help-tip icon-question-sign" href="#auto_response"></i>
             </td>
@@ -313,7 +331,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td><?php echo __('Header Spoofing'); ?></td>
             <td>
                 <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                <?php echo __('Allow for this Email Address'); ?></label>
+                <?php echo sprintf(__('Allow for %s'), __('this email')); ?></label>
                 <i class="help-tip icon-question-sign" href="#header_spoofing"></i>
             </td>
         </tr>

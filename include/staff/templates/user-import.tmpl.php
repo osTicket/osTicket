@@ -34,7 +34,7 @@ if ($org_id) { ?>
 'To import more other fields, use the Upload tab.'); ?></em>
 </p>
 <textarea name="pasted" style="display:block;width:100%;height:8em"
-    placeholder="<?php echo __('e.g. John Doe, john.doe@osticket.com'); ?>">
+    placeholder="<?php echo sprintf('%s %s%s', __('Name, Email'), PHP_EOL, __('John Doe, john.doe@osticket.com')); ?>">
 <?php echo $info['pasted']; ?>
 </textarea>
 </div>

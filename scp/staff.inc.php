@@ -15,7 +15,7 @@
 **********************************************************************/
 if(basename($_SERVER['SCRIPT_NAME'])==basename(__FILE__)) die('Access denied'); //Say hi to our friend..
 
-if(!file_exists('../main.inc.php')) die('Fatal error... get technical support');
+if(!file_exists('../main.inc.php')) die('Fatal error... Get technical help!');
 
 require_once('../main.inc.php');
 
@@ -78,7 +78,7 @@ if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
 //2) if not super admin..check system status and group status
 if(!$thisstaff->isAdmin()) {
     //Check for disabled staff or group!
-    if (!$thisstaff->isactive()) {
+    if (!$thisstaff->isActive()) {
         staffLoginPage(__('Access Denied. Contact Admin'));
         exit;
     }

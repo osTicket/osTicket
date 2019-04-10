@@ -94,14 +94,6 @@ case 'search':
         )));
         unset($_SESSION[$queue_key]);
         break;
-    } elseif (isset($_SESSION['advsearch:tasks'])) {
-        // XXX: De-duplicate and simplify this code
-        $form = $search->getFormFromSession('advsearch:tasks');
-        $form->loadState($_SESSION['advsearch:tasks']);
-        $tasks = $search->mangleQuerySet($tasks, $form);
-        $results_type=__('Advanced Search')
-            . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
-        break;
     }
     // Fall-through and show open tickets
 case 'open':
@@ -127,19 +119,24 @@ if ($filters)
 // Impose visibility constraints
 // ------------------------------------------------------------
 // -- Open and assigned to me
-$visibility = array(
+$visibility = Q::any(
     new Q(array('flags__hasbit' => TaskModel::ISOPEN, 'staff_id' => $thisstaff->getId()))
 );
+// -- Task for tickets assigned to me
+$visibility->add(new Q( array(
+                'ticket__staff_id' => $thisstaff->getId(),
+                'ticket__status__state' => 'open'))
+        );
 // -- Routed to a department of mine
 if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-    $visibility[] = new Q(array('dept_id__in' => $depts));
+    $visibility->add(new Q(array('dept_id__in' => $depts)));
 // -- Open and assigned to a team of mine
 if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-    $visibility[] = new Q(array(
+    $visibility->add(new Q(array(
         'team_id__in' => array_filter($teams),
         'flags__hasbit' => TaskModel::ISOPEN
-    ));
-$tasks->filter(Q::any($visibility));
+    )));
+$tasks->filter(new Q($visibility));
 
 // Add in annotations
 $tasks->annotate(array(
@@ -284,7 +281,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-        require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+        require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
     ?>
    </div>
     <form action="tasks.php" method="get" onsubmit="javascript:

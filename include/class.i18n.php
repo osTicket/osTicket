@@ -64,8 +64,12 @@ class Internationalization {
             'ticket_status.yaml' => 'TicketStatus::__create',
             // Role
             'role.yaml' =>          'Role::__create',
+            'event.yaml' =>         'Event::__create',
             'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
+            'queue_column.yaml' =>  'QueueColumn::__create',
+            'queue_sort.yaml' =>    'QueueSort::__create',
+            'queue.yaml' =>         'CustomQueue::__create',
         );
 
         $errors = array();
@@ -140,6 +144,7 @@ class Internationalization {
         if (($tpl = $this->getTemplate('templates/premade.yaml'))
                 && ($canned = $tpl->getData())) {
             foreach ($canned as $c) {
+                $c['isenabled'] = 1;
                 if (!($premade = Canned::create($c)) || !$premade->save())
                     continue;
                 if (isset($c['attachments'])) {
@@ -363,7 +368,7 @@ class Internationalization {
 
         return $lang = self::isLanguageInstalled($best_match_langcode)
             ? $best_match_langcode
-            : $cfg->getPrimaryLanguage();
+            : ($cfg ? $cfg->getPrimaryLanguage() : 'en_US');
     }
 
     static function getCurrentLanguage($user=false) {
@@ -379,6 +384,10 @@ class Internationalization {
             return $_SESSION['::lang'];
 
         return self::getDefaultLanguage();
+    }
+
+    static function getCurrentLanguageInfo($user=false) {
+        return static::getLanguageInfo(static::getCurrentLanguage($user));
     }
 
     static function getCurrentLocale($user=false) {
@@ -398,6 +407,70 @@ class Internationalization {
             $locale = self::getCurrentLanguage();
 
         return $locale;
+    }
+
+    static function getCSVDelimiter($locale='') {
+
+        if (!$locale && extension_loaded('intl'))  // Prefer browser settings
+            $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+
+        // Detect delimeter from the current locale settings. For locales
+        // which use comma (,) as the decimal separator, the semicolon (;)
+        // should be used as the field separator
+        $delimiter = ',';
+        if (class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create($locale ?: self::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+            if ($s == ',')
+                $delimiter = ';';
+        } else {
+            $info = localeconv();
+            if ($info && $info['decimal_point'] == ',')
+                $delimiter = ';';
+
+        }
+
+        return $delimiter;
+    }
+
+    //  getIntDateFormatter($options)
+    //
+    // Setting up the IntlDateFormatter is pretty expensive, so cache it since
+    // there aren't many variations of the arguments passed to the constructor
+    static function getIntDateFormatter($options) {
+        static $cache = false;
+        global $cfg;
+
+        // Set some defaults
+        $options['locale'] = $options['locale'] ?: self::getCurrentLocale();
+
+        // Generate signature key for options given
+        $k = md5(implode(':', array_filter(
+                    array_intersect_key($options,
+                        array_flip(array(
+                                'locale',
+                                'daytype',
+                                'timetype',
+                                'timezone',
+                                'pattern')
+                            )))));
+
+        // We if we have it cached
+        if (isset($cache[$k]) && $cache[$k])
+            return $cache[$k];
+
+        // Create formatter && cache
+        $cache[$k] = $formatter = new IntlDateFormatter(
+                $options['locale'],
+                $options['daytype'] ?: null,
+                $options['timetype'] ?: null,
+                $options['timezone'] ?: null,
+                $options['calendar'] ?: IntlDateFormatter::GREGORIAN,
+                $options['pattern'] ?: null
+                );
+
+        return $formatter;
     }
 
     static function rfc1766($what) {
@@ -463,6 +536,7 @@ class Internationalization {
     static function sortKeyedList($list, $case=false) {
         global $cfg;
 
+        // XXX: Use current language
         if ($cfg && function_exists('collator_create')) {
             $coll = Collator::create($cfg->getPrimaryLanguage());
             if (!$case)
@@ -489,6 +563,10 @@ class Internationalization {
         $domain = 'messages';
         TextDomain::setDefaultDomain($domain);
         TextDomain::lookup()->setPath(I18N_DIR);
+
+        // Set the default locale to UTF-8. It will be changed by
+        // ::setLocaleForUser() later for web requests. See #2910
+        TextDomain::setLocale(LC_ALL, 'en_US.UTF-8');
 
         // User-specific translations
         function _N($msgid, $plural, $n) {
