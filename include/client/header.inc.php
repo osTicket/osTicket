@@ -6,7 +6,16 @@ $signin_url = ROOT_PATH . "login.php"
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
 header("Content-Type: text/html; charset=UTF-8");
+<<<<<<< HEAD
 header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
+=======
+header("Content-Security-Policy: frame-ancestors '".$cfg->getAllowIframes()."';");
+
+// Enforce ACL (if applicable)
+if (!Validator::check_acl('client'))
+    die(__('Access Denied'));
+
+>>>>>>> feature: ACL (Access Control List)
 if (($lang = Internationalization::getCurrentLanguage())) {
     $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
     $langs = Internationalization::rfc1766($langs);
