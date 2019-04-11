@@ -430,7 +430,7 @@ class OsticketConfig extends Config {
     }
 
     function getAllowIframes() {
-        return str_replace(array(', ', ','), array(' ', ' '), $this->get('allow_iframes')) ?: 'self';
+        return str_replace(array(', ', ','), array(' ', ' '), $this->get('allow_iframes')) ?: "'self'";
     }
 
     function isAvatarsEnabled() {
