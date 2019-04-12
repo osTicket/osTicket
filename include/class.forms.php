@@ -1527,6 +1527,42 @@ class TextareaField extends FormField {
         );
     }
 
+<<<<<<< HEAD
+=======
+    function validateEntry($value) {
+        parent::validateEntry($value);
+        $config = $this->getConfiguration();
+        $validators = array(
+            '' =>       null,
+            'choices' => array(
+                function($val) {
+                    $val = str_replace('"', '', JsonDataEncoder::encode($val));
+                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[^\n]+$/";
+                    foreach (explode('\r\n', $val) as $v) {
+                        if (!preg_match($regex, $v))
+                            return false;
+                    }
+                    return true;
+                }, __('Each choice requires a key and has to be on a new line. (eg. key:value)')
+            ),
+        );
+        // Support configuration forms, as well as GUI-based form fields
+        $valid = $this->get('validator');
+        if (!$valid) {
+            $valid = $config['validator'];
+        }
+        if (!$value || !isset($validators[$valid]))
+            return;
+        $func = $validators[$valid];
+        $error = $func[1];
+        if ($config['validator-error'])
+            $error = $this->getLocal('validator-error', $config['validator-error']);
+        if (is_array($func) && is_callable($func[0]))
+            if (!call_user_func($func[0], $value))
+                $this->_errors[] = $error;
+    }
+
+>>>>>>> issue: Choice Validation Accept Punctuation
     function display($value) {
         $config = $this->getConfiguration();
         if ($config['html'])
@@ -1879,7 +1915,7 @@ class ChoiceField extends FormField {
                 $choices = explode("\n", $config['choices']);
                 foreach ($choices as $choice) {
                     // Allow choices to be key: value
-                    list($key, $val) = explode(':', $choice);
+                    list($key, $val) = explode(':', $choice, 2);
                     if ($val == null)
                         $val = $key;
                     $this->_choices[trim($key)] = trim($val);
