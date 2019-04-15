@@ -11,11 +11,14 @@ header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
 =======
 header("Content-Security-Policy: frame-ancestors '".$cfg->getAllowIframes()."';");
 
+<<<<<<< HEAD
 // Enforce ACL (if applicable)
 if (!Validator::check_acl('client'))
     die(__('Access Denied'));
 
 >>>>>>> feature: ACL (Access Control List)
+=======
+>>>>>>> issue: ACL Move To Inc Files
 if (($lang = Internationalization::getCurrentLanguage())) {
     $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
     $langs = Internationalization::rfc1766($langs);

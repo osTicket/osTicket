@@ -21,6 +21,10 @@ require_once('../main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');
 
+// Enforce ACL (if applicable)
+if (!Validator::check_acl('staff'))
+    die(__('Access Denied'));
+
 /*Some more include defines specific to staff only */
 define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
 define('SCP_DIR',str_replace('//','/',dirname(__FILE__).'/'));

@@ -2,10 +2,6 @@
 header("Content-Type: text/html; charset=UTF-8");
 header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
 
-// Enforce ACL (if applicable)
-if (!Validator::check_acl('staff'))
-    die(__('Access Denied'));
-
 $title = ($ost && ($title=$ost->getPageTitle()))
     ? $title : ('osTicket :: '.__('Staff Control Panel'));
 
