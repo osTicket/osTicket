@@ -2884,7 +2884,10 @@ implements RestrictedAccess, Threadable {
             ->filter(array('number' => $number));
 
         if ($email)
-            $query->filter(array('user__emails__address' => $email));
+            $query->filter(Q::any(array(
+                'user__emails__address' => $email,
+                'thread__collaborators__user__emails__address' => $email
+            )));
 
 
         if (!$ticket) {
