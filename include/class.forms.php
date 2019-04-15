@@ -1535,7 +1535,7 @@ class TextareaField extends FormField {
             'choices' => array(
                 function($val) {
                     $val = str_replace('"', '', JsonDataEncoder::encode($val));
-                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[A-z0-9 _-]+$/";
+                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[^\n]+$/";
                     foreach (explode('\r\n', $val) as $v) {
                         if (!preg_match($regex, $v))
                             return false;
@@ -1913,7 +1913,7 @@ class ChoiceField extends FormField {
                 $choices = explode("\n", $config['choices']);
                 foreach ($choices as $choice) {
                     // Allow choices to be key: value
-                    list($key, $val) = explode(':', $choice);
+                    list($key, $val) = explode(':', $choice, 2);
                     if ($val == null)
                         $val = $key;
                     $this->_choices[trim($key)] = trim($val);
