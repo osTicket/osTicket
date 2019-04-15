@@ -8,10 +8,6 @@ $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 header("Content-Type: text/html; charset=UTF-8");
 header("Content-Security-Policy: frame-ancestors '".$cfg->getAllowIframes()."';");
 
-// Enforce ACL (if applicable)
-if (!Validator::check_acl('client'))
-    die(__('Access Denied'));
-
 if (($lang = Internationalization::getCurrentLanguage())) {
     $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
     $langs = Internationalization::rfc1766($langs);
