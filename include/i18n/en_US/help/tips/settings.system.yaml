@@ -93,6 +93,20 @@ collision_avoidance:
         <br><br>
         Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
+allow_iframes:
+    title: Allow iFrames
+    content: >
+        Enter comma separated list of domains for the system to be framed
+        in. If left empty, the system will default to 'self'. This accepts
+        domain wildcards, HTTP/HTTPS URL scheme, and port numbers.
+        <br><br>
+        <b>Example:</b>
+        <br>
+        https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+    links:
+      - title: Syntax Information (host-source)
+        href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+
 # Date and time options
 date_time_options:
     title: Date &amp; Time Options

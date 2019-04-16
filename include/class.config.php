@@ -429,6 +429,10 @@ class OsticketConfig extends Config {
         return $this->get('enable_richtext');
     }
 
+    function getAllowIframes() {
+        return str_replace(array(', ', ','), array(' ', ' '), $this->get('allow_iframes')) ?: "'self'";
+    }
+
     function isAvatarsEnabled() {
         return $this->get('enable_avatars');
     }
@@ -1121,6 +1125,7 @@ class OsticketConfig extends Config {
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
+        $f['allow_iframes']=array('type'=>'cs-domain',   'required'=>0, 'error'=>__('Enter comma separated list of domains'));
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
@@ -1179,6 +1184,7 @@ class OsticketConfig extends Config {
             'enable_avatars' => isset($vars['enable_avatars']) ? 1 : 0,
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
             'files_req_auth' => isset($vars['files_req_auth']) ? 1 : 0,
+            'allow_iframes' => Format::sanitize($vars['allow_iframes']),
         ));
     }
 

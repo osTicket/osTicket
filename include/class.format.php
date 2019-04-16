@@ -422,6 +422,33 @@ class Format {
         return strip_tags($decode?Format::htmldecode($var):$var);
     }
 
+    // Strip all Emoticon/Emoji characters until we support them
+    function strip_emoticons($text) {
+        return preg_replace(array(
+                '/[\x{1F601}-\x{1F64F}]/u', # Emoticons
+                '/[\x{1F680}-\x{1F6C0}]/u', # Transport/Map
+                '/[\x{1F600}-\x{1F636}]/u', # Add. Emoticons
+                '/[\x{1F681}-\x{1F6C5}]/u', # Add. Transport/Map
+                '/[\x{1F30D}-\x{1F567}]/u', # Other
+                '/[\x{1F910}-\x{1F999}]/u', # Hands
+                '/[\x{1F9D0}-\x{1F9DF}]/u', # Fantasy
+                '/[\x{1F9E0}-\x{1F9EF}]/u', # Clothes
+                '/[\x{1F6F0}-\x{1F6FF}]/u', # Misc. Transport
+                '/[\x{1F6E0}-\x{1F6EF}]/u', # Planes/Boats
+                '/[\x{1F6C0}-\x{1F6CF}]/u', # Bed/Bath
+                '/[\x{1F9C0}-\x{1F9C2}]/u', # Misc. Food
+                '/[\x{1F6D0}-\x{1F6D2}]/u', # Sign/P.O.W./Cart
+                '/[\x{1F500}-\x{1F5FF}]/u', # Uncategorized
+                '/[\x{1F300}-\x{1F3FF}]/u', # Cyclone/Amphora
+                '/[\x{2702}-\x{27B0}]/u',   # Dingbats
+                '/[\x{00A9}-\x{00AE}]/u',   # Copyright/Registered
+                '/[\x{23F0}-\x{23FF}]/u',   # Clock/Buttons
+                '/[\x{23E0}-\x{23EF}]/u',   # More Buttons
+                '/[\x{2310}-\x{231F}]/u',   # Hourglass/Watch
+                '/[\x{2322}-\x{232F}]/u'    # Keyboard
+            ), '', $text);
+    }
+
     //make urls clickable. Mainly for display
     function clickableurls($text, $target='_blank') {
         global $ost;
