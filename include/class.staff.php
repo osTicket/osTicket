@@ -69,16 +69,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function get($field, $default=false) {
 
+       // Check primary fields
+        try {
+            return parent::get($field, $default);
+        } catch (Exception $e) {}
+
         // Autoload config if not loaded already
         if (!isset($this->_config))
             $this->getConfig();
 
         if (isset($this->_config[$field]))
             return $this->_config[$field];
-
-        try {
-            return parent::get($field, $default);
-        } catch (Exception $e) {}
     }
 
     function getConfig() {
