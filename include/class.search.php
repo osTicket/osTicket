@@ -483,7 +483,7 @@ class MysqlSearchBackend extends SearchBackend {
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
             AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
-            LIMIT 500";
+            ORDER BY A1.`id` DESC LIMIT 500";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -503,7 +503,7 @@ class MysqlSearchBackend extends SearchBackend {
         $sql = "SELECT A1.`ticket_id` FROM `".TICKET_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`ticket_id` = A2.`object_id` AND A2.`object_type`='T')
             WHERE A2.`object_id` IS NULL
-            LIMIT 300";
+            ORDER BY A1.`ticket_id` DESC LIMIT 300";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
 
@@ -897,6 +897,7 @@ class SavedQueue extends CustomQueue {
         if ($criteria && is_array($criteria))
             $queues->filter($criteria);
 
+       $counts = array();
         $query = Ticket::objects();
         // Apply tickets visibility for the agent
         $query = $agent->applyVisibility($query);
@@ -910,6 +911,8 @@ class SavedQueue extends CustomQueue {
 
             // Add extra tables joins  (if any)
             if ($Q->extra && isset($Q->extra['tables'])) {
+               $counts['q'.$queue->getId()] = 500;
+               continue;
                 $contraints = array();
                 if ($Q->constraints)
                      $constraints = new Q($Q->constraints);
@@ -919,7 +922,7 @@ class SavedQueue extends CustomQueue {
         }
 
         try {
-            $counts = $query->values()->one();
+            $counts = array_merge($counts, $query->values()->one());
         }  catch (Exception $ex) {
             foreach ($queues as $q)
                 $counts['q'.$q->getId()] = $q->getTotal();
