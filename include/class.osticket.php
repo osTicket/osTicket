@@ -59,7 +59,6 @@ class osTicket {
         if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
             $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
-        $this->config = new OsticketConfig();
 
         $this->csrf = new CSRF('__CSRFToken__');
 
@@ -85,6 +84,9 @@ class osTicket {
     }
 
     function getConfig() {
+        if (!isset($this->config))
+            $this->config = new OsticketConfig();
+
         return $this->config;
     }
 
