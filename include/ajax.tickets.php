@@ -1456,7 +1456,7 @@ function refer($tid, $target=null) {
                 && ($f=$iform->getField('duedate'))) {
             $f->configure('max', Misc::db2gmtime($ticket->getEstDueDate()));
         }
-        $vars = array_merge($_SESSION[':form-data'], $vars);
+        $vars = array_merge($_SESSION[':form-data'] ? : array(), $vars);
 
         if ($_POST) {
             Draft::deleteForNamespace(
