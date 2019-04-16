@@ -477,10 +477,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (is_null($dept))
             return $this->role;
 
-        if ((!$dept instanceof Dept) && !($dept=Dept::lookup($dept)))
-            return null;
+       if (is_numeric($dept))
+          $deptId = $dept;
+       elseif($dept instanceof Dept)
+          $deptId = $dept->getId();
+       else
+          return null;
 
-        $deptId = $dept->getId();
         $roles = $this->getRoles();
         if (isset($roles[$deptId]))
             return $roles[$deptId];
