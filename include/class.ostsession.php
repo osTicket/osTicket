@@ -292,12 +292,13 @@ extends SessionBackend {
                 if ($data = $this->memcache->get($key))
                     break;
             }
+
         }
 
         // No session data on record -- new session
         $this->isnew = $data === false;
 
-        return $data;
+        return $data ?: '';
     }
 
     function update($id, $data) {
@@ -311,6 +312,9 @@ extends SessionBackend {
             if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
                 $this->memcache->set($key, $data, 0, $this->getTTL());
         }
+
+        return true;
+
     }
 
     function destroy($id) {
@@ -321,6 +325,8 @@ extends SessionBackend {
             $this->memcache->replace($key, '', 0, 1);
             $this->memcache->delete($key, 0);
         }
+
+        return true;
     }
 
     function gc($maxlife) {
