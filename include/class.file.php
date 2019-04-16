@@ -13,7 +13,7 @@
 **********************************************************************/
 require_once(INCLUDE_DIR.'class.signal.php');
 require_once(INCLUDE_DIR.'class.error.php');
-
+require_once(INCLUDE_DIR.'class.charset.php');
 
 /**
  * Represents a file stored in a storage backend. It is generally attached
@@ -109,6 +109,18 @@ class AttachmentFile extends VerySimpleModel {
         return FileStorageBackend::getInstance($this);
     }
 
+    function getOutputFilter() {
+
+        $filter = false;
+        switch ($this->getType()) {
+        case 'message/rfc822':
+            $filter = 'transcode.utf8-ascii';
+            break;
+        }
+
+        return $filter;
+    }
+
     function sendData($redirect=true, $disposition='inline') {
         $bk = $this->open();
         if ($redirect && $bk->sendRedirectUrl($disposition))
@@ -116,7 +128,7 @@ class AttachmentFile extends VerySimpleModel {
 
         @ini_set('zlib.output_compression', 'Off');
         try {
-            $bk->passthru();
+            $bk->passthru($this->getOutputFilter());
         }
         catch (IOException $ex) {
             Http::response(404, 'File not found');
@@ -249,7 +261,10 @@ class AttachmentFile extends VerySimpleModel {
         $type = $this->getType() ?: 'application/octet-stream';
         if (isset($_REQUEST['overridetype']))
             $type = $_REQUEST['overridetype'];
-        Http::download($this->getName(), $type, null, 'inline');
+        elseif (!strcasecmp($disposition, 'attachment'))
+            $type = 'application/octet-stream';
+
+        Http::download($this->getName(), $type, null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
@@ -773,9 +788,13 @@ class FileStorageBackend {
     /**
      * Convenience method to send all the file to standard output
      */
-    function passthru() {
+    function passthru($filter=false) {
+
+        $fp = fopen('php://output', 'w');
+        if ($filter)
+            @stream_filter_append($fp, $filter);
         while ($block = $this->read())
-            echo $block;
+            fwrite($fp, $block);
     }
 
     /**

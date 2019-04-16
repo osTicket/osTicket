@@ -204,7 +204,7 @@ class MailFetcher {
                     $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
                     if (!fwrite($f, $text))
                         throw new Exception();
-                    stream_filter_remove($s_filter); 
+                    stream_filter_remove($s_filter);
                     fclose($f);
                     if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp))))
                         throw new Exception();
@@ -384,8 +384,17 @@ class MailFetcher {
         return $header;
     }
 
+    function fetchBody($mid, $index, $encoding) {
+        $body = imap_fetchbody($this->mbox, $mid, $index);
+        if ($body && $encoding)
+            $body = $this->decode($body, $encoding);
+
+        return $body;
+    }
+
     //search for specific mime type parts....encoding is the desired encoding.
-    function getPart($mid, $mimeType, $encoding=false, $struct=null, $partNumber=false, $recurse=-1, $recurseIntoRfc822=true) {
+    function getPart($mid, $mimeType, $encoding=false, $struct=null,
+            $partNumber=false, $recurse=-1, $recurseIntoRfc822=false) {
 
         if(!$struct && $mid)
             $struct=@imap_fetchstructure($this->mbox, $mid);
@@ -476,7 +485,9 @@ class MailFetcher {
      */
     function getAttachments($part, $index=0) {
 
-        if($part && !$part->parts) {
+        $ctype = $part ? $this->getMimeType($part) : false;
+        if($part && (!$part->parts
+                    || strcasecmp($ctype, 'message/rfc822') === 0)) {
             //Check if the part is an attachment.
             $filename = false;
             if ($part->ifdisposition && $part->ifdparameters
@@ -500,6 +511,12 @@ class MailFetcher {
             if (!$filename && $content_id && $part->type == 5) {
                 $filename = _S('image').'-'.Misc::randCode(4).'.'.strtolower($part->subtype);
             }
+
+            // Attached message/rfc822 without filename.
+            if (!$filename
+                    && $ctype
+                    && strcasecmp($ctype, 'message/rfc822') === 0)
+                $filename = 'email-message-'.Misc::randCode(4).'.eml';
 
             if($filename) {
                 return array(
@@ -658,11 +675,14 @@ class MailFetcher {
 	        return true; //Report success (moved or delete)
         }
 
-        // Parse MS TNEF emails
+        // Process overloaded attachments
         if (($struct = imap_fetchstructure($this->mbox, $mid))
                 && ($attachments = $this->getAttachments($struct))) {
+
             foreach ($attachments as $i=>$info) {
-                if (0 === strcasecmp('application/ms-tnef', $info['type'])) {
+                switch (strtolower($info['type'])) {
+                // Parse MS TNEF emails
+                case 'application/ms-tnef':
                     try {
                         $data = $this->decode(imap_fetchbody($this->mbox,
                             $mid, $info['index']), $info['encoding']);
@@ -675,6 +695,26 @@ class MailFetcher {
                     } catch (TnefException $ex) {
                         // Noop -- winmail.dat remains an attachment
                     }
+                    break;
+                // Parse attached email message
+                case 'message/rfc822':
+                    try {
+                        // Fetch the header of attached mime message.
+                        $body = $this->fetchBody($mid, $info['index'].'.0',
+                                $info['encoding']);
+                        // Add fake body to make the parser happy
+                        if ($body)
+                            $body.="\n\nJunk";
+
+                        $parser = new Mail_Parse($body);
+                        if ($parser->decode()
+                                && ($subj = $parser->getSubject()))
+                            $attachments[$i]['name'] = $subj.'.eml';
+                    } catch(Exception $ex) {
+                        // Noop -- use random name
+                    }
+                    $body = $parser = null;
+                    break;
                 }
             }
         }
