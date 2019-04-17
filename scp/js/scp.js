@@ -595,6 +595,7 @@ $(document).ajaxSend(function(event, xhr, settings) {
 /* Get config settings from the backend */
 jQuery.fn.exists = function() { return this.length>0; };
 
+$.pjax.defaults.timeout = 30000;
 $.translate_format = function(str) {
     var translation = {
         'DD':   'oo',
@@ -1131,7 +1132,7 @@ if ($.support.pjax) {
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
         && $this.attr('href').charAt(0) != '#')
-      $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 2000});
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
   })
 }
 
