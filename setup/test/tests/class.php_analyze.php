@@ -75,7 +75,7 @@ class SourceAnalyzer extends Test {
             list(,$token) = each($this->tokens);
             switch ($token[0]) {
             case T_WHITESPACE:
-                continue;
+                continue 2;
             case T_STRING:
                 $function['name'] = $token[1];
                 break;
