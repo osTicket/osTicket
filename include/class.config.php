@@ -420,6 +420,30 @@ class OsticketConfig extends Config {
         return $this->get('enable_richtext');
     }
 
+    function getAllowIframes() {
+        return str_replace(array(', ', ','), array(' ', ' '), $this->get('allow_iframes')) ?: "'self'";
+    }
+
+    function getACL() {
+        if (!($acl = $this->get('acl')))
+            return null;
+
+        return explode(',', str_replace(' ', '', $acl));
+    }
+
+    function getACLBackendOpts() {
+        return array(
+            0 => __('Disabled'),
+            1 => __('All'),
+            2 => __('Client Portal'),
+            3 => __('Staff Panel')
+        );
+    }
+
+    function getACLBackend() {
+        return $this->get('acl_backend') ?: 0;
+    }
+
     function isAvatarsEnabled() {
         return $this->get('enable_avatars');
     }
@@ -1120,6 +1144,8 @@ class OsticketConfig extends Config {
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
+        $f['allow_iframes']=array('type'=>'cs-domain',   'required'=>0, 'error'=>__('Enter comma separated list of domains'));
+        $f['acl']=array('type'=>'ipaddr',   'required'=>0, 'error'=>__('Enter comma separated list of IP addresses'));
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
         $f['date_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Date format is required'));
@@ -1129,6 +1155,18 @@ class OsticketConfig extends Config {
         $f['system_language']=array('type'=>'string',   'required'=>1, 'error'=>__('A primary system language is required'));
 
         $vars = Format::htmlchars($vars, true);
+
+        // ACL Checks
+        if ($vars['acl']) {
+            // Check if Admin's IP is in the list, if not, return error
+            // to avoid locking self out
+            if (!in_array($vars['acl_backend'], array(0,2))) {
+                $acl = explode(',', str_replace(' ', '', $acl));
+                if (!in_array(osTicket::get_client_ip(), $acl))
+                    $errors['acl'] = __('Cowardly refusing to lock out active administrator');
+            }
+        } elseif ((int) $vars['acl_backend'] !== 0)
+            $errors['acl'] = __('IP address required when selecting panel');
 
         // Make sure the selected backend is valid
         $storagebk = null;
@@ -1178,6 +1216,9 @@ class OsticketConfig extends Config {
             'enable_avatars' => isset($vars['enable_avatars']) ? 1 : 0,
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
             'files_req_auth' => isset($vars['files_req_auth']) ? 1 : 0,
+            'allow_iframes' => Format::sanitize($vars['allow_iframes']),
+            'acl' => Format::sanitize($vars['acl']),
+            'acl_backend' => Format::sanitize((int) $vars['acl_backend']) ?: 0,
         ));
     }
 

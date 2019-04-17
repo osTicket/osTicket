@@ -261,7 +261,6 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isAssigned($to=null) {
-
         if (!$this->isOpen())
             return false;
 
@@ -308,8 +307,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // check department access first
         if (!$staff->canAccessDept($this->getDept())
-                // no restrictions
-                && !$staff->isAccessLimited()
                 // check assignment
                 && !$this->isAssigned($staff)
                 // check referral
@@ -1532,7 +1529,7 @@ implements RestrictedAccess, Threadable, Searchable {
             }
 
             // Account manager
-            if ($cfg->alertAcctManagerONNewMessage()
+            if ($cfg->alertAcctManagerONNewTicket()
                 && ($org = $this->getOwner()->getOrganization())
                 && ($acct_manager = $org->getAccountManager())
             ) {
@@ -3173,7 +3170,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function save($refetch=false) {
         if ($this->dirty) {
             $this->updated = SqlFunction::NOW();
-            if (isset($this->dirty['status_id']))
+            if (isset($this->dirty['status_id']) && PHP_SAPI !== 'cli')
                 // Refetch the queue counts
                 SavedQueue::clearCounts();
         }
@@ -3412,7 +3409,10 @@ implements RestrictedAccess, Threadable, Searchable {
             ->filter(array('number' => $number));
 
         if ($email)
-            $query->filter(array('user__emails__address' => $email));
+            $query->filter(Q::any(array(
+                'user__emails__address' => $email,
+                'thread__collaborators__user__emails__address' => $email
+            )));
 
 
         if (!$ticket) {

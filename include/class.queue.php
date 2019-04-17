@@ -723,7 +723,7 @@ class CustomQueue extends VerySimpleModel {
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
-                "id" => 6,
+                "id" => 8,
                 "heading" => "Assignee",
                 "primary" => 'assignee',
                 "width" => 100,
@@ -807,9 +807,17 @@ class CustomQueue extends VerySimpleModel {
         // See if we have cached export preference
         if (isset($_SESSION['Export:Q'.$this->getId()])) {
             $opts = $_SESSION['Export:Q'.$this->getId()];
-            if (isset($opts['fields']))
+            if (isset($opts['fields'])) {
                 $fields = array_intersect_key($fields,
                         array_flip($opts['fields']));
+                $exportableFields = CustomQueue::getExportableFields();
+                foreach ($opts['fields'] as $key => $name) {
+                    if (is_null($fields[$name]) && isset($exportableFields)) {
+                        $fields[$name] = $exportableFields[$name];
+                    }
+                 }
+            }
+
             if (isset($opts['filename'])
                     && ($parts = pathinfo($opts['filename']))) {
                 $filename = $opts['filename'];
@@ -1144,25 +1152,23 @@ class CustomQueue extends VerySimpleModel {
 
         $new = $fields;
         foreach ($this->exports as $f) {
+            $heading = $f->getHeading();
             $key = $f->getPath();
             if (!isset($fields[$key])) {
                 $this->exports->remove($f);
                 continue;
             }
 
-            $info = $fields[$key];
-            if (is_array($info))
-                $heading = $info['heading'];
-            else
-                $heading = $info;
-
             $f->set('heading', $heading);
             $f->set('sort', array_search($key, $order)+1);
             unset($new[$key]);
         }
 
+        $exportableFields = CustomQueue::getExportableFields();
         foreach ($new as $k => $field) {
-            if (is_array($field))
+            if (isset($exportableFields[$k]))
+                $heading = $exportableFields[$k];
+            elseif (is_array($field))
                 $heading = $field['heading'];
             else
                 $heading = $field;
@@ -1229,7 +1235,7 @@ class CustomQueue extends VerySimpleModel {
         $this->path = $this->buildPath();
         $this->setFlag(self::FLAG_INHERIT_CRITERIA, $this->parent_id);
         $this->setFlag(self::FLAG_INHERIT_COLUMNS,
-            isset($vars['inherit-columns']));
+            $this->parent_id > 0 && isset($vars['inherit-columns']));
         $this->setFlag(self::FLAG_INHERIT_EXPORT,
             $this->parent_id > 0 && isset($vars['inherit-exports']));
         $this->setFlag(self::FLAG_INHERIT_SORTING,

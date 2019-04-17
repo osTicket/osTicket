@@ -132,6 +132,33 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Allow iFrames'); ?>:</td>
+            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>">
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+                <i class="help-tip icon-question-sign" href="#allow_iframes"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('ACL'); ?>:</td>
+            <td><input type="text" size="40" name="acl" value="<?php echo $config['acl']; ?>"
+                    placeholder="eg. 192.168.1.1, 192.168.2.2, 192.168.3.3">
+                &nbsp;Apply To:
+                <select name="acl_backend">
+                    <?php foreach($cfg->getACLBackendOpts() as $k=>$v) { ?>
+                    <option <?php if ($cfg->getACLBackend() == $k) echo 'selected="selected"'; ?>
+                    value="<?php echo $k; ?>">
+                        <?php echo $v; ?>
+                    </option>
+                    <?php } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#acl"></i>
+            <?php if ($errors['acl']) { ?>
+                <br>
+                <font class="error">&nbsp;<?php echo $errors['acl']; ?></font>
+            <?php } ?>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b><?php echo __('Date and Time Options'); ?></b>&nbsp;
                 <i class="help-tip icon-question-sign" href="#date_time_options"></i>

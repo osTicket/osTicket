@@ -1535,7 +1535,7 @@ class TextareaField extends FormField {
             'choices' => array(
                 function($val) {
                     $val = str_replace('"', '', JsonDataEncoder::encode($val));
-                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[A-z0-9 _-]+$/";
+                    $regex = "/^(?! )[A-z0-9 _-]+:{1}[^\n]+$/";
                     foreach (explode('\r\n', $val) as $v) {
                         if (!preg_match($regex, $v))
                             return false;
@@ -1675,6 +1675,24 @@ class BooleanField extends FormField {
 
     function toString($value) {
         return ($value) ? __('Yes') : __('No');
+    }
+
+    function getClean($validate=true) {
+        if (!isset($this->_clean)) {
+            $this->_clean = (isset($this->value))
+                ? $this->value : $this->getValue();
+
+            if ($this->isVisible() && $validate)
+                $this->validateEntry($this->_clean);
+        }
+        return $this->_clean;
+    }
+
+    function getChanges() {
+        $new = $this->getValue();
+        $old = $this->answer ? $this->answer->getValue() : $this->get('default');
+
+        return ($old != $new) ? array($this->to_database($old), $this->to_database($new)) : false;
     }
 
     function getSearchMethods() {
@@ -1895,7 +1913,7 @@ class ChoiceField extends FormField {
                 $choices = explode("\n", $config['choices']);
                 foreach ($choices as $choice) {
                     // Allow choices to be key: value
-                    list($key, $val) = explode(':', $choice);
+                    list($key, $val) = explode(':', $choice, 2);
                     if ($val == null)
                         $val = $key;
                     $this->_choices[trim($key)] = trim($val);
@@ -1980,6 +1998,24 @@ class ChoiceField extends FormField {
     }
 
     function applyQuickFilter($query, $qf_value, $name=false) {
+        global $thisstaff;
+
+        //special assignment quick filters
+        switch (true) {
+            case ($qf_value == 'assigned'):
+            case ($qf_value == '!assigned'):
+                $result = AssigneeChoiceField::getSearchQ($qf_value, $qf_value);
+                return $query->filter($result);
+            case (strpos($qf_value, 's') !== false):
+            case (strpos($qf_value, 't') !== false):
+            case ($qf_value == 'M'):
+            case ($qf_value == 'T'):
+                $value = array($qf_value => $qf_value);
+                $result = AssigneeChoiceField::getSearchQ('includes', $value);
+                return $query->filter($result);
+                break;
+        }
+
         return $query->filter(array(
             $name ?: $this->get('name') => $qf_value,
         ));
@@ -4563,7 +4599,7 @@ class FileUploadWidget extends Widget {
           allowedfiletypes: <?php echo JsonDataEncoder::encode(
             $mimetypes); ?>,
           maxfiles: <?php echo $config['max'] ?: 20; ?>,
-          maxfilesize: <?php echo $maxfilesize; ?>,
+          maxfilesize: <?php echo str_replace(',', '.', $maxfilesize); ?>,
           name: '<?php echo $name; ?>[]',
           files: <?php echo JsonDataEncoder::encode($files); ?>
         });});

@@ -124,6 +124,14 @@ if (count($langs) > 1) { ?>
             <?php
             } ?>
         </select>
+        <script>
+            $('select[name=pid]').on('change', function() {
+                var val = this.value;
+                $('select[name=pid]').each(function() {
+                    $(this).val(val);
+                });
+            });
+        </script>
     </div>
     <div style="padding-bottom:8px;">
         <b><?php echo __('Category Name');?></b>:

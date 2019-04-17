@@ -90,9 +90,9 @@ if (isset($tickets->extra['tables'])) {
             $criteria->values_flat('ticket_id')]);
     # Index hint should be used on the $criteria query only
     $tickets->clearOption(QuerySet::OPT_INDEX_HINT);
-    $tickets->distinct('ticket_id');
 }
 
+$tickets->distinct('ticket_id');
 $count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
