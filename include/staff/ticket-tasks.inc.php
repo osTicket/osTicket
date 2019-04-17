@@ -195,7 +195,7 @@ $(function() {
                 $container.load(url+'/'+tid+'/view', function () {
                     $('.tip_box').remove();
                     $('div#tasks_content').hide();
-                    $.pjax({url: url, container: '#tasks_content', push: false});
+                    $.pjax({url: url, container: '#tasks_content', timeout: 30000, push: false});
                 }).show();
             } else {
                 window.location.href = $redirect ? $redirect : window.location.href;
