@@ -905,6 +905,7 @@ class CustomQueue extends VerySimpleModel {
 
         // Apply column, annotations and conditions additions
         foreach ($this->getColumns() as $C) {
+            $C->setQueue($this);
             $query = $C->mangleQuery($query, $this->getRoot());
         }
         return $query;
