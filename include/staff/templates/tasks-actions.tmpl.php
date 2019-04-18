@@ -166,6 +166,7 @@ $(function() {
             +'&_uid='+new Date().getTime();
             var $redirect = $(this).data('redirect');
             $.dialog(url, [201], function (xhr) {
+               $.pjax.defaults.timeout = 30000;
                 if (!!$redirect)
                     $.pjax({url: $redirect, container:'#pjax-container'});
                 else
