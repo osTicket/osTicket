@@ -905,6 +905,7 @@ class CustomQueue extends VerySimpleModel {
 
         // Apply column, annotations and conditions additions
         foreach ($this->getColumns() as $C) {
+            $C->setQueue($this);
             $query = $C->mangleQuery($query, $this->getRoot());
         }
         return $query;
@@ -2144,7 +2145,7 @@ extends VerySimpleModel {
         if (!isset($this->_queue)) {
             $queue = $this->queue;
 
-            if (!$queue && ($queue_id = $this->queue_id))
+            if (!$queue && ($queue_id = $this->queue_id) && is_numeric($queue_id))
                 $queue = CustomQueue::lookup($queue_id);
 
             $this->_queue = $queue;

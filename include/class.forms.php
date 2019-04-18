@@ -2672,6 +2672,27 @@ class ThreadEntryField extends FormField {
 }
 
 class PriorityField extends ChoiceField {
+
+    var $priorities;
+    var $_choices;
+
+    function getPriorities() {
+        if (!isset($this->priorities))
+            $this->priorities = Priority::objects();
+
+        return $this->priorities;
+    }
+
+    function getPriority($id) {
+
+        if ($this->getPriorities() &&
+                ($p=$this->priorities->findFirst(array('priority_id' =>
+                                                       $id))))
+            return $p;
+
+        return Priority::lookup($id);
+    }
+
     function getWidget($widgetClass=false) {
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Priority)
@@ -2684,15 +2705,15 @@ class PriorityField extends ChoiceField {
     }
 
     function getChoices($verbose=false) {
-        $sql = 'SELECT priority_id, priority_desc FROM '.PRIORITY_TABLE
-              .' ORDER BY priority_urgency DESC';
-        $choices = array('' => '— '.__('Default').' —');
-        if (!($res = db_query($sql)))
-            return $choices;
 
-        while ($row = db_fetch_row($res))
-            $choices[$row[0]] = $row[1];
-        return $choices;
+        if (!isset($this->_choices)) {
+            $choices = array('' => '— '.__('Default').' —');
+            foreach ($this->getPriorities() as $p)
+                $choices[$p->getId()] = $p->getDesc();
+            $this->_choices = $choices;
+        }
+
+        return $this->_choices;
     }
 
     function parse($id) {
@@ -2710,8 +2731,8 @@ class PriorityField extends ChoiceField {
             list($value, $id) = $value;
         elseif ($id === false)
             $id = $value;
-        if ($id)
-            return Priority::lookup($id);
+
+        return $this->getPriority($id);
     }
 
     function to_database($prio) {

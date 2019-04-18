@@ -69,16 +69,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function get($field, $default=false) {
 
+       // Check primary fields
+        try {
+            return parent::get($field, $default);
+        } catch (Exception $e) {}
+
         // Autoload config if not loaded already
         if (!isset($this->_config))
             $this->getConfig();
 
         if (isset($this->_config[$field]))
             return $this->_config[$field];
-
-        try {
-            return parent::get($field, $default);
-        } catch (Exception $e) {}
     }
 
     function getConfig() {
@@ -476,10 +477,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (is_null($dept))
             return $this->role;
 
-        if ((!$dept instanceof Dept) && !($dept=Dept::lookup($dept)))
-            return null;
+       if (is_numeric($dept))
+          $deptId = $dept;
+       elseif($dept instanceof Dept)
+          $deptId = $dept->getId();
+       else
+          return null;
 
-        $deptId = $dept->getId();
         $roles = $this->getRoles();
         if (isset($roles[$deptId]))
             return $roles[$deptId];

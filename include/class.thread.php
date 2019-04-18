@@ -228,7 +228,7 @@ implements Searchable {
 
             foreach ($vars['cid'] as $c) {
               $collab = Collaborator::lookup($c);
-              if(get_class($collab) == 'Collaborator') {
+              if (($collab instanceof Collaborator)) {
                 $collab->setFlag(Collaborator::FLAG_ACTIVE, true);
                 $collab->save();
               }
