@@ -2584,6 +2584,7 @@ class SqlCompiler {
             }
         }
         $glue = $Q->ored ? ' OR ' : ' AND ';
+        $filter = array_filter($filter);
         $clause = implode($glue, $filter);
         if (($Q->negated || $parens) && count($filter) > 1)
             $clause = '(' . $clause . ')';

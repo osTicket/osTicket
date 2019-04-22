@@ -36,8 +36,8 @@ $showing = $pageNav->showing().' '._N('email', 'emails', $count);
 $qstr = '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
 $def_dept_id = $cfg->getDefaultDeptId();
-$def_dept_name = $cfg->getDefaultDept()->getName();
-$def_priority = $cfg->getDefaultPriority()->getDesc();
+$def_dept_name = ($d = $cfg->getDefaultDept()) ? $d->getName() : '';
+$def_priority = ($c = $cfg->getDefaultPriority()) ? $c->getDesc() : '';
 ?>
 <form action="emails.php" method="POST" name="emails">
     <div class="sticky bar opaque">
