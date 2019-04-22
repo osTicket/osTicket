@@ -587,7 +587,9 @@ class Mailer {
 
         //No SMTP or it failed....use php's native mail function.
         $args = array();
-        if ($this->getEmail())
+        if (isset($options['from_address']))
+            $args[] = '-f '.$options['from_address'];
+        elseif ($this->getEmail())
             $args = array('-f '.$this->getEmail()->getEmail());
         $mail = mail::factory('mail', $args);
         $to = $headers['To'];
@@ -612,10 +614,10 @@ class Mailer {
 
     //Emails using native php mail function - if DB connection doesn't exist.
     //Don't use this function if you can help it.
-    function sendmail($to, $subject, $message, $from) {
+    function sendmail($to, $subject, $message, $from, $options=null) {
         $mailer = new Mailer(null, array('notice'=>true, 'nobounce'=>true));
         $mailer->setFromAddress($from);
-        return $mailer->send($to, $subject, $message);
+        return $mailer->send($to, $subject, $message, $options);
     }
 }
 ?>
