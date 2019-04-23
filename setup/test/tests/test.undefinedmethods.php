@@ -19,8 +19,11 @@ class UndefinedMethods extends Test {
             list($file, $no, $line, $func) = $call;
             if (!in_array($func, $function_defs)) {
                 // We don't ship all of mdpf, so a bit of it looks undefined
-                if (strpos($file, '/mpdf/') === false)
+                if (strpos($file, 'include/mpdf/') === false
+                    && strpos($file, 'include/pear/') === false // we don't pre install all the fringe crypto plugins
+                  ) {
                     $this->fail($file, $no, "$func: Definitely undefined");
+                }
             }
             else {
                 $this->pass();

@@ -8,6 +8,9 @@ setup/cli/modules/importer
 ._.DS_Store
 Vagrantfile
 
+# Docker 
+/docker-compose.yml
+
 # Staging directory used for packaging script
 stage
 

@@ -1,0 +1,13 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+before_install:
+  - docker build -t ost/test --file setup/test/Dockerfile-5.6 .
+
+script:
+  - docker run ost/test
+  - echo J0FsbG8sICdBbGxvIQo= | base64 --decode
