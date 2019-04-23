@@ -584,7 +584,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->_teams;
     }
 
-    function getTicketsVisibility() {
+    function getTicketsVisibility($exclude_archived=false) {
 
         // -- Open and assigned to me
         $assigned = Q::any(array(
@@ -607,15 +607,26 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         // -- Routed to a department of mine
         if (($depts=$this->getDepts()) && count($depts)) {
-            $visibility->add(array('dept_id__in' => $depts));
-            $visibility->add(array('thread__referrals__dept__id__in' => $depts));
+            $in_dept = Q::any(array(
+                'dept_id__in' => $depts,
+                'thread__referrals__dept__id__in' => $depts,
+            ));
+
+            if ($exclude_archived) {
+                $in_dept = Q::all(array(
+                    'status__state__in' => ['open', 'closed'],
+                    $in_dept,
+                ));
+            }
+
+            $visibility->add($in_dept);
         }
 
         return $visibility;
     }
 
-    function applyVisibility($query) {
-        return $query->filter($this->getTicketsVisibility());
+    function applyVisibility($query, $exclude_archived=false) {
+        return $query->filter($this->getTicketsVisibility($exclude_archived));
     }
 
     /* stats */
