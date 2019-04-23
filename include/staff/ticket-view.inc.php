@@ -269,7 +269,8 @@ if($ticket->isOverdue())
 <div class="clear tixTitle has_bottom_border">
     <h3>
     <?php $subject_field = TicketForm::getInstance()->getField('subject');
-        echo $subject_field->display($ticket->getSubject()); ?>
+        echo $subject_field ? $subject_field->display($ticket->getSubject())
+            : Format::htmlchars($ticket->getSubject()); ?>
     </h3>
 </div>
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
@@ -746,9 +747,11 @@ if ($errors['err'] && isset($_POST['a'])) {
                    <select id="from_email_id" name="from_email_id">
                      <?php
                      // Department email (default).
-                     echo sprintf('<option value="%s" selected="selected">%s</option>',
-                             $dept->getEmail()->getId(),
-                             Format::htmlchars($dept->getEmail()->getAddress()));
+                     if (($e=$dept->getEmail())) {
+                        echo sprintf('<option value="%s" selected="selected">%s</option>',
+                                 $e->getId(),
+                                 Format::htmlchars($e->getAddress()));
+                     }
                      // Optional SMTP addreses user can send email via
                      if (($emails = Email::getAddresses(array('smtp' =>
                                  true), false)) && count($emails)) {

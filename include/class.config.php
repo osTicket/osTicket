@@ -961,7 +961,7 @@ class OsticketConfig extends Config {
     }
 
     function getDefaultTicketQueueId() {
-        return $this->get('default_ticket_queue');
+        return $this->get('default_ticket_queue', 1);
     }
 
     function hideStaffName() {
