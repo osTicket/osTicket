@@ -6,7 +6,11 @@
 
 // Impose visibility constraints
 // ------------------------------------------------------------
-if (!$queue->ignoreVisibilityConstraints($thisstaff))
+//filter if limited visibility or if unlimited visibility and in a queue
+$ignoreVisibility = $queue->ignoreVisibilityConstraints($thisstaff);
+if (!$ignoreVisibility || //limited visibility
+   ($ignoreVisibility && ($queue->isAQueue() || $queue->isASubQueue())) //unlimited visibility + not a search
+)
     $tickets->filter($thisstaff->getTicketsVisibility());
 
 // Make sure the cdata materialized view is available

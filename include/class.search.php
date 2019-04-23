@@ -900,7 +900,7 @@ class SavedQueue extends CustomQueue {
        $counts = array();
         $query = Ticket::objects();
         // Apply tickets visibility for the agent
-        $query = $agent->applyVisibility($query);
+        $query = $agent->applyVisibility($query, true);
         // Aggregate constraints
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
