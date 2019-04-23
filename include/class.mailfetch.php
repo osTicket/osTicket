@@ -359,7 +359,9 @@ class MailFetcher {
                 }
             }
         }
-        $header['thread_entry_recipients']['to'] = array_unique($header['thread_entry_recipients']['to']);
+
+        if (isset($header['thread_entry_recipients']['to']))
+            $header['thread_entry_recipients']['to'] = array_unique($header['thread_entry_recipients']['to']);
 
         //See if any of the recipients is a delivered to address
         if ($tolist['delivered-to']) {
