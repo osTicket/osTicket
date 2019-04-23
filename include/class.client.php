@@ -58,25 +58,21 @@ implements EmailContact, ITicketUser, TemplateVariable {
         switch (strtolower($tag)) {
         case 'ticket_link':
             $qstr = array();
+            $ticket = $this->getTicket();
             if ($cfg && $cfg->isAuthTokenEnabled()
-                    && ($ticket=$this->getTicket())) {
-                      if (!$ticket->getThread()->getNumCollaborators()) {
-                          $qstr['auth'] = $ticket->getAuthToken($this);
-                          return sprintf('%s/view.php?%s',
-                               $cfg->getBaseUrl(),
-                               Http::build_query($qstr, false)
-                               );
-                      }
-                      else {
-                          return sprintf('%s/tickets.php?id=%s',
-                               $cfg->getBaseUrl(),
-                               $ticket->getId()
-                               );
-                      }
-                    }
-
-
-
+                    && $ticket
+                    && !$ticket->getNumCollaborators()) {
+                $qstr['auth'] = $ticket->getAuthToken($this);
+                return sprintf('%s/view.php?%s',
+                        $cfg->getBaseUrl(),
+                        Http::build_query($qstr, false)
+                        );
+            } else {
+                return sprintf('%s/tickets.php?id=%s',
+                        $cfg->getBaseUrl(),
+                        $ticket ? $ticket->getId() : 0
+                        );
+            }
             break;
         }
     }
