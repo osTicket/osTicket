@@ -456,7 +456,7 @@ implements TemplateVariable {
                     throw new ImportError('Both `name` and `email` fields are required');
                 if (!($user = static::fromVars($data, true, true)))
                     throw new ImportError(sprintf(__('Unable to import user: %s'),
-                        print_r($data, true)));
+                        print_r(Format::htmlchars($data), true)));
                 $imported++;
             }
             db_autocommit(true);

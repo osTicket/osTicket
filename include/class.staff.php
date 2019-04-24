@@ -946,8 +946,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                 }
                 else {
                     throw new ImportError(sprintf(__('Unable to import (%s): %s'),
-                        $data['username'],
-                        print_r($errors, true)
+                        Format::htmlchars($data['username']),
+                        print_r(Format::htmlchars($errors), true)
                     ));
                 }
                 $imported++;
