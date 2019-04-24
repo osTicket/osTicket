@@ -39,7 +39,7 @@ class CsvImporter {
             rewind($this->stream);
         }
         else {
-            throw new ImportError(__('Unable to parse submitted csv: ').print_r($stream, true));
+            throw new ImportError(__('Unable to parse submitted csv: ').print_r(Format::htmlchars($stream), true));
         }
     }
 
@@ -59,7 +59,7 @@ class CsvImporter {
             throw new ImportError(__('Whoops. Perhaps you meant to send some CSV records'));
 
         $headers = array();
-        foreach ($data as $h) {
+        foreach (Format::htmlchars($data) as $h) {
             $h = trim($h);
             $found = false;
             foreach ($all_fields as $f) {
@@ -68,7 +68,7 @@ class CsvImporter {
                     $found = true;
                     if (!$f->get('name'))
                         throw new ImportError(sprintf(__(
-                            '%s: Field must have `variable` set to be imported'), $h));
+                            '%s: Field must have `variable` set to be imported'), Format::htmlchars($h)));
                     $headers[$f->get('name')] = $f->get('label');
                     break;
                 }
@@ -85,7 +85,7 @@ class CsvImporter {
                 }
                 else {
                     throw new ImportError(sprintf(
-                                __('%s: Unable to map header to the object field'), $h));
+                                __('%s: Unable to map header to the object field'), Format::htmlchars($h)));
                 }
             }
         }
