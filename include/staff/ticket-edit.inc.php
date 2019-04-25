@@ -147,7 +147,7 @@ if ($_POST)
 <table class="form_table dynamic-forms" width="940" border="0" cellspacing="0" cellpadding="2">
         <?php if ($forms)
             foreach ($forms as $form) {
-                $form->render(true, false, array('mode'=>'edit','width'=>160,'entry'=>$form));
+                $form->render(array('staff'=>true,'mode'=>'edit','width'=>160,'entry'=>$form));
         } ?>
 </table>
 <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
