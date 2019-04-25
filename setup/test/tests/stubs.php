@@ -226,9 +226,12 @@ class Mail_mime {
     function headers() {}
     function setTXTBody() {}
     function setHTMLBody() {}
+<<<<<<< HEAD
     function addCc() {}
     function addTo() {}
     function addBcc() {}
+=======
+>>>>>>> Lint Fixes
 }
 
 class mPDF {

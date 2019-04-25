@@ -90,10 +90,13 @@ if ($user) { ?>
 =======
         if(!$form) $form = UserForm::getInstance();
         $form->render(['staff' => true, 'title' => __('Create New User')]); ?>
+<<<<<<< HEAD
 >>>>>>> lint: Fix warnings about incomaptible function signatures
 =======
         $form->render(['staff' => true, 'title' => __('Create New User'), 'mode' => 'create']); ?>
 >>>>>>> Issue: DynamicFormEntry render
+=======
+>>>>>>> Lint Fixes
     </table>
     <hr>
     <p class="full-width">

@@ -1183,8 +1183,12 @@ class DynamicFormEntry extends VerySimpleModel {
     }
 
     function render($options=array()) {
+<<<<<<< HEAD
         if (is_array($options))
             $options += array('staff' => true);
+=======
+        $options += array('staff' => true);
+>>>>>>> Lint Fixes
         return $this->getForm()->render($options);
     }
 

@@ -44,6 +44,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             if ($_POST) $uform->isValid();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             $uform->render(false, false, array('mode' => 'create'));
 =======
             $uform->render(array('staff' => false));
@@ -51,6 +52,9 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 =======
             $uform->render(array('staff' => false, 'mode' => 'create'));
 >>>>>>> issue: Client-Side Forms
+=======
+            $uform->render(array('staff' => false));
+>>>>>>> Lint Fixes
         }
         else { ?>
             <tr><td colspan="2"><hr /></td></tr>

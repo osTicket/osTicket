@@ -152,7 +152,11 @@ class Mail_Parse {
      * the header key. If left as FALSE, only the value given in the last
      * occurance of the header is retained.
      */
+<<<<<<< HEAD
     static  function splitHeaders($headers_text, $as_array=false) {
+=======
+    static function splitHeaders($headers_text, $as_array=false) {
+>>>>>>> Lint Fixes
         $headers = preg_split("/\r?\n/", $headers_text);
         for ($i=0, $k=count($headers); $i<$k; $i++) {
             // first char might be whitespace (" " or "\t")
