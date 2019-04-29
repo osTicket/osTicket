@@ -701,7 +701,7 @@ class MailFetcher {
                         $body = $this->fetchBody($mid, $info['index'].'.0',
                             $info['encoding']);
                         // Add fake body to make the parser happy
-                        if ($body)
+                        if (!$body)
                              $body.="\n\nJunk";
 
                         $parser = new Mail_Parse($body);
