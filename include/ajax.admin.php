@@ -237,6 +237,9 @@ class AdminAjaxAPI extends AjaxController {
             }
         }
 
+        if (!$data_form)
+            $data_form = $sort->getDataConfigForm();
+
         include STAFFINC_DIR . 'templates/queue-sorting-add.tmpl.php';
 
     }
