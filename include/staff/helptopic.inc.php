@@ -1,6 +1,7 @@
 <?php
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = $forms = array();
+$topic_organization_ids=array();
 if($topic && $_REQUEST['a']!='add') {
     $title=__('Update Help Topic');
     $action='update';
@@ -11,12 +12,17 @@ if($topic && $_REQUEST['a']!='add') {
     $trans['name'] = $topic->getTranslateTag('name');
     $qs += array('id' => $topic->getId());
     $forms = $topic->getForms();
+    $topic_organizations = $topic->getOrganizations();
+    foreach ($topic_organizations as $topic_org_obj) {
+        array_push($topic_organization_ids,$topic_org_obj->id);
+    }
 } else {
     $title=__('Add New Help Topic');
     $action='create';
     $submit_text=__('Add Topic');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
+    $info['orgpconly']=isset($info['orgpconly'])?$info['orgpconly']:0;
     $qs += array('a' => $_REQUEST['a']);
     $forms = TicketForm::objects();
 }
@@ -90,6 +96,34 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                     <?php
                     } ?>
                 </select> <i class="help-tip icon-question-sign" href="#parent_topic"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                <?php echo __('Allowed Organizations');?>:
+            </td>
+            <td>
+                <select name="organizations[]" class="multi-select" multiple>
+                    <?php $allOrganizations = Organization::getAllOrganizations();
+                    while (list($id,$name) = each($allOrganizations)) {
+                        if ($id == $info['id'])
+                            continue; ?>
+                        <option value="<?php echo $id; ?>"<?php echo (in_array($id,$topic_organization_ids))?'selected':''; ?>><?php echo $name; ?></option>
+                    <?php
+                    } ?>
+                </select> <i class="help-tip icon-question-sign" href="#allowed_organizations"></i>
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
+                <?php echo __('Primary Contacts Only');?>:
+            </td>
+            <td>
+                <input type="radio" name="orgpconly" value="1" <?php echo $info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Enforced'); ?>
+                <input type="radio" name="orgpconly" value="0" <?php echo !$info['orgpconly']?'checked="checked"':''; ?>> <?php echo __('Disabled'); ?>
+                <i class="help-tip icon-question-sign" href="#organization_pc_only"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>

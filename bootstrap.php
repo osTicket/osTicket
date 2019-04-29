@@ -119,6 +119,7 @@ class Bootstrap {
 
         define('TOPIC_TABLE',$prefix.'help_topic');
         define('TOPIC_FORM_TABLE',$prefix.'help_topic_form');
+        define('TOPIC_ORGANIZATION_TABLE',$prefix.'help_topic_organization');
         define('SLA_TABLE', $prefix.'sla');
 
         define('EMAIL_TABLE',$prefix.'email');

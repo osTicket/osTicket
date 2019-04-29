@@ -72,6 +72,8 @@ implements EmailContact, ITicketUser, TemplateVariable {
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }
     function getEmail() { return ($this->user) ? $this->user->getEmail() : null; }
+    function isPrimaryContact() { return ($this->user) ? $this->user->isPrimaryContact() : null; }
+    function getOrganization() { return ($this->user) ? $this->user->getOrganization() : null; }
 
     static function lookupByToken($token) {
 
