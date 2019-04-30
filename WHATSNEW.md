@@ -1,3 +1,30 @@
+osTicket v1.10.6
+================
+### Enhancements
+* issue: Upgrader Wrong Guide Link (#4739)
+* iframe: Allow Multiple iFrame Domains (#4781)
+* issue: Strip Emoticons (#4523)
+
+### Improvements
+* issue: Maxfilesize Comma Crash (#4340)
+* issue: No Save Button On Quicknotes (#4706)
+* issue: PHP 7.2 Ticket Status (#4758)
+* issue: Canned Response Variables (#4759)
+* issue: FAQ Search Results (#4771)
+* issue: FAQ Return Errors (#4772)
+* issue: Duplicate Form Titles (#4788)
+* issue: Organizations Users Sort (#4806)
+* oops: Emojis Strip Korean (#4823)
+* issue: iFrame On Install (#4824)
+* issue: sendAccessLink On NULL (#4828)
+* Update README.md (eccc57a, e5f4180)
+* issue: iFrame Single Quotes (#4844)
+* issue: .eml/.msg Attachments (#4857)
+
+### Performance and Security
+* xss: XSS To LFI Vulnerability (#4869)
+* jquery: Update Again (#4858)
+
 osTicket v1.10.5
 ================
 ### Enhancements
