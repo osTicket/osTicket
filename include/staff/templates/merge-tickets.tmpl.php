@@ -88,10 +88,14 @@ if (!$ticket->isMerged()) {  ?>
 <div>
     <hr>
     <?php echo __('Merge Type: '); ?><i class="help-tip icon-question-sign" href="#merge_types"></i>
-    <input type="radio" name="combine" value="1" <?php echo $ticket->getMergeType() == 'combine'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?>
-    <input type="radio" name="combine" value="0" <?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?>
-    <input type="radio" name="combine" value="2" <?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?>
+    <fieldset id="combine">
+        <input type="radio" name="combine" value="1" <?php echo $ticket->getMergeType() == 'combine'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?>
+        <input type="radio" name="combine" value="0" <?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?>
+        <input type="radio" name="combine" value="2" <?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?>
+    </fieldset>
 </div>
+<div id="savewarning" style="display:none; padding-top:2px;"><p
+id="msg_warning"><?php echo __('Are you sure you want to delete the child ticket(s)?'); ?></p></div>
 
 <div id="delete-warning" style="display:none">
 <hr>
@@ -150,6 +154,32 @@ $(function() {
         }
       }
     });
+
+    $('#combine input[type=radio]').change(function(){
+      deleteChild(this);
+    })
+
+    $('#delete-child input[type=checkbox]').change(function(){
+        childWarning();
+    })
+
+    function deleteChild(combine) {
+       var value = $(combine).val();
+       switch (value) {
+         case "0":
+         case "1":
+           $('#delete-child').show();
+           break;
+         case "2":
+           $('#delete-child').hide();
+           break;
+       }
+     }
+
+     function childWarning() {
+         var value = $("#delete-child2").prop("checked") ? 1 : 0;
+         (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
+     }
 });
 
 </script>
