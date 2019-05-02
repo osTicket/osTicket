@@ -620,6 +620,7 @@ implements Searchable {
 
     function setExtra($mergedThread, $info='') {
         $this->object_type = 'C';
+        $this->extra = json_encode(array('ticket_id' => $mergedThread->getObjectId(), 'number' => $this->getObject()->getNumber()));
         $this->object_id = $mergedThread->getObjectId();
         ThreadEntry::setExtra($this->getEntries(), array('thread' => $this->getId()), $mergedThread->getId());
         $this->save();
