@@ -1112,6 +1112,49 @@ implements RestrictedAccess, Threadable, Searchable {
         return $fields ? $fields[0] : null;
     }
 
+    function getExportableFields() {
+        $cdata = $fields = array();
+        foreach (TicketForm::getInstance()->getFields() as $f) {
+            // Ignore core fields
+            if (in_array($f->get('name'), array('priority')))
+                continue;
+            // Ignore non-data fields
+            elseif (!$f->hasData() || $f->isPresentationOnly())
+                continue;
+
+            $name = $f->get('name') ?: 'field_'.$f->get('id');
+            $key = 'cdata.'.$name;
+            $cdata[$key] = $f->getLocal('label');
+        }
+
+        // Standard export fields if none is provided.
+        $fields = array(
+                'number' =>         __('Ticket Number'),
+                'created' =>        __('Date Created'),
+                'cdata.subject' =>  __('Subject'),
+                'user.name' =>      __('From'),
+                'user.default_email.address' => __('From Email'),
+                'cdata.:priority.priority_desc' => __('Priority'),
+                'dept::getLocalName' => __('Department'),
+                'topic::getName' => __('Help Topic'),
+                'source' =>         __('Source'),
+                'status::getName' =>__('Current Status'),
+                'lastupdate' =>     __('Last Updated'),
+                'est_duedate' =>    __('SLA Due Date'),
+                'duedate' =>        __('Due Date'),
+                'closed' =>         __('Closed Date'),
+                'isoverdue' =>      __('Overdue'),
+                'isanswered' =>     __('Answered'),
+                'staff::getName' => __('Agent Assigned'),
+                'team::getName' =>  __('Team Assigned'),
+                'thread_count' =>   __('Thread Count'),
+                'reopen_count' =>   __('Reopen Count'),
+                'attachment_count' => __('Attachment Count'),
+                ) + $cdata;
+
+        return $fields;
+    }
+
     function addCollaborator($user, $vars, &$errors, $event=true) {
 
         if (!$user || $user->getId() == $this->getOwnerId())
