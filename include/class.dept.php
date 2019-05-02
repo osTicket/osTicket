@@ -64,8 +64,9 @@ implements TemplateVariable {
     const ALERTS_DEPT_AND_EXTENDED = 1;
     const ALERTS_DEPT_ONLY = 0;
 
-    const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
-    const FLAG_DISABLE_AUTO_CLAIM  = 0x0002;
+    const FLAG_ASSIGN_MEMBERS_ONLY        = 0x0001;
+    const FLAG_DISABLE_AUTO_CLAIM         = 0x0002;
+    const FLAG_DISABLE_REOPEN_AUTO_ASSIGN = 0x0020;
 
     function asVar() {
         return $this->getName();
@@ -349,6 +350,10 @@ implements TemplateVariable {
         return $this->flags & self::FLAG_DISABLE_AUTO_CLAIM;
     }
 
+    function disableReopenAutoAssign() {
+        return $this->flags & self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN;
+    }
+
     function isGroupMembershipEnabled() {
         return $this->group_membership;
     }
@@ -361,6 +366,7 @@ implements TemplateVariable {
 
         $ht['assign_members_only'] = $this->assignMembersOnly();
         $ht['disable_auto_claim'] =  $this->disableAutoClaim();
+        $ht['disable_reopen_auto_assign'] =  $this->disableReopenAutoAssign();
         return $ht;
     }
 
@@ -663,6 +669,7 @@ implements TemplateVariable {
         $this->flags = 0;
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+        $this->setFlag(self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN, isset($vars['disable_reopen_auto_assign']));
 
         $this->path = $this->getFullPath();
 

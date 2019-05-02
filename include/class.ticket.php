@@ -1554,8 +1554,8 @@ implements RestrictedAccess, Threadable {
             // to unassigned pool.
             $dept = $this->getDept();
             $staff = $this->getStaff() ?: $this->getLastRespondent();
-            $autoclaim = ($cfg->autoClaimTickets() && !$dept->disableAutoClaim());
-            if ($autoclaim
+            $autoassign = (!$dept->disableReopenAutoAssign());
+            if ($autoassign
                     && $staff
                     // Is agent on vacation ?
                     && $staff->isAvailable()
