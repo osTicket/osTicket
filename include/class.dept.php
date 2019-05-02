@@ -66,11 +66,17 @@ implements TemplateVariable, Searchable {
     const ALERTS_DEPT_AND_EXTENDED = 1;
     const ALERTS_DEPT_ONLY = 0;
 
+<<<<<<< HEAD
     const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
     const FLAG_DISABLE_AUTO_CLAIM  = 0x0002;
     const FLAG_ACTIVE = 0x0004;
     const FLAG_ARCHIVED = 0x0008;
     const FLAG_ASSIGN_PRIMARY_ONLY = 0x0010;
+=======
+    const FLAG_ASSIGN_MEMBERS_ONLY        = 0x0001;
+    const FLAG_DISABLE_AUTO_CLAIM         = 0x0002;
+    const FLAG_DISABLE_REOPEN_AUTO_ASSIGN = 0x0020;
+>>>>>>> Issue: Reopen Assignment
 
     function asVar() {
         return $this->getName();
@@ -464,6 +470,10 @@ implements TemplateVariable, Searchable {
         return $this->flags & self::FLAG_DISABLE_AUTO_CLAIM;
     }
 
+    function disableReopenAutoAssign() {
+        return $this->flags & self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN;
+    }
+
     function isGroupMembershipEnabled() {
         return $this->group_membership;
     }
@@ -475,9 +485,13 @@ implements TemplateVariable, Searchable {
                 unset($ht[$k]);
 
         $ht['disable_auto_claim'] =  $this->disableAutoClaim();
+<<<<<<< HEAD
         $ht['status'] = $this->getStatus();
         $ht['assignment_flag'] = $this->getAssignmentFlag();
 
+=======
+        $ht['disable_reopen_auto_assign'] =  $this->disableReopenAutoAssign();
+>>>>>>> Issue: Reopen Assignment
         return $ht;
     }
 
@@ -826,6 +840,7 @@ implements TemplateVariable, Searchable {
 >>>>>>> department: Error Feedback
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
         $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+        $this->setFlag(self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN, isset($vars['disable_reopen_auto_assign']));
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $this->getId().'}'));
         if ($filter_actions && $vars['status'] == 'active')
