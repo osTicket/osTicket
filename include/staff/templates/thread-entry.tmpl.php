@@ -14,10 +14,6 @@ $avatar = '';
 if ($user && $cfg->isAvatarsEnabled())
     $avatar = $user->getAvatar();
 
-if ($number)
-    echo 'Ticket #'. $number; //make div class thread-entry-indent and use it
-else
-    $number = 0;
 ?>
 <div class="thread-entry <?php
     echo $entry->isSystem() ? 'system' : $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
@@ -65,7 +61,7 @@ else
             <span class="label label-bare"><i class="icon-user"></i></span>
 <?php   }
         if ((get_class($this) != 'TaskThread' && $entry->thread_id != $ticket->getThreadId()) || $entry->extra) { ?>
-            <span data-toggle="tooltip" title="<?php echo __('Merged'); ?>" class="label label-bare"><i class="icon-code-fork"></i></span>
+            <span data-toggle="tooltip" title="<?php echo $number ? sprintf('Ticket #%s', $number) : __('Merged'); ?>" class="label label-bare"><i class="icon-code-fork"></i></span>
         <?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'M') { ?>
             <span class="label label-bare"><?php echo __('Cc Collaborator'); ?></span>
