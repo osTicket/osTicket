@@ -2433,6 +2433,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $child = Ticket::lookup($child[0]);
                 $child->setMergeType($tickets['combine']);
                 $child->getThread()->setExtra($parent->getThread());
+                if ($tickets['delete-child2'])
+                    $child->delete();
             }
         }
     }
