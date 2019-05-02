@@ -2389,6 +2389,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ticket->setSort(1);
                     $ticket->save();
                     $ticket->logEvent('split', array('child' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $pid));
+                    $parent->logEvent('split', array('child' => sprintf('Ticket #%s', $ticket->getNumber()), 'id' => $ticket->getId()));
                 }
             }
         }
@@ -2399,8 +2400,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($ticket = Ticket::lookupByNumber($value)) {
                     if ($key == 0)
                         $parent = $ticket;
-                    else
+                    elseif (!$ticket->isMerged()) {
                         $ticket->logEvent('merged', array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
+                        $parent->logEvent('merged', array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
+                    }
+
 
                     if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MERGE))
                         return false;
