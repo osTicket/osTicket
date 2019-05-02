@@ -6,7 +6,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($ticket) || !$ticket->getI
 if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access Denied');
 
 //Make sure the staff is allowed to access the Ticket's children
-if(!$ticket->hasChildAccess()) die('Access Denied');
+if(!$ticket->hasChildAccess() && $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)) die('Access Denied');
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
