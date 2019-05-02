@@ -15,8 +15,6 @@
 <hr/><?php echo __(
 'Choose which Tickets to merge into this one. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
 );
-if ($ticket && $ticket->getMergeType() == 'visual')
-    $visual = true;
 ?>
 <br/>
 <br/>
@@ -24,7 +22,10 @@ if ($ticket && $ticket->getMergeType() == 'visual')
 <div id="ticket-entries">
 <?php
 
-foreach ($tickets as $t) { ?>
+foreach ($tickets as $t) {
+    if ($ticket->getId() == $t['ticket_pid'])
+        $visual = true;
+?>
 <div class="<?php if ($visual) echo 'sortable'; ?> row-item" data-id="<?php echo $t['ticket_id']; ?>">
     <input type="hidden" name="tids[]" value="<?php echo $t['number']; ?>" />
     <i class="icon-reorder"></i> <?php echo $t['number'];
@@ -45,6 +46,8 @@ foreach ($tickets as $t) { ?>
     <?php echo __('Show Children Threads') ?>
     <input type="checkbox" name="show_children" value="1" <?php echo $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)?'checked="checked"':''; ?> >
 </label>
+<?php
+if (!$ticket->isMerged()) {  ?>
 <hr/>
 <div>
 <i class="icon-plus"></i>&nbsp;
@@ -97,6 +100,8 @@ foreach ($tickets as $t) { ?>
     ); ?>
     </div>
 </div>
+
+<?php } ?>
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
