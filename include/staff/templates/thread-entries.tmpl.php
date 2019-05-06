@@ -72,7 +72,7 @@ if ($ticket && $ticket->getMergeType() == 'visual') {
             }
         }
 
-        if ($ticket->getMergeType() == 'separate')
+        if ($ticket && $ticket->getMergeType() == 'separate')
             $buckets = $buckets + $childEntries;
 
         // TODO: Consider adding a date boundary to indicate significant
