@@ -182,6 +182,9 @@ class Validator {
     }
 
     static function is_phone($phone) {
+    // The is_phone disabled because it does not support international phone
+    // numbers. 
+    	return true; // # change date  02.07.2018 - av Ole Kristian Ek Hornnes  - Tatt bort amerikansk validering tlf. 
         /* We're not really validating the phone number but just making sure it doesn't contain illegal chars and of acceptable len */
         $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);
         return (!is_numeric($stripped) || ((strlen($stripped)<7) || (strlen($stripped)>16)))?false:true;

@@ -488,12 +488,48 @@ implements RestrictedAccess, Threadable {
         return $this->duedate;
     }
 
+	function DueDateExceptWeekends ($dtx, $gracePeriod = 48) {
+		// If we start in the weekend, we move to monday morning 08:00
+		$dow = $dtx->format('w'); 
+		if ($dow==0 || $dow==6) {
+			$newdtx = new DateTime($dtx->format('Y-m-d').' 08:00:00');
+			switch ($dow) {
+				case 0: $dtx = $newdtx->add(new DateInterval('PT' . "24" . 'H')); break; // Sunday
+				case 6: $dtx = $newdtx->add(new DateInterval('PT' . "48" . 'H')); break; // Saturday
+			}
+		}
+		// See if reminder hours move into a new day. 
+		$graceDays = floor($gracePeriod/24); 
+		$RestSeconds = ($gracePeriod % 24) * 3600; 
+		$eod = new DateTime($dtx->format('Y-m-d').' 23:59:59');
+		$secsLeft = $eod->format('U') - $dtx->format('U')+1; 
+		if ($RestSeconds > $secsLeft) {
+			$graceDays += 1; 
+			$RestSeconds -= $secsLeft; 
+		}
+		
+		// Loop through the days, ...
+		for ($x = 1; $x <= $graceDays; $x++) {
+		    $dow = $dtx->format('w'); 
+			switch ($dow) {
+				case 5: $dtx = $dtx->add(new DateInterval('PT' . "72" . 'H')); break; // Friday
+				default: $dtx = $dtx->add(new DateInterval('PT' . "24" . 'H')); break; // Other days
+			}
+		} 
+		
+		if ($RestSeconds) {
+			$dtx = $dtx->add(new DateInterval('PT' . $RestSeconds . 'S'));
+		}
+		return $dtx; 
+	
+	}
+
+
     function getSLADueDate() {
         if ($sla = $this->getSLA()) {
             $dt = new DateTime($this->getCreateDate());
 
-            return $dt
-                ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
+            return $this->DueDateExceptWeekends( $dt, $sla->getGracePeriod())
                 ->format('Y-m-d H:i:s');
         }
     }

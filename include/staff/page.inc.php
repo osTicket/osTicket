@@ -4,6 +4,16 @@ $pageTypes = array(
         'landing' => __('Landing Page'),
         'offline' => __('Offline Page'),
         'thank-you' => __('Thank-You Page'),
+        'registration-staff' => __('registration-staff'),
+        'pwreset-staff' => __('pwreset-staff'),
+        'banner-staff' => __('banner-staff'),
+        'registration-client' => __('registration-client'),
+        'pwreset-client' => __('pwreset-client'),
+        'banner-client' => __('banner-client'),
+        'registration-confirm' => __('registration-confirm'),
+        'registration-thanks' => __('registration-thanks'),
+        'access-link' => __('access-link'),
+        
         'other' => __('Other'),
         );
 $info = $qs = array();

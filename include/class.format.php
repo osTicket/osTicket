@@ -88,7 +88,10 @@ class Format {
     }
 
 	function phone($phone) {
-
+	// # changed date  02.07.2018 - av Ole Kristian Ek Hornnes  
+	// does not support norwegian plain 8 digit phone numbers. No formatting
+		return $phone;
+		// # Endret dato  02.07.2018 - av Ole Kristian Ek Hornnes  - Vi benytter ikke telefonformattering her. 
 		$stripped= preg_replace("/[^0-9]/", "", $phone);
 		if(strlen($stripped) == 7)
 			return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2",$stripped);
