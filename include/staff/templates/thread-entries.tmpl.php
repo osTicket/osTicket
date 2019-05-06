@@ -62,9 +62,9 @@ foreach (Attachment::objects()->filter(array(
         $event = $events->current();
     }
     // This should never happen
-    if (count($entries) + count($events) == 0) {
-        echo '<p><em>'.__('No entries have been posted to this thread.').'</em></p>';
-    }
+    //if (count($entries) + count($events) == 0) {
+    //    echo '<p><em>'.__('No entries have been posted to this thread.').'</em></p>';
+    //}
     ?>
     </div>
 </div>
