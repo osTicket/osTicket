@@ -340,14 +340,12 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, "Access Denied");
 
         //retrieve the parent and child tickets
+        $parent_id = $ticket_id;
         $parent = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort');
         if ($ticket->getMergeType() == 'visual') {
-            $tickets =  Ticket::objects()
-                ->filter(array('ticket_pid'=>$ticket_id))
-                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort')
-                ->order_by('sort');
+            $tickets =  Ticket::getChildTickets($ticket_id);
             $tickets = $parent->union($tickets);
         }
         else
@@ -359,23 +357,42 @@ class TicketsAjaxAPI extends AjaxController {
                 . ') a ORDER BY sort';
         $res = db_query($sql);
         $tickets = db_assoc_array($res);
-
+        $tickets[0]['type'] = $ticket->getMergeType();
         $info = array('action' => '#tickets/'.$ticket->getId().'/merge');
 
-        include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
+        return self::_updateMerge($ticket, $tickets, $info);
     }
 
     function updateMerge($ticket_id) {
         global $thisstaff;
 
         $info = array();
+        $errors = array();
+
+        $parentModel = Ticket::objects()
+            ->filter(array('ticket_id'=>$ticket_id))
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort');
+
         if ($_POST['tids']) {
-            $parent = Ticket::lookupByNumber($_POST['tids'][0]);
+            $parent = Ticket::lookup($ticket_id);
             if ($parent->merge($_POST))
                 Http::response(201, 'Successfully managed');
+            else
+                $info['error'] = $errors['err'] ?: __('Unable to merge ticket');
         }
 
+        if ($parent->getMergeType() == 'visual') {
+            $tickets = Ticket::getChildTickets($ticket_id);
+            $tickets = $parentModel->union($tickets);
+        }
+        else
+            $tickets = $parentModel;
 
+        return self::_updateMerge($parent, $tickets, $info);
+    }
+
+    private function _updateMerge($ticket, $tickets, $info) {
+        include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
     }
 
     function cannedResponse($tid, $cid, $format='text') {
@@ -817,8 +834,20 @@ function refer($tid, $target=null) {
             foreach ($ticketIds as $key => $value) {
                 if (!$ticket = Ticket::lookup($value))
                     continue;
+                elseif (!$parent && $ticket->isParent() && $ticket->getMergeType() != 'visual')
+                    $parent = $ticket;
+
+                if ($parent && ($ticket->isParent() && $ticket->getMergeType() != 'visual') && $parent->getId() != $value)
+                    $info['error'] = sprintf(
+                            __('More than one Parent Ticket selected. %1$s cannot be %2$s.'),
+                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __('merged')
+                            );
+
                 $tickets[$key]['ticket_id'] =  $value;
                 $tickets[$key]['number'] = $ticket->getNumber();
+                $tickets[$key]['user_id'] = $ticket->getUserId();
+                $tickets[$key]['type'] = $ticket->getMergeType();
                 $role = $ticket->getRole($thisstaff);
 
                 // Generic permission check.
@@ -833,6 +862,16 @@ function refer($tid, $target=null) {
                     $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
 
             }
+            //move parent ticket to top of list
+            if ($parent && $parent->getMergeType() != 'visual') {
+                foreach ($tickets as $key => $value) {
+                    if ($value['ticket_id'] == $parent->getId()) {
+                        unset($tickets[$key]);
+                        array_unshift($tickets, $value);
+                    }
+                }
+            }
+
             break;
         case 'claim':
             $w = 'me';
