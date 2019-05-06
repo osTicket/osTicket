@@ -18,34 +18,66 @@
 ?>
 <br/>
 <br/>
-<form method="post" action="<?php echo $info['action']; ?>" onsubmit="refreshAndClose();">
-<div id="ticket-entries">
+<form method="post" action="<?php echo $info['action']; ?>">
+<ul id="ticket-entries">
 <?php
-
+if ($tickets) {
 foreach ($tickets as $t) {
+    if ($tickets instanceof QuerySet)
+        list($ticket_id, $number, $ticket_pid, $sort) = $t;
+    else {
+        $ticket_id = $t['ticket_id'];
+        $user_id = $t['user_id'];
+        $number = $t['number'];
+        $type = $t['type'];
+    }
+
+    if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id) {
+        $showParticipants = true;
+    }
     if ($ticket->getId() == $t['ticket_pid'])
         $visual = true;
+    $types[] = $type;
 ?>
-<div class="<?php if ($visual) echo 'sortable'; ?> row-item" data-id="<?php echo $t['ticket_id']; ?>">
-    <input type="hidden" name="tids[]" value="<?php echo $t['number']; ?>" />
-    <i class="icon-reorder"></i> <?php echo $t['number'];
+<li class="<?php if ($visual) echo 'sortable'; ?> row-item
+    <?php if (($parent && $parent instanceof Ticket && $parent->getMergeType() != 'visual' && $parent->getId() == $ticket_id) || //mass process merge
+              ($ticket && $ticket_id == $ticket->getId() && $ticket->getMergeType() != 'visual')) //ticket view merge
+            echo ' ui-state-disabled';
+          else
+            echo 'ui-sortable-handle';
+    ?>" data-id="<?php echo $ticket_id; ?>">
+    <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
+    <?php if (($parent && $parent instanceof Ticket && $ticket_id != $parent->getId()) ||
+              ($parent_id && $ticket_id != $parent_id) || !$parent) {?>
+        <i class="icon-reorder"></i> <?php echo $number;
+    }
+    else
+        echo $number;
     if (!is_null($t['ticket_pid'])) { ?>
     <div class="button-group">
     <div class="<?php if ($visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
-        var value = <?php echo $t['ticket_id']; ?>;
+        var value = <?php echo $ticket_id; ?>;
         $('#ticket-entries').append($('<input/>').attr({name:'dtids[]', type:'hidden'}).val(value))
-        $(this).closest('div.row-item').remove();$('#delete-warning').show();">
+        $(this).closest('li.row-item').remove();$('#delete-warning').show();">
         <?php if ($visual) { ?><i class="icon-trash"></i><?php } ?></a></div>
     </div>
     <?php } ?>
-</div>
-<?php } ?>
-</div>
+</li>
+<?php } } ?>
+</ul>
 <br/>
 <label class="inline checkbox">
     <?php echo __('Show Children Threads') ?>
-    <input type="checkbox" name="show_children" value="1" <?php echo $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)?'checked="checked"':''; ?> >
+    <input type="checkbox" name="show_children" value="1" <?php echo $ticket ?: $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)?'checked="checked"':''; ?> >
 </label>
+
+<div id="delete-child" class="hidden">
+    <label class="inline checkbox">
+        <?php echo __('Delete Child Ticket') ?>
+        <input type="checkbox" id="delete-child2" name="delete-child2">
+    </label>
+</div>
+
 <?php
 if (!$ticket->isMerged()) {  ?>
 <hr/>
@@ -63,7 +95,7 @@ if (!$ticket->isMerged()) {  ?>
 
     if ($sel.prop('disabled'))
         return;
-    $('#ticket-entries').append($('<div></div>').addClass('sortable row-item')
+    $('#ticket-entries').append($('<li></li>').addClass('sortable row-item')
         .text(' '+$sel.text())
         .data('id', id)
         .prepend($('<i>').addClass('icon-reorder'))
@@ -74,7 +106,7 @@ if (!$ticket->isMerged()) {  ?>
               .append($('<i>').addClass('icon-trash'))
               .click(function() {
                 $sel.prop('disabled',false);
-                $(this).closest('div.row-item').remove();
+                $(this).closest('li.row-item').remove();
                 $('#delete-warning').show();
                 return false;
               })
@@ -88,10 +120,10 @@ if (!$ticket->isMerged()) {  ?>
 <div>
     <hr>
     <?php echo __('Merge Type: '); ?><i class="help-tip icon-question-sign" href="#merge_types"></i>
-    <fieldset id="combine">
-        <input type="radio" name="combine" value="1" <?php echo $ticket->getMergeType() == 'combine'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?>
-        <input type="radio" name="combine" value="0" <?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?>
-        <input type="radio" name="combine" value="2" <?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?>
+    <fieldset id="combination">
+        <label for="combine" style="display:none"><input type="radio" name="combine" id="combine" value="1"<?php echo $ticket->getMergeType() == 'combine'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?></label>
+        <label for="separate" style="display:none"><input type="radio" name="combine" id="separate" value="0"<?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?></label>
+        <label for="visual" style="display:none"><input type="radio" name="combine" id="visual" value="2"<?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?></label>
     </fieldset>
 </div>
 <div id="savewarning" style="display:none; padding-top:2px;"><p
@@ -105,7 +137,6 @@ id="msg_warning"><?php echo __('Are you sure you want to delete the child ticket
     </div>
 </div>
 
-<?php } ?>
     <hr>
     <p class="full-width">
         <span class="buttons pull-left">
@@ -121,15 +152,47 @@ id="msg_warning"><?php echo __('Are you sure you want to delete the child ticket
 
 <script type="text/javascript">
 $(function() {
-    $('#ticket-entries').sortable({containment:'parent',tolerance:'pointer'});
+    $('#ticket-entries').sortable({items: "li:not(.ui-state-disabled)"});
+    $( "#ticket-entries li" ).disableSelection();
 });
 
 function refreshAndClose(tid, type) {
   location.reload();
 }
-</script>
-<script type="text/javascript">
-$(function() {
+
+$(document).ready(function() {
+    showMergeOptions();
+
+    function showMergeOptions() {
+        var jArray = <?php echo json_encode($types); ?>;
+        for(var i=0; i<jArray.length; i++){
+            switch (jArray[0]) {
+                case 'visual':
+                    $('#combine').parent().show();
+                    $('#separate').parent().show();
+                    $('#visual').parent().show();
+                    break;
+                case 'combine':
+                    $('#combine').parent().show();
+                    $('input:radio[id=combine]').attr('checked',true);
+                    $('#separate').parent().hide();
+                    $('#visual').parent().hide();
+                    deleteChild($('#combine'));
+                    break;
+                case 'separate':
+                    $('#combine').parent().hide();
+                    $('#separate').parent().show();
+                    $('input:radio[id=separate]').attr('checked',true);
+                    $('#visual').parent().hide();
+                    deleteChild($('#separate'));
+                    break;
+                default:
+
+            }
+        }
+    }
+
+
     $('.ticketSelection').select2({
       width: '450px',
       minimumInputLength: 3,
@@ -155,7 +218,7 @@ $(function() {
       }
     });
 
-    $('#combine input[type=radio]').change(function(){
+    $('#combination input[type=radio]').change(function(){
       deleteChild(this);
     })
 
@@ -183,3 +246,8 @@ $(function() {
 });
 
 </script>
+
+<style>
+  #ticket-entries { list-style-type: none;}
+  #ticket-entries { padding: 0px; }
+</style>

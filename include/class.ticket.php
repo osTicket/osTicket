@@ -224,7 +224,22 @@ implements RestrictedAccess, Threadable, Searchable {
     function getChildTickets($pid) {
         return Ticket::objects()
                 ->filter(array('ticket_pid'=>$pid))
-                ->values_flat('ticket_id');
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort')
+                ->order_by('sort');
+    }
+
+    function isMerged() {
+        if (!is_null($this->getPid()) || count($this->getChildTickets($this->getId())))
+            return true;
+
+        return false;
+    }
+
+    function isParent() {
+        if (count($this->getChildTickets($this->getId())))
+            return true;
+
+        return false;
     }
 
     function hasFlag($flag) {
@@ -2377,8 +2392,6 @@ implements RestrictedAccess, Threadable, Searchable {
     function merge($tickets) {
         global $thisstaff;
 
-        $info = array();
-
         //see if any tickets should be unmerged
         if ($tickets['dtids']) {
             foreach($tickets['dtids'] as $key => $value) {
@@ -2398,17 +2411,21 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($tickets['tids']) {
             foreach($tickets['tids'] as $key => $value) {
                 if ($ticket = Ticket::lookupByNumber($value)) {
+                    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MERGE))
+                       return false;
+
                     if ($key == 0)
                         $parent = $ticket;
-                    elseif (!$ticket->isMerged()) {
+                    elseif ($parent->isParent() && $ticket->isParent() &&
+                        $parent->getMergeType() != 'visual' && $ticket->getMergeType() != 'visual')
+                          return false;
+
+                    if (!$ticket->isMerged() && $parent->getId() != $ticket->getId()) {
                         $ticket->logEvent('merged', array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
                         $parent->logEvent('merged', array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
                     }
 
-
-                    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MERGE))
-                        return false;
-                    elseif ($ticket->getPid() != $parent->getId()) {
+                    if ($ticket->getPid() != $parent->getId()) {
                         $ticket->setPid($parent->getId());
                         $ticket->setSort($key);
                         $ticket->save();
@@ -2428,12 +2445,17 @@ implements RestrictedAccess, Threadable, Searchable {
             $children = Ticket::getChildTickets($parent->getId());
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
+                if ($child->getThread())
+                    $child->getThread()->setExtra($parent->getThread());
+
                 $child->setMergeType($tickets['combine']);
-                $child->getThread()->setExtra($parent->getThread());
+
+
                 if ($tickets['delete-child2'])
                     $child->delete();
             }
         }
+        return true;
     }
 
     //Dept Transfer...with alert.. done by staff
