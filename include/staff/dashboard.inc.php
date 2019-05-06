@@ -6,6 +6,24 @@
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/export-data.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/pareto.js"></script>
 
+<?php
+$sitecolor = array(
+"BRY"=>"#ff5252",
+"CAN"=>"rgb(241, 92, 128)",
+"IND"=>"#e040fb",
+"MEX"=>"#7c4dff",
+"NTC"=>"rgb(43, 144, 143)",
+"OH"=>"rgb(67, 67, 72)",
+"PAU"=>"#40c4ff",
+"RTA"=>"#18ffff",
+"RVC"=>"rgb(247, 163, 92)",
+"TNN1"=>"#69f0ae",
+"TNN2"=>"rgb(124, 181, 236)",
+"TNS"=>"#eeff41",
+"VIP"=>"#c30000",
+"EXT"=>"rgb(67, 67, 72)");
+?>
+
 <div class="subnav">
 
     <div class="float-left subnavtitle">
@@ -67,7 +85,42 @@
             
         </div>
     </div>
-	
+	</div>
+	<div class="row">
+	<div class="col-lg-6">
+        <div class="portlet" id="avgdays-chart-container"><!-- /primary heading -->
+           
+        </div>
+    </div>
+	</div>
+	<div class="row">
+	<div class="col-lg-12">
+        <div class="portlet" id="openytdbylocation-chart-container"><!-- /primary heading -->
+           
+        </div>
+    </div>
+	</div>
+	<div class="row">
+	<div class="col-lg-12">
+        <div class="portlet" id="closedytdbylocation-chart-container"><!-- /primary heading -->
+           
+    </div>
+	</div>
+	<div class="row">
+    </div>
+		<div class="col-lg-12">
+        <div class="portlet" id="topicopenytd-chart-container"><!-- /primary heading -->
+   </div>
+    </div>
+	</div>
+	<div class="row">
+    </div>
+		<div class="col-lg-12">
+        <div class="portlet" id="topiccloseytd-chart-container"><!-- /primary heading -->
+        </div>
+    </div>	
+	</div>
+	<div class="row">
     <div class="col-lg-6">
         <div class="portlet" id="toptentopic-chart-container"><!-- /primary heading -->
            
@@ -1078,6 +1131,689 @@
 
 });      	
 
+///// AVG Days
+
+<?php
+        $sql1="select avg(daysopen) as DaysOpen,CALENDARWEEK from
+					( select datediff(ost_ticket.closed,created) as DaysOpen,  FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed)- 2, 7)) AS CALENDARWEEK FROM ost_ticket where closed > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) 
+					AND ost_ticket.topic_id <> 12 and topic_id <> 14 AND topic_id <> 94 and (status_id = 3 or status_id=12)) d
+
+					group by CALENDARWEEK";
+        $tresults = db_query($sql1); 
+    ?>    
+$(function() {        
+ Highcharts.chart('avgdays-chart-container', {
+
+    chart: {
+        renderTo: 'avgdays-chart-container',
+        type: 'column'
+    },
+    title: {
+        text: 'Average Days Open',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+    },
+    xAxis: {
+        categories: [<?php foreach ($tresults as $tresult) {echo "'".$tresult['CALENDARWEEK']."',";}?>]
+    },
+    yAxis: [{
+        title: {
+            text: ''
+        }
+    }, {
+        title: {
+            text: ''
+        },
+        minPadding: 0,
+        maxPadding: 0,
+        max: 100,
+        min: 0,
+    }],
+    credits: false,
+    series: [{
+        name: 'Tickets',
+        type: 'column',
+        zIndex: 2,
+        data: [<?php foreach ($tresults as $tresult) {echo $tresult['DaysOpen'].',';} ?>]
+    }]
+});
+
+});        
+
+
+
+//Opened by location ytd
+<?php
+
+$sql="select distinct LOCATION from
+(
+	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	(
+	SELECT date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.created) > (DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK order by CALENDARWEEK, LOCATION
+)b ";
+
+$olocs = db_query($sql);
+
+$sql="select * from (select cat,sum(COUNT) as COUNT, LOCATION,CALENDARWEEK from (
+	select CALENDARWEEK as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK from
+	(
+		SELECT  date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY))  AS CALENDARWEEK, 
+		o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+		left join ost_user u on u.id = t.user_id 
+		left join ost_organization o on o.id = u.org_id
+		left join ost_ticket_status s on s.id = t.status_id
+		where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.created >(DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+
+	group by LOCATION, CALENDARWEEK
+    
+    union all
+    
+    select distinct cat, 0 as COUNT, b.LOCATION,CALENDARWEEK   from (select CALENDARWEEK as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK from
+	(
+	SELECT  date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY))  AS CALENDARWEEK,
+    o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+    left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.created >(DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+
+	group by LOCATION, CALENDARWEEK)a left join
+    
+    (SELECT distinct
+     o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.created >(DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR)))b on 1=1) dat
+    
+    group by  cat, LOCATION) datb  Where LOCATION IS NOT NULL order by CALENDARWEEK
+    
+";
+
+$olocsdata = db_query($sql);
+
+$sql="select distinct CALENDARWEEK as cat  from
+	(
+	SELECT date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.created) > (DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK order by CALENDARWEEK, LOCATION";
+ 
+$periods = db_query($sql);   
+
+?>
+
+
+$(function () {
+
+    Highcharts.chart('openytdbylocation-chart-container', {
+        chart: {
+            type: 'column',
+        },
+        title: {
+            text: 'TICKETS OPENED (LOCATION YTD)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+                          },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+            }
+        }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+             shared: true
+        },
+        
+        plotOptions: {
+         column: {
+               
+            dataLabels: {
+                enabled: false,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 20) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+        }
+        },
+               series: [
+        
+         <?php
+        foreach ($olocs as $oloc) { 
+			$key = $oloc["LOCATION"];
+			$color = $sitecolor[$key];
+        ?>
+        {
+            name: '<?php echo $oloc["LOCATION"]?>',
+			
+            data: [<?php foreach ($olocsdata as $olocdata) {
+
+                if ($olocdata["LOCATION"] == $oloc["LOCATION"]) echo $olocdata["COUNT"].',';
+            }?>],
+			color: '<?php echo $color; ?>'
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});  
+
+//Closed by location ytd
+<?php
+
+$sql="select distinct LOCATION from
+(
+	select CALENDARWEEK, count(LOCATION) as COUNT, LOCATION from
+	(
+	SELECT date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK order by CALENDARWEEK, LOCATION
+)b ";
+
+$olocs = db_query($sql);
+
+$sql="select * from (select cat,sum(COUNT) as COUNT, LOCATION,CALENDARWEEK from (
+	select CALENDARWEEK as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK from
+	(
+		SELECT  date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY))  AS CALENDARWEEK, 
+		o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+		left join ost_user u on u.id = t.user_id 
+		left join ost_organization o on o.id = u.org_id
+		left join ost_ticket_status s on s.id = t.status_id
+		where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+
+	group by LOCATION, CALENDARWEEK
+    
+    union all
+    
+    select distinct cat, 0 as COUNT, b.LOCATION,CALENDARWEEK   from (select CALENDARWEEK as cat, count(STATUS) as COUNT,LOCATION, CALENDARWEEK from
+	(
+	SELECT  date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY))  AS CALENDARWEEK,
+    o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+    left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+
+	group by LOCATION, CALENDARWEEK)a left join
+    
+    (SELECT distinct
+     o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and t.closed >(DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR)))b on 1=1) dat
+    
+    group by  cat, LOCATION) datb  Where LOCATION IS NOT NULL order by CALENDARWEEK
+    
+";
+
+$olocsdata = db_query($sql);
+
+$sql="select distinct CALENDARWEEK as cat  from
+	(
+	SELECT date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY)) AS CALENDARWEEK, o.name AS LOCATION, s.name as STATUS FROM ost_ticket t 
+	left join ost_user u on u.id = t.user_id 
+	left join ost_organization o on o.id = u.org_id
+	left join ost_ticket_status s on s.id = t.status_id
+
+
+	where t.topic_id <> 14 AND t.topic_id <> 12 AND t.topic_id <> 94 and (t.closed) > (DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR))
+	) a
+	where LOCATION is not null
+	group by LOCATION, CALENDARWEEK order by CALENDARWEEK, LOCATION";
+ 
+$periods = db_query($sql);   
+
+?>
+
+
+$(function () {
+    Highcharts.chart('closedytdbylocation-chart-container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'TICKETS CLOSED (LOCATION YTD)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+                          },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+            }
+        }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+             shared: true
+        },
+        
+        plotOptions: {
+         column: {
+               
+            dataLabels: {
+                enabled: false,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 20) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+        }
+        },
+               series: [
+        
+         <?php
+        foreach ($olocs as $oloc) { ?>
+        
+        {
+            name: '<?php echo $oloc["LOCATION"]?>',
+            data: [<?php foreach ($olocsdata as $olocdata) {
+
+                if ($olocdata["LOCATION"] == $oloc["LOCATION"]) echo $olocdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});
+
+
+//Open by Topic ytd
+<?php
+
+$sql="select distinct Topic from
+(
+	select COUNT,if(topic is null, 'Unknown',topic) as 'Topic', CALENDARWEEK from
+(
+ select sum(COUNT) as COUNT, Topic, CALENDARWEEK from 
+	(
+	SELECT 1 as COUNT, if(hp.topic is null, h.topic,hp.topic) as 'Topic',date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY)) as CALENDARWEEK
+	 FROM osticket_sup.ost_ticket t join ost_user u on t.user_id = u.id join ost_organization o on u.org_id = o.id 
+	 left join ost_help_topic h on t.topic_id = h.topic_id left join ost_help_topic hp on h.topic_pid = hp.topic_id 
+	 where t.created > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) AND (t.topic_id <> 12 and t.topic_id <> 14 AND t.topic_id <> 94)
+	 )a
+	group by CALENDARWEEK, Topic
+)b
+
+order by CALENDARWEEK, Topic)c ";
+
+$olocs = db_query($sql);
+
+$sql="select COUNT,if(topic is null, 'Unknown',topic) as 'Topic', CALENDARWEEK from
+(
+ select sum(COUNT) as COUNT, Topic, CALENDARWEEK from 
+	(
+	SELECT 1 as COUNT, if(hp.topic is null, h.topic,hp.topic) as 'Topic',date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY)) as CALENDARWEEK
+	 FROM osticket_sup.ost_ticket t join ost_user u on t.user_id = u.id join ost_organization o on u.org_id = o.id 
+	 left join ost_help_topic h on t.topic_id = h.topic_id left join ost_help_topic hp on h.topic_pid = hp.topic_id 
+	 where t.created > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) AND (t.topic_id <> 12 and t.topic_id <> 14 AND t.topic_id <> 94)
+	 )a
+	group by CALENDARWEEK, Topic
+)b
+
+order by CALENDARWEEK, Topic
+    
+";
+
+$olocsdata = db_query($sql);
+
+$sql="select distinct CALENDARWEEK as cat  from
+	(
+	select COUNT,if(topic is null, 'Unknown',topic) as 'Topic', CALENDARWEEK from
+(
+ select sum(COUNT) as COUNT, Topic, CALENDARWEEK from 
+	(
+	SELECT 1 as COUNT, if(hp.topic is null, h.topic,hp.topic) as 'Topic',date(DATE_ADD((SELECT t.created - INTERVAL (WEEKDAY(t.created))DAY),INTERVAL 7 DAY)) as CALENDARWEEK
+	 FROM osticket_sup.ost_ticket t join ost_user u on t.user_id = u.id join ost_organization o on u.org_id = o.id 
+	 left join ost_help_topic h on t.topic_id = h.topic_id left join ost_help_topic hp on h.topic_pid = hp.topic_id 
+	 where t.created > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) AND (t.topic_id <> 12 and t.topic_id <> 14 AND t.topic_id <> 94)
+	 )a
+	group by CALENDARWEEK, Topic
+)b
+
+order by CALENDARWEEK, Topic)c";
+ 
+$periods = db_query($sql);   
+
+?>
+
+
+$(function () {
+    Highcharts.chart('topicopenytd-chart-container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'TOPICS OPENED (YTD)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+                          },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+            }
+        }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+             shared: true
+        },
+        
+        plotOptions: {
+         column: {
+               
+            dataLabels: {
+                enabled: false,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 20) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+        }
+        },
+               series: [
+        
+         <?php
+        foreach ($olocs as $oloc) { ?>
+        
+        {
+            name: '<?php echo $oloc["Topic"]?>',
+            data: [<?php foreach ($olocsdata as $olocdata) {
+
+                if ($olocdata["Topic"] == $oloc["Topic"]) echo $olocdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});
+
+//Closed by Topic ytd
+<?php
+
+$sql="select distinct Topic from
+(
+	select COUNT,if(topic is null, 'Unknown',topic) as 'Topic', CALENDARWEEK from
+(
+ select sum(COUNT) as COUNT, Topic, CALENDARWEEK from 
+	(
+	SELECT 1 as COUNT, if(hp.topic is null, h.topic,hp.topic) as 'Topic',date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY)) as CALENDARWEEK
+	 FROM osticket_sup.ost_ticket t join ost_user u on t.user_id = u.id join ost_organization o on u.org_id = o.id 
+	 left join ost_help_topic h on t.topic_id = h.topic_id left join ost_help_topic hp on h.topic_pid = hp.topic_id 
+	 where t.created > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) AND (t.topic_id <> 12 and t.topic_id <> 14 AND t.topic_id <> 94)
+	 )a
+	group by CALENDARWEEK, Topic
+)b
+
+order by CALENDARWEEK, Topic)c ";
+
+$olocs = db_query($sql);
+
+$sql="select COUNT,if(topic is null, 'Unknown',topic) as 'Topic', CALENDARWEEK from
+(
+ select sum(COUNT) as COUNT, Topic, CALENDARWEEK from 
+	(
+	SELECT 1 as COUNT, if(hp.topic is null, h.topic,hp.topic) as 'Topic',date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY)) as CALENDARWEEK
+	 FROM osticket_sup.ost_ticket t join ost_user u on t.user_id = u.id join ost_organization o on u.org_id = o.id 
+	 left join ost_help_topic h on t.topic_id = h.topic_id left join ost_help_topic hp on h.topic_pid = hp.topic_id 
+	 where t.created > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) AND (t.topic_id <> 12 and t.topic_id <> 14 AND t.topic_id <> 94)
+	 )a
+	group by CALENDARWEEK, Topic
+)b
+
+order by CALENDARWEEK, Topic
+    
+";
+
+$olocsdata = db_query($sql);
+
+$sql="select distinct CALENDARWEEK as cat  from
+	(
+	select COUNT,if(topic is null, 'Unknown',topic) as 'Topic', CALENDARWEEK from
+(
+ select sum(COUNT) as COUNT, Topic, CALENDARWEEK from 
+	(
+	SELECT 1 as COUNT, if(hp.topic is null, h.topic,hp.topic) as 'Topic',date(DATE_ADD((SELECT t.closed - INTERVAL (WEEKDAY(t.closed))DAY),INTERVAL 7 DAY)) as CALENDARWEEK
+	 FROM osticket_sup.ost_ticket t join ost_user u on t.user_id = u.id join ost_organization o on u.org_id = o.id 
+	 left join ost_help_topic h on t.topic_id = h.topic_id left join ost_help_topic hp on h.topic_pid = hp.topic_id 
+	 where t.created > DATE_SUB(LAST_DAY(DATE_ADD(NOW(), INTERVAL 12-MONTH(NOW()) MONTH)), INTERVAL 1 YEAR) AND (t.topic_id <> 12 and t.topic_id <> 14 AND t.topic_id <> 94)
+	 )a
+	group by CALENDARWEEK, Topic
+)b
+
+order by CALENDARWEEK, Topic)c";
+ 
+$periods = db_query($sql);   
+
+?>
+
+
+$(function () {
+    Highcharts.chart('topiccloseytd-chart-container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'TOPICS CLOSED (YTD)',
+            style: {
+            color: '#797979',
+            fontSize: '14px',
+            fontWeight: '600',
+            }
+        },
+
+        xAxis: {
+            categories: [<?php
+      foreach ($periods as $period) {
+                 
+                 echo "'".preg_replace('/\s+/', ' ', $period["cat"])."',";
+       }   
+       ?>]
+        },
+        yAxis: {
+            title: {
+                text: 'Number of Tickets'
+                          },
+            stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+            }
+        }
+        },
+        legend: {
+            align: 'center',
+            verticalAlign: 'bottom',
+            x: 0,
+            y: 0,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+             shared: true
+        },
+        
+        plotOptions: {
+         column: {
+               
+            dataLabels: {
+                enabled: false,
+                formatter: function(){
+                    console.log(this);
+                    var val = this.y;
+                    if (val < 20) {
+                        return '';
+                    }
+                    return val;
+                },
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+                }
+        }
+        },
+               series: [
+        
+         <?php
+        foreach ($olocs as $oloc) { ?>
+        
+        {
+            name: '<?php echo $oloc["Topic"]?>',
+            data: [<?php foreach ($olocsdata as $olocdata) {
+
+                if ($olocdata["Topic"] == $oloc["Topic"]) echo $olocdata["COUNT"].',';
+            }?>]
+        }, 
+        
+        <?php } ?>
+        ]
+
+
+    });
+});
 <?php
         $sql1="SELECT COUNT(TOPIC) AS COUNT, TOPIC
 FROM     (SELECT ost_ticket.number AS Ticket, 
