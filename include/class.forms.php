@@ -4363,7 +4363,7 @@ class AssignmentForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
+    function render($staff=true, $title=false, $options=array()) {
 
         switch(strtolower($options['template'])) {
         case 'simple':
@@ -4493,7 +4493,7 @@ class TransferForm extends Form {
         return !$this->errors();
     }
 
-    function render($options) {
+    function render($staff=true, $title=false, $options=array()) {
 
         switch(strtolower($options['template'])) {
         case 'simple':
