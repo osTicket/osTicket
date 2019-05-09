@@ -15,7 +15,12 @@ class TicketApiController extends ApiController {
                 array("name", "type", "data", "encoding", "size")
             ),
             "message", "ip", "priorityId",
-            "system_emails", "thread_entry_recipients"
+            "system_emails" => array(
+                "*" => "*"
+            ),
+            "thread_entry_recipients" => array (
+                "*" => array("to", "cc")
+            )
         );
         # Fetch dynamic form field names for the given help topic and add
         # the names to the supported request structure
