@@ -856,15 +856,14 @@ implements RestrictedAccess, Threadable, Searchable {
 
 
     function getThreadId() {
-        if ($this->thread)
-            return $this->thread->id;
+        if ($this->getThread())
+            return $this->getThread()->getId();
     }
 
     function getThread() {
-        if (is_null($this->thread)) {
-            $extra = json_encode(array('ticket_id' => $this->getId(), 'number' => $this->getNumber()));
-            $threadId = Thread::getIdByExtra($extra);
-            return Thread::lookup($threadId[0]);
+        if (is_null($this->thread) && $this->ticket_pid) {
+            $threadId = Thread::getIdByObjectId($this->ticket_pid, 'C');
+            return TicketThread::lookup($threadId[0]);
         }
         return $this->thread;
     }
