@@ -255,9 +255,9 @@ implements Searchable {
         return true;
     }
 
-    function getIdByExtra($extra) {
+    function getIdByObjectId($object_id, $type) {
         return Thread::objects()
-            ->filter(array('extra'=>$extra))
+            ->filter(array('object_id'=>$object_id, 'object_type' => $type))
             ->values_flat('id')
             ->first();
     }
