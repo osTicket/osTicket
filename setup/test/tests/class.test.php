@@ -31,10 +31,15 @@ class Test {
     function teardown() {
     }
 
-    static function getAllScripts($excludes=true, $root=false) {
+    static function ignore3rdparty() {
+        return true;
+    }
+
+    static function getAllScripts($pattern='*.php', $root=false, $excludes=true) {
         $root = $root ?: get_osticket_root_path();
+        $excludes = $excludes ?: static::ignore3rdparty();
         $scripts = array();
-        foreach (glob_recursive("$root/*.php") as $s) {
+        foreach (glob_recursive("$root/$pattern") as $s) {
             $found = false;
             if ($excludes) {
                 foreach (self::$third_party_paths as $p) {
@@ -64,11 +69,11 @@ class Test {
         fputs(STDOUT, 'w');
     }
 
-    function assert($expr, $message) {
+    function assert($expr, $message=false) {
         if ($expr)
             $this->pass();
         else
-            $this->fail('', '', $message);
+            $this->fail('', '', $message ?: 'Test case failed');
     }
 
     function assertEqual($a, $b, $message=false) {
@@ -88,20 +93,20 @@ class Test {
         foreach ($rc->getMethods() as $m) {
             if (stripos($m->name, 'test') === 0) {
                 $this->setup();
-                call_user_func(array($this, $m->name));
+                @call_user_func(array($this, $m->name));
                 $this->teardown();
             }
         }
     }
 
-    function line_number_for_offset($filename, $offset) {
-        $lines = file($filename);
-        $bytes = $line = 0;
-        while ($bytes < $offset) {
-            $bytes += strlen(array_shift($lines));
-            $line += 1;
-        }
-        return $line;
+    function line_number_for_offset($file, $offset) {
+
+        if (is_file($file))
+            $content = file_get_contents($file, false, null, 0, $offset);
+        else
+            $content = @substr($file, 0, $offset);
+
+        return count(explode("\n", $content));
     }
 }
 
