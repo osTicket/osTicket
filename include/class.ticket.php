@@ -2453,6 +2453,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($tickets['delete-child2'])
                     $child->delete();
             }
+            if ($tickets['delete-child2'])
+                $parent->setMergeType(2);
         }
         return true;
     }
