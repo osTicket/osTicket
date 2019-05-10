@@ -108,8 +108,8 @@ class Packager extends Deployment {
         if (!$zip->open($name, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true)
             return false;
 
-        $php56 = version_compare(phpversion(), '5.6.0', '>');
-        $addFiles = function($dir) use (&$addFiles, $zip, $path, $php56) {
+        $php56plus = version_compare(phpversion(), '5.6.0', '>');
+        $addFiles = function($dir) use (&$addFiles, $zip, $path, $php56plus) {
             $files = array_diff(scandir($dir), array('.','..'));
             $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             foreach ($files as $file) {
@@ -122,10 +122,10 @@ class Packager extends Deployment {
                     //      out of OS open file handles
                     $zip->addFromString($local, file_get_contents($full));
                     // This only works on PHP >= v5.6
-                    if ($php56) {
+                    if ($php56plus) {
                         // Set the Unix mode of the file
                         $stat = stat($full);
-                        $zip->setExternalAttributesName($local, ZipArchive::OPSYS_UNIX, $stat['mode']);
+                        $zip->setExternalAttributesName($local, ZipArchive::OPSYS_UNIX, $stat['mode'] << 16);
                     }
             }
         };
