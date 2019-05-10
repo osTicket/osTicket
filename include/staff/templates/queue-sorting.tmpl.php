@@ -1,4 +1,4 @@
-<?php echo $sort->getDataConfigForm()->asTable(); ?>
+<?php echo $data_form->asTable(); ?>
 
 <table class="table">
     <tbody class="sortable-rows">
