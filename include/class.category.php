@@ -211,7 +211,6 @@ class Category extends VerySimpleModel {
     function delete() {
         try {
             parent::delete();
-            $this->faqs->expunge();
         }
         catch (OrmException $e) {
             return false;
