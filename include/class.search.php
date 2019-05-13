@@ -1344,11 +1344,14 @@ class MergedField extends FormField {
     }
 
     function addToQuery($query, $name=false) {
-        return $query->values('ticket_pid');
+        return $query->values('ticket_pid', 'flags');
     }
 
     function from_query($row, $name=false) {
-        return ($row['ticket_pid'])
+        $flags = $row['flags'];
+        $combine = ($flags & Ticket::FLAG_COMBINE_THREADS) != 0;
+        $separate = ($flags & Ticket::FLAG_SEPARATE_THREADS) != 0;
+        return ($row['ticket_pid'] || $combine || $separate)
             ? __('Yes') : __('No');
     }
 
