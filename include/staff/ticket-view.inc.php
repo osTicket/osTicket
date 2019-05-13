@@ -217,7 +217,7 @@ if($ticket->isOverdue())
                 <?php
                 }
 
-                if ($role->hasPerm(Ticket::PERM_REPLY) && $ticket->getId() == $thread->getObjectId()) {
+                if ($role->hasPerm(Ticket::PERM_REPLY) && $thread && $ticket->getId() == $thread->getObjectId()) {
                     ?>
                 <li>
 
@@ -396,7 +396,7 @@ if($ticket->isOverdue())
                                 </ul>
                             </div>
                             <?php
-                            if ($role->hasPerm(Ticket::PERM_EDIT) && $ticket->getId() == $thread->getObjectId()) {
+                            if ($role->hasPerm(Ticket::PERM_EDIT) && $thread && $ticket->getId() == $thread->getObjectId()) {
                                 if ($thread) {
                                     $numCollaborators = $thread->getNumCollaborators();
                                     if ($thread->getNumCollaborators())
@@ -863,7 +863,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                      <div>
                         <span style="margin: 10px 5px 1px 0;" class="faded pull-left"><?php echo __('Select or Add New Collaborators'); ?>&nbsp;</span>
                         <?php
-                        if ($role->hasPerm(Ticket::PERM_REPLY) && $ticket->getId() == $thread->getObjectId()) { ?>
+                        if ($role->hasPerm(Ticket::PERM_REPLY) && $thread && $ticket->getId() == $thread->getObjectId()) { ?>
                         <span class="action-button pull-left" style="margin: 2px  0 5px 20px;"
                             data-dropdown="#action-dropdown-collaborators"
                             data-placement="bottom"
@@ -883,7 +883,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                          <span class="error">&nbsp;&nbsp;<?php echo $errors['ccs']; ?></span>
                         </div>
                         <?php
-                        if ($role->hasPerm(Ticket::PERM_REPLY) && $ticket->getId() == $thread->getObjectId()) { ?>
+                        if ($role->hasPerm(Ticket::PERM_REPLY) && $thread && $ticket->getId() == $thread->getObjectId()) { ?>
                         <div id="action-dropdown-collaborators" class="action-dropdown anchor-right">
                           <ul>
                              <li><a class="manage-collaborators"
@@ -903,15 +903,16 @@ if ($errors['err'] && isset($_POST['a'])) {
                           data-placeholder="<?php
                             echo __('Select Active Collaborators'); ?>">
                           <?php
-                          $collabs = $ticket->getCollaborators();
-                          foreach ($collabs as $c) {
-                              echo sprintf('<option value="%s" %s class="%s">%s</option>',
-                                      $c->getUserId(),
-                                      $c->isActive() ?
-                                      'selected="selected"' : '',
-                                      $c->isActive() ?
-                                      'active' : 'disabled',
-                                      $c->getName());
+                          if ($collabs = $ticket->getCollaborators()) {
+                              foreach ($collabs as $c) {
+                                  echo sprintf('<option value="%s" %s class="%s">%s</option>',
+                                          $c->getUserId(),
+                                          $c->isActive() ?
+                                          'selected="selected"' : '',
+                                          $c->isActive() ?
+                                          'active' : 'disabled',
+                                          $c->getName());
+                              }
                           }
                           ?>
                       </select>
