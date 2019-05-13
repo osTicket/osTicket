@@ -844,6 +844,13 @@ function refer($tid, $target=null) {
                             __('merged')
                             );
 
+                if ($ticket->isChild() && $ticket->getMergeType() != 'visual')
+                    $info['error'] = sprintf(
+                            __('One or more Tickets selected is a merged child. %1$s cannot be %2$s.'),
+                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __('merged')
+                            );
+
                 $tickets[$key]['ticket_id'] =  $value;
                 $tickets[$key]['number'] = $ticket->getNumber();
                 $tickets[$key]['user_id'] = $ticket->getUserId();
