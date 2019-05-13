@@ -41,7 +41,7 @@ foreach ($tickets as $t) {
 ?>
 <li class="<?php if ($visual) echo 'sortable'; ?> row-item
     <?php if (($parent && $parent instanceof Ticket && $parent->getMergeType() != 'visual' && $parent->getId() == $ticket_id) || //mass process merge
-              ($ticket && $ticket_id == $ticket->getId() && $ticket->getMergeType() != 'visual')) //ticket view merge
+              ($ticket && $ticket_id == $ticket->getId() && $ticket->getMergeType() != 'visual')) //ticket view merge or mass process merge w/child ticket(s)
             echo ' ui-state-disabled';
           else
             echo 'ui-sortable-handle';
