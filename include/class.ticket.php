@@ -2415,19 +2415,23 @@ implements RestrictedAccess, Threadable, Searchable {
 
                     if ($key == 0)
                         $parent = $ticket;
-                    elseif ($parent->isParent() && $ticket->isParent() &&
-                        $parent->getMergeType() != 'visual' && $ticket->getMergeType() != 'visual')
-                          return false;
 
-                    if (!$ticket->isMerged() && $parent->getId() != $ticket->getId()) {
-                        $ticket->logEvent('merged', array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
-                        $parent->logEvent('merged', array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
-                    }
+                    if ($parent && $parent->getId() != $ticket->getId()) {
+                        if (($parent->isParent() && $ticket->getMergeType() == 'visual') ||
+                           ($parent->getMergeType() == 'visual' && $ticket->getMergeType() == 'visual')) {
+                               if (!$ticket->isMerged() && $parent->getId() != $ticket->getId()) {
+                                   $ticket->logEvent('merged', array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
+                                   $parent->logEvent('merged', array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
+                               }
 
-                    if ($ticket->getPid() != $parent->getId()) {
-                        $ticket->setPid($parent->getId());
-                        $ticket->setSort($key);
-                        $ticket->save();
+                               if ($ticket->getPid() != $parent->getId()) {
+                                   $ticket->setPid($parent->getId());
+                                   $ticket->setSort($key);
+                                   $ticket->save();
+                               }
+                        }
+                        else
+                            return false;
                     }
                 }
             }
@@ -2439,7 +2443,11 @@ implements RestrictedAccess, Threadable, Searchable {
         else
             $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, false);
 
-        $parent->setMergeType($tickets['combine']);
+        if ($parent->getMergeType() == 'visual')
+            $parent->setMergeType($tickets['combine']);
+        else
+            return false;
+
         if ($parent->getMergeType() != 'visual') {
             $children = Ticket::getChildTickets($parent->getId());
             foreach ($children as $child) {
