@@ -671,6 +671,18 @@ class MailFetcher {
         // attachment. Download the body and pass it along to the mail
         // parsing engine.
         $info = Mail_Parse::splitHeaders($mailinfo['header']);
+
+        //make sure reply-to headers are correctly formatted
+        if ($mailinfo['reply-to'] && !Validator::is_email($mailinfo['reply-to']) && $info['Reply-To']) {
+            $replyto = Mail_Parse::parseAddressList($info['Reply-To']);
+            if ($replyto[0]) {
+                $mailinfo['reply-to'] = sprintf('%s@%s', $replyto[0]->mailbox, $replyto[0]->host);
+                $mailinfo['reply-to-name'] = $replyto[0]->personal;
+            } else {
+              $mailinfo['reply-to'] = null;
+            }
+        }
+
         if (strtolower($info['Content-Type']) == 'message/rfc822') {
             if ($wrapped = $this->getPart($mid, 'message/rfc822')) {
                 require_once INCLUDE_DIR.'api.tickets.php';
