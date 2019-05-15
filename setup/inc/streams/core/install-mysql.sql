@@ -523,7 +523,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `staff_id` int(11) unsigned NOT NULL auto_increment,
   `dept_id` int(10) unsigned NOT NULL default '0',
   `role_id` int(10) unsigned NOT NULL default '0',
-  `username` varchar(32) NOT NULL default '',
+  `username` varchar(64) NOT NULL default '',
   `firstname` varchar(32) default NULL,
   `lastname` varchar(32) default NULL,
   `passwd` varchar(128) default NULL,
