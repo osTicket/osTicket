@@ -326,6 +326,10 @@ implements TemplateVariable, Searchable {
         return $rv;
     }
 
+    function getNumMembersForAlerts() {
+        return count($this->getMembersForAlerts());
+    }
+
     function getSLAId() {
         return $this->sla_id;
     }
