@@ -100,7 +100,7 @@ foreach ($matches as $name => $fields) { ?>
 <div id="saved-searches" class="accordian" style="max-height:200px;overflow-y:auto;">
 <?php foreach (SavedSearch::forStaff($thisstaff) as $S) { ?>
     <dt class="saved-search">
-        <a href="#" class="load-search"><?php echo $S->title; ?>
+        <a href="#" class="load-search"><?php echo $S->title ?: "null"; ?>
         <i class="icon-chevron-down pull-right"></i>
         </a>
     </dt>
