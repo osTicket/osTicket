@@ -1344,14 +1344,85 @@ class MergedField extends FormField {
     }
 
     function addToQuery($query, $name=false) {
-        return $query->values('ticket_pid', 'flags');
+        $query->annotate(array(
+                'merged' => new SqlExpr(new Q(array(
+                    Q::any(array(
+                        'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
+                        'flags__hasbit' => Ticket::FLAG_COMBINE_THREADS,
+                )))
+            ))));
+
+        return $query->values('merged');
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case 'set':
+            $visibility = Q::any(array(
+                'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
+            ));
+            $visibility->add(Q::any(array(
+                'flags__hasbit' => Ticket::FLAG_COMBINE_THREADS
+            )));
+            $visibility->ored = true;
+            return $visibility;
+        case 'nset':
+            $visibility = Q::all(array());
+            $visibility->add(Q::not(array(
+                'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
+            )));
+            $visibility->add(Q::not(array(
+                'flags__hasbit' => (Ticket::FLAG_COMBINE_THREADS)
+            )));
+            return $visibility;
+            break;
+        }
     }
 
     function from_query($row, $name=false) {
         $flags = $row['flags'];
         $combine = ($flags & Ticket::FLAG_COMBINE_THREADS) != 0;
         $separate = ($flags & Ticket::FLAG_SEPARATE_THREADS) != 0;
-        return ($row['ticket_pid'] || $combine || $separate)
+        return ($combine || $separate)
+            ? __('Yes') : __('No');
+    }
+}
+
+class LinkedField extends FormField {
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('checked'),
+            'nset' =>    __('unchecked'),
+        );
+    }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('ticket_pid', 'flags');
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case 'set':
+            return Q::any(array(
+                'flags__hasbit' => Ticket::FLAG_LINKED,
+            ));
+        case 'nset':
+            return Q::not(array(
+                'flags__hasbit' => Ticket::FLAG_LINKED,));
+            break;
+        }
+    }
+
+    function from_query($row, $name=false) {
+        $flags = $row['flags'];
+        $linked = ($flags & Ticket::FLAG_LINKED) != 0;
+        return ($linked)
             ? __('Yes') : __('No');
     }
 
