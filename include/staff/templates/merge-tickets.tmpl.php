@@ -9,16 +9,18 @@
        echo sprintf('<p id="msg_info"><i class="icon-info-sign"></i> %s</p>',
                $info['notice']);
     }
+    $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
 ?>
-<h3 class="drag-handle"><i class="icon-code-fork"></i> <?php echo __('Merge Tickets'); ?></i></h3>
+<h3 class="drag-handle"><i class="<?php echo $title == 'link' ? 'icon-link' : 'icon-code-fork' ?>"></i> <?php echo sprintf(__('%s Tickets'), ucfirst($title)); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
-<hr/><?php echo __(
-'Choose which Tickets to merge into this one. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
-);
+<hr/><?php echo sprintf(__(
+'Choose which Tickets to %s. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
+), ($title == 'merge' ? 'merge into this one' : 'link'));
 ?>
 <br/>
 <br/>
 <form method="post" action="<?php echo $info['action']; ?>">
+<input type="hidden" name="title" value="<?php echo $title; ?>" />
 <ul id="ticket-entries">
 <?php
 if ($tickets) {
@@ -29,7 +31,12 @@ foreach ($tickets as $t) {
         $ticket_id = $t['ticket_id'];
         $user_id = $t['user_id'];
         $number = $t['number'];
-        $type = $t['type'];
+        if (!$type && $title == 'merge' && $t['type'] == 'visual') {
+            $type = 'combine';
+            $forceOptions = true;
+        }
+        else
+            $type = $t['type'];
     }
 
     if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id) {
@@ -65,19 +72,20 @@ foreach ($tickets as $t) {
 </li>
 <?php } } ?>
 </ul>
-<br/>
+<div id="show-children" class="hidden">
 <label class="inline checkbox">
     <?php echo __('Show Children Threads') ?>
     <input type="checkbox" name="show_children" value="1" <?php echo $ticket ?: $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)?'checked="checked"':''; ?> >
 </label>
-
+</div>
+<br/><br/>
 <div id="delete-child" class="hidden">
     <label class="inline checkbox">
         <?php echo __('Delete Child Ticket') ?>
         <input type="checkbox" id="delete-child2" name="delete-child2">
     </label>
 </div>
-
+<br/>
 <?php
 if (!$ticket->isMerged()) {  ?>
 <hr/>
@@ -119,11 +127,15 @@ if (!$ticket->isMerged()) {  ?>
 
 <div>
     <hr>
-    <?php echo __('Merge Type: '); ?><i class="help-tip icon-question-sign" href="#merge_types"></i>
+    <?php echo ($title == 'merge') ? __('Merge Type: ') : ''?>
+    <?php echo $title == 'merge' ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : '';?>
     <fieldset id="combination">
-        <label for="combine" style="display:none"><input type="radio" name="combine" id="combine" value="1"<?php echo $ticket->getMergeType() == 'combine'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?></label>
-        <label for="separate" style="display:none"><input type="radio" name="combine" id="separate" value="0"<?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?></label>
-        <label for="visual" style="display:none"><input type="radio" name="combine" id="visual" value="2"<?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?></label>
+        <?php if ($title == 'merge') { ?>
+            <label for="combine" style="display:none"><input type="radio" name="combine" id="combine" value="1"<?php echo $ticket->getMergeType() == 'combine' || $title == 'merge'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?></label>
+            <label for="separate" style="display:none"><input type="radio" name="combine" id="separate" value="0"<?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?></label>
+        <?php } else { ?>
+            <label for="visual" style="display:none"><input type="radio" name="combine" id="visual" value="2"<?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?></label>
+        <?php } ?>
     </fieldset>
 </div>
 <div id="savewarning" style="display:none; padding-top:2px;"><p
@@ -161,6 +173,7 @@ function refreshAndClose(tid, type) {
 }
 
 $(document).ready(function() {
+    showCheckboxes($("#combination :radio:checked"));
     showMergeOptions();
 
     function showMergeOptions() {
@@ -173,18 +186,22 @@ $(document).ready(function() {
                     $('#visual').parent().show();
                     break;
                 case 'combine':
-                    $('#combine').parent().show();
-                    $('input:radio[id=combine]').attr('checked',true);
-                    $('#separate').parent().hide();
-                    $('#visual').parent().hide();
-                    deleteChild($('#combine'));
+                    <?php if ($forceOptions == true) { ?>
+                        $('#combine').parent().show();
+                        $('input:radio[id=combine]').attr('checked',true);
+                        $('#separate').parent().show();
+                    <?php } else { ?>
+                        $('#combine').parent().show();
+                        $('input:radio[id=combine]').attr('checked',true);
+                        $('#separate').parent().hide();
+                        $('#visual').parent().hide();
+                    <?php } ?>
                     break;
                 case 'separate':
                     $('#combine').parent().hide();
                     $('#separate').parent().show();
                     $('input:radio[id=separate]').attr('checked',true);
                     $('#visual').parent().hide();
-                    deleteChild($('#separate'));
                     break;
                 default:
 
@@ -219,22 +236,30 @@ $(document).ready(function() {
     });
 
     $('#combination input[type=radio]').change(function(){
-      deleteChild(this);
-    })
+      showCheckboxes(this);
+    });
 
     $('#delete-child input[type=checkbox]').change(function(){
         childWarning();
-    })
+    });
 
-    function deleteChild(combine) {
+    $('#show-participants input[type=checkbox]').change(function(){
+        participantOptions();
+    });
+
+    function showCheckboxes(combine) {
        var value = $(combine).val();
        switch (value) {
          case "0":
          case "1":
            $('#delete-child').show();
+           $('#show-children').hide();
+           $('#show-participants').show();
            break;
          case "2":
            $('#delete-child').hide();
+           $('#show-children').show();
+           $('#show-participants').hide();
            break;
        }
      }
@@ -243,6 +268,11 @@ $(document).ready(function() {
          var value = $("#delete-child2").prop("checked") ? 1 : 0;
          (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
      }
+
+     function participantOptions() {
+         var value = $("#show-participants2").prop("checked") ? 1 : 0;
+         (value == 1) ? $('#participant-options').show() : $('#participant-options').hide();
+     }
 });
 
 </script>
@@ -250,4 +280,12 @@ $(document).ready(function() {
 <style>
   #ticket-entries { list-style-type: none;}
   #ticket-entries { padding: 0px; }
+  #show-participants{
+     float: left;
+    display: inline-block;
+}
+#participant-options{
+    display: inline-block;
+    float: right;
+}
 </style>

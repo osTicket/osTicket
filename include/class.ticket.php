@@ -102,6 +102,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_TRANSFER = 'ticket.transfer';
     const PERM_REFER    = 'ticket.refer';
     const PERM_MERGE    = 'ticket.merge';
+    const PERM_LINK     = 'ticket.link';
     const PERM_REPLY    = 'ticket.reply';
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
@@ -109,6 +110,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const FLAG_COMBINE_THREADS     = 0x0001;
     const FLAG_SEPARATE_THREADS    = 0x0002;
     const FLAG_SHOW_CHILDREN       = 0x0004; //Show children threads in parent tickets
+    const FLAG_LINKED              = 0x0008;
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -146,6 +148,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Merge',
                 'desc'  =>
                 /* @trans */ 'Ability to merge tickets'),
+            self::PERM_LINK => array(
+                'title' =>
+                /* @trans */ 'Link',
+                'desc'  =>
+                /* @trans */ 'Ability to link tickets'),
             self::PERM_REPLY => array(
                 'title' =>
                 /* @trans */ 'Post Reply',
@@ -2297,8 +2304,11 @@ implements RestrictedAccess, Threadable, Searchable {
             'isassigned' => new AssignedField(array(
                         'label' => __('Assigned'),
             )),
-            'ticket_pid' => new MergedField(array(
+            'merged' => new MergedField(array(
                 'label' => __('Merged'),
+            )),
+            'linked' => new LinkedField(array(
+                'label' => __('Linked'),
             )),
             'thread_count' => new TicketThreadCountField(array(
                         'label' => __('Thread Count'),
@@ -2391,6 +2401,9 @@ implements RestrictedAccess, Threadable, Searchable {
     function merge($tickets) {
         global $thisstaff;
 
+        $permission = ($tickets['title'] && $tickets['title'] == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
+        $eventName = ($tickets['title'] && $tickets['title'] == 'link') ? 'linked' : 'merged';
+
         //see if any tickets should be unmerged
         if ($tickets['dtids']) {
             foreach($tickets['dtids'] as $key => $value) {
@@ -2399,9 +2412,12 @@ implements RestrictedAccess, Threadable, Searchable {
                     $parent = Ticket::lookup($pid);
                     $ticket->setPid(NULL);
                     $ticket->setSort(1);
+                    $ticket->setFlag(Ticket::FLAG_LINKED, false);
+                    $parent->setFlag(Ticket::FLAG_LINKED, false);
                     $ticket->save();
-                    $ticket->logEvent('split', array('child' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $pid));
-                    $parent->logEvent('split', array('child' => sprintf('Ticket #%s', $ticket->getNumber()), 'id' => $ticket->getId()));
+                    $parent->save();
+                    $ticket->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $pid));
+                    $parent->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $ticket->getNumber()), 'id' => $ticket->getId()));
                 }
             }
         }
@@ -2410,7 +2426,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($tickets['tids']) {
             foreach($tickets['tids'] as $key => $value) {
                 if ($ticket = Ticket::lookupByNumber($value)) {
-                    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MERGE))
+                    if (!$ticket->checkStaffPerm($thisstaff, $permission))
                        return false;
 
                     if ($key == 0)
@@ -2420,8 +2436,15 @@ implements RestrictedAccess, Threadable, Searchable {
                         if (($parent->isParent() && $ticket->getMergeType() == 'visual') ||
                            ($parent->getMergeType() == 'visual' && $ticket->getMergeType() == 'visual')) {
                                if (!$ticket->isMerged() && $parent->getId() != $ticket->getId()) {
-                                   $ticket->logEvent('merged', array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
-                                   $parent->logEvent('merged', array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
+                                   $ticket->logEvent($eventName, array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
+                                   $parent->logEvent($eventName, array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
+                                   if ($eventName == 'linked') {
+                                       $ticket->setFlag(Ticket::FLAG_LINKED, true);
+                                       $parent->setFlag(Ticket::FLAG_LINKED, true);
+                                   } else {
+                                       $ticket->setFlag(Ticket::FLAG_LINKED, false);
+                                       $parent->setFlag(Ticket::FLAG_LINKED, false);
+                                   }
                                }
 
                                if ($ticket->getPid() != $parent->getId()) {
@@ -2445,8 +2468,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if ($parent->getMergeType() == 'visual')
             $parent->setMergeType($tickets['combine']);
-        else
-            return false;
 
         if ($parent->getMergeType() != 'visual') {
             $children = Ticket::getChildTickets($parent->getId());

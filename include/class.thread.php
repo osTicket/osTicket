@@ -1916,7 +1916,7 @@ class ThreadEvent extends VerySimpleModel {
     const REFERRED = 'referred';
     const VIEWED    = 'viewed';
     const MERGED    = 'merged';
-    const SPLIT    = 'split';
+    const UNLINKED    = 'unlinked';
 
     const MODE_STAFF = 1;
     const MODE_CLIENT = 2;
@@ -1940,18 +1940,20 @@ class ThreadEvent extends VerySimpleModel {
 
     function getIcon() {
         $icons = array(
-            'assigned'  => 'hand-right',
-            'released'  => 'unlock',
-            'collab'    => 'group',
-            'created'   => 'magic',
-            'overdue'   => 'time',
+            'assigned'    => 'hand-right',
+            'released'    => 'unlock',
+            'collab'      => 'group',
+            'created'     => 'magic',
+            'overdue'     => 'time',
             'transferred' => 'share-alt',
-            'referred' => 'exchange',
-            'edited'    => 'pencil',
-            'closed'    => 'thumbs-up-alt',
-            'reopened'  => 'rotate-right',
-            'resent'    => 'reply-all icon-flip-horizontal',
-            'merged'    => 'code-fork',
+            'referred'    => 'exchange',
+            'edited'      => 'pencil',
+            'closed'      => 'thumbs-up-alt',
+            'reopened'    => 'rotate-right',
+            'resent'      => 'reply-all icon-flip-horizontal',
+            'merged'      => 'code-fork',
+            'linked'      => 'link',
+            'unlinked'    => 'unlink',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -2535,12 +2537,22 @@ class MergedEvent extends ThreadEvent {
     }
 }
 
-class SplitEvent extends ThreadEvent {
-    static $icon = 'share-alt';
-    static $state = 'split';
+class LinkedEvent extends ThreadEvent {
+    static $icon = 'link';
+    static $state = 'linked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> split this ticket from %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+                '<a href="tickets.php?id=', '">', '</a>');
+    }
+}
+
+class UnlinkEvent extends ThreadEvent {
+    static $icon = 'unlink';
+    static $state = 'unlinked';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }

@@ -43,6 +43,16 @@ if ($agent->hasPerm(Ticket::PERM_MERGE, false)) {?>
 <?php
 }
 
+//Mass Link
+if ($agent->hasPerm(Ticket::PERM_LINK, false)) {?>
+<span class="button action-button">
+ <a class="tickets-action" id="tickets-link" data-placement="bottom"
+    data-toggle="tooltip" title="<?php echo __('Link'); ?>"
+    href="#tickets/mass/link"><i class="icon-link"></i></a>
+</span>
+<?php
+}
+
 // Mass Transfer
 if ($agent->hasPerm(Ticket::PERM_TRANSFER, false)) {?>
 <span class="action-button">

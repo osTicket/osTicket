@@ -797,6 +797,9 @@ function refer($tid, $target=null) {
                 'merge' => array(
                     'verbed' => __('merged'),
                     ),
+                'link' => array(
+                    'verbed' => __('linked'),
+                    ),
                 'claim' => array(
                     'verbed' => __('assigned'),
                     ),
@@ -828,27 +831,37 @@ function refer($tid, $target=null) {
         }
         switch ($action) {
         case 'merge':
+        case 'link':
             $inc = 'merge-tickets.tmpl.php';
             $ticketIds = $_GET ? explode(',', $_GET['tids']) : explode(',', $_POST['tids']);
             $tickets = array();
+            $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
+            $eventName = ($title && $title == 'link') ? 'linked' : 'merged';
+            $permission = ($title && $title == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
             foreach ($ticketIds as $key => $value) {
                 if (!$ticket = Ticket::lookup($value))
                     continue;
                 elseif (!$parent && $ticket->isParent() && $ticket->getMergeType() != 'visual')
                     $parent = $ticket;
 
+                if ($ticket->getMergeType() != 'visual' && $title == 'link')
+                    $info['error'] = sprintf(
+                            __('One or more Tickets selected is part of a merge. Merged Tickets cannot be %s.'),
+                            __($eventName)
+                            );
+
                 if ($parent && ($ticket->isParent() && $ticket->getMergeType() != 'visual') && $parent->getId() != $value)
                     $info['error'] = sprintf(
                             __('More than one Parent Ticket selected. %1$s cannot be %2$s.'),
                             _N('The selected Ticket', 'The selected Tickets', $count),
-                            __('merged')
+                            __($eventName)
                             );
 
                 if ($ticket->isChild() && $ticket->getMergeType() != 'visual')
                     $info['error'] = sprintf(
                             __('One or more Tickets selected is a merged child. %1$s cannot be %2$s.'),
                             _N('The selected Ticket', 'The selected Tickets', $count),
-                            __('merged')
+                            __($eventName)
                             );
 
                 $tickets[$key]['ticket_id'] =  $value;
@@ -858,10 +871,10 @@ function refer($tid, $target=null) {
                 $role = $ticket->getRole($thisstaff);
 
                 // Generic permission check.
-                if (!$role->hasPerm(Ticket::PERM_MERGE)) {
+                if (!$role->hasPerm($permission)) {
                     $info['error'] = sprintf(
                             __('You do not have permission to %1$s %2$s'),
-                            __('merge'),
+                            __($title),
                             _N('the selected Ticket', 'the selected Tickets', $count));
                     $info = array_merge($info, Format::htmlchars($_POST));
                 }

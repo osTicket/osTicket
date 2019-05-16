@@ -165,6 +165,15 @@ if($ticket->isOverdue())
                  <?php
                   }
 
+                 if ($role->hasPerm(Ticket::PERM_LINK) && $ticket->getMergeType() == 'visual') { ?>
+                     <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                         ?>/link" onclick="javascript:
+                         $.dialog($(this).attr('href').substr(1), 201);
+                         return false"
+                         ><i class="icon-link"></i> <?php echo __('Link Tickets'); ?></a></li>
+                 <?php
+                 }
+
                  if ($ticket->isAssigned() && $canRelease) { ?>
                         <li><a href="#tickets/<?php echo $ticket->getId();
                             ?>/release" class="ticket-action"

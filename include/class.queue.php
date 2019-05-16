@@ -601,7 +601,8 @@ class CustomQueue extends VerySimpleModel {
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
-                'ticket_pid' =>       __('Merged'),
+                'merged' =>       __('Merged'),
+                'linked' =>       __('Linked'),
                 'isanswered' =>     __('Answered'),
                 'staff_id' => __('Agent Assigned'),
                 'team_id' =>  __('Team Assigned'),
@@ -1758,8 +1759,32 @@ extends QueueColumnAnnotation {
         $flags = $row['flags'];
         $combine = ($flags & Ticket::FLAG_COMBINE_THREADS) != 0;
         $separate = ($flags & Ticket::FLAG_SEPARATE_THREADS) != 0;
-        if ($row['ticket_pid'] || $combine || $separate)
-            return '<i class="icon-code-fork"></i>';
+
+        if ($combine || $separate) {
+            return sprintf('<a data-placement="bottom" data-toggle="tooltip" title="%s" <i class="icon-code-fork"></i></a>',
+                           $combine ? __('Combine') : __('Separate'));
+        }
+    }
+
+    function isVisible($row) {
+        return $row['ticket_pid'];
+    }
+}
+
+class LinkedFlagDecoration
+extends QueueColumnAnnotation {
+    static $icon = 'icon-link';
+    static $desc = /* @trans */ 'Linked Icon';
+
+    function annotate($query, $name=false) {
+        return $query->values('ticket_pid', 'flags');
+    }
+
+    function getDecoration($row, $text) {
+        $flags = $row['flags'];
+        $linked = ($flags & Ticket::FLAG_LINKED) != 0;
+        if ($linked)
+            return '<i class="icon-link"></i>';
     }
 
     function isVisible($row) {
