@@ -231,7 +231,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getChildTickets($pid) {
         return Ticket::objects()
                 ->filter(array('ticket_pid'=>$pid))
-                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort')
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id')
                 ->order_by('sort');
     }
 
@@ -2473,6 +2473,12 @@ implements RestrictedAccess, Threadable, Searchable {
             $children = Ticket::getChildTickets($parent->getId());
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
+                if ($tickets['participants'] == 'all' && $collabs = $child->getCollaborators()) {
+                    $parent->addCollaborator($child->getUser(), array());
+                    foreach ($collabs as $collab)
+                        $parent->addCollaborator($collab->getUser(), array());
+                } else if($tickets['participants'] == 'user')
+                        $parent->addCollaborator($child->getUser(), array());
                 if ($child->getThread())
                     $child->getThread()->setExtra($parent->getThread());
 

@@ -343,7 +343,7 @@ class TicketsAjaxAPI extends AjaxController {
         $parent_id = $ticket_id;
         $parent = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
-            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort');
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id');
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
             $tickets = $parent->union($tickets);
@@ -371,7 +371,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $parentModel = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
-            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort');
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id');
 
         if ($_POST['tids']) {
             $parent = Ticket::lookup($ticket_id);
@@ -868,6 +868,7 @@ function refer($tid, $target=null) {
                 $tickets[$key]['number'] = $ticket->getNumber();
                 $tickets[$key]['user_id'] = $ticket->getUserId();
                 $tickets[$key]['type'] = $ticket->getMergeType();
+                $tickets[$key]['id'] = $ticket->getThreadId();
                 $role = $ticket->getRole($thisstaff);
 
                 // Generic permission check.

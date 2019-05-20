@@ -26,11 +26,12 @@
 if ($tickets) {
 foreach ($tickets as $t) {
     if ($tickets instanceof QuerySet)
-        list($ticket_id, $number, $ticket_pid, $sort) = $t;
+        list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id) = $t;
     else {
         $ticket_id = $t['ticket_id'];
         $user_id = $t['user_id'];
         $number = $t['number'];
+        $id = $t['id'];
         if (!$type && $title == 'merge' && $t['type'] == 'visual') {
             $type = 'combine';
             $forceOptions = true;
@@ -54,12 +55,16 @@ foreach ($tickets as $t) {
             echo 'ui-sortable-handle';
     ?>" data-id="<?php echo $ticket_id; ?>">
     <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
-    <?php if (($parent && $parent instanceof Ticket && $ticket_id != $parent->getId()) ||
+    <?php if ($id)
+            $numberLink = sprintf('<a class="collaborators preview"
+                     href="#thread/%d/collaborators">%s
+                    </a>', $id, $number);
+    if (($parent && $parent instanceof Ticket && $ticket_id != $parent->getId()) ||
               ($parent_id && $ticket_id != $parent_id) || !$parent) {?>
-        <i class="icon-reorder"></i> <?php echo $number;
+        <i class="icon-reorder"></i> <?php echo $numberLink ?: $number;
     }
     else
-        echo $number;
+        echo $numberLink ?: $number;
     if (!is_null($t['ticket_pid'])) { ?>
     <div class="button-group">
     <div class="<?php if ($visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
@@ -68,7 +73,7 @@ foreach ($tickets as $t) {
         $(this).closest('li.row-item').remove();$('#delete-warning').show();">
         <?php if ($visual) { ?><i class="icon-trash"></i><?php } ?></a></div>
     </div>
-    <?php } ?>
+<?php } ?>
 </li>
 <?php } } ?>
 </ul>
@@ -87,7 +92,23 @@ foreach ($tickets as $t) {
 </div>
 <br/>
 <?php
-if (!$ticket->isMerged()) {  ?>
+    if ($showParticipants && $title == 'merge') { //get user/collab merge options here
+?>
+
+<div id="participant-options">
+&nbsp;&nbsp;&nbsp;
+    <label class="inline checkbox">
+        <?php echo __('Participants') ?>&nbsp;
+    <select id="participants" name="participants">
+        <option value='user' selected="selected"><?php echo __('User');?></option>
+        <option value='all'><?php echo __('User + Collaborators'); ?></option>
+        <option value='none'><?php echo __('None'); ?></option>
+    </select>
+    </label>
+</div>
+
+<br/><br/>
+<?php } ?>
 <hr/>
 <div>
 <i class="icon-plus"></i>&nbsp;
@@ -268,11 +289,6 @@ $(document).ready(function() {
          var value = $("#delete-child2").prop("checked") ? 1 : 0;
          (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
      }
-
-     function participantOptions() {
-         var value = $("#show-participants2").prop("checked") ? 1 : 0;
-         (value == 1) ? $('#participant-options').show() : $('#participant-options').hide();
-     }
 });
 
 </script>
@@ -280,12 +296,9 @@ $(document).ready(function() {
 <style>
   #ticket-entries { list-style-type: none;}
   #ticket-entries { padding: 0px; }
-  #show-participants{
-     float: left;
-    display: inline-block;
-}
 #participant-options{
-    display: inline-block;
-    float: right;
+    padding: 0px;
+    display: block;
+    float: left;
 }
 </style>
