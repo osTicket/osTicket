@@ -247,8 +247,6 @@ class AttachmentFile extends VerySimpleModel {
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
-        if (isset($_REQUEST['overridetype']))
-            $type = $_REQUEST['overridetype'];
         Http::download($this->getName(), $type, null, 'inline');
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
@@ -358,6 +356,10 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     static function create(&$file, $ft='T', $deduplicate=true) {
+        // Crap-out if file contents do not match expected file type
+        if (strpos('image/', $file['type']) !== 0 && !exif_imagetype($file['tmp_name']))
+            return false;
+
         if (isset($file['encoding'])) {
             switch ($file['encoding']) {
             case 'base64':
