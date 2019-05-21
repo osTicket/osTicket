@@ -19,7 +19,7 @@
 ?>
 <br/>
 <br/>
-<form method="post" action="<?php echo $info['action']; ?>">
+<form method="post" onsubmit="refreshAndClose();" action="<?php echo $info['action']; ?>">
 <input type="hidden" name="title" value="<?php echo $title; ?>" />
 <ul id="ticket-entries">
 <?php
@@ -189,8 +189,10 @@ $(function() {
     $( "#ticket-entries li" ).disableSelection();
 });
 
-function refreshAndClose(tid, type) {
-  location.reload();
+function refreshAndClose() {
+    setTimeout(function () {
+        location.reload();
+    }, 1000);
 }
 
 $(document).ready(function() {
