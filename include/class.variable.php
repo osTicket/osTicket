@@ -245,7 +245,6 @@ class VariableReplacer {
 
         case 'fa:send_email':
             // FIXME: Make this pluggable
-            require_once INCLUDE_DIR . 'class.filter_action.php';
             return FA_SendEmail::getVarScope();
 
         default:

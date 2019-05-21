@@ -12,10 +12,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR . 'class.orm.php');
-require_once(INCLUDE_DIR . 'class.forms.php');
-require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
-require_once(INCLUDE_DIR . 'class.user.php');
 
 class OrganizationModel extends VerySimpleModel {
     static $meta = array(
@@ -544,8 +540,6 @@ class OrganizationForm extends DynamicForm {
     }
 
     static function __loadDefaultForm() {
-        require_once(INCLUDE_DIR.'class.i18n.php');
-
         $i18n = new Internationalization();
         $tpl = $i18n->getTemplate('form.yaml');
         foreach ($tpl->getData() as $f) {

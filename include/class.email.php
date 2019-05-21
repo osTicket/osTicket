@@ -11,9 +11,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-include_once INCLUDE_DIR.'class.role.php';
-include_once(INCLUDE_DIR.'class.dept.php');
-include_once(INCLUDE_DIR.'class.mailfetch.php');
 
 class Email extends VerySimpleModel {
     static $meta = array(

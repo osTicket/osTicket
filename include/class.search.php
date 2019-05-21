@@ -225,7 +225,6 @@ class SearchInterface {
     }
 }
 
-require_once(INCLUDE_DIR.'class.config.php');
 class MySqlSearchConfig extends Config {
     var $table = CONFIG_TABLE;
 
@@ -569,7 +568,6 @@ class MysqlSearchBackend extends SearchBackend {
 
         // KNOWLEDGEBASE ----------------------------
 
-        require_once INCLUDE_DIR . 'class.faq.php';
         $sql = "SELECT A1.`faq_id` FROM `".FAQ_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`faq_id` = A2.`object_id` AND A2.`object_type`='K')
             WHERE A2.`object_id` IS NULL
@@ -1016,7 +1014,6 @@ class HelpTopicChoiceField extends ChoiceField {
     }
 }
 
-require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends ChoiceField {
     function getChoices($verbose=false) {
         return Dept::getDepartments();

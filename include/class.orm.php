@@ -1775,7 +1775,7 @@ implements IteratorAggregate {
                 return $this->buildModel($row, $cache);
 
             $this->resource->close();
-            throw $StopIteration;
+            throw $StopIteration ?: new StopIteration();
         });
     }
 }
@@ -1846,7 +1846,7 @@ implements IteratorAggregate {
                 return $row;
 
             $this->resource->close();
-            throw $StopIteration;
+            throw $StopIteration ?: new StopIteration();
         });
     }
 }
@@ -1869,7 +1869,7 @@ implements IteratorAggregate {
                 return $row;
 
             $this->resource->close();
-            throw $StopIteration;
+            throw $StopIteration ?: new StopIteration();
         });
     }
 }

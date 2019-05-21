@@ -502,8 +502,6 @@ extends Cell {
     function getOption($prop) { return $this->options[$prop]; }
 }
 
-require_once(INCLUDE_DIR . "class.json.php");
-
 class FormField {
     static $widget = false;
 

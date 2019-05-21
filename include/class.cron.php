@@ -16,20 +16,16 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 //TODO: Make it DB based!
-require_once INCLUDE_DIR.'class.signal.php';
 
 class Cron {
 
     function MailFetcher() {
-        require_once(INCLUDE_DIR.'class.mailfetch.php');
         MailFetcher::run(); //Fetch mail..frequency is limited by email account setting.
     }
 
     function TicketMonitor() {
-        require_once(INCLUDE_DIR.'class.ticket.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
         // Cleanup any expired locks
-        require_once(INCLUDE_DIR.'class.lock.php');
         Lock::cleanup();
 
     }
@@ -42,12 +38,10 @@ class Cron {
     }
 
     function PurgeDrafts() {
-        require_once(INCLUDE_DIR.'class.draft.php');
         Draft::cleanup();
     }
 
     function CleanOrphanedFiles() {
-        require_once(INCLUDE_DIR.'class.file.php');
         AttachmentFile::deleteOrphans();
     }
 

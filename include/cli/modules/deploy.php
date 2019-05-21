@@ -201,6 +201,7 @@ class Deployment extends Unpacker {
             return parent::unpackage($folder, $destination, $recurse, $exclude);
         }
 
+        $deployed = array();
         $dryrun = $this->getOption('dry-run', false);
         $verbose = $this->getOption('verbose') || $dryrun;
         $force = $this->getOption('force');
@@ -223,7 +224,69 @@ class Deployment extends Unpacker {
             if (!is_dir(dirname($dst)))
                 mkdir(dirname($dst), 0755, true);
             $this->copyFile($src, $dst, $hash, octdec($mode));
+            $deployed[] = $src;
         }
+        return $deployed;
+    }
+
+    function makeAutoloader($path=false, $delta=false) {
+        ini_set('memory_limit', '256M');
+        $path = $path ?: ROOT_DIR;
+        $verbose = $this->getOption('verbose');
+        $findClasses = function($dir, &$classes) use (&$findClasses, $path, $delta, $verbose) {
+            $exclude = array('include/plugins', 'include/upgrader/streams',
+                'setup');
+            $files = array_diff(scandir($dir), array('.','..'));
+            $path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            foreach ($files as $file) {
+                $full = "$dir/$file";
+                $local = ltrim(str_replace($path, '', $full), DIRECTORY_SEPARATOR);
+                if (is_dir($full)) {
+                    if (in_array($local, $exclude))
+                        continue;
+                    if (substr($local, -7) != DIRECTORY_SEPARATOR . 'setup')
+                        $findClasses($full, $classes);
+                }
+                elseif (substr($full, -4) == '.php') {
+                    if (is_array($delta) && !in_array($local, $delta))
+                        continue;
+                    if ($verbose)
+                        $this->stderr->write("$local                               \r");
+                    $tokens = token_get_all(file_get_contents($full));
+                    while (list(, $T) = each($tokens)) {
+                        if ($T[0] == T_CLASS || $T[0] == T_INTERFACE) {
+                            // Read to the following string — 
+                            // skip the whitespace
+                            each($tokens);
+                            list(,$name) = each($tokens);
+                            $classes[strtoupper($name[1])] = ltrim($local, DIRECTORY_SEPARATOR);
+                        }
+                    }
+                }
+            }
+        };
+        $classesFile = $path . '/include/.autoload.php';
+
+        if (is_array($delta) && file_exists($classesFile))
+            $classes = (include $classesFile) ?: array();
+        else
+            $classes = array();
+
+        if (!$classes)
+            unset($delta);
+
+        $findClasses($path, $classes);
+        $classes = var_export($classes, true);
+        file_put_contents($path . 'include/.autoload.php', <<<EOF
+<?php
+# --- AUTO GENERATED -------
+# Use `php manage.php package --autoload --verbose` to regenerate
+return {$classes};
+EOF
+        );
+
+        if ($verbose)
+            $this->stderr->write("\n");
     }
 
     function run($args, $options) {
@@ -257,14 +320,25 @@ class Deployment extends Unpacker {
             $exclusions[] = "$rootPattern/setup/*";
 
         # Unpack everything but the include/ folder
-        $this->unpackage("$root/{,.}*", $this->destination, -1,
+        $deployed = $this->unpackage("$root/{,.}*", $this->destination, -1,
             $exclusions);
         # Unpack the include folder
-        $this->unpackage("$root/include/{,.}*", $include, -1,
-            array("*/include/ost-config.php", "*.sw[a-z]"));
+        $deployed = array_merge($deployed,
+            $this->unpackage("$root/include/{,.}*", $include, -1,
+                array("*/include/ost-config.php", "*.sw[a-z]")
+        ));
         if (!$options['dry-run']) {
             if ($include != "{$this->destination}/include/")
                 $this->change_include_dir($include);
+
+            $this->writeManifest($this->destination);
+
+            // Create autoloader file
+            if ($options['autoload'])
+                // Force rebuild of the autoload file
+                unset($deployed);
+
+            $this->makeAutoloader($this->destination, $deployed);
         }
 
         if ($options['clean']) {

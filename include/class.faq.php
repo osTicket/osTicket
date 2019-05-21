@@ -12,9 +12,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once('class.file.php');
-require_once('class.category.php');
-require_once('class.thread.php');
 
 class FAQ extends VerySimpleModel {
 

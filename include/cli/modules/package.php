@@ -24,6 +24,10 @@ class Packager extends Deployment {
             'action'=>'store_true', 'default'=>false,
             'help'=>'Print current version tag for DNS'
         ),
+        'autoloader' => array('', '--autoload',
+            'action'=>'store_true', 'default'=>false,
+            'help'=>'Generate autoload script and exit'
+        ),
     );
     var $arguments = array();
 
@@ -34,8 +38,23 @@ class Packager extends Deployment {
     }
 
     function run($args, $options) {
+        # Apply forced (implied) options and arguments
+        $options['setup'] = true;
+        $options['git'] = true;
+        $options['autoload'] = true;
+
+        $options['clean'] = false;
+        $options['dry-run'] = false;
+        $options['verbose'] = true;
+        $options['include'] = false;
+
+        $this->_args = $args;
+        $this->_options = $options;
+
         if ($options['dns'])
             return $this->print_dns();
+        if ($options['autoload'])
+            return $this->makeAutoloader();
 
         // Set some forced args and options
         $temp = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -56,17 +75,6 @@ class Packager extends Deployment {
             };
             return $delTree($stage_path);
         });
-
-        $options['setup'] = true;
-        $options['git'] = true;
-        $options['verbose'] = true;
-
-        $options['clean'] = false;
-        $options['dry-run'] = false;
-        $options['include'] = false;
-
-        $this->_args = $args;
-        $this->_options = $options;
 
         // TODO: Run the testing applet first
         $root = $this->find_root_folder();

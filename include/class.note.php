@@ -14,7 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR . 'class.orm.php');
 
 class QuickNoteModel extends VerySimpleModel {
     static $meta = array(

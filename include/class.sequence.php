@@ -1,7 +1,5 @@
 <?php
 
-require_once INCLUDE_DIR . 'class.orm.php';
-
 class Sequence extends VerySimpleModel {
 
     static $meta = array(

@@ -15,10 +15,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once(PEAR_DIR.'Mail/mimeDecode.php');
-require_once(PEAR_DIR.'Mail/RFC822.php');
-require_once(INCLUDE_DIR.'tnef_decoder.php');
-
 class Mail_Parse {
 
     var $mime_message;

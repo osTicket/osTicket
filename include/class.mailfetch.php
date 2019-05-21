@@ -14,14 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once(INCLUDE_DIR.'class.mailparse.php');
-require_once(INCLUDE_DIR.'class.ticket.php');
-require_once(INCLUDE_DIR.'class.dept.php');
-require_once(INCLUDE_DIR.'class.email.php');
-require_once(INCLUDE_DIR.'class.filter.php');
-require_once(INCLUDE_DIR.'class.banlist.php');
-require_once(INCLUDE_DIR.'tnef_decoder.php');
-
 class MailFetcher {
 
     var $ht;
@@ -656,7 +648,6 @@ class MailFetcher {
         $info = Mail_Parse::splitHeaders($mailinfo['header']);
         if (strtolower($info['Content-Type']) == 'message/rfc822') {
             if ($wrapped = $this->getPart($mid, 'message/rfc822')) {
-                require_once INCLUDE_DIR.'api.tickets.php';
                 // Simulate piping the contents into the system
                 $api = new TicketApiController();
                 $parser = new EmailDataParser();

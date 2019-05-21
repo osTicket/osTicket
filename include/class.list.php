@@ -14,8 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR .'class.dynamic_forms.php');
-require_once(INCLUDE_DIR .'class.variable.php');
 
 /**
  * Interface for Custom Lists
@@ -955,8 +953,6 @@ class TicketStatusList extends CustomListHandler {
     }
 
     static function __load() {
-        require_once(INCLUDE_DIR.'class.i18n.php');
-
         $i18n = new Internationalization();
         $tpl = $i18n->getTemplate('list.yaml');
         foreach ($tpl->getData() as $f) {

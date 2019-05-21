@@ -22,9 +22,6 @@
     $Id: $
 **********************************************************************/
 
-require_once "Spyc.php";
-require_once "class.error.php";
-
 class YamlDataParser {
     /* static */
     function load($file) {

@@ -53,13 +53,8 @@ define('URL',rtrim((Bootstrap::https()?'https':'http').'://'.$_SERVER['HTTP_HOST
 define('INC_DIR',dirname(__file__).'/inc/'); //local include dir!
 
 #required files
-require_once(INCLUDE_DIR.'class.setup.php');
-require_once(INCLUDE_DIR.'class.validator.php');
-require_once(INCLUDE_DIR.'class.passwd.php');
-require_once(INCLUDE_DIR.'class.format.php');
-require_once(INCLUDE_DIR.'class.misc.php');
 require_once INCLUDE_DIR.'mysqli.php';
-require_once INCLUDE_DIR.'class.i18n.php';
+Bootstrap::installAutoloader();
 
 Internationalization::bootstrap();
 

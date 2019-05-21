@@ -14,8 +14,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR.'class.forms.php');
-require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
 class Company
 implements TemplateVariable {
@@ -80,8 +78,6 @@ implements TemplateVariable {
      * it wan't in the yaml file for installation or upgrade.
      */
     function __loadDefaultForm() {
-        require_once(INCLUDE_DIR.'class.i18n.php');
-
         $i18n = new Internationalization();
         $tpl = $i18n->getTemplate('form.yaml');
         foreach ($tpl->getData() as $f) {

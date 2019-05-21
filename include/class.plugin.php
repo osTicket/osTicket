@@ -1,6 +1,5 @@
 <?php
 
-require_once(INCLUDE_DIR.'/class.config.php');
 class PluginConfig extends Config {
     var $table = CONFIG_TABLE;
     var $form;

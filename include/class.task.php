@@ -14,9 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-include_once INCLUDE_DIR.'class.role.php';
-
-
 class TaskModel extends VerySimpleModel {
     static $meta = array(
         'table' => TASK_TABLE,
@@ -1356,9 +1353,6 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     static function __loadDefaultForm() {
-
-        require_once INCLUDE_DIR.'class.i18n.php';
-
         $i18n = new Internationalization();
         $tpl = $i18n->getTemplate('form.yaml');
         foreach ($tpl->getData() as $f) {

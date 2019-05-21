@@ -13,8 +13,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once(INCLUDE_DIR.'class.app.php');
-
 class StaffNav {
 
     var $activetab;

@@ -270,7 +270,6 @@ class OsticketConfig extends Config {
         ) {
             return false;
         }
-        require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 
@@ -308,7 +307,6 @@ class OsticketConfig extends Config {
 
     function getDbTimezone() {
         if (!$this->exists('db_timezone')) {
-            require_once INCLUDE_DIR . 'class.timezone.php';
             $this->persist('db_timezone', DbTimezone::determine());
         }
         return $this->get('db_timezone');
