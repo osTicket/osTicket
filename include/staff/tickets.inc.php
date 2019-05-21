@@ -41,8 +41,8 @@ $queue_columns = array(
             ),
         'date' => array(
             'width' => '14.6%',
-            'heading' => __('Date Created'),
-            'sort_col' => 'created',
+            'heading' => __('Date Closed'),
+            'sort_col' => 'closed',
             ),
         'subject' => array(
             'width' => '29.8%',
