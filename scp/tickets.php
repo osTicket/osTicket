@@ -359,8 +359,10 @@ if ($redirect) {
 $stats= $thisstaff->getTicketsStats();
 
 // Clear advanced search upon request
-if (isset($_GET['clear_filter']))
+if (isset($_GET['clear_filter'])) {
     unset($_SESSION['advsearch']);
+    Http::redirect('tickets.php?status=open');
+}
 
 //Navigation
 $nav->setTabActive('tickets');
