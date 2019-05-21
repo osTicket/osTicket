@@ -36,9 +36,9 @@ $total=db_count('SELECT count(DISTINCT user.id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
-$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
+$qs += array('id' => $org->getId(), 'sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 
-$pageNav->setURL('users.php', $qs);
+$pageNav->setURL(basename($_SERVER['PHP_SELF']), $qs);
 //Ok..lets roll...create the actual query
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 
