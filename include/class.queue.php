@@ -1773,7 +1773,7 @@ extends QueueColumnAnnotation {
 
 class LinkedFlagDecoration
 extends QueueColumnAnnotation {
-    static $icon = 'icon-link';
+    static $icon = 'link';
     static $desc = /* @trans */ 'Linked Icon';
 
     function annotate($query, $name=false) {

@@ -155,8 +155,7 @@ echo $v;
 <?php }elseif($warn) { ?>
     <div id="msg_warning"><?php echo $warn; ?></div>
 <?php }
-
-if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
+if ((!$ticket->isClosed() || $ticket->isReopenable())) { ?>
 <form id="reply" action="tickets.php?id=<?php echo $ticket->getId();
 ?>#reply" name="reply" method="post" enctype="multipart/form-data">
     <?php csrf_token(); ?>

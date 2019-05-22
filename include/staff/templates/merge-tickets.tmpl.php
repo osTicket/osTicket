@@ -22,23 +22,21 @@
 <form method="post" onsubmit="refreshAndClose();" action="<?php echo $info['action']; ?>">
 <input type="hidden" name="title" value="<?php echo $title; ?>" />
 <ul id="ticket-entries">
+<div style="overflow-y: auto; height:200px; margin-bottom:5px;">
 <?php
 if ($tickets) {
 foreach ($tickets as $t) {
-    if ($tickets instanceof QuerySet)
-        list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id) = $t;
-    else {
-        $ticket_id = $t['ticket_id'];
-        $user_id = $t['user_id'];
-        $number = $t['number'];
-        $id = $t['id'];
-        if (!$type && $title == 'merge' && $t['type'] == 'visual') {
-            $type = 'combine';
-            $forceOptions = true;
-        }
-        else
-            $type = $t['type'];
+    $ticket_id = $t['ticket_id'];
+    $user_id = $t['user_id'];
+    $number = $t['number'];
+    $id = $t['id'];
+    $subject = $t['subject'];
+    if (!$type && $title == 'merge' && $t['type'] == 'visual') {
+        $type = 'combine';
+        $forceOptions = true;
     }
+    else
+        $type = $t['type'];
 
     if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id) {
         $showParticipants = true;
@@ -61,10 +59,10 @@ foreach ($tickets as $t) {
                     </a>', $id, $number);
     if (($parent && $parent instanceof Ticket && $ticket_id != $parent->getId()) ||
               ($parent_id && $ticket_id != $parent_id) || !$parent) {?>
-        <i class="icon-reorder"></i> <?php echo $numberLink ?: $number;
+        <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject);
     }
     else
-        echo $numberLink ?: $number;
+        echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject);
     if (!is_null($t['ticket_pid'])) { ?>
     <div class="button-group">
     <div class="<?php if ($visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
@@ -76,15 +74,8 @@ foreach ($tickets as $t) {
 <?php } ?>
 </li>
 <?php } } ?>
-</ul>
-<br/><br/>
-<div id="delete-child" class="hidden">
-    <label class="inline checkbox">
-        <?php echo __('Delete Child Ticket') ?>
-        <input type="checkbox" id="delete-child2" name="delete-child2">
-    </label>
 </div>
-<br/>
+</ul>
 <?php
     if ($showParticipants && $title == 'merge') { //get user/collab merge options here
 ?>
@@ -103,7 +94,6 @@ foreach ($tickets as $t) {
 
 <br/><br/>
 <?php } ?>
-<hr/>
 <div>
 <i class="icon-plus"></i>&nbsp;
 <span>
@@ -153,18 +143,25 @@ foreach ($tickets as $t) {
         <?php } ?>
     </fieldset>
 </div>
+<?php if ($title == 'merge') { ?>
+<hr>
+<div id="delete-child" class="hidden">
+    <label class="inline checkbox">
+        <input type="checkbox" id="delete-child2" name="delete-child2">
+        <?php echo __('Delete Child Ticket') ?>
+    </label>
+</div>
 <div id="savewarning" style="display:none; padding-top:2px;"><p
 id="msg_warning"><?php echo __('Are you sure you want to delete the child ticket(s)?'); ?></p></div>
+<?php } ?>
 
 <div id="delete-warning" style="display:none">
-<hr>
     <div id="msg_warning"><?php echo __(
     'Clicking <strong>Save Changes</strong> will unmerge this Ticket'
     ); ?>
     </div>
 </div>
 
-    <hr>
     <p class="full-width">
         <span class="buttons pull-left">
             <input type="button" name="cancel" class="<?php
