@@ -87,7 +87,6 @@ foreach ($tickets as $t) {
     <select id="participants" name="participants">
         <option value='user' selected="selected"><?php echo __('User');?></option>
         <option value='all'><?php echo __('User + Collaborators'); ?></option>
-        <option value='none'><?php echo __('None'); ?></option>
     </select>
     </label>
 </div>

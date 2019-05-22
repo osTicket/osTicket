@@ -1,5 +1,5 @@
 <?php
-$states = array('created', 'closed', 'reopened', 'edited', 'collab');
+$states = array('created', 'closed', 'reopened', 'edited', 'collab', 'merged');
 $event_ids = array();
 foreach ($states as $state) {
     $eid = Event::getIdByName($state);
