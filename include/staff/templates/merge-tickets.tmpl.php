@@ -77,12 +77,6 @@ foreach ($tickets as $t) {
 </li>
 <?php } } ?>
 </ul>
-<div id="show-children" class="hidden">
-<label class="inline checkbox">
-    <?php echo __('Show Children Threads') ?>
-    <input type="checkbox" name="show_children" value="1" <?php echo $ticket ?: $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN)?'checked="checked"':''; ?> >
-</label>
-</div>
 <br/><br/>
 <div id="delete-child" class="hidden">
     <label class="inline checkbox">
@@ -206,7 +200,6 @@ $(document).ready(function() {
                 case 'visual':
                     $('#combine').parent().show();
                     $('#separate').parent().show();
-                    $('#visual').parent().show();
                     break;
                 case 'combine':
                     <?php if ($forceOptions == true) { ?>
@@ -217,14 +210,12 @@ $(document).ready(function() {
                         $('#combine').parent().show();
                         $('input:radio[id=combine]').attr('checked',true);
                         $('#separate').parent().hide();
-                        $('#visual').parent().hide();
                     <?php } ?>
                     break;
                 case 'separate':
                     $('#combine').parent().hide();
                     $('#separate').parent().show();
                     $('input:radio[id=separate]').attr('checked',true);
-                    $('#visual').parent().hide();
                     break;
                 default:
 
@@ -276,12 +267,10 @@ $(document).ready(function() {
          case "0":
          case "1":
            $('#delete-child').show();
-           $('#show-children').hide();
            $('#show-participants').show();
            break;
          case "2":
            $('#delete-child').hide();
-           $('#show-children').show();
            $('#show-participants').hide();
            break;
        }

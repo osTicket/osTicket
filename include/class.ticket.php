@@ -109,7 +109,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
     const FLAG_COMBINE_THREADS     = 0x0001;
     const FLAG_SEPARATE_THREADS    = 0x0002;
-    const FLAG_SHOW_CHILDREN       = 0x0004; //Show children threads in parent tickets
     const FLAG_LINKED              = 0x0008;
 
     static protected $perms = array(
@@ -251,24 +250,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function hasFlag($flag) {
         return ($this->get('flags', 0) & $flag) != 0;
-    }
-
-    function hasChildAccess() {
-        global $thisstaff;
-
-        $children = Ticket::getChildTickets($this->getId());
-        if ($children) {
-            $res = db_query($children->getQuery());
-            $children = db_assoc_array($res);
-
-            foreach ($children as $c) {
-                if (!$child = Ticket::lookup($c['ticket_id']))
-                    continue;
-                if (!$child->checkStaffPerm($thisstaff))
-                    return false;
-            }
-        }
-        return true;
     }
 
     function isChild() {
@@ -2480,18 +2461,10 @@ implements RestrictedAccess, Threadable, Searchable {
     function merge($tickets) {
         global $thisstaff;
 
-        $parent = self::manageMerge($tickets);
-        //see if child entries should be shown on parent tickets
-        if ($parent) {
-            if ($tickets['show_children'])
-                $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, true);
-            else
-                $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, false);
-            $parent->save();
-        } else
+        if (!$parent = self::manageMerge($tickets))
             return false;
 
-        if ($parent && $parent->getMergeType() != 'visual') {
+        if ($parent->getMergeType() != 'visual') {
             $children = Ticket::getChildTickets($parent->getId());
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
@@ -2510,7 +2483,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $child->delete();
             }
 
-            if ($parent && $tickets['delete-child2'])
+            if ($tickets['delete-child2'])
                  $parent->setMergeType(3);
         }
         return true;

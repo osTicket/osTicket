@@ -63,9 +63,8 @@ if ($user && $cfg->isAvatarsEnabled())
         if ((get_class($this) != 'TaskThread' && $entry->thread_id != $ticket->getThreadId()) || $entry->extra) {
             if ($number) { ?>
                 <span data-toggle="tooltip" title="<?php echo sprintf(__('Ticket #%s'), $number); ?>" class="label label-bare"><i class="icon-code-fork"></i></span>
-    <?php   } else { ?>
-                <span data-toggle="tooltip" title="<?php echo __('Linked'); ?>" class="label label-bare"><i class="icon-link"></i></span>
-    <?php   } }
+    <?php   }
+        }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'M') { ?>
             <span class="label label-bare"><?php echo __('Cc Collaborator'); ?></span>
         <?php   } ?>
