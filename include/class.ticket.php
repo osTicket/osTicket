@@ -2409,13 +2409,26 @@ implements RestrictedAccess, Threadable, Searchable {
         return $save ? $this->save() : true;
     }
 
-    function merge($tickets) {
+    function unlinkChildren() {
+        $pid = $this->getId();
+        $children = Ticket::getChildTickets($pid);
+        foreach ($children as $child) {
+            $child = Ticket::lookup($child[0]);
+            $child->setPid(NULL);
+            $child->setFlag(Ticket::FLAG_LINKED, false);
+            $child->save();
+            $child->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $this->getNumber()), 'id' => $pid));
+            $this->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $child->getNumber()), 'id' => $child->getId()));
+        }
+        return true;
+    }
+
+    function manageMerge($tickets) {
         global $thisstaff;
 
         $permission = ($tickets['title'] && $tickets['title'] == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
         $eventName = ($tickets['title'] && $tickets['title'] == 'link') ? 'linked' : 'merged';
-
-        //see if any tickets should be unmerged
+        //see if any tickets should be unlinked
         if ($tickets['dtids']) {
             foreach($tickets['dtids'] as $key => $value) {
                 if (is_numeric($key) && $ticket = Ticket::lookup($value)) {
@@ -2443,8 +2456,13 @@ implements RestrictedAccess, Threadable, Searchable {
                     if ($parent && $parent->getId() != $ticket->getId()) {
                         if (($parent->isParent() && $ticket->getMergeType() == 'visual') || //adding to link/merge
                            ($parent->getMergeType() == 'visual' && $ticket->getMergeType() == 'visual')) { //creating fresh link/merge
+
+                               if ($ticket->isParent())
+                                   $ticket->unlinkChildren();
+
                                $parent->setMergeType($tickets['combine']);
                                $ticket->setMergeType($tickets['combine']);
+
                                $parent->logEvent($eventName, array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
                                $ticket->logEvent($eventName, array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
 
@@ -2459,7 +2477,13 @@ implements RestrictedAccess, Threadable, Searchable {
                 }
             }
         }
+        return $parent;
+    }
 
+    function merge($tickets) {
+        global $thisstaff;
+
+        $parent = self::manageMerge($tickets);
         //see if child entries should be shown on parent tickets
         if ($parent) {
             if ($tickets['show_children'])
@@ -2467,7 +2491,8 @@ implements RestrictedAccess, Threadable, Searchable {
             else
                 $parent->setFlag(Ticket::FLAG_SHOW_CHILDREN, false);
             $parent->save();
-        }
+        } else
+            return false;
 
         if ($parent && $parent->getMergeType() != 'visual') {
             $children = Ticket::getChildTickets($parent->getId());
@@ -2483,7 +2508,6 @@ implements RestrictedAccess, Threadable, Searchable {
                     $child->getThread()->setExtra($parent->getThread());
 
                 $child->setMergeType($tickets['combine']);
-
 
                 if ($tickets['delete-child2'])
                     $child->delete();
