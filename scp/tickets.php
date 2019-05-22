@@ -37,10 +37,10 @@ if($_REQUEST['id'] || $_REQUEST['number']) {
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(array('number' => $_REQUEST['number']))))
          $errors['err']=sprintf(__('%s: Unknown or invalid number.'), __('ticket'));
-    elseif(!$ticket->checkStaffPerm($thisstaff) || (!$ticket->hasChildAccess() && $ticket->hasFlag(Ticket::FLAG_SHOW_CHILDREN))) {
-        $errors['err']=__('Access denied. Contact admin if you believe this is in error');
-        $ticket=null; //Clear ticket obj.
-    }
+     elseif(!$ticket->checkStaffPerm($thisstaff)) {
+         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
+         $ticket=null; //Clear ticket obj.
+     }
 }
 
 if (!$ticket) {
