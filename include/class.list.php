@@ -807,7 +807,10 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
                     'sort' => 'sort',
                     'value' => 'value',
                     'abbrev' => 'extra') as $k => $v) {
-            if (isset($vars[$k]))
+            if ($k == 'abbrev' && empty($vars[$k])) {
+                $vars[$k] = NULL;
+                $this->set($v, $vars[$k]);
+            } elseif (isset($vars[$k]))
                 $this->set($v, $vars[$k]);
         }
 
