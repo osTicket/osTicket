@@ -58,6 +58,7 @@ elseif ($_POST) {
     if ($thisclient) {
         $user_form->getField('email')->configure('disabled', true);
         $user_form->getField('email')->value = $thisclient->getEmail();
+        $_POST['email'] = $thisclient->getEmail();
     }
 
     if (!$user_form->isValid(function($f) { return !$f->isVisibleToUsers(); }))
