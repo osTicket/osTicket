@@ -44,10 +44,10 @@ if ($this->getObjectType() == 'T')
                         $childEntries[$E->getId()] = $E;
                     else
                         $buckets[$E->getId()] = $E;
-                }
-                else
+                } else
                     $buckets[$E->getId()] = $E;
-            }
+            } else
+                $buckets[$E->getId()] = $E;
         }
 
         if ($ticket && $ticket->getMergeType() == 'separate')

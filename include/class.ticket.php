@@ -2493,8 +2493,18 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $child->setMergeType($tickets['combine']);
 
-                if ($tickets['delete-child2'])
+                if ($tickets['delete-child2']) {
+                    if ($tasks = Task::objects()
+                        ->filter(array('object_id' => $child->getId()))
+                        ->values_flat('id')) {
+                        foreach ($tasks as $key => $tid) {
+                            $task = Task::lookup($tid[0]);
+                            $task->object_id = $parent->getId();
+                            $task->save();
+                        }
+                    }
                     $child->delete();
+                }
             }
 
             if ($tickets['delete-child2'])
