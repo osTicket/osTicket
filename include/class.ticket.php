@@ -380,7 +380,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 // check assignment
                 && !$this->isAssigned($staff)
                 // check referral
-                && !$this->thread->isReferred($staff))
+                && !$this->getThread()->isReferred($staff))
             return false;
 
         // At this point staff has view access unless a specific permission is
