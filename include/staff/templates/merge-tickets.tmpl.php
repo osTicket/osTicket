@@ -227,7 +227,7 @@ $(document).ready(function() {
           return {
             results: $.map(data, function (item) {
               return {
-                text: item.id,
+                text: item.id + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + item.subject + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + item.user,
                 slug: item.slug,
                 id: item.id
               }
