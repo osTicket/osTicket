@@ -53,7 +53,7 @@ foreach ($tickets as $t) {
     <?php if ($ticket_id)
             $numberLink = sprintf('<a class="collaborators preview"
                      href="#thread/%d/collaborators">%s
-                    </a>', $ticket_id, $number); ?>
+                    </a>', $id, $number); ?>
     <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject, $name);
     if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
