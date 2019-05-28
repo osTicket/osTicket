@@ -22,54 +22,46 @@
 <form method="post" onsubmit="refreshAndClose();" action="<?php echo $info['action']; ?>">
 <input type="hidden" name="title" value="<?php echo $title; ?>" />
 <ul id="ticket-entries">
-<div style="overflow-y: auto; height:200px; margin-bottom:5px;">
+<div style="overflow-y: auto; height:150; margin-bottom:5px;">
 <?php
 if ($tickets) {
 foreach ($tickets as $t) {
-    $ticket_id = $t['ticket_id'];
-    $user_id = $t['user_id'];
-    $number = $t['number'];
-    $id = $t['id'];
-    $subject = $t['subject'];
-    if (!$type && $title == 'merge' && $t['type'] == 'visual') {
-        $type = 'combine';
+    list($ticket_id, $number, $ticket_pid, $sort,
+        $id, $user_id, $subject, $name, $flags) = $t;
+    $mergeType = Ticket::getMergeTypeByFlag($flags);
+
+    if ($mergeType == 'combine')
         $forceOptions = true;
-    }
-    else
-        $type = $t['type'];
 
     if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id) {
         $showParticipants = true;
     }
-    if ($ticket->getId() == $t['ticket_pid'])
+    if ($ticket->getId() == $ticket_pid)
         $visual = true;
-    $types[] = $type;
+    $types[] = $mergeType;
 ?>
 <li class="<?php if ($visual) echo 'sortable'; ?> row-item
-    <?php if (($parent && $parent instanceof Ticket && $parent->getMergeType() != 'visual' && $parent->getId() == $ticket_id) || //mass process merge
-              ($ticket && $ticket_id == $ticket->getId() && $ticket->getMergeType() != 'visual')) //ticket view merge or mass process merge w/child ticket(s)
+    <?php
+    if ($title == 'merge' &&
+        (($parent && $parent instanceof Ticket && $parent->getMergeType() != 'visual' && $parent->getId() == $ticket_id) || //mass process merge
+              ($ticket && $ticket_id == $ticket->getId() && $ticket->getMergeType() != 'visual'))) //ticket view merge or mass process merge w/child ticket(s)
             echo ' ui-state-disabled';
           else
             echo 'ui-sortable-handle';
     ?>" data-id="<?php echo $ticket_id; ?>">
     <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
-    <?php if ($id)
+    <?php if ($ticket_id)
             $numberLink = sprintf('<a class="collaborators preview"
                      href="#thread/%d/collaborators">%s
-                    </a>', $id, $number);
-    if (($parent && $parent instanceof Ticket && $ticket_id != $parent->getId()) ||
-              ($parent_id && $ticket_id != $parent_id) || !$parent) {?>
-        <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject);
-    }
-    else
-        echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject);
-    if (!is_null($t['ticket_pid'])) { ?>
+                    </a>', $ticket_id, $number); ?>
+    <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject, $name);
+    if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
-    <div class="<?php if ($visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
+    <div class="<?php if (!$parent && $visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
         var value = <?php echo $ticket_id; ?>;
         $('#ticket-entries').append($('<input/>').attr({name:'dtids[]', type:'hidden'}).val(value))
         $(this).closest('li.row-item').remove();$('#delete-warning').show();">
-        <?php if ($visual) { ?><i class="icon-trash"></i><?php } ?></a></div>
+        <?php if (!$parent && $visual) { ?><i class="icon-trash"></i><?php } ?></a></div>
     </div>
 <?php } ?>
 </li>
