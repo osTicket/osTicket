@@ -340,10 +340,10 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(403, "Access Denied");
 
         //retrieve the parent and child tickets
-        $parent_id = $ticket_id;
         $parent = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
-            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject');
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name')
+            ->order_by('sort');
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
             $tickets = $parent->union($tickets);
@@ -351,13 +351,6 @@ class TicketsAjaxAPI extends AjaxController {
         else
             $tickets = $parent;
 
-        //fix sort of tickets
-        $sql = 'SELECT * FROM ('.
-                $tickets->getQuery()
-                . ') a ORDER BY sort';
-        $res = db_query($sql);
-        $tickets = db_assoc_array($res);
-        $tickets[0]['type'] = $ticket->getMergeType();
         $info = array('action' => '#tickets/'.$ticket->getId().'/merge');
 
         return self::_updateMerge($ticket, $tickets, $info);
@@ -371,7 +364,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $parentModel = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
-            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject');
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name');
 
         if ($_POST['tids']) {
             $parent = Ticket::lookup($ticket_id);
@@ -838,62 +831,79 @@ function refer($tid, $target=null) {
             $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
             $eventName = ($title && $title == 'link') ? 'linked' : 'merged';
             $permission = ($title && $title == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
-            foreach ($ticketIds as $key => $value) {
-                if (!$ticket = Ticket::lookup($value))
-                    continue;
-                elseif (!$parent && $ticket->isParent() && $ticket->getMergeType() != 'visual')
-                    $parent = $ticket;
 
-                if ($ticket->getMergeType() != 'visual' && $title == 'link')
+            $tickets = Ticket::objects()
+                ->filter(array('ticket_id__in'=>$ticketIds))
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
+                              'user_id', 'cdata__subject', 'user__name', 'flags');
+
+            foreach ($tickets as $ticket) {
+                list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id, $subject, $name, $flags) = $ticket;
+                $mergeType = Ticket::getMergeTypeByFlag($flags);
+                $isParent = Ticket::objects()
+                    ->filter(array('ticket_pid'=>$ticket_id));
+                $isParent = (count($isParent) > 0) ? true : false;
+
+                if (!$ticket)
+                    continue;
+                elseif (!$parent && $isParent && $mergeType != 'visual') {
+                    $parent = $ticket;
+                    $parentMergeType = $mergeType;
+                }
+
+                if ($mergeType != 'visual' && $title == 'link')
                     $info['error'] = sprintf(
                             __('One or more Tickets selected is part of a merge. Merged Tickets cannot be %s.'),
                             __($eventName)
                             );
 
-                if ($parent && ($ticket->isParent() && $ticket->getMergeType() != 'visual') && $parent->getId() != $value)
+                if ($parent && ($isParent && $mergeType != 'visual') && $parent[0] != $ticket_id)
                     $info['error'] = sprintf(
                             __('More than one Parent Ticket selected. %1$s cannot be %2$s.'),
                             _N('The selected Ticket', 'The selected Tickets', $count),
                             __($eventName)
                             );
 
-                if ($ticket->isChild() && $ticket->getMergeType() != 'visual')
+                if ($ticket_pid && $mergeType != 'visual' && $title == 'merge')
                     $info['error'] = sprintf(
                             __('One or more Tickets selected is a merged child. %1$s cannot be %2$s.'),
                             _N('The selected Ticket', 'The selected Tickets', $count),
                             __($eventName)
                             );
-
-                $tickets[$key]['ticket_id'] =  $value;
-                $tickets[$key]['number'] = $ticket->getNumber();
-                $tickets[$key]['user_id'] = $ticket->getUserId();
-                $tickets[$key]['type'] = $ticket->getMergeType();
-                $tickets[$key]['id'] = $ticket->getThreadId();
-                $tickets[$key]['subject'] = $ticket->getSubject();
-                $role = $ticket->getRole($thisstaff);
-
-                // Generic permission check.
-                if (!$role->hasPerm($permission)) {
-                    $info['error'] = sprintf(
-                            __('You do not have permission to %1$s %2$s'),
-                            __($title),
-                            _N('the selected Ticket', 'the selected Tickets', $count));
-                    $info = array_merge($info, Format::htmlchars($_POST));
-                }
-                else
-                    $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
-
             }
             //move parent ticket to top of list
-            if ($parent && $parent->getMergeType() != 'visual') {
-                foreach ($tickets as $key => $value) {
-                    if ($value['ticket_id'] == $parent->getId()) {
-                        unset($tickets[$key]);
-                        array_unshift($tickets, $value);
+            if (count($ticketIds) > 1) {
+                $ticketIdsSorted = $ticketIds;
+                if ($parent && $parentMergeType != 'visual') {
+                    foreach ($ticketIdsSorted as $key => $value) {
+                        if ($value == $parent[0]) {
+                            unset($ticketIdsSorted[$key]);
+                            array_unshift($ticketIdsSorted, $value);
+                            array_unshift($ticketIdsSorted, new SqlField('ticket_id'));
+                        }
                     }
                 }
+
+                $expr = call_user_func_array(array('SqlFunction', 'FIELD'), $ticketIdsSorted);
+                $tickets = Ticket::objects()
+                    ->filter(array('ticket_id__in'=>$ticketIds))
+                    ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
+                                  'user_id', 'cdata__subject', 'user__name', 'flags')
+                    ->order_by($expr);
             }
 
+            $ticket = Ticket::lookup($parent[0] ?: $ticket[0]);
+            $role = $ticket->getRole($thisstaff);
+            // Generic permission check.
+            if (!$role->hasPerm($permission)) {
+                $info['error'] = sprintf(
+                        __('You do not have permission to %1$s %2$s'),
+                        __($title),
+                        _N('the selected Ticket', 'the selected Tickets', $count));
+                $info = array_merge($info, Format::htmlchars($_POST));
+            }
+            else
+                $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
             break;
         case 'claim':
             $w = 'me';

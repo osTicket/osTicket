@@ -230,8 +230,28 @@ implements RestrictedAccess, Threadable, Searchable {
     function getChildTickets($pid) {
         return Ticket::objects()
                 ->filter(array('ticket_pid'=>$pid))
-                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject')
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name')
                 ->order_by('sort');
+    }
+
+    function getMergeTypeByFlag($flag) {
+        if ($flag & self::FLAG_COMBINE_THREADS != 0)
+            return 'combine';
+        if ($flag & self::FLAG_SEPARATE_THREADS != 0)
+            return 'separate';
+        else
+            return 'visual';
+        return 'visual';
+    }
+
+    function getMergeType() {
+        if ($this->hasFlag(self::FLAG_COMBINE_THREADS))
+            return 'combine';
+        if ($this->hasFlag(self::FLAG_SEPARATE_THREADS))
+            return 'separate';
+        else
+            return 'visual';
+        return 'visual';
     }
 
     function isMerged() {
@@ -252,7 +272,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return ($this->get('flags', 0) & $flag) != 0;
     }
 
-    function isChild() {
+    function isChild($pid=false) {
         return ($this->getPid() ? true : false);
     }
 
@@ -862,16 +882,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getThreadCount() {
         return $this->getClientThread()->count();
-    }
-
-    function getMergeType() {
-        if ($this->hasFlag(self::FLAG_COMBINE_THREADS))
-            return 'combine';
-        if ($this->hasFlag(self::FLAG_SEPARATE_THREADS))
-            return 'separate';
-        else
-            return 'visual';
-        return 'visual';
     }
 
     function getNumMessages() {
