@@ -35,7 +35,7 @@ class TicketsAjaxAPI extends AjaxController {
         $visibility = $thisstaff->getTicketsVisibility();
         $hits = Ticket::objects()
             ->filter($visibility)
-            ->values('user__default_email__address')
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id')
             ->annotate(array(
                 'number' => new SqlCode('null'),
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
@@ -53,7 +53,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
             $hits = Ticket::objects()
-                ->values('user__default_email__address', 'number')
+                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
                 ))
@@ -75,6 +75,8 @@ class TicketsAjaxAPI extends AjaxController {
             if ($T['number']) {
                 $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
                     'info'=>"{$T['number']} — {$email}",
+                    'subject'=>$T['cdata__subject'],
+                    'user'=>$T['user__name'],
                     'matches'=>$_REQUEST['q']);
             }
             else {
