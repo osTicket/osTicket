@@ -230,7 +230,8 @@ implements RestrictedAccess, Threadable, Searchable {
     function getChildTickets($pid) {
         return Ticket::objects()
                 ->filter(array('ticket_pid'=>$pid))
-                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name')
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+                ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)))
                 ->order_by('sort');
     }
 
@@ -2457,7 +2458,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
                                $parent->logEvent($eventName, array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
                                $ticket->logEvent($eventName, array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
-
                                if ($ticket->getPid() != $parent->getId()) {
                                    $ticket->setPid($parent->getId());
                                    $ticket->setSort($key);
@@ -2493,7 +2493,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $child->setMergeType($tickets['combine']);
 
-                if ($tickets['delete-child2']) {
+                if ($tickets['delete-child'] || $tickets['move-tasks']) {
                     if ($tasks = Task::objects()
                         ->filter(array('object_id' => $child->getId()))
                         ->values_flat('id')) {
@@ -2503,11 +2503,13 @@ implements RestrictedAccess, Threadable, Searchable {
                             $task->save();
                         }
                     }
-                    $child->delete();
                 }
+
+                if ($tickets['delete-child'])
+                     $child->delete();
             }
 
-            if ($tickets['delete-child2'])
+            if ($tickets['delete-child'])
                  $parent->setMergeType(3);
         }
         return true;
