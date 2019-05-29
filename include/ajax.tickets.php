@@ -35,10 +35,11 @@ class TicketsAjaxAPI extends AjaxController {
         $visibility = $thisstaff->getTicketsVisibility();
         $hits = Ticket::objects()
             ->filter($visibility)
-            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id')
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id')
             ->annotate(array(
                 'number' => new SqlCode('null'),
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
@@ -53,9 +54,10 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
             $hits = Ticket::objects()
-                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id')
+                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
+                    'tasks' => SqlAggregate::COUNT('tasks__id', true),
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
@@ -77,6 +79,8 @@ class TicketsAjaxAPI extends AjaxController {
                     'info'=>"{$T['number']} — {$email}",
                     'subject'=>$T['cdata__subject'],
                     'user'=>$T['user__name'],
+                    'tasks'=>$T['tasks'],
+                    'tid'=>$T['thread__id'],
                     'matches'=>$_REQUEST['q']);
             }
             else {
@@ -344,7 +348,8 @@ class TicketsAjaxAPI extends AjaxController {
         //retrieve the parent and child tickets
         $parent = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
-            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name')
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)))
             ->order_by('sort');
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
@@ -366,7 +371,8 @@ class TicketsAjaxAPI extends AjaxController {
 
         $parentModel = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
-            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name');
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)));
 
         if ($_POST['tids']) {
             $parent = Ticket::lookup($ticket_id);
@@ -837,7 +843,8 @@ function refer($tid, $target=null) {
             $tickets = Ticket::objects()
                 ->filter(array('ticket_id__in'=>$ticketIds))
                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
-                              'user_id', 'cdata__subject', 'user__name', 'flags');
+                              'user_id', 'cdata__subject', 'user__name', 'flags')
+                ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)));
 
             foreach ($tickets as $ticket) {
                 list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id, $subject, $name, $flags) = $ticket;
@@ -891,6 +898,7 @@ function refer($tid, $target=null) {
                     ->filter(array('ticket_id__in'=>$ticketIds))
                     ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
                                   'user_id', 'cdata__subject', 'user__name', 'flags')
+                    ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)))
                     ->order_by($expr);
             }
 
