@@ -27,7 +27,7 @@
 if ($tickets) {
 foreach ($tickets as $t) {
     list($ticket_id, $number, $ticket_pid, $sort,
-        $id, $user_id, $subject, $name, $flags) = $t;
+        $id, $user_id, $subject, $name, $flags, $tasks) = $t;
     $mergeType = Ticket::getMergeTypeByFlag($flags);
 
     if ($mergeType == 'combine')
@@ -53,8 +53,12 @@ foreach ($tickets as $t) {
     <?php if ($ticket_id)
             $numberLink = sprintf('<a class="collaborators preview"
                      href="#thread/%d/collaborators">%s
-                    </a>', $id, $number); ?>
-    <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s', $numberLink ?: $number, $subject, $name);
+                    </a>', $id, $number);
+            $subject = (strlen($subject) > 25) ? sprintf('%s...',substr($subject, 0, 25)) : $subject;
+            $taskCount = sprintf('<a data-placement="bottom" data-toggle="tooltip" title="%s Tasks" <i class="icon-tasks"></i></a>',$tasks);
+    ?>
+    <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s',
+                                 $numberLink ?: $number, $name, $taskCount, $subject);
     if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
     <div class="<?php if (!$parent && $visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
@@ -96,12 +100,22 @@ foreach ($tickets as $t) {
     var select = $(this).parent().find('select'),
         $sel = select.find('option:selected'),
         id = $sel.val();
+        data = $sel.data();
+        for(var key in data) {
+             tasks = data[key]['tasks'];
+             subject = data[key]['subject'];
+             user = data[key]['user'];
+             tid = data[key]['tid'] ? data[key]['tid'] : 0;
+        }
 
     if ($sel.prop('disabled'))
         return;
     $('#ticket-entries').append($('<li></li>').addClass('sortable row-item')
-        .text(' '+$sel.text())
+        .text('  '+user)
         .data('id', id)
+        .append($('<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-tasks\'>')).attr({title: tasks+' Tasks'})
+        .append(subject)
+        .prepend($('<a class=\'collaborators preview\' href=\'#thread/'+tid+'/collaborators\'>'+'\xa0'+id+'</a>'))
         .prepend($('<i>').addClass('icon-reorder'))
         .append($('<input/>').attr({name:'tids[]', type:'hidden'}).val(id))
         .append($('<div></div>').addClass('button-group')
@@ -136,10 +150,15 @@ foreach ($tickets as $t) {
 </div>
 <?php if ($title == 'merge') { ?>
 <hr>
-<div id="delete-child" class="hidden">
+<div id="merge-options" class="hidden">
     <label class="inline checkbox">
-        <input type="checkbox" id="delete-child2" name="delete-child2">
+        <input type="checkbox" id="delete-child" name="delete-child">
         <?php echo __('Delete Child Ticket') ?>
+    </label>
+    <br>
+    <label class="inline checkbox">
+        <input type="checkbox" id="move-tasks" name="move-tasks">
+        <?php echo __('Move Child Tasks to Parent') ?>
     </label>
 </div>
 <div id="savewarning" style="display:none; padding-top:2px;"><p
@@ -226,10 +245,14 @@ $(document).ready(function() {
         processResults: function (data) {
           return {
             results: $.map(data, function (item) {
+                subject = (item.subject.length > 25) ? item.subject.substring(0, 25) + '...' : item.subject;
               return {
-                text: item.id + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + item.subject + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + item.user,
-                slug: item.slug,
-                id: item.id
+                text: item.id,
+                user: '\xa0\xa0\xa0\xa0\xa0\xa0' + item.user + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0',
+                id: item.id,
+                tasks: item.tasks,
+                tid: item.tid,
+                subject: '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + subject,
               }
             })
           };
@@ -241,7 +264,7 @@ $(document).ready(function() {
       showCheckboxes(this);
     });
 
-    $('#delete-child input[type=checkbox]').change(function(){
+    $('#merge-options input[type=checkbox]').change(function(){
         childWarning();
     });
 
@@ -254,18 +277,18 @@ $(document).ready(function() {
        switch (value) {
          case "0":
          case "1":
-           $('#delete-child').show();
+           $('#merge-options').show();
            $('#show-participants').show();
            break;
          case "2":
-           $('#delete-child').hide();
+           $('#merge-options').hide();
            $('#show-participants').hide();
            break;
        }
      }
 
      function childWarning() {
-         var value = $("#delete-child2").prop("checked") ? 1 : 0;
+         var value = $("#delete-child").prop("checked") ? 1 : 0;
          (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
      }
 });
