@@ -35,11 +35,12 @@ class TicketsAjaxAPI extends AjaxController {
         $visibility = $thisstaff->getTicketsVisibility();
         $hits = Ticket::objects()
             ->filter($visibility)
-            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id')
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
             ->annotate(array(
                 'number' => new SqlCode('null'),
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
                 'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
@@ -54,10 +55,11 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
             $hits = Ticket::objects()
-                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id')
+                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
                     'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                    'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
@@ -76,11 +78,15 @@ class TicketsAjaxAPI extends AjaxController {
             $count = $T['tickets'];
             if ($T['number']) {
                 $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
+                    'ticket_id'=>$T['ticket_id'],
                     'info'=>"{$T['number']} — {$email}",
                     'subject'=>$T['cdata__subject'],
                     'user'=>$T['user__name'],
                     'tasks'=>$T['tasks'],
-                    'tid'=>$T['thread__id'],
+                    'thread_id'=>$T['thread__id'],
+                    'collaborators'=>$T['collaborators'],
+                    'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
+                    'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
                     'matches'=>$_REQUEST['q']);
             }
             else {
@@ -349,7 +355,8 @@ class TicketsAjaxAPI extends AjaxController {
         $parent = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
-            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)))
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),))
             ->order_by('sort');
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
@@ -372,7 +379,8 @@ class TicketsAjaxAPI extends AjaxController {
         $parentModel = Ticket::objects()
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
-            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)));
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),));
 
         if ($_POST['tids']) {
             $parent = Ticket::lookup($ticket_id);
@@ -394,6 +402,21 @@ class TicketsAjaxAPI extends AjaxController {
 
     private function _updateMerge($ticket, $tickets, $info) {
         include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
+    }
+
+    function previewMerge($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        ob_start();
+        include STAFFINC_DIR . 'templates/merge-preview.tmpl.php';
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
     }
 
     function cannedResponse($tid, $cid, $format='text') {
@@ -844,7 +867,8 @@ function refer($tid, $target=null) {
                 ->filter(array('ticket_id__in'=>$ticketIds))
                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
                               'user_id', 'cdata__subject', 'user__name', 'flags')
-                ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)));
+                ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),));
 
             foreach ($tickets as $ticket) {
                 list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id, $subject, $name, $flags) = $ticket;
@@ -898,7 +922,8 @@ function refer($tid, $target=null) {
                     ->filter(array('ticket_id__in'=>$ticketIds))
                     ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
                                   'user_id', 'cdata__subject', 'user__name', 'flags')
-                    ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true)))
+                    ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                                     'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),))
                     ->order_by($expr);
             }
 

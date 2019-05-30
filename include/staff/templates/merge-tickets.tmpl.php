@@ -26,8 +26,9 @@
 <?php
 if ($tickets) {
 foreach ($tickets as $t) {
+    // var_dump($t);
     list($ticket_id, $number, $ticket_pid, $sort,
-        $id, $user_id, $subject, $name, $flags, $tasks) = $t;
+        $id, $user_id, $subject, $name, $flags, $tasks, $collaborators) = $t;
     $mergeType = Ticket::getMergeTypeByFlag($flags);
 
     if ($mergeType == 'combine')
@@ -51,14 +52,22 @@ foreach ($tickets as $t) {
     ?>" data-id="<?php echo $ticket_id; ?>">
     <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
     <?php if ($ticket_id)
-            $numberLink = sprintf('<a class="collaborators preview"
-                     href="#thread/%d/collaborators">%s
-                    </a>', $id, $number);
+            $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="#tickets.php?id=%d">%s</a>',
+                                $ticket_id, $ticket_id, $number);
             $subject = (strlen($subject) > 25) ? sprintf('%s...',substr($subject, 0, 25)) : $subject;
             $taskCount = sprintf('<a data-placement="bottom" data-toggle="tooltip" title="%s Tasks" <i class="icon-tasks"></i></a>',$tasks);
+            $showMergePreview = ($mergeType != 'visual' && $children=$ticket->getChildTickets($ticket_id)) && (count($children) > 0) ? true : false;
+            $mergePrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-code-fork"></i></a>', $ticket_id);
+            $showLinkPreview = ($mergeType == 'visual' && $children=$ticket->getChildTickets($ticket_id)) && (count($children) > 0) ? true : false;
+            $linkPrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-link"></i></a>', $ticket_id);
+            $showCollaborators = ($collaborators > 0) ?
+               sprintf('<a class="collaborators preview"href="#thread/%d/collaborators"><i class="icon-group"></i></a>', $id) : '';
+            $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     ?>
-    <i class="icon-reorder"></i> <?php echo sprintf('%s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s',
-                                 $numberLink ?: $number, $name, $taskCount, $subject);
+    <i class="icon-reorder"></i> <?php
+    echo sprintf('%s %s %s %s %s %s <div style="float: right;"> %s %s %s %s %s</div>',
+        $numberLink ?: $number,$nbsp, $name, $nbsp, $subject, $nbsp, $tasks ? $taskCount : '',
+        $showMergePreview || $showLinkPreview ? $nbsp : '', $showMergePreview ? $mergePrev : '', $showLinkPreview ? $linkPrev : '', $showCollaborators ? $nbsp . $showCollaborators : '');
     if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
     <div class="<?php if (!$parent && $visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
@@ -102,10 +111,20 @@ foreach ($tickets as $t) {
         id = $sel.val();
         data = $sel.data();
         for(var key in data) {
+             ticket_id = data[key]['ticket_id'];
              tasks = data[key]['tasks'];
+             showTasks = (tasks > 0) ? '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-tasks\'>' : '';
              subject = data[key]['subject'];
+             spaces = data[key]['spaces'];
              user = data[key]['user'];
-             tid = data[key]['tid'] ? data[key]['tid'] : 0;
+             collaborators = data[key]['collaborators'];
+             thread_id = data[key]['thread_id'] ? data[key]['thread_id'] : 0;
+             mergeType = data[key]['mergeType'];
+             mergePrev = data[key]['mergePrev'];
+             icon = (mergeType == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
+             showMergePrev = mergePrev ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
+             showCollaborators = (collaborators > 0) ?
+                '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators\'><i class=\'icon-group\'></i></a>' : '';
         }
 
     if ($sel.prop('disabled'))
@@ -113,9 +132,15 @@ foreach ($tickets as $t) {
     $('#ticket-entries').append($('<li></li>').addClass('sortable row-item')
         .text('  '+user)
         .data('id', id)
-        .append($('<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-tasks\'>')).attr({title: tasks+' Tasks'})
         .append(subject)
-        .prepend($('<a class=\'collaborators preview\' href=\'#thread/'+tid+'/collaborators\'>'+'\xa0'+id+'</a>'))
+        .append(spaces)
+        .append($('<div style=\'position: absolute; right: 50px; bottom: 9px;\'></div>')
+            .append(showTasks).attr({title: tasks+' Tasks'})
+            .append(showMergePrev ? spaces : '')
+            .append(showMergePrev)
+            .append((collaborators > 0) ? spaces : '')
+            .append(showCollaborators))
+        .prepend($('<a href=\'#tickets.php?id='+id+'>\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
         .prepend($('<i>').addClass('icon-reorder'))
         .append($('<input/>').attr({name:'tids[]', type:'hidden'}).val(id))
         .append($('<div></div>').addClass('button-group')
@@ -248,11 +273,16 @@ $(document).ready(function() {
                 subject = (item.subject.length > 25) ? item.subject.substring(0, 25) + '...' : item.subject;
               return {
                 text: item.id,
+                ticket_id: item.ticket_id,
                 user: '\xa0\xa0\xa0\xa0\xa0\xa0' + item.user + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0',
                 id: item.id,
                 tasks: item.tasks,
-                tid: item.tid,
-                subject: '\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + subject,
+                thread_id: item.thread_id,
+                spaces: '\xa0\xa0\xa0\xa0\xa0\xa0\xa0',
+                mergeType: item.mergeType,
+                mergePrev: item.children,
+                collaborators: item.collaborators,
+                subject: subject,
               }
             })
           };
