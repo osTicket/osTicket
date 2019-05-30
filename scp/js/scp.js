@@ -1065,6 +1065,20 @@ $(document).on('click', 'a.collaborator, a.collaborators:not(.noclick)', functio
     return false;
  });
 
+ //Merge
+ $(document).on('click', 'a.merge, a.merge:not(.noclick)', function(e) {
+     e.preventDefault();
+     var url = 'ajax.php/'+$(this).attr('href').substr(1);
+     $.dialog(url, 201, function (xhr) {
+        var resp = $.parseJSON(xhr.responseText);
+        $('#t'+resp.id+'-recipients').text(resp.text);
+        $('.tip_box').remove();
+     }, {
+         onshow: function() { $('#user-search').focus(); }
+     });
+     return false;
+  });
+
 // NOTE: getConfig should be global
 getConfig = (function() {
     var dfd = $.Deferred(),

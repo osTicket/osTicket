@@ -234,6 +234,26 @@ jQuery(function() {
         $('.tip_box').remove();
     });
 
+    $(document).on('mouseover', 'a.merge.preview', function(e) {
+        e.preventDefault();
+        var elem = $(this);
+
+        var url = 'ajax.php/'+elem.attr('href').substr(1)+'/preview';
+        var xoffset = 100;
+        elem.data('timer', 0);
+
+        if (e.type=='mouseover') {
+            elem.data('timer',setTimeout(function() { showtip(url, elem, xoffset);},750))
+        } else {
+            showtip(url,elem,xoffset);
+        }
+    }).on('mouseout', 'a.merge.preview', function(e) {
+        clearTimeout($(this).data('timer'));
+    }).on('click', 'a.merge.preview', function(e) {
+        clearTimeout($(this).data('timer'));
+        $('.tip_box').remove();
+    });
+
 
     // Tooltip preview
     $(document).on('mouseover', '.preview', function(e) {
