@@ -112,7 +112,7 @@ class Form {
     }
 
     function getTitle() { return $this->title; }
-    function getInstructions() { return $this->instructions; }
+    function getInstructions() { return Format::htmldecode($this->instructions); }
     function getSource() { return $this->_source; }
     function setSource($source) { $this->_source = $source; }
 
