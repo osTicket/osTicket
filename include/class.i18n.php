@@ -428,13 +428,20 @@ class Internationalization {
         if (isset($cache[$k]) && $cache[$k])
             return $cache[$k];
 
+        // Check if persian calendar is needed
+        // https://en.wikipedia.org/wiki/Jalali_calendar
+        if (strstr($options['locale'], 'fa')) {
+            $options['locale'] .= '@calendar=persian';
+            $options['calendar'] = IntlDateFormatter::TRADITIONAL;
+        }
+
         // Create formatter && cache
         $cache[$k] = $formatter = new IntlDateFormatter(
                 $options['locale'],
                 $options['daytype'] ?: null,
                 $options['timetype'] ?: null,
                 $options['timezone'] ?: null,
-                $options['calendar'] ?: IntlDateFormatter::GREGORIAN,
+                $options['calendar'] ?? IntlDateFormatter::GREGORIAN,
                 $options['pattern'] ?: null
                 );
 
