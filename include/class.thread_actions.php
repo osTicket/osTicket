@@ -138,6 +138,13 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
                 && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
                 && $role->hasPerm(ThreadEntry::PERM_EDIT)
             )
+            || ($T instanceof Task
+                && $T->getDept()->getManagerId() == $thisstaff->getId()
+            )
+            || ($T instanceof Task
+                && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
+                && $role->hasPerm(ThreadEntry::PERM_EDIT)
+            )
         );
     }
 
