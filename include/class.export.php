@@ -555,3 +555,103 @@ class DatabaseExporter {
         $this->write_block(array('end-table'));
     }
 }
+
+class TicketZipExporter {
+    var $ticket;
+    var $tmpfiles;
+
+    function __construct(Ticket $ticket) {
+        $this->ticket = $ticket;
+        $this->tmpfiles = array();
+    }
+
+    function addTicket($ticket, $zip, $prefix, $notes=true, $psize=null) {
+        require_once(INCLUDE_DIR.'class.pdf.php');
+
+        $pdf_file = $this->tmpfiles[] = tempnam(sys_get_temp_dir(), 'zip');
+        $pdf = new Ticket2PDF($ticket, $psize, $notes);
+        $pdf->output($pdf_file, 'F');
+
+        $zip->addFile($pdf_file, "{$ticket->getNumber()}.pdf");
+
+        // Include all the (non-inline) attachments
+        // XXX: Handle attachments with duplicate filenames between entry posts
+        $attachments = Attachment::objects()
+            ->filter([
+                'thread_entry__thread' => $ticket->getThread(),
+                'inline' => 0
+            ])
+            ->order_by('thread_entry__created')
+            ->select_related('file');
+
+        foreach ($attachments as $att) {
+            $zip->addFromString("{$prefix}/{$att->getFilename()}",
+                $att->getFile()->getData());
+        }
+    }
+
+    function addTask($task, $zip, $prefix, $notes=true, $psize=null) {
+        require_once(INCLUDE_DIR.'class.pdf.php');
+
+        $pdf_file = $this->tmpfiles[] = tempnam(sys_get_temp_dir(), 'zip');
+        $pdf = new Task2PDF($task, ['psize' => $psize]);
+        $pdf->output($pdf_file, 'F');
+
+        $zip->addFile($pdf_file, "{$prefix}/{$task->getNumber()}.pdf");
+
+        // Include all the (non-inline) attachments
+        // XXX: Handle attachments with duplicate filenames between entry posts
+        $attachments = Attachment::objects()
+            ->filter([
+                'thread_entry__thread' => $task->getThread(),
+                'inline' => 0
+            ])
+            ->order_by('thread_entry__created')
+            ->select_related('file');
+
+        foreach ($attachments as $att) {
+            $zip->addFromString("{$prefix}/{$task->getNumber()}/{$att->getFilename()}",
+                $att->getFile()->getData());
+        }
+    }
+
+    function download($options = array()) {
+        global $thisstaff;
+
+        $notes = @$options['notes'] ?? false;
+        $tasks = @$options['tasks'] ?? false;
+
+        // TODO: Use a streaming ZIP library
+        $zipfile = tempnam(sys_get_temp_dir(), 'zip');
+        try {
+            $zip = new ZipArchive();
+            if (!$zip->open($zipfile, ZipArchive::CREATE))
+                return;
+
+            $prefix = "{$this->ticket->getNumber()}";
+
+            // Include a PDF of the ticket thread (with optional notes)
+            if (!$thisstaff || !($psize = $thisstaff->getDefaultPaperSize()))
+                $psize = 'Letter';
+
+            $this->addTicket($this->ticket, $zip, $prefix, $notes, $psize);
+
+            if ($tasks) {
+                foreach ($this->ticket->tasks as $task)
+                    $this->addTask($task, $zip, "{$prefix}/tasks", $notes, $psize);
+            }
+
+            $zip->close();
+            Http::download("ticket-{$this->ticket->getNumber()}.zip", "application/zip",
+                null, 'attachment');
+            $fp = fopen($zipfile, 'r');
+            fpassthru($fp);
+            fclose($fp);
+        }
+        finally {
+            foreach ($this->tmpfiles as $T)
+                @unlink($T);
+            unlink($zipfile);
+        }
+    }
+}
