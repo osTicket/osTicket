@@ -27,7 +27,7 @@
 if ($tickets) {
 foreach ($tickets as $t) {
     list($ticket_id, $number, $ticket_pid, $sort,
-        $id, $user_id, $subject, $name, $flags, $tasks, $collaborators) = $t;
+        $id, $user_id, $subject, $name, $flags, $tasks, $collaborators, $entries) = $t;
     $mergeType = Ticket::getMergeTypeByFlag($flags);
 
     if ($mergeType == 'combine')
@@ -55,10 +55,12 @@ foreach ($tickets as $t) {
     ?>" data-id="<?php echo $ticket_id; ?>">
     <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
     <?php if ($ticket_id)
-            $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="#tickets.php?id=%d">%s</a>',
-                                $ticket_id, $ticket_id, $number);
+            $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>',
+                                $ticket_id, Ticket::getLink($ticket_id), $number);
             $subject = (strlen($subject) > 25) ? sprintf('%s...',substr($subject, 0, 25)) : $subject;
-            $taskCount = sprintf('<a data-placement="bottom" data-toggle="tooltip" title="%s Tasks" <i class="icon-tasks"></i></a>',$tasks);
+            $entryCount = $entries > 0 ?
+                sprintf('<a data-placement="bottom" <i class="icon-comments-alt" data-toggle="tooltip" title="%s %s"></i></a>',$entries, __('Thread Entries')) : '';
+            $taskCount = sprintf('<a data-placement="bottom" <i class="icon-tasks" data-toggle="tooltip" title="%s %s"></i></a>',$tasks, __('Tasks'));
             $showMergePreview = ($mergeType != 'visual' && $children=$ticket->getChildTickets($ticket_id)) && (count($children) > 0) ? true : false;
             $mergePrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-code-fork"></i></a>', $ticket_id);
             $showLinkPreview = ($mergeType == 'visual' && $children=$ticket->getChildTickets($ticket_id)) && (count($children) > 0) ? true : false;
@@ -68,9 +70,9 @@ foreach ($tickets as $t) {
             $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     ?>
     <i class="icon-reorder"></i> <?php
-    echo sprintf('%s %s %s %s %s %s <div style="float: right;"> %s %s %s %s %s</div>',
-        $numberLink ?: $number,$nbsp, $name, $nbsp, $subject, $nbsp, $tasks ? $taskCount : '',
-        $showMergePreview || $showLinkPreview ? $nbsp : '', $showMergePreview ? $mergePrev : '', $showLinkPreview ? $linkPrev : '', $showCollaborators ? $nbsp . $showCollaborators : '');
+    echo sprintf('%s %s %s %s %s <div style="float: right;">%s %s %s %s %s %s</div>',
+        $numberLink ?: $number, $nbsp, $name, $nbsp, $subject, $nbsp, $entryCount, $tasks ? $nbsp . $taskCount : '',
+        $showMergePreview ? $nbsp . $mergePrev : '', $showLinkPreview ? $nbsp . $linkPrev : '', $showCollaborators ? $nbsp . $showCollaborators : '');
     if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
     <div class="<?php if (!$parent && $visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
@@ -85,7 +87,7 @@ foreach ($tickets as $t) {
 </div>
 </ul>
 <?php
-    if ($showParticipants && $title == 'merge') { //get user/collab merge options here
+    if ($showParticipants && $title == 'merge') {
 ?>
 
 <div id="participant-options">
@@ -118,15 +120,19 @@ foreach ($tickets as $t) {
         data = $sel.data();
         for(var key in data) {
              ticket_id = data[key]['ticket_id'];
+             ticketLink = '<?php echo Ticket::getLink('');?>';
              tasks = data[key]['tasks'];
-             showTasks = (tasks > 0) ? '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-tasks\'>' : '';
+             showTasks = (tasks > 0) ? '<a data-placement=\'bottom\' <i class=\'icon-tasks\' data-toggle=\'tooltip\' title=\''+tasks+' Tasks\'>' : '';
              subject = data[key]['subject'];
              spaces = data[key]['spaces'];
              user = data[key]['user'];
              collaborators = data[key]['collaborators'];
+             entries = data[key]['entries'];
              thread_id = data[key]['thread_id'] ? data[key]['thread_id'] : 0;
              mergeType = data[key]['mergeType'];
              mergePrev = data[key]['mergePrev'];
+             showEntries = (entries > 0) ?
+                '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-comments-alt\' data-toggle=\'tooltip\' title=\''+entries+' Thread Entries\'>' : '';
              icon = (mergeType == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
              showMergePrev = mergePrev ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
              showCollaborators = (collaborators > 0) ?
@@ -136,17 +142,19 @@ foreach ($tickets as $t) {
     if ($sel.prop('disabled'))
         return;
     $('#ticket-entries').append($('<li></li>').addClass('sortable row-item')
-        .text('  '+user)
+        .text(spaces + user + spaces)
         .data('id', id)
         .append(subject)
         .append(spaces)
         .append($('<div style=\'position: absolute; right: 50px; bottom: 9px;\'></div>')
-            .append(showTasks).attr({title: tasks+' Tasks'})
+            .append(showEntries)
+            .append(showTasks ? spaces : '')
+            .append(showTasks)
             .append(showMergePrev ? spaces : '')
             .append(showMergePrev)
             .append((collaborators > 0) ? spaces : '')
             .append(showCollaborators))
-        .prepend($('<a href=\'#tickets.php?id='+id+'>\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
+        .prepend($('<a href=\''+ticketLink+ticket_id+'\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
         .prepend($('<i>').addClass('icon-reorder'))
         .append($('<input/>').attr({name:'tids[]', type:'hidden'}).val(id))
         .append($('<div></div>').addClass('button-group')
@@ -280,7 +288,7 @@ $(document).ready(function() {
               return {
                 text: item.id,
                 ticket_id: item.ticket_id,
-                user: '\xa0\xa0\xa0\xa0\xa0\xa0' + item.user + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0',
+                user: item.user,
                 id: item.id,
                 tasks: item.tasks,
                 thread_id: item.thread_id,
@@ -288,6 +296,7 @@ $(document).ready(function() {
                 mergeType: item.mergeType,
                 mergePrev: item.children,
                 collaborators: item.collaborators,
+                entries: item.entries,
                 subject: subject,
               }
             })
