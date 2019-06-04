@@ -232,7 +232,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 ->filter(array('ticket_pid'=>$pid))
                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
                 ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),))
+                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                 'entries' => SqlAggregate::COUNT('thread__entries__id'),))
                 ->order_by('sort');
     }
 

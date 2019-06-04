@@ -41,6 +41,7 @@ class TicketsAjaxAPI extends AjaxController {
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
                 'tasks' => SqlAggregate::COUNT('tasks__id', true),
                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                'entries' => SqlAggregate::COUNT('thread__entries__id'),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
@@ -60,6 +61,7 @@ class TicketsAjaxAPI extends AjaxController {
                     'tickets' => new SqlCode('1'),
                     'tasks' => SqlAggregate::COUNT('tasks__id', true),
                     'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                    'entries' => SqlAggregate::COUNT('thread__entries__id'),
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
@@ -85,6 +87,7 @@ class TicketsAjaxAPI extends AjaxController {
                     'tasks'=>$T['tasks'],
                     'thread_id'=>$T['thread__id'],
                     'collaborators'=>$T['collaborators'],
+                    'entries'=>$T['entries'],
                     'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
                     'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
                     'matches'=>$_REQUEST['q']);
@@ -356,7 +359,8 @@ class TicketsAjaxAPI extends AjaxController {
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
             ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),))
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id'),))
             ->order_by('sort');
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
@@ -380,7 +384,8 @@ class TicketsAjaxAPI extends AjaxController {
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
             ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),));
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id'),));
 
         if ($_POST['tids']) {
             $parent = Ticket::lookup($ticket_id);
@@ -868,7 +873,8 @@ function refer($tid, $target=null) {
                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
                               'user_id', 'cdata__subject', 'user__name', 'flags')
                 ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),));
+                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                 'entries' => SqlAggregate::COUNT('thread__entries__id'),));
 
             foreach ($tickets as $ticket) {
                 list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id, $subject, $name, $flags) = $ticket;
@@ -923,7 +929,8 @@ function refer($tid, $target=null) {
                     ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
                                   'user_id', 'cdata__subject', 'user__name', 'flags')
                     ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                                     'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),))
+                                     'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                     'entries' => SqlAggregate::COUNT('thread__entries__id'),))
                     ->order_by($expr);
             }
 
