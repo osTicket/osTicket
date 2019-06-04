@@ -26,7 +26,6 @@
 <?php
 if ($tickets) {
 foreach ($tickets as $t) {
-    // var_dump($t);
     list($ticket_id, $number, $ticket_pid, $sort,
         $id, $user_id, $subject, $name, $flags, $tasks, $collaborators) = $t;
     $mergeType = Ticket::getMergeTypeByFlag($flags);
@@ -34,9 +33,13 @@ foreach ($tickets as $t) {
     if ($mergeType == 'combine')
         $forceOptions = true;
 
-    if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id) {
+    if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id)
+        $showUserOption = true;
+    if ($collaborators > 0)
+        $showCcOption = true;
+    if ($showUserOption || $showCcOption)
         $showParticipants = true;
-    }
+
     if ($ticket->getId() == $ticket_pid)
         $visual = true;
     $types[] = $mergeType;
@@ -90,8 +93,11 @@ foreach ($tickets as $t) {
     <label class="inline checkbox">
         <?php echo __('Participants') ?>&nbsp;
     <select id="participants" name="participants">
-        <option value='user' selected="selected"><?php echo __('User');?></option>
-        <option value='all'><?php echo __('User + Collaborators'); ?></option>
+        <?php if ($showUserOption) { ?>
+            <option value='user' selected="selected"><?php echo __('User');?></option>
+        <?php } if ($showCcOption) { ?>
+            <option value='all'><?php echo __('User + Collaborators'); ?></option>
+        <?php } ?>
     </select>
     </label>
 </div>
