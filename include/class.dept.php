@@ -770,7 +770,7 @@ implements TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         $id = $this->id;
         if ($id && $id != $vars['id'])
@@ -829,6 +829,18 @@ implements TemplateVariable, Searchable {
 
         if ($errors)
             return false;
+
+        foreach ($vars as $key => $value) {
+            if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
+                $loggedUpdate = true;
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
+                Signal::send('object.edited', $this, $type);
+            } elseif (isset($this->$key) && ($this->$key != $value)) {
+                $loggedUpdate = true;
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $this->pid = $vars['pid'] ?: null;
         $this->ispublic = isset($vars['ispublic']) ? (int) $vars['ispublic'] : 0;
@@ -905,8 +917,8 @@ implements TemplateVariable, Searchable {
                 // The ID wasn't available until after the commit
                 $this->path = $this->getFullPath();
                 $this->save();
-            } else {
-                $type = array('type' => 'edited');
+            } elseif (!$loggedUpdate) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.edited', $this, $type);
             }
             return true;

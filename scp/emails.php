@@ -28,8 +28,6 @@ if($_POST){
             }elseif($email->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this email'));
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $email, $type);
             }elseif(!$errors['err']){
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this email')),
@@ -42,7 +40,7 @@ if($_POST){
                 $id = $box->getId();
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $box->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $box, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
@@ -62,7 +60,7 @@ if($_POST){
                     $i=0;
                     foreach($_POST['ids'] as $k=>$v) {
                         if($v!=$cfg->getDefaultEmailId() && ($e=Email::lookup($v)) && $e->delete()) {
-                            $type = array('type' => 'deleted');
+                            $type = array('type' => 'deleted', 'data' => array('name' => $e->getName(), 'person' => $thisstaff->getName()->name));
                             Signal::send('object.deleted', $e, $type);
                             $i++;
                         }

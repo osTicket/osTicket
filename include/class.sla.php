@@ -143,6 +143,7 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors) {
+        global $thisstaff;
 
         if (!$vars['grace_period'])
             $errors['grace_period'] = __('Grace period required');
@@ -157,6 +158,14 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value)) {
+                $loggedUpdate = true;
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->name = $vars['name'];
         $this->schedule_id = $vars['schedule_id'];
         $this->grace_period = $vars['grace_period'];
@@ -167,8 +176,13 @@ implements TemplateVariable {
             | (isset($vars['enable_priority_escalation']) ? self::FLAG_ESCALATE : 0)
             | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
 
-        if ($this->save())
+        if ($this->save()) {
+            if (!$loggedUpdate) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
+                Signal::send('object.edited', $this, $type);
+            }
             return true;
+        }
 
         if (isset($this->id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))

@@ -32,8 +32,6 @@ if($_POST){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
             }elseif($filter->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $filter, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this ticket filter')),
@@ -44,7 +42,7 @@ if($_POST){
             $filter = new Filter();
             if ($filter->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $filter->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $filter, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -108,7 +106,7 @@ if($_POST){
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete()) {
-                                $type = array('type' => 'deleted');
+                                $type = array('type' => 'deleted', 'data' => array('name' => $f->getName(), 'person' => $thisstaff->getName()->name));
                                 Signal::send('object.deleted', $f, $type);
                                 $i++;
                             }

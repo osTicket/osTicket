@@ -340,6 +340,8 @@ extends VerySimpleModel {
     }
 
     function update($vars,&$errors) {
+        global $thisstaff;
+
         //validate filter actions before moving on
         if (!self::validate_actions($vars, $errors))
             return false;
@@ -371,6 +373,13 @@ extends VerySimpleModel {
         if(is_numeric($vars['target'])) {
             $emailId = $vars['target'];
             $vars['target'] = 'Email';
+        }
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) && $key != 'rules' && $key != 'actions') {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
         }
 
         //Note: this will be set when validating filters

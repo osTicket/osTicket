@@ -398,6 +398,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function update($vars, &$errors) {
+        global $thisstaff;
 
         $required = array();
         if ($this->isEditable())
@@ -406,8 +407,14 @@ class DynamicList extends VerySimpleModel implements CustomList {
         foreach (static::$fields as $f) {
             if (in_array($f, $required) && !$vars[$f])
                 $errors[$f] = sprintf(__('%s is required'), mb_convert_case($f, MB_CASE_TITLE));
-            elseif (isset($vars[$f]))
-                $this->set($f, $vars[$f]);
+            elseif (isset($vars[$f])) {
+                if ($vars[$f] != $this->get($f)) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $f));
+                    Signal::send('object.edited', $this, $type);
+                    $this->set($f, $vars[$f]);
+                }
+            }
+
         }
 
         if ($errors)

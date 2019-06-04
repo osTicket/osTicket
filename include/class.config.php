@@ -110,13 +110,22 @@ class Config {
     }
 
     function update($key, $value) {
+        global $thisstaff;
+
         if (!$key)
             return false;
         elseif (!isset($this->config[$key]))
             return $this->create($key, $value);
 
         $item = $this->config[$key];
+        $before = $item->value;
         $item->value = $value;
+
+        if ($before != $item->value) {
+            $type = array('type' => 'edited', 'data' => array('person' => $thisstaff->getName()->name, 'key' => $item->ht['key']));
+            Signal::send('object.edited', $item, $type);
+        }
+
         return $item->save();
     }
 

@@ -1265,7 +1265,7 @@ implements RestrictedAccess, Threadable, Searchable {
                      $collabs[] = (string) $c;
             }
             $this->logEvent('collab', array('del' => $collabs));
-            $type = array('type' => 'collab', 'data' => array('name' => $this->getNumber(), 'del' => $collabs));
+            $type = array('type' => 'collab', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'del' => $collabs));
             Signal::send('object.deleted', $this, $type);
         }
 
@@ -1505,7 +1505,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
 
-                    $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber()));
+                    $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
                     Signal::send('object.edited', $t, $type);
 
                     $t->deleteDrafts();
@@ -1518,7 +1518,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
 
-                        $type = array('type' => 'reopened', 'data' => array('name' => $t->getNumber()));
+                        $type = array('type' => 'reopened', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
                         Signal::send('object.edited', $t, $type);
                     };
                 }
@@ -2640,7 +2640,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Log transfer event
         $this->logEvent('transferred');
 
-        $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(), 'dept' => $dept->getName()));
+        $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'dept' => $dept->getName()));
         Signal::send('object.edited', $this, $type);
 
         // Post internal note if any
@@ -2757,7 +2757,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
-        $type = array('type' => 'assigned', 'data' => array('claim' => true));
+        $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'claim' => true));
         Signal::send('object.edited', $this, $type);
 
         return true;
@@ -2806,10 +2806,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
                     $alert = false;
                     $evd['claim'] = true;
-                    $audit = array('name' => $this->getNumber(), 'staff' => $assignee->getName()->name);
+                    $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $assignee->getName()->name,'claim' => true);
                 } else {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
-                    $audit = array('name' => $this->getNumber(), 'staff' => $assignee->getName()->name);
+                    $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $assignee->getName()->name);
                 }
             }
         } elseif ($assignee instanceof Team) {
@@ -2824,7 +2824,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
-                $audit = array('name' => $this->getNumber(), 'team' => $assignee->getName());
+                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'team' => $assignee->getName());
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
@@ -2868,7 +2868,9 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function release($info=array(), &$errors) {
-        $type = array('type' => 'released', 'data' => array('name' => $this->getNumber()));
+        global $thisstaff;
+
+        $type = array('type' => 'released', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name));
 
         if ($info['sid'] && $info['tid']) {
             Signal::send('object.edited', $this, $type);
@@ -2905,7 +2907,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         __('referral'));
             } else {
                 $evd['staff'] = array($referee->getId(), (string) $referee->getName()->getOriginal());
-                $audit = array('name' => $this->getNumber(), 'staff' => $referee->getName()->name);
+                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $referee->getName()->name);
             }
             break;
         case $referee instanceof Team:
@@ -2917,7 +2919,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 //TODO::
                 $evd = array('team' => $referee->getId());
-                $audit = array('name' => $this->getNumber(), 'team' => $referee->getName());
+                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'team' => $referee->getName());
             }
             break;
         case $referee instanceof Dept:
@@ -2929,7 +2931,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 //TODO::
                 $evd = array('dept' => $referee->getId());
-                $audit = array('name' => $this->getNumber(), 'dept' => $referee->getName());
+                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'dept' => $referee->getName());
             }
             break;
         default:
@@ -2998,7 +3000,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('edited', array('owner' => $user->getId()));
 
-        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
+        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
         Signal::send('object.edited', $this, $type);
 
         return true;
@@ -3006,7 +3008,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Insert message from client
     function postMessage($vars, $origin='', $alerts=true) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         if ($origin)
             $vars['origin'] = $origin;
@@ -3103,8 +3105,8 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($collabs) {
                 $ticket->logEvent('collab', array('add' => $collabs), $message->user);
 
-                // Allow audit and other external interaction
-                $type = array('type' => 'Collaborator', 'data' => array('name' => $ticket->getNumber(), 'add' => $collabs));
+                $type = array('type' => 'collab', 'data' => array('name' => $ticket->getNumber(),
+                              'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => $collabs));
                 Signal::send('object.created', $ticket, $type);
             }
         }
@@ -3191,7 +3193,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        $type = array('type' => 'message', 'uid' => $vars['userId']);
+        $type = array('type' => 'message', 'data' => array('name' => $this->getNumber(), 'person' => $variables['poster']), 'uid' => $vars['userId']);
         Signal::send('object.created', $this, $type);
 
         return $message;
@@ -3539,7 +3541,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('deleted');
 
-        $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber()));
+        $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name));
         Signal::send('object.deleted', $this, $type);
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
@@ -3695,7 +3697,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($changes) {
           $this->logEvent('edited', $changes);
 
-          $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
+          $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
           Signal::send('object.edited', $this, $type);
         }
 
@@ -3799,7 +3801,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Record the changes
         $this->logEvent('edited', $changes);
 
-        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'fields' => $changes));
+        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
         Signal::send('object.edited', $this, $type);
 
         // Log comments (if any)
@@ -3963,7 +3965,7 @@ implements RestrictedAccess, Threadable, Searchable {
      */
     static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
-        global $ost, $cfg, $thisclient, $thisstaff;
+        global $ost, $cfg, $thisstaff;
 
         // Don't enforce form validation for email
         $field_filter = function($type) use ($origin) {
@@ -4309,7 +4311,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
-        $type = array('type' => 'created');
+        $type = array('type' => 'created', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff ? $thisstaff->getName()->name : $user->getName()->name));
         Signal::send('object.created', $ticket, $type);
 
         // Add collaborators (if any)

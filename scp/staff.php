@@ -47,7 +47,7 @@ if($_POST){
             if ($staff->update($_POST,$errors)) {
                 unset($_SESSION['new-agent-passwd']);
                 $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['firstname']));
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $staff->getName()->name, 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $staff, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -104,7 +104,7 @@ if($_POST){
                         $i = 0;
                         foreach($members as $s) {
                             if ($s->staff_id != $thisstaff->getId()) {
-                              $type = array('type' => 'deleted');
+                              $type = array('type' => 'deleted', 'data' => array('name' => $s->getName()->name, 'person' => $thisstaff->getName()->name));
                               Signal::send('object.deleted', $s, $type);
                               $s->delete();
                               $i++;

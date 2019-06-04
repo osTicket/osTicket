@@ -732,7 +732,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     //Staff profile update...unfortunately we have to separate it from admin update to avoid potential issues
     function updateProfile($vars, &$errors) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);
@@ -776,6 +776,14 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             }
         }
 
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value)) {
+                $loggedUpdate = true;
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
         $this->email = $vars['email'];
@@ -816,9 +824,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     )
                 );
         $this->_config = $_config->getInfo();
-
-        $type = array('type' => 'edited');
-        Signal::send('object.edited', $this, $type);
 
         return $this->save();
     }
@@ -1099,6 +1104,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
+        global $thisstaff;
 
         $vars['username']=Format::striptags($vars['username']);
         $vars['firstname']=Format::striptags($vars['firstname']);
@@ -1183,6 +1189,14 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         // Update the local permissions
         $this->updatePerms($vars['perms'], $errors);
 
+        foreach ($vars as $key => $value) {
+            if ($key == 'islocked') $key = 'isactive';
+            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams')) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->isadmin = $vars['isadmin'];
         $this->isactive = isset($vars['islocked']) ? 0 : 1;
         $this->isvisible = isset($vars['isvisible'])?1:0;
@@ -1211,9 +1225,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if ($this->save()) {
             if ($vars['welcome_email'])
                 $this->sendResetEmail('registration-staff', false);
-
-            $type = array('type' => 'edited');
-            Signal::send('object.edited', $this, $type);
             return true;
         }
 
@@ -1272,13 +1283,26 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function updatePerms($vars, &$errors=array()) {
+        global $thisstaff;
+
         if (!$vars) {
             $this->permissions = '';
             return;
         }
         $permissions = $this->getPermission();
+        foreach ($vars as $k => $val) {
+             if (!array_key_exists($val, $permissions->perms)) {
+                 $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $val));
+                 Signal::send('object.edited', $this, $type);
+             }
+         }
+
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                     $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $k));
+                     Signal::send('object.edited', $this, $type);
+                 }
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);
             }
         }

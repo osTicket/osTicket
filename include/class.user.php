@@ -251,7 +251,7 @@ implements TemplateVariable, Searchable {
             catch (OrmException $e) {
                 return null;
             }
-            $type = array('type' => 'created', 'data' => array('id' => $user->getId(), 'name' => $user->getName()->name));
+            $type = array('type' => 'created', 'data' => array('name' => $user->getName()->name));
             Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
         }
@@ -532,7 +532,7 @@ implements TemplateVariable, Searchable {
     }
 
     function updateInfo($vars, &$errors, $staff=false) {
-
+        global $thisstaff, $thisclient;
 
         $isEditable = function ($f) use($staff) {
             return ($staff ? $f->isEditableToStaff() :
@@ -588,7 +588,7 @@ implements TemplateVariable, Searchable {
                 $this->updated = SqlFunction::NOW();
             }
         }
-        $type = array('type' => 'edited', 'data' => array('id' => $this->getId(), 'name' => $this->getName()->name));
+        $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name));
         Signal::send('object.edited', $this, $type);
 
         return $this->save();
@@ -626,6 +626,7 @@ implements TemplateVariable, Searchable {
     }
 
     function delete() {
+        global $thisstaff;
 
         // Refuse to delete a user with tickets
         if ($this->tickets->count())
@@ -643,7 +644,7 @@ implements TemplateVariable, Searchable {
             $entry->delete();
         }
 
-        $type = array('type' => 'deleted', 'data' => array('id' => $this->getId(), 'name' => $this->getName()->name));
+        $type = array('type' => 'deleted', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff->getName()->name));
         Signal::send('object.deleted', $this, $type);
 
         // Delete user

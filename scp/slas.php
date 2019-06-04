@@ -30,8 +30,6 @@ if($_POST){
             }elseif($sla->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this SLA plan'));
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $sla, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this SLA plan')),
@@ -43,7 +41,7 @@ if($_POST){
             if (($_sla->update($_POST, $errors))) {
                 $msg=sprintf(__('Successfully added %s.'),
                     __('a SLA plan'));
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $_sla->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $_sla, $type);
                 $_REQUEST['a']=null;
             } elseif (!$errors['err']) {
@@ -104,7 +102,7 @@ if($_POST){
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete()) {
-                                    $type = array('type' => 'deleted');
+                                    $type = array('type' => 'deleted', 'data' => array('name' => $p->getName(), 'person' => $thisstaff->getName()->name));
                                     Signal::send('object.deleted', $p, $type);
                                     $i++;
                                 }

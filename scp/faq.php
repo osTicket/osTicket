@@ -80,7 +80,7 @@ if ($_POST) {
             $faq = FAQ::create();
             if($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($faq->getQuestion()));
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $faq->getQuestion(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $faq, $type);
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
@@ -102,7 +102,7 @@ if ($_POST) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this FAQ article')),
                     __('Correct any errors below and try again.'));
-            $type = array('type' => 'edited');
+            $type = array('type' => 'edited', 'data' => array('name' => $faq->getQuestion(), 'person' => $thisstaff->getName()->name));
             Signal::send('object.edited', $faq, $type);
             break;
         case 'manage-faq':
@@ -130,7 +130,7 @@ if ($_POST) {
                         $category = $faq->getCategory();
                         if($faq->delete()) {
                             $msg=sprintf(__('Successfully deleted %s.'), Format::htmlchars($faq->getQuestion()));
-                            $type = array('type' => 'deleted');
+                            $type = array('type' => 'deleted', 'data' => array('name' => $faq->getQuestion(), 'person' => $thisstaff->getName()->name));
                             Signal::send('object.deleted', $faq, $type);
                             $faq=null;
                         } else {
