@@ -1444,7 +1444,8 @@ class TextboxField extends FormField {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
-            '' =>       null,
+            '' =>       array(array('Validator', 'is_formula'),
+                __('Content cannot start with the following characters: = - + @')),
             'email' =>  array(array('Validator', 'is_valid_email'),
                 __('Enter a valid email address')),
             'phone' =>  array(array('Validator', 'is_phone'),
@@ -1528,6 +1529,7 @@ class TextareaField extends FormField {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     function validateEntry($value) {
         parent::validateEntry($value);
@@ -1552,6 +1554,21 @@ class TextareaField extends FormField {
             $valid = $config['validator'];
         }
         if (!$value || !isset($validators[$valid]))
+=======
+    function validateEntry($value) {
+        parent::validateEntry($value);
+        if (!$value)
+            return;
+        $config = $this->getConfiguration();
+        $validators = array(
+            '' =>       array(array('Validator', 'is_formula'),
+                __('Content cannot start with the following characters: = - + @')),
+        );
+        // Support configuration forms, as well as GUI-based form fields
+        if (!($valid = $this->get('validator')) && isset($config['validator']))
+            $valid = $config['validator'];
+        if (!isset($validators[$valid]))
+>>>>>>> security: CSV Formula Injection
             return;
         $func = $validators[$valid];
         $error = $func[1];
@@ -1560,6 +1577,13 @@ class TextareaField extends FormField {
         if (is_array($func) && is_callable($func[0]))
             if (!call_user_func($func[0], $value))
                 $this->_errors[] = $error;
+<<<<<<< HEAD
+=======
+    }
+
+    function hasSpecialSearch() {
+        return false;
+>>>>>>> security: CSV Formula Injection
     }
 
 >>>>>>> issue: Choice Validation Accept Punctuation
