@@ -373,7 +373,23 @@ implements TemplateVariable, Searchable {
         return true;
     }
 
-    function updateProfile($vars, &$errors) {
+    function update($vars, &$errors) {
+        global $thisstaff;
+
+        $valid = true;
+        $forms = $this->getForms($vars);
+        foreach ($forms as $entry) {
+            if (!$entry->isValid())
+                $valid = false;
+            if ($entry->getDynamicForm()->get('type') == 'O'
+                        && ($f = $entry->getField('name'))
+                        && $f->getClean()
+                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
+                        && $o->id != $this->getId()) {
+                $valid = false;
+                $f->addError(__('Organization with the same name already exists'));
+            }
+        }
 
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
@@ -443,7 +459,7 @@ implements TemplateVariable, Searchable {
                 ));
         }
 
-        $type = array('type' => 'edited');
+        $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
         Signal::send('object.edited', $this, $type);
 
         return $this->save();
@@ -512,6 +528,7 @@ implements TemplateVariable, Searchable {
     }
 
     static function fromVars($vars) {
+        global $thisstaff;
 
         $vars['name'] = Format::striptags($vars['name']);
         if (!($org = static::lookup(array('name' => $vars['name'])))) {
@@ -524,7 +541,7 @@ implements TemplateVariable, Searchable {
         }
 
         Signal::send('organization.created', $org);
-        $type = array('type' => 'created');
+        $type = array('type' => 'created', 'data' => array('name' => $org->getName(), 'person' => $thisstaff->getName()->name));
         Signal::send('object.created', $org, $type);
         return $org;
     }

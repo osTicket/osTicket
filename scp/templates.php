@@ -70,8 +70,6 @@ if($_POST){
             }elseif($template->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     mb_convert_case(__('this message template'), MB_CASE_TITLE));
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $template, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this message template')),
@@ -84,7 +82,7 @@ if($_POST){
                 $msg=sprintf(__('Successfully added %s.'),
                     mb_convert_case(__('a template set'), MB_CASE_TITLE));
                 $_REQUEST['a']=null;
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $new->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $new, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
@@ -136,7 +134,7 @@ if($_POST){
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete()) {
-                                $type = array('type' => 'deleted');
+                                $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
                                 Signal::send('object.deleted', $t, $type);
                                 $i++;
                             }

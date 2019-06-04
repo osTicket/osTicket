@@ -8,7 +8,7 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-$type = array('type' => 'viewed');
+$type = array('type' => 'viewed', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff->getName()->name));
 Signal::send('object.view', $ticket, $type);
 
 //Get the goodies.

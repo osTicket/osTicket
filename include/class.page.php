@@ -243,6 +243,7 @@ class Page extends VerySimpleModel {
     }
 
     function update($vars, &$errors, $allowempty=false) {
+        global $thisstaff;
 
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
@@ -268,6 +269,13 @@ class Page extends VerySimpleModel {
             $errors['body'] = __('Page body is required');
 
         if($errors) return false;
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value)) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $this->type = $vars['type'];
         $this->name = $vars['name'];

@@ -3,7 +3,7 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
-$type = array('type' => 'viewed');
+$type = array('type' => 'viewed', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisclient->getName()->name));
 Signal::send('object.view', $ticket, $type);
 
 $dept = $ticket->getDept();

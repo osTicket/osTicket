@@ -414,7 +414,7 @@ implements TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         $vars['topic'] = Format::striptags(trim($vars['topic']));
 
@@ -443,6 +443,13 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->topic = $vars['topic'];
         $this->topic_pid = $vars['topic_pid'] ?: 0;
         $this->dept_id = $vars['dept_id'];
@@ -468,16 +475,22 @@ implements TemplateVariable, Searchable {
           case 'active':
             $this->setFlag(self::FLAG_ACTIVE, true);
             $this->setFlag(self::FLAG_ARCHIVED, false);
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Active'));
+            Signal::send('object.edited', $this, $type);
             break;
 
           case 'disabled':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, false);
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Disabled'));
+            Signal::send('object.edited', $this, $type);
             break;
 
           case 'archived':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, true);
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Archived'));
+            Signal::send('object.edited', $this, $type);
             break;
         }
 

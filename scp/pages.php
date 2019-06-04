@@ -28,7 +28,7 @@ if($_POST) {
                 $pageId = $page->getId();
                 $_REQUEST['a'] = null;
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $page->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $page, $type);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
@@ -43,8 +43,6 @@ if($_POST) {
             elseif($page->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this site page'));
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $page, $type);
                 $_REQUEST['a']=null; //Go back to view
                 Draft::deleteForNamespace('page.'.$page->getId().'%');
             } elseif(!$errors['err'])
@@ -100,9 +98,26 @@ if($_POST) {
                             ->filter(array('id__in'=>$_POST['ids']))
                             ->delete();
 
-                        if($i && $i==$count)
+                        if($i && $i==$count) {
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected site page', 'selected site pages', $count));
+                            if (class_exists('AuditEntry')) {
+                                $data = array();
+                                foreach ($_POST['ids'] as $id) {
+                                    $data = AuditEntry::getDataById($id, 'G');
+                                    if ($data)
+                                        $name = json_decode($data[1], true);
+                                    else {
+                                        $name = __('NA');
+                                        $data = array('G', $id);
+                                    }
+
+                                    $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
+                                                                                       'person' => $thisstaff->getName()->name));
+                                    Signal::send('object.deleted', $data, $type);
+                                }
+                            }
+                        }
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected site page', 'selected site pages', $count));

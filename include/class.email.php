@@ -241,7 +241,7 @@ class Email extends VerySimpleModel {
     }
 
     function update($vars, &$errors=false) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         // very basic checks
         $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
@@ -385,6 +385,13 @@ class Email extends VerySimpleModel {
         }
 
         if($errors) return false;
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value)) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $this->mail_errors = 0;
         $this->mail_lastfetch = null;

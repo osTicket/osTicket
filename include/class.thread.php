@@ -168,6 +168,7 @@ implements Searchable {
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
+        global $thisstaff;
 
         if (!$user)
             return null;
@@ -193,7 +194,8 @@ implements Searchable {
               )
           );
 
-          $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(), 'add' => array($user->getId() => array(
+          $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(),
+                        'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => array($user->getId() => array(
                   'name' => $user->getName()->name,
                   'src' => @$vars['source'],
               ))));
@@ -222,7 +224,11 @@ implements Searchable {
                      'del' => array($c->user_id => array('name' => $c->getName()->getOriginal()))
                  ));
 
-                 $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(), 'del' => array($c->user_id => array('name' => $c->getName()->name))));
+                 $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(),
+                         'person' => $thisstaff->getName()->name, 'del' => array($c->user_id => array(
+                         'name' => $c->getName()->getOriginal(),
+                         'src' => @$vars['source'],
+                     ))));
                  Signal::send('object.deleted', $this->getObject(), $type);
             }
         }

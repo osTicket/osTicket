@@ -149,11 +149,19 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors=array()) {
+        global $thisstaff;
 
         if (!$vars['name']) {
             $errors['name']=__('Team name is required');
         } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
             $errors['name']=__('Team name already exists');
+        }
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) && $key != 'members') {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
         }
 
         // Reset team lead if they're getting removed
@@ -197,6 +205,7 @@ implements TemplateVariable {
     }
 
     function updateMembers($access, &$errors) {
+      global $thisstaff;
       reset($access);
       $dropped = array();
       foreach ($this->members as $member)
@@ -209,6 +218,8 @@ implements TemplateVariable {
           if (!isset($member)) {
               $member = new TeamMember(array('staff_id' => $staff_id));
               $this->members->add($member);
+              $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Members Added'));
+              Signal::send('object.edited', $this, $type);
           }
           $member->setAlerts($alerts);
       }
@@ -218,6 +229,8 @@ implements TemplateVariable {
 
       $this->members->saveAll();
       if ($dropped) {
+          $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Members Removed'));
+          Signal::send('object.edited', $this, $type);
           $this->members
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();

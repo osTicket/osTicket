@@ -133,11 +133,24 @@ class Role extends RoleModel {
     }
 
     private function updatePerms($vars, &$errors=array()) {
+        global $thisstaff;
 
         $config = array();
         $permissions = $this->getPermission();
+
+        foreach ($vars as $k => $val) {
+            if (!array_key_exists($val, $permissions->perms)) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $val));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach($perms as $k => $v) {
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $k));
+                    Signal::send('object.edited', $this, $type);
+                }
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);
             }
         }
@@ -145,6 +158,7 @@ class Role extends RoleModel {
     }
 
     function update($vars, &$errors) {
+        global $thisstaff;
 
         if (!$vars['name'])
             $errors['name'] = __('Name required');
@@ -156,6 +170,13 @@ class Role extends RoleModel {
 
         if ($errors)
             return false;
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms')) {
+                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $this->name = $vars['name'];
         $this->notes = $vars['notes'];

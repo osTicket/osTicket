@@ -27,8 +27,6 @@ if($_POST){
             }elseif($team->update($_POST,$errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this team'));
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $team, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this team')),
@@ -39,7 +37,7 @@ if($_POST){
             $team = Team::create();
             if (($team->update($_POST, $errors))){
                 $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['team']));
-                $type = array('type' => 'created');
+                $type = array('type' => 'created', 'data' => array('name' => $team->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.created', $team, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
@@ -101,7 +99,7 @@ if($_POST){
                     case 'delete':
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=Team::lookup($v))) {
-                              $type = array('type' => 'deleted');
+                              $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
                               Signal::send('object.deleted', $t, $type);
                               $t->delete();
                               $i++;
