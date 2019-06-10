@@ -34,15 +34,17 @@ else {
     $qs += array('id' => $staff->getId());
 }
 
-// Allow extensions to add extra items to this form.
-// $extras should be a array of [url=>, tab=>]
-$extras = new ArrayObject();
-Signal::send('agent.audit', $staff, $extras);
+if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+    // Allow extensions to add extra items to this form.
+    // $extras should be a array of [url=>, tab=>]
+    $extras = new ArrayObject();
+    Signal::send('agent.audit', $staff, $extras);
 
-foreach ($extras as $extra) {
-  $tabTitle = str_replace('-', ' ', $extra['tab']);
+    foreach ($extras as $extra) {
+      $tabTitle = str_replace('-', ' ', $extra['tab']);
+    }
+    $audit = true;
 }
-
 
 ?>
 
@@ -63,7 +65,8 @@ foreach ($extras as $extra) {
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
     <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
-    <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li>
+    <?php if ($audit) { ?>
+    <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li> <?php } ?>
   </ul>
 
   <div class="tab_content" id="account">
@@ -455,11 +458,13 @@ foreach ($staff->teams as $TM) {
   </div>
 
   <!-- ============== Audits =================== -->
+  <?php if (PluginManager::getPluginByName('View auditing for tickets', true)) { ?>
   <div class="hidden tab_content" id=<?php echo $extra['tab']; ?>>
     <?php
     include $extra['url'];
     ?>
   </div>
+<?php } ?>
 
   <p style="text-align:center;">
       <input type="submit" name="submit" value="<?php echo $submit_text; ?>">

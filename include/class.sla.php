@@ -158,11 +158,13 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value)) {
-                $loggedUpdate = true;
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            foreach ($vars as $key => $value) {
+                if (isset($this->$key) && ($this->$key != $value)) {
+                    $loggedUpdate = true;
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
 
@@ -177,7 +179,7 @@ implements TemplateVariable {
             | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
 
         if ($this->save()) {
-            if (!$loggedUpdate) {
+            if (!$loggedUpdate && PluginManager::getPluginByName('View auditing for tickets', true)) {
                 $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
                 Signal::send('object.edited', $this, $type);
             }

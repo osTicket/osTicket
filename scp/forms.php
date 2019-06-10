@@ -65,8 +65,10 @@ if($_POST) {
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
-            $type = array('type' => 'edited', 'data' => array('name' => $form->getTitle(), 'person' => $thisstaff->getName()->name));
-            Signal::send('object.edited', $form, $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'edited', 'data' => array('name' => $form->getTitle(), 'person' => $thisstaff->getName()->name));
+                Signal::send('object.edited', $form, $type);
+            }
             break;
         case 'add':
             $form = DynamicForm::create();
@@ -77,8 +79,10 @@ if($_POST) {
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             }
-            $type = array('type' => 'created', 'data' => array('name' => $form->getTitle(), 'person' => $thisstaff->getName()->name));
-            Signal::send('object.created', $form, $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'created', 'data' => array('name' => $form->getTitle(), 'person' => $thisstaff->getName()->name));
+                Signal::send('object.created', $form, $type);
+            }
             break;
 
         case 'mass_process':
@@ -91,8 +95,10 @@ if($_POST) {
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=DynamicForm::lookup($v)) && $t->delete()) {
-                                $type = array('type' => 'deleted', 'data' => array('name' => $t->getTitle(), 'person' => $thisstaff->getName()->name));
-                                Signal::send('object.deleted', $t, $type);
+                                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                    $type = array('type' => 'deleted', 'data' => array('name' => $t->getTitle(), 'person' => $thisstaff->getName()->name));
+                                    Signal::send('object.deleted', $t, $type);
+                                }
                                 $i++;
                             }
                         }

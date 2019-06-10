@@ -41,8 +41,10 @@ if($_POST){
             if (($_sla->update($_POST, $errors))) {
                 $msg=sprintf(__('Successfully added %s.'),
                     __('a SLA plan'));
-                $type = array('type' => 'created', 'data' => array('name' => $_sla->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.created', $_sla, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'created', 'data' => array('name' => $_sla->getName(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.created', $_sla, $type);
+                }
                 $_REQUEST['a']=null;
             } elseif (!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
@@ -102,8 +104,10 @@ if($_POST){
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete()) {
-                                    $type = array('type' => 'deleted', 'data' => array('name' => $p->getName(), 'person' => $thisstaff->getName()->name));
-                                    Signal::send('object.deleted', $p, $type);
+                                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                        $type = array('type' => 'deleted', 'data' => array('name' => $p->getName(), 'person' => $thisstaff->getName()->name));
+                                        Signal::send('object.deleted', $p, $type);
+                                    }
                                     $i++;
                                 }
                         }

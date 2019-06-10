@@ -386,10 +386,12 @@ class Email extends VerySimpleModel {
 
         if($errors) return false;
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value)) {
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            foreach ($vars as $key => $value) {
+                if (isset($this->$key) && ($this->$key != $value)) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
 

@@ -456,7 +456,7 @@ class EmailTemplateGroup {
         if($errors) return false;
 
         foreach ($vars as $key => $value) {
-            if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+            if (PluginManager::getPluginByName('View auditing for tickets', true) && isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
                 $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
                 Signal::send('object.edited', $this, $type);
             }
@@ -643,11 +643,13 @@ class EmailTemplate {
         $vars['body'] = Format::sanitize($vars['body'], false);
 
         if ($id) {
-            foreach ($vars as $key => $value) {
-                if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getGroup()->getName(), 'person' => $thisstaff->getName()->name,
-                                                                      'key' => $this->getCodeName()));
-                    Signal::send('object.edited', $this->getGroup(), $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                foreach ($vars as $key => $value) {
+                    if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+                        $type = array('type' => 'edited', 'data' => array('name' => $this->getGroup()->getName(), 'person' => $thisstaff->getName()->name,
+                                                                          'key' => $this->getCodeName()));
+                        Signal::send('object.edited', $this->getGroup(), $type);
+                    }
                 }
             }
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '
@@ -664,11 +666,13 @@ class EmailTemplate {
                 .', body='.db_input($vars['body']);
             if (db_query($sql) && ($id=db_insert_id())) {
                 $template = EmailTemplate::lookup($id);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
                 foreach ($vars as $key => $value) {
-                    if (isset($template->ht[$key]) && ($template->ht[$key] != $value)) {
-                        $type = array('type' => 'edited', 'data' => array('name' => $template->getGroup()->getName(), 'person' => $thisstaff->getName()->name,
-                                                                          'key' => $template->getCodeName()));
-                        Signal::send('object.edited', $template->getGroup(), $type);
+                        if (isset($template->ht[$key]) && ($template->ht[$key] != $value)) {
+                            $type = array('type' => 'edited', 'data' => array('name' => $template->getGroup()->getName(), 'person' => $thisstaff->getName()->name,
+                                                                              'key' => $template->getCodeName()));
+                            Signal::send('object.edited', $template->getGroup(), $type);
+                        }
                     }
                 }
                 return $id;

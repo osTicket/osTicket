@@ -41,16 +41,20 @@ if($_POST){
                     sprintf(__('Unable to update %s.'), __('this category')),
                     __('Correct any errors below and try again.'));
             }
-            $type = array('type' => 'edited', 'data' => array('name' => $category->getName(), 'person' => $thisstaff->getName()->name));
-            Signal::send('object.edited', $category, $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'edited', 'data' => array('name' => $category->getName(), 'person' => $thisstaff->getName()->name));
+                Signal::send('object.edited', $category, $type);
+            }
             break;
         case 'create':
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-                $type = array('type' => 'created', 'data' => array('name' => $category->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.created', $category, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'created', 'data' => array('name' => $category->getName(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.created', $category, $type);
+                }
             } elseif(!$errors['err']) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this category')),
@@ -125,10 +129,11 @@ if($_POST){
                                         $name = __('NA');
                                         $data = array('C', $id);
                                     }
-
-                                    $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
-                                                                                       'person' => $thisstaff->getName()->name));
-                                    Signal::send('object.deleted', $data, $type);
+                                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                        $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
+                                                                                           'person' => $thisstaff->getName()->name));
+                                        Signal::send('object.deleted', $data, $type);
+                                    }
                                 }
                             }
                         }

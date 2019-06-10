@@ -53,8 +53,10 @@ if ($_POST) {
             unset($_REQUEST['a']);
             $msg = sprintf(__('Successfully added %s.'),
                     __('role'));
-            $type = array('type' => 'created', 'data' => array('name' => $_role->getName(), 'person' => $thisstaff->getName()->name));
-            Signal::send('object.created', $_role, $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'created', 'data' => array('name' => $_role->getName(), 'person' => $thisstaff->getName()->name));
+                Signal::send('object.created', $_role, $type);
+            }
         } elseif ($errors) {
             $errors['err'] = sprintf('%s %s',
                 sprintf(__('Unable to add %s.'), __('this role')),
@@ -116,8 +118,10 @@ if ($_POST) {
                 $i=0;
                 foreach ($_POST['ids'] as $k=>$v) {
                     if (($r=Role::lookup($v)) && $r->isDeleteable() && $r->delete()) {
-                        $type = array('type' => 'deleted', 'data' => array('name' => $r->getName(), 'person' => $thisstaff->getName()->name));
-                        Signal::send('object.deleted', $r, $type);
+                        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                            $type = array('type' => 'deleted', 'data' => array('name' => $r->getName(), 'person' => $thisstaff->getName()->name));
+                            Signal::send('object.deleted', $r, $type);
+                        }
                         $i++;
                     }
                 }

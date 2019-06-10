@@ -776,11 +776,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             }
         }
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value)) {
-                $loggedUpdate = true;
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            foreach ($vars as $key => $value) {
+                if (isset($this->$key) && ($this->$key != $value)) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
 
@@ -1189,11 +1190,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         // Update the local permissions
         $this->updatePerms($vars['perms'], $errors);
 
-        foreach ($vars as $key => $value) {
-            if ($key == 'islocked') $key = 'isactive';
-            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams')) {
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            foreach ($vars as $key => $value) {
+                if ($key == 'islocked') $key = 'isactive';
+                if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams')) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
 
@@ -1291,7 +1294,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
         $permissions = $this->getPermission();
         foreach ($vars as $k => $val) {
-             if (!array_key_exists($val, $permissions->perms)) {
+             if (!array_key_exists($val, $permissions->perms) && PluginManager::getPluginByName('View auditing for tickets', true)) {
                  $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $val));
                  Signal::send('object.edited', $this, $type);
              }
@@ -1299,7 +1302,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
-                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms) && PluginManager::getPluginByName('View auditing for tickets', true)) {
                      $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $k));
                      Signal::send('object.edited', $this, $type);
                  }

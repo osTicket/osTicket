@@ -37,8 +37,10 @@ if($_POST){
             $team = Team::create();
             if (($team->update($_POST, $errors))){
                 $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['team']));
-                $type = array('type' => 'created', 'data' => array('name' => $team->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.created', $team, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'created', 'data' => array('name' => $team->getName(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.created', $team, $type);
+                }
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
@@ -99,8 +101,10 @@ if($_POST){
                     case 'delete':
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=Team::lookup($v))) {
-                              $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
-                              Signal::send('object.deleted', $t, $type);
+                              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                  $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
+                                  Signal::send('object.deleted', $t, $type);
+                              }
                               $t->delete();
                               $i++;
                             }
