@@ -194,12 +194,14 @@ implements Searchable {
               )
           );
 
-          $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(),
-                        'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => array($user->getId() => array(
-                  'name' => $user->getName()->name,
-                  'src' => @$vars['source'],
-              ))));
-          Signal::send('object.created', $this->getObject(), $type);
+          if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+              $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(),
+                            'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => array($user->getId() => array(
+                      'name' => $user->getName()->name,
+                      'src' => @$vars['source'],
+                  ))));
+              Signal::send('object.created', $this->getObject(), $type);
+          }
         }
 
 
@@ -223,13 +225,14 @@ implements Searchable {
                  $this->getEvents()->log($this->getObject(), 'collab', array(
                      'del' => array($c->user_id => array('name' => $c->getName()->getOriginal()))
                  ));
-
-                 $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(),
-                         'person' => $thisstaff->getName()->name, 'del' => array($c->user_id => array(
-                         'name' => $c->getName()->getOriginal(),
-                         'src' => @$vars['source'],
-                     ))));
-                 Signal::send('object.deleted', $this->getObject(), $type);
+                 if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                     $type = array('type' => 'collab', 'data' => array('name' => $this->getObject()->getNumber(),
+                             'person' => $thisstaff->getName()->name, 'del' => array($c->user_id => array(
+                             'name' => $c->getName()->getOriginal(),
+                             'src' => @$vars['source'],
+                         ))));
+                     Signal::send('object.deleted', $this->getObject(), $type);
+                 }
             }
         }
 

@@ -8,8 +8,10 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-$type = array('type' => 'viewed', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff->getName()->name));
-Signal::send('object.view', $ticket, $type);
+if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+    $type = array('type' => 'viewed', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff->getName()->name));
+    Signal::send('object.view', $ticket, $type);
+}
 
 //Get the goodies.
 $dept     = $ticket->getDept();  //Dept
@@ -263,19 +265,21 @@ if($ticket->isOverdue())
                     <?php
                      }
                   }
-                // Allow extensions to add extra items to this ticket.
-                // $extras should be a array of [url=>, name=>, icon=>]
-                $extras = new ArrayObject();
-                Signal::send('ticket.view.more', $ticket, $extras);
-                foreach ($extras as $li) {
-                    ?><li><a href="#<?php echo $li['url']; ?>"
-                    onclick="javascript:
-                    $.dialog($(this).attr('href').substr(1), 201);
-                    return false"
-                    ><i class="<?php echo $li['icon'] ?: 'icon-cogs'; ?>"></i>
-                    <?php echo $li['name'] ?: (string) $li; ?>
-                    </a></li>
- <?php           }
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    // Allow extensions to add extra items to this ticket.
+                    // $extras should be a array of [url=>, name=>, icon=>]
+                    $extras = new ArrayObject();
+                    Signal::send('ticket.view.more', $ticket, $extras);
+                    foreach ($extras as $li) {
+                        ?><li><a href="#<?php echo $li['url']; ?>"
+                        onclick="javascript:
+                        $.dialog($(this).attr('href').substr(1), 201);
+                        return false"
+                        ><i class="<?php echo $li['icon'] ?: 'icon-cogs'; ?>"></i>
+                        <?php echo $li['name'] ?: (string) $li; ?>
+                        </a></li>
+     <?php           }
+                 }
                   if ($role->hasPerm(Ticket::PERM_DELETE)) {
                      ?>
                     <li class="danger"><a class="ticket-action" href="#tickets/<?php

@@ -1255,8 +1255,10 @@ implements RestrictedAccess, Threadable, Searchable {
                      $collabs[] = (string) $c;
             }
             $this->logEvent('collab', array('del' => $collabs));
-            $type = array('type' => 'collab', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'del' => $collabs));
-            Signal::send('object.deleted', $this, $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'collab', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'del' => $collabs));
+                Signal::send('object.deleted', $this, $type);
+            }
         }
 
         //statuses
@@ -1495,8 +1497,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
 
-                    $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
-                    Signal::send('object.edited', $t, $type);
+                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                        $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
+                        Signal::send('object.edited', $t, $type);
+                    }
 
                     $t->deleteDrafts();
                 };
@@ -1508,8 +1512,10 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
 
-                        $type = array('type' => 'reopened', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
-                        Signal::send('object.edited', $t, $type);
+                        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                            $type = array('type' => 'reopened', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
+                            Signal::send('object.edited', $t, $type);
+                        }
                     };
                 }
 
@@ -2625,8 +2631,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Log transfer event
         $this->logEvent('transferred');
 
-        $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'dept' => $dept->getName()));
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'dept' => $dept->getName()));
+            Signal::send('object.edited', $this, $type);
+        }
 
         // Post internal note if any
         $note = null;
@@ -2742,8 +2750,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
-        $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'claim' => true));
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'claim' => true));
+            Signal::send('object.edited', $this, $type);
+        }
 
         return true;
     }
@@ -2820,8 +2830,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $evd);
 
-        $type = array('type' => 'assigned', 'data' => $audit);
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'assigned', 'data' => $audit);
+            Signal::send('object.edited', $this, $type);
+        }
 
         $this->onAssign($assignee, $form->getComments(), $alert);
 
@@ -2931,8 +2943,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('referred', $evd);
 
-        $type = array('type' => 'referred', 'data' => $audit);
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'referred', 'data' => $audit);
+            Signal::send('object.edited', $this, $type);
+        }
 
         return true;
     }
@@ -2985,8 +2999,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('edited', array('owner' => $user->getId()));
 
-        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
+            Signal::send('object.edited', $this, $type);
+        }
 
         return true;
     }
@@ -3090,9 +3106,11 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($collabs) {
                 $ticket->logEvent('collab', array('add' => $collabs), $message->user);
 
-                $type = array('type' => 'collab', 'data' => array('name' => $ticket->getNumber(),
-                              'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => $collabs));
-                Signal::send('object.created', $ticket, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'collab', 'data' => array('name' => $ticket->getNumber(),
+                                  'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => $collabs));
+                    Signal::send('object.created', $ticket, $type);
+                }
             }
         }
 
@@ -3178,8 +3196,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        $type = array('type' => 'message', 'data' => array('name' => $this->getNumber(), 'person' => $variables['poster']), 'uid' => $vars['userId']);
-        Signal::send('object.created', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'message', 'data' => array('name' => $this->getNumber(), 'person' => $variables['poster']), 'uid' => $vars['userId']);
+            Signal::send('object.created', $this, $type);
+        }
 
         return $message;
     }
@@ -3526,8 +3546,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('deleted');
 
-        $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name));
-        Signal::send('object.deleted', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name));
+            Signal::send('object.deleted', $this, $type);
+        }
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();
@@ -3682,8 +3704,10 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($changes) {
           $this->logEvent('edited', $changes);
 
-          $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
-          Signal::send('object.edited', $this, $type);
+          if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+              $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
+              Signal::send('object.edited', $this, $type);
+          }
         }
 
 
@@ -3774,8 +3798,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Record the changes
         $this->logEvent('edited', $changes);
 
-        $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
+            Signal::send('object.edited', $this, $type);
+        }
 
         // Log comments (if any)
         if (($comments = $form->getField('comments')->getClean())) {
@@ -4284,8 +4310,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
-        $type = array('type' => 'created', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff ? $thisstaff->getName()->name : $user->getName()->name));
-        Signal::send('object.created', $ticket, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'created', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff ? $thisstaff->getName()->name : $user->getName()->name));
+            Signal::send('object.created', $ticket, $type);
+        }
 
         // Add collaborators (if any)
         if (isset($vars['ccs']) && count($vars['ccs']))

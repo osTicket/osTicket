@@ -459,8 +459,10 @@ implements TemplateVariable, Searchable {
                 ));
         }
 
-        $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
+            Signal::send('object.edited', $this, $type);
+        }
 
         return $this->save();
     }
@@ -541,8 +543,10 @@ implements TemplateVariable, Searchable {
         }
 
         Signal::send('organization.created', $org);
-        $type = array('type' => 'created', 'data' => array('name' => $org->getName(), 'person' => $thisstaff->getName()->name));
-        Signal::send('object.created', $org, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'created', 'data' => array('name' => $org->getName(), 'person' => $thisstaff->getName()->name));
+            Signal::send('object.created', $org, $type);
+        }
         return $org;
     }
 

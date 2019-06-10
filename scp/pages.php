@@ -28,8 +28,10 @@ if($_POST) {
                 $pageId = $page->getId();
                 $_REQUEST['a'] = null;
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
-                $type = array('type' => 'created', 'data' => array('name' => $page->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.created', $page, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'created', 'data' => array('name' => $page->getName(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.created', $page, $type);
+                }
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
                 $errors['err']=sprintf('%s %s',
@@ -112,9 +114,11 @@ if($_POST) {
                                         $data = array('G', $id);
                                     }
 
-                                    $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
-                                                                                       'person' => $thisstaff->getName()->name));
-                                    Signal::send('object.deleted', $data, $type);
+                                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                        $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
+                                                                                           'person' => $thisstaff->getName()->name));
+                                        Signal::send('object.deleted', $data, $type);
+                                    }
                                 }
                             }
                         }

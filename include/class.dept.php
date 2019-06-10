@@ -813,15 +813,17 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
-        foreach ($vars as $key => $value) {
-            if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
-                $loggedUpdate = true;
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
-                Signal::send('object.edited', $this, $type);
-            } elseif (isset($this->$key) && ($this->$key != $value)) {
-                $loggedUpdate = true;
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            foreach ($vars as $key => $value) {
+                if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
+                    $loggedUpdate = true;
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
+                    Signal::send('object.edited', $this, $type);
+                } elseif (isset($this->$key) && ($this->$key != $value) && $key != 'members') {
+                    $loggedUpdate = true;
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
 
@@ -909,6 +911,8 @@ implements TemplateVariable, Searchable {
     }
 
     function updateAccess($access, &$errors) {
+      global $thisstaff;
+
       reset($access);
       $dropped = array();
       foreach ($this->extended as $DA)
@@ -935,6 +939,10 @@ implements TemplateVariable, Searchable {
                   'staff_id' => $staff_id, 'role_id' => $role_id
               ));
               $this->extended->add($da);
+              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                  $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Staff Added'));
+                  Signal::send('object.edited', $this, $type);
+              }
           }
           else {
               $da->role_id = $role_id;
@@ -947,6 +955,10 @@ implements TemplateVariable, Searchable {
           return false;
 
       if ($dropped) {
+          if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+              $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Staff Removed'));
+              Signal::send('object.edited', $this, $type);
+          }
           $this->extended->saveAll();
           $this->extended
               ->filter(array('staff_id__in' => array_keys($dropped)))

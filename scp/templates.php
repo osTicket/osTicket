@@ -82,8 +82,10 @@ if($_POST){
                 $msg=sprintf(__('Successfully added %s.'),
                     mb_convert_case(__('a template set'), MB_CASE_TITLE));
                 $_REQUEST['a']=null;
-                $type = array('type' => 'created', 'data' => array('name' => $new->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.created', $new, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'created', 'data' => array('name' => $new->getName(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.created', $new, $type);
+                }
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this message template')),
@@ -134,8 +136,10 @@ if($_POST){
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete()) {
-                                $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
-                                Signal::send('object.deleted', $t, $type);
+                                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                    $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
+                                    Signal::send('object.deleted', $t, $type);
+                                }
                                 $i++;
                             }
 

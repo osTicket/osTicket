@@ -251,8 +251,10 @@ implements TemplateVariable, Searchable {
             catch (OrmException $e) {
                 return null;
             }
-            $type = array('type' => 'created', 'data' => array('name' => $user->getName()->name));
-            Signal::send('object.created', $user, $type);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'created', 'data' => array('name' => $user->getName()->name));
+                Signal::send('object.created', $user, $type);
+            }
             Signal::send('user.created', $user);
         }
         elseif ($update) {
@@ -588,8 +590,10 @@ implements TemplateVariable, Searchable {
                 $this->updated = SqlFunction::NOW();
             }
         }
-        $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name));
-        Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name));
+            Signal::send('object.edited', $this, $type);
+        }
 
         return $this->save();
     }
@@ -644,8 +648,10 @@ implements TemplateVariable, Searchable {
             $entry->delete();
         }
 
-        $type = array('type' => 'deleted', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff->getName()->name));
-        Signal::send('object.deleted', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            $type = array('type' => 'deleted', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff->getName()->name));
+            Signal::send('object.deleted', $this, $type);
+        }
 
         // Delete user
         return parent::delete();

@@ -53,8 +53,10 @@ if ($_POST) {
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this canned response'));
 
-                $type = array('type' => 'edited', 'data' => array('name' => $canned->getTitle(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.edited', $canned, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $canned->getTitle(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.edited', $canned, $type);
+                }
 
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
@@ -87,8 +89,10 @@ if ($_POST) {
             $premade = Canned::create();
             if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['title']));
-                $type = array('type' => 'created', 'data' => array('name' => $premade->getTitle(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.created', $premade, $type);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'created', 'data' => array('name' => $premade->getTitle(), 'person' => $thisstaff->getName()->name));
+                    Signal::send('object.created', $premade, $type);
+                }
                 $_REQUEST['a']=null;
                 //Upload attachments
                 $keepers = $canned_form->getField('attachments')->getClean();
@@ -150,8 +154,10 @@ if ($_POST) {
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($c=Canned::lookup($v)) && $c->delete()) {
-                                $type = array('type' => 'deleted', 'data' => array('name' => $c->getTitle(), 'person' => $thisstaff->getName()->name));
-                                Signal::send('object.deleted', $c, $type);
+                                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                                    $type = array('type' => 'deleted', 'data' => array('name' => $c->getTitle(), 'person' => $thisstaff->getName()->name));
+                                    Signal::send('object.deleted', $c, $type);
+                                }
                                 $i++;
                             }
                         }

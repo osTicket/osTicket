@@ -443,10 +443,16 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            foreach ($vars as $key => $value) {
+                if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
+                    $loggedUpdate = true;
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
+                    Signal::send('object.edited', $this, $type);
+                } elseif (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {
+                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
 
@@ -475,22 +481,16 @@ implements TemplateVariable, Searchable {
           case 'active':
             $this->setFlag(self::FLAG_ACTIVE, true);
             $this->setFlag(self::FLAG_ARCHIVED, false);
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Active'));
-            Signal::send('object.edited', $this, $type);
             break;
 
           case 'disabled':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, false);
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Disabled'));
-            Signal::send('object.edited', $this, $type);
             break;
 
           case 'archived':
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, true);
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Archived'));
-            Signal::send('object.edited', $this, $type);
             break;
         }
 

@@ -121,9 +121,11 @@ class Config {
         $before = $item->value;
         $item->value = $value;
 
-        if ($before != $item->value) {
-            $type = array('type' => 'edited', 'data' => array('person' => $thisstaff->getName()->name, 'key' => $item->ht['key']));
-            Signal::send('object.edited', $item, $type);
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            if ($before != $item->value) {
+                $type = array('type' => 'edited', 'data' => array('person' => $thisstaff->getName()->name, 'key' => $item->ht['key']));
+                Signal::send('object.edited', $item, $type);
+            }
         }
 
         return $item->save();
