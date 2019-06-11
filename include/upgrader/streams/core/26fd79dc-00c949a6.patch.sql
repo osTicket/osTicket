@@ -33,9 +33,7 @@ VALUES
 	(11,'error',''),
 	(12,'collab',''),
 	(13,'resent',''),
-	(14,'deleted',''),
-    (15,'merged',''),
-	(16,'unlinked','');
+	(14,'deleted','');
 
 -- Add event_id column to thread_events
 ALTER TABLE `%TABLE_PREFIX%thread_event`

@@ -19,6 +19,13 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
 ALTER TABLE `%TABLE_PREFIX%thread_entry`
     ADD `extra` text AFTER `ip_address`;
 
+-- Insert new events
+INSERT INTO `%TABLE_PREFIX%event` (`id`, `name`, `description`)
+VALUES
+    (15,'merged',''),
+	(16,'unlinked',''),
+    (17,'linked','');
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
    SET `value` = '49fb8af84d9ac386a573f3eb80d8a0ee', `updated` = NOW()
