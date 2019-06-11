@@ -33,13 +33,6 @@ foreach ($tickets as $t) {
     if ($mergeType == 'combine')
         $forceOptions = true;
 
-    if ($ticket->getId() != $ticket_id && $ticket->getUserId() != $user_id)
-        $showUserOption = true;
-    if ($collaborators > 0)
-        $showCcOption = true;
-    if ($showUserOption || $showCcOption)
-        $showParticipants = true;
-
     if ($ticket->getId() == $ticket_pid)
         $visual = true;
     $types[] = $mergeType;
@@ -86,26 +79,19 @@ foreach ($tickets as $t) {
 <?php } } ?>
 </div>
 </ul>
-<?php
-    if ($showParticipants && $title == 'merge') {
-?>
 
 <div id="participant-options">
 &nbsp;&nbsp;&nbsp;
     <label class="inline checkbox">
         <?php echo __('Participants') ?>&nbsp;
     <select id="participants" name="participants">
-        <?php if ($showUserOption) { ?>
-            <option value='user' selected="selected"><?php echo __('User');?></option>
-        <?php } if ($showCcOption) { ?>
-            <option value='all'><?php echo __('User + Collaborators'); ?></option>
-        <?php } ?>
+            <option value='user'><?php echo __('User');?></option>
+            <option value='all' selected="selected"><?php echo __('User + Collaborators'); ?></option>
     </select>
     </label>
 </div>
-
 <br/><br/>
-<?php } ?>
+
 <div>
 <i class="icon-plus"></i>&nbsp;
 <span>
@@ -195,7 +181,7 @@ foreach ($tickets as $t) {
         <?php echo __('Delete Child Ticket') ?>
     </label>
     <br>
-    <label class="inline checkbox">
+    <label style="margin-top:2px;" class="inline checkbox">
         <input type="checkbox" id="move-tasks" name="move-tasks">
         <?php echo __('Move Child Tasks to Parent') ?>
     </label>
