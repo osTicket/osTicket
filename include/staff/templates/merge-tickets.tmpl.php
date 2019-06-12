@@ -59,8 +59,7 @@ foreach ($tickets as $t) {
             $showLinkPreview = ($mergeType == 'visual' && $children=$ticket->getChildTickets($ticket_id)) && (count($children) > 0) ? true : false;
             $linkPrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-link"></i></a>', $ticket_id);
             $showCollaborators = ($collaborators > 0) ?
-               sprintf('<a class="collaborators preview"href="#thread/%d/collaborators"><i class="icon-group"></i></a>', $id) : '';
-            $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+               sprintf('<a class="collaborators preview"href="#thread/%d/collaborators/0"><i class="icon-group"></i></a>', $id) : '';
     ?>
     <i class="icon-reorder"></i> <?php
     echo sprintf('%s %s %s %s %s <div style="float: right;">%s %s %s %s %s %s</div>',
@@ -122,7 +121,7 @@ foreach ($tickets as $t) {
              icon = (mergeType == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
              showMergePrev = mergePrev ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
              showCollaborators = (collaborators > 0) ?
-                '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators\'><i class=\'icon-group\'></i></a>' : '';
+                '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators/0\'><i class=\'icon-group\'></i></a>' : '';
         }
 
     if ($sel.prop('disabled'))
