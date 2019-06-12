@@ -229,7 +229,7 @@ if($ticket->isOverdue())
                     $recipients = __(' Manage Collaborators');
 
                     echo sprintf('<a class="collaborators manage-collaborators"
-                            href="#thread/%d/collaborators"><i class="icon-group"></i>%s</a>',
+                            href="#thread/%d/collaborators/1"><i class="icon-group"></i>%s</a>',
                             $ticket->getThreadId(),
                             $recipients);
                    ?>
@@ -411,7 +411,7 @@ if($ticket->isOverdue())
                                   $recipients = 0;
 
                              echo sprintf('<span><a class="manage-collaborators preview"
-                                    href="#thread/%d/collaborators"><span><i class="icon-group"></i> (<span id="t%d-collaborators">%s</span>)</span></a></span>',
+                                    href="#thread/%d/collaborators/1"><span id="t%d-recipients"><i class="icon-group"></i> (%s)</span></a></span>',
                                     $ticket->getThreadId(),
                                     $ticket->getThreadId(),
                                     $recipients);
@@ -851,8 +851,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                                  &nbsp;
                                  <a class="manage-collaborators
                                  collaborators preview noclick %s"
-                                  href="#thread/%d/collaborators">
-                                 %s</a></span>',
+                                  href="#thread/%d/collaborators/1">
+                                 (%s)</a></span>',
                                  __('Collaborators'),
                                  $ticket->getNumCollaborators()
                                   ? '' : 'hidden',
@@ -879,7 +879,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                 data-redirect="tickets.php?id=<?php echo
                                 $ticket->getId(); ?>"
                                 href="#thread/<?php echo
-                                $ticket->getThreadId(); ?>/collaborators">
+                                $ticket->getThreadId(); ?>/collaborators/1">
                                 <i class="icon-group"></i></a>
                          </span>
                          <?php
@@ -896,7 +896,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                 class="icon-plus"></i> <?php echo __('Add New'); ?></a>
                              <li><a class="manage-collaborators"
                                 href="#thread/<?php echo
-                                $ticket->getThreadId(); ?>/collaborators"><i
+                                $ticket->getThreadId(); ?>/collaborators/1"><i
                                 class="icon-cog"></i> <?php echo __('Manage Collaborators'); ?></a>
                           </ul>
                         </div>

@@ -178,7 +178,7 @@ class ThreadAjaxAPI extends AjaxController {
         return self::_addcollaborator($thread);
     }
 
-    function previewCollaborators($tid) {
+    function previewCollaborators($tid, $manage=true) {
         global $thisstaff;
 
         if (!($thread=Thread::lookup($tid))
