@@ -247,8 +247,6 @@ class AttachmentFile extends VerySimpleModel {
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
-        if (isset($_REQUEST['overridetype']))
-            $type = $_REQUEST['overridetype'];
         Http::download($this->getName(), $type, null, 'inline');
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
