@@ -1505,6 +1505,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Send alert to out sleepy & idle staff.
         if ($alertstaff
             && $cfg->alertONNewTicket()
+            && $dept->getNumMembersForAlerts()
             && ($email=$dept->getAlertEmail())
             && ($msg=$tpl->getNewTicketAlertMsgTemplate())
         ) {
@@ -1784,6 +1785,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$alert // Check if alert is enabled
             || !$cfg->alertONNewActivity()
             || !($dept=$this->getDept())
+            || !$dept->getNumMembersForAlerts()
             || !($email=$cfg->getAlertEmail())
             || !($tpl = $dept->getTemplate())
             || !($msg=$tpl->getNoteAlertMsgTemplate())
@@ -1882,12 +1884,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
             $note = $this->logNote($title, $comments, $assigner, false);
         }
-
+        $dept = $this->getDept();
         // See if we need to send alerts
-        if (!$alert || !$cfg->alertONAssignment())
+        if (!$alert || !$cfg->alertONAssignment() || !$dept->getNumMembersForAlerts())
             return true; //No alerts!
 
-        $dept = $this->getDept();
         if (!$dept
             || !($tpl = $dept->getTemplate())
             || !($email = $dept->getAlertEmail())
@@ -1947,6 +1948,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$whine
             || !$cfg->alertONOverdueTicket()
             || !($dept = $this->getDept())
+            || !$dept->getNumMembersForAlerts()
         ) {
             return true;
         }
@@ -2328,7 +2330,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->thread->refer($cdept);
 
         //Send out alerts if enabled AND requested
-        if (!$alert || !$cfg->alertONTransfer())
+        if (!$alert || !$cfg->alertONTransfer() || !$dept->getNumMembersForAlerts())
             return true; //no alerts!!
 
          if (($email = $dept->getAlertEmail())
@@ -2769,6 +2771,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $options = array('thread'=>$message);
         // If enabled...send alert to staff (New Message Alert)
         if ($cfg->alertONNewMessage()
+            && $dept->getNumMembersForAlerts()
             && ($email = $dept->getAlertEmail())
             && ($tpl = $dept->getTemplate())
             && ($msg = $tpl->getNewMessageAlertMsgTemplate())
