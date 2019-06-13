@@ -2781,6 +2781,9 @@ class FileUploadField extends FormField {
         $file = array_shift($files);
         $file['name'] = urldecode($file['name']);
 
+        if (!$this->isValidFile($file))
+            Http::response(413, 'Invalid File');
+
         if (!$bypass && !$this->isValidFileType($file['name'], $file['type']))
             Http::response(415, 'File type is not allowed');
 
@@ -2806,6 +2809,9 @@ class FileUploadField extends FormField {
     function uploadFile($file) {
         if (!$this->isValidFileType($file['name'], $file['type']))
             throw new FileUploadError(__('File type is not allowed'));
+
+        if (!$this->isValidFile($file))
+             throw new FileUploadError(__('Invalid File'));
 
         $config = $this->getConfiguration();
         if ($file['size'] > $config['size'])
@@ -2840,6 +2846,18 @@ class FileUploadField extends FormField {
             throw new FileUploadError(__('Unable to save file'));
 
         return $F;
+    }
+
+    function isValidFile($file) {
+
+        // Check invalid image hacks
+        if ($file['tmp_name']
+                && stripos($file['type'], 'image/') === 0
+                && function_exists('exif_imagetype')
+                && !exif_imagetype($file['tmp_name']))
+            return false;
+
+        return true;
     }
 
     function isValidFileType($name, $type=false) {
