@@ -568,18 +568,47 @@ implements TemplateVariable, Searchable {
 
         // Save the entries
         foreach ($forms as $entry) {
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $fields = $entry->getFields();
+                foreach ($fields as $field) {
+                    $changes = $field->getChanges();
+                    if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                        $type = array('type' => 'edited', 'data' =>
+                                array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name,
+                                      'key' => $field->getLabel()));
+                        Signal::send('object.edited', $this, $type);
+                    }
+                }
+            }
+
             if ($entry->getDynamicForm()->get('type') == 'U') {
                 //  Name field
                 if (($name = $entry->getField('name')) && $isEditable($name) ) {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
+                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                        if ($this->name != $name) {
+                            $type = array('type' => 'edited', 'data' =>
+                                    array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name,
+                                          'key' => 'Name'));
+                            Signal::send('object.edited', $this, $type);
+                        }
+                    }
                     $this->name = $name;
                 }
 
                 // Email address field
                 if (($email = $entry->getField('email'))
                         && $isEditable($email)) {
+                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                        if ($this->default_email->address != $email->getClean()) {
+                            $type = array('type' => 'edited', 'data' =>
+                                    array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name,
+                                          'key' => 'Email'));
+                            Signal::send('object.edited', $this, $type);
+                        }
+                    }
                     $this->default_email->address = $email->getClean();
                     $this->default_email->save();
                 }
@@ -589,10 +618,6 @@ implements TemplateVariable, Searchable {
             if ($entry->saveAnswers($isEditable)) {
                 $this->updated = SqlFunction::NOW();
             }
-        }
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name,'person' => $thisstaff ? $thisstaff->getName()->name : $thisclient->getName()->name));
-            Signal::send('object.edited', $this, $type);
         }
 
         return $this->save();
@@ -1124,6 +1149,10 @@ class UserAccount extends VerySimpleModel {
         return $this->user;
     }
 
+    function getUserName() {
+        return $this->getUser()->getName();
+    }
+
     function getExtraAttr($attr=false, $default=null) {
         if (!isset($this->_extra))
             $this->_extra = JsonDataParser::decode($this->get('extra', ''));
@@ -1246,7 +1275,7 @@ class UserAccount extends VerySimpleModel {
      * options are set to Public
      */
     function update($vars, &$errors) {
-
+        global $thisstaff;
         // TODO: Make sure the username is unique
 
         // Timezone selection is not required. System default is a valid
@@ -1269,12 +1298,40 @@ class UserAccount extends VerySimpleModel {
 
         if ($errors) return false;
 
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            //flags
+            if (($this->hasStatus(UserAccountStatus::REQUIRE_PASSWD_RESET) && !$vars['pwreset-flag']) ||
+            (!$this->hasStatus(UserAccountStatus::REQUIRE_PASSWD_RESET) && $vars['pwreset-flag']))
+                $pwreset = true;
+            if (($this->hasStatus(UserAccountStatus::LOCKED) && !$vars['locked-flag']) ||
+            (!$this->hasStatus(UserAccountStatus::LOCKED) && $vars['locked-flag']))
+                $locked = true;
+            if (($this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET) && !$vars['forbid-pwchange-flag']) ||
+            (!$this->hasStatus(UserAccountStatus::FORBID_PASSWD_RESET) && $vars['forbid-pwchange-flag']))
+                $forbidPwChange = true;
+
+            $info = $this->getInfo();
+            foreach ($vars as $key => $value) {
+                if (($key != 'id' && $info[$key] && $info[$key] != $value) || ($pwreset && $key == 'pwreset-flag' ||
+                        $locked && $key == 'locked-flag' || $forbidPwChange && $key == 'forbid-pwchange-flag')) {
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getUser()->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
+        }
+
         $this->set('timezone', $vars['timezone']);
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
             $this->setPassword($vars['passwd1']);
             $this->setStatus(UserAccountStatus::CONFIRMED);
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $type = array('type' => 'edited', 'data' =>
+                        array('name' => $this->getUser()->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => 'password'));
+                Signal::send('object.edited', $this, $type);
+            }
         }
 
         // Set flags
@@ -1285,8 +1342,17 @@ class UserAccount extends VerySimpleModel {
         ) as $ck=>$flag) {
             if ($vars[$ck])
                 $this->setStatus($flag);
-            else
+            else {
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    if (($pwreset && $ck == 'pwreset-flag') || ($locked && $ck == 'locked-flag') ||
+                        ($forbidPwChange && $ck == 'forbid-pwchange-flag')) {
+                            $type = array('type' => 'edited', 'data' =>
+                                    array('name' => $this->getUser()->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $ck));
+                            Signal::send('object.edited', $this, $type);
+                    }
+                }
                 $this->clearStatus($flag);
+            }
         }
 
         return $this->save(true);

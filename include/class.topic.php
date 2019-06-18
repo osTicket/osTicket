@@ -443,10 +443,11 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
+        $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
+
         if (PluginManager::getPluginByName('View auditing for tickets', true)) {
             foreach ($vars as $key => $value) {
                 if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
-                    $loggedUpdate = true;
                     $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
                     Signal::send('object.edited', $this, $type);
                 } elseif (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {
@@ -468,7 +469,7 @@ implements TemplateVariable, Searchable {
         $this->sequence_id = $vars['custom-numbers'] ? $vars['sequence_id'] : 0;
         $this->number_format = $vars['custom-numbers'] ? $vars['number_format'] : '';
         $this->flags = $vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : $this->flags;
-        $this->noautoresp = !!$vars['noautoresp'];
+        $this->noautoresp = $vars['noautoresp'];
         $this->notes = Format::sanitize($vars['notes']);
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));

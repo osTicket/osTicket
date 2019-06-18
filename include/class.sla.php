@@ -106,6 +106,10 @@ implements TemplateVariable {
         return 0 === ($this->flags & self::FLAG_NOALERTS);
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
     function alertOnOverdue() {
         return $this->sendAlerts();
     }
@@ -158,10 +162,23 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
+        //flags
+        $vars['disable_overdue_alerts'] = isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0;
+        $vars['transient'] = isset($vars['transient']) ? self::FLAG_TRANSIENT : 0;
         if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            //flags
+            if (($this->hasflag(self::FLAG_NOALERTS) && $vars['disable_overdue_alerts'] != self::FLAG_NOALERTS) ||
+            (!$this->hasflag(self::FLAG_NOALERTS) && $vars['disable_overdue_alerts'] == self::FLAG_NOALERTS))
+                $auditDisableOverdue = true;
+            if (($this->hasflag(self::FLAG_TRANSIENT) && $vars['transient'] != self::FLAG_TRANSIENT) ||
+            (!$this->hasflag(self::FLAG_TRANSIENT) && $vars['transient'] == self::FLAG_TRANSIENT))
+                $auditTransient = true;
+            if (($this->hasflag(self::FLAG_ACTIVE) && $vars['isactive'] != self::FLAG_ACTIVE) ||
+            (!$this->hasflag(self::FLAG_ACTIVE) && $vars['isactive'] == self::FLAG_ACTIVE))
+                $auditStatus = true;
             foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value)) {
-                    $loggedUpdate = true;
+                if (isset($this->$key) && ($this->$key != $value) ||
+                   ($auditDisableOverdue && $key == 'disable_overdue_alerts' || $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
                     $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
                     Signal::send('object.edited', $this, $type);
                 }
@@ -174,17 +191,12 @@ implements TemplateVariable {
         $this->notes = Format::sanitize($vars['notes']);
         $this->flags =
               ($vars['isactive'] ? self::FLAG_ACTIVE : 0)
-            | (isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0)
-            | (isset($vars['enable_priority_escalation']) ? self::FLAG_ESCALATE : 0)
-            | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
+            | ($vars['disable_overdue_alerts'])
+            | ($vars['enable_priority_escalation'])
+            | ($vars['transient']);
 
-        if ($this->save()) {
-            if (!$loggedUpdate && PluginManager::getPluginByName('View auditing for tickets', true)) {
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.edited', $this, $type);
-            }
+        if ($this->save())
             return true;
-        }
 
         if (isset($this->id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this SLA plan'))
