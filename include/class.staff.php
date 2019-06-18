@@ -776,10 +776,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             }
         }
 
+        $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
+
         if (PluginManager::getPluginByName('View auditing for tickets', true)) {
             foreach ($vars as $key => $value) {
                 if (isset($this->$key) && ($this->$key != $value)) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -799,7 +802,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->default_signature_type = $vars['default_signature_type'];
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
-        $this->onvacation = isset($vars['onvacation']) ? 1 : 0;
+        $this->onvacation = $vars['onvacation'];
 
         if (isset($vars['avatar_code']))
           $this->setExtraAttr('avatar', $vars['avatar_code']);
@@ -1190,21 +1193,30 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         // Update the local permissions
         $this->updatePerms($vars['perms'], $errors);
 
+        //checkboxes
+        $vars['isadmin'] = isset($vars['isadmin']) ? 1 : 0;
+        $vars['islocked'] = isset($vars['islocked']) ? 0 : 1;
+        $vars['isvisible'] = isset($vars['isvisible']) ? 1 : 0;
+        $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
+        $vars['assigned_only'] = isset($vars['assigned_only']) ? 1 : 0;
+
         if (PluginManager::getPluginByName('View auditing for tickets', true)) {
             foreach ($vars as $key => $value) {
                 if ($key == 'islocked') $key = 'isactive';
-                if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams')) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams') && ($key != 'dept_access')) {
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
                     Signal::send('object.edited', $this, $type);
                 }
+                if ($key == 'isactive') $key = 'islocked';
             }
         }
 
         $this->isadmin = $vars['isadmin'];
-        $this->isactive = isset($vars['islocked']) ? 0 : 1;
-        $this->isvisible = isset($vars['isvisible'])?1:0;
-        $this->onvacation = isset($vars['onvacation'])?1:0;
-        $this->assigned_only = isset($vars['assigned_only'])?1:0;
+        $this->isactive = $vars['islocked'];
+        $this->isvisible = $vars['isvisible'];
+        $this->onvacation = $vars['onvacation'];
+        $this->assigned_only = $vars['assigned_only'];
         $this->role_id = $vars['role_id'];
         $this->username = $vars['username'];
         $this->firstname = $vars['firstname'];
@@ -1250,6 +1262,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
      *      be indexed by the dept_id number.
      */
     function updateAccess($access, &$errors) {
+        global $thisstaff;
         reset($access);
         $dropped = array();
         foreach ($this->dept_access as $DA)
@@ -1258,7 +1271,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             unset($dropped[$dept_id]);
             if (!$role_id || !Role::lookup($role_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid role');
-            if (!$dept_id || !Dept::lookup($dept_id))
+            if (!$dept_id || !($dept=Dept::lookup($dept_id)))
                 $errors['dept_access'][$dept_id] = __('Select a valid department');
             if ($dept_id == $this->getDeptId())
                 $errors['dept_access'][$dept_id] = sprintf(__('Agent already has access to %s'), __('this department'));
@@ -1268,6 +1281,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'dept_id' => $dept_id, 'role_id' => $role_id
                 ));
                 $this->dept_access->add($da);
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name,
+                                  'key' => sprintf('%s Department Access Added', $dept->getName())));
+                    Signal::send('object.edited', $this, $type);
+                }
             }
             else {
                 $da->role_id = $role_id;
@@ -1281,6 +1300,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 ->filter(array('dept_id__in' => array_keys($dropped)))
                 ->delete();
             $this->dept_access->reset();
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                foreach (array_keys($dropped) as $dept_id) {
+                    $deptName = Dept::getNameById($dept_id);
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name,
+                                  'key' => sprintf('%s Department Access Removed', $deptName)));
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
         }
         return !$errors;
     }

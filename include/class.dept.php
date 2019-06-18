@@ -619,6 +619,10 @@ implements TemplateVariable, Searchable {
             $this->flags &= ~$flag;
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
     function export($dept, $criteria=null, $filename='') {
         include_once(INCLUDE_DIR.'class.error.php');
         $members = $dept->getMembers();
@@ -830,13 +834,19 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
+        $vars['disable_auto_claim'] = isset($vars['disable_auto_claim']) ? 1 : 0;
         if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            //flags
+            if (($this->hasflag(self::FLAG_DISABLE_AUTO_CLAIM) && !$vars['disable_auto_claim']) ||
+            (!$this->hasflag(self::FLAG_DISABLE_AUTO_CLAIM) && $vars['disable_auto_claim']))
+                $disableAutoClaim = true;
             foreach ($vars as $key => $value) {
                 if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
                     $loggedUpdate = true;
                     $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
                     Signal::send('object.edited', $this, $type);
-                } elseif (isset($this->$key) && ($this->$key != $value) && $key != 'members') {
+                } elseif ((isset($this->$key) && ($this->$key != $value) && $key != 'members') ||
+                         ($disableAutoClaim && $key == 'disable_auto_claim')) {
                     $loggedUpdate = true;
                     $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
                     Signal::send('object.edited', $this, $type);
@@ -893,8 +903,6 @@ implements TemplateVariable, Searchable {
             $this->setFlag(self::FLAG_ACTIVE, false);
             $this->setFlag(self::FLAG_ARCHIVED, true);
         }
-
-        $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
 
         switch ($vars['assignment_flag']) {
           case 'all':

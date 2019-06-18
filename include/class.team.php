@@ -130,6 +130,10 @@ implements TemplateVariable {
         return ($this->isActive() && $this->members);
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
     function alertsEnabled() {
         return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
@@ -157,10 +161,21 @@ implements TemplateVariable {
             $errors['name']=__('Team name already exists');
         }
 
+        $vars['noalerts'] = isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0;
         if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            //flags
+            if (($this->hasflag(self::FLAG_ENABLED) && $vars['isenabled'] != self::FLAG_ENABLED) ||
+            (!$this->hasflag(self::FLAG_ENABLED) && $vars['isenabled'] == self::FLAG_ENABLED))
+                $auditEnabled = true;
+            if (($this->hasflag(self::FLAG_NOALERTS) && $vars['noalerts'] != self::FLAG_NOALERTS) ||
+            (!$this->hasflag(self::FLAG_NOALERTS) && $vars['noalerts'] == self::FLAG_NOALERTS))
+                $auditAlerts = true;
+
             foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value) && $key != 'members') {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                if (isset($this->$key) && ($this->$key != $value) && $key != 'members' ||
+                   ($auditEnabled && $key == 'isenabled' || $auditAlerts && $key == 'noalerts')) {
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -175,7 +190,7 @@ implements TemplateVariable {
 
         $this->flags =
               ($vars['isenabled'] ? self::FLAG_ENABLED : 0)
-            | (isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0);
+            | ($vars['noalerts']);
         $this->lead_id = $vars['lead_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);
         $this->notes = Format::sanitize($vars['notes']);

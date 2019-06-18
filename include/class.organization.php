@@ -427,9 +427,75 @@ implements TemplateVariable, Searchable {
         if (!$this->update($vars, $errors))
             $errors['error'] = __('Unable to update organization form');
 
-
         if ($errors)
             return false;
+
+        foreach ($this->getDynamicData() as $entry) {
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                $fields = $entry->getFields();
+                foreach ($fields as $field) {
+                    $changes = $field->getChanges();
+                    if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                        $type = array('type' => 'edited', 'data' =>
+                                array('name' => $this->getName(),'person' => $thisstaff->getName()->name, 'key' => $field->getLabel()));
+                        Signal::send('object.edited', $this, $type);
+                    }
+                }
+            }
+            if ($entry->getDynamicForm()->get('type') == 'O'
+               && ($name = $entry->getField('name'))
+            ) {
+                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                    if ($this->name != $name->getClean()) {
+                        $type = array('type' => 'edited', 'data' =>
+                                array('name' => $this->getName(),'person' => $thisstaff->getName()->name, 'key' => 'Name'));
+                        Signal::send('object.edited', $this, $type);
+                    }
+                }
+                $this->name = $name->getClean();
+                $this->save();
+            }
+            $entry->setSource($vars);
+            if ($entry->save())
+                $this->updated = SqlFunction::NOW();
+        }
+
+        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            if (($this->autoAddMembersAsCollabs() && !$vars['collab-all-flag']) ||
+                (!$this->autoAddMembersAsCollabs() && $vars['collab-all-flag'])) {
+                    $auditCollabAll = true;
+                    $key = 'collab-all-flag';
+            }
+            if (($this->autoAddPrimaryContactsAsCollabs() && !$vars['collab-pc-flag']) ||
+                (!$this->autoAddPrimaryContactsAsCollabs() && $vars['collab-pc-flag'])) {
+                    $auditCollabPc = true;
+                    $key = 'collab-pc-flag';
+            }
+            if (($this->autoAssignAccountManager() && !$vars['assign-am-flag']) ||
+                (!$this->autoAssignAccountManager() && $vars['assign-am-flag'])) {
+                    $auditAssignAm = true;
+                    $key = 'assign-am-flag';
+                }
+            if ((!$this->shareWithPrimaryContacts() && $vars['sharing'] == 'sharing-primary' ||
+                (!$this->shareWithEverybody() && $vars['sharing'] == 'sharing-all' ||
+                ($this->shareWithPrimaryContacts() && !$vars['sharing']) ||
+                ($this->shareWithEverybody() && !$vars['sharing']))))
+                    $sharing = true;
+
+            if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
+                $type = array('type' => 'edited', 'data' =>
+                        array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                Signal::send('object.edited', $this, $type);
+            }
+
+            foreach ($vars as $key => $value) {
+                if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
+                        $type = array('type' => 'edited', 'data' =>
+                                array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                        Signal::send('object.edited', $this, $type);
+                }
+            }
+        }
 
         // Set flags
         foreach (array(
@@ -447,6 +513,13 @@ implements TemplateVariable, Searchable {
                 'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
                 'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
+            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                if ($sharing) {
+                    $type = array('type' => 'edited', 'data' =>
+                            array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'sharing'));
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
             if ($vars['sharing'] == $ck)
                 $this->setStatus($flag);
             else
@@ -467,11 +540,6 @@ implements TemplateVariable, Searchable {
                 'status' => SqlExpression::bitand(
                     new SqlField('status'), ~User::PRIMARY_ORG_CONTACT)
                 ));
-        }
-
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
-            Signal::send('object.edited', $this, $type);
         }
 
         return $this->save();
