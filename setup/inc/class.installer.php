@@ -272,7 +272,7 @@ class Installer extends SetupWizard {
             '%CONFIG-DBHOST' => $vars['dbhost'],
             '%CONFIG-DBNAME' => $vars['dbname'],
             '%CONFIG-DBUSER' => $vars['dbuser'],
-            '%CONFIG-DBPASS' => $vars['dbpass'],
+            '%CONFIG-DBPASS' => addcslashes($vars['dbpass'], "'"),
             '%CONFIG-PREFIX' => $vars['prefix'],
             '%CONFIG-SIRI' => Misc::randCode(32),
         ));
