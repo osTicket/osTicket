@@ -188,8 +188,8 @@ class Installer extends SetupWizard {
             'dept_id' => $dept_id,
             'role_id' => $role_id,
             'email' => $vars['admin_email'],
-            'firstname' => $vars['fname'],
-            'lastname' => $vars['lname'],
+            'firstname' => Format::htmlchars($vars['fname']),
+            'lastname' => Format::htmlchars($vars['lname']),
             'username' => $vars['username'],
         ));
         $staff->updatePerms(array(
