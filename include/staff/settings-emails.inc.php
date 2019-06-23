@@ -141,6 +141,13 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <?php echo __('Automatically add collaborators from email fields'); ?>&nbsp;
             <i class="help-tip icon-question-sign" href="#accept_email_collaborators"></i>
         </tr>
+        <tr>
+            <td width="180"><?php echo __('Detect Spam Email'); ?>:</td>
+            <td><input type="checkbox" name="email_quiet_spam" <?php
+            echo $config['email_quiet_spam'] ? 'checked="checked"' : ''; ?>/>
+            <?php echo __('Detect unauthorized senders and prevent misdirected automated email responses'); ?>&nbsp;
+            <i class="help-tip icon-question-sign" href="#email_quiet_spam"></i>
+        </tr>
         <tr><th colspan=2><em><strong><?php echo __('Outgoing Email');?></strong>: <?php echo __('Default email only applies to outgoing emails without SMTP setting.');?></em></th></tr>
         <tr><td width="180"><?php echo __('Default MTA'); ?>:</td>
             <td>

@@ -219,6 +219,7 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'email_quiet_spam' => 1,
     );
 
     function __construct($section=null) {
@@ -781,6 +782,10 @@ class OsticketConfig extends Config {
 
     function saveEmailHeaders() {
         return true; //No longer an option...hint: big plans for headers coming!!
+    }
+
+    function quietSpamEmails() {
+        return ($this->get('email_quiet_spam'));
     }
 
     function getDefaultTicketSequence() {

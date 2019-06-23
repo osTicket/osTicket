@@ -1104,9 +1104,11 @@ class EmailDataParser {
             $data['mailflags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
-        $legit = $parser->isDelivererVerifiable();
         // Mail is considered spam if the sender is definitly not legitimate,
         // false if definitely legitimate, and null if unable to determine.
+        $legit = ($cfg && $cfg->quietSpamEmails())
+            ? $parser->isDelivererVerifiable($tolist)
+            : true;
         $data['mailflags']['spam'] = $legit === null ? $legit : !$legit;
 
         $data['to-email-id'] = $data['emailId'];

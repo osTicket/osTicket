@@ -137,3 +137,15 @@ verify_email_addrs:
         exchanger (MX) in the domain's DNS. This is useful to detect
         incorrectly typed email addresses. This is perfomed in addition to
         checking the email address wellformedness.
+
+email_quiet_spam:
+    title: Detect Spam Email
+    content: >
+        Enable this setting to verify the deliverer of email to your system.
+        This is generally verified via MX records, SPF and DKIM. If a message
+        appears to have been delivered as spam, messages are still posted to
+        the system; however, automated responses are not sent out.
+    links:
+        - title: Backscatter Ban List
+          href: http://www.backscatterer.org/?target=autoresponders
+

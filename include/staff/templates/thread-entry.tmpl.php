@@ -62,7 +62,12 @@ if ($user && $cfg->isAvatarsEnabled())
 <?php   }
         if ($entry->flags & ThreadEntry::FLAG_COLLABORATOR && $entry->type == 'M') { ?>
             <span class="label label-bare"><?php echo __('Cc Collaborator'); ?></span>
-        <?php   } ?>
+<?php   }
+        if ($entry->flags & ThreadEntry::FLAG_MAYBE_SPAM) { ?>
+            <span class="label label-bare" data-toggle="tooltip" title="<?php
+                echo __('No automated responses were sent');
+            ?>"><?php echo __('Spam'); ?></span>
+<?php   } ?>
         </span>
         </div>
 <?php
