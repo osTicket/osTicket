@@ -29,7 +29,8 @@ class Charset {
         // ks_c_5601-1987: Korean alias for cp949
         case preg_match('`^ks_c_5601-1987`i', $charset):
             return 'cp949';
-        case preg_match('`^iso-?(\S+)$`i', $charset, $match):
+        // Remove trailing junk from ISO charset
+        case preg_match('`^iso-?(\S+[^i])(-i)?$`i', $charset, $match):
             return "ISO-".$match[1];
         // GBK superceded gb2312 and is backward compatible
         case preg_match('`^gb2312`i', $charset):
