@@ -7,9 +7,13 @@ $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
 header("Content-Type: text/html; charset=UTF-8");
 <<<<<<< HEAD
+<<<<<<< HEAD
 header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
 =======
 header("Content-Security-Policy: frame-ancestors '".$cfg->getAllowIframes()."';");
+=======
+header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
+>>>>>>> issue: iFrame Single Quotes
 
 <<<<<<< HEAD
 // Enforce ACL (if applicable)
