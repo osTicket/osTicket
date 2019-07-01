@@ -488,10 +488,11 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
-        $agent = Staff::lookup($staff->getId());
-        $type = array('type' => 'login', 'data' => array('person' => $agent->getName()->name));
-        Signal::send('staff.login', $agent, $type);
-
+        if (PluginManager::auditPlugin()) {
+            $agent = Staff::lookup($staff->getId());
+            $type = array('type' => 'login');
+            Signal::send('person.login', $agent, $type);
+        }
         // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
 
@@ -532,9 +533,11 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
 
-        $agent = Staff::lookup($staff->getId());
-        $type = array('type' => 'logout', 'data' => array('person' => $agent->getName()->name));
-        Signal::send('staff.logout', $agent, $type);
+        if (PluginManager::auditPlugin()) {
+            $agent = Staff::lookup($staff->getId());
+            $type = array('type' => 'logout');
+            Signal::send('person.logout', $agent, $type);
+        }
         Signal::send('auth.logout', $staff);
     }
 
@@ -684,9 +687,11 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
-        $u = User::lookup($user->getId());
-        $type = array('type' => 'login', 'data' => array('person' => $u->getName()->name));
-        Signal::send('staff.login', $u, $type);
+        if (PluginManager::auditPlugin()) {
+            $u = User::lookup($user->getId());
+            $type = array('type' => 'login');
+            Signal::send('person.login', $u, $type);
+        }
 
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
@@ -724,9 +729,11 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
 
-        $u = User::lookup($user->getId());
-        $type = array('type' => 'logout', 'data' => array('person' => $u->getName()->name));
-        Signal::send('staff.logout', $u, $type);
+        if (PluginManager::auditPlugin()) {
+            $u = User::lookup($user->getId());
+            $type = array('type' => 'logout');
+            Signal::send('person.logout', $u, $type);
+        }
     }
 
     protected function getAuthKey($user) {
@@ -911,10 +918,11 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
                 if ($staffId)
                     $staff = Staff::lookup($staffId[0]);
                 if ($staff) {
-                    $agent = Staff::lookup($staff->getId());
-                    $type = array('type' => 'login',
-                      'data' => array('msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']), 'person' => $agent->getName()->name));
-                    Signal::send('staff.login', $agent, $type);
+                    if (PluginManager::auditPlugin()) {
+                        $agent = Staff::lookup($staff->getId());
+                        $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
+                        Signal::send('person.login', $agent, $type);
+                    }
                 }
               }
 
@@ -988,10 +996,11 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                 $user = User::lookup($id);
 
               if ($user) {
-                $u = User::lookup($user->getId());
-                $type = array('type' => 'login',
-                  'data' => array('msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']), 'person' => $u->getName()->name));
-                Signal::send('user.login', $u, $type);
+                if (PluginManager::auditPlugin()) {
+                    $u = User::lookup($user->getId());
+                    $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
+                    Signal::send('person.login', $u, $type);
+                }
               }
             }
 

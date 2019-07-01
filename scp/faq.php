@@ -80,8 +80,8 @@ if ($_POST) {
             $faq = FAQ::create();
             if($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($faq->getQuestion()));
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $faq->getQuestion(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $faq, $type);
                 }
                 // Delete draft for this new faq
@@ -104,8 +104,8 @@ if ($_POST) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this FAQ article')),
                     __('Correct any errors below and try again.'));
-            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                $type = array('type' => 'edited', 'data' => array('name' => $faq->getQuestion(), 'person' => $thisstaff->getName()->name));
+            if (PluginManager::auditPlugin()) {
+                $type = array('type' => 'edited');
                 Signal::send('object.edited', $faq, $type);
             }
             break;
@@ -134,8 +134,8 @@ if ($_POST) {
                         $category = $faq->getCategory();
                         if($faq->delete()) {
                             $msg=sprintf(__('Successfully deleted %s.'), Format::htmlchars($faq->getQuestion()));
-                            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                $type = array('type' => 'deleted', 'data' => array('name' => $faq->getQuestion(), 'person' => $thisstaff->getName()->name));
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'deleted');
                                 Signal::send('object.deleted', $faq, $type);
                             }
                             $faq=null;

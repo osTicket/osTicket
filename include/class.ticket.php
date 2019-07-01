@@ -1255,8 +1255,8 @@ implements RestrictedAccess, Threadable, Searchable {
                      $collabs[] = (string) $c;
             }
             $this->logEvent('collab', array('del' => $collabs));
-            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                $type = array('type' => 'collab', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'del' => $collabs));
+            if (PluginManager::auditPlugin()) {
+                $type = array('type' => 'collab', 'del' => $collabs);
                 Signal::send('object.deleted', $this, $type);
             }
         }
@@ -1497,8 +1497,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
 
-                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                        $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
+                    if (PluginManager::auditPlugin()) {
+                        $type = array('type' => 'closed');
                         Signal::send('object.edited', $t, $type);
                     }
 
@@ -1512,8 +1512,8 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
 
-                        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                            $type = array('type' => 'reopened', 'data' => array('name' => $t->getNumber(),'person' => $thisstaff->getName()->name));
+                        if (PluginManager::auditPlugin()) {
+                            $type = array('type' => 'reopened');
                             Signal::send('object.edited', $t, $type);
                         }
                     };
@@ -2631,8 +2631,8 @@ implements RestrictedAccess, Threadable, Searchable {
         // Log transfer event
         $this->logEvent('transferred');
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'dept' => $dept->getName()));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'transferred', 'dept' => $dept->getName());
             Signal::send('object.edited', $this, $type);
         }
 
@@ -2750,8 +2750,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'claim' => true));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'assigned', 'claim' => true);
             Signal::send('object.edited', $this, $type);
         }
 
@@ -2801,10 +2801,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
                     $alert = false;
                     $evd['claim'] = true;
-                    $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $assignee->getName()->name,'claim' => true);
+                    $audit = array('staff' => $assignee->getName()->name,'claim' => true);
                 } else {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
-                    $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $assignee->getName()->name);
+                    $audit = array('staff' => $assignee->getName()->name);
                 }
             }
         } elseif ($assignee instanceof Team) {
@@ -2819,7 +2819,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
-                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'team' => $assignee->getName());
+                $audit = array('team' => $assignee->getName());
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
@@ -2830,8 +2830,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $evd);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'assigned', 'data' => $audit);
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'assigned');
+            $type += $audit;
             Signal::send('object.edited', $this, $type);
         }
 
@@ -2865,20 +2866,21 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function release($info=array(), &$errors) {
-        global $thisstaff;
-
-        $type = array('type' => 'released', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name));
+        $type = array('type' => 'released');
 
         if ($info['sid'] && $info['tid']) {
-            Signal::send('object.edited', $this, $type);
+            if (PluginManager::auditPlugin())
+                Signal::send('object.edited', $this, $type);
             return $this->unassign();
         }
         elseif ($info['sid'] && $this->setStaffId(0)) {
-            Signal::send('object.edited', $this, $type);
+            if (PluginManager::auditPlugin())
+                Signal::send('object.edited', $this, $type);
             return true;
         }
         elseif ($info['tid'] && $this->setTeamId(0)) {
-            Signal::send('object.edited', $this, $type);
+            if (PluginManager::auditPlugin())
+                Signal::send('object.edited', $this, $type);
             return true;
         }
 
@@ -2904,7 +2906,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         __('referral'));
             } else {
                 $evd['staff'] = array($referee->getId(), (string) $referee->getName()->getOriginal());
-                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $referee->getName()->name);
+                $audit = array('staff' => $referee->getName()->name);
             }
             break;
         case $referee instanceof Team:
@@ -2916,7 +2918,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 //TODO::
                 $evd = array('team' => $referee->getId());
-                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'team' => $referee->getName());
+                $audit = array('team' => $referee->getName());
             }
             break;
         case $referee instanceof Dept:
@@ -2928,7 +2930,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 //TODO::
                 $evd = array('dept' => $referee->getId());
-                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'dept' => $referee->getName());
+                $audit = array('dept' => $referee->getName());
             }
             break;
         default:
@@ -2943,8 +2945,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('referred', $evd);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'referred', 'data' => $audit);
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'referred');
+            $type += $audit;
             Signal::send('object.edited', $this, $type);
         }
 
@@ -2999,8 +3002,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('edited', array('owner' => $user->getId()));
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => array('id' => $user->getId(), 'user' => $user->getName()->name)));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'edited', 'fields' => array('Ticket Owner' => $user->getName()->name));
             Signal::send('object.edited', $this, $type);
         }
 
@@ -3106,9 +3109,8 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($collabs) {
                 $ticket->logEvent('collab', array('add' => $collabs), $message->user);
 
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'collab', 'data' => array('name' => $ticket->getNumber(),
-                                  'person' => $thisstaff ? $thisstaff->getName()->name : __('User'), 'add' => $collabs));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'collab', 'add' => $collabs);
                     Signal::send('object.created', $ticket, $type);
                 }
             }
@@ -3196,8 +3198,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'message', 'data' => array('name' => $this->getNumber(), 'person' => $variables['poster']), 'uid' => $vars['userId']);
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'message', 'uid' => $vars['userId']);
             Signal::send('object.created', $this, $type);
         }
 
@@ -3546,8 +3548,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('deleted');
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'deleted');
             Signal::send('object.deleted', $this, $type);
         }
 
@@ -3704,8 +3706,8 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($changes) {
           $this->logEvent('edited', $changes);
 
-          if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-              $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
+          if (PluginManager::auditPlugin()) {
+              $type = array('type' => 'edited', 'fields' => $changes['fields'] ?: $changes);
               Signal::send('object.edited', $this, $type);
           }
         }
@@ -3798,8 +3800,8 @@ implements RestrictedAccess, Threadable, Searchable {
         // Record the changes
         $this->logEvent('edited', $changes);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'fields' => $changes));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'edited', 'fields' => $changes['fields'] ?: $changes);
             Signal::send('object.edited', $this, $type);
         }
 
@@ -4310,8 +4312,8 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'created', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff ? $thisstaff->getName()->name : $user->getName()->name));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'created');
             Signal::send('object.created', $ticket, $type);
         }
 

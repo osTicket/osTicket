@@ -110,8 +110,6 @@ class Config {
     }
 
     function update($key, $value) {
-        global $thisstaff;
-
         if (!$key)
             return false;
         elseif (!isset($this->config[$key]))
@@ -121,9 +119,9 @@ class Config {
         $before = $item->value;
         $item->value = $value;
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             if ($before != $item->value) {
-                $type = array('type' => 'edited', 'data' => array('person' => $thisstaff->getName()->name, 'key' => $item->ht['key']));
+                $type = array('type' => 'edited', 'key' => $item->ht['key']);
                 Signal::send('object.edited', $item, $type);
             }
         }

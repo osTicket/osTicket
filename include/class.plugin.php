@@ -221,6 +221,10 @@ class PluginManager {
         return $ht['name'];
     }
 
+    static function auditPlugin() {
+        return self::getPluginByName('View auditing for tickets', true);
+    }
+
     static function allActive() {
         $plugins = array();
         foreach (static::allInstalled() as $p)

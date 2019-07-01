@@ -53,8 +53,8 @@ if ($_POST) {
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this canned response'));
 
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $canned->getTitle(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'edited');
                     Signal::send('object.edited', $canned, $type);
                 }
 
@@ -89,8 +89,8 @@ if ($_POST) {
             $premade = Canned::create();
             if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['title']));
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $premade->getTitle(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $premade, $type);
                 }
                 $_REQUEST['a']=null;
@@ -154,8 +154,8 @@ if ($_POST) {
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($c=Canned::lookup($v)) && $c->delete()) {
-                                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                    $type = array('type' => 'deleted', 'data' => array('name' => $c->getTitle(), 'person' => $thisstaff->getName()->name));
+                                if (PluginManager::auditPlugin()) {
+                                    $type = array('type' => 'deleted');
                                     Signal::send('object.deleted', $c, $type);
                                 }
                                 $i++;

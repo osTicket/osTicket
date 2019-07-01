@@ -445,13 +445,13 @@ implements TemplateVariable, Searchable {
 
         $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             foreach ($vars as $key => $value) {
                 if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
+                    $type = array('type' => 'edited', 'status' => ucfirst($value));
                     Signal::send('object.edited', $this, $type);
                 } elseif (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
             }

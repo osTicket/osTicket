@@ -743,11 +743,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             foreach ($vars as $key => $value) {
                 if (isset($this->$key) && ($this->$key != $value)) {
-                    $type = array('type' => 'edited', 'data' =>
-                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -1070,8 +1069,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
-        global $thisstaff;
-
         $vars['username']=Format::striptags($vars['username']);
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);
@@ -1162,12 +1159,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
         $vars['assigned_only'] = isset($vars['assigned_only']) ? 1 : 0;
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             foreach ($vars as $key => $value) {
                 if ($key == 'islocked') $key = 'isactive';
                 if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams') && ($key != 'dept_access')) {
-                    $type = array('type' => 'edited', 'data' =>
-                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
                 if ($key == 'isactive') $key = 'islocked';
@@ -1224,7 +1220,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
      *      be indexed by the dept_id number.
      */
     function updateAccess($access, &$errors) {
-        global $thisstaff;
         reset($access);
         $dropped = array();
         foreach ($this->dept_access as $DA)
@@ -1243,10 +1238,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'dept_id' => $dept_id, 'role_id' => $role_id
                 ));
                 $this->dept_access->add($da);
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'edited', 'data' =>
-                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name,
-                                  'key' => sprintf('%s Department Access Added', $dept->getName())));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'edited',
+                                  'key' => sprintf('%s Department Access Added', $dept->getName()));
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -1262,12 +1256,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 ->filter(array('dept_id__in' => array_keys($dropped)))
                 ->delete();
             $this->dept_access->reset();
-            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            if (PluginManager::auditPlugin()) {
                 foreach (array_keys($dropped) as $dept_id) {
                     $deptName = Dept::getNameById($dept_id);
-                    $type = array('type' => 'edited', 'data' =>
-                            array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name,
-                                  'key' => sprintf('%s Department Access Removed', $deptName)));
+                    $type = array('type' => 'edited',
+                                  'key' => sprintf('%s Department Access Removed', $deptName));
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -1276,24 +1269,22 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     }
 
     function updatePerms($vars, &$errors=array()) {
-        global $thisstaff;
-
         if (!$vars) {
             $this->permissions = '';
             return;
         }
         $permissions = $this->getPermission();
         foreach ($vars as $k => $val) {
-             if (!array_key_exists($val, $permissions->perms) && PluginManager::getPluginByName('View auditing for tickets', true)) {
-                 $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $val));
+             if (!array_key_exists($val, $permissions->perms) && PluginManager::auditPlugin()) {
+                 $type = array('type' => 'edited', 'key' => $val);
                  Signal::send('object.edited', $this, $type);
              }
          }
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
-                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms) && PluginManager::getPluginByName('View auditing for tickets', true)) {
-                     $type = array('type' => 'edited', 'data' => array('name' => $this->getName()->name, 'person' => $thisstaff->getName()->name, 'key' => $k));
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms) && PluginManager::auditPlugin()) {
+                     $type = array('type' => 'edited', 'key' => $k);
                      Signal::send('object.edited', $this, $type);
                  }
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);

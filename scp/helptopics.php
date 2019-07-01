@@ -41,8 +41,8 @@ if($_POST){
             if ($_topic->update($_POST, $errors)) {
                 $topic = $_topic;
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['topic']));
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $topic->getName(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $topic, $type);
                 }
                 $_REQUEST['a']=null;
@@ -76,8 +76,8 @@ if($_POST){
                           $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
                           FilterAction::setFilterFlag($filter_actions, 'topic', false);
                           if($t->save()) {
-                              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                  $type = array('type' => 'edited', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Active'));
+                              if (PluginManager::auditPlugin()) {
+                                  $type = array('type' => 'edited', 'status' => 'Active');
                                   Signal::send('object.edited', $t, $type);
                               }
                               $num++;
@@ -109,8 +109,8 @@ if($_POST){
                           $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
                           FilterAction::setFilterFlag($filter_actions, 'topic', true);
                           if($t->save()) {
-                              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                  $type = array('type' => 'edited', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Disabled'));
+                              if (PluginManager::auditPlugin()) {
+                                  $type = array('type' => 'edited', 'status' => 'Disabled');
                                   Signal::send('object.edited', $t, $type);
                               }
                               $num++;
@@ -140,8 +140,8 @@ if($_POST){
                           $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
                           FilterAction::setFilterFlag($filter_actions, 'topic', true);
                           if($t->save()) {
-                            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                $type = array('type' => 'edited', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name, 'type' => 'Archived'));
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'edited', 'status' => 'Archived');
                                 Signal::send('object.edited', $t, $type);
                             }
                             $num++;
@@ -181,9 +181,8 @@ if($_POST){
                                         $data = array('H', $id);
                                     }
 
-                                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                        $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
-                                                                                           'person' => $thisstaff->getName()->name));
+                                    if (PluginManager::auditPlugin()) {
+                                        $type = array('type' => 'deleted');
                                         Signal::send('object.deleted', $data, $type);
                                     }
                                 }

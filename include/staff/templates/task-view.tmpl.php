@@ -86,8 +86,8 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
 
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-    $type = array('type' => 'viewed', 'data' => array('name' => $task->getNumber(), 'person' => $thisstaff->getName()->name));
+if (PluginManager::auditPlugin()) {
+    $type = array('type' => 'viewed');
     Signal::send('object.view', $task, $type);
 }
 
