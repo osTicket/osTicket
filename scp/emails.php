@@ -40,8 +40,8 @@ if($_POST){
                 $id = $box->getId();
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $box->getName(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $box, $type);
                 }
             }elseif(!$errors['err']){
@@ -62,8 +62,8 @@ if($_POST){
                     $i=0;
                     foreach($_POST['ids'] as $k=>$v) {
                         if($v!=$cfg->getDefaultEmailId() && ($e=Email::lookup($v)) && $e->delete()) {
-                            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                $type = array('type' => 'deleted', 'data' => array('name' => $e->getName(), 'person' => $thisstaff->getName()->name));
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'deleted');
                                 Signal::send('object.deleted', $e, $type);
                             }
                             $i++;

@@ -41,8 +41,8 @@ if($_POST){
                     sprintf(__('Unable to update %s.'), __('this category')),
                     __('Correct any errors below and try again.'));
             }
-            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                $type = array('type' => 'edited', 'data' => array('name' => $category->getName(), 'person' => $thisstaff->getName()->name));
+            if (PluginManager::auditPlugin()) {
+                $type = array('type' => 'edited');
                 Signal::send('object.edited', $category, $type);
             }
             break;
@@ -51,8 +51,8 @@ if($_POST){
             if ($category->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $category->getName(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $category, $type);
                 }
             } elseif(!$errors['err']) {
@@ -129,9 +129,8 @@ if($_POST){
                                         $name = __('NA');
                                         $data = array('C', $id);
                                     }
-                                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                        $type = array('type' => 'deleted', 'data' => array('name' => is_array($name) ? $name['name'] : $name,
-                                                                                           'person' => $thisstaff->getName()->name));
+                                    if (PluginManager::auditPlugin()) {
+                                        $type = array('type' => 'deleted');
                                         Signal::send('object.deleted', $data, $type);
                                     }
                                 }

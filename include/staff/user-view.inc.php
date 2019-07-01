@@ -71,7 +71,7 @@ $org = $user->getOrganization();
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
 <?php }
-                  if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                  if (PluginManager::auditPlugin()) {
                       // Allow extensions to add extra items to this user.
                       // $extras should be a array of [url=>, name=>, icon=>]
                       $extras = new ArrayObject();
@@ -169,7 +169,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
-    <?php if (PluginManager::getPluginByName('View auditing for tickets', true)) { ?>
+    <?php if (PluginManager::auditPlugin()) { ?>
     <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li> <?php } ?>
 </ul>
 <div id="user-view-tabs_container">

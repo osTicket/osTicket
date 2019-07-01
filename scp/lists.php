@@ -102,8 +102,8 @@ if($_POST) {
             if ($list=DynamicList::add($_POST, $errors)) {
                  $form = $list->getForm(true);
                  Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
-                 if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                     $type = array('type' => 'created', 'data' => array('name' => $list->getName(), 'person' => $thisstaff->getName()->name));
+                 if (PluginManager::auditPlugin()) {
+                     $type = array('type' => 'created');
                      Signal::send('object.created', $list, $type);
                  }
                  // Redirect to list page
@@ -129,8 +129,8 @@ if($_POST) {
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=DynamicList::lookup($v)) && $t->delete()) {
-                                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                    $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
+                                if (PluginManager::auditPlugin()) {
+                                    $type = array('type' => 'deleted');
                                     Signal::send('object.deleted', $t, $type);
                                 }
                                 $i++;

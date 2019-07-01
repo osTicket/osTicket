@@ -556,8 +556,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $ecb = function ($t) use($thisstaff) {
                 $t->logEvent('reopened', false, null, 'closed');
 
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'reopened', 'data' => array('name' => $this->getNumber(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'reopened');
                     Signal::send('object.edited', $this, $type);
                 }
 
@@ -588,8 +588,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $this->closed = SqlFunction::NOW();
             $ecb = function($t) use($thisstaff) {
                 $t->logEvent('closed');
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'closed', 'data' => array('name' => $t->getNumber(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'closed');
                     Signal::send('object.edited', $t, $type);
                 }
                 if ($t->ticket) {
@@ -681,8 +681,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($errors)
             return false;
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'assigned', 'data' => array('name' => $this->getNumber(), 'person' => $thisstaff->getName()->name, 'claim' => true));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'assigned', 'claim' => true);
             Signal::send('object.edited', $this, $type);
         }
 
@@ -741,7 +741,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     $evd['claim'] = true;
                 else
                     $evd['staff'] = array($assignee->getId(), $assignee->getName());
-                    $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'staff' => $assignee->getName()->name);
+                    $audit = array('staff' => $assignee->getName()->name);
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -752,7 +752,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             } else {
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
-                $audit = array('name' => $this->getNumber(),'person' => $thisstaff->getName()->name, 'team' => $assignee->getName());
+                $audit = array('team' => $assignee->getName());
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
@@ -763,8 +763,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $this->logEvent('assigned', $evd);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'assigned', 'data' => $audit);
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'assigned');
+            $type += $audit;
             Signal::send('object.edited', $this, $type);
         }
 
@@ -870,8 +871,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         // Log transfer event
         $this->logEvent('transferred');
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'transferred', 'data' => array('name' => $this->getNumber(), 'person' => $thisstaff->getName()->name, 'dept' => $dept->getName()));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'transferred', 'dept' => $dept->getName());
             Signal::send('object.edited', $this, $type);
         }
 
@@ -1286,7 +1287,6 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     function update($forms, $vars, &$errors) {
         global $thisstaff;
 
-
         if (!$forms || !$this->checkStaffPerm($thisstaff, Task::PERM_EDIT))
             return false;
 
@@ -1326,8 +1326,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($changes)
             $this->logEvent('edited', array('fields' => $changes));
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'edited', 'data' => array('name' => $this->getNumber(), 'person' => $thisstaff, 'fields' => $changes));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'edited', 'fields' => $changes);
             Signal::send('object.edited', $this, $type);
         }
         Signal::send('model.updated', $this);
@@ -1381,8 +1381,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $task->logEvent('created', null, $thisstaff);
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'created', 'data' => array('name' => $task->getNumber(), 'person' => $thisstaff->getName()->name));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'created');
             Signal::send('object.created', $task, $type);
         }
 
@@ -1419,8 +1419,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         $thread->delete();
         $this->logEvent('deleted');
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'deleted', 'data' => array('name' => $this->getNumber(), 'person' => $thisstaff->getName()->name));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'deleted');
             Signal::send('object.deleted', $this, $type);
         }
 

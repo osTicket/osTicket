@@ -398,8 +398,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function update($vars, &$errors) {
-        global $thisstaff;
-
         $required = array();
         if ($this->isEditable())
             $required = array('name');
@@ -409,8 +407,8 @@ class DynamicList extends VerySimpleModel implements CustomList {
                 $errors[$f] = sprintf(__('%s is required'), mb_convert_case($f, MB_CASE_TITLE));
             elseif (isset($vars[$f])) {
                 if ($vars[$f] != $this->get($f)) {
-                    if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                        $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $f));
+                    if (PluginManager::auditPlugin()) {
+                        $type = array('type' => 'edited', 'key' => $f);
                         Signal::send('object.edited', $this, $type);
                     }
                     $this->set($f, $vars[$f]);

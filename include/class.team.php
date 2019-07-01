@@ -134,6 +134,12 @@ implements TemplateVariable {
         return ($this->get('flags', 0) & $flag) != 0;
     }
 
+    function flagChanged($flag, $var) {
+        if (($this->hasflag($flag) && $var != $flag) ||
+            (!$this->hasflag($flag) && $var == $flag))
+                return true;
+    }
+
     function alertsEnabled() {
         return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
@@ -153,8 +159,6 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors=array()) {
-        global $thisstaff;
-
         if (!$vars['name']) {
             $errors['name']=__('Team name is required');
         } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
@@ -162,20 +166,15 @@ implements TemplateVariable {
         }
 
         $vars['noalerts'] = isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0;
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             //flags
-            if (($this->hasflag(self::FLAG_ENABLED) && $vars['isenabled'] != self::FLAG_ENABLED) ||
-            (!$this->hasflag(self::FLAG_ENABLED) && $vars['isenabled'] == self::FLAG_ENABLED))
-                $auditEnabled = true;
-            if (($this->hasflag(self::FLAG_NOALERTS) && $vars['noalerts'] != self::FLAG_NOALERTS) ||
-            (!$this->hasflag(self::FLAG_NOALERTS) && $vars['noalerts'] == self::FLAG_NOALERTS))
-                $auditAlerts = true;
+            $auditEnabled = $this->flagChanged(self::FLAG_ENABLED, $vars['isenabled']);
+            $auditAlerts = $this->flagChanged(self::FLAG_NOALERTS, $vars['noalerts']);
 
             foreach ($vars as $key => $value) {
                 if (isset($this->$key) && ($this->$key != $value) && $key != 'members' ||
                    ($auditEnabled && $key == 'isenabled' || $auditAlerts && $key == 'noalerts')) {
-                    $type = array('type' => 'edited', 'data' =>
-                            array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -222,7 +221,6 @@ implements TemplateVariable {
     }
 
     function updateMembers($access, &$errors) {
-      global $thisstaff;
       reset($access);
       $dropped = array();
       foreach ($this->members as $member)
@@ -235,8 +233,8 @@ implements TemplateVariable {
           if (!isset($member)) {
               $member = new TeamMember(array('staff_id' => $staff_id));
               $this->members->add($member);
-              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                  $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Members Added'));
+              if (PluginManager::auditPlugin()) {
+                  $type = array('type' => 'edited', 'key' => 'Members Added');
                   Signal::send('object.edited', $this, $type);
               }
           }
@@ -248,8 +246,8 @@ implements TemplateVariable {
 
       $this->members->saveAll();
       if ($dropped) {
-          if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-              $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Members Removed'));
+          if (PluginManager::auditPlugin()) {
+              $type = array('type' => 'edited', 'key' => 'Members Removed');
               Signal::send('object.edited', $this, $type);
           }
           $this->members

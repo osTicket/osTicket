@@ -73,8 +73,8 @@ if ($_POST) {
             switch (strtolower($_POST['do'])) {
             case 'delete':
                 foreach ($orgs as $O) {
-                  if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                      $type = array('type' => 'deleted', 'data' => array('name' => $O->getName(), 'person' => $thisstaff->getName()->name));
+                  if (PluginManager::auditPlugin()) {
+                      $type = array('type' => 'deleted');
                       Signal::send('object.deleted', $O, $type);
                   }
                   if ($O->delete())

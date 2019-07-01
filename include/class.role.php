@@ -133,15 +133,13 @@ class Role extends RoleModel {
     }
 
     private function updatePerms($vars, &$errors=array()) {
-        global $thisstaff;
-
         $config = array();
         $permissions = $this->getPermission();
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             foreach ($vars as $k => $val) {
                 if (!array_key_exists($val, $permissions->perms)) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $val));
+                    $type = array('type' => 'edited', 'key' => $val);
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -149,9 +147,9 @@ class Role extends RoleModel {
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach($perms as $k => $v) {
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                if (PluginManager::auditPlugin()) {
                     if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
-                        $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $k));
+                        $type = array('type' => 'edited', 'key' => $k);
                         Signal::send('object.edited', $this, $type);
                     }
                 }
@@ -162,8 +160,6 @@ class Role extends RoleModel {
     }
 
     function update($vars, &$errors) {
-        global $thisstaff;
-
         if (!$vars['name'])
             $errors['name'] = __('Name required');
         elseif (($r=Role::lookup(array('name'=>$vars['name'])))
@@ -175,13 +171,14 @@ class Role extends RoleModel {
         if ($errors)
             return false;
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms')) {
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
-                Signal::send('object.edited', $this, $type);
+        if (PluginManager::auditPlugin()) {
+            foreach ($vars as $key => $value) {
+                if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms')) {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
+                }
             }
         }
-
         $this->name = $vars['name'];
         $this->notes = $vars['notes'];
 

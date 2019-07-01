@@ -47,8 +47,8 @@ if($_POST){
             if ($staff->update($_POST,$errors)) {
                 unset($_SESSION['new-agent-passwd']);
                 $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['firstname']));
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $staff->getName()->name, 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $staff, $type);
                 }
                 $_REQUEST['a']=null;
@@ -106,8 +106,8 @@ if($_POST){
                         $i = 0;
                         foreach($members as $s) {
                             if ($s->staff_id != $thisstaff->getId()) {
-                              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                  $type = array('type' => 'deleted', 'data' => array('name' => $s->getName()->name, 'person' => $thisstaff->getName()->name));
+                              if (PluginManager::auditPlugin()) {
+                                  $type = array('type' => 'deleted');
                                   Signal::send('object.deleted', $s, $type);
                               }
                               $s->delete();

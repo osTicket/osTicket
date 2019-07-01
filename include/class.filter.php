@@ -340,8 +340,6 @@ extends VerySimpleModel {
     }
 
     function update($vars,&$errors) {
-        global $thisstaff;
-
         //validate filter actions before moving on
         if (!self::validate_actions($vars, $errors))
             return false;
@@ -375,10 +373,10 @@ extends VerySimpleModel {
             $vars['target'] = 'Email';
         }
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             foreach ($vars as $key => $value) {
                 if (isset($this->$key) && ($this->$key != $value) && $key != 'rules' && $key != 'actions') {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
             }

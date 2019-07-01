@@ -3,8 +3,8 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
-if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-    $type = array('type' => 'viewed', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisclient->getName()->name));
+if (PluginManager::auditPlugin()) {
+    $type = array('type' => 'viewed');
     Signal::send('object.view', $ticket, $type);
 }
 

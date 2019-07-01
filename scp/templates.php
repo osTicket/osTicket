@@ -82,8 +82,8 @@ if($_POST){
                 $msg=sprintf(__('Successfully added %s.'),
                     mb_convert_case(__('a template set'), MB_CASE_TITLE));
                 $_REQUEST['a']=null;
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                    $type = array('type' => 'created', 'data' => array('name' => $new->getName(), 'person' => $thisstaff->getName()->name));
+                if (PluginManager::auditPlugin()) {
+                    $type = array('type' => 'created');
                     Signal::send('object.created', $new, $type);
                 }
             }elseif(!$errors['err']){
@@ -136,8 +136,8 @@ if($_POST){
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete()) {
-                                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                                    $type = array('type' => 'deleted', 'data' => array('name' => $t->getName(), 'person' => $thisstaff->getName()->name));
+                                if (PluginManager::auditPlugin()) {
+                                    $type = array('type' => 'deleted');
                                     Signal::send('object.deleted', $t, $type);
                                 }
                                 $i++;

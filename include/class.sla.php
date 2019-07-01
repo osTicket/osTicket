@@ -110,6 +110,12 @@ implements TemplateVariable {
         return ($this->get('flags', 0) & $flag) != 0;
     }
 
+    function flagChanged($flag, $var) {
+        if (($this->hasflag($flag) && $var != $flag) ||
+            (!$this->hasflag($flag) && $var == $flag))
+                return true;
+    }
+
     function alertOnOverdue() {
         return $this->sendAlerts();
     }
@@ -147,8 +153,6 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors) {
-        global $thisstaff;
-
         if (!$vars['grace_period'])
             $errors['grace_period'] = __('Grace period required');
         elseif (!is_numeric($vars['grace_period']))
@@ -162,24 +166,19 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
-        //flags
         $vars['disable_overdue_alerts'] = isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0;
         $vars['transient'] = isset($vars['transient']) ? self::FLAG_TRANSIENT : 0;
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             //flags
-            if (($this->hasflag(self::FLAG_NOALERTS) && $vars['disable_overdue_alerts'] != self::FLAG_NOALERTS) ||
-            (!$this->hasflag(self::FLAG_NOALERTS) && $vars['disable_overdue_alerts'] == self::FLAG_NOALERTS))
-                $auditDisableOverdue = true;
-            if (($this->hasflag(self::FLAG_TRANSIENT) && $vars['transient'] != self::FLAG_TRANSIENT) ||
-            (!$this->hasflag(self::FLAG_TRANSIENT) && $vars['transient'] == self::FLAG_TRANSIENT))
-                $auditTransient = true;
-            if (($this->hasflag(self::FLAG_ACTIVE) && $vars['isactive'] != self::FLAG_ACTIVE) ||
-            (!$this->hasflag(self::FLAG_ACTIVE) && $vars['isactive'] == self::FLAG_ACTIVE))
-                $auditStatus = true;
+            $auditDisableOverdue = $this->flagChanged(self::FLAG_NOALERTS, $vars['disable_overdue_alerts']);
+            $auditTransient = $this->flagChanged(self::FLAG_TRANSIENT, $vars['transient']);
+            $auditStatus = $this->flagChanged(self::FLAG_ACTIVE, $vars['isactive']);
+
             foreach ($vars as $key => $value) {
                 if (isset($this->$key) && ($this->$key != $value) ||
-                   ($auditDisableOverdue && $key == 'disable_overdue_alerts' || $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                   ($auditDisableOverdue && $key == 'disable_overdue_alerts' ||
+                    $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
             }

@@ -69,8 +69,8 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
               $user = User::lookup($thisclient->getId());
               $ticket->logEvent('edited', array('fields' => $changes), $user);
 
-              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                  $type = array('type' => 'edited', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisclient->getName()->name, 'fields' => $changes));
+              if (PluginManager::auditPlugin()) {
+                  $type = array('type' => 'edited', 'fields' => $changes);
                   Signal::send('object.edited', $ticket, $type);
               }
             }

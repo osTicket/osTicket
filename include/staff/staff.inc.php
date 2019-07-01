@@ -34,7 +34,7 @@ else {
     $qs += array('id' => $staff->getId());
 }
 
-if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+if (PluginManager::auditPlugin()) {
     // Allow extensions to add extra items to this form.
     // $extras should be a array of [url=>, tab=>]
     $extras = new ArrayObject();
@@ -458,7 +458,7 @@ foreach ($staff->teams as $TM) {
   </div>
 
   <!-- ============== Audits =================== -->
-  <?php if (PluginManager::getPluginByName('View auditing for tickets', true)) { ?>
+  <?php if (PluginManager::auditPlugin()) { ?>
   <div class="hidden tab_content" id=<?php echo $extra['tab']; ?>>
     <?php
     include $extra['url'];

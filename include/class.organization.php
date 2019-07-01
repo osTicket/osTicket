@@ -376,10 +376,13 @@ implements TemplateVariable, Searchable {
 
     function update($vars, &$errors) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         global $thisstaff;
 >>>>>>> Audit Extra Configurations
 
+=======
+>>>>>>> Code Cleanup/Optimization
         $valid = true;
         $forms = $this->getForms($vars);
         foreach ($forms as $entry) {
@@ -431,13 +434,12 @@ implements TemplateVariable, Searchable {
             return false;
 
         foreach ($this->getDynamicData() as $entry) {
-            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+            if (PluginManager::auditPlugin()) {
                 $fields = $entry->getFields();
                 foreach ($fields as $field) {
                     $changes = $field->getChanges();
                     if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
-                        $type = array('type' => 'edited', 'data' =>
-                                array('name' => $this->getName(),'person' => $thisstaff->getName()->name, 'key' => $field->getLabel()));
+                        $type = array('type' => 'edited', 'key' => $field->getLabel());
                         Signal::send('object.edited', $this, $type);
                     }
                 }
@@ -445,10 +447,9 @@ implements TemplateVariable, Searchable {
             if ($entry->getDynamicForm()->get('type') == 'O'
                && ($name = $entry->getField('name'))
             ) {
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                if (PluginManager::auditPlugin()) {
                     if ($this->name != $name->getClean()) {
-                        $type = array('type' => 'edited', 'data' =>
-                                array('name' => $this->getName(),'person' => $thisstaff->getName()->name, 'key' => 'Name'));
+                        $type = array('type' => 'edited', 'key' => 'Name');
                         Signal::send('object.edited', $this, $type);
                     }
                 }
@@ -460,7 +461,7 @@ implements TemplateVariable, Searchable {
                 $this->updated = SqlFunction::NOW();
         }
 
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             if (($this->autoAddMembersAsCollabs() && !$vars['collab-all-flag']) ||
                 (!$this->autoAddMembersAsCollabs() && $vars['collab-all-flag'])) {
                     $auditCollabAll = true;
@@ -475,26 +476,30 @@ implements TemplateVariable, Searchable {
                 (!$this->autoAssignAccountManager() && $vars['assign-am-flag'])) {
                     $auditAssignAm = true;
                     $key = 'assign-am-flag';
-                }
-            if ((!$this->shareWithPrimaryContacts() && $vars['sharing'] == 'sharing-primary' ||
-                (!$this->shareWithEverybody() && $vars['sharing'] == 'sharing-all' ||
-                ($this->shareWithPrimaryContacts() && !$vars['sharing']) ||
-                ($this->shareWithEverybody() && !$vars['sharing']))))
-                    $sharing = true;
+            }
 
             if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
-                $type = array('type' => 'edited', 'data' =>
-                        array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                $type = array('type' => 'edited', 'key' => $key);
                 Signal::send('object.edited', $this, $type);
             }
 
             foreach ($vars as $key => $value) {
                 if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
-                        $type = array('type' => 'edited', 'data' =>
-                                array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                        $type = array('type' => 'edited', 'key' => $key);
                         Signal::send('object.edited', $this, $type);
                 }
             }
+        }
+
+        if ((!$this->shareWithPrimaryContacts() && $vars['sharing'] == 'sharing-primary') ||
+            ($this->shareWithPrimaryContacts() && !$vars['sharing'])) {
+                $sharingPrimary = true;
+                $key = 'sharing-primary';
+        }
+        if ((!$this->shareWithEverybody() && $vars['sharing'] == 'sharing-all') ||
+            ($this->shareWithEverybody() && !$vars['sharing'])) {
+                $sharingEverybody = true;
+                $key = 'sharing-all';
         }
 
         // Set flags
@@ -513,10 +518,9 @@ implements TemplateVariable, Searchable {
                 'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
                 'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
-            if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                if ($sharing) {
-                    $type = array('type' => 'edited', 'data' =>
-                            array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'sharing'));
+            if (PluginManager::auditPlugin()) {
+                if (($sharingPrimary || $sharingEverybody) && $key == $ck) {
+                    $type = array('type' => 'edited', 'key' => 'sharing'); //adriane
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -611,8 +615,6 @@ implements TemplateVariable, Searchable {
     }
 
     static function fromVars($vars) {
-        global $thisstaff;
-
         $vars['name'] = Format::striptags($vars['name']);
         if (!($org = static::lookup(array('name' => $vars['name'])))) {
             $org = static::create(array(
@@ -624,8 +626,8 @@ implements TemplateVariable, Searchable {
         }
 
         Signal::send('organization.created', $org);
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-            $type = array('type' => 'created', 'data' => array('name' => $org->getName(), 'person' => $thisstaff->getName()->name));
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'created');
             Signal::send('object.created', $org, $type);
         }
         return $org;

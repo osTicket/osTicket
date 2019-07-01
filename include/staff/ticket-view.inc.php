@@ -8,8 +8,8 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
-if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-    $type = array('type' => 'viewed', 'data' => array('name' => $ticket->getNumber(), 'person' => $thisstaff->getName()->name));
+if (PluginManager::auditPlugin()) {
+    $type = array('type' => 'viewed');
     Signal::send('object.view', $ticket, $type);
 }
 
@@ -265,7 +265,7 @@ if($ticket->isOverdue())
                     <?php
                      }
                   }
-                if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+                if (PluginManager::auditPlugin()) {
                     // Allow extensions to add extra items to this ticket.
                     // $extras should be a array of [url=>, name=>, icon=>]
                     $extras = new ArrayObject();
@@ -274,7 +274,7 @@ if($ticket->isOverdue())
                         ?><li><a href="#<?php echo $li['url']; ?>"
                         onclick="javascript:
                         $.dialog($(this).attr('href').substr(1), 201);
-                        return false"
+                        return false;"
                         ><i class="<?php echo $li['icon'] ?: 'icon-cogs'; ?>"></i>
                         <?php echo $li['name'] ?: (string) $li; ?>
                         </a></li>

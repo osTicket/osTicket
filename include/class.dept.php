@@ -623,6 +623,12 @@ implements TemplateVariable, Searchable {
         return ($this->get('flags', 0) & $flag) != 0;
     }
 
+    function flagChanged($flag, $var) {
+        if (($this->hasflag($flag) && !$var) ||
+            (!$this->hasflag($flag) && $var))
+                return true;
+    }
+
     function export($dept, $criteria=null, $filename='') {
         include_once(INCLUDE_DIR.'class.error.php');
         $members = $dept->getMembers();
@@ -835,20 +841,18 @@ implements TemplateVariable, Searchable {
             return false;
 
         $vars['disable_auto_claim'] = isset($vars['disable_auto_claim']) ? 1 : 0;
-        if (PluginManager::getPluginByName('View auditing for tickets', true)) {
+        if (PluginManager::auditPlugin()) {
             //flags
-            if (($this->hasflag(self::FLAG_DISABLE_AUTO_CLAIM) && !$vars['disable_auto_claim']) ||
-            (!$this->hasflag(self::FLAG_DISABLE_AUTO_CLAIM) && $vars['disable_auto_claim']))
-                $disableAutoClaim = true;
+            $disableAutoClaim = $this->flagChanged(self::FLAG_DISABLE_AUTO_CLAIM, $vars['disable_auto_claim']);
+            $ticketAssignment = ($this->getAssignmentFlag() != $vars['assignment_flag']);
             foreach ($vars as $key => $value) {
                 if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
-                    $loggedUpdate = true;
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'type' => ucfirst($value)));
+                    $type = array('type' => 'edited', 'status' => ucfirst($value));
                     Signal::send('object.edited', $this, $type);
                 } elseif ((isset($this->$key) && ($this->$key != $value) && $key != 'members') ||
-                         ($disableAutoClaim && $key == 'disable_auto_claim')) {
-                    $loggedUpdate = true;
-                    $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => $key));
+                         ($disableAutoClaim && $key == 'disable_auto_claim') ||
+                          $ticketAssignment && $key == 'assignment_flag') {
+                    $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }
             }
@@ -927,9 +931,6 @@ implements TemplateVariable, Searchable {
                 // The ID wasn't available until after the commit
                 $this->path = $this->getFullPath();
                 $this->save();
-            } elseif (!$loggedUpdate) {
-                $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name));
-                Signal::send('object.edited', $this, $type);
             }
             return true;
         }
@@ -945,8 +946,6 @@ implements TemplateVariable, Searchable {
     }
 
     function updateAccess($access, &$errors) {
-      global $thisstaff;
-
       reset($access);
       $dropped = array();
       foreach ($this->extended as $DA)
@@ -973,8 +972,8 @@ implements TemplateVariable, Searchable {
                   'staff_id' => $staff_id, 'role_id' => $role_id
               ));
               $this->extended->add($da);
-              if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-                  $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Staff Added'));
+              if (PluginManager::auditPlugin()) {
+                  $type = array('type' => 'edited', 'key' => 'Staff Added');
                   Signal::send('object.edited', $this, $type);
               }
           }
@@ -989,8 +988,8 @@ implements TemplateVariable, Searchable {
           return false;
 
       if ($dropped) {
-          if (PluginManager::getPluginByName('View auditing for tickets', true)) {
-              $type = array('type' => 'edited', 'data' => array('name' => $this->getName(), 'person' => $thisstaff->getName()->name, 'key' => 'Staff Removed'));
+          if (PluginManager::auditPlugin()) {
+              $type = array('type' => 'edited', 'key' => 'Staff Removed');
               Signal::send('object.edited', $this, $type);
           }
           $this->extended->saveAll();
