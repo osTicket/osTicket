@@ -42,7 +42,7 @@ implements RestrictedAccess, Threadable, Searchable {
         'table' => TICKET_TABLE,
         'pk' => array('ticket_id'),
         'select_related' => array('topic', 'staff', 'user', 'team', 'dept',
-            'sla', 'thread', 'user__default_email', 'status'),
+            'sla', 'thread', 'child_thread', 'user__default_email', 'status'),
         'joins' => array(
             'user' => array(
                 'constraint' => array('user_id' => 'User.id')
@@ -79,6 +79,13 @@ implements RestrictedAccess, Threadable, Searchable {
             'thread' => array(
                 'reverse' => 'TicketThread.ticket',
                 'list' => false,
+                'null' => true,
+            ),
+            'child_thread' => array(
+                'constraint' => array(
+                    'ticket_id'  => 'TicketThread.object_id',
+                    "'C'" => 'TicketThread.object_type',
+                ),
                 'null' => true,
             ),
             'cdata' => array(
@@ -876,10 +883,9 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getThread() {
-        if (is_null($this->thread) && $this->ticket_pid) {
-            $threadId = Thread::getIdByObjectId($this->ticket_pid, 'C');
-            return TicketThread::lookup($threadId[0]);
-        }
+        if (is_null($this->thread) && $this->child_thread)
+            return $this->child_thread;
+
         return $this->thread;
     }
 
@@ -2442,7 +2448,7 @@ implements RestrictedAccess, Threadable, Searchable {
         } elseif ($tickets['tids']) { //see if any tickets should be merged
             foreach($tickets['tids'] as $key => $value) {
                 if ($ticket = Ticket::lookupByNumber($value)) {
-                    if (!$ticket->checkStaffPerm($thisstaff, $permission))
+                    if (!$ticket->checkStaffPerm($thisstaff, $permission) && !$ticket->getThread()->isReferred())
                        return false;
 
                     if ($key == 0)

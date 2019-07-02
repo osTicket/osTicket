@@ -937,7 +937,7 @@ function refer($tid, $target=null) {
             $ticket = Ticket::lookup($parent[0] ?: $ticket[0]);
             $role = $ticket->getRole($thisstaff);
             // Generic permission check.
-            if (!$role->hasPerm($permission)) {
+            if (!$role->hasPerm($permission) && !$ticket->getThread()->isReferred()) {
                 $info['error'] = sprintf(
                         __('You do not have permission to %1$s %2$s'),
                         __($title),
