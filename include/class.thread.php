@@ -255,14 +255,6 @@ implements Searchable {
         return true;
     }
 
-    function getIdByObjectId($object_id, $type) {
-        return Thread::objects()
-            ->filter(array('object_id'=>$object_id, 'object_type' => $type))
-            ->values_flat('id')
-            ->first();
-    }
-
-
     //UserList of participants (collaborators)
     function getParticipants() {
 
@@ -621,7 +613,6 @@ implements Searchable {
     function setExtra($mergedThread, $info='') {
         $this->object_type = 'C';
         $this->extra = json_encode(array('ticket_id' => $mergedThread->getObjectId(), 'number' => $this->getObject()->getNumber()));
-        $this->object_id = $mergedThread->getObjectId();
         ThreadEntry::setExtra($this->getEntries(), array('thread' => $this->getId()), $mergedThread->getId());
         $this->save();
     }
