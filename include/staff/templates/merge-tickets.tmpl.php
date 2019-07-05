@@ -48,11 +48,15 @@ foreach ($tickets as $t) {
     ?>" data-id="<?php echo $ticket_id; ?>">
     <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
     <?php if ($ticket_id)
-            $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s">%s</a>',
+            $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s" target="_blank">%s</a>',
                                 $ticket_id, Ticket::getLink($ticket_id), $number);
-            $subject = (strlen($subject) > 25) ? sprintf('%s...',substr($subject, 0, 25)) : $subject;
+            $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+            $nbsp2 = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+            $iconLarge = '<i style="visibility: hidden;" class="icon-group"></i>';
+            $iconSmall = '<i style="visibility: hidden;" class="icon-code-fork"></i>';
+            $subject = (strlen($subject) > 15) ? sprintf('%s...',substr($subject, 0, 15)) : $subject;
             $entryCount = $entries > 0 ?
-                sprintf('<a data-placement="bottom" <i class="icon-comments-alt" data-toggle="tooltip" title="%s %s"></i></a>',$entries, __('Thread Entries')) : '';
+                sprintf('<a data-placement="bottom" <i class="icon-comments-alt" data-toggle="tooltip" title="%s %s"></i></a>',$entries, __('Thread Entries')) : $nbsp.$iconLarge;
             $taskCount = sprintf('<a data-placement="bottom" <i class="icon-tasks" data-toggle="tooltip" title="%s %s"></i></a>',$tasks, __('Tasks'));
             $showMergePreview = ($mergeType != 'visual' && $children=$ticket->getChildTickets($ticket_id)) && (count($children) > 0) ? true : false;
             $mergePrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-code-fork"></i></a>', $ticket_id);
@@ -62,9 +66,9 @@ foreach ($tickets as $t) {
                sprintf('<a class="collaborators preview"href="#thread/%d/collaborators/0"><i class="icon-group"></i></a>', $id) : '';
     ?>
     <i class="icon-reorder"></i> <?php
-    echo sprintf('%s %s %s %s %s <div style="float: right;">%s %s %s %s %s %s</div>',
-        $numberLink ?: $number, $nbsp, $name, $nbsp, $subject, $nbsp, $entryCount, $tasks ? $nbsp . $taskCount : '',
-        $showMergePreview ? $nbsp . $mergePrev : '', $showLinkPreview ? $nbsp . $linkPrev : '', $showCollaborators ? $nbsp . $showCollaborators : '');
+    echo sprintf('%s %s %s %s %s <div style="float: right;">%s %s %s %s %s</div>',
+        $numberLink ?: $number, $nbsp, $name, $nbsp, $subject, $entryCount, $tasks ? $nbsp.$taskCount : $nbsp.$iconLarge,
+        $showMergePreview ? $nbsp.$mergePrev : $nbsp.$iconSmall, $showLinkPreview ? $nbsp.$linkPrev : $nbsp.$iconLarge, $showCollaborators ? $nbsp.$showCollaborators : $nbsp.$iconLarge);
     if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
     <div class="<?php if (!$parent && $visual) echo 'delete'; ?>"><a href="#" onclick="javascript:
@@ -139,7 +143,7 @@ foreach ($tickets as $t) {
             .append(showMergePrev)
             .append((collaborators > 0) ? spaces : '')
             .append(showCollaborators))
-        .prepend($('<a href=\''+ticketLink+ticket_id+'\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
+        .prepend($('<a target=\'_blank\' href=\''+ticketLink+ticket_id+'\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
         .prepend($('<i>').addClass('icon-reorder'))
         .append($('<input/>').attr({name:'tids[]', type:'hidden'}).val(id))
         .append($('<div></div>').addClass('button-group')
