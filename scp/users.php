@@ -84,14 +84,25 @@ if ($_POST) {
                 switch (strtolower($_POST['a'])) {
                 case 'lock':
                     foreach ($users as $U)
-                        if (($acct = $U->getAccount()) && $acct->lock())
+                        if (($acct = $U->getAccount()) && $acct->lock()) {
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'edited', 'key' => 'locked-flag');
+                                Signal::send('object.edited', $acct, $type);
+                            }
                             $count++;
+                        }
+
                     break;
 
                 case 'unlock':
                     foreach ($users as $U)
-                        if (($acct = $U->getAccount()) && $acct->unlock())
+                        if (($acct = $U->getAccount()) && $acct->unlock()) {
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'edited', 'key' => 'unlocked-flag');
+                                Signal::send('object.edited', $acct, $type);
+                            }
                             $count++;
+                        }
                     break;
 
                 case 'delete':
@@ -108,12 +119,21 @@ if ($_POST) {
 
                 case 'reset':
                     foreach ($users as $U)
-                        if (($acct = $U->getAccount()) && $acct->sendResetEmail())
+                        if (($acct = $U->getAccount()) && $acct->sendResetEmail()) {
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'edited', 'key' => 'pwreset-sent');
+                                Signal::send('object.edited', $acct, $type);
+                            }
                             $count++;
+                        }
                     break;
 
                 case 'register':
                     foreach ($users as $U) {
+                        if (PluginManager::auditPlugin()) {
+                            $type = array('type' => 'edited', 'key' => 'user-registered');
+                            Signal::send('object.edited', $U, $type);
+                        }
                         if (($acct = $U->getAccount()) && $acct->sendConfirmEmail())
                             $count++;
                         elseif ($acct = UserAccount::register($U,
@@ -128,8 +148,13 @@ if ($_POST) {
                     if (!($org = Organization::lookup($_POST['org_id'])))
                         $errors['err'] = sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                     foreach ($users as $U) {
-                        if ($U->setOrganization($org))
+                        if ($U->setOrganization($org)) {
+                            if (PluginManager::auditPlugin()) {
+                                $type = array('type' => 'edited', 'key' => 'user-org');
+                                Signal::send('object.edited', $U, $type);
+                            }
                             $count++;
+                        }
                     }
                     break;
 
