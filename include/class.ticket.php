@@ -2471,6 +2471,14 @@ implements RestrictedAccess, Threadable, Searchable {
                                    $ticket->setSort($key);
                                    $ticket->save();
                                }
+
+                               //referrals for merged tickets
+                               if ($parent->getDeptId() != ($ticketDeptId = $ticket->getDeptId()) && $tickets['combine'] != 2) {
+                                   $refDept = $ticket->getDept();
+                                   $parent->thread->refer($refDept);
+                                   $evd = array('dept' => $ticketDeptId);
+                                   $parent->logEvent('referred', $evd);
+                               }
                         } else
                             return false;
                     }
