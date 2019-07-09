@@ -477,7 +477,7 @@ class MysqlSearchBackend extends SearchBackend {
         $sql = "SELECT A1.`id`, A1.`title`, A1.`body`, A1.`format` FROM `".THREAD_ENTRY_TABLE."` A1
             LEFT JOIN `".TABLE_PREFIX."_search` A2 ON (A1.`id` = A2.`object_id` AND A2.`object_type`='H')
             WHERE A2.`object_id` IS NULL AND (A1.poster <> 'SYSTEM')
-            AND (LENGTH(A1.`title`) + LENGTH(A1.`body`) > 0)
+            AND (IFNULL(LENGTH(A1.`title`), 0) + IFNULL(LENGTH(A1.`body`), 0) > 0)
             ORDER BY A1.`id` DESC LIMIT 500";
         if (!($res = db_query_unbuffered($sql, $auto_create)))
             return false;
