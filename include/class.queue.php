@@ -1759,11 +1759,13 @@ extends QueueColumnAnnotation {
         $flags = $row['flags'];
         $combine = ($flags & Ticket::FLAG_COMBINE_THREADS) != 0;
         $separate = ($flags & Ticket::FLAG_SEPARATE_THREADS) != 0;
+        $linked = ($flags & Ticket::FLAG_LINKED) != 0;
 
         if ($combine || $separate) {
             return sprintf('<a data-placement="bottom" data-toggle="tooltip" title="%s" <i class="icon-code-fork"></i></a>',
                            $combine ? __('Combine') : __('Separate'));
-        }
+        } elseif ($linked)
+            return '<i class="icon-link"></i>';
     }
 
     function isVisible($row) {
@@ -1783,7 +1785,7 @@ extends QueueColumnAnnotation {
     function getDecoration($row, $text) {
         $flags = $row['flags'];
         $linked = ($flags & Ticket::FLAG_LINKED) != 0;
-        if ($linked)
+        if ($linked && $_REQUEST['a'] == 'search')
             return '<i class="icon-link"></i>';
     }
 
