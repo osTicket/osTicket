@@ -1749,7 +1749,7 @@ class ChoiceField extends FormField {
         case '!includes':
             return Q::not(array("{$name}__in" => array_keys($value)));
         case 'includes':
-            return new Q(array("{$name}__in" => array_keys($value)));
+            return new Q(array("{$name}__contains" => array_keys($value)));
         default:
             return parent::getSearchQ($method, $value, $name);
         }
