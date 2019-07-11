@@ -37,10 +37,10 @@ if ($this->getObjectType() == 'T')
         $childEntries = array();
         foreach ($entries as $i=>$E) {
             if ($ticket) {
-                $extra = json_decode($E->extra, true);
+                $E->extra = json_decode($E->extra, true);
                 //separated entries
                 if ($ticket->getMergeType() == 'separate') {
-                    if ($extra['thread'])
+                    if ($E->extra['thread'])
                         $childEntries[$E->getId()] = $E;
                     else
                         $buckets[$E->getId()] = $E;
@@ -49,28 +49,30 @@ if ($this->getObjectType() == 'T')
             } else
                 $buckets[$E->getId()] = $E;
         }
+        usort($childEntries, function ($a, $b) { //sort by child ticket
+            if ($a->extra["thread"] != $b->extra["thread"])
+                return $a->extra["thread"] - $b->extra["thread"];
+        });
+
+        usort($childEntries, function($a, $b) { //sort by child created date
+            if ($a->extra["thread"] == $b->extra["thread"])
+                return strtotime($a->created) - strtotime($b->created);
+        });
 
         if ($ticket && $ticket->getMergeType() == 'separate')
             $buckets = $buckets + $childEntries;
 
         // TODO: Consider adding a date boundary to indicate significant
         //       changes in dates between thread items.
-
         foreach ($buckets as $entry) {
             if ($entry->hasFlag(ThreadEntry::FLAG_CHILD) && $entry->extra) {
-                $extra = json_decode($entry->extra, true);
-                $indent = true;
-                if ($extra['number'])
-                    $number = $extra['number'];
-                else {
-                    if (!$thread = Thread::lookup($extra['thread']))
-                        continue;
-                    $threadExtra = json_decode($thread->extra, true);
-                    $number = $threadExtra['number'];
-                }
-
-            }
-            else
+                if (!$thread = Thread::objects()->filter(array('id'=>$entry->extra['thread']))->values_flat('extra'))
+                    continue;
+                foreach ($thread as $t)
+                    $threadExtra = $t[0];
+                $threadExtra = json_decode($threadExtra, true);
+                $number = $threadExtra['number'];
+            } else
                 $number = null;
 
             // Emit all events prior to this entry
