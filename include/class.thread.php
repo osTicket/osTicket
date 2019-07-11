@@ -569,7 +569,10 @@ implements Searchable {
             if ($object instanceof Threadable) {
                 $entry = $object->postThreadEntry('M', $vars);
                 if ($this->getObjectType() == 'C') {
-                    ThreadEntry::setExtra(array($entry), array('thread' => $this->getId()), $object->getThread()->getId());
+                    if ($object->isChild()) {
+                        $parent = Ticket::lookup($object->getPid());
+                        ThreadEntry::setExtra(array($entry), array('thread' => $this->getId()), $parent->getThread()->getId());
+                    }
                 }
                 return $entry;
             }
@@ -612,7 +615,8 @@ implements Searchable {
 
     function setExtra($mergedThread, $info='') {
         $this->object_type = 'C';
-        $this->extra = json_encode(array('ticket_id' => $mergedThread->getObjectId(), 'number' => $this->getObject()->getNumber()));
+        $number = Ticket::objects()->filter(array('ticket_id'=>$this->getObjectId()))->values_flat('number')->first();
+        $this->extra = json_encode(array('ticket_id' => $mergedThread->getObjectId(), 'number' => $number[0]));
         ThreadEntry::setExtra($this->getEntries(), array('thread' => $this->getId()), $mergedThread->getId());
         $this->save();
     }
@@ -2523,7 +2527,7 @@ class MergedEvent extends ThreadEvent {
     static $state = 'merged';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}')),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }
@@ -2533,7 +2537,7 @@ class LinkedEvent extends ThreadEvent {
     static $state = 'linked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}')),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }
@@ -2543,7 +2547,7 @@ class UnlinkEvent extends ThreadEvent {
     static $state = 'unlinked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.child}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}')),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }

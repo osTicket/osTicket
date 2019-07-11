@@ -117,6 +117,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const FLAG_COMBINE_THREADS     = 0x0001;
     const FLAG_SEPARATE_THREADS    = 0x0002;
     const FLAG_LINKED              = 0x0008;
+    const FLAG_PARENT              = 0x0010;
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -245,9 +246,9 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getMergeTypeByFlag($flag) {
-        if ($flag & self::FLAG_COMBINE_THREADS != 0)
+        if (($flag & self::FLAG_COMBINE_THREADS) != 0)
             return 'combine';
-        if ($flag & self::FLAG_SEPARATE_THREADS != 0)
+        if (($flag & self::FLAG_SEPARATE_THREADS) != 0)
             return 'separate';
         else
             return 'visual';
@@ -265,14 +266,16 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isMerged() {
-        if (!is_null($this->getPid()) || count($this->getChildTickets($this->getId())))
+        if (!is_null($this->getPid()) || $this->isParent())
             return true;
 
         return false;
     }
 
-    function isParent() {
-        if (count($this->getChildTickets($this->getId())))
+    function isParent($flag=false) {
+        if (is_numeric($flag) && ($flag & self::FLAG_PARENT) != 0)
+            return true;
+        elseif (!is_numeric($flag) && $this->hasFlag(self::FLAG_PARENT))
             return true;
 
         return false;
@@ -340,7 +343,6 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function isAssigned($to=null) {
-
         if (!$this->isOpen())
             return false;
 
@@ -1334,29 +1336,19 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->flags &= ~$flag;
     }
 
-    function setMergeType($combine=false) {
-        switch ($combine) {
-            case 0: //separate
-                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, true);
-                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
-                $this->setFlag(Ticket::FLAG_LINKED, false);
-                break;
-            case 1: //combine
-                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, true);
-                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, false);
-                $this->setFlag(Ticket::FLAG_LINKED, false);
-                break;
-            case 2: //visual
-                $this->setFlag(Ticket::FLAG_LINKED, true);
-                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
-                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, false);
-                break;
-            case 3: //regular ticket
-                $this->setFlag(Ticket::FLAG_LINKED, false);
-                $this->setFlag(Ticket::FLAG_COMBINE_THREADS, false);
-                $this->setFlag(Ticket::FLAG_SEPARATE_THREADS, false);
-                break;
+    function setMergeType($combine=false, $parent=false) {
+        //for $combine, 0 = separate, 1 = combine, 2 = link, 3 = regular ticket
+        $flags = array(Ticket::FLAG_SEPARATE_THREADS, Ticket::FLAG_COMBINE_THREADS, Ticket::FLAG_LINKED);
+        foreach ($flags as $key => $flag) {
+            if ($combine == $key)
+                $this->setFlag($flag, true);
+            else
+                $this->setFlag($flag, false);
         }
+        if ($parent)
+            $this->setFlag(Ticket::FLAG_PARENT, true);
+        else
+            $this->setFlag(Ticket::FLAG_PARENT, false);
 
         $this->save();
     }
@@ -2341,11 +2333,8 @@ implements RestrictedAccess, Threadable, Searchable {
         );
         $tform = TicketForm::getInstance();
         foreach ($tform->getFields() as $F) {
-            // Ignore disabled fields
-            if (!$F->isEnabled())
-                continue;
             $fname = $F->get('name') ?: ('field_'.$F->get('id'));
-            if (!$F->hasData() || $F->isPresentationOnly())
+            if (!$F->hasData() || $F->isPresentationOnly() || !$F->isEnabled())
                 continue;
             if (!$F->isStorable())
                 $base[$fname] = $F;
@@ -2410,17 +2399,34 @@ implements RestrictedAccess, Threadable, Searchable {
         return $save ? $this->save() : true;
     }
 
-    function unlinkChildren() {
-        $pid = $this->getId();
-        $children = Ticket::getChildTickets($pid);
-        foreach ($children as $child) {
-            $child = Ticket::lookup($child[0]);
-            $child->setPid(NULL);
-            $child->setFlag(Ticket::FLAG_LINKED, false);
-            $child->save();
-            $child->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $this->getNumber()), 'id' => $pid));
-            $this->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $child->getNumber()), 'id' => $child->getId()));
+    function unlinkChild($parent) {
+        $this->setPid(NULL);
+        $this->setSort(1);
+        $this->setFlag(Ticket::FLAG_LINKED, false);
+        $this->save();
+        $this->logEvent('unlinked', array('ticket' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $parent->getId()));
+        $parent->logEvent('unlinked', array('ticket' => sprintf('Ticket #%s', $this->getNumber()), 'id' => $this->getId()));
+    }
+
+    function unlink() {
+        $pid = $this->isChild() ? $this->getPid() : $this->getId();
+        $parent = $this->isParent() ? $this : (Ticket::lookup($pid));
+        $child = $this->isChild() ? $this : '';
+        $children = $this->isParent() ? (Ticket::getChildTickets($pid)) : '';
+        if ($children) {
+            foreach ($children as $child) {
+                $child = Ticket::lookup($child[0]);
+                $child->unlinkChild($parent);
+            }
+        } else
+            $child->unlinkChild($parent);
+
+        if (count(Ticket::getChildTickets($pid)) == 0) {
+            $parent->setFlag(Ticket::FLAG_LINKED, false);
+            $parent->setFlag(Ticket::FLAG_PARENT, false);
+            $parent->save();
         }
+
         return true;
     }
 
@@ -2432,45 +2438,34 @@ implements RestrictedAccess, Threadable, Searchable {
         //see if any tickets should be unlinked
         if ($tickets['dtids']) {
             foreach($tickets['dtids'] as $key => $value) {
-                if (is_numeric($key) && $ticket = Ticket::lookup($value)) {
-                    $pid = $ticket->getPid();
-                    $parent = Ticket::lookup($pid);
-                    $ticket->setPid(NULL);
-                    $ticket->setSort(1);
-                    $ticket->setFlag(Ticket::FLAG_LINKED, false);
-                    $parent->setFlag(Ticket::FLAG_LINKED, false);
-                    $ticket->save();
-                    $parent->save();
-                    $ticket->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $pid));
-                    $parent->logEvent('unlinked', array('child' => sprintf('Ticket #%s', $ticket->getNumber()), 'id' => $ticket->getId()));
-                }
+                if (is_numeric($key) && $ticket = Ticket::lookup($value))
+                    $ticket->unlink();
             }
+            return true;
         } elseif ($tickets['tids']) { //see if any tickets should be merged
+            $ticketObjects = array();
             foreach($tickets['tids'] as $key => $value) {
                 if ($ticket = Ticket::lookupByNumber($value)) {
+                    $ticketObjects[] = $ticket;
                     if (!$ticket->checkStaffPerm($thisstaff, $permission) && !$ticket->getThread()->isReferred())
                        return false;
 
                     if ($key == 0)
                         $parent = $ticket;
 
+                    if ($ticket->isParent() && $ticket->getMergeType() == 'visual')
+                        $ticket->unlink();
+
                     if ($parent && $parent->getId() != $ticket->getId()) {
                         if (($parent->isParent() && $ticket->getMergeType() == 'visual') || //adding to link/merge
                            ($parent->getMergeType() == 'visual' && $ticket->getMergeType() == 'visual')) { //creating fresh link/merge
-
-                               if ($ticket->isParent())
-                                   $ticket->unlinkChildren();
-
-                               $parent->setMergeType($tickets['combine']);
-                               $ticket->setMergeType($tickets['combine']);
-
-                               $parent->logEvent($eventName, array('child' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
-                               $ticket->logEvent($eventName, array('child' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
-                               if ($ticket->getPid() != $parent->getId()) {
+                               $parent->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
+                               $ticket->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
+                               if ($ticket->getPid() != $parent->getId())
                                    $ticket->setPid($parent->getId());
-                                   $ticket->setSort($key);
-                                   $ticket->save();
-                               }
+                               $ticket->setSort($key);
+                               $parent->setMergeType($tickets['combine'], true);
+                               $ticket->setMergeType($tickets['combine']);
 
                                //referrals for merged tickets
                                if ($parent->getDeptId() != ($ticketDeptId = $ticket->getDeptId()) && $tickets['combine'] != 2) {
@@ -2479,37 +2474,44 @@ implements RestrictedAccess, Threadable, Searchable {
                                    $evd = array('dept' => $ticketDeptId);
                                    $parent->logEvent('referred', $evd);
                                }
-                        } else
-                            return false;
+                        }
                     }
                 }
             }
         }
-        return $parent;
+        return $ticketObjects;
     }
 
     function merge($tickets) {
-        global $thisstaff;
-
-        if (!$parent = self::manageMerge($tickets))
+        $options = $tickets;
+        if (!$tickets = self::manageMerge($tickets))
             return false;
+        if (is_bool($tickets))
+            return true;
+
+        $children = array();
+        foreach ($tickets as $ticket) {
+            if ($ticket->isParent())
+                $parent = $ticket;
+            else
+                $children[] = $ticket;
+        }
 
         if ($parent->getMergeType() != 'visual') {
-            $children = Ticket::getChildTickets($parent->getId());
+            $errors = array();
             foreach ($children as $child) {
-                $child = Ticket::lookup($child[0]);
-                if ($tickets['participants'] == 'all' && $collabs = $child->getCollaborators()) {
-                    $parent->addCollaborator($child->getUser(), array());
+                if ($options['participants'] == 'all' && $collabs = $child->getCollaborators()) {
                     foreach ($collabs as $collab)
-                        $parent->addCollaborator($collab->getUser(), array());
-                } else if($tickets['participants'] == 'user')
-                        $parent->addCollaborator($child->getUser(), array());
+                        $parent->addCollaborator($collab->getUser(), array(), $errors);
+                }
+                $parent->addCollaborator($child->getUser(), array(), $errors);
+
                 if ($child->getThread())
                     $child->getThread()->setExtra($parent->getThread());
 
-                $child->setMergeType($tickets['combine']);
+                $child->setMergeType($options['combine']);
 
-                if ($tickets['delete-child'] || $tickets['move-tasks']) {
+                if ($options['delete-child'] || $options['move-tasks']) {
                     if ($tasks = Task::objects()
                         ->filter(array('object_id' => $child->getId()))
                         ->values_flat('id')) {
@@ -2521,14 +2523,31 @@ implements RestrictedAccess, Threadable, Searchable {
                     }
                 }
 
-                if ($tickets['delete-child'])
+                if ($options['delete-child'])
                      $child->delete();
             }
 
-            if ($tickets['delete-child'])
+            if ($options['delete-child'])
                  $parent->setMergeType(3);
         }
-        return true;
+        return $parent;
+    }
+
+    function getRelatedTickets() {
+        return sprintf('<tr>
+            <td width="8px">&nbsp;</td>
+            <td>
+                <a class="Icon strtolower(%s) Ticket preview"
+                   data-preview="#tickets/%d/preview"
+                   href="tickets.php?id=%d">%s</a>
+            </td>
+            <td>%s</td>
+            <td>%s</td>
+            <td>%s</td>
+            <td>%s</td>
+        </tr>',
+        strtolower($this->getSource()), $this->getId(), $this->getId(), $this->getNumber(), $this->getSubject(),
+            $this->getDeptName(), $this->getAssignee(), Format::datetime($this->getCreateDate()));
     }
 
     //Dept Transfer...with alert.. done by staff
@@ -2924,7 +2943,6 @@ implements RestrictedAccess, Threadable, Searchable {
             $parent = self::lookup($this->getPid());
 
         $ticket = $parent ?: $this;
-
         $errors = array();
         if ($vars['userId'] != $ticket->user_id) {
             if ($vars['userId']) {
@@ -3416,9 +3434,19 @@ implements RestrictedAccess, Threadable, Searchable {
             foreach ($children as $childId) {
                 $child = Ticket::lookup($childId[0]);
                 $child->setPid(NULL);
+                $child->setMergeType(3);
                 $child->save();
             }
         }
+
+        if ($this->isChild()) {
+            $parent = Ticket::lookup($this->ticket_pid);
+            if ($parent->isParent()) {
+                $parent->setMergeType(3);
+                $parent->save();
+            }
+        }
+
 
         $this->logEvent('deleted');
 

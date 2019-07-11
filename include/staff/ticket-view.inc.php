@@ -153,7 +153,7 @@ if($ticket->isOverdue())
                 <?php
                  }
 
-                 if ($role->hasPerm(Ticket::PERM_MERGE)) { ?>
+                 if ($role->hasPerm(Ticket::PERM_MERGE) && !$ticket->isChild()) { ?>
                      <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
                          ?>/merge" onclick="javascript:
                          $.dialog($(this).attr('href').substr(1), 201);
@@ -406,8 +406,7 @@ if($ticket->isOverdue())
                                     if ($thread->getNumCollaborators())
                                         $recipients = sprintf(__('%d'),
                                                 $numCollaborators);
-                                }
-                               else
+                                } else
                                   $recipients = 0;
 
                              echo sprintf('<span><a class="manage-collaborators preview"

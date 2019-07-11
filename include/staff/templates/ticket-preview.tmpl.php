@@ -186,7 +186,6 @@ echo '</div>'; // ticket preview content.
                                 );
     ?>
 </div>
-<!-- Thread Preview Start -->
 <div class="hidden tab_content thread-preview" id="threadPreview">
     <div id="ticketThread">
         <div id="thread-items">
@@ -196,7 +195,6 @@ echo '</div>'; // ticket preview content.
         </div>
     </div>
 </div>
-<!-- End Thread Preview -->
 <?php
 $options = array();
 $options[]=array('action'=>sprintf(__('Thread (%d)'),$ticket->getThreadCount()),'url'=>"tickets.php?id=$tid");
@@ -238,6 +236,4 @@ echo '</div>';
             $(this).closest('.thread-preview-entry').addClass('collapsed', 500);
         }
     });
-
-
  </script>

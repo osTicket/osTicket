@@ -15,16 +15,16 @@ ALTER TABLE `%TABLE_PREFIX%ticket`
 ALTER TABLE `%TABLE_PREFIX%ticket`
     ADD `sort` int(11) unsigned NOT NULL DEFAULT '0' AFTER `flags`;
 
--- Add sort column to tickets
+-- Add extra column to thread entries
 ALTER TABLE `%TABLE_PREFIX%thread_entry`
     ADD `extra` text AFTER `ip_address`;
 
 -- Insert new events
 INSERT INTO `%TABLE_PREFIX%event` (`id`, `name`, `description`)
 VALUES
-    (15,'merged',''),
-	(16,'unlinked',''),
-    (17,'linked','');
+    ('','merged',''),
+	('','unlinked',''),
+    ('','linked','');
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
