@@ -35,8 +35,6 @@ else {
 }
 
 if (PluginManager::auditPlugin()) {
-    // Allow extensions to add extra items to this form.
-    // $extras should be a array of [url=>, tab=>]
     $extras = new ArrayObject();
     Signal::send('agent.audit', $staff, $extras);
 

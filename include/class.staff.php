@@ -732,7 +732,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     //Staff profile update...unfortunately we have to separate it from admin update to avoid potential issues
     function updateProfile($vars, &$errors) {
-        global $cfg, $thisstaff;
+        global $cfg;
 
         $vars['firstname']=Format::striptags($vars['firstname']);
         $vars['lastname']=Format::striptags($vars['lastname']);

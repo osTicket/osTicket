@@ -437,7 +437,7 @@ class EmailTemplateGroup {
     }
 
     function save($id, $vars, &$errors) {
-        global $ost, $thisstaff;
+        global $ost;
 
         $tpl=null;
         $vars['name']=Format::striptags(trim($vars['name']));

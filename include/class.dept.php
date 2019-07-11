@@ -841,7 +841,7 @@ implements TemplateVariable, Searchable {
             return false;
 
         $vars['disable_auto_claim'] = isset($vars['disable_auto_claim']) ? 1 : 0;
-        if (PluginManager::auditPlugin()) {
+        if (PluginManager::auditPlugin() && $this->getId()) {
             //flags
             $disableAutoClaim = $this->flagChanged(self::FLAG_DISABLE_AUTO_CLAIM, $vars['disable_auto_claim']);
             $ticketAssignment = ($this->getAssignmentFlag() != $vars['assignment_flag']);

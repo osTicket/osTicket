@@ -504,8 +504,8 @@ if($ticket) {
         elseif (!$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes'], $_REQUEST['events']))
             $errors['err'] = __('Unable to export the ticket to PDF for print.')
                 .' '.__('Internal error occurred');
-    } elseif ($_REQUEST['a'] == 'export' && strtolower($_REQUEST['t']) == 'audits') {
-      require_once(INCLUDE_DIR.'plugins/audit-ticket/class.audit.php');
+    } elseif (PluginManager::auditPlugin() && $_REQUEST['a'] == 'export' && strtolower($_REQUEST['t']) == 'audits') {
+      require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
       $show = AuditEntry::$show_view_audits;
       $filename = sprintf('%s-audits-%s.csv',
               $ticket->getNumber(), strftime('%Y%m%d'));

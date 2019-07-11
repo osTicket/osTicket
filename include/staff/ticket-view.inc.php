@@ -266,8 +266,6 @@ if($ticket->isOverdue())
                      }
                   }
                 if (PluginManager::auditPlugin()) {
-                    // Allow extensions to add extra items to this ticket.
-                    // $extras should be a array of [url=>, name=>, icon=>]
                     $extras = new ArrayObject();
                     Signal::send('ticket.view.more', $ticket, $extras);
                     foreach ($extras as $li) {

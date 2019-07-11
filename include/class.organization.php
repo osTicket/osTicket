@@ -115,12 +115,22 @@ class OrganizationModel extends VerySimpleModel {
         return $this->check(self::ASSIGN_AGENT_MANAGER);
     }
 
+    function autoFlagChanged($flag, $var) {
+        if (($flag && !$var) || (!$flag && $var))
+            return true;
+    }
+
     function shareWithPrimaryContacts() {
         return $this->check(self::SHARE_PRIMARY_CONTACT);
     }
 
     function shareWithEverybody() {
         return $this->check(self::SHARE_EVERYBODY);
+    }
+
+    function sharingFlagChanged($flag, $var, $title) {
+        if (($flag && !$var) || (!$flag && $var == $title))
+            return true;
     }
 
     function getUpdateDate() {
@@ -462,21 +472,15 @@ implements TemplateVariable, Searchable {
         }
 
         if (PluginManager::auditPlugin()) {
-            if (($this->autoAddMembersAsCollabs() && !$vars['collab-all-flag']) ||
-                (!$this->autoAddMembersAsCollabs() && $vars['collab-all-flag'])) {
-                    $auditCollabAll = true;
+            if ($auditCollabAll = $this->autoFlagChanged($this->autoAddMembersAsCollabs(),
+                $vars['collab-all-flag']))
                     $key = 'collab-all-flag';
-            }
-            if (($this->autoAddPrimaryContactsAsCollabs() && !$vars['collab-pc-flag']) ||
-                (!$this->autoAddPrimaryContactsAsCollabs() && $vars['collab-pc-flag'])) {
-                    $auditCollabPc = true;
+            if ($auditCollabPc = $this->autoFlagChanged($this->autoAddPrimaryContactsAsCollabs(),
+                $vars['collab-pc-flag']))
                     $key = 'collab-pc-flag';
-            }
-            if (($this->autoAssignAccountManager() && !$vars['assign-am-flag']) ||
-                (!$this->autoAssignAccountManager() && $vars['assign-am-flag'])) {
-                    $auditAssignAm = true;
+            if ($auditAssignAm = $this->autoFlagChanged($this->autoAssignAccountManager(),
+                $vars['assign-am-flag']))
                     $key = 'assign-am-flag';
-            }
 
             if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
                 $type = array('type' => 'edited', 'key' => $key);
@@ -491,16 +495,10 @@ implements TemplateVariable, Searchable {
             }
         }
 
-        if ((!$this->shareWithPrimaryContacts() && $vars['sharing'] == 'sharing-primary') ||
-            ($this->shareWithPrimaryContacts() && !$vars['sharing'])) {
-                $sharingPrimary = true;
-                $key = 'sharing-primary';
-        }
-        if ((!$this->shareWithEverybody() && $vars['sharing'] == 'sharing-all') ||
-            ($this->shareWithEverybody() && !$vars['sharing'])) {
-                $sharingEverybody = true;
-                $key = 'sharing-all';
-        }
+        $sharingPrimary = $this->sharingFlagChanged($this->shareWithPrimaryContacts(),
+            $vars['sharing'], 'sharing-primary');
+        $sharingEverybody = $this->sharingFlagChanged($this->shareWithEverybody(),
+            $vars['sharing'], 'sharing-all');
 
         // Set flags
         foreach (array(
@@ -520,7 +518,7 @@ implements TemplateVariable, Searchable {
         ) as $ck=>$flag) {
             if (PluginManager::auditPlugin()) {
                 if (($sharingPrimary || $sharingEverybody) && $key == $ck) {
-                    $type = array('type' => 'edited', 'key' => 'sharing'); //adriane
+                    $type = array('type' => 'edited', 'key' => 'sharing');
                     Signal::send('object.edited', $this, $type);
                 }
             }
