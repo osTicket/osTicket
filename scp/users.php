@@ -215,8 +215,8 @@ if ($user ) {
         }
         break;
       case 'audits':
-          if ($_REQUEST['a'] == 'export') {
-             require_once(INCLUDE_DIR.'plugins/audit-ticket/class.audit.php');
+          if (PluginManager::auditPlugin() && $_REQUEST['a'] == 'export') {
+             require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
               $show = AuditEntry::$show_view_audits;
               $filename = sprintf('%s-audits-%s.csv',
                       $user->getName(), strftime('%Y%m%d'));

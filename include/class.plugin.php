@@ -222,7 +222,7 @@ class PluginManager {
     }
 
     static function auditPlugin() {
-        return self::getPluginByName('View auditing for tickets', true);
+        return self::getPluginByName('Help Desk Audit', true);
     }
 
     static function allActive() {

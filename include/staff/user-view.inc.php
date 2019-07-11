@@ -72,8 +72,6 @@ $org = $user->getOrganization();
                     <?php echo __('Manage Forms'); ?></a></li>
 <?php }
                   if (PluginManager::auditPlugin()) {
-                      // Allow extensions to add extra items to this user.
-                      // $extras should be a array of [url=>, name=>, icon=>]
                       $extras = new ArrayObject();
                       Signal::send('user.view.more', $user, $extras);
 

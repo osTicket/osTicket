@@ -414,7 +414,7 @@ implements TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
-        global $cfg, $thisstaff;
+        global $cfg;
 
         $vars['topic'] = Format::striptags(trim($vars['topic']));
 
@@ -447,7 +447,7 @@ implements TemplateVariable, Searchable {
 
         if (PluginManager::auditPlugin()) {
             foreach ($vars as $key => $value) {
-                if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
+                if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value && $this->topic) {
                     $type = array('type' => 'edited', 'status' => ucfirst($value));
                     Signal::send('object.edited', $this, $type);
                 } elseif (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {

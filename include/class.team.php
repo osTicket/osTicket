@@ -166,7 +166,7 @@ implements TemplateVariable {
         }
 
         $vars['noalerts'] = isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0;
-        if (PluginManager::auditPlugin()) {
+        if (PluginManager::auditPlugin() && $this->getId()) {
             //flags
             $auditEnabled = $this->flagChanged(self::FLAG_ENABLED, $vars['isenabled']);
             $auditAlerts = $this->flagChanged(self::FLAG_NOALERTS, $vars['noalerts']);

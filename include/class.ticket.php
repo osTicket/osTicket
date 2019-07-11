@@ -3012,7 +3012,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Insert message from client
     function postMessage($vars, $origin='', $alerts=true) {
-        global $cfg, $thisstaff;
+        global $cfg;
 
         if ($origin)
             $vars['origin'] = $origin;
