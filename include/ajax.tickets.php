@@ -40,8 +40,8 @@ class TicketsAjaxAPI extends AjaxController {
                 'number' => new SqlCode('null'),
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
                 'tasks' => SqlAggregate::COUNT('tasks__id', true),
-                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                'entries' => SqlAggregate::COUNT('thread__entries__id'),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
@@ -60,8 +60,8 @@ class TicketsAjaxAPI extends AjaxController {
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
                     'tasks' => SqlAggregate::COUNT('tasks__id', true),
-                    'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                    'entries' => SqlAggregate::COUNT('thread__entries__id'),
+                    'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                    'entries' => SqlAggregate::COUNT('thread__entries__id', true),
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
@@ -359,9 +359,9 @@ class TicketsAjaxAPI extends AjaxController {
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
             ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                             'entries' => SqlAggregate::COUNT('thread__entries__id'),))
-            ->order_by('sort');
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id', true),));
+
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
             $tickets = $parent->union($tickets);
@@ -369,6 +369,10 @@ class TicketsAjaxAPI extends AjaxController {
         else
             $tickets = $parent;
 
+        //fix sort of tickets
+        $sql = sprintf('SELECT * FROM (%s) a ORDER BY sort', $tickets->getQuery());
+        $res = db_query($sql);
+        $tickets = db_assoc_array($res);
         $info = array('action' => '#tickets/'.$ticket->getId().'/merge');
 
         return self::_updateMerge($ticket, $tickets, $info);
@@ -384,12 +388,11 @@ class TicketsAjaxAPI extends AjaxController {
             ->filter(array('ticket_id'=>$ticket_id))
             ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
             ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                             'entries' => SqlAggregate::COUNT('thread__entries__id'),));
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id', true),));
 
         if ($_POST['tids']) {
-            $parent = Ticket::lookup($ticket_id);
-            if ($parent->merge($_POST))
+            if ($parent = Ticket::merge($_POST))
                 Http::response(201, 'Successfully managed');
             else
                 $info['error'] = $errors['err'] ?: __('Unable to merge ticket');
@@ -398,8 +401,7 @@ class TicketsAjaxAPI extends AjaxController {
         if ($parent->getMergeType() == 'visual') {
             $tickets = Ticket::getChildTickets($ticket_id);
             $tickets = $parentModel->union($tickets);
-        }
-        else
+        } else
             $tickets = $parentModel;
 
         return self::_updateMerge($parent, $tickets, $info);
@@ -867,21 +869,23 @@ function refer($tid, $target=null) {
             $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
             $eventName = ($title && $title == 'link') ? 'linked' : 'merged';
             $permission = ($title && $title == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
+            $hasPermission = array();
 
             $tickets = Ticket::objects()
                 ->filter(array('ticket_id__in'=>$ticketIds))
                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
-                              'user_id', 'cdata__subject', 'user__name', 'flags')
+                              'user_id', 'cdata__subject', 'user__name', 'flags', 'dept_id')
                 ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                                 'entries' => SqlAggregate::COUNT('thread__entries__id'),));
+                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                                 'entries' => SqlAggregate::COUNT('thread__entries__id', true),))
+                ->order_by('sort');
 
             foreach ($tickets as $ticket) {
-                list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id, $subject, $name, $flags) = $ticket;
+                list($ticket_id, $number, $ticket_pid, $sort, $id, $user_id, $subject, $name, $flags, $dept_id) = $ticket;
                 $mergeType = Ticket::getMergeTypeByFlag($flags);
-                $isParent = Ticket::objects()
-                    ->filter(array('ticket_pid'=>$ticket_id));
-                $isParent = (count($isParent) > 0) ? true : false;
+                $isParent = Ticket::isParent($flags);
+                $role = $thisstaff->getRole($dept_id);
+                $hasPermission[] = $role->hasPerm($permission);
 
                 if (!$ticket)
                     continue;
@@ -924,27 +928,18 @@ function refer($tid, $target=null) {
                 }
 
                 $expr = call_user_func_array(array('SqlFunction', 'FIELD'), $ticketIdsSorted);
-                $tickets = Ticket::objects()
-                    ->filter(array('ticket_id__in'=>$ticketIds))
-                    ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
-                                  'user_id', 'cdata__subject', 'user__name', 'flags')
-                    ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                                     'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                                     'entries' => SqlAggregate::COUNT('thread__entries__id'),))
-                    ->order_by($expr);
+                $tickets = $tickets->order_by($expr);
             }
-
             $ticket = Ticket::lookup($parent[0] ?: $ticket[0]);
-            $role = $ticket->getRole($thisstaff);
+
             // Generic permission check.
-            if (!$role->hasPerm($permission) && !$ticket->getThread()->isReferred()) {
+            if (in_array(false, $hasPermission) && !$ticket->getThread()->isReferred()) {
                 $info['error'] = sprintf(
                         __('You do not have permission to %1$s %2$s'),
                         __($title),
                         _N('the selected Ticket', 'the selected Tickets', $count));
                 $info = array_merge($info, Format::htmlchars($_POST));
-            }
-            else
+            } else
                 $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
             break;
         case 'claim':

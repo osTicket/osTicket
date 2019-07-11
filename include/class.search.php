@@ -904,9 +904,12 @@ class SavedQueue extends CustomQueue {
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
 
-            // only get counts for regular tickets (not children tickets)
-            $reg = Q::any(array('thread__object_type' => 'T'));
-            $Q->constraints[] = $reg;
+            // only get counts for regular tickets (not children tickets) unless
+            // queue is a saved search
+            if ($queue->isAQueue() || $queue->isASubQueue()) {
+                $reg = Q::any(array('thread__object_type' => 'T'));
+                $Q->constraints[] = $reg;
+            }
 
             $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
             $query->aggregate(array(

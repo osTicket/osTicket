@@ -6,11 +6,10 @@
 <?php
 $tid = $ticket->getId();
 if (($children=$ticket->getChildTickets($tid)) && (count($children) > 0)) {
-    foreach($children as $child) {
+    foreach($children as $child)
         echo sprintf('<tr><td>%s</td></tr>', $child[1]);
-    }
-}  else {
+} else
     echo __("Ticket doesn't have any children.");
-}?>
+?>
 </table>
 </div>

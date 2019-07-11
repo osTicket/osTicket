@@ -14,7 +14,7 @@ if (!$ignoreVisibility || //limited visibility
     $tickets->filter($thisstaff->getTicketsVisibility());
 
 // do not show children tickets unless agent is doing a search
-if (!$_REQUEST['a'] == 'search')
+if ($queue->isAQueue() || $queue->isASubQueue())
     $tickets->filter(Q::all(new Q(array('thread__object_type' => 'T'))));
 
 // Make sure the cdata materialized view is available
