@@ -1444,7 +1444,8 @@ class TextboxField extends FormField {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
-            '' =>       null,
+            '' =>       array(array('Validator', 'is_formula'),
+                __('Content cannot start with the following characters: = - + @')),
             'email' =>  array(array('Validator', 'is_valid_email'),
                 __('Enter a valid email address')),
             'phone' =>  array(array('Validator', 'is_phone'),
@@ -1529,9 +1530,12 @@ class TextareaField extends FormField {
 
     function validateEntry($value) {
         parent::validateEntry($value);
+        if (!$value)
+            return;
         $config = $this->getConfiguration();
         $validators = array(
-            '' =>       null,
+            '' =>       array(array('Validator', 'is_formula'),
+                __('Content cannot start with the following characters: = - + @')),
             'choices' => array(
                 function($val) {
                     $val = str_replace('"', '', JsonDataEncoder::encode($val));
@@ -1545,12 +1549,12 @@ class TextareaField extends FormField {
             ),
         );
         // Support configuration forms, as well as GUI-based form fields
-        $valid = $this->get('validator');
-        if (!$valid) {
+        if (!($valid = $this->get('validator')) && isset($config['validator']))
             $valid = $config['validator'];
-        }
-        if (!$value || !isset($validators[$valid]))
+
+        if (!isset($validators[$valid]))
             return;
+
         $func = $validators[$valid];
         $error = $func[1];
         if ($config['validator-error'])

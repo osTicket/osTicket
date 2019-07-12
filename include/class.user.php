@@ -268,7 +268,7 @@ implements TemplateVariable, Searchable {
         //Validate the form
         $valid = true;
         $filter = function($f) use ($thisstaff) {
-            return !isset($thisstaff) || $f->isRequiredForStaff();
+            return !isset($thisstaff) || $f->isRequiredForStaff() || $f->isVisibleToStaff();
         };
         if (!$form->isValid($filter))
             $valid  = false;
