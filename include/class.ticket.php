@@ -3354,6 +3354,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'message');
+            Signal::send('object.created', $this, $type);
+        }
+
         /* email the user??  - if disabled - then bail out */
         if (!$alert)
             return $response;
@@ -3491,6 +3496,11 @@ implements RestrictedAccess, Threadable, Searchable {
             'threadentry' => $note,
             'assignee' => $assignee
         ), $alert);
+
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'note');
+            Signal::send('object.created', $this, $type);
+        }
 
         return $note;
     }
