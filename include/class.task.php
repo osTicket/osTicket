@@ -971,6 +971,11 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'assignee' => $assignee
         ), $alert);
 
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'note');
+            Signal::send('object.created', $this, $type);
+        }
+
         return $note;
     }
 
@@ -1024,6 +1029,11 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $this->notifyCollaborators($response,
                 array('signature' => $signature)
             );
+        }
+
+        if (PluginManager::auditPlugin()) {
+            $type = array('type' => 'message');
+            Signal::send('object.created', $this, $type);
         }
 
         return $response;
