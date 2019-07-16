@@ -1163,10 +1163,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             foreach ($vars as $key => $value) {
                 if ($key == 'islocked') $key = 'isactive';
                 if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams') && ($key != 'dept_access')) {
-                    $type = array('type' => 'edited', 'key' => $key);
+                    $type = array('type' => 'edited', 'key' => ($key == 'isactive') ? 'islocked' : $key);
                     Signal::send('object.edited', $this, $type);
                 }
-                if ($key == 'isactive') $key = 'islocked';
             }
         }
 

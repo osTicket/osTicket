@@ -103,21 +103,17 @@ if($_POST) {
                         if($i && $i==$count) {
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected site page', 'selected site pages', $count));
-                            if (class_exists('AuditEntry')) {
+                            if (PluginManager::auditPlugin()) {
                                 $data = array();
                                 foreach ($_POST['ids'] as $id) {
-                                    $data = AuditEntry::getDataById($id, 'G');
-                                    if ($data)
-                                        $name = json_decode($data[1], true);
-                                    else {
-                                        $name = __('NA');
-                                        $data = array('G', $id);
-                                    }
+                                    if ($exists = AuditEntry::getDataById($id, 'G'))
+                                        $data = json_decode($exists[1], true);
+                                    else
+                                        $data['name'] = 'NA';
 
-                                    if (PluginManager::auditPlugin()) {
-                                        $type = array('type' => 'deleted');
-                                        Signal::send('object.deleted', $data, $type);
-                                    }
+                                    $data[0] = 'G';
+                                    $type = array('type' => 'deleted');
+                                    Signal::send('object.deleted', $data, $type);
                                 }
                             }
                         }
