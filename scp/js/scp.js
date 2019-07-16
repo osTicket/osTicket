@@ -1125,9 +1125,10 @@ $(document).on('pjax:complete', function() {
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
     var $this = $(this);
+    var href = $this.attr('href');
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
-        && $this.attr('href').charAt(0) != '#')
+        && href && href.charAt(0) != '#')
       $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
   })
 }
