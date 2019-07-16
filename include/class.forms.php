@@ -4462,13 +4462,14 @@ class DatetimePickerWidget extends Widget {
             }
 
         } else {
+            // For timezone display purposes
             $datetime = new DateTime('now');
             $datetime->setTimezone($timezone);
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
             id="<?php echo $this->id; ?>" style="display:inline-block;width:auto"
-            value="<?php echo Format::htmlchars($this->value ?: ''); ?>"
+            value="<?php echo $this->value; ?>"
             size="<?php $config['time'] ? 20 : 12; ?>"
             autocomplete="off" class="dp" />
         <?php
@@ -4509,11 +4510,6 @@ class DatetimePickerWidget extends Widget {
                     showOn:'both',
                     dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(true); ?>')
                 });
-                <?php
-                if ($this->value) { ?>
-                    $('input[name="<?php echo $this->name; ?>"]').datepicker("setDate", '<?php echo $this->value; ?>');
-                <?php
-                } ?>
             });
         </script>
         <?php
