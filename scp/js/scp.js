@@ -1129,8 +1129,10 @@ $(document).on('pjax:complete', function() {
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
     var $this = $(this);
+    var href = $this.attr('href');
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
+<<<<<<< HEAD
         && $this.attr('href').charAt(0) != '#')
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1139,6 +1141,9 @@ if ($.support.pjax) {
       $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 2000});
 >>>>>>> jq: Update To jQuery-3.3.1
 =======
+=======
+        && href && href.charAt(0) != '#')
+>>>>>>> Pjax: If <a> tags without href attr.
       $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
 >>>>>>> PJAX: Increase default timeout
   })
