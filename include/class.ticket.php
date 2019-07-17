@@ -1255,10 +1255,6 @@ implements RestrictedAccess, Threadable, Searchable {
                      $collabs[] = (string) $c;
             }
             $this->logEvent('collab', array('del' => $collabs));
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'collab', 'del' => $collabs);
-                Signal::send('object.deleted', $this, $type);
-            }
         }
 
         //statuses
@@ -1511,11 +1507,6 @@ implements RestrictedAccess, Threadable, Searchable {
                     $this->closed = $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
-
-                        if (PluginManager::auditPlugin()) {
-                            $type = array('type' => 'reopened');
-                            Signal::send('object.edited', $t, $type);
-                        }
                     };
                 }
 
@@ -2629,12 +2620,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $this->selectSLAId($slaId);
 
         // Log transfer event
-        $this->logEvent('transferred');
-
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'transferred', 'dept' => $dept->getName());
-            Signal::send('object.edited', $this, $type);
-        }
+        $this->logEvent('transferred', array('dept' => $dept->getName()));
 
         // Post internal note if any
         $note = null;
@@ -2751,6 +2737,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->logEvent('assigned', $data, $user);
 
         if (PluginManager::auditPlugin()) {
+            $thisstaff = $staff;
             $type = array('type' => 'assigned', 'claim' => true);
             Signal::send('object.edited', $this, $type);
         }
@@ -2866,23 +2853,12 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function release($info=array(), &$errors) {
-        $type = array('type' => 'released');
-
-        if ($info['sid'] && $info['tid']) {
-            if (PluginManager::auditPlugin())
-                Signal::send('object.edited', $this, $type);
+        if ($info['sid'] && $info['tid'])
             return $this->unassign();
-        }
-        elseif ($info['sid'] && $this->setStaffId(0)) {
-            if (PluginManager::auditPlugin())
-                Signal::send('object.edited', $this, $type);
+        elseif ($info['sid'] && $this->setStaffId(0))
             return true;
-        }
-        elseif ($info['tid'] && $this->setTeamId(0)) {
-            if (PluginManager::auditPlugin())
-                Signal::send('object.edited', $this, $type);
+        elseif ($info['tid'] && $this->setTeamId(0))
             return true;
-        }
 
         return false;
     }
@@ -3000,12 +2976,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($c)
             $c->delete();
 
-        $this->logEvent('edited', array('owner' => $user->getId()));
-
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'edited', 'fields' => array('Ticket Owner' => $user->getName()->name));
-            Signal::send('object.edited', $this, $type);
-        }
+        $this->logEvent('edited', array('owner' => $user->getId(), 'fields' => array('Ticket Owner' => $user->getName()->name)));
 
         return true;
     }
@@ -3413,6 +3384,26 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // History log -- used for statistics generation (pretty reports)
     function logEvent($state, $data=null, $user=null, $annul=null) {
+        if (PluginManager::auditPlugin()) {
+            switch ($state) {
+                case 'collab':
+                case 'transferred':
+                    $type = $data;
+                    $type['type'] = $state;
+                    break;
+                case 'edited':
+                    $type = array('type' => $state, 'fields' => $data['fields'] ? $data['fields'] : $data);
+                    break;
+                case 'assigned':
+                case 'referred':
+                    break;
+                default:
+                    $type = array('type' => $state);
+                    break;
+            }
+            if ($type)
+                Signal::send('object.created', $this, $type);
+        }
         if ($this->getThread())
             $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
@@ -3557,11 +3548,6 @@ implements RestrictedAccess, Threadable, Searchable {
             $t->delete();
 
         $this->logEvent('deleted');
-
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'deleted');
-            Signal::send('object.deleted', $this, $type);
-        }
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
             $form->delete();
@@ -3715,11 +3701,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if ($changes) {
           $this->logEvent('edited', $changes);
-
-          if (PluginManager::auditPlugin()) {
-              $type = array('type' => 'edited', 'fields' => $changes['fields'] ?: $changes);
-              Signal::send('object.edited', $this, $type);
-          }
         }
 
 
@@ -3809,11 +3790,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Record the changes
         $this->logEvent('edited', $changes);
-
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'edited', 'fields' => $changes['fields'] ?: $changes);
-            Signal::send('object.edited', $this, $type);
-        }
 
         // Log comments (if any)
         if (($comments = $form->getField('comments')->getClean())) {
@@ -4321,11 +4297,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
-
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'created');
-            Signal::send('object.created', $ticket, $type);
-        }
 
         // Add collaborators (if any)
         if (isset($vars['ccs']) && count($vars['ccs']))
