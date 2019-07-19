@@ -40,7 +40,7 @@ if ($thisclient && $thisclient->isGuest()
 <div class="pull-right">
     <a class="action-button" href="tickets.php?a=print&id=<?php
         echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
-<?php if ($ticket->hasClientEditableFields()
+<?php if ($ticket->hasClientEditableFields() && $ticket->isOpen()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
                 <a class="action-button" href="tickets.php?a=edit&id=<?php

@@ -124,11 +124,12 @@ if($_POST){
                         try {
                             $cfg->setTopicSortMode($_POST['help_topic_sort_mode']);
                             if ($cfg->getTopicSortMode() == 'm') {
+                                $p = ($_POST['p'] && is_numeric($_POST['p'])) ? $_POST['p'] : 1;
                                 foreach ($_POST as $k=>$v) {
                                     if (strpos($k, 'sort-') === 0
                                             && is_numeric($v)
                                             && ($t = Topic::lookup(substr($k, 5))))
-                                        $t->setSortOrder($v);
+                                        $t->setSortOrder($v + PAGE_LIMIT * ($p - 1));
                                 }
                             }
                             $msg = __('Successfully set sorting configuration');
