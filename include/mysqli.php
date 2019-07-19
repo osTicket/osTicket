@@ -75,7 +75,7 @@ function db_connect($host, $user, $passwd, $options = array()) {
         'COLLATION_CONNECTION'  => 'utf8_general_ci',
         'SQL_MODE'              => '',
     ), 'session');
-    $__db->set_charset('utf8');
+    $__db->set_charset('utf8mb4');
 
     $__db->autocommit(true);
 

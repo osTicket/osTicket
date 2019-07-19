@@ -91,5 +91,9 @@ foreach (Attachment::objects()->filter(array(
         if ($.thread)
             $.thread.onLoad(container,
                     {autoScroll: <?php echo $sort == 'id' ? 'true' : 'false'; ?>});
+
+        $('#'+container).find('div.thread-entry').each(function(i,e){
+            twemoji.parse(e);
+        });
     });
 </script>
