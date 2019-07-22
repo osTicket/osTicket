@@ -4502,11 +4502,14 @@ class DatetimePickerWidget extends Widget {
         global $cfg;
 
         if ($value = parent::getValue()) {
-            // Effective timezone for the selection
-            $timezone = $this->field->getTimezone();
             // See if we have time
             $data = $this->field->getSource();
-            $dt = new DateTime($value, $timezone);
+            // Parse value into datetime object
+            $dt = Format::parseDatetime($value);
+            // Effective timezone for the selection
+            if (($timezone = $this->field->getTimezone()))
+                $dt->setTimezone($timezone);
+            // Format date time to universal format
             $value = $dt->format('Y-m-d H:i:s T');
         }
 
