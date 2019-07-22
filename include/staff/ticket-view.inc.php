@@ -81,10 +81,12 @@ if($ticket->isOverdue())
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
               <ul>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0"><i
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0&events=0"><i
                  class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=0"><i
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=1"><i
+                 class="icon-list-alt"></i> <?php echo __('Thread + Internal Notes + Events'); ?></a>
               </ul>
             </div>
             <?php
@@ -1142,6 +1144,12 @@ if ($errors['err'] && isset($_POST['a'])) {
             <label class="fixed-size" for="notes"><?php echo __('Print Notes');?>:</label>
             <label class="inline checkbox">
             <input type="checkbox" id="notes" name="notes" value="1"> <?php echo __('Print <b>Internal</b> Notes/Comments');?>
+            </label>
+        </fieldset>
+        <fieldset class="events">
+            <label class="fixed-size" for="events"><?php echo __('Print Events');?>:</label>
+            <label class="inline checkbox">
+            <input type="checkbox" id="events" name="events" value="1"> <?php echo __('Print Thread Events');?>
             </label>
         </fieldset>
         <fieldset>
