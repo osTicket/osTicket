@@ -493,7 +493,7 @@ class Format {
     function viewableImages($html, $options=array()) {
         $cids = $images = array();
         $options +=array(
-                'deposition' => 'inline');
+                'disposition' => 'inline');
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($options, $images) {
             if (!($file = AttachmentFile::lookup($match[1])))
