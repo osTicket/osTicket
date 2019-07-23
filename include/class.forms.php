@@ -3907,8 +3907,8 @@ class Widget {
      * (<> == true, where <> is the result of this function). The %s token
      * will be replaced with a jQuery variable representing this widget.
      */
-    function getJsValueGetter() {
-        return '%s.val()';
+    function getJsValueGetter($id='%s') {
+        return sprintf('%s.val()', $id);
     }
 }
 
@@ -4226,8 +4226,20 @@ class ChoicesWidget extends Widget {
         return $values;
     }
 
-    function getJsValueGetter() {
-        return '%s.find(":selected").val()';
+    function getJsValueGetter($id='%s') {
+        return sprintf('%s.find(":selected").val()', $id);
+    }
+
+    function getJsComparator($value, $id) {
+
+        if (strpos($value, '|') !== false)
+           return sprintf('$.inArray(%s, %s) !== -1',
+                   $this->getJsValueGetter($id),
+                   JsonDataEncoder::encode(explode('|', $value)));
+
+        return sprintf('%s == %s',
+                $this->getJsValueGetter($id),
+                JsonDataEncoder::encode($value));
     }
 }
 
@@ -4420,8 +4432,14 @@ class CheckboxWidget extends Widget {
         return parent::getValue();
     }
 
-    function getJsValueGetter() {
-        return '%s.is(":checked")';
+    function getJsValueGetter($id='%s') {
+        return sprintf('%s.is(":checked")', $id);
+    }
+
+    function getJsComparator($value, $id) {
+        return sprintf('%s == %s',
+                $this->getJsValueGetter($id),
+                JsonDataEncoder::encode($value));
     }
 }
 
@@ -4940,24 +4958,28 @@ class VisibilityConstraint {
 
 <?php   $fields = $this->getAllFields($this->constraint);
         foreach ($fields as $f) {
-            $field = $form->getField($f);
-            echo sprintf('var %1$s = $("#%1$s");',
+            if (!($field = $form->getField($f)))
+                continue;
+            echo sprintf('var %1$s = x = $("#%1$s");',
                 $field->getWidget()->id);
         }
         $expression = $this->compileQ($this->constraint, $form);
 ?>
-          if (<?php echo $expression; ?>)
+          if (<?php echo $expression; ?>) {
             target.slideDown('fast', function (){
                 $(this).trigger('show');
                 });
-          else
+          } else {
             target.slideUp('fast', function (){
                 $(this).trigger('hide');
                 });
+          }
         };
 
 <?php   foreach ($fields as $f) {
-            $w = $form->getField($f)->getWidget();
+            if (!($field=$form->getField($f)))
+                continue;
+            $w = $field->getWidget();
 ?>
         $('#<?php echo $w->id; ?>').on('change', <?php echo $func; ?>);
         $('#field<?php echo $w->id; ?>').on('show hide', <?php
@@ -5002,10 +5024,11 @@ class VisibilityConstraint {
                 @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
                 $wval = $field ? $field->getClean() : null;
+                $values = explode('|', $value);
                 switch ($op) {
                 case 'eq':
                 case null:
-                    $expr[] = ($wval == $value && $field->isVisible());
+                    $expr[] = (in_array($wval, $values) && $field->isVisible());
                 }
             }
         }
@@ -5040,17 +5063,14 @@ class VisibilityConstraint {
             }
             else {
                 list($f, $op) = self::splitFieldAndOp($c);
-                $widget = $form->getField($f)->getWidget();
+                if (!($field=$form->getField($f))) continue;
+                $widget = $field->getWidget();
                 $id = $widget->id;
                 switch ($op) {
                 case 'eq':
                 case null:
-                    $expr[] = sprintf('(%s.is(":visible") && %s)',
-                            $id,
-                            sprintf('%s == %s',
-                                sprintf($widget->getJsValueGetter(), $id),
-                                JsonDataEncoder::encode($value))
-                            );
+                    $expr[] = sprintf('(%s.is(":visible") && (%s))',
+                            $id, $widget->getJsComparator($value, $id));
                 }
             }
         }
