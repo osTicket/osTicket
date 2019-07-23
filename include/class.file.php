@@ -261,17 +261,25 @@ class AttachmentFile extends VerySimpleModel {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     function download($name=false, $disposition=false, $expires=false) {
 =======
     function download($disposition=false, $expires=false, $name=false) {
 >>>>>>> Attachment Names Issue
         $disposition = $disposition ?: 'inline';
+=======
+    function download($disposition=false, $expires=false) {
+        $disposition = ($disposition && strcasecmp($disposition, 'inline') == 0
+              && strpos($this->getType(), 'image/') !== false)
+            ? 'inline' : 'attachment';
+>>>>>>> security: HTML File Browser Execution (Windows: Firefox/IE)
         $bk = $this->open();
         if ($bk->sendRedirectUrl($disposition))
             return;
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
+<<<<<<< HEAD
 <<<<<<< HEAD
         if (isset($_REQUEST['overridetype']))
             $type = $_REQUEST['overridetype'];
@@ -281,6 +289,9 @@ class AttachmentFile extends VerySimpleModel {
 =======
         Http::download($this->getName(), $type, null, 'inline');
 >>>>>>> Remove File Type Override
+=======
+        Http::download($this->getName(), $type, null, $disposition);
+>>>>>>> security: HTML File Browser Execution (Windows: Firefox/IE)
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
