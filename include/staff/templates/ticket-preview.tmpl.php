@@ -42,6 +42,10 @@ echo sprintf('
             faded"></i>&nbsp;'.__('Collaborators (%d)').'</a></li>',
             $thread->getNumCollaborators());
 }
+echo '<li><a id="thread_tab" href="#threadPreview"
+            ><i class="icon-fixed-width icon-list
+            faded"></i>&nbsp;'.__('Thread Preview (6)').'</a></li>';
+
 echo '</ul>';
 echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
@@ -150,6 +154,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 }
 echo '</div>'; // ticket preview content.
 ?>
+
 <div class="hidden tab_content" id="collab">
     <table border="0" cellspacing="" cellpadding="1">
         <colgroup><col style="min-width: 250px;"></col></colgroup>
@@ -181,7 +186,55 @@ echo '</div>'; // ticket preview content.
                                 );
     ?>
 </div>
+
+<!-- Thread Preview HTML Start -->
+
+<div class="hidden tab_content thread-preview" id="threadPreview">
+    <div id="ticketThread">
+        <div id="thread-items">
+
+<!-- First three entries full visibility -->
+
+
+            <div id="thread-entry-1">
+                <div class="thread-preview-entry collapsed message">
+
+                    <div class="header">
+                       <div class="thread-info">
+
+                            <div class="thread-name"><span>John Doe</span>&nbsp;<span>Oct 24, 2015 4:35pm</span></div>
+                        </div>
+                    </div>
+
+                    <div class="thread-body no-pjax">
+                        <div class="thread-teaser">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+
+             <div id="thread-entry-2">
+                <div class="thread-preview-entry collapsed response">
+
+                    <div class="header">
+                       <div class="thread-info">
+
+                            <div class="thread-name"><span>John Doe</span>&nbsp;<span>Oct 24, 2015 4:35pm</span></div>
+                        </div>
+                    </div>
+
+                    <div class="thread-body no-pjax">
+                        <div class="thread-teaser truncate">Etiam ligula ex, facilisis eget nisl id, egestas blandit mi. Sed ut lacinia erat, a facilisis ligula. Praesent mollis erat et magna ultricies, cursus vulputate lacus imperdiet. Sed ligula metus, iaculis at malesuada in, aliquet sed erat. Suspendisse ut bibendum magna. Nam vel dolor erat. Donec sagittis diam quis orci hendrerit dapibus. Praesent elementum lectus et imperdiet venenatis. Aliquam quis leo in mi maximus venenatis et nec ipsum. Integer quis tincidunt libero, id varius erat. Sed tempus odio sit amet euismod scelerisque.</div>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- End Thread Preview HTML -->
+
 <?php
 $options = array();
 $options[]=array('action'=>sprintf(__('Thread (%d)'),$ticket->getThreadCount()),'url'=>"tickets.php?id=$tid");
@@ -211,3 +264,18 @@ if($options) {
 
 echo '</div>';
 ?>
+<script type="text/javascript">
+    $('.thread-preview-entry').on('click', function(){
+        if($(this).hasClass('collapsed')) {
+            $(this).removeClass('collapsed', 500);
+        }        
+    });
+    
+    $('.header').on('click', function(){
+        if(!$(this).closest('.thread-preview-entry').hasClass('collapsed')) {
+            $(this).closest('.thread-preview-entry').addClass('collapsed', 500);
+        }        
+    });
+
+ 
+ </script>
