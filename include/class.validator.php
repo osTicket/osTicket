@@ -205,7 +205,7 @@ class Validator {
     }
 
     static function is_formula($text, &$error='') {
-        if (!preg_match('/^[^=\+@-].*$/', $text))
+        if (!preg_match('/^[^=\+@-].*$/s', $text))
             $error = __('Content cannot start with the following characters: = - + @');
         return $error == '';
     }
