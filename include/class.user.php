@@ -1254,6 +1254,8 @@ class UserAccountStatus {
 class UserList extends ListObject
 implements TemplateVariable {
 
+    var $emailsAsArray = null;
+
     function __toString() {
         return $this->getNames();
     }
@@ -1284,6 +1286,14 @@ implements TemplateVariable {
                 $list[] = $user->getEmail();
         }
         return $list ? implode(', ', $list) : '';
+    }
+
+    function getEmailsAsArray() {
+        if(is_null($this->emailsAsArray)){
+            $emails = $this->getEmails();
+            $this->emailsAsArray = ($emails) ? explode(',', str_replace(' ', '', $emails)) : array();
+        }
+        return $this->emailsAsArray;
     }
 
     static function getVarScope() {

@@ -311,6 +311,10 @@ class MailFetcher {
                       'header' => $raw_header,
                       'in-reply-to' => $headerinfo->in_reply_to,
                       'references' => $headerinfo->references,
+                      'datetime' => date('Y-m-d H:i:s', strtotime(trim($headerinfo->date))),
+                      'day-of-week' => date('w', strtotime(trim($headerinfo->date))),
+                      'sys-datetime' => date('Y-m-d H:i:s'),
+                      'sys-day-of-week' => date('w'),
                       );
 
         if ($replyto = $headerinfo->reply_to) {
@@ -810,6 +814,7 @@ class MailFetcher {
         Signal::send('mail.processed', $this, $vars);
 
         $seen = false;
+        static $filtered;
         if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
             && ($message = $entry->postEmail($vars))
         ) {
@@ -833,6 +838,7 @@ class MailFetcher {
         }
         elseif (($ticket=Ticket::create($vars, $errors, 'Email'))) {
             $message = $ticket->getLastMessage();
+            $filtered[] = $ticket->getId();
         }
         else {
             //Report success if the email was absolutely rejected.
@@ -853,7 +859,19 @@ class MailFetcher {
             // Indicate failure of mail processing
             return null;
         }
-
+        if($ticket instanceof Ticket && in_array($ticket->getId(), $filtered)){
+            foreach($ticket->getRecipients()->getEmailsAsArray() as $email)
+            {
+                $vars['recipients'][] = array(
+                    'source' => 'Email (cc)',
+                    'name' => '',
+                    'email' => $email
+                );
+            }
+            $ticketFilter = new TicketFilter('Email', $vars);
+            $ticketFilter->apply($vars);
+            $filtered[] = $ticket->getId();
+        }
         return $ticket;
     }
 

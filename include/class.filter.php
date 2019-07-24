@@ -32,6 +32,15 @@ class Filter {
             array('reply-to'  =>    /* @trans */ 'Reply-To Email',
                 'reply-to-name' =>  /* @trans */ 'Reply-To Name',
                 'addressee' =>      /* @trans */ 'Addressee (To and Cc)',
+                'datetime' =>      /* @trans */ 'Date/Time (eg. 2016-07-13 21:53:31)',
+                'day-of-week' =>      /* @trans */ 'Numeric Day of Week (0-6)',
+            ),
+            200
+        ),
+        /* @trans */ 'System Meta-Data' => array(
+            array(
+                'sys-datetime' =>      /* @trans */ 'Date/Time (eg. 2016-07-13 21:53:31)',
+                'sys-day-of-week' =>      /* @trans */ 'Numeric Day of Week (0-6)',
             ),
             200
         ),
