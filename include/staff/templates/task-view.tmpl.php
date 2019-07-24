@@ -486,15 +486,15 @@ else
                         style="display:<?php echo $thread->getNumCollaborators() ? 'inline-block': 'none'; ?>;"
                         >
                     <?php
-                    $recipients = __('Collaborators');
                     if ($thread->getNumCollaborators())
-                        $recipients = sprintf(__('Collaborators (%d of %d)'),
+                        $recipients = sprintf(__('(%d of %d)'),
                                 $thread->getNumActiveCollaborators(),
                                 $thread->getNumCollaborators());
 
                     echo sprintf('<span><a class="collaborators preview"
-                            href="#thread/%d/collaborators"><span id="t%d-recipients">%s</span></a></span>',
+                            href="#thread/%d/collaborators"> %s &nbsp;<span id="t%d-recipients">%s</span></a></span>',
                             $thread->getId(),
+                            __('Collaborators'),
                             $thread->getId(),
                             $recipients);
                    ?>
