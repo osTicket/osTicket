@@ -301,17 +301,13 @@ if ($_POST)
                 <?php echo __('Due Date');?>:
             </td>
             <td>
-                <input class="dp" id="duedate" name="duedate" value="<?php echo Format::htmlchars($info['duedate']); ?>" size="12" autocomplete=OFF>
-                &nbsp;&nbsp;
                 <?php
-                $min=$hr=null;
-                if($info['time'])
-                    list($hr, $min)=explode(':', $info['time']);
-
-                echo Misc::timeDropdown($hr, $min, 'time');
+                $duedateField = Ticket::duedateField('duedate', $info['duedate']);
+                $duedateField->render();
                 ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['duedate']; ?> &nbsp; <?php echo $errors['time']; ?></font>
-                <em><?php echo __('Time is based on your time zone');?> (GMT <?php echo Format::date(false, false, 'ZZZ'); ?>)</em>
+                <em><?php echo __('Time is based on your time
+                        zone');?>&nbsp;(<?php echo $cfg->getTimezone($thisstaff); ?>)</em>
             </td>
         </tr>
 

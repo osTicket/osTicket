@@ -551,15 +551,8 @@ implements RestrictedAccess, Threadable, Searchable {
             'topicId'   => $this->getTopicId(),
             'slaId'     => $this->getSLAId(),
             'user_id'   => $this->getOwnerId(),
-            'duedate'   => $this->getDueDate()
-                ? Format::date($this->getDueDate(), true,
-                    $cfg->getDateFormat(true))
-                : '',
-            'time'      => $this->getDueDate()
-                ? Format::time($this->getDueDate(), true, 'HH:mm')
-                : '',
+            'duedate'   => Misc::db2gmtime($this->getDueDate()),
         );
-
     }
 
     function getLock() {
@@ -3207,11 +3200,9 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['duedate']) {
             if ($this->isClosed())
                 $errors['duedate']=__('Due date can NOT be set on a closed ticket');
-            elseif (!$vars['time'] || strpos($vars['time'],':') === false)
-                $errors['time']=__('Select a time from the list');
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
+            elseif (strtotime($vars['duedate']) === false)
                 $errors['duedate']=__('Invalid due date');
-            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
+            elseif (Misc::user2gmtime($vars['duedate']) <= Misc::user2gmtime())
                 $errors['duedate']=__('Due date must be in the future');
         }
 
@@ -3249,7 +3240,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
         $this->duedate = $vars['duedate']
-            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))
+            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate']))
             : null;
 
         if ($vars['user_id'])
@@ -4248,6 +4239,23 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         return static::$sources;
+    }
+
+    // TODO: Create internal Form for internal fields
+    static function duedateField($name, $default='', $hint='') {
+        return DateTimeField::init(array(
+            'id' => $name,
+            'name' => $name,
+            'default' => $default ?: false,
+            'label' => __('Due Date'),
+            'hint' => $hint,
+            'configuration' => array(
+                'min' => Misc::gmtime(),
+                'time' => true,
+                'gmt' => false,
+                'future' => true,
+                )
+            ));
     }
 
     static function registerCustomData(DynamicForm $form) {

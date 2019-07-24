@@ -553,10 +553,7 @@ var fixupDatePickers = function() {
         var $e = $(e),
             d = $e.datepicker('getDate');
         if (!d || $e.data('fixed')) return;
-        var day = ('0'+d.getDate()).substr(-2),
-            month = ('0'+(d.getMonth()+1)).substr(-2),
-            year = d.getFullYear();
-        $e.val(year+'-'+month+'-'+day);
+        $e.val(d.toISOString());
         $e.data('fixed', true);
         $e.on('change', function() { $(this).data('fixed', false); });
     });
@@ -611,7 +608,6 @@ $.translate_format = function(str) {
         'yyyy': '`',
         'yyy':  '`',
         'yy':   'y',
-        'y':    'yy',
         '`':    'yy'
     };
     // Change PHP formats to datepicker ones
@@ -1129,9 +1125,10 @@ $(document).on('pjax:complete', function() {
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
     var $this = $(this);
+    var href = $this.attr('href');
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
-        && $this.attr('href').charAt(0) != '#')
+        && href && href.charAt(0) != '#')
       $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
   })
 }
