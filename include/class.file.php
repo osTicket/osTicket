@@ -261,14 +261,16 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     function download($name=false, $disposition=false, $expires=false) {
-        $disposition = $disposition ?: 'inline';
+        $disposition = ($disposition && strcasecmp($disposition, 'inline') == 0
+              && strpos($this->getType(), 'image/') !== false)
+            ? 'inline' : 'attachment';
         $bk = $this->open();
         if ($bk->sendRedirectUrl($disposition))
             return;
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
-        Http::download($this->getName(), $type, null, 'inline');
+        Http::download($name ?: $this->getName(), $type, null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
