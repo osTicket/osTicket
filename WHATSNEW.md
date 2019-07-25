@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 =======
@@ -303,6 +304,33 @@ osTicket 1.11.0-rc.1
 >>>>>>> Add Release Notes for v1.10.4
 =======
 =======
+=======
+osTicket v1.10.7
+================
+### Enhancements
+* Lint Fixes (8c878db)
+* cli: Package Better Wording (bf20bdd)
+
+### Improvements
+* queues: Fix compatibility issues with newer jQuery (c54372f)
+* FAQ Issues (ce3d69a)
+* cli: Package No File Permissions (25e6c6e)
+* oops: .eml/.msg Missing Not Operator (ce8aadf)
+* issue: Retained Deleted ListItem Errors (a3297a2)
+* issue: Account Registration Throws Errors (a720507)
+* issue: ISO-8859-8-i Charset Issues (4da0324)
+* issue: Search Reindexing Thread Entries (bbf1010)
+* issue: is_formula Dotall Mode (992e904)
+
+### Performance and Security
+* Remove File Type Override (539d343)
+* Validate integrity of uploads (eba6fb9)
+* issue: Rogue Closing div Breaks HTML Thread Tree (3bb4c0a)
+* xss: Install Form (c3ba5b7)
+* security: CSV Formula Injection (9981848)
+* security: HTML File Browser Execution (Windows: Firefox/IE) (33ed106)
+
+>>>>>>> Add Release Notes for v1.10.7
 osTicket v1.10.6
 ================
 ### Enhancements
