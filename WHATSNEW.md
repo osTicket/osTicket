@@ -1,3 +1,30 @@
+osTicket v1.12.1
+================
+### Enhancements
+* issue: Queue Sort Title No Validation Error (029b0f2)
+* Issue: Tickets Visibility (60aa7b8)
+* task: Implement edit of task thread (394ddee)
+* Reformat Incorrect Reply-To Headers (e9dda94)
+* DatetimeField: Add jquery-ui-timepicker-addon (dbff3b2)
+* Add/Remove Collaborators Without Refresh (5a5044a)
+
+### Improvements
+* issue: API Unexpected Data Warnings (4f68eb9)
+* Double semicolon removed (bacd836)
+* Empty extra in list_items (1309a6c)
+* Issue: Ticket Alerts vs Dept Recipients (581f1f9)
+* issue: iFrame Single Quotes (4b59b4f)
+* issue: PDF Squares Instead Of Text (69c5095)
+* issue: Class Format Disposition Misspelling (1d3f1a3)
+
+### Performance and Security
+* Remove File Type Override (539d343)
+* Validate integrity of uploads (eba6fb9)
+* issue: Rogue Closing div Breaks HTML Thread Tree (3bb4c0a)
+* xss: Install Form (c3ba5b7)
+* security: CSV Formula Injection (9981848)
+* security: HTML File Browser Execution (Windows: Firefox/IE) (33ed106)
+
 osTicket v1.10.7
 ================
 ### Enhancements
