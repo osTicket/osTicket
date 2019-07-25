@@ -551,15 +551,8 @@ implements RestrictedAccess, Threadable, Searchable {
             'topicId'   => $this->getTopicId(),
             'slaId'     => $this->getSLAId(),
             'user_id'   => $this->getOwnerId(),
-            'duedate'   => $this->getDueDate()
-                ? Format::date($this->getDueDate(), true,
-                    $cfg->getDateFormat(true))
-                : '',
-            'time'      => $this->getDueDate()
-                ? Format::time($this->getDueDate(), true, 'HH:mm')
-                : '',
+            'duedate'   => Misc::db2gmtime($this->getDueDate()),
         );
-
     }
 
     function getLock() {
@@ -1505,6 +1498,7 @@ implements RestrictedAccess, Threadable, Searchable {
         // Send alert to out sleepy & idle staff.
         if ($alertstaff
             && $cfg->alertONNewTicket()
+            && $dept->getNumMembersForAlerts()
             && ($email=$dept->getAlertEmail())
             && ($msg=$tpl->getNewTicketAlertMsgTemplate())
         ) {
@@ -1784,6 +1778,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$alert // Check if alert is enabled
             || !$cfg->alertONNewActivity()
             || !($dept=$this->getDept())
+            || !$dept->getNumMembersForAlerts()
             || !($email=$cfg->getAlertEmail())
             || !($tpl = $dept->getTemplate())
             || !($msg=$tpl->getNoteAlertMsgTemplate())
@@ -1882,12 +1877,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
             $note = $this->logNote($title, $comments, $assigner, false);
         }
-
+        $dept = $this->getDept();
         // See if we need to send alerts
-        if (!$alert || !$cfg->alertONAssignment())
+        if (!$alert || !$cfg->alertONAssignment() || !$dept->getNumMembersForAlerts())
             return true; //No alerts!
 
-        $dept = $this->getDept();
         if (!$dept
             || !($tpl = $dept->getTemplate())
             || !($email = $dept->getAlertEmail())
@@ -1947,6 +1941,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$whine
             || !$cfg->alertONOverdueTicket()
             || !($dept = $this->getDept())
+            || !$dept->getNumMembersForAlerts()
         ) {
             return true;
         }
@@ -2328,7 +2323,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->thread->refer($cdept);
 
         //Send out alerts if enabled AND requested
-        if (!$alert || !$cfg->alertONTransfer())
+        if (!$alert || !$cfg->alertONTransfer() || !$dept->getNumMembersForAlerts())
             return true; //no alerts!!
 
          if (($email = $dept->getAlertEmail())
@@ -2769,6 +2764,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $options = array('thread'=>$message);
         // If enabled...send alert to staff (New Message Alert)
         if ($cfg->alertONNewMessage()
+            && $dept->getNumMembersForAlerts()
             && ($email = $dept->getAlertEmail())
             && ($tpl = $dept->getTemplate())
             && ($msg = $tpl->getNewMessageAlertMsgTemplate())
@@ -3204,11 +3200,9 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($vars['duedate']) {
             if ($this->isClosed())
                 $errors['duedate']=__('Due date can NOT be set on a closed ticket');
-            elseif (!$vars['time'] || strpos($vars['time'],':') === false)
-                $errors['time']=__('Select a time from the list');
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
+            elseif (strtotime($vars['duedate']) === false)
                 $errors['duedate']=__('Invalid due date');
-            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
+            elseif (Misc::user2gmtime($vars['duedate']) <= Misc::user2gmtime())
                 $errors['duedate']=__('Due date must be in the future');
         }
 
@@ -3246,7 +3240,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
         $this->duedate = $vars['duedate']
-            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate'].' '.$vars['time']))
+            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate']))
             : null;
 
         if ($vars['user_id'])
@@ -4245,6 +4239,23 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         return static::$sources;
+    }
+
+    // TODO: Create internal Form for internal fields
+    static function duedateField($name, $default='', $hint='') {
+        return DateTimeField::init(array(
+            'id' => $name,
+            'name' => $name,
+            'default' => $default ?: false,
+            'label' => __('Due Date'),
+            'hint' => $hint,
+            'configuration' => array(
+                'min' => Misc::gmtime(),
+                'time' => true,
+                'gmt' => false,
+                'future' => true,
+                )
+            ));
     }
 
     static function registerCustomData(DynamicForm $form) {

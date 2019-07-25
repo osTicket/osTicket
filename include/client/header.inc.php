@@ -6,7 +6,7 @@ $signin_url = ROOT_PATH . "login.php"
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
 header("Content-Type: text/html; charset=UTF-8");
-header("Content-Security-Policy: frame-ancestors '".$cfg->getAllowIframes()."';");
+header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
 
 if (($lang = Internationalization::getCurrentLanguage())) {
     $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
@@ -38,6 +38,7 @@ if ($lang) {
          media="screen" />
     <link type="text/css" href="<?php echo ROOT_PATH; ?>css/ui-lightness/jquery-ui-1.10.3.custom.min.css"
         rel="stylesheet" media="screen" />
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/jquery-ui-timepicker-addon.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/thread.css" media="screen">
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/font-awesome.min.css">
@@ -49,6 +50,7 @@ if ($lang) {
     <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-16x16.png" sizes="16x16" />
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.4.0.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.12.1.custom.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-timepicker-addon.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/filedrop.field.js"></script>
     <script src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-typeahead.js"></script>

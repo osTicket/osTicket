@@ -1444,7 +1444,8 @@ class TextboxField extends FormField {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
-            '' =>       null,
+            '' =>       array(array('Validator', 'is_formula'),
+                __('Content cannot start with the following characters: = - + @')),
             'email' =>  array(array('Validator', 'is_valid_email'),
                 __('Enter a valid email address')),
             'phone' =>  array(array('Validator', 'is_phone'),
@@ -1529,9 +1530,12 @@ class TextareaField extends FormField {
 
     function validateEntry($value) {
         parent::validateEntry($value);
+        if (!$value)
+            return;
         $config = $this->getConfiguration();
         $validators = array(
-            '' =>       null,
+            '' =>       array(array('Validator', 'is_formula'),
+                __('Content cannot start with the following characters: = - + @')),
             'choices' => array(
                 function($val) {
                     $val = str_replace('"', '', JsonDataEncoder::encode($val));
@@ -1545,12 +1549,12 @@ class TextareaField extends FormField {
             ),
         );
         // Support configuration forms, as well as GUI-based form fields
-        $valid = $this->get('validator');
-        if (!$valid) {
+        if (!($valid = $this->get('validator')) && isset($config['validator']))
             $valid = $config['validator'];
-        }
-        if (!$value || !isset($validators[$valid]))
+
+        if (!isset($validators[$valid]))
             return;
+
         $func = $validators[$valid];
         $error = $func[1];
         if ($config['validator-error'])
@@ -2271,21 +2275,19 @@ class DatetimeField extends FormField {
         if (!$value || !($datetime = Format::parseDateTime($value)))
             return;
 
-        // Parse value to DateTime object
-        $val = Format::parseDateTime($value);
         // Get configured min/max (if any)
         $min = $this->getMinDateTime();
         $max = $this->getMaxDateTime();
 
-        if (!$val) {
+        if (!$datetime) {
             $this->_errors[] = __('Enter a valid date');
-        } elseif ($min and $val < $min) {
+        } elseif ($min and $datetime < $min) {
             $this->_errors[] = sprintf('%s (%s)',
                     __('Selected date is earlier than permitted'),
                      Format::date($min->getTimestamp(), false, false,
                          $min->getTimezone()->getName() ?: 'UTC')
                      );
-        } elseif ($max and $val > $max) {
+        } elseif ($max and $datetime > $max) {
             $this->_errors[] = sprintf('%s (%s)',
                     __('Selected date is later than permitted'),
                     Format::date($max->getTimestamp(), false, false,
@@ -3420,6 +3422,9 @@ class FileUploadField extends FormField {
         $file = array_shift($files);
         $file['name'] = urldecode($file['name']);
 
+        if (!$this->isValidFile($file))
+            Http::response(413, 'Invalid File');
+
         if (!$bypass && !$this->isValidFileType($file['name'], $file['type']))
             Http::response(415, 'File type is not allowed');
 
@@ -3445,6 +3450,9 @@ class FileUploadField extends FormField {
     function uploadFile($file) {
         if (!$this->isValidFileType($file['name'], $file['type']))
             throw new FileUploadError(__('File type is not allowed'));
+
+        if (!$this->isValidFile($file))
+             throw new FileUploadError(__('Invalid File'));
 
         $config = $this->getConfiguration();
         if ($file['size'] > $config['size'])
@@ -3479,6 +3487,18 @@ class FileUploadField extends FormField {
             throw new FileUploadError(__('Unable to save file'));
 
         return $F;
+    }
+
+    function isValidFile($file) {
+
+        // Check invalid image hacks
+        if ($file['tmp_name']
+                && stripos($file['type'], 'image/') === 0
+                && function_exists('exif_imagetype')
+                && !exif_imagetype($file['tmp_name']))
+            return false;
+
+        return true;
     }
 
     function isValidFileType($name, $type=false) {
@@ -4401,29 +4421,47 @@ class DatetimePickerWidget extends Widget {
             if (is_int($this->value))
                 // Assuming UTC timezone.
                 $datetime = DateTime::createFromFormat('U', $this->value);
-            else {
+            else
                 $datetime = Format::parseDateTime($this->value);
-            }
 
-            if ($config['time']) {
+
+            if ($config['time'])
                 // Convert to user's timezone for update.
                 $datetime->setTimezone($timezone);
+
+            // Get the date
+            $this->value = Format::date($datetime->getTimestamp(), false,
+                        false, $timezone ? $timezone->getName() : 'UTC');
+
+            // TODO: Fix timeformat based on config. For now we're forcing
+            // hh:mm tt
+            if ($config['time']) {
+                 $this->value .=$datetime->format(' h:i a');
             }
 
-            $this->value = Format::date($datetime->getTimestamp(), false,
-                    false, $timezone ? $timezone->getName() : 'UTC');
         } else {
+            // For timezone display purposes
             $datetime = new DateTime('now');
             $datetime->setTimezone($timezone);
         }
         ?>
         <input type="text" name="<?php echo $this->name; ?>"
             id="<?php echo $this->id; ?>" style="display:inline-block;width:auto"
-            value="<?php echo Format::htmlchars($this->value ?: ''); ?>" size="12"
+            value="<?php echo $this->value; ?>"
+            size="<?php $config['time'] ? 20 : 12; ?>"
             autocomplete="off" class="dp" />
+        <?php
+        // Timezone hint
+        echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                    data-placement="top" data-toggle="tooltip"
+                    title="%s">%s</a>)</span>',
+                $datetime->getTimezone()->getName(),
+                $datetime->format('T'));
+        ?>
         <script type="text/javascript">
             $(function() {
-                $('input[name="<?php echo $this->name; ?>"]').datepicker({
+                $('input[name="<?php echo $this->name; ?>"]').<?php echo
+                $config['time'] ? 'datetimepicker':'datepicker';?>({
                     <?php
                     if ($dt=$this->field->getMinDateTime())
                         echo sprintf("minDate: new Date(%s),\n", $dt->format('U')*1000);
@@ -4431,6 +4469,18 @@ class DatetimePickerWidget extends Widget {
                         echo sprintf("maxDate: new Date(%s),\n", $dt->format('U')*1000);
                     elseif (!$config['future'])
                         echo "maxDate: new Date().getTime(),\n";
+
+                    // Set time options
+                    if ($config['time']) {
+                        // Set Timezone
+                        echo sprintf("timezone: %s,\n",
+                                ($datetime->getOffset()/60));
+                        echo sprintf("
+                                controlType: 'select',\n
+                                timeInput: true,\n
+                                timeFormat: \"%s\",\n",
+                                "hh:mm tt");
+                    }
                     ?>
                     numberOfMonths: 2,
                     showButtonPanel: true,
@@ -4441,18 +4491,6 @@ class DatetimePickerWidget extends Widget {
             });
         </script>
         <?php
-        if ($config['time']) {
-            list($hr, $min) = explode(':', $datetime ?
-                    $datetime->format('H:i') : '');
-            // TODO: Add time picker -- requires time picker or selection with
-            //       Misc::timeDropdown
-            echo '&nbsp;' . Misc::timeDropdown($hr, $min, $this->name . ':time');
-            echo sprintf('&nbsp;<span class="faded">(<a href="#"
-                        data-placement="top" data-toggle="tooltip"
-                        title="%s">%s</a>)</span>',
-                    $datetime->getTimezone()->getName(),
-                    $datetime->format('T'));
-        }
     }
 
     /**
@@ -4464,14 +4502,14 @@ class DatetimePickerWidget extends Widget {
         global $cfg;
 
         if ($value = parent::getValue()) {
-            // Effective timezone for the selection
-            $timezone = $this->field->getTimezone();
             // See if we have time
             $data = $this->field->getSource();
-            if ($value && isset($data[$this->name . ':time']))
-                $value .=' '.$data[$this->name . ':time'];
-
-            $dt = new DateTime($value, $timezone);
+            // Parse value into datetime object
+            $dt = Format::parseDatetime($value);
+            // Effective timezone for the selection
+            if (($timezone = $this->field->getTimezone()))
+                $dt->setTimezone($timezone);
+            // Format date time to universal format
             $value = $dt->format('Y-m-d H:i:s T');
         }
 

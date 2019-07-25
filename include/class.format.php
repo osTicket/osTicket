@@ -138,7 +138,7 @@ class Format {
             $xpath = new DOMXPath($doc);
             static $eE = array('area'=>1, 'br'=>1, 'col'=>1, 'embed'=>1,
                     'iframe' => 1, 'hr'=>1, 'img'=>1, 'input'=>1,
-                    'isindex'=>1, 'param'=>1);
+                    'isindex'=>1, 'param'=>1, 'div'=>1);
             do {
                 $done = true;
                 $nodes = $xpath->query('//*[not(text()) and not(node())]');
@@ -493,7 +493,7 @@ class Format {
     function viewableImages($html, $options=array()) {
         $cids = $images = array();
         $options +=array(
-                'deposition' => 'inline');
+                'disposition' => 'inline');
         return preg_replace_callback('/"cid:([\w._-]{32})"/',
         function($match) use ($options, $images) {
             if (!($file = AttachmentFile::lookup($match[1])))
@@ -684,6 +684,8 @@ class Format {
             $tz = $datetime->getTimezone()->getName();
             if ($tz && $tz[0] == '+' || $tz[0] == '-')
                 $tz = (int) $datetime->format('Z');
+            elseif ($tz == 'Z')
+                $tz = 'UTC';
             $timezone =  new DateTimeZone(Format::timezone($tz) ?: 'UTC');
             $datetime->setTimezone($timezone);
         } catch (Exception $ex) {

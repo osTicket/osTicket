@@ -1795,7 +1795,8 @@ class SelectionField extends FormField {
             // Add in the properties for all selected list items in sub
             // labeled by their field id
             foreach ($v as $id=>$L) {
-                if (!($li = DynamicListItem::lookup($id)))
+                if (!($li = DynamicListItem::lookup($id))
+                      || !$li->getListId())
                     continue;
                 foreach ($li->getFilterData() as $prop=>$value) {
                     if (!isset($data[$prop]))

@@ -424,7 +424,13 @@ class CsvResultsExporter extends ResultSetExporter {
         fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($this->output, $this->getHeaders(), $delimiter);
         while ($row=$this->next())
-            fputcsv($this->output, $row, $delimiter);
+            fputcsv($this->output, array_map(
+                function($v){
+                    if (preg_match('/^[=\-+@].*/', $v))
+                        return "'".$v;
+                    return $v;
+                }, $row),
+            $delimiter);
 
         fclose($this->output);
     }

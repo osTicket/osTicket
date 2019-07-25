@@ -204,8 +204,24 @@ class TaskModel extends VerySimpleModel {
         return $this->setFlag(self::ISOPEN);
     }
 
-    function isAssigned() {
-        return ($this->isOpen() && ($this->getStaffId() || $this->getTeamId()));
+    function isAssigned($to=null) {
+        if (!$this->isOpen())
+            return false;
+
+        if (is_null($to))
+            return ($this->getStaffId() || $this->getTeamId());
+
+        switch (true) {
+        case $to instanceof Staff:
+            return ($to->getId() == $this->getStaffId() ||
+                    $to->isTeamMember($this->getTeamId()));
+            break;
+        case $to instanceof Team:
+            return ($to->getId() == $this->getTeamId());
+            break;
+        }
+
+        return false;
     }
 
     function isOverdue() {

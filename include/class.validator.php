@@ -211,6 +211,11 @@ class Validator {
         return $error == '';
     }
 
+    static function is_formula($text, &$error='') {
+        if (!preg_match('/^[^=\+@-].*$/s', $text))
+            $error = __('Content cannot start with the following characters: = - + @');
+        return $error == '';
+    }
 
     /*
      * check_ip
