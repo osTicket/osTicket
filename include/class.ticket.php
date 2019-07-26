@@ -3601,11 +3601,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Make sure the due date is valid
         if ($vars['duedate']) {
-            if (!$vars['time'] || strpos($vars['time'],':') === false)
-                $errors['time']=__('Select a time from the list');
-            elseif (strtotime($vars['duedate'].' '.$vars['time']) === false)
+            if (strtotime($vars['duedate']) === false)
                 $errors['duedate']=__('Invalid due date');
-            elseif (Misc::user2gmtime($vars['duedate'].' '.$vars['time']) <= Misc::user2gmtime())
+            elseif (Misc::user2gmtime($vars['duedate']) <= Misc::user2gmtime())
                 $errors['duedate']=__('Due date must be in the future');
         }
 
@@ -3839,7 +3837,7 @@ implements RestrictedAccess, Threadable, Searchable {
         //Make sure the origin is staff - avoid firebug hack!
         if ($vars['duedate'] && !strcasecmp($origin,'staff'))
             $ticket->duedate = date('Y-m-d G:i',
-                Misc::dbtime($vars['duedate'].' '.$vars['time']));
+                Misc::dbtime($vars['duedate']));
 
 
         if (!$ticket->save())

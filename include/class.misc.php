@@ -95,7 +95,10 @@ class Misc {
             return $timestamp - $tz->getOffset($date);
         }
 
-        $date = new DateTime($timestamp ?: 'now', $tz);
+        $date = Format::parseDateTime($timestamp ?: 'now');
+        if ($tz)
+            $date->setTimezone($tz);
+
         return $date ? $date->getTimestamp() : $timestamp;
     }
 
