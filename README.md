@@ -1,6 +1,6 @@
 osTicket
 ========
-<a href="https://osticket.com"><img src="images/favicon.png"
+<a href="https://osticket.com"><img height="80px" width="80px" src="images/favicon.png"
 align="left" hspace="10" vspace="6"></a>
 
 **osTicket** is a widely-used open source support ticket system. It seamlessly
