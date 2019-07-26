@@ -1,3 +1,13 @@
+osTicket v1.12.2
+================
+### Enhancements
+* issue: v1.12 Git MAJOR_VERSION (3f80266)
+
+### Improvements
+* issue: README.md osTicket Logo (7121043)
+* issue: README.md Image Size (8b90010)
+* issue: DatetimeField Remove Unused Vars / Use parseDateTime() (d9aa91b)
+
 osTicket v1.12.1
 ================
 ### Enhancements
