@@ -836,7 +836,7 @@ $sitecolor = array(
             data: [<?php foreach ($results as $result) { 
 			$bvalue = ( $result['BACKLOG'] == 0 ? 'null':$result['BACKLOG'] );
 			echo $bvalue.',';}?>],
-			color: '#FF0000 !important'
+			  color: '#dd3c37'
             
           }]
 
@@ -1161,20 +1161,12 @@ $(function() {
     },
     yAxis: [{
         title: {
-            text: ''
+            text: 'Average Days'
         }
-    }, {
-        title: {
-            text: ''
-        },
-        minPadding: 0,
-        maxPadding: 0,
-        max: 100,
-        min: 0,
     }],
     credits: false,
     series: [{
-        name: 'Tickets',
+        name: 'Days',
         type: 'column',
         zIndex: 2,
         data: [<?php foreach ($tresults as $tresult) {echo $tresult['DaysOpen'].',';} ?>]
