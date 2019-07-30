@@ -312,6 +312,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <select name="group_membership">
 <?php foreach (array(
     Dept::ALERTS_DISABLED =>        __("No one (disable Alerts and Notices)"),
+    Dept::ALERTS_ADMIN_ONLY =>       __("Admin Email Only"),
     Dept::ALERTS_DEPT_ONLY =>       __("Department members only"),
     Dept::ALERTS_DEPT_AND_EXTENDED => __("Department and extended access members"),
 ) as $mode=>$desc) { ?>
