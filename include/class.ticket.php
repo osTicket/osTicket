@@ -2738,7 +2738,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if (PluginManager::auditPlugin()) {
             $thisstaff = $staff;
-            $type = array('type' => 'assigned', 'claim' => true);
+            $key = $data['claim'] ? 'claim' : 'auto';
+            $type = array('type' => 'assigned', $key => true); //adriane
             Signal::send('object.edited', $this, $type);
         }
 
