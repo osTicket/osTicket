@@ -65,6 +65,7 @@ implements TemplateVariable, Searchable {
     const DISPLAY_DISABLED = 2;
     const ALERTS_DEPT_AND_EXTENDED = 1;
     const ALERTS_DEPT_ONLY = 0;
+    const ALERTS_ADMIN_ONLY = 3;
 
 <<<<<<< HEAD
     const FLAG_ASSIGN_MEMBERS_ONLY = 0x0001;
