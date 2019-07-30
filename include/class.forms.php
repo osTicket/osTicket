@@ -160,6 +160,16 @@ class Form {
         return $this->_clean;
     }
 
+    /*
+     * Process the form input and return clean data.
+     *
+     * It's similar to getClean but forms downstream can use it to return
+     * database ready data.
+     */
+    function process($validate=true) {
+        return $this->getClean($validate);
+    }
+
     function errors($formOnly=false) {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
