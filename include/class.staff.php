@@ -91,8 +91,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                         'default_from_name' => '',
                         'datetime_format'   => '',
                         'thread_view_order' => '',
+<<<<<<< HEAD
                         'default_ticket_queue_id' => 0,
                         'reply_redirect' => 'Ticket',
+=======
+                        'img_att_view' => 'download',
+>>>>>>> issue: Image Attachment View
                         ));
             $this->_config = $_config->getInfo();
         }
@@ -349,8 +353,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->default_paper_size;
     }
 
+<<<<<<< HEAD
     function getReplyRedirect() {
         return $this->reply_redirect;
+=======
+    function getImageAttachmentView() {
+        return $this->img_att_view;
+>>>>>>> issue: Image Attachment View
     }
 
     function forcePasswdChange() {
@@ -798,8 +807,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'datetime_format' => $vars['datetime_format'],
                     'default_from_name' => $vars['default_from_name'],
                     'thread_view_order' => $vars['thread_view_order'],
+<<<<<<< HEAD
                     'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
                     'reply_redirect' => ($vars['reply_redirect'] == 'Queue') ? 'Queue' : 'Ticket',
+=======
+                    'img_att_view' => ($vars['img_att_view'] == 'inline') ? 'inline' : 'download',
+>>>>>>> issue: Image Attachment View
                     )
                 );
         $this->_config = $_config->getInfo();

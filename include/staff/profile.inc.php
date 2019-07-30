@@ -301,6 +301,7 @@ if ($avatar->isChangeable()) { ?>
             </td>
         </tr>
         <tr>
+<<<<<<< HEAD
             <td><?php echo __('Reply Redirect'); ?>:
                 <div class="faded"><?php echo __('Redirect URL used after replying to a ticket.');?></div>
             </td>
@@ -315,6 +316,22 @@ if ($avatar->isChangeable()) { ?>
                   ?>
                 </select>
                 <div class="error"><?php echo $errors['reply_redirect']; ?></div>
+=======
+            <td><?php echo __('Image Attachment View'); ?>:
+                <div class="faded"><?php echo __('Open image attachments in new tab or directly download. (CTRL + Right Click)');?></div>
+            </td>
+            <td>
+                <select name="img_att_view">
+                  <?php
+                  $options=array('download'=>__('Download'),'inline'=>__('Inline'));
+                  foreach($options as $key=>$opt) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $key,($staff->img_att_view==$key)?'selected="selected"':'',$opt);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['img_att_view']; ?></div>
+>>>>>>> issue: Image Attachment View
             </td>
         </tr>
       </tbody>

@@ -269,7 +269,10 @@ class AttachmentFile extends VerySimpleModel {
         $disposition = $disposition ?: 'inline';
 =======
     function download($disposition=false, $expires=false) {
-        $disposition = ($disposition && strcasecmp($disposition, 'inline') == 0
+        $thisstaff = StaffAuthenticationBackend::getUser();
+        $inline = ($thisstaff ? ($thisstaff->getImageAttachmentView() === 'inline') : false);
+        $disposition = ((($disposition && strcasecmp($disposition, 'inline') == 0)
+              || $inline)
               && strpos($this->getType(), 'image/') !== false)
             ? 'inline' : 'attachment';
 >>>>>>> security: HTML File Browser Execution (Windows: Firefox/IE)
