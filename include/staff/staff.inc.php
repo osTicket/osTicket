@@ -189,27 +189,27 @@ if (count($bks) > 1) {
           <td colspan="2">
             <div class="error"><?php echo $errors['isadmin']; ?></div>
             <div class="error"><?php echo $errors['isactive']; ?></div>
-            <label class="checkbox">
-            <input type="checkbox" name="islocked" value="1"
-              <?php echo (!$staff->isactive) ? 'checked="checked"' : ''; ?> />
-              <?php echo __('Locked'); ?>
-            </label>
-            <label class="checkbox">
-            <input type="checkbox" name="isadmin" value="1"
-              <?php echo ($staff->isadmin) ? 'checked="checked"' : ''; ?> />
-              <?php echo __('Administrator'); ?>
-            </label>
-            <label class="checkbox">
-            <input type="checkbox" name="assigned_only"
-              <?php echo ($staff->assigned_only) ? 'checked="checked"' : ''; ?> />
-              <?php echo __('Limit ticket access to ONLY assigned tickets'); ?>
-            </label>
-            <label class="checkbox">
-            <input type="checkbox" name="onvacation"
-              <?php echo ($staff->onvacation) ? 'checked="checked"' : ''; ?> />
-              <?php echo __('Vacation Mode'); ?>
-            </label>
-            <br/>
+			<div class="custom-control custom-switch">
+             <input type="checkbox" class="custom-control-input" id="islocked" name="islocked"  value="1"<?php echo (!$staff->isactive) ? 'checked="checked"' : '';
+                ?>>
+             <label class="custom-control-label" for="islocked"><?php echo __('Disabled'); ?> </label>
+         </div>
+
+			<div class="custom-control custom-switch">
+             <input type="checkbox" class="custom-control-input" id="isadmin" name="isadmin" value="1" <?php echo ($staff->isadmin) ? 'checked="checked"' : '';
+                ?>>
+             <label class="custom-control-label" for="isadmin"><?php echo __('Administrator'); ?> </label>
+         </div>    
+		 			<div class="custom-control custom-switch">
+             <input type="checkbox" class="custom-control-input" id="assigned_only" name="assigned_only" value="1" <?php echo ($staff->assigned_only) ? 'checked="checked"' : '';
+                ?>>
+             <label class="custom-control-label" for="assigned_only"><?php echo __('Limit ticket access to ONLY assigned tickets'); ?> </label>
+         </div>
+		 			<div class="custom-control custom-switch">
+             <input type="checkbox" class="custom-control-input" id="onvacation" name="onvacation" value="1" <?php echo ($staff->onvacation) ? 'checked="checked"' : '';
+                ?>>
+             <label class="custom-control-label" for="onvacation"><?php echo __('Vacation Mode'); ?> </label>
+         </div>
         </tr>
       </tbody>
     </table>

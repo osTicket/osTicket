@@ -1328,9 +1328,11 @@ $(function () {
                series: [
         
          <?php
+		 
         foreach ($olocs as $oloc) { 
 			$key = $oloc["LOCATION"];
 			$color = $sitecolor[$key];
+			$colorindex = $colorindex+1;
         ?>
         {
             name: '<?php echo $oloc["LOCATION"]?>',
@@ -1339,11 +1341,28 @@ $(function () {
 
                 if ($olocdata["LOCATION"] == $oloc["LOCATION"]) echo $olocdata["COUNT"].',';
             }?>],
+			 _colorIndex: <?php echo $colorindex; ?>,
 			color: '<?php echo $color; ?>'
         }, 
         
         <?php } ?>
-        ]
+
+        ],
+		colors: ["#ff5252",
+"rgb(241, 92, 128)",
+"#e040fb",
+"#7c4dff",
+"rgb(43, 144, 143)",
+"rgb(67, 67, 72)",
+"#40c4ff",
+"#18ffff",
+"rgb(247, 163, 92)",
+"#69f0ae",
+"rgb(124, 181, 236)",
+"#eeff41",
+"#c30000",
+"rgb(67, 67, 72)"
+        ],
 
 
     });
