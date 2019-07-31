@@ -145,7 +145,7 @@ class StaffAjaxAPI extends AjaxController {
         $form = new ResetAgentPermissionsForm($_POST);
 
         if (@is_array($_GET['ids'])) {
-            $perms = new RolePermission();
+            $perms = new RolePermission(null);
             $selected = Staff::objects()->filter(array('staff_id__in' => $_GET['ids']));
             foreach ($selected as $staff)
                 // XXX: This maybe should be intersection rather than union
