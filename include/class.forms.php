@@ -4422,6 +4422,11 @@ class CheckboxWidget extends Widget {
             if (isset($data[$this->field->get('id')]))
                 return $data[$this->field->get('id')];
         }
+
+        if (isset($this->value))
+            return $this->value;
+
+
         return parent::getValue();
     }
 
