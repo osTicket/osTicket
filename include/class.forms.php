@@ -4974,14 +4974,13 @@ class VisibilityConstraint {
         if (!$this->constraint->constraints)
             return;
 
-        $func = 'recheck';
+        $func = 'recheck_'.$field->getWidget()->id;
         $form = $field->getForm();
 ?>
     <script type="text/javascript">
       !(function() {
         var <?php echo $func; ?> = function() {
           var target = $('#field<?php echo $field->getWidget()->id; ?>');
-
 <?php   $fields = $this->getAllFields($this->constraint);
         foreach ($fields as $f) {
             if (!($field = $form->getField($f)))
