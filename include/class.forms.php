@@ -4155,7 +4155,7 @@ class ChoicesWidget extends Widget {
             return $this->emitComplexChoices($choices, $values, $have_def, $def_key);
 
         foreach ($choices as $key => $name) {
-            if (!$have_def && $key == $def_key)
+            if (!$have_def && $key === $def_key)
                 continue; ?>
             <option value="<?php echo $key; ?>" <?php
                 if (isset($values[$key])) echo 'selected="selected"';
