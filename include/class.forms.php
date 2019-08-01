@@ -4453,14 +4453,7 @@ class DatetimePickerWidget extends Widget {
             $this->value = $default;
 
         if ($this->value) {
-
-            if (is_int($this->value))
-                // Assuming UTC timezone.
-                $datetime = DateTime::createFromFormat('U', $this->value);
-            else
-                $datetime = Format::parseDateTime($this->value);
-
-
+            $datetime = Format::parseDateTime($this->value);
             if ($config['time'])
                 // Convert to user's timezone for update.
                 $datetime->setTimezone($timezone);
@@ -4538,15 +4531,13 @@ class DatetimePickerWidget extends Widget {
         global $cfg;
 
         if ($value = parent::getValue()) {
-            // See if we have time
-            $data = $this->field->getSource();
-            // Parse value into datetime object
-            $dt = Format::parseDateTime($value);
-            // Effective timezone for the selection
-            if (($timezone = $this->field->getTimezone()))
-                $dt->setTimezone($timezone);
-            // Format date time to universal format
-            $value = $dt->format('Y-m-d H:i:s T');
+            if (($dt = Format::parseDatetime($value))) {
+                // Effective timezone for the selection
+                if (($timezone = $this->field->getTimezone()))
+                    $dt->setTimezone($timezone);
+                // Format date time to universal format
+                $value = $dt->format('Y-m-d H:i:s T');
+            }
         }
 
         return $value;
