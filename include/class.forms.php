@@ -2597,6 +2597,24 @@ class DatetimeField extends FormField {
     }
 }
 
+
+/**
+ * TimeField for time selection
+ *
+ */
+class TimeField extends FormField {
+    static $widget = 'TimePickerWidget';
+
+    var $start = null;
+    var $end = null;
+
+    function getTimeZone() {
+        global $cfg;
+        $config = $this->getConfiguration();
+        return new DateTimeZone($config['timezone'] ?: $cfg->getTimezone());
+    }
+}
+
 /**
  * This is kind-of a special field that doesn't have any data. It's used as
  * a field to provide a horizontal section break in the display of a form
@@ -4544,6 +4562,68 @@ class DatetimePickerWidget extends Widget {
     }
 }
 
+class TimePickerWidget extends Widget {
+
+    function render($options=array()) {
+
+        if (!isset($this->value) && ($default=$this->field->get('default')))
+            $this->value = $default;
+
+        // For timezone display purposes only - for now
+        $datetime = new DateTime('now');
+        // Selection timezone
+        $datetime->setTimezone($this->field->getTimeZone());
+
+        if ($this->value) {
+            // TODO: Reformat time here to match settings
+        }
+
+        ?>
+        <input type="text" name="<?php echo $this->name; ?>"
+            id="<?php echo $this->id; ?>" style="display:inline-block;width:auto"
+            value="<?php echo $this->value; ?>"
+            size="10"
+            autocomplete="off"  />
+        <?php
+        // Timezone hint
+        echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                    data-placement="top" data-toggle="tooltip"
+                    title="%s">%s</a>)</span>',
+                $datetime->getTimezone()->getName(),
+                $datetime->format('T'));
+        ?>
+        <script type="text/javascript">
+            $(function() {
+                $('input[name="<?php echo $this->name; ?>"]').timepicker({
+                    <?php
+                    // Set time options
+                    echo sprintf("
+                            controlType: 'select',\n
+                            timeInput: true,\n
+                            timeFormat: \"%s\",\n",
+                            "hh:mm tt");
+                    echo sprintf("timezone: %s\n",
+                            ($datetime->getOffset()/60));
+                    ?>
+                });
+            });
+        </script>
+        <?php
+    }
+
+    /**
+     * Function: getValue
+     */
+    function getValue() {
+        global $cfg;
+
+        if ($value = parent::getValue()) {
+            // TODO: Return ISO format.
+        }
+
+        return $value;
+    }
+}
 class SectionBreakWidget extends Widget {
     function render($options=array()) {
         ?><div class="form-header section-break"><h3><?php
