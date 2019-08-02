@@ -36,7 +36,7 @@ foreach ($tickets as $t) {
     if ($mergeType == 'combine')
         $forceOptions = true;
 
-    if ($ticket->getId() == $ticket_pid)
+    if ($ticket_pid && $mergeType == 'visual')
         $isLinkChild = true;
     $types[] = $mergeType;
 ?>
@@ -50,28 +50,28 @@ foreach ($tickets as $t) {
             echo 'ui-sortable-handle';
     ?>" data-id="<?php echo $ticket_id; ?>">
     <input type="hidden" id="tids" name="tids[]" value="<?php echo $number; ?>" />
-    <?php if ($ticket_id)
-            $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s" target="_blank">%s</a>',
-                                $ticket_id, Ticket::getLink($ticket_id), $number);
-            $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-            $iconLarge = '<i style="visibility: hidden;" class="icon-group"></i>';
-            $iconSmall = '<i style="visibility: hidden;" class="icon-code-fork"></i>';
-            $children=$ticket->getChildTickets($ticket_id);
-            $subject = (strlen($subject) > 15) ? sprintf('%s...',substr($subject, 0, 15)) : $subject;
-            $entryCount = $entries > 0 ?
-                sprintf('<a data-placement="bottom" <i class="icon-comments-alt" data-toggle="tooltip" title="%s %s"></i></a>',$entries, __('Thread Entries')) : $nbsp.$iconLarge;
-            $taskCount = sprintf('<a data-placement="bottom" <i class="icon-tasks" data-toggle="tooltip" title="%s %s"></i></a>',$tasks, __('Tasks'));
-            $showMergePreview = ($mergeType != 'visual' && (count($children) > 0)); //adriane
-            $mergePrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-code-fork"></i></a>', $ticket_id);
-            $showLinkPreview = ($mergeType == 'visual' && (count($children) > 0)); //adriane
-            $linkPrev = sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-link"></i></a>', $ticket_id);
-            $showCollaborators = ($collaborators > 0) ?
-               sprintf('<a class="collaborators preview"href="#thread/%d/collaborators/0"><i class="icon-group"></i></a>', $id) : '';
+    <?php $numberLink = sprintf('<a style="display: inline" class="preview" data-preview="#tickets/%d/preview" href="%s" target="_blank">%s</a>',
+            $ticket_id, Ticket::getLink($ticket_id), $number);
+        $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        $iconLarge = '<i style="visibility: hidden;" class="icon-group"></i>';
+        $iconSmall = '<i style="visibility: hidden;" class="icon-code-fork"></i>';
+        $children=$ticket->getChildTickets($ticket_id);
+        $subject = (strlen($subject) > 15) ? sprintf('%s...',substr($subject, 0, 15)) : $subject;
+        $entryCount = $entries > 0 ?
+            sprintf('<a data-placement="bottom" <i class="icon-comments-alt" data-toggle="tooltip" title="%s %s"></i></a>',
+            $entries, __('Thread Entries')) : $nbsp.$iconLarge;
+        $taskCount = sprintf('<a data-placement="bottom" <i class="icon-tasks" data-toggle="tooltip" title="%s %s"></i></a>',$tasks, __('Tasks'));
+        $showMergePreview = ($mergeType != 'visual' && (count($children) > 0)) ?
+            sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-code-fork"></i></a>', $ticket_id) : '';
+        $showLinkPreview = ($mergeType == 'visual' && (count($children) > 0)) ?
+            sprintf('<a class="merge preview"href="#tickets/%d/merge"><i class="icon-link"></i></a>', $ticket_id) : '';
+        $showCollaborators = ($collaborators > 0) ?
+           sprintf('<a class="collaborators preview"href="#thread/%d/collaborators/0"><i class="icon-group"></i></a>', $id) : '';
     ?>
     <i class="icon-reorder"></i> <?php
     echo sprintf('%s %s %s %s %s <div style="float: right;">%s %s %s %s %s</div>',
         $numberLink ?: $number, $nbsp, $name, $nbsp, $subject, $entryCount, $tasks ? $nbsp.$taskCount : $nbsp.$iconLarge,
-        $showMergePreview ? $nbsp.$mergePrev : $nbsp.$iconSmall, $showLinkPreview ? $nbsp.$linkPrev : $nbsp.$iconLarge,
+        $showMergePreview ? $nbsp.$showMergePreview : $nbsp.$iconSmall, $showLinkPreview ? $nbsp.$showLinkPreview : $nbsp.$iconLarge,
         $showCollaborators ? $nbsp.$showCollaborators : $nbsp.$iconLarge);
     if (!is_null($ticket_pid)) { ?>
     <div class="button-group">
@@ -122,18 +122,14 @@ foreach ($tickets as $t) {
              ticketLink = '<?php echo Ticket::getLink('');?>';
              tasks = data[key]['tasks'];
              showTasks = (tasks > 0) ? '<a data-placement=\'bottom\' <i class=\'icon-tasks\' data-toggle=\'tooltip\' title=\''+tasks+' Tasks\'>' : '';
-             subject = data[key]['subject'];
              spaces = data[key]['spaces'];
              user = data[key]['user'];
              collaborators = data[key]['collaborators'];
-             entries = data[key]['entries'];
              thread_id = data[key]['thread_id'] ? data[key]['thread_id'] : 0;
-             mergeType = data[key]['mergeType'];
-             mergePrev = data[key]['mergePrev'];
-             showEntries = (entries > 0) ?
-                '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-comments-alt\' data-toggle=\'tooltip\' title=\''+entries+' Thread Entries\'>' : '';
-             icon = (mergeType == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
-             showMergePrev = mergePrev ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
+             showEntries = (data[key]['entries'] > 0) ?
+                '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-comments-alt\' data-toggle=\'tooltip\' title=\''+data[key]['entries']+' Thread Entries\'>' : '';
+             icon = (data[key]['mergeType'] == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
+             showMergePrev = data[key]['mergePrev'] ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
              showCollaborators = (collaborators > 0) ?
                 '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators/0\'><i class=\'icon-group\'></i></a>' : '';
             inOriginalIds = ids.includes(ticket_id.toString());
@@ -145,7 +141,7 @@ foreach ($tickets as $t) {
         $('.merge-tickets').append($('<li></li>').addClass('sortable row-item')
             .text(spaces + user + spaces)
             .data('id', id)
-            .append(subject)
+            .append(data[key]['subject'])
             .append(spaces)
             .append($('<div style=\'position: absolute; right: 50px; bottom: 9px;\'></div>')
                 .append(showEntries)
@@ -179,16 +175,15 @@ foreach ($tickets as $t) {
 <?php if ($ticket->getMergeType() == 'visual') { ?>
 <div>
     <hr>
-    <?php echo ($title == 'merge') ? __('Merge Type: ') : ''?>
-    <?php echo $title == 'merge' ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : '';?>
-    <fieldset id="combination">
-        <?php if ($title == 'merge') { ?>
-            <label for="combine" style="display:none"><input type="radio" name="combine" id="combine" value="1"<?php echo $ticket->getMergeType() == 'combine' || $title == 'merge'?'checked="checked"':''; ?>><?php echo __('Combine Threads');?></label>
-            <label for="separate" style="display:none"><input type="radio" name="combine" id="separate" value="0"<?php echo $ticket->getMergeType() == 'separate'?'checked="checked"':''; ?>><?php echo __('Separate Threads');?></label>
-        <?php } else { ?>
-            <label for="visual" style="display:none"><input type="radio" name="combine" id="link" value="2"<?php echo $ticket->getMergeType() == 'visual'?'checked="checked"':''; ?>><?php echo __('Visual Merge');?></label>
-        <?php } ?>
-    </fieldset>
+    <?php echo ($title == 'merge' && !$parent) ? __('Merge Type: ') : ''; ?>
+    <?php echo ($title == 'merge' && !$parent) ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : ''; ?><br>
+    <input <?php echo ($parent || $title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="1"
+           <?php echo ($ticket->getMergeType() == 'combine' || ($title == 'merge' && !$parent))?'checked="checked"':''; ?>>
+           <?php echo (!$parent && $title == 'merge') ? __('Combine Threads') : '';?>
+    <input <?php echo ($parent || $title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="0"
+           <?php echo ($ticket->getMergeType() == 'separate')?'checked="checked"':''; ?>>
+           <?php echo (!$parent && $title == 'merge') ? __('Separate Threads') : '';?>
+    <input style="display:none" type="radio" name="combine" value="2" <?php echo ($ticket->getMergeType() == 'visual' && $title == 'link')?'checked="checked"':''; ?>>
 </div>
 <?php } ?>
 <?php if ($title == 'merge') { ?>
@@ -215,17 +210,17 @@ id="msg_warning"><?php echo __('Are you sure you want to delete the child ticket
     </div>
 </div>
 
-    <p class="full-width">
-        <span class="buttons pull-left">
-            <input type="button" name="cancel" class="<?php
-                echo $user ? 'cancel' : 'close' ?>" value="<?php echo __('Cancel'); ?>">
+<p class="full-width">
+    <span class="buttons pull-left">
+        <input type="button" name="cancel" class="<?php
+            echo $user ? 'cancel' : 'close' ?>" value="<?php echo __('Cancel'); ?>">
+    </span>
+    <?php if (!$info['error']) { ?>
+        <span class="buttons pull-right">
+            <input type="submit" value="<?php echo __('Save Changes'); ?>">
         </span>
-        <?php if (!$info['error']) { ?>
-            <span class="buttons pull-right">
-                <input type="submit" value="<?php echo __('Save Changes'); ?>">
-            </span>
-        <?php } ?>
-     </p>
+    <?php } ?>
+ </p>
 
 <script type="text/javascript">
 $(function() {
@@ -317,39 +312,14 @@ $(document).ready(function() {
         childWarning();
     });
 
-    $('#show-participants input[type=checkbox]').change(function(){
-        participantOptions();
-    });
-
-    function showCheckboxes(combine) {
-       var value = $(combine).val();
-       switch (value) {
-         case "0":
-         case "1":
-           $('#merge-options').show();
-           $('#show-participants').show();
-           break;
-         case "2":
-           $('#merge-options').hide();
-           $('#show-participants').hide();
-           break;
-       }
-     }
-
-     function childWarning() {
-         var value = $("#delete-child").prop("checked") ? 1 : 0;
-         (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
-     }
+    function childWarning() {
+        var value = $("#delete-child").prop("checked") ? 1 : 0;
+        (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
+    }
 });
-
 </script>
 
 <style>
-  #ticket-entries { list-style-type: none;}
-  #ticket-entries { padding: 0px; }
-  #participant-options{
-      padding: 0px;
-      display: block;
-      float: left;
-  }
+  #ticket-entries { list-style-type: none; padding: 0px;}
+  #participant-options{ padding: 0px; display: block; float: left;}
 </style>
