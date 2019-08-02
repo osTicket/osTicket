@@ -365,8 +365,7 @@ class TicketsAjaxAPI extends AjaxController {
         if ($ticket->getMergeType() == 'visual') {
             $tickets =  Ticket::getChildTickets($ticket_id);
             $tickets = $parent->union($tickets);
-        }
-        else
+        } else
             $tickets = $parent;
 
         //fix sort of tickets

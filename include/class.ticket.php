@@ -3430,6 +3430,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!parent::delete())
             return false;
 
+        //deleting parent ticket
         if ($children = Ticket::getChildTickets($this->getId())) {
             foreach ($children as $childId) {
                 $child = Ticket::lookup($childId[0]);
@@ -3439,6 +3440,7 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
 
+        //deleting child ticket
         if ($this->isChild()) {
             $parent = Ticket::lookup($this->ticket_pid);
             if ($parent->isParent()) {
