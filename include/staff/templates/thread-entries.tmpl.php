@@ -66,6 +66,8 @@ if ($this->getObjectType() == 'T')
         //       changes in dates between thread items.
         foreach ($buckets as $entry) {
             if ($entry->hasFlag(ThreadEntry::FLAG_CHILD) && $entry->extra) {
+                if (!is_array($entry->extra))
+                    $entry->extra = json_decode($entry->extra, true);
                 if (!$thread = Thread::objects()->filter(array('id'=>$entry->extra['thread']))->values_flat('extra'))
                     continue;
                 foreach ($thread as $t)

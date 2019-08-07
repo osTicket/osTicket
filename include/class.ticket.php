@@ -2508,9 +2508,19 @@ implements RestrictedAccess, Threadable, Searchable {
                         $parent->addCollaborator($collab->getUser(), array(), $errors);
                 }
                 $parent->addCollaborator($child->getUser(), array(), $errors);
+                $parentThread = $parent->getThread();
+
+                $deletedChild = Thread::objects()
+                    ->filter(array('extra__contains'=>'"ticket_id":'.$child->getId()))
+                    ->values_flat('id', 'extra')
+                    ->first();
+                if ($deletedChild) {
+                    $extraThread = Thread::lookup($deletedChild[0]);
+                    $extraThread->setExtra($parentThread, array('extra' => $deletedChild[1], 'threadId' => $extraThread->getId()));
+                }
 
                 if ($child->getThread())
-                    $child->getThread()->setExtra($parent->getThread());
+                    $child->getThread()->setExtra($parentThread);
 
                 $child->setMergeType($options['combine']);
 
@@ -2529,9 +2539,6 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($options['delete-child'])
                      $child->delete();
             }
-
-            if ($options['delete-child'])
-                 $parent->setMergeType(3);
         }
         return $parent;
     }
@@ -3446,7 +3453,7 @@ implements RestrictedAccess, Threadable, Searchable {
         //deleting child ticket
         if ($this->isChild()) {
             $parent = Ticket::lookup($this->ticket_pid);
-            if ($parent->isParent()) {
+            if ($parent->isParent() && count($parent->getChildTickets($parent->getId())) == 0) {
                 $parent->setMergeType(3);
                 $parent->save();
             }

@@ -614,10 +614,18 @@ implements Searchable {
     }
 
     function setExtra($mergedThread, $info='') {
+
+        if ($info && $info['extra']) {
+            $extra = json_decode($info['extra'], true);
+            $entries = ThreadEntry::objects()->filter(array('thread_id' => $info['threadId']));
+            foreach ($entries as $entry)
+                $entry->saveExtra($entry, array('thread' => $info['threadId']), $mergedThread->getId());
+        } else
+            ThreadEntry::setExtra($this->getEntries(), array('thread' => $this->getId()), $mergedThread->getId());
+
         $this->object_type = 'C';
         $number = Ticket::objects()->filter(array('ticket_id'=>$this->getObjectId()))->values_flat('number')->first();
-        $this->extra = json_encode(array('ticket_id' => $mergedThread->getObjectId(), 'number' => $number[0]));
-        ThreadEntry::setExtra($this->getEntries(), array('thread' => $this->getId()), $mergedThread->getId());
+        $this->extra = json_encode(array('ticket_id' => $mergedThread->getObjectId(), 'number' => $extra['number'] ?: $number[0]));
         $this->save();
     }
 
@@ -1514,14 +1522,17 @@ implements TemplateVariable {
     }
 
     function setExtra($entries, $info=NULL, $thread_id=NULL) {
-        foreach ($entries as $entry) {
-            if (!$entry->extra) {
-                $entry->thread_id = $thread_id ?: $thread_id;
-                $entry->extra = !is_null($info) ? json_encode($info) : NULL;
-                $entry->setFlag(ThreadEntry::FLAG_CHILD, true);
-                $entry->save();
-            }
+        foreach ($entries as $entry)
+            $entry->saveExtra($info, $thread_id);
+    }
+
+    function saveExtra($info=NULL, $thread_id=NULL) {
+        if (!$this->extra) {
+            $this->extra = !is_null($info) ? json_encode($info) : NULL;
+            $this->setFlag(ThreadEntry::FLAG_CHILD, true);
         }
+        $this->thread_id = $thread_id ?: $thread_id;
+        $this->save();
     }
 
     //new entry ... we're trusting the caller to check validity of the data.
