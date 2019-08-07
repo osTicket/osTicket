@@ -22,7 +22,7 @@
 <form method="post" onsubmit="refreshAndClose();" action="<?php echo $info['action']; ?>">
 <input type="hidden" name="title" value="<?php echo $title; ?>" />
 <ul id="ticket-entries">
-<div class="merge-tickets" style="overflow-y: auto; height:150; margin-bottom:5px;">
+<div class="merge-tickets" style="overflow-y: auto; height:100px; margin-bottom:5px;">
 <?php
 if ($tickets) {
 foreach ($tickets as $t) {
@@ -69,7 +69,7 @@ foreach ($tickets as $t) {
            sprintf('<a class="collaborators preview"href="#thread/%d/collaborators/0"><i class="icon-group"></i></a>', $id) : '';
     ?>
     <i class="icon-reorder"></i> <?php
-    echo sprintf('%s %s %s %s %s <div style="float: right;">%s %s %s %s %s</div>',
+    echo sprintf('%s %s %s %s %s <div style="position:absolute; right:40px; top:10px;">%s %s %s %s %s</div>',
         $numberLink ?: $number, $nbsp, $name, $nbsp, $subject, $entryCount, $tasks ? $nbsp.$taskCount : $nbsp.$iconLarge,
         $showMergePreview ? $nbsp.$showMergePreview : $nbsp.$iconSmall, $showLinkPreview ? $nbsp.$showLinkPreview : $nbsp.$iconLarge,
         $showCollaborators ? $nbsp.$showCollaborators : $nbsp.$iconLarge);
@@ -134,7 +134,10 @@ foreach ($tickets as $t) {
                 '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators/0\'><i class=\'icon-group\'></i></a>' : '';
             inOriginalIds = ids.includes(ticket_id.toString());
         }
-
+    if (data[key]['mergeType'] != 'visual') {
+        alert('<?php echo __('Merged tickets cannot be added manually. They must be preselected.');?>');
+        return;
+    }
     if ($sel.prop('disabled'))
         return;
     if (!inOriginalIds) {
@@ -143,7 +146,7 @@ foreach ($tickets as $t) {
             .data('id', id)
             .append(data[key]['subject'])
             .append(spaces)
-            .append($('<div style=\'position: absolute; right: 50px; bottom: 9px;\'></div>')
+            .append($('<div style=\'position:absolute; right:40px; top:10px;\'></div>')
                 .append(showEntries)
                 .append(showTasks ? spaces : '')
                 .append(showTasks)
@@ -175,14 +178,14 @@ foreach ($tickets as $t) {
 <?php if ($ticket->getMergeType() == 'visual') { ?>
 <div>
     <hr>
-    <?php echo ($title == 'merge' && !$parent) ? __('Merge Type: ') : ''; ?>
-    <?php echo ($title == 'merge' && !$parent) ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : ''; ?><br>
-    <input <?php echo ($parent || $title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="1"
+    <?php echo ($title == 'merge') ? __('Merge Type: ') : ''; ?>
+    <?php echo ($title == 'merge') ? '<i class="help-tip icon-question-sign" href="#merge_types"></i>' : ''; ?><br>
+    <input <?php echo ($title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="1"
            <?php echo ($ticket->getMergeType() == 'combine' || ($title == 'merge' && !$parent))?'checked="checked"':''; ?>>
-           <?php echo (!$parent && $title == 'merge') ? __('Combine Threads') : '';?>
-    <input <?php echo ($parent || $title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="0"
+           <?php echo ($title == 'merge') ? __('Combine Threads') : '';?>
+    <input <?php echo ($title == 'link') ? 'style="display:none"' : '';?> type="radio" name="combine" value="0"
            <?php echo ($ticket->getMergeType() == 'separate')?'checked="checked"':''; ?>>
-           <?php echo (!$parent && $title == 'merge') ? __('Separate Threads') : '';?>
+           <?php echo ($title == 'merge') ? __('Separate Threads') : '';?>
     <input style="display:none" type="radio" name="combine" value="2" <?php echo ($ticket->getMergeType() == 'visual' && $title == 'link')?'checked="checked"':''; ?>>
 </div>
 <?php } ?>
