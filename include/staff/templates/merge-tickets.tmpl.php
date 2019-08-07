@@ -73,13 +73,13 @@ foreach ($tickets as $t) {
         $numberLink ?: $number, $nbsp, $name, $nbsp, $subject, $entryCount, $tasks ? $nbsp.$taskCount : $nbsp.$iconLarge,
         $showMergePreview ? $nbsp.$showMergePreview : $nbsp.$iconSmall, $showLinkPreview ? $nbsp.$showLinkPreview : $nbsp.$iconLarge,
         $showCollaborators ? $nbsp.$showCollaborators : $nbsp.$iconLarge);
-    if (!is_null($ticket_pid)) { ?>
+    if ($mergeType == 'visual') { ?>
     <div class="button-group">
-    <div class="<?php if (!$parent && $isLinkChild) echo 'delete'; ?>"><a href="#" onclick="javascript:
+    <div class="delete"><a href="#" onclick="javascript:
         var value = <?php echo $ticket_id; ?>;
         $('#ticket-entries').append($('<input/>').attr({name:'dtids[]', type:'hidden'}).val(value))
         $(this).closest('li.row-item').remove();$('#delete-warning').show();">
-        <?php if (!$parent && $isLinkChild) { ?><i class="icon-trash"></i><?php } ?></a></div>
+        <i class="icon-trash"></i></a></div>
     </div>
 <?php } ?>
 </li>
