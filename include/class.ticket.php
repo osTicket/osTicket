@@ -3450,6 +3450,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 $child->setPid(NULL);
                 $child->setMergeType(3);
                 $child->save();
+                $childThread = $child->getThread();
+                $childThread->object_type = 'T';
+                $childThread->save();
             }
         }
 
