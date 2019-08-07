@@ -2478,7 +2478,10 @@ implements RestrictedAccess, Threadable, Searchable {
                                    $parent->logEvent('referred', $evd);
                                }
                         }
-                    }
+                    } elseif ($parent->isParent() && $ticket->getMergeType() != 'visual' && $parent->getId() != $ticket->getId()) {
+                        $ticket->setMergeType($tickets['combine']);
+                    } elseif ($parent->isParent() && $ticket->getMergeType() != 'visual' && $parent->getId() == $ticket->getId())
+                        $parent->setMergeType($tickets['combine'], true);
                 }
             }
         }
