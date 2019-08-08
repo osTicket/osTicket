@@ -25,10 +25,10 @@ switch (strtolower($_REQUEST['t'])) {
              if ($_REQUEST['type'] == $abbrev)
                 $name = AuditEntry::getObjectName($info[0]);
          }
-          $filename = sprintf('%s-audits-%s.csv',
-                  $name, strftime('%Y%m%d'));
+         $show = AuditEntry::$show_view_audits;
+         $filename = sprintf('%s-audits-%s.csv', $name, strftime('%Y%m%d'));
 
-          if (!Export::audits('audit', $filename))
+          if (!Export::audits('audit', $filename, '', '', 'csv', $show))
               $errors['err'] = __('Unable to dump query results.')
                   .' '.__('Internal error occurred');
       }
