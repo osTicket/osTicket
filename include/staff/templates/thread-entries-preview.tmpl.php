@@ -14,11 +14,13 @@ foreach ($entries as $entry) {
     echo $entryTypes[$entry->type]; ?>">
         <div class="header">
            <div class="thread-info">
-                <?php
-                echo sprintf('<div class="thread-name">
-                        <span>%s</span>&nbsp;<span>%s</span></div>',
-                        $name,
-                        Format::datetime($entry->created));?>
+                <div class="thread-name">
+                    <span><?php echo $name; ?></span>&nbsp;<span><?php echo Format::datetime($entry->created) ?></span>
+                    <?php if ($entry->number) { ?>
+                        &nbsp;<span data-toggle="tooltip" title="<?php echo sprintf(__('Ticket #%s'), $entry->number); ?>" class="label label-bare">
+                        <i class="icon-code-fork"></i></span>
+                    <?php   } ?>
+                </div>
             </div>
         </div>
         <div class="thread-body no-pjax">
