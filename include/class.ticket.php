@@ -2452,13 +2452,17 @@ implements RestrictedAccess, Threadable, Searchable {
 
                     if ($key == 0)
                         $parent = $ticket;
-
-                    if ($ticket->isParent() && $ticket->getMergeType() == 'visual')
-                        $ticket->unlink();
+                    //changing from link to merge
+                    if (($ticket->isParent() || $ticket->isChild()) &&
+                         $ticket->getMergeType() == 'visual' && $tickets['combine'] != 2 ||
+                        ($tickets['combine'] == 2 && !$parent->isParent() && $parent->isChild())) { //changing link parent
+                            $ticket->unlink();
+                            $changeParent = true;
+                    }
 
                     if ($parent && $parent->getId() != $ticket->getId()) {
-                        if (($parent->isParent() && $ticket->getMergeType() == 'visual') || //adding to link/merge
-                           ($parent->getMergeType() == 'visual' && $ticket->getMergeType() == 'visual')) { //creating fresh link/merge
+                        if (($changeParent) || ($parent->isParent() && $ticket->getMergeType() == 'visual' && !$ticket->isChild()) || //adding to link/merge
+                           (!$parent->isParent() && !$ticket->isChild())) { //creating fresh link/merge
                                $parent->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
                                $ticket->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
                                if ($ticket->getPid() != $parent->getId())
@@ -2475,6 +2479,7 @@ implements RestrictedAccess, Threadable, Searchable {
                                    $parent->logEvent('referred', $evd);
                                }
                         }
+                    //switch between combine and separate
                     } elseif ($parent->isParent() && $ticket->getMergeType() != 'visual' && $parent->getId() != $ticket->getId()) {
                         $ticket->setMergeType($tickets['combine']);
                     } elseif ($parent->isParent() && $ticket->getMergeType() != 'visual' && $parent->getId() == $ticket->getId())
