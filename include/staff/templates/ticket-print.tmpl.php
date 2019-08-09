@@ -217,6 +217,7 @@ if ($this->includenotes)
     $types[] = 'N';
 
 if ($thread = $ticket->getThreadEntries($types)) {
+    $thread = ThreadEntry::sortEntries($thread, $ticket);
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     foreach ($thread as $entry) { ?>
         <div class="thread-entry <?php echo $threadTypes[$entry->type]; ?>">

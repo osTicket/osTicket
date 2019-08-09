@@ -1,5 +1,4 @@
 <?php
-
 $sort = 'id';
 if ($options['sort'] && !strcasecmp($options['sort'], 'DESC'))
     $sort = '-id';
@@ -26,42 +25,12 @@ foreach (Attachment::objects()->filter(array(
 $tid = $this->getObJectId();
 if ($this->getObjectType() == 'T')
     $ticket = Ticket::lookup($tid);
-
 ?>
 <div id="<?php echo $htmlId; ?>">
     <div id="thread-items" data-thread-id="<?php echo $this->getId(); ?>">
     <?php
     if ($entries->exists(true)) {
-        // Go through all the entries and bucket them by time frame
-        $buckets = array();
-        $childEntries = array();
-        foreach ($entries as $i=>$E) {
-            if ($ticket) {
-                $E->extra = json_decode($E->extra, true);
-                //separated entries
-                if ($ticket->getMergeType() == 'separate') {
-                    if ($E->extra['thread'])
-                        $childEntries[$E->getId()] = $E;
-                    else
-                        $buckets[$E->getId()] = $E;
-                } else
-                    $buckets[$E->getId()] = $E;
-            } else
-                $buckets[$E->getId()] = $E;
-        }
-        usort($childEntries, function ($a, $b) { //sort by child ticket
-            if ($a->extra["thread"] != $b->extra["thread"])
-                return $a->extra["thread"] - $b->extra["thread"];
-        });
-
-        usort($childEntries, function($a, $b) { //sort by child created date
-            if ($a->extra["thread"] == $b->extra["thread"])
-                return strtotime($a->created) - strtotime($b->created);
-        });
-
-        if ($ticket && $ticket->getMergeType() == 'separate')
-            $buckets = $buckets + $childEntries;
-
+        $buckets = ThreadEntry::sortEntries($entries, $ticket);
         // TODO: Consider adding a date boundary to indicate significant
         //       changes in dates between thread items.
         foreach ($buckets as $entry) {

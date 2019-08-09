@@ -1535,6 +1535,40 @@ implements TemplateVariable {
         $this->save();
     }
 
+    function sortEntries($entries, $ticket) {
+        $buckets = array();
+        $childEntries = array();
+        foreach ($entries as $i=>$E) {
+            if ($ticket) {
+                $E->extra = json_decode($E->extra, true);
+                //separated entries
+                if ($ticket->getMergeType() == 'separate') {
+                    if ($E->extra['thread']) {
+                        $childEntries[$E->getId()] = $E;
+                        if ($childEntries) {
+                            uasort($childEntries, function ($a, $b) { //sort by child ticket
+                                if ($a->extra["thread"] != $b->extra["thread"])
+                                    return $b->extra["thread"] - $a->extra["thread"];
+                            });
+                            uasort($childEntries, function($a, $b) { //sort by child created date
+                                if ($a->extra["thread"] == $b->extra["thread"])
+                                    return strtotime($a->created) - strtotime($b->created);
+                            });
+                        }
+                    } else
+                        $buckets[$E->getId()] = $E;
+                } else
+                    $buckets[$E->getId()] = $E;
+            } else //we may be looking at a task
+                $buckets[$E->getId()] = $E;
+        }
+
+        if ($ticket && $ticket->getMergeType() == 'separate')
+            $buckets = $buckets + $childEntries;
+
+        return $buckets;
+    }
+
     //new entry ... we're trusting the caller to check validity of the data.
     static function create($vars=false) {
         global $cfg;
