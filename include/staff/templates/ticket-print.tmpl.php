@@ -231,6 +231,7 @@ if ($this->includenotes)
 
 $thread = $ticket->getThread();
 $entries = $ticket->getThreadEntries($types);
+$entries = ThreadEntry::sortEntries($entries, $ticket);
 if ($this->includeevents) {
     $events = $thread->getEvents();
     $sort = 'id';
