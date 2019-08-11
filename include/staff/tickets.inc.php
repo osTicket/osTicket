@@ -100,10 +100,14 @@ case 'assigned':
     $status='open';
     $staffId=$thisstaff->getId();
     $results_type=__('My Tickets');
-    $tickets->filter(Q::any(array(
-        'staff_id'=>$thisstaff->getId(),
-        Q::all(array('staff_id' => 0, 'team_id__gt' => 0)),
-    )));
+    //show tickets assigned to staff
+    $criteria = array('staff_id' => $thisstaff->getId());
+    $teamIds = array_filter($thisstaff->getTeams());
+    //or assigned to any of staff's teams AND not to a person
+    if (count($teamIds) > 0) {
+	$criteria []= Q::all(array('staff_id' => 0, 'team_id__in' => $teamIds));
+    }
+    $tickets->filter(Q::any($criteria));
     $queue_sort_options = array('updated', 'priority,updated',
         'priority,created', 'priority,due', 'due', 'answered', 'number',
         'hot');
