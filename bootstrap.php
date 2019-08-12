@@ -142,6 +142,9 @@ class Bootstrap {
         define('QUEUE_EXPORT_TABLE', $prefix.'queue_export');
         define('QUEUE_CONFIG_TABLE', $prefix.'queue_config');
 
+        define('SCHEDULE_TABLE', $prefix.'schedule');
+        define('SCHEDULE_ENTRY_TABLE', $prefix.'schedule_entry');
+
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
     }

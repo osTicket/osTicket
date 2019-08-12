@@ -58,6 +58,8 @@ implements TemplateVariable, Searchable {
     var $_groupids;
     var $config;
 
+    var $schedule;
+
     var $template;
     var $autorespEmail;
 
@@ -338,6 +340,18 @@ implements TemplateVariable, Searchable {
 
     function getSLA() {
         return $this->sla;
+    }
+
+    function getScheduleId() {
+        return $this->schedule_id;
+    }
+
+    function getSchedule() {
+        if (!isset($this->schedule) && $this->getScheduleId())
+            $this->schedule = BusinessHoursSchedule::lookup(
+                        $this->getScheduleId());
+
+        return $this->schedule;
     }
 
     function getTemplateId() {
@@ -804,6 +818,7 @@ implements TemplateVariable, Searchable {
         $this->email_id = isset($vars['email_id']) ? (int) $vars['email_id'] : 0;
         $this->tpl_id = isset($vars['tpl_id']) ? (int) $vars['tpl_id'] : 0;
         $this->sla_id = isset($vars['sla_id']) ? (int) $vars['sla_id'] : 0;
+        $this->schedule_id = isset($vars['schedule_id']) ? (int) $vars['schedule_id'] : 0;
         $this->autoresp_email_id = isset($vars['autoresp_email_id']) ? (int) $vars['autoresp_email_id'] : 0;
         $this->manager_id = $vars['manager_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);

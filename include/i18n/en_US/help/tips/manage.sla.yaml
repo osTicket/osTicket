@@ -34,3 +34,14 @@ transient:
         a non-transient SLA on <span class="doc-desc-opt">Department</span>
         transfer or when its <span class="doc-desc-title">Help Topic</span>
         is changed.
+
+schedule:
+    title: Schedule
+    content: >
+        Choose the Schedule to be used by this SLA when rendering tickets
+        Overdue.
+        <br><br>
+        Please note that Department settings can override this schedule.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
