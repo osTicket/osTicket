@@ -467,14 +467,12 @@ implements FormRenderer {
               <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
                 id="field<?php echo $f->getWidget()->id; ?>"
                 data-field-id="<?php echo $f->get('id'); ?>">
-<?php         if ($label = $f->get('label')) { ?>
+<?php         $label = $f->get('label'); ?>
               <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
                   for="<?php echo $f->getWidget()->id; ?>">
-                  <?php echo Format::htmlchars($label); ?>:
+                  <?php echo $label ? (Format::htmlchars($label).':') : '&nbsp;'; ?>
                 <?php if ($f->isRequired()) { ?>
                 <span class="error">*</span>
-                <?php
-                }?>
               </label>
 <?php         }
               if ($f->get('hint')) { ?>
