@@ -187,6 +187,7 @@ class OsticketConfig extends Config {
 
     var $defaultDept;   //Default Department
     var $defaultSLA;   //Default SLA
+    var $defaultSchedule; // Default Schedule
     var $defaultEmail;  //Default Email
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
@@ -555,6 +556,18 @@ class OsticketConfig extends Config {
             $this->defaultSLA = SLA::lookup($this->getDefaultSLAId());
 
         return $this->defaultSLA;
+    }
+
+    function getDefaultScheduleId() {
+        return $this->get('schedule_id');
+    }
+
+    function getDefaultSchedule() {
+        if (!isset($this->defaultSchedule) && $this->getDefaultScheduleId())
+            $this->defaultSchedule = BusinessHoursSchedule::lookup(
+                    $this->getDefaultScheduleId());
+
+        return $this->defaultSchedule;
     }
 
     function getAlertEmailId() {
@@ -1208,6 +1221,7 @@ class OsticketConfig extends Config {
             'daydatetime_format'=>$vars['daydatetime_format'],
             'date_formats'=>$vars['date_formats'],
             'default_timezone'=>$vars['default_timezone'],
+            'schedule_id' => $vars['schedule_id'],
             'default_locale'=>$vars['default_locale'],
             'system_language'=>$vars['system_language'],
             'secondary_langs'=>$secondary_langs,

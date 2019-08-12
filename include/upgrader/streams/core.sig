@@ -6,6 +6,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 86707325fc571e56242fccc46fd24466
 =======
 0ca8585781bc6656f3ca008212554441
@@ -31,3 +32,6 @@
 =======
 00c949a623b82848baaf3480b51307e3
 >>>>>>> Update Fresh Install Process
+=======
+8b923d61f0eea5216931c19aa591f4f2
+>>>>>>> Introducing the concept of Schedules
