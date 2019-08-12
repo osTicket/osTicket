@@ -4968,6 +4968,7 @@ class ColorPickerWidget extends Widget {
 class VisibilityConstraint {
     static $operators = array(
         'eq' => 1,
+        'neq' => 1,
     );
 
     const HIDDEN =      0x0001;
@@ -5041,9 +5042,7 @@ class VisibilityConstraint {
 
     static function splitFieldAndOp($field) {
         if (false !== ($last = strrpos($field, '__'))) {
-            $op = substr($field, $last + 2);
-            if (isset(static::$operators[$op]))
-                $field = substr($field, 0, strrpos($field, '__'));
+            list($field, $op) = explode('__', $field, 2);
         }
         return array($field, $op);
     }
@@ -5063,6 +5062,9 @@ class VisibilityConstraint {
                 $wval = $field ? $field->getClean() : null;
                 $values = explode('|', $value);
                 switch ($op) {
+                case 'neq':
+                    $expr[] = ($wval && !in_array($wval, $values) && $field->isVisible());
+                    break;
                 case 'eq':
                 case null:
                     $expr[] = (in_array($wval, $values) && $field->isVisible());
@@ -5104,6 +5106,10 @@ class VisibilityConstraint {
                 $widget = $field->getWidget();
                 $id = $widget->id;
                 switch ($op) {
+                case 'neq':
+                    $expr[] = sprintf('(%s.is(":visible") && !(%s))',
+                            $id, $widget->getJsComparator($value, $id));
+                    break;
                 case 'eq':
                 case null:
                     $expr[] = sprintf('(%s.is(":visible") && (%s))',
