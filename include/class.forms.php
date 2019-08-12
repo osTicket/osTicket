@@ -4499,11 +4499,18 @@ class DatetimePickerWidget extends Widget {
             autocomplete="off" class="dp" />
         <?php
         // Timezone hint
-        echo sprintf('&nbsp;<span class="faded">(<a href="#"
-                    data-placement="top" data-toggle="tooltip"
-                    title="%s">%s</a>)</span>',
-                $datetime->getTimezone()->getName(),
-                $datetime->format('T'));
+        // Show timzone hit by default but allow field to turn it off.
+        $showtimezone = true;
+        if (isset($config['showtimezone']))
+            $showtimezone = $config['showtimezone'];
+
+        if ($datetime && $showtimezone) {
+            echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                        data-placement="top" data-toggle="tooltip"
+                        title="%s">%s</a>)</span>',
+                    $datetime->getTimezone()->getName(),
+                    $datetime->format('T'));
+        }
         ?>
         <script type="text/javascript">
             $(function() {
@@ -4565,7 +4572,7 @@ class DatetimePickerWidget extends Widget {
 class TimePickerWidget extends Widget {
 
     function render($options=array()) {
-
+        $config = $this->field->getConfiguration();
         if (!isset($this->value) && ($default=$this->field->get('default')))
             $this->value = $default;
 
@@ -4586,11 +4593,18 @@ class TimePickerWidget extends Widget {
             autocomplete="off"  />
         <?php
         // Timezone hint
-        echo sprintf('&nbsp;<span class="faded">(<a href="#"
-                    data-placement="top" data-toggle="tooltip"
-                    title="%s">%s</a>)</span>',
-                $datetime->getTimezone()->getName(),
-                $datetime->format('T'));
+        // Show timzone hit by default but allow field to turn it off.
+        $showtimezone = true;
+        if (isset($config['showtimezone']))
+            $showtimezone = $config['showtimezone'];
+
+        if ($showtimezone) {
+            echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                        data-placement="top" data-toggle="tooltip"
+                        title="%s">%s</a>)</span>',
+                    $datetime->getTimezone()->getName(),
+                    $datetime->format('T'));
+        }
         ?>
         <script type="text/javascript">
             $(function() {
