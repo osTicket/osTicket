@@ -438,18 +438,27 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->duedate;
     }
 
-    function getSLADueDate($datetime=null) {
+    function getSLADueDate($recompute=false) {
+        global $cfg;
+
+        if (!$recompute && $this->est_duedate)
+            return $this->est_duedate;
+
         if ($sla = $this->getSLA()) {
-            $dt = new DateTime($datetime ?: $this->getReopenDate() ?: $this->getCreateDate());
-            return $dt
-                ->add(new DateInterval('PT' . $sla->getGracePeriod() . 'H'))
-                ->format('Y-m-d H:i:s');
+            $schedule = $this->getDept()->getSchedule();
+            $tz = new DateTimeZone($cfg->getDbTimezone());
+            $dt = new DateTime($this->getReopenDate() ?:
+                    $this->getCreateDate(), $tz);
+            $dt = $sla->addGracePeriod($dt, $schedule);
+            // Make sure time is in DB timezone
+            $dt->setTimezone($tz);
+            return $dt->format('Y-m-d H:i:s');
         }
     }
 
     function updateEstDueDate($clearOverdue=true) {
         $DueDate = $this->getEstDueDate();
-        $this->est_duedate = $this->getSLADueDate();
+        $this->est_duedate = $this->getSLADueDate(true) ?: null;
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
         if ($this->isOverdue()
             && $clearOverdue
@@ -4187,25 +4196,20 @@ implements RestrictedAccess, Threadable, Searchable {
          Punt for now
          */
 
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1'
-            .' USE INDEX (status_id)'
+        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
+            .' USE INDEX (status_id) '
             .' INNER JOIN '.TICKET_STATUS_TABLE.' status
                 ON (status.id=T1.status_id AND status.state="open") '
-            .' LEFT JOIN '.SLA_TABLE.' T2 ON (T1.sla_id=T2.id AND T2.flags & 1 = 1) '
             .' WHERE isoverdue=0 '
-            .' AND ((reopened is NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),T1.created))>=T2.grace_period*3600) '
-            .' OR (reopened is NOT NULL AND duedate is NULL AND TIME_TO_SEC(TIMEDIFF(NOW(),reopened))>=T2.grace_period*3600) '
+            .' AND ((duedate is NULL AND est_duedate is NOT NULL AND est_duedate<NOW()) '
             .' OR (duedate is NOT NULL AND duedate<NOW()) '
-            .' ) ORDER BY T1.created LIMIT 50'; //Age upto 50 tickets at a time?
+            .' ) ORDER BY T1.created LIMIT 100'; // Age limited number of tickets a time
 
-        if(($res=db_query($sql)) && db_num_rows($res)) {
+        if (($res=db_query($sql)) && db_num_rows($res)) {
             while(list($id)=db_fetch_row($res)) {
                 if ($ticket=Ticket::lookup($id))
                     $ticket->markOverdue();
             }
-        } else {
-            //TODO: Trigger escalation on already overdue tickets - make sure last overdue event > grace_period.
-
         }
    }
 

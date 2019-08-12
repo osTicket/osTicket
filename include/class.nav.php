@@ -247,10 +247,11 @@ class AdminNav extends StaffNav{
                     break;
                 case 'manage':
                     $subnav[]=array('desc'=>__('Help Topics'),'href'=>'helptopics.php','iconclass'=>'helpTopics');
-                    $subnav[]=array('desc'=>__('Ticket Filters'),'href'=>'filters.php',
+                    $subnav[]=array('desc'=>__('Filters'),'href'=>'filters.php',
                                         'title'=>__('Ticket Filters'),'iconclass'=>'ticketFilters');
-                    $subnav[]=array('desc'=>__('SLA Plans'),'href'=>'slas.php','iconclass'=>'sla');
-                    $subnav[]=array('desc'=>__('API Keys'),'href'=>'apikeys.php','iconclass'=>'api');
+                    $subnav[]=array('desc'=>__('SLA'),'href'=>'slas.php','iconclass'=>'sla');
+                    $subnav[]=array('desc'=>__('Schedules'),'href'=>'schedules.php','iconclass'=>'lists');
+                    $subnav[]=array('desc'=>__('API'),'href'=>'apikeys.php','iconclass'=>'api');
                     $subnav[]=array('desc'=>__('Pages'), 'href'=>'pages.php','title'=>'Pages','iconclass'=>'pages');
                     $subnav[]=array('desc'=>__('Forms'),'href'=>'forms.php','iconclass'=>'forms');
                     $subnav[]=array('desc'=>__('Lists'),'href'=>'lists.php','iconclass'=>'lists');

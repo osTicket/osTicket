@@ -256,6 +256,28 @@ $gmtime = Misc::gmtime();
     </tbody>
     <tbody>
         <tr>
+            <td width="220">
+                <?php echo sprintf('%s %s', __('Default'), __('Schedule'));?>:
+            </td>
+            <td>
+                <select name="schedule_id">
+                    <option value="0" selected="selected" >&mdash; <?php
+                    echo __('None');?> &mdash;</option>
+                    <?php
+                    if ($schedules=BusinessHoursSchedule::getSchedules()) {
+                        foreach ($schedules as $s) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $s->getId(), ($config['schedule_id']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['schedule_id'];
+                ?></span>&nbsp;<i class="help-tip icon-question-sign"
+                href="#default_schedule"></i>
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 <em><b><?php echo __('System Languages'); ?></b>&nbsp;
                 <i class="help-tip icon-question-sign" href="#languages"></i>

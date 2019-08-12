@@ -54,6 +54,17 @@ sla:
       - title: Manage SLA Plans
         href: /scp/slas.php
 
+schedule:
+    title: Schedule
+    content: >
+        Schedule used by SLA when rendering tickets, routed to this Department,
+        Overdue.
+        <br><br>
+        This setting takes presidence over System and SLA schedule settings.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
+
 manager:
     title: Department Manager
     content: >

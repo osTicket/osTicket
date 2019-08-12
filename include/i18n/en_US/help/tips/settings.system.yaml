@@ -41,6 +41,15 @@ default_department:
         Ticket can be routed base on help topic, incoming email and ticket
         filter settings.
 
+default_schedule:
+    title: Default Schedule
+    content: >
+        Choose the default Schedule to be used by SLA when rendering tickets
+        Overdue.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
+
 default_page_size:
     title: Default Page Size
     content: >

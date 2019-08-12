@@ -143,6 +143,26 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         </tr>
         <tr>
             <td width="180">
+                <?php echo __('Schedule');?>:
+            </td>
+            <td>
+                <select name="schedule_id">
+                    <option value="0" selected="selected" >&mdash; <?php
+                    echo __("SLA's Default");?> &mdash;</option>
+                    <?php
+                    if ($schedules=BusinessHoursSchedule::getSchedules()) {
+                        foreach ($schedules as $s) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $s->getId(), ($info['schedule_id']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['schedule_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#schedule"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 <?php echo __('Manager'); ?>:
             </td>
             <td>
