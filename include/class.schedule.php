@@ -620,6 +620,10 @@ class ScheduleEntry extends VerySimpleModel {
             strtotime($this->getEndsTime());
     }
 
+    function isOneTime() {
+        return !strcasecmp($this->getRepeats(), 'never');
+    }
+
     function getStartsDatetime() {
         if (!isset($this->_starts))
             $this->_starts = new Datetime(sprintf('%s %s',
@@ -647,9 +651,13 @@ class ScheduleEntry extends VerySimpleModel {
     }
 
     function getStopsDatetime() {
-        if (!isset($this->_stops) && $this->ht['stops_on'])
-            $this->_stops = new Datetime($this->ht['stops_on'],
+        if (!isset($this->_stops)) {
+            if ($this->ht['stops_on'])
+                $this->_stops = new Datetime($this->ht['stops_on'],
                     $this->getDatetimeZone());
+            elseif ($this->isOneTime())
+                $this->_stops = $this->getEndsDatetime();
+        }
 
         return $this->_stops;
     }
