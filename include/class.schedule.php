@@ -438,8 +438,8 @@ class BusinessHoursSchedule extends Schedule {
         return $this->holidays;
     }
 
-    static function getSchedules() {
-        return parent::getSchedules(array(
+    static function getSchedules($criteria=array()) {
+        return parent::getSchedules($criteria + array(
                     'flags__hasbit' => Schedule::FLAG_BIZHRS));
     }
 
@@ -455,8 +455,8 @@ class BusinessHoursSchedule extends Schedule {
  */
 class HolidaysSchedule extends Schedule {
 
-    static function getSchedules() {
-        return parent::getSchedules()
+    static function getSchedules($criteria=array()) {
+        return parent::getSchedules($criteria)
             ->exclude(array('flags__hasbit' => Schedule::FLAG_BIZHRS));
     }
 
