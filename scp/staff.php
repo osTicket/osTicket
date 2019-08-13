@@ -185,28 +185,18 @@ $tip_namespace = 'staff.agent';
 if ($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
 =======
 if($staff || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
-
-  if (PluginManager::auditPlugin() && strtolower($_REQUEST['t']) == 'audits') {
-    require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
-    $show = AuditEntry::$show_view_audits;
-     $filename = sprintf('%s-audits-%s.csv',
-             $staff->getName(), strftime('%Y%m%d'));
-     $tableInfo = AuditEntry::getTableInfo($staff, true);
-     if (!Export::audits('staff', $filename, $tableInfo, $staff, 'csv', $show))
-         $errors['err'] = __('Unable to dump query results.')
-             .' '.__('Internal error occurred');
-  }
-
   if ($staff && ($pdept=$staff->getDept()) && !$pdept->isActive())
     $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Agent'), __('Primary Department'));
+<<<<<<< HEAD
 
 >>>>>>> functionality to archive help topics and departments
+=======
+>>>>>>> Export Email
     $page='staff.inc.php';
 } elseif ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'export')) {
     if (!Staff::export())
         $errors['err'] = sprintf(__('Unable to export %s.'), __('Agents'));
 }
-
 $nav->setTabActive('staff');
 $ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
