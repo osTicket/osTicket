@@ -74,19 +74,19 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php echo __('Schedule');?>:
             </td>
             <td>
-                <select name="scheduleId">
+                <select name="schedule_id">
                     <option value="0" selected="selected" >&mdash; <?php
                     echo __('System Default');?> &mdash;</option>
                     <?php
                     if ($schedules=BusinessHoursSchedule::getSchedules()) {
                         foreach ($schedules as $s) {
                             echo sprintf('<option value="%d" %s>%s</option>',
-                                    $s->getId(), ($info['scheduleId']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
+                                    $s->getId(), ($info['schedule_id']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
                         }
                     }
                     ?>
                 </select>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['scheduleId']; ?></font>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['schedule_id']; ?></font>
                 <i class="help-tip icon-question-sign"
                 href="#schedule"></i>
             </td>
