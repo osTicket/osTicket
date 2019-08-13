@@ -4187,34 +4187,27 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     static function checkOverdue() {
-        /*
         $overdue = static::objects()
             ->filter(array(
                 'isoverdue' => 0,
                 Q::any(array(
                     Q::all(array(
-                        'reopened__isnull' => true,
                         'duedate__isnull' => true,
+                        'est_duedate__isnull' => false,
+                        'est_duedate__lt' => SqlFunction::NOW())
+                        ),
+                    Q::all(array(
+                        'duedate__isnull' => false,
+                        'duedate__lt' => SqlFunction::NOW())
+                        )
+                    ))
+                ))
+            ->limit(100);
 
-         Punt for now
-         */
+        foreach ($overdue as $ticket)
+            $ticket->markOverdue();
 
-        $sql='SELECT ticket_id FROM '.TICKET_TABLE.' T1 '
-            .' USE INDEX (status_id) '
-            .' INNER JOIN '.TICKET_STATUS_TABLE.' status
-                ON (status.id=T1.status_id AND status.state="open") '
-            .' WHERE isoverdue=0 '
-            .' AND ((duedate is NULL AND est_duedate is NOT NULL AND est_duedate<NOW()) '
-            .' OR (duedate is NOT NULL AND duedate<NOW()) '
-            .' ) ORDER BY T1.created LIMIT 100'; // Age limited number of tickets a time
-
-        if (($res=db_query($sql)) && db_num_rows($res)) {
-            while(list($id)=db_fetch_row($res)) {
-                if ($ticket=Ticket::lookup($id))
-                    $ticket->markOverdue();
-            }
-        }
-   }
+    }
 
     static function agentActions($agent, $options=array()) {
         if (!$agent)
