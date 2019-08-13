@@ -30,7 +30,7 @@ class Export {
             'json' => 'JsonResultsExporter'
         );
         $exp = new $exporters[$how]($sql, $headers, $options);
-        return $exp->dump();
+        return $exp->dump($options['tmp'] ? true : false);
     }
 
     # XXX: Think about facilitated exporting. For instance, we might have a
@@ -322,59 +322,72 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
     exit;
   }
 
-  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true) {
+  static function audits($type, $abbrv='', $state='', $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true) {
       $headings = array('Description', 'Timestamp', 'IP');
       switch ($type) {
           case 'audit':
-              $state = $_REQUEST['state'];
-              $sql = AuditEntry::objects()->filter(array('object_type'=>$_REQUEST['type']));
-              if ($state && $state != 'All')
-                  $sql = $sql->filter(array('state'=>$state));
+              $sql = AuditEntry::objects()->filter(array('object_type'=>$abbrv));
+              if ($state && $state != 'All') {
+                  $eventId = Event::getIdByName(strtolower($state));
+                  $sql = $sql->filter(array('event_id'=>$eventId));
+              }
 
               if ($_REQUEST['starttime'] && $_REQUEST['endtime'])
                 $sql = $sql->filter(array('timestamp__range' =>
                                     array('"'.$_REQUEST['starttime'].'"', '"'.$_REQUEST['endtime'].'"', true)));
 
-              $sql = $sql->order_by('timestamp');
+              $sql = $sql->order_by('-timestamp');
               $tableInfo = $sql;
               break;
           case 'user':
-              $sql = AuditEntry::objects()->filter(array('user_id'=>$object->getId()))->order_by('timestamp');
+              $sql = AuditEntry::objects()->filter(array('user_id'=>$object))->order_by('-timestamp');
               break;
           case 'staff':
-              $sql = AuditEntry::objects()->filter(array('staff_id'=>$object->getId()))->order_by('timestamp');
+              $sql = AuditEntry::objects()->filter(array('staff_id'=>$object))->order_by('-timestamp');
               break;
           case 'ticket':
-              $sql = AuditEntry::objects()->filter(array('object_id'=>$object->getId(), 'object_type'=>'T'))->order_by('timestamp');
+              $sql = AuditEntry::objects()->filter(array('object_id'=>$object, 'object_type'=>'T'))->order_by('-timestamp');
               break;
       }
       if (!$show_viewed)
-          $sql = $sql->filter(Q::not(array('event_id'=>Event::getIdByName('viewed'))))->order_by('timestamp');
+          $sql = $sql->filter(Q::not(array('event_id'=>Event::getIdByName('viewed'))))->order_by('-timestamp');
 
-      //Download the file
-      Http::download($filename, "text/$how");
-      echo self::dumpQuery($sql, $headings,
-              $how,
-              array('modify' => function(&$record, $keys, $obj) use ($tableInfo) {
-                foreach ($tableInfo as $k => $v) {
-                  if (is_object($v)) {
-                      $description = AuditEntry::getDescription($v, true);
-                      $v = $v->ht;
-                  }
+      // Create and store export start time
+      $_SESSION['export']['start'] = microtime(true);
+      // Store filename
+      $_SESSION['export']['filename'] = $filename;
+      // Create and store export temp name
+      $prefix = base64_encode(sha1(microtime(), true));
+      $_SESSION['export']['tempname'] = str_replace(
+          array('=','+','/'),
+          array('','-','_'),
+          substr($prefix, 0, 5) . $sha1);
 
-                  if (is_numeric($k) && ($i = in_array(
-                                        is_array($obj->ht) ? $obj->ht['id'] : $obj->id,
-                                        $v)) !== false) {
-                      $description = $description ?: $v['description'];
-                      $record[0] = $description;
-                      $record[1] = $v['timestamp'];
-                      $record[2] = $v['ip'];
-                  }
-                }
-                 return $record;
-                })
-              );
-      exit;
+      // Create temp file to build CSV
+      $output = fopen(tempnam(sys_get_temp_dir(),
+          $_SESSION['export']['tempname']), 'w+');
+
+      // Save path in session for later
+      $_SESSION['export']['tempath'] = stream_get_meta_data($output)['uri'];
+
+      $delimiter = Internationalization::getCSVDelimiter();
+      // Output a UTF-8 BOM (byte order mark)
+      fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+      fputcsv($output, $headings, $delimiter);
+      $row = array();
+      foreach ($sql as $key => $value) {
+        if (is_object($value)) {
+            $description = AuditEntry::getDescription($value, true);
+            $value = $value->ht;
+        }
+        $row[0] = $description;
+        $row[1] = $value['timestamp'];
+        $row[2] = $value['ip'];
+        fputcsv($output, $row, $delimiter);
+      }
+
+      // Create and store export end time
+      $_SESSION['export']['end'] = microtime(true);
     }
 }
 
@@ -729,11 +742,9 @@ class CsvResultsExporter extends ResultSetExporter {
         return Internationalization::getCSVDelimiter();
     }
 
-    function dump() {
-
+    function dump($tmp=false) {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
-
 
         $delimiter = $this->getDelimiter();
         // Output a UTF-8 BOM (byte order mark)
@@ -748,7 +759,8 @@ class CsvResultsExporter extends ResultSetExporter {
                 }, $row),
             $delimiter);
 
-        fclose($this->output);
+        if (!$tmp)
+            fclose($this->output);
     }
 }
 

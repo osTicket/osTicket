@@ -18,23 +18,6 @@ require('admin.inc.php');
 if (PluginManager::auditPlugin())
     require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
 
-switch (strtolower($_REQUEST['t'])) {
-  case 'audits':
-      if (PluginManager::auditPlugin() && $_REQUEST['a'] == 'export') {
-         foreach (AuditEntry::getTypes() as $abbrev => $info) {
-             if ($_REQUEST['type'] == $abbrev)
-                $name = AuditEntry::getObjectName($info[0]);
-         }
-         $show = AuditEntry::$show_view_audits;
-         $filename = sprintf('%s-audits-%s.csv', $name, strftime('%Y%m%d'));
-
-          if (!Export::audits('audit', $filename, '', '', 'csv', $show))
-              $errors['err'] = __('Unable to dump query results.')
-                  .' '.__('Internal error occurred');
-      }
-      break;
-}
-
 $page= sprintf('phar:///%s/plugins/audit.phar/templates/auditlogs.tmpl.php', INCLUDE_DIR);
 $nav->setTabActive('dashboard');
 $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.audit_logs" />',

@@ -513,9 +513,7 @@ if($ticket) {
       if (!Export::audits('ticket', $filename, $tableInfo, $ticket, 'csv', $show))
           $errors['err'] = __('Unable to dump query results.')
               .' '.__('Internal error occurred');
-    } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
-        $errors['err'] = __('Unable to export the ticket to PDF for print.')
-            .' '.__('Internal error occurred');
+    }
 } else {
     $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
