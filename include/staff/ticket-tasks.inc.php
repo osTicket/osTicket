@@ -22,7 +22,7 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
     if ($count) {
         echo '<strong>'.$showing.'</strong>';
     } else {
-        echo sprintf(__('%s does not have any tasks'), $ticket? 'This ticket' :
+        echo sprintf(__('%s does not have any tasks'), $ticket? __('This ticket') :
                 'System');
     }
    ?>
@@ -92,7 +92,7 @@ if ($count) { ?>
                     Format::truncate($task->getAssigned(),40));
         }
 
-        $status = $task->isOpen() ? '<strong>open</strong>': 'closed';
+        $status = $task->isOpen() ? sprintf('<strong>%s</strong>', __('Open')): __('Closed');
 
         $title = Format::htmlchars(Format::truncate($task->getTitle(),40));
         $threadcount = $task->getThread() ?

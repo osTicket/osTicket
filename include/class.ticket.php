@@ -3157,7 +3157,7 @@ implements RestrictedAccess, Threadable {
                             if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
                                 $disabled[] = $field->get('id');
                         }
-                        // Special handling for the ticket form — disable fields
+                        // Special handling for the ticket form — disable fields
                         // requested to be disabled as per the help topic.
                         if ($__F->get('type') == 'T') {
                             foreach ($form->getFields() as $field) {
