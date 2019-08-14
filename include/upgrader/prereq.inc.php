@@ -15,12 +15,12 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             <?php echo __('These items are necessary in order to run the latest version of osTicket.');?>
             <ul class="progress">
                 <li class="<?php echo $upgrader->check_php()?'yes':'no'; ?>">
-                <?php echo sprintf(__('%s or later'), 'PHP v5.4'); ?> - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
+                <?php echo sprintf(__('%s or later'), 'PHP v'.SetupWizard::getPHPVersion()); ?> - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql()?'yes':'no'; ?>">
                 <?php echo __('MySQLi extension for PHP'); ?>- (<small><b><?php
                     echo extension_loaded('mysqli')?__('module loaded'):__('missing!'); ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql_version()?'yes':'no'; ?>">
-                <?php echo sprintf(__('%s or later'), 'MySQL v5.0'); ?> - (<small><b><?php echo db_version(); ?></b></small>)</li>
+                <?php echo sprintf(__('%s or later'), 'MySQL v'.SetupWizard::getMySQLVersion()); ?> - (<small><b><?php echo db_version(); ?></b></small>)</li>
             </ul>
             <h3><?php echo __('Highly Recommended');?>:</h3>
             <?php echo __('We highly recommend that you follow the steps below.');?>
