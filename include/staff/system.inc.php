@@ -74,7 +74,7 @@ else {
     $cv = $tv[0] == 'v' ? $tv : $gv;
 ?>
       <a class="green button action-button pull-right"
-         href="http://osticket.com/download?cv=<?php echo $cv; ?>"><i class="icon-rocket"></i>
+         href="https://osticket.com/download?cv=<?php echo $cv; ?>"><i class="icon-rocket"></i>
         <?php echo __('Upgrade'); ?></a>
 <?php if ($lv) { ?>
       <strong> — <?php echo str_replace(
