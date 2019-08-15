@@ -7,6 +7,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 86707325fc571e56242fccc46fd24466
 =======
 0ca8585781bc6656f3ca008212554441
@@ -35,3 +36,6 @@
 =======
 8b923d61f0eea5216931c19aa591f4f2
 >>>>>>> Introducing the concept of Schedules
+=======
+9b5550dad8d3f036d62eb1340f230317
+>>>>>>> Modify Upgrader

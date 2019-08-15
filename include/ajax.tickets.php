@@ -917,8 +917,15 @@ function refer($tid, $target=null) {
                 }
 
                 $expr = call_user_func_array(array('SqlFunction', 'FIELD'), $ticketIdsSorted);
-                $tickets = $tickets->order_by($expr);
             }
+            $tickets = Ticket::objects()
+                 ->filter(array('ticket_id__in'=>$ticketIds))
+                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
+                               'user_id', 'cdata__subject', 'user__name', 'flags')
+                 ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                                  'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                  'entries' => SqlAggregate::COUNT('thread__entries__id'),))
+                 ->order_by($expr ?: 'sort');
             $ticket = Ticket::lookup($parent[0] ?: $ticket[0]);
 
             // Generic permission check.
