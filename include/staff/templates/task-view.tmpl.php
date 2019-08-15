@@ -78,7 +78,8 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
             'delete' => array(
                 'href' => sprintf('#tasks/%d/delete', $task->getId()),
                 'icon' => 'icon-trash',
-                'class' => 'red button',
+		'class' => 'red button',
+                'style' => 'background-color: #ffcccc; border-radius: 6px',
                 'label' => __('Delete'),
                 'redirect' => 'tasks.php'
             ));
@@ -150,7 +151,7 @@ if ($task->isOverdue())
                     <li>
                         <a class="no-pjax task-action"
                             href="#tasks/<?php echo $task->getId(); ?>/reopen"><i
-                            class="icon-fixed-width icon-undo"></i> <?php
+                            class="icon-undo"></i> <?php
                             echo __('Reopen');?> </a>
                     </li>
                     <?php
@@ -159,14 +160,14 @@ if ($task->isOverdue())
                     <li>
                         <a class="no-pjax task-action"
                             href="#tasks/<?php echo $task->getId(); ?>/close"><i
-                            class="icon-fixed-width icon-ok-circle"></i> <?php
+                            class="icon-ok-circle"></i> <?php
                             echo __('Close');?> </a>
                     </li>
                     <?php
                     } ?>
                     <?php
                     foreach ($actions as $a => $action) { ?>
-                    <li <?php if ($action['class']) echo sprintf("class='%s'", $action['class']); ?> >
+                    <li <?php if ($action['style']) echo sprintf("style='%s'", $action['style']); ?> >
                         <a class="no-pjax task-action" <?php
                             if ($action['dialog'])
                                 echo sprintf("data-dialog-config='%s'", $action['dialog']);
