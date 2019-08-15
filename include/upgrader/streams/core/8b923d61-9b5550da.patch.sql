@@ -1,6 +1,6 @@
 /**
-* @signature 49fb8af84d9ac386a573f3eb80d8a0ee
-* @version v1.11.0
+* @signature 9b5550dad8d3f036d62eb1340f230317
+* @version v1.14.0
 * @title Ticket Merge
 *
 * This patch adds new fields to the database to allow us to merge Tickets
@@ -28,5 +28,5 @@ VALUES
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-   SET `value` = '49fb8af84d9ac386a573f3eb80d8a0ee', `updated` = NOW()
+   SET `value` = '9b5550dad8d3f036d62eb1340f230317', `updated` = NOW()
    WHERE `key` = 'schema_signature' AND `namespace` = 'core';
