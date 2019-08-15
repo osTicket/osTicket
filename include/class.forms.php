@@ -1446,7 +1446,8 @@ class TextboxField extends FormField {
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
-            '' =>       array(array('Validator', 'is_formula'),
+            '' => '',
+            'formula' => array(array('Validator', 'is_formula'),
                 __('Content cannot start with the following characters: = - + @')),
             'email' =>  array(array('Validator', 'is_valid_email'),
                 __('Enter a valid email address')),
@@ -1469,6 +1470,10 @@ class TextboxField extends FormField {
         }
         if (!$value || !isset($validators[$valid]))
             return;
+        // If no validators are set and not an instanceof AdvancedSearchForm
+        // force formula validation
+        if (!$valid && !($this->getForm() instanceof AdvancedSearchForm))
+            $valid = 'formula';
         $func = $validators[$valid];
         $error = $func[1];
         if ($config['validator-error'])
