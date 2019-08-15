@@ -92,7 +92,14 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown organization');
 
         $errors = array();
+<<<<<<< HEAD
         if($org->update($_POST, $errors))
+=======
+        if ($profile) {
+            if ($org->updateProfile($_POST, $errors))
+                Http::response(201, $org->to_json(), 'application/json');
+        } elseif ($org->update($_POST, $errors))
+>>>>>>> Organization Update
              Http::response(201, $org->to_json(), 'application/json');
 
         $forms = $org->getForms();
