@@ -314,9 +314,9 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('THIS_VERSION','1.8-git'); //Shown on admin panel
 define('GIT_VERSION','$git');
 define('MAJOR_VERSION', '1.10');
+define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))
