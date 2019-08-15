@@ -851,7 +851,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                  <a class="manage-collaborators
                                  collaborators preview noclick %s"
                                   href="#thread/%d/collaborators/1">
-                                 (%s)</a></span>',
+                                 %s</a></span>',
                                  __('Collaborators'),
                                  $ticket->getNumCollaborators()
                                   ? '' : 'hidden',

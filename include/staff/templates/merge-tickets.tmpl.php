@@ -32,10 +32,8 @@ foreach ($tickets as $t) {
     else
         extract($t); //same as above, but maintains sort for linking
     $mergeType = Ticket::getMergeTypeByFlag($flags);
-
     if ($mergeType == 'combine')
         $forceOptions = true;
-
     if ($ticket_pid && $mergeType == 'visual')
         $isLinkChild = true;
     $types[] = $mergeType;
@@ -175,7 +173,6 @@ foreach ($tickets as $t) {
     $sel.prop('disabled',true);"><i class="icon-plus-sign"></i>
 <?php echo __('Add a Ticket'); ?></button>
 </div>
-<?php if ($ticket->getMergeType() == 'visual') { ?>
 <div>
     <hr>
     <?php echo ($title == 'merge') ? __('Merge Type: ') : ''; ?>
@@ -188,10 +185,9 @@ foreach ($tickets as $t) {
            <?php echo ($title == 'merge') ? __('Separate Threads') : '';?>
     <input style="display:none" type="radio" name="combine" value="2" <?php echo ($ticket->getMergeType() == 'visual' && $title == 'link')?'checked="checked"':''; ?>>
 </div>
-<?php } ?>
 <?php if ($title == 'merge') { ?>
 <hr>
-<div id="merge-options" class="hidden">
+<div id="merge-options">
     <label class="inline checkbox">
         <input type="checkbox" id="delete-child" name="delete-child">
         <?php echo __('Delete Child Ticket') ?>
@@ -230,48 +226,12 @@ $(function() {
     $('#ticket-entries').sortable({items: "li:not(.ui-state-disabled)"});
     $( "#ticket-entries li" ).disableSelection();
 });
-
 function refreshAndClose() {
     setTimeout(function () {
         location.reload();
     }, 1000);
 }
-
 $(document).ready(function() {
-    showCheckboxes($("#combination :radio:checked"));
-    showMergeOptions();
-
-    function showMergeOptions() {
-        var jArray = <?php echo json_encode($types); ?>;
-        for(var i=0; i<jArray.length; i++){
-            switch (jArray[0]) {
-                case 'visual':
-                    $('#combine').parent().show();
-                    $('#separate').parent().show();
-                    break;
-                case 'combine':
-                    <?php if ($forceOptions == true) { ?>
-                        $('#combine').parent().show();
-                        $('input:radio[id=combine]').attr('checked',true);
-                        $('#separate').parent().show();
-                    <?php } else { ?>
-                        $('#combine').parent().show();
-                        $('input:radio[id=combine]').attr('checked',true);
-                        $('#separate').parent().hide();
-                    <?php } ?>
-                    break;
-                case 'separate':
-                    $('#combine').parent().hide();
-                    $('#separate').parent().show();
-                    $('input:radio[id=separate]').attr('checked',true);
-                    break;
-                default:
-
-            }
-        }
-    }
-
-
     $('.ticketSelection').select2({
       width: '450px',
       minimumInputLength: 3,
@@ -306,15 +266,9 @@ $(document).ready(function() {
         }
       }
     });
-
-    $('#combination input[type=radio]').change(function(){
-      showCheckboxes(this);
-    });
-
     $('#merge-options input[type=checkbox]').change(function(){
         childWarning();
     });
-
     function childWarning() {
         var value = $("#delete-child").prop("checked") ? 1 : 0;
         (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
