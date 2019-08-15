@@ -455,12 +455,18 @@ if($ticket) {
     $inc = 'ticket-view.inc.php';
     if ($_REQUEST['a']=='edit'
             && $ticket->checkStaffPerm($thisstaff, TicketModel::PERM_EDIT)) {
-        $inc = 'ticket-edit.inc.php';
-        if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
-        // Auto add new fields to the entries
-        foreach ($forms as $f) {
-            $f->filterFields(function($f) { return !$f->isStorable(); });
-            $f->addMissingFields();
+        $lock = $ticket->getLock();
+        if ($cfg->getLockTime()) {
+            Ticket::checkLock($lock, $ticket, $thisstaff, $errors);
+            if (!$errors['err']) {
+                $inc = 'ticket-edit.inc.php';
+                if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
+                // Auto add new fields to the entries
+                foreach ($forms as $f) {
+                    $f->filterFields(function($f) { return !$f->isStorable(); });
+                    $f->addMissingFields();
+                }
+            }
         }
     } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
         $errors['err'] = __('Unable to export the ticket to PDF for print.')

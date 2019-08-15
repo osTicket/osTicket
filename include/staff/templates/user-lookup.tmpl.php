@@ -3,7 +3,7 @@
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
-if (!isset($info['lookup']) || $info['lookup'] !== false) { ?>
+if ((!isset($info['lookup']) || $info['lookup'] !== false) && !$info['error']) { ?>
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo
     $thisstaff->hasPerm(User::PERM_CREATE)
     ? __('Search existing users or add a new user.')
@@ -38,7 +38,7 @@ else { ?>
     <i class="icon-user icon-4x pull-left icon-border"></i>
 <?php
 }
-if ($thisstaff->hasPerm(User::PERM_CREATE)) { ?>
+if ($thisstaff->hasPerm(User::PERM_CREATE) && !$info['error']) { ?>
     <a class="action-button pull-right" style="overflow:inherit"
         id="unselect-user"  href="#"><i class="icon-remove"></i>
         <?php echo __('Add New User'); ?></a>
@@ -73,7 +73,7 @@ if ($user) { ?>
             echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Continue'); ?>">
+            <input type="submit" <?php if ($info['error']) echo 'disabled="true"'; ?> value="<?php echo __('Continue'); ?>">
         </span>
      </p>
 </form>
