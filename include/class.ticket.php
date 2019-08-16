@@ -1171,8 +1171,11 @@ implements RestrictedAccess, Threadable {
         if ($thisstaff && !($role = $thisstaff->getRole($this->getDeptId())))
             return false;
 
-        if ($status && is_numeric($status))
-            $status = TicketStatus::lookup($status);
+        if ($status)
+            if (is_numeric($status)) {
+                $status = TicketStatus::lookup($status);
+            } else if (is_string($status))
+                $status = TicketStatus::lookup(array('name' => $status));
 
         if (!$status || !$status instanceof TicketStatus)
             return false;
