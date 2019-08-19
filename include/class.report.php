@@ -148,6 +148,8 @@ class OverviewReport {
         $event = function ($name) use ($event_ids) {
             return $event_ids[$name];
         };
+        $dash_headers = array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
+                              __('Deleted'),__('Service Time'),__('Response Time'));
 
         list($start, $stop) = $this->getDateRange();
         $times = ThreadEvent::objects()
@@ -227,6 +229,9 @@ class OverviewReport {
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
             $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+            if (empty($topics))
+                return array("columns" => array_merge($headers, $dash_headers),
+                      "data" => array());
             $stats = $stats
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -310,9 +315,7 @@ class OverviewReport {
                 number_format($T['ServiceTime'], 1),
                 number_format($T['ResponseTime'], 1));
         }
-        return array("columns" => array_merge($headers,
-                        array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
-                              __('Deleted'),__('Service Time'),__('Response Time'))),
+        return array("columns" => array_merge($headers, $dash_headers),
                      "data" => $rows);
     }
 }
