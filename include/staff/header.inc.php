@@ -432,8 +432,14 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                 <!-- Start content -->
                 <div class="content">
                     <div class="container">
-                
-                 
+					
+					<?php if ($BacklogTotal > 45) { ?>
+					
+					<div class="alert alert-danger m-b-30 sticky" role="alert">
+                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Backlog is currently <strong><?php echo $BacklogTotal; ?></strong> which is greater than the established target of <strong>45</strong>.
+                    </div>
+			
+					<?php } ?>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/moment.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/footable.js"></script>
 <script>
