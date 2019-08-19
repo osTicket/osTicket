@@ -2714,6 +2714,222 @@ class ThreadEntryField extends FormField {
     }
 }
 
+class TopicField extends ChoiceField {
+    var $topics;
+    var $_choices;
+
+    function getTopics() {
+        if (!isset($this->topics))
+            $this->topics = Topic::objects();
+
+        return $this->topics;
+    }
+
+    function getTopic($id) {
+        if ($this->getTopics() &&
+                ($s=$this->topics->findFirst(array('id' => $id))))
+            return $s;
+
+        return Topic::lookup($id);
+    }
+
+    function getWidget($widgetClass=false) {
+        $default = $this->get('default');
+        $widget = parent::getWidget($widgetClass);
+        if ($widget->value instanceof Topic)
+            $widget->value = $widget->value->getId();
+        elseif (!isset($widget->value) && $default)
+            $widget->value = $default;
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        if (!isset($this->_choices)) {
+            $choices = array('' => '— '.__('Default').' —');
+            foreach ($this->getTopics() as $t)
+                $choices[$t->getId()] = $t->getName();
+            $this->_choices = $choices;
+        }
+
+        return $this->_choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if ($value instanceof Topic)
+            return $value;
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        elseif (is_array($value))
+            list($value, $id) = $value;
+        elseif ($id === false)
+            $id = $value;
+
+        return $this->getTopic($id);
+    }
+
+    function to_database($topic) {
+        return ($topic instanceof Topic)
+            ? array($topic->getName(), $topic->getId())
+            : $topic;
+    }
+
+    function display($topic, &$styles=null) {
+        if (!$topic instanceof Topic)
+            return parent::display($topic);
+
+        return Format::htmlchars($topic->getName());
+    }
+
+    function toString($value) {
+        if (!($value instanceof Topic) && is_numeric($value))
+            $value = $this->getSLA($value);
+        return ($value instanceof Topic) ? $value->getName() : $value;
+    }
+
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getKeys($value) {
+        return ($value instanceof Topic) ? array($value->getId()) : null;
+    }
+
+    function asVar($value, $id=false) {
+        return $this->to_php($value, $id);
+    }
+
+    function getConfiguration() {
+        global $cfg;
+
+        $config = parent::getConfiguration();
+        if (!isset($config['default']))
+            $config['default'] = $cfg->getDefaultTopicId();
+        return $config;
+    }
+}
+
+class SLAField extends ChoiceField {
+    var $slas;
+    var $_choices;
+
+    function getSLAs() {
+        if (!isset($this->slas))
+            $this->slas = SLA::objects();
+
+        return $this->slas;
+    }
+
+    function getSLA($id) {
+        if ($this->getSLAs() &&
+                ($s=$this->slas->findFirst(array('id' => $id))))
+            return $s;
+
+        return SLA::lookup($id);
+    }
+
+    function getWidget($widgetClass=false) {
+        $default = $this->get('default');
+        $widget = parent::getWidget($widgetClass);
+        if ($widget->value instanceof SLA)
+            $widget->value = $widget->value->getId();
+        elseif (!isset($widget->value) && $default)
+            $widget->value = $default;
+        return $widget;
+    }
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        if (!isset($this->_choices)) {
+            $choices = array('' => '— '.__('Default').' —');
+            foreach ($this->getSLAs() as $s)
+                $choices[$s->getId()] = $s->getName();
+            $this->_choices = $choices;
+        }
+
+        return $this->_choices;
+    }
+
+    function parse($id) {
+        return $this->to_php(null, $id);
+    }
+
+    function to_php($value, $id=false) {
+        if ($value instanceof SLA)
+            return $value;
+        if (is_array($id)) {
+            reset($id);
+            $id = key($id);
+        }
+        elseif (is_array($value))
+            list($value, $id) = $value;
+        elseif ($id === false)
+            $id = $value;
+
+        return $this->getSLA($id);
+    }
+
+    function to_database($sla) {
+        return ($sla instanceof SLA)
+            ? array($sla->getName(), $sla->getId())
+            : $sla;
+    }
+
+    function display($sla, &$styles=null) {
+        if (!$sla instanceof SLA)
+            return parent::display($sla);
+
+        return Format::htmlchars($sla->getName());
+    }
+
+    function toString($value) {
+        if (!($value instanceof SLA) && is_numeric($value))
+            $value = $this->getSLA($value);
+        return ($value instanceof SLA) ? $value->getName() : $value;
+    }
+
+    function whatChanged($before, $after) {
+        return FormField::whatChanged($before, $after);
+    }
+
+    function searchable($value) {
+        return null;
+    }
+
+    function getKeys($value) {
+        return ($value instanceof SLA) ? array($value->getId()) : null;
+    }
+
+    function asVar($value, $id=false) {
+        return $this->to_php($value, $id);
+    }
+
+    function getConfiguration() {
+        global $cfg;
+
+        $config = parent::getConfiguration();
+        if (!isset($config['default']))
+            $config['default'] = $cfg->getDefaultSLAId();
+        return $config;
+    }
+}
+
 class PriorityField extends ChoiceField {
 
     var $priorities;
@@ -3037,67 +3253,6 @@ FormField::addFieldTypes(/*@trans*/ 'Dynamic Fields', function() {
         'department' => array(__('Department'), 'DepartmentField'),
     );
 });
-
-
-class SLAField extends ChoiceField {
-    function getWidget($widgetClass=false) {
-        $widget = parent::getWidget($widgetClass);
-        if ($widget->value instanceof SLA)
-            $widget->value = $widget->value->getId();
-        return $widget;
-    }
-
-    function hasIdValue() {
-        return true;
-    }
-
-    function getChoices($verbose=false) {
-        global $cfg;
-
-        $choices = array();
-        if (($depts = SLA::getSLAs()))
-            foreach ($depts as $id => $name)
-                $choices[$id] = $name;
-
-        return $choices;
-    }
-
-    function parse($id) {
-        return $this->to_php(null, $id);
-    }
-
-    function to_php($value, $id=false) {
-        if (is_array($id)) {
-            reset($id);
-            $id = key($id);
-        }
-        return $id;
-    }
-
-    function to_database($sla) {
-        return ($sla instanceof SLA)
-            ? array($sla->getName(), $sla->getId())
-            : $sla;
-    }
-
-    function toString($value) {
-        return (string) $value;
-    }
-
-    function searchable($value) {
-        return null;
-    }
-
-    function getConfigurationOptions() {
-        return array(
-            'prompt' => new TextboxField(array(
-                'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
-                'hint'=>__('Leading text shown before a value is selected'),
-                'configuration'=>array('size'=>40, 'length'=>40),
-            )),
-        );
-    }
-}
 
 class AssigneeField extends ChoiceField {
     var $_choices = null;
@@ -4109,7 +4264,6 @@ class PhoneNumberWidget extends Widget {
 
 class ChoicesWidget extends Widget {
     function render($options=array()) {
-
         $mode = null;
         if (isset($options['mode']))
             $mode = $options['mode'];
@@ -4117,10 +4271,10 @@ class ChoicesWidget extends Widget {
             $mode = $this->field->options['render_mode'];
 
         if ($mode == 'view') {
-            if (!($val = (string) $this->field))
-                $val = sprintf('<span class="faded">%s</span>', __('None'));
-
-            echo $val;
+            $val = (string) $this->field;
+            echo sprintf('<span id="field_%s" %s >%s</span>', $this->id,
+                    $val ? '': 'class="faded"',
+                    $val ?: __('None'));
             return;
         }
 

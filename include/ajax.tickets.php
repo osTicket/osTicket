@@ -492,7 +492,6 @@ class TicketsAjaxAPI extends AjaxController {
                         );
                 Http::response(201, $ticket->getId());
             }
-
             $form->addErrors($errors);
             $info['error'] = $errors['err'] ?: __('Unable to transfer ticket');
         }
@@ -611,22 +610,42 @@ function refer($tid, $target=null) {
 
       $form = $field->getEditForm($_POST);
       if ($_POST && $form->isValid()) {
-            if ($ticket->updateField($form, $errors)) {
-              $_SESSION['::sysmsgs']['msg'] = sprintf(
-                      __('%s successfully'),
-                      sprintf(
-                          __('%s updated'),
-                          __($field->getLabel())
-                          )
-                      );
-
-              if ($field instanceof FileUploadField)
+          if ($ticket->updateField($form, $errors)) {
+              $msg = sprintf(
+                  __('%s successfully'),
+                  sprintf(
+                      __('%s updated'),
+                      __($field->getLabel())
+                      )
+                  );
+                  if ($field instanceof FileUploadField)
                   $field->save();
-              Http::response(201, $field->getClean());
+
+                  if (!$clean) {
+                      if (get_class($field) == 'DateTime' || get_class($field) == 'DatetimeField')
+                      $clean = Format::datetime((string) $field->getClean());
+                      elseif ($field instanceof FileUploadField) {
+                          $answer =  $field->getAnswer();
+                          $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
+                      } elseif ($field instanceof DepartmentField) {
+                          $id = $field->getClean();
+                          $clean = Dept::objects()->filter(array('id' => $id))->values_flat('name')->first();
+                          $clean = $clean[0];
+                      } else
+                      $clean = is_array($field->getClean()) ? implode($field->getClean(), ',') : (string) $field->getClean();
+                  }
+
+                  $clean = is_array($clean) ? $clean[0] : $clean;
+
+                  if (!$field instanceof FileUploadField && strlen($clean) > 200)
+                  $clean = Format::truncate($clean, 200);
+
+                  Http::response(201, $this->json_encode(['value' =>
+                  $clean ?: '&mdash;' . __('Empty') .  '&mdash;', 'id' => $fid, 'msg' => $msg]));
+              }
+              $form->addErrors($errors);
+              $info['error'] = $errors['err'] ?: __('Unable to update field');
           }
-          $form->addErrors($errors);
-          $info['error'] = $errors['err'] ?: __('Unable to update field');
-      }
 
       include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
   }
@@ -671,14 +690,18 @@ function refer($tid, $target=null) {
 
         if ($_POST && $form->isValid()) {
             if ($ticket->assign($form, $errors)) {
-                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                $msg = sprintf(
                         __('%s successfully'),
                         sprintf(
                             __('%s assigned to %s'),
                             __('Ticket'),
                             $form->getAssignee())
                         );
-                Http::response(201, $ticket->getId());
+
+                $assignee =  $ticket->isAssigned() ? Format::htmlchars(implode('/', $ticket->getAssignees())) :
+                                            '<span class="faded">&mdash; '.__('Unassigned').' &mdash;';
+                Http::response(201, $this->json_encode(['value' =>
+                    $assignee, 'id' => 'assign', 'msg' => $msg]));
             }
 
             $form->addErrors($errors);
@@ -1279,7 +1302,6 @@ function refer($tid, $target=null) {
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
             $failures = array();
-
             // Set children statuses (if applicable)
             if ($_REQUEST['children']) {
                 $children = $ticket->getChildTickets($ticket->getId());
@@ -1298,19 +1320,15 @@ function refer($tid, $target=null) {
                             __('deleted sucessfully')
                             );
                 } elseif ($state != 'open') {
-                    $msg = sprintf(__('%s status changed to %s'),
-                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                            $status->getName());
+                     $msg = sprintf(__('%s status changed to %s'),
+                             sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                             $status->getName());
                 } else {
                     $msg = sprintf(
-                           __('%s status changed to %s'),
-                           __('Ticket'),
-                           $status->getName());
+                            __('%s status changed to %s'),
+                            __('Ticket'),
+                            $status->getName());
                 }
-
-                $_SESSION['::sysmsgs']['msg'] = $msg;
-
-                Http::response(201, 'Successfully processed');
             } else {
                 $tickets = array();
                 foreach ($failures as $id=>$num) {
@@ -1322,6 +1340,9 @@ function refer($tid, $target=null) {
                                  ($tickets) ? implode(', ', $tickets) : __('child tickets')
                                  );
             }
+            $_SESSION['::sysmsgs']['msg'] = $msg;
+
+            Http::response(201, 'Successfully processed');
         } elseif (!$errors['err']) {
             $errors['err'] =  __('Error updating ticket status');
         }

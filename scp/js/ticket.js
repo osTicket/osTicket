@@ -348,6 +348,29 @@ var ticket_onload = function($) {
         return false;
     });
 
+    $(document).off('.inline-edit');
+    $(document).on('click.inline-edit', 'a.inline-edit', function(e) {
+        e.preventDefault();
+        var url = 'ajax.php/'
+        +$(this).attr('href').substr(1)
+        +'?_uid='+new Date().getTime();
+        var $options = $(this).data('dialog');
+        $.dialog(url, [201], function (xhr) {
+            var obj = $.parseJSON(xhr.responseText);
+            if (obj.id && obj.value) {
+                $('#field_'+obj.id).html(obj.value);
+                if (obj.value.includes('Empty'))
+                    $('#field_'+obj.id).addClass('faded');
+                else
+                    $('#field_'+obj.id).removeClass('faded');
+                $('#msg-txt').text(obj.msg);
+                $('div#msg_notice').show();
+            }
+        }, $options);
+
+        return false;
+    });
+
     $(document).on('change', 'form[name=reply] select#emailreply', function(e) {
          var $cc = $('form[name=reply] tbody#cc_sec');
         if($(this).val() == 0)
