@@ -2,6 +2,7 @@
 
 include_once INCLUDE_DIR.'class.api.php';
 include_once INCLUDE_DIR.'class.ticket.php';
+include_once INCLUDE_DIR.'class.staff.php';
 
 class TicketApiController extends ApiController {
 
@@ -14,7 +15,7 @@ class TicketApiController extends ApiController {
             "attachments" => array("*" =>
                 array("name", "type", "data", "encoding", "size")
             ),
-            "message", "ip", "priorityId"
+            "message", "ip", "priorityId", "asStaff"
         );
         # Fetch dynamic form field names for the given help topic and add
         # the names to the supported request structure
@@ -105,8 +106,8 @@ class TicketApiController extends ApiController {
             # Handle remote piped emails - could be a reply...etc.
             $ticket = $this->processEmail();
         } else {
-            # Parse request body
-            $ticket = $this->createTicket($this->getRequest($format));
+			# Parse request body
+			$ticket = $this->createTicket($this->getRequest($format));
         }
 
         if(!$ticket)
@@ -118,7 +119,8 @@ class TicketApiController extends ApiController {
     /* private helper functions */
 
     function createTicket($data) {
-
+		global $thisstaff, $cfg;
+		
         # Pull off some meta-data
         $alert       = (bool) (isset($data['alert'])       ? $data['alert']       : true);
         $autorespond = (bool) (isset($data['autorespond']) ? $data['autorespond'] : true);
@@ -129,7 +131,14 @@ class TicketApiController extends ApiController {
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
 
-        $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
+		if  (isset($data['asStaff']))  {
+			if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
+				return $this->exerr(500, "Unable to create new ticket: unable to load config");
+			$thisstaff = new Staff($data['asStaff']);
+			$ticket = Ticket::open($data, $errors);
+		} else {
+	    	$ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
+		}
         # Return errors (?)
         if (count($errors)) {
             if(isset($errors['errno']) && $errors['errno'] == 403)
