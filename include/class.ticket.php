@@ -3328,7 +3328,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 if (!$field->isEditableToStaff())
                     $errors['field'] = sprintf(__('%s can not be edited'),
                             __($field->getLabel()));
-                elseif (!$field->save())
+                elseif (!$field->save(true))
                     $errors['field'] =  __('Unable to update field');
                 $changes['fields'] = array($field->getId() => $changes);
             } else {
