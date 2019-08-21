@@ -879,14 +879,13 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
-
         $prompt = $assignee = '';
         // Possible assignees
         $assignees = null;
+        $dept = $this->getDept();
         switch (strtolower($options['target'])) {
             case 'agents':
                 $assignees = array();
-                $dept = $this->getDept();
                 foreach ($dept->getAssignees() as $member)
                     $assignees['s'.$member->getId()] = $member;
 
@@ -926,10 +925,12 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
 
-
-        if ($prompt && ($f=$form->getField('assignee')))
-            $f->configure('prompt', $prompt);
-
+        // Field configurations
+        if ($f=$form->getField('assignee')) {
+            if ($prompt)
+                $f->configure('prompt', $prompt);
+            $f->configure('dept', $dept);
+        }
 
         return $form;
     }
