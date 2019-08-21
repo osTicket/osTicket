@@ -740,6 +740,13 @@ class CustomQueue extends VerySimpleModel {
         $col->queue = $this;
     }
 
+    function getColumn($id) {
+        // TODO: Got to be easier way to search instrumented list.
+        foreach ($this->getColumns() as $C)
+            if ($C->getId() == $id)
+                return $C;
+    }
+
     function getSortOptions() {
         if ($this->inheritSorting() && $this->parent) {
             return $this->parent->getSortOptions();
@@ -827,6 +834,19 @@ class CustomQueue extends VerySimpleModel {
         // Apply visibility
         if (!$this->ignoreVisibilityConstraints($thisstaff))
             $query->filter($thisstaff->getTicketsVisibility());
+
+        // Get stashed sort or else get the default
+        if (!($sort = $_SESSION['sort'][$this->getId()]))
+            $sort = $this->getDefaultSort();
+
+        // Apply sort
+        if ($sort instanceof QueueSort)
+            $sort->applySort($query);
+        elseif ($sort && isset($sort['queuesort']))
+            $sort['queuesort']->applySort($query, $sort['dir']);
+        elseif ($sort && $sort['col'] &&
+                ($C=$this->getColumn($sort['col'])))
+            $query = $C->applySort($query, $sort['dir']);
 
         // Render Util
         $render = function ($row) use($columns) {
