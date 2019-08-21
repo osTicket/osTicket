@@ -1637,5 +1637,60 @@ function refer($tid, $target=null) {
         include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
 
     }
+
+    function buildExport($id) {
+        global $thisstaff;
+
+        if (is_numeric($id))
+            $queue = SavedSearch::lookup($id);
+        else
+            $queue = AdhocSearch::load($id);
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$queue || !$queue->checkAccess($thisstaff))
+            Http::response(404, 'No such saved queue');
+
+        $queue->export(null);
+    }
+
+    function checkExportStatus() {
+        if(!($maxtime = ini_get('max_execution_time')))
+            $maxtime = 30;
+
+        if ($_SESSION['export']['end']) {
+            if (intval($_SESSION['export']['end'] - $_SESSION['export']['start']) >= $maxtime) {
+                $response = array('status' => 'email');
+            } else {
+                $response = array(
+                    'status' => 'download',
+                    'filename' => $_SESSION['export']['filename'],
+                );
+            }
+        } else
+            $response = array('status' => 'writing');
+        return JsonDataEncoder::encode($response);
+    }
+
+    function finalizeExport($status) {
+        global $thisstaff;
+
+        if (!$status)
+            Http::response(403, 'Export status is required');
+
+        $filepath = $_SESSION['export']['tempath'];
+        $filename = $_SESSION['export']['filename'];
+        unset($_SESSION['export']);
+        if ($status === 'download') {
+            Http::download($filename, 'text/csv');
+            readfile($filepath);
+            fclose($filepath);
+            exit();
+        } elseif ($status === 'email') {
+            Mailer::sendExportEmail($filename, $filepath, $thisstaff);
+            fclose($filepath);
+        } else
+            Http::response(403, 'Unknown action');
+    }
 }
 ?>

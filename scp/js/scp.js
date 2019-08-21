@@ -1257,6 +1257,100 @@ function __(s) {
   return s;
 }
 
+// Show Export Popup
+// @param title     Popup title
+// @param content   Popup content (HTML)
+function showExportPopup(title, content) {
+    $popup = $('.dialog#popup');
+    $('div#popup-loading', $popup).hide();
+    var body = $('div.body', $popup).empty()
+      .append($('<h3></h3>').text(title))
+      .append($('<hr/>'))
+      .append($('<p></p>')
+        .html(content)
+      );
+    $.toggleOverlay(true);
+    $popup.resize().show();
+}
+
+// Check the export status
+// @param inturl    URL to check export status
+// @param finurl    URL to finalize download
+// @param popopts   Popup options (title, content)
+function checkExportStatus(inturl, finurl, popopts) {
+    // Define possible export statuses
+    var statuses = ['download', 'email'];
+    // Check export progress until status returned
+    // Interval: 1 sec
+    var interval = setInterval(function() {
+        $.ajax({
+            type: "GET",
+            url: inturl,
+            dataType: 'json',
+            success: function (data) {
+                if (data && statuses.indexOf(data.status) > -1) {
+                    // Stop the status checks
+                    clearInterval(interval);
+                    // Set filname and trigger download/email
+                    var filename = data.filename;
+                    finalizeDownload(finurl, data, filename, popopts);
+                }
+            },
+            error: function (xhr) {
+                // Stop the status checks
+                clearInterval(interval);
+            }
+        });
+    }, 1000);
+}
+
+// Create finalize export AJAX function
+// @param url       The URL to call
+// @param data      Response data
+// @param filename  The export filename
+function finalizeDownload(url, data, filename, popopts) {
+    // Configure AJAX params
+    var params = {};
+    if (data.status === 'download') {
+        params.type = "GET";
+        params.url = 'download';
+    } else {
+        params.type = "POST";
+        params.url = 'email';
+    }
+    // Trigger Download or Email
+    $.ajax({
+        type: params.type,
+        url: url+params.url,
+        success: function (data) {
+            // Download: create temp <a> tag to trigger download
+            if ($.trim(data)) {
+                // Hide popup
+                $popup.resize().hide();
+                $.toggleOverlay(false);
+                // Start Download
+                var file = new Blob([data], {"type": "text/csv;charset=utf-8;"});
+                var hiddenElement = document.createElement('a');
+                hiddenElement.href = URL.createObjectURL(file);
+                hiddenElement.target = '_blank';
+                hiddenElement.download = filename;
+                hiddenElement.click();
+                hiddenElement.remove();
+            }
+            // Hide loading div
+            $('div#popup-loading', $popup).hide();
+            // Email: change popup content
+            var body = $('div.body', $popup).empty()
+              .append($('<h3></h3>').text(popopts.title))
+              .append($('<a class="close" href="#"><i class="icon-remove-circle"></i></a>'))
+              .append($('<hr/>'))
+              .append($('<p></p>')
+                .html(popopts.content)
+                .show().effect('shake'));
+        }
+    });
+}
+
 // Thanks, http://stackoverflow.com/a/487049
 function addSearchParam(data) {
     var kvp = document.location.search.substr(1).replace('+', ' ').split('&');

@@ -829,6 +829,16 @@ class CustomQueue extends VerySimpleModel {
                 $options['delimiter'] = $opts['delimiter'];
 
         }
+        // Create and store export start time
+        $_SESSION['export']['start'] = microtime(true);
+        // Store filename
+        $_SESSION['export']['filename'] = $filename;
+        // Create and store export temp name
+        $prefix = base64_encode(sha1(microtime(), true));
+        $_SESSION['export']['tempname'] = str_replace(
+            array('=','+','/'),
+            array('','-','_'),
+            substr($prefix, 0, 5) . $sha1);
 
         // Apply columns
         $columns = $this->getExportColumns($fields);
@@ -854,16 +864,22 @@ class CustomQueue extends VerySimpleModel {
             return $record;
         };
 
+        // Create temp file to build CSV
+        $output = fopen(tempnam(sys_get_temp_dir(),
+            $_SESSION['export']['tempname']), 'w+');
+        // Save path in session for later
+        $_SESSION['export']['tempath'] = stream_get_meta_data($output)['uri'];
+
         $delimiter = $options['delimiter'] ?:
             Internationalization::getCSVDelimiter();
-        $output = fopen('php://output', 'w');
-        Http::download($filename, "text/csv");
+        // Output a UTF-8 BOM (byte order mark)
         fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($output, $headers, $delimiter);
         foreach ($query as $row)
             fputcsv($output, $render($row), $delimiter);
-        fclose($output);
-        exit();
+
+        // Create and store export end time
+        $_SESSION['export']['end'] = microtime(true);
     }
 
     /**

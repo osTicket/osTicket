@@ -289,7 +289,32 @@ $(function() {
         e.preventDefault();
         var url = 'ajax.php/'+$(this).attr('href').substr(1)
         $.dialog(url, 201, function (xhr) {
-            window.location.href = '?a=export&queue=<?php echo $queue->getId(); ?>';
+            // Show the export popup
+            // @param title     Popup title
+            // @param content   Popup content
+            showExportPopup("<?php echo __('Ticket Export'); ?>",
+              '<i class="icon-spinner icon-spin icon-large"></i>&nbsp;&nbsp;'
+              + "<?php echo __('Please wait while we generate the export.'); ?>"
+            );
+            // Start CSV build
+            $.ajax({
+                type: "POST",
+                url: 'ajax.php/tickets/export/build/<?php echo $queue->getId(); ?>'
+            });
+            var popopts = {
+                title: "<?php echo __('Ticket Export'); ?>",
+                content: "<?php echo sprintf(
+                  __('The export has been sent to your email address at <b>%s</b>.'),
+                  $thisstaff->getEmail()); ?>",
+            };
+            // Check the export status
+            // @param inturl    Interval URL (checkExportStatus)
+            // @param finurl    Finalize URL (finalizeExport)
+            checkExportStatus(
+                'ajax.php/tickets/export/status',
+                'ajax.php/tickets/export/',
+                popopts
+            );
             return false;
          });
         return false;

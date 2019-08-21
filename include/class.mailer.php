@@ -532,6 +532,11 @@ class Mailer {
                     $file->getType(), $filename, false);
             }
         }
+        // Export CSV attachment
+        if ($options['export-csv']) {
+            $mime->addAttachment($options['export-csv']['filepath'],
+                $options['export-csv']['filetype'], $options['export-csv']['filename']);
+        }
 
         //Desired encodings...
         $encodings=array(
@@ -602,6 +607,34 @@ class Mailer {
                 $to, $result->getMessage());
         $this->logError($alert);
         return false;
+    }
+
+    function sendExportEmail($filename, $filepath, $recipient) {
+        global $ost, $cfg;
+
+        // Post-email checks
+        if (!$filepath || !$recipient
+            || !($email = $cfg->getDefaultEmail()))
+            return false;
+
+        // Create new Mailer instance
+        $mailer = new Mailer($email);
+
+        // Build email (headers, body, attachment)
+        $date = Format::datetime(gmdate(($cfg->getDateFormat() ?: 'm/d/y').' h:i:s'));
+        $url = $cfg->getUrl();
+        $subject = __("Ticket Export $date");
+        $body = __("Attached to this email is a CSV file containing the ticket export from $url.");
+
+        // Set attachment
+        $options = array('export-csv' => array(
+            'filepath' => $filepath,
+            'filetype' => 'text/csv',
+            'filename' => $filename,
+        ));
+
+        // Okay, we're ready...let's do this thing.
+        return $mailer->send(array($recipient), $subject, $body, $options);
     }
 
     function logError($error) {
