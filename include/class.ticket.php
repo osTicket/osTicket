@@ -3134,6 +3134,9 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!parent::delete())
             return false;
 
+        // Delete thread entries but keep thread and events for statistics
+        $t->entries->delete();
+
         $this->logEvent('deleted');
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
