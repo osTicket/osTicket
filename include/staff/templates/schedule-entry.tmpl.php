@@ -9,6 +9,12 @@ if ($entry)
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <div><em><?php echo $schedule->getName(); ?></em></div>
 <hr/>
+<?php
+if ($errors['error']) { ?>
+<div id="msg_error" class="error-banner"><?php echo
+    Format::htmlchars($errors['error']); ?></div>
+<?php
+} ?>
 <form method="post" action="<?php echo $action; ?>">
     <?php
     echo csrf_token();
