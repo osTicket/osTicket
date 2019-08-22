@@ -142,9 +142,8 @@ class Schedule extends VerySimpleModel {
         if (!($vars=$form->process()))
             return false;
 
-        // Make sure name is inique
-        if (!$vars['name'] || !$this->isEntryNameUnique($vars['name']))
-            $errors['name'] = __('Name must be unique');
+        if (!$this->isEntryUnique($vars, $errors))
+            $errors['error'] = $errors['error'] ?: __('Entry must be unique');
 
         if ($errors)
             return false;
@@ -158,8 +157,63 @@ class Schedule extends VerySimpleModel {
         return $entry;
     }
 
-    function isEntryNameUnique($name) {
-        return !($this->entries->findFirst(array('name' => $name)));
+    function isEntryNameUnique($name, $id=0) {
+        $entry = $this->entries->findFirst(array('name' => $name));
+        return !($entry && $entry->getId() != $id);
+    }
+
+    function isEntryUnique($vars, &$errors) {
+        // Make sure name is inique
+        if (!$vars['name']
+                || !$this->isEntryNameUnique($vars['name'], $vars['id'] ?: 0))
+            $errors['name'] = __('Name must be unique');
+
+        switch ($vars['repeats']) {
+            case 'weekly':
+                if ($vars['day'] < 6 ) { // Weekday
+                    if ($this->entries->findFirst(['repeats' => 'weekdays']))
+                        $errors['error'] = __('Weekdays entry already exists');
+                } elseif ($vars['day'] > 5) { //Weekend
+                    if ($this->entries->findFirst(['repeats' => 'weekends']))
+                        $errors['error'] = __('Weekends entry already exists');
+                }
+                break;
+            case 'weekdays':
+                if ($this->entries->findFirst(['repeats' => 'weekly',
+                            'day__lt' => 6]))
+                    $errors['error'] = __('Week day entry already exists');
+                break;
+            case 'weekends':
+                if ($this->entries->findFirst(['repeats' => 'weekly',
+                            'day__gt' => 5]))
+                    $errors['error'] = __('Weekend day entry already exists');
+                break;
+            case 'daily':
+                if (!$vars['id'] && $this->entries->count())
+                    $errors['error'] = __('Other entries already exists');
+                break;
+        }
+
+        // Daily entry cannot coexist with other entries - mf is selfish af.
+        if (!$errors['error'] && strcasecmp($vars['repeats'], 'daily'))
+            if ($this->entries->findFirst(['repeats' => 'daily']))
+                $errors['error'] = __('Daily entry already exists');
+
+
+        if (!$errors['error']) {
+            $keys = array_intersect_key($vars, array_flip(
+                        ['repeats', 'day', 'week', 'month']));
+            $keys['schedule_id'] = $this->getId();
+            $entries= ScheduleEntry::objects()
+                ->filter($keys);
+            if ($vars['id'])
+                $entries->exclude(['id' => $vars['id']]);
+
+            if ($entries->count())
+                $errors['error'] = __('Entry matching the selection already exists');
+        }
+
+        return  !count($errors);
     }
 
     function isHolidays() {
@@ -953,7 +1007,10 @@ class ScheduleEntry extends VerySimpleModel {
         if (!($vars=$form->process()))
             return false;
 
-        // Make sure name is unique
+        $vars['id'] = $this->getId();
+        if (!$this->getSchedule()->isEntryUnique($vars, $errors))
+            return false;
+
         foreach ($vars as $k => $v)
             $this->set($k, $v);
 
@@ -1269,6 +1326,7 @@ extends AbstractForm {
                     $vars['day'] = $data['weekly_day'];
                     break;
                 }
+                break;
             case 'monthly':
                 $vars['day'] = $data['monthly_day'] ?: null;
                 if ($data['monthly'] == 'day')
