@@ -43,7 +43,7 @@ $action=$upgrader->getNextAction();
             <p>1. <?php echo __("Be patient. The upgrade process will take a couple of seconds.");?></p>
 
             <p>2. <?php echo __('If you experience any problems, you can always restore your files/database backup.');?></p>
-            <p>3. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="http://osticket.com/support" target="_blank">', '</a>');?></p>
+            <p>3. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="https://osticket.com/support" target="_blank">', '</a>');?></p>
         </div>
     </div>
     <div class="clear"></div>

@@ -36,6 +36,6 @@ body: |
     href="%{task.staff_link}">login</a> to the support system</div>
     <em style="font-size: small">Your friendly Customer Support System</em>
     <br>
-    <a href="http://osticket.com/"><img width="126" height="19"
+    <a href="https://osticket.com/"><img width="126" height="19"
         style="width: 126px; " alt="Powered By osTicket"
         src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"/></a>
