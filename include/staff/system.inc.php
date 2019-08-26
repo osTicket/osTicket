@@ -41,6 +41,10 @@ $extensions = array(
             'name' => 'fileinfo',
             'desc' => __('Used to detect file types for uploads')
             ),
+        'zip' => array(
+            'name' => 'zip',
+            'desc' => __('Used for ticket and task exporting')
+            ),
         'apcu' => array(
             'name' => 'APCu',
             'desc' => __('Improves overall performance')
