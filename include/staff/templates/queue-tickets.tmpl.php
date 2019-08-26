@@ -90,8 +90,10 @@ if (isset($tickets->extra['tables'])) {
     $criteria->annotations = $criteria->related = $criteria->aggregated =
         $criteria->annotations = $criteria->ordering = [];
     $tickets->constraints = $tickets->extra = [];
+    $criteria->extra(array('select' => array('relevance' => 'Z1.relevance')));
     $tickets = $tickets->filter(['ticket_id__in' =>
             $criteria->values_flat('ticket_id')]);
+    $tickets->order_by(new SqlCode('relevance'), QuerySet::DESC);
     # Index hint should be used on the $criteria query only
     $tickets->clearOption(QuerySet::OPT_INDEX_HINT);
 }

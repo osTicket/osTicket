@@ -969,6 +969,9 @@ class CustomQueue extends VerySimpleModel {
                 if (list(,$field) = $searchable[$name])
                     if ($q = $field->getSearchQ($method, $value, $name))
                         $qs = $qs->filter($q);
+
+                // Add default sorting to non-keyword searches
+                $qs->order_by(array('-created'));
             }
         }
 
