@@ -49,6 +49,23 @@ class Http {
         }
     }
 
+    /*
+     *  Flush the content to requester without exiting
+     *
+     */
+    function flush($code, $content, $contentType='text/html', $charset='UTF-8') {
+        self::response($code, null, $contentType, $charset);
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Content-Length: '.strlen($content)."\r\n\r\n");
+        print $content;
+        // Flush the request buffer
+        while(@ob_end_flush());
+        flush();
+        // Terminate the request
+        if (function_exists('fastcgi_finish_request'))
+            fastcgi_finish_request();
+    }
+
     function redirect($url,$delay=0,$msg='') {
 
         $iis = strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') !== false;
