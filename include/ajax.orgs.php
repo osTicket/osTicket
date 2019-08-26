@@ -24,8 +24,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, 'Query argument is required');
-        } 
-        
+        }
+
         if (!$_REQUEST['q'])
             return $this->json_encode(array());
 
@@ -92,7 +92,10 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown organization');
 
         $errors = array();
-        if($org->update($_POST, $errors))
+        if ($profile) {
+            if ($org->updateProfile($_POST, $errors))
+                Http::response(201, $org->to_json(), 'application/json');
+        } elseif ($org->update($_POST, $errors))
              Http::response(201, $org->to_json(), 'application/json');
 
         $forms = $org->getForms();
