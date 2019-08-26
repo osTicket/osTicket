@@ -168,6 +168,21 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         </tr>
 
         <tr>
+            <td><?php echo __('Reopen Auto Assignment'); ?>:</td>
+            <td>
+                <label>
+                <input type="checkbox" name="disable_reopen_auto_assign" <?php echo
+                 $info['disable_reopen_auto_assign'] ? 'checked="checked"' : ''; ?>>
+                <?php echo sprintf('<strong>%s</strong> %s',
+                        __('Disable'),
+                        __('auto assign on reopen')); ?>
+                </label>
+                <i class="help-tip icon-question-sign"
+                href="#disable_reopen_auto_assign"></i>
+            </td>
+        </tr>
+
+        <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Outgoing Email Settings'); ?></strong>:</em>
             </th>
