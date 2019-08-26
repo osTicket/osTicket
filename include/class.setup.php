@@ -17,8 +17,9 @@
 class SetupWizard {
 
     //Mimimum requirements
-    var $prereq = array('php'   => '5.4',
-                        'mysql' => '5.0');
+    static protected $prereq = array(
+            'php' => '5.6',
+            'mysql' => '5.0');
 
     //Version info - same as the latest version.
 
@@ -81,16 +82,16 @@ class SetupWizard {
         return $this->version_verbose;
     }
 
-    function getPHPVersion() {
-        return $this->prereq['php'];
+    static function getPHPVersion() {
+        return self::$prereq['php'];
     }
 
-    function getMySQLVersion() {
-        return $this->prereq['mysql'];
+    static function getMySQLVersion() {
+        return self::$prereq['mysql'];
     }
 
     function check_php() {
-        return (version_compare(PHP_VERSION, $this->getPHPVersion())>=0);
+        return (version_compare(PHP_VERSION, self::getPHPVersion())>=0);
     }
 
     function check_mysql() {
@@ -98,7 +99,7 @@ class SetupWizard {
     }
 
     function check_mysql_version() {
-        return (version_compare(db_version(), $this->getMySQLVersion())>=0);
+        return (version_compare(db_version(), self::getMySQLVersion())>=0);
     }
 
     function check_prereq() {

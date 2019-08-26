@@ -62,7 +62,7 @@ osTicket codebase before embarking on an upgrade.
 
 To trigger the update process, fetch the osTicket tarball from either
 the osTicket [github](http://github.com/osTicket/osTicket/releases) page
-or from the [osTicket website](http://osticket.com). Extract the tarball
+or from the [osTicket website](https://osticket.com). Extract the tarball
 into the folder of your osTicket codebase. This can also be accomplished
 with the zip file, and a FTP client can of course be used to upload the new
 source code to your server.
@@ -88,10 +88,10 @@ View the UPGRADING.txt file for other todo items to complete your upgrade.
 
 Help
 ----
-Visit the [wiki](http://osticket.com/wiki/Home) or the
-[forum](http://osticket.com/forums/). And if you'd like professional help
+Visit the [Documentation](https://docs.osticket.com/) or the
+[forum](https://forum.osticket.com/). And if you'd like professional help
 managing your osTicket installation,
-[commercial support](http://osticket.com/support/) is available.
+[commercial support](https://osticket.com/support/) is available.
 
 Contributing
 ------------
@@ -104,7 +104,7 @@ conversation of integrating your new feature into osTicket.
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/osticket-official/localized.png)](http://i18n.osticket.com/project/osticket-official)
 
 The interface for osTicket is now completely translatable. Language packs
-are available on the [download page](http://osticket.com/download). If you
+are available on the [download page](https://osticket.com/download). If you
 do not see your language there, join the [Crowdin](http://i18n.osticket.com)
 project and request to have your language added. Languages which reach 100%
 translated are are significantly reviewed will be made available on the
