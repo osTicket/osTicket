@@ -88,6 +88,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                         'default_from_name' => '',
                         'datetime_format'   => '',
                         'thread_view_order' => '',
+                        'img_att_view' => 'download',
                         ));
             $this->_config = $_config->getInfo();
         }
@@ -326,6 +327,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
 
     function getDefaultPaperSize() {
         return $this->default_paper_size;
+    }
+
+    function getImageAttachmentView() {
+        return $this->img_att_view;
     }
 
     function forcePasswdChange() {
@@ -691,6 +696,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
                     'datetime_format' => $vars['datetime_format'],
                     'default_from_name' => $vars['default_from_name'],
                     'thread_view_order' => $vars['thread_view_order'],
+                    'img_att_view' => ($vars['img_att_view'] == 'inline') ? 'inline' : 'download',
                     )
                 );
         $this->_config = $_config->getInfo();
