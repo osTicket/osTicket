@@ -581,6 +581,7 @@ class DynamicFormField extends VerySimpleModel {
     const FLAG_MASK_REQUIRE     = 0x10000;
     const FLAG_MASK_VIEW        = 0x20000;
     const FLAG_MASK_NAME        = 0x40000;
+    const FLAG_MASK_TYPE        = 0x80000;
 
     const MASK_MASK_INTERNAL    = 0x400B2;  # !change, !delete, !disable, !edit-name
     const MASK_MASK_ALL         = 0x700F2;
@@ -677,6 +678,10 @@ class DynamicFormField extends VerySimpleModel {
 
     function  isChangeable() {
         return !$this->hasFlag(self::FLAG_MASK_CHANGE);
+    }
+
+    function canChangeType() {
+        return !$this->hasFlag(self::FLAG_MASK_TYPE);
     }
 
     function  isEditable() {

@@ -147,7 +147,7 @@
       name: name # notrans
       label: Name
       sort: 1
-      flags: 0x777A3
+      flags: 0xF77A3
       configuration:
         size: 40
         length: 64
