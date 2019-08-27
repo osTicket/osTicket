@@ -764,6 +764,7 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_event`;
 CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `thread_id` int(11) unsigned NOT NULL default '0',
+  `thread_type` char(1) NOT NULL DEFAULT '',
   `event_id` int(11) unsigned DEFAULT NULL,
   `staff_id` int(11) unsigned NOT NULL,
   `team_id` int(11) unsigned NOT NULL,

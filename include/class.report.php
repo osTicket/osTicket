@@ -84,7 +84,7 @@ class OverviewReport {
         $res = db_query('SELECT DISTINCT(E.name) FROM '.THREAD_EVENT_TABLE
             .' T JOIN '.EVENT_TABLE . ' E ON E.id = T.event_id'
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
-            .' AND T.event_id IN ('.implode(",",$event_ids).')'
+            .' AND T.event_id IN ('.implode(",",$event_ids).') AND T.thread_type = "T"'
             .' ORDER BY 1');
         $events = array();
         while ($row = db_fetch_row($res)) $events[] = $row[0];
@@ -92,12 +92,10 @@ class OverviewReport {
         # TODO: Handle user => db timezone offset
         # XXX: Implement annulled column from the %ticket_event table
         $res = db_query('SELECT H.name, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
-                .'COUNT(DISTINCT T.id)'
+                .'COUNT(DISTINCT E.id)'
             .' FROM '.THREAD_EVENT_TABLE. ' E '
             . ' LEFT JOIN '.EVENT_TABLE. ' H
                 ON (E.event_id = H.id)'
-            .' JOIN '.THREAD_TABLE. ' T
-                ON (T.id = E.thread_id AND T.object_type = "T") '
             .' WHERE E.timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
             .' AND E.event_id IN ('.implode(",",$event_ids).')'
@@ -179,7 +177,7 @@ class OverviewReport {
                 ->filter(array(
                         'annulled' => 0,
                         'timestamp__range' => array($start, $stop, true),
-                        'thread__object_type' => 'T',
+                        'thread_type' => 'T',
                    ))
                 ->aggregate(array(
                     'Opened' => SqlAggregate::COUNT(
