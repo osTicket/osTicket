@@ -8,6 +8,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 86707325fc571e56242fccc46fd24466
 =======
 0ca8585781bc6656f3ca008212554441
@@ -39,3 +40,6 @@
 =======
 9b5550dad8d3f036d62eb1340f230317
 >>>>>>> Modify Upgrader
+=======
+e69781546e08be96d787199a911d0ffe
+>>>>>>> Add thread_type Patch
