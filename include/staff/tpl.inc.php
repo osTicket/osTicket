@@ -1,7 +1,7 @@
 <?php
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$_REQUEST);
 
-if (is_a($template, EmailTemplateGroup)) {
+if (is_a($template, 'EmailTemplateGroup')) {
     // New template implementation
     $id = 0;
     $tpl_id = $template->getId();
