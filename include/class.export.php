@@ -323,6 +323,228 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
   }
 }
 
+
+/*
+ * Exporter Interface
+ *
+ */
+abstract class  Exporter {
+
+    protected $id;   // Export ID (random code)
+    protected $fp;   // stream: file pointer for $file
+    protected $file; // File name / path for the export
+
+    protected $fileObj;  // FileObject class
+
+    protected $options;
+
+    abstract function write($data);
+    abstract function init();
+
+    function __construct($options=array()) {
+        // TODO: Make sure id is unique
+        $this->id = $options['id'] ?: Misc::randCode(6);
+        if (isset($options['file']))
+            $this->file = $options['file'];
+        $this->options = $options;
+        $this->open();
+    }
+
+    function isAvailable() {
+        return file_exists($this->getFile());
+    }
+
+    function isReady() {
+        return ($this->isAvailable() && $this->lock());
+    }
+
+    private function open($mode='a+') {
+        if ($this->fp)
+            return $this->fp;
+
+        try {
+            if (($file=$this->getFile())) {
+                if (!($this->fp=fopen($file, $mode)))
+                    throw new Exception();
+            } else {
+                // We don't have a file create one in temp directory
+                $prefix = Misc::randCode(6);
+                if (!($temp=tempnam(sys_get_temp_dir(), $prefix))
+                        || !($this->fp=fopen($temp, $mode))
+                        || !($meta=stream_get_meta_data($this->fp))) {
+                    throw new Exception();
+                }
+                // get filename from mera
+                $this->file = $meta['uri'];
+                $this->init();
+            }
+        } catch(Exception $ex) {
+            @fclose($this->fp);
+            @unlink($temp);
+            throw new Exception();
+        }
+
+        return $this->fp;
+    }
+
+    // Close / unlock the file.
+    function close() {
+        @fclose($this->fp);
+    }
+
+    function delete() {
+        @unlink($this->getFile());
+    }
+
+    function getId() {
+        return $this->id;
+    }
+
+    function getStream() {
+        return $this->fp;
+    }
+
+    function getFile() {
+        return $this->file;
+    }
+
+    function getFilename() {
+        return $this->options['filename'] ?: 'Export';
+    }
+
+    function getFileType() {
+        return mime_content_type($this->getFile());
+    }
+
+    function getFileSize() {
+        return filesize($this->getFile());
+    }
+
+    function getFileObject() {
+        if (!isset($this->fileObj)) {
+            $this->fileObj = new FileObject($this->getFile());
+            // Set the real filename
+            $this->fileObj->setFilename($this->getFilename());
+            // Set mime type
+            $this->fileObj->setMimeType($this->getFileType());
+        }
+
+        return $this->fileObj;
+    }
+
+    // Check interval in seconds
+    function getInterval() {
+        return @$this->options['interval'] ?: 5;
+    }
+
+    function lock() {
+        return $this->fp ? flock($this->fp, LOCK_EX | LOCK_NB) : false;
+    }
+
+    function download($filename=false, $delete=true) {
+        $this->close();
+        $filename = $filename ?: $this->getFilename();
+        Http::download($filename, 'application/octet-stream', null, 'attachment');
+        header('Content-Length: '.$this->getFileSize());
+        readfile($this->getFile());
+        //  Delete the file if requsted
+        if ($delete) @$this->delete();
+        exit;
+    }
+
+    function email(Staff $staff) {
+        global $cfg;
+
+        if (!file_exists($this->getFile())
+                || !($file=$this->getFileObject())
+                || !($email=$cfg->getDefaultEmail()))
+            return false;
+
+        $mailer = new Mailer($email);
+        $mailer->addFileObject($file);
+        $subject = __("Export");
+        $body = __("Attached is file containing the export you asked us to send you!");
+        return $mailer->send(array($staff), $subject, $body);
+    }
+
+    static function register($exporter, $info) {
+        if (!$exporter instanceof Exporter)
+            return false;
+
+        $_SESSION['Exports'][$exporter->getId()] = $info + array(
+                 'file' => $exporter->getFile(),
+                 'class' => get_class($exporter));
+    }
+
+    static function load($id) {
+
+        if (!isset($_SESSION['Exports'][$id])
+                || !file_exists($_SESSION['Exports'][$id]['file']))
+            return null;
+
+        try {
+            $info = $_SESSION['Exports'][$id];
+            $class = $info['class'];
+            $exporter = new $class(array('id' => $id) + $info);
+        } catch (Exception $ex) {
+            return null;
+        }
+
+        return $exporter;
+    }
+}
+
+/*
+ * CsvExporter - expects an open file
+ */
+class CsvExporter extends Exporter {
+    protected $mimetype = 'text/csv';
+
+    function __construct($options=array()) {
+        try {
+            parent::__construct($options);
+            // Output a UTF-8 BOM (byte order mark)
+           //TODO: fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        } catch (Exception $ex) {
+            throw new Exception();
+        }
+    }
+
+    function init() {
+        $this->lock();
+        // Output a UTF-8 BOM (byte order mark)
+        fputs($this->fp, chr(0xEF) . chr(0xBB) . chr(0xBF));
+    }
+
+    function getFileType() {
+        return $this->mimetype;
+    }
+
+    function getDelimiter() {
+        if (isset($this->options['delimiter']))
+            return $this->options['delimiter'];
+        return Internationalization::getCSVDelimiter();
+    }
+
+    function escape($data) {
+        return $data;
+        // Escape formula, commands etc.
+        return array_map(function($v) {
+                if (preg_match('/^[=\-+@].*/', $v))
+                    return "'".$v;
+                return $v;
+                }, $data);
+    }
+
+    function write($data) {
+        fputcsv($this->fp, $this->escape($data), $this->getDelimiter());
+    }
+
+}
+
+/*
+ * Given SQL query export results based on subclass.
+ */
 class ResultSetExporter {
     var $output;
 
