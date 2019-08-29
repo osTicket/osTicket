@@ -1045,6 +1045,19 @@ $.changeHash = function(hash, quiet) {
   }
 };
 
+// Exports
+$(document).on('click', 'a.export', function(e) {
+    e.preventDefault();
+    var url = 'ajax.php/'+$(this).attr('href').substr(1)
+    $.dialog(url, 201, function (xhr) {
+        var resp = $.parseJSON(xhr.responseText);
+        var checker = 'ajax.php/export/'+resp.eid+'/check';
+        $.dialog(checker, 201, function (xhr) { });
+        return false;
+     });
+    return false;
+});
+
 // Forms — submit, stay on same tab
 $(document).on('submit', 'form', function() {
     if (!!$(this).attr('action') && $(this).attr('action').indexOf('#') == -1)

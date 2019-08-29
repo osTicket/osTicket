@@ -1621,17 +1621,56 @@ function refer($tid, $target=null) {
         elseif (!$queue || !$queue->checkAccess($thisstaff))
             Http::response(404, 'No such saved queue');
 
+        $errors = array();
         if ($_POST && is_array($_POST['fields'])) {
             // Cache export preferences
             $id = $queue->getId();
             $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
             $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
             $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
-
+            // Save fields selection if requested
             if ($queue->isSaved() && isset($_POST['save-changes']))
                $queue->updateExports(array_flip($_POST['fields']));
 
-            Http::response(201, 'Export Ready');
+            // Filename of the report
+            if (isset($_POST['filename'])
+                    && ($parts = pathinfo($_POST['filename']))) {
+                $filename = $_POST['filename'];
+                if (strcasecmp($parts['extension'], 'csv'))
+                      $filename ="$filename.csv";
+            } else {
+                $filename = sprintf('%s Tickets-%s.csv',
+                        $queue->getName(),
+                        strftime('%Y%m%d'));
+            }
+
+            try {
+                $interval = 5;
+                // Create desired exporter
+                $exporter = new CsvExporter();
+                // Register the export in the session
+                Exporter::register($exporter, ['filename' => $filename,
+                        'interval' => $interval]);
+                // Flush response / return export id and check interval
+                Http::flush(201, $this->json_encode(['eid' =>
+                            $exporter->getId(), 'interval' => $interval]));
+                // Phew... now we're free to do the export
+                session_write_close(); // Release session for other requests
+                ignore_user_abort(1);  // Leave us alone bro!
+                @set_time_limit(0);    // Useless when safe_mode is on
+                // Ask the queue to export to the exporter
+                $queue->export($exporter);
+                $exporter->close();
+                // Sleep 3 times the interval to allow time for file download
+                sleep($interval*3);
+                // Email the export if it exists
+                $exporter->email($thisstaff);
+                // Delete the file.
+                @$exporter->delete();
+                exit;
+            } catch (Exception $ex) {
+                $errors['err'] = __('Unable to prepare the export');
+            }
         }
 
         include STAFFINC_DIR . 'templates/queue-export.tmpl.php';

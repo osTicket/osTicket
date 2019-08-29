@@ -24,7 +24,14 @@ if (isset($cache['fields']) && $fields)
 <h3 class="drag-handle"><?php echo Format::htmlchars($qname); ?></h3>
 <a class="close" href=""><i class="icon-remove-circle"></i></a>
 <hr/>
-<form action="#tickets/export/<?php echo $queue->getId(); ?>" method="post" name="export">
+<?php
+if (isset($errors['err'])) { ?>
+<div id="msg_error" class="error-banner"><?php echo
+Format::htmlchars($errors['err']); ?></div>
+<?php
+} ?>
+<form action="#tickets/export/<?php echo $queue->getId(); ?>" method="post"
+name="queue-export" id="queue-export">
   <div style="overflow-y: auto; height:400px; margin-bottom:5px;">
   <table class="table">
       <tbody>
@@ -127,6 +134,5 @@ if (isset($cache['fields']) && $fields)
         $('span#fields-count', f).html(<?php echo count($fields); ?>);
         $('div#save-changes', f).hide();
     });
-
 }();
 </script>

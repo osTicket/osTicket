@@ -793,7 +793,7 @@ class CustomQueue extends VerySimpleModel {
         ));
     }
 
-    function export($options=array()) {
+    function export(CsvExporter $exporter, $options=array()) {
         global $thisstaff;
 
         if (!$thisstaff
@@ -801,9 +801,6 @@ class CustomQueue extends VerySimpleModel {
                 || !($fields=$this->getExportFields()))
             return false;
 
-        $filename = sprintf('%s Tickets-%s.csv',
-                $this->getName(),
-                strftime('%Y%m%d'));
         // See if we have cached export preference
         if (isset($_SESSION['Export:Q'.$this->getId()])) {
             $opts = $_SESSION['Export:Q'.$this->getId()];
@@ -817,17 +814,6 @@ class CustomQueue extends VerySimpleModel {
                     }
                  }
             }
-
-            if (isset($opts['filename'])
-                    && ($parts = pathinfo($opts['filename']))) {
-                $filename = $opts['filename'];
-                if (strcasecmp($parts['extension'], 'csv') !=0)
-                    $filename ="$filename.csv";
-            }
-
-            if (isset($opts['delimiter']) && !$options['delimiter'])
-                $options['delimiter'] = $opts['delimiter'];
-
         }
 
         // Apply columns
@@ -854,16 +840,9 @@ class CustomQueue extends VerySimpleModel {
             return $record;
         };
 
-        $delimiter = $options['delimiter'] ?:
-            Internationalization::getCSVDelimiter();
-        $output = fopen('php://output', 'w');
-        Http::download($filename, "text/csv");
-        fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, $headers, $delimiter);
+        $exporter->write($headers);
         foreach ($query as $row)
-            fputcsv($output, $render($row), $delimiter);
-        fclose($output);
-        exit();
+            $exporter->write($render($row));
     }
 
     /**

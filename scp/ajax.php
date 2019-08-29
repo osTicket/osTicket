@@ -230,6 +230,9 @@ $dispatcher = patterns('',
         url_post('^(?P<namespace>[\w.]+)$', 'createDraft'),
         url_get('^images/browse$', 'getFileList')
     )),
+    url('^/export/', patterns('ajax.export.php:ExportAjaxAPI',
+        url('^(?P<id>\w+)/check$', 'check')
+    )),
     url('^/note/', patterns('ajax.note.php:NoteAjaxAPI',
         url_get('^(?P<id>\d+)$', 'getNote'),
         url_post('^(?P<id>\d+)$', 'updateNote'),
