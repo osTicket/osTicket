@@ -996,4 +996,56 @@ class OneSixAttachments extends FileStorageBackend {
     }
 }
 FileStorageBackend::register('6', 'OneSixAttachments');
+
+// FileObject - wrapper for SplFileObject class
+class FileObject extends SplFileObject {
+
+    protected $_filename;
+
+    function __construct($file, $mode='r') {
+        parent::__construct($file, $mode);
+    }
+
+    /* This allows us to set REAL file name as opposed to basename of the
+     * FS file in question
+     */
+    function setFilename($filename) {
+        $this->_filename = $filename;
+    }
+
+    function getFilename() {
+        return $this->_filename ?: parent::getFilename();
+    }
+
+    /*
+     * Set mime type - well formated mime is expected.
+     */
+    function setMimeType($type) {
+        $this->_mimetype = $type;
+    }
+
+    function getMimeType() {
+        if (!isset($this->_mimetype)) {
+            // Try to to auto-detect mime type
+            $finfo = new finfo(FILEINFO_MIME);
+            $this->_mimetype = $finfo->buffer($this->getContents(),
+                    FILEINFO_MIME_TYPE);
+        }
+
+        return $this->_mimetype;
+    }
+
+    function getContents() {
+        $this->fseek(0);
+        return $this->fread($this->getSize());
+    }
+
+    /*
+     * XXX: Needed for mailer attachments interface
+     */
+    function getData() {
+        return $this->getContents();
+    }
+}
+
 ?>
