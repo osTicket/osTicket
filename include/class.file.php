@@ -75,12 +75,12 @@ class AttachmentFile extends VerySimpleModel {
         return $this->type;
     }
 
-    function getBackend() {
-        return $this->bk;
+    function getMimeType() {
+        return $this->getType();
     }
 
-    function getMime() {
-        return $this->getType();
+    function getBackend() {
+        return $this->bk;
     }
 
     function getSize() {
