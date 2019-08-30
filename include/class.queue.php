@@ -818,7 +818,7 @@ class CustomQueue extends VerySimpleModel {
         global $thisstaff;
 
         if (!$thisstaff
-                || !($query=$this->getBasicQuery())
+                || !($query=$this->getQuery())
                 || !($fields=$this->getExportFields()))
             return false;
 

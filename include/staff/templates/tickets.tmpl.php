@@ -211,12 +211,11 @@ if ($total) { ?>
 if ($total>0) {
     echo '<div>';
     echo __('Page').':'.$pageNav->getPageLinks('tickets', '#tickets').'&nbsp;';
-    echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
-            Http::build_query(array(
-                    'id' => $user ? $user->getId(): $org->getId(),
-                    'a' => 'export',
-                    't' => 'tickets')),
-            __('Export'));
+    echo sprintf('<a href="#%s/%d/tickets/export" id="%s" class="no-pjax export">%s</a>',
+          $user ? 'users' : 'orgs',
+          $user ? $user->getId() : $org->getId(),
+          'queue-export',
+        __('Export'));
     echo '</div>';
 } ?>
 </form>

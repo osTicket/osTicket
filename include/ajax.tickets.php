@@ -1833,6 +1833,12 @@ function refer($tid, $target=null) {
         else
             $queue = AdhocSearch::load($id);
 
+        return $this->queueExport($queue);
+    }
+
+    function queueExport(CustomQueue $queue) {
+        global $thisstaff;
+
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
         elseif (!$queue || !$queue->checkAccess($thisstaff))
