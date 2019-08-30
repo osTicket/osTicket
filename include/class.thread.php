@@ -777,6 +777,7 @@ implements TemplateVariable {
     const FLAG_SYSTEM                   = 0x0080;   // Entry is a system note.
     const FLAG_REPLY_ALL                = 0x00100;  // Agent response, reply all
     const FLAG_REPLY_USER               = 0x00200;  // Agent response, reply to User
+    const FLAG_MAYBE_SPAM               = 0x00400;  // Deliverer of email could not be verified
 
     const PERM_EDIT     = 'thread.edit';
 
@@ -2959,6 +2960,11 @@ implements TemplateVariable {
     function addMessage($vars, &$errors) {
         $vars['threadId'] = $this->getId();
         $vars['staffId'] = 0;
+
+        if (isset($vars['mailflags'])
+                && isset($vars['mailflags']['spam'])
+                && $vars['mailflags']['spam'])
+            $vars['flags'] |= ThreadEntry::FLAG_MAYBE_SPAM;
 
         if (!($message = MessageThreadEntry::add($vars, $errors)))
             return $message;

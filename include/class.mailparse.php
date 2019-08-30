@@ -63,8 +63,8 @@ class Mail_Parse {
 
         $this->splitBodyHeader();
 
-        $decoder = new Mail_mimeDecode($this->mime_message);
-        $this->struct = $decoder->decode($params);
+        $this->decoder = new Mail_mimeDecode($this->mime_message);
+        $this->struct = $this->decoder->decode($params);
 
         if (PEAR::isError($this->struct))
             return false;
@@ -75,11 +75,11 @@ class Mail_Parse {
             'body' => &$this->struct->parts,
             'type' => $this->struct->ctype_primary.'/'.$this->struct->ctype_secondary,
             'mail' => $this->struct,
-            'decoder' => $decoder,
+            'decoder' => $this->decoder,
         );
 
         // Allow signal handlers to interact with the processing
-        Signal::send('mail.decoded', $decoder, $info);
+        Signal::send('mail.decoded', $this->decoder, $info);
 
         // Handle wrapped emails when forwarded
         if ($this->struct && $this->struct->parts) {
@@ -568,6 +568,395 @@ class Mail_Parse {
         return $parsed;
     }
 
+    function getFromAddress() {
+        $fromlist = $this->getFromAddressList();
+        $from = $fromlist[0]; //Default.
+        foreach ($fromlist as $fromobj) {
+            if (!Validator::is_email($fromobj->mailbox.'@'.$fromobj->host))
+                continue;
+            $from = $fromobj;
+            break;
+        }
+        return $from;
+    }
+
+    /**
+     * Attempt to determine if the sender of the email can be trusted. This
+     * is necessary for piped emails to prevent spammers and spoofers from
+     * sending emails which should like to use the ticketing system as
+     * a relay. Most mail platforms will generally consider emails which
+     * fail these tests as junk / spam.
+     *
+     * Returns:
+     * TRUE if last hop mail server is definitely legitimate. FALSE if the
+     * server is definitely NOT legitimate. NULL if the legitimacy cannot be
+     * determined.
+     *
+     * References:
+     * Backscatter - http://www.backscatterer.org/?target=autoresponders
+     */
+    function isDelivererVerifiable(array $recipients) {
+        $headers = $this->struct->headers;
+        $body = $this->decoder->_body;
+        if (!is_array($headers))
+            $headers = self::splitHeaders($headers, true);
+
+        $rcvd = $headers["received"];
+        if (!is_array($rcvd))
+            $rcvd = array($rcvd);
+
+        // Pick the `Recieved` header which indicates why the mail was
+        // delivered to this system
+        $received = false;
+        foreach ($rcvd as $R) {
+            foreach ($recipients as $source=>$list) {
+                foreach ($list as $addr)
+                    if (false !== strstr($R, "for <{$addr->mailbox}@{$addr->host}>"))
+                        $received = $R;
+            }
+            if ($received)
+                break;
+        }
+
+        // Find the sender IP and from domain
+        $matches = array();
+        $last_hop = false;
+        if ($received && preg_match('/from \S+ \((?P<host>\S+) \[(?P<ip>[^]]+)\]/',
+            $received, $matches
+        )) {
+            $last_hop = $matches;
+        }
+
+        // #2 -----------------------------
+        // Is the server that delivered the mail is MX for the claimed
+        // sender domain?
+        if ($last_hop) {
+            $from = $this->getFromAddress();
+            // Lookup the MX record for the sender domain
+            // According to RFC2821, the domain (A record) can be treated as an
+            // MX if no MX records exist for the domain. Also, include a
+            // full-stop trailing char so that the default domain of the server
+            // is not added automatically
+            $records = dns_get_record($from->host.'.', DNS_MX)
+                ?: dns_get_record($from->host.'.', DNS_A|DNS_AAAA);
+            foreach ($records as $rec) {
+                if (($rec['type'] === 'MX'
+                        && 0 === strcasecmp($rec['target'], $last_hop['host']))
+                    || ($rec['type'] === 'A'
+                        &&  $rec['ip'] == $last_hop['ip'])
+                    || ($rec['type'] === 'AAAA'
+                        &&  $rec['ip'] == $last_hop['ip'])
+                ) {
+                    // The MX for the sender domain matches the server which
+                    // delivered the mail to this system.
+                    return true;
+                }
+                // TODO: Consider looking up the IP of the MX`target to see
+                //       if the last hop is the MX but has a different name
+            }
+
+            // #3 -----------------------------
+            // If the domain part of the claimed sender address is part of
+            // the PTR of the IP which delivered the mail to you.
+            if ($last_hop['ip']) {
+                if ($last_hop['host']) {
+                    if (strstr($last_hop['host'], $from->host) !== false)
+                        return true;
+                }
+                // TODO: Consider looking up the PTR record for the IP
+            }
+        }
+
+        // #4 -----------------------------
+        // If the claimed sender domain uses trusted signatures as DKIM (Domainkey)
+        // and the sender is authenticated by that signature or key.
+        $status = $this->verifyDkimSignature($headers, $body, $from->host);
+        if ($status !== null)
+            return $status;
+
+        // #5 -----------------------------
+        // If the claimed sender domain has SPF-Records set, and the IP which
+        // delivered the mail to you is EXPLICIT authenticated in the
+        // SPF-RECORD. NOTE: EXPLICIT means you must ignore weak SPF settings
+        // like "~all" or "+all" and handle those weak settings as if they
+        // would be "-all".
+        if ($last_hop && isset($last_hop['ip'])) {
+            $status = $this->verifyDelivererViaSpf($last_hop['ip'], $from->host, true);
+            if ($status !== null)
+                return $status;
+        }
+
+        // Unable to verify validity
+        return null;
+    }
+
+    // DKIM Signature Verification Support --------------------
+
+    /**
+     * Returns:
+     * TRUE if the mail has a signature and it is valid. FALSE if the mail
+     * has a signature and it can be verified and the verification result
+     * is a clear fail. NULL if the mail either has no signature or the
+     * signature cannot be verified (eg. DNS failure, missing extension)
+     *
+     * References:
+     * http://tools.ietf.org/html/rfc4871
+     * Adapted from https://github.com/angrychimp/php-dkim
+     */
+    function verifyDkimSignature($headers, $raw_body, $sender_domain) {
+        if (!is_array($headers))
+            $headers = self::splitHeaders($headers, true);
+
+        if (!isset($headers['dkim-signature']))
+            return null;
+
+        $sigs = $headers['dkim-signature'];
+        if (!is_array($sigs))
+            $sigs = array($sigs);
+
+        $signature = false;
+        foreach ($sigs as $S) {
+            // Break the signature into trimmed k=>v pieces
+            $dkim = $matches = array();
+            preg_match_all('/(\w+)=([^;]+)/', $S, $matches, PREG_SET_ORDER);
+            foreach ($matches as $M) {
+                $dkim[$M[1]] = preg_replace('/\s+/', '', $M[2]);
+            }
+
+            // Check if the sender domain is the signing domain or a subdomain
+            // of the signing domain
+            if (false !== strstr($sender_domain, $dkim['d'])) {
+                $signature = $S;
+                break;
+            }
+        }
+
+        if ($signature === false) {
+            // There is a signature, but the signature signing domain is not
+            // a parent domain of the sender's domain. Ultimately, it doesn't
+            // matter if the signature matches, because it doesn't prove that
+            // the signer has any authority for the sender domain.
+            return null;
+        }
+
+        // Verify all required values are present
+        foreach (array('v', 'a', 'b', 'bh', 'd', 'h', 's') as $key) {
+            if (!isset($dkim[$key]))
+                return false;
+        }
+
+        if ($dkim['v'] !== '1')
+            return null;
+
+        // There should really only be one key.
+        $key = self::fetchPublicDkimKeys($dkim['s'], $dkim['d']);
+        if ($key === false || count($key) != 1)
+            return null;
+
+        $key = $key[0];
+
+        // Canonicalize the headers and body
+        $headerList = array_fill_keys(explode(':', $dkim['h']), 1);
+        list($cheader, $cbody) = explode('/', $dkim['c'], 2);
+        list($alg, $hash) = explode('-', $dkim['a'], 2);
+
+        $body = self::canonicalizeDkimBody($raw_body, $cbody, @$dkim['l'] ?: false);
+        $bh = base64_encode(hash($hash, $body, true));
+        if ($bh !== $dkim['bh'])
+            return false;
+
+        $dkimHeaders = array();
+        foreach ($headerList as $name=>$_) {
+            if (!isset($headers[$name]))
+                return null;
+            $value = $headers[$name];
+            if (!is_array($value))
+                $value = array($value);
+            foreach ($value as $V)
+                $dkimHeaders[] = "$name: $V";
+        }
+
+        $dkimHeaders[] = 'DKIM-Signature: '
+            . preg_replace('/([;:]\s*)b=(.*?)(;|$)/s', '${1}b=${3}', $signature);
+
+        // Verify header signature
+        if (defined('OPENSSL_ALGO_'.strtoupper($hash))) {
+            $signature_alg = constant('OPENSSL_ALGO_'.strtoupper($hash));
+            $key = sprintf("-----BEGIN PUBLIC KEY-----\n%s-----END PUBLIC KEY-----",
+                chunk_split($key['p'], 64, "\n"));
+            $headers = self::canonicalizeDkimHeader($dkimHeaders, $cheader);
+            return 1 === openssl_verify($headers, base64_decode($dkim['b']), $key, $signature_alg);
+        }
+        else {
+            require_once PEAR_DIR.'Crypt/RSA.php';
+            $rsa = new Crypt_RSA();
+            $rsa->setHash($hash);
+            $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+            $rsa->loadKey($key['p']);
+            $headers = self::canonicalizeDkimHeader($dkimHeaders, $cheader);
+            return $rsa->verify($headers, base64_decode($dkim['b']));
+        }
+    }
+
+    static function fetchTxtDnsRecords($name) {
+        $pubDns = dns_get_record($name, DNS_TXT);
+        if ($pubDns === false)
+            return false;
+
+        $public = array();
+        foreach ($pubDns as $record) {
+            // [DG]: long key may be split to parts
+            if (isset($record['entries']))
+                $record['txt'] = implode('', $record['entries']);
+            $public[] = $record['txt'];
+        }
+        return $public;
+    }
+
+    static function fetchPublicDkimKeys($key, $domain) {
+        $records = self::fetchTxtDnsRecords("{$key}._domainkey.{$domain}.");
+        $public = array();
+
+        foreach ($records as $record) {
+            $parts = explode(';', trim($record));
+            $record = array();
+            foreach ($parts as $part) {
+                list($key, $val) = explode('=', trim($part), 2);
+                $record[$key] = $val;
+            }
+            $public[] = $record;
+        }
+        return $public;
+    }
+
+    static function canonicalizeDkimHeader($headers, $style='simple') {
+        if (!is_array($headers))
+            $headers = array($headers);
+
+        switch ($style) {
+            case 'simple':
+                // XXX: This won't work because the mimeDecode library changes
+                //      the headers to lower-case
+                return implode("\r\n", $headers);
+            case 'relaxed':
+            default:
+                $new = array();
+                foreach ($headers as $header) {
+                    list($name, $val) = explode(': ', $header, 2);
+                    // unfold header values and reduce whitespace, lower-case name
+                    $val = preg_replace('/\s+/', ' ', $val);
+                    $name = strtolower($name);
+                    $new[] = "{$name}:{$val}";
+                }
+                return implode("\r\n", $new);
+        }
+    }
+
+    static function canonicalizeDkimBody($body, $style='simple', $length=false) {
+        // Trim leading whitespace
+        if ($body == '')
+            return "\r\n";
+
+        // Stabilize line endings
+        $body = preg_replace("/(?<!\r)\n/", "\r\n", $body);
+        switch ($style) {
+            case 'relaxed':
+            default:
+                // http://tools.ietf.org/html/rfc4871#section-3.4.4
+                // strip whitespace off end of lines &
+                // replace whitespace strings with single whitespace
+                $body = preg_replace('/[ \t]+$/m', '', $body);
+                $body = preg_replace('/[ \t]+/', ' ', $body);
+
+                // also perform rules for "simple" canonicalization
+            case 'simple':
+                // http://tools.ietf.org/html/rfc4871#section-3.4.3
+                // remove any trailing empty lines
+                while (substr($body, strlen($body) - 4, 4) == "\r\n\r\n") {
+                    $body = substr($body, 0, strlen($body) - 2); 
+                } 
+                break;
+        }
+
+        if ($length)
+            $body = substr($body, 0, $length);
+
+        return $body;
+    }
+
+    function verifyDelivererViaSpf($ip, $domain, $explicit=true) {
+        $spfs = self::fetchTxtDnsRecords("{$domain}.");
+        if ($spfs === false)
+            return null;
+
+        $is_ipv4 = filter_var($ip, FILTER_VALIDATE_IP, ['flags' => FILTER_FLAG_IPV4]);
+        $is_ipv6 = filter_var($ip, FILTER_VALIDATE_IP, ['flags' => FILTER_FLAG_IPV6]);
+
+        foreach ($spfs as $spf) {
+            if (false === strstr($spf, 'v=spf1'))
+                continue;
+
+            // Honor SPF redirect
+            if (false !== strstr($spf, "redirect=")) {
+                $match = array();
+                $location = preg_match('/redirect=([^\s;]+)/', $spf, $match);
+                return self::verifyDelivererViaSpf($ip, $match[1], false);
+            }
+
+            $spf = preg_replace('/\s*v=spf1\s+/', '', $spf);
+            $items = preg_split('/\s+/', $spf);
+
+            foreach ($items as $i) {
+                switch ($i[0]) {
+                case '-':
+                case '+':
+                case '~':
+                case '?':
+                    $flag = $i[0];
+                    $i = substr($i, 1);
+                    break;
+                default:
+                    $flag = '+';
+                }
+
+                list($command, $arg) = explode(':', $i, 2);
+                $status = null;
+                switch ($command) {
+                // NOTE: `a` and `mx` are not considered here, because such
+                //       senders are already considered valid above.
+                case 'include':
+                    $status = $this->verifyDelivererViaSpf($ip, $arg, false);
+                    break;
+                case 'ip4':
+                    if ($is_ipv4)
+                        $status = Validator::check_ipv4($ip, $arg);
+                    break;
+                case 'ip6':
+                    if ($is_ipv6)
+                        $status = Validator::check_ipv6($ip, $arg);
+                    break;
+                case 'all':
+                    if (!$explicit)
+                        $status = true;
+                }
+                if ($status === true) {
+                    switch ($flag) {
+                    case '+':
+                    case '?':
+                        return true;
+                    case '-':
+                    case '~':
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Unable to to determine. If `explicit` is set then we assume that
+        // the sender is not legitimate.
+        return $explicit ? false : null;
+    }
+
     function parse($rawemail) {
         $parser= new Mail_Parse($rawemail);
         if (!$parser->decode())
@@ -611,14 +1000,7 @@ class EmailDataParser {
         $data['mailflags'] = new ArrayObject();
 
         //FROM address: who sent the email.
-        if(($fromlist = $parser->getFromAddressList())) {
-            $from=$fromlist[0]; //Default.
-            foreach($fromlist as $fromobj) {
-                if(!Validator::is_email($fromobj->mailbox.'@'.$fromobj->host)) continue;
-                $from = $fromobj;
-                break;
-            }
-
+        if (($from = $parser->getFromAddress())) {
             $data['email'] = $from->mailbox.'@'.$from->host;
 
             $data['name'] = trim($from->personal,'"');
@@ -721,6 +1103,13 @@ class EmailDataParser {
             $data['references'] = @$parser->struct->headers['references'];
             $data['mailflags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
+
+        // Mail is considered spam if the sender is definitly not legitimate,
+        // false if definitely legitimate, and null if unable to determine.
+        $legit = ($cfg && $cfg->quietSpamEmails())
+            ? $parser->isDelivererVerifiable($tolist)
+            : true;
+        $data['mailflags']['spam'] = $legit === null ? $legit : !$legit;
 
         $data['to-email-id'] = $data['emailId'];
 
