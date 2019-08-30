@@ -501,13 +501,8 @@ if($ticket) {
 } else {
     $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(Ticket::PERM_CREATE, false))
+            $thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
         $inc = 'ticket-open.inc.php';
-    elseif ($_REQUEST['a'] == 'export' && $queue) {
-        // XXX: Check staff access?
-        if (!$queue->export())
-            $errors['err'] = __('Unable to export results.')
-                .' '.__('Internal error occurred');
     } elseif ($queue) {
         // XXX: Check staff access?
         $quick_filter = @$_REQUEST['filter'];
