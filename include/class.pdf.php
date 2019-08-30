@@ -57,15 +57,18 @@ class Ticket2PDF extends mPDFWithLocalImages
 
 	var $includenotes = false;
 
+       var $includeevents = false;
+
 	var $pageOffset = 0;
 
     var $ticket = null;
 
-	function __construct($ticket, $psize='Letter', $notes=false) {
+	function __construct($ticket, $psize='Letter', $notes=false, $events=false) {
         global $thisstaff;
 
         $this->ticket = $ticket;
         $this->includenotes = $notes;
+        $this->includeevents = $events;
 
 	parent::__construct(['mode' => 'utf-8', 'format' => $psize, 'tempDir'=>sys_get_temp_dir()]);
 
