@@ -1646,11 +1646,12 @@ function refer($tid, $target=null) {
 
             try {
                 $interval = 5;
+                $options = ['filename' => $filename,
+                    'interval' => $interval];
                 // Create desired exporter
-                $exporter = new CsvExporter();
+                $exporter = new CsvExporter($options);
                 // Register the export in the session
-                Exporter::register($exporter, ['filename' => $filename,
-                        'interval' => $interval]);
+                Exporter::register($exporter);
                 // Flush response / return export id and check interval
                 Http::flush(201, $this->json_encode(['eid' =>
                             $exporter->getId(), 'interval' => $interval]));
