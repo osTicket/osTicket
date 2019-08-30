@@ -42,6 +42,10 @@ class Format {
         return $size;
     }
 
+    function filename($filename) {
+        return preg_replace('/[^a-zA-Z0-9\-\._]/', '-', $filename);
+    }
+
     function mimedecode($text, $encoding='UTF-8') {
 
         if(function_exists('imap_mime_header_decode')

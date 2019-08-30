@@ -348,8 +348,7 @@ abstract class  Exporter {
     abstract function init();
 
     function __construct($options=array()) {
-        // TODO: Make sure id is unique
-        $this->id = $options['id'] ?: Misc::randCode(6);
+        $this->id = $options['id'] ?: self::generateId();
         if (isset($options['file']))
             $this->file = $options['file'];
         $this->options = $options;
@@ -374,7 +373,7 @@ abstract class  Exporter {
                     throw new Exception();
             } else {
                 // We don't have a file create one in temp directory
-                $prefix = Misc::randCode(6);
+                $prefix = Format::filename(Misc::randCode(6));
                 if (!($temp=tempnam(sys_get_temp_dir(), $prefix))
                         || !($this->fp=fopen($temp, $mode))
                         || !($meta=stream_get_meta_data($this->fp))) {
@@ -438,6 +437,10 @@ abstract class  Exporter {
         return $this->fileObj;
     }
 
+    function getOptions() {
+        return $this->options;
+    }
+
     // Check interval in seconds
     function getInterval() {
         return @$this->options['interval'] ?: 5;
@@ -473,17 +476,26 @@ abstract class  Exporter {
         return $mailer->send(array($staff), $subject, $body);
     }
 
-    static function register($exporter, $info) {
+    // Generate an alphanumeric url safe id/code
+    static function generateId($len=6) {
+        $id = substr(str_replace('%', '', urlencode(Misc::randCode($len))),
+                0, $len);
+        if (isset($_SESSION['Exports'][$id]))
+            return self::generateId($len);
+
+        return $id;
+    }
+
+    static function register($exporter) {
         if (!$exporter instanceof Exporter)
             return false;
 
-        $_SESSION['Exports'][$exporter->getId()] = $info + array(
+        $_SESSION['Exports'][$exporter->getId()] = $exporter->getOptions() + array(
                  'file' => $exporter->getFile(),
                  'class' => get_class($exporter));
     }
 
     static function load($id) {
-
         if (!isset($_SESSION['Exports'][$id])
                 || !file_exists($_SESSION['Exports'][$id]['file']))
             return null;
@@ -509,8 +521,6 @@ class CsvExporter extends Exporter {
     function __construct($options=array()) {
         try {
             parent::__construct($options);
-            // Output a UTF-8 BOM (byte order mark)
-           //TODO: fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         } catch (Exception $ex) {
             throw new Exception();
         }
