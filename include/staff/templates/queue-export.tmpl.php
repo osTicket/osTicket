@@ -19,6 +19,9 @@ $fields = $queue->getExportFields(false) ?: array();
 if (isset($cache['fields']) && $fields)
     $fields = array_intersect_key($fields, array_flip($cache['fields']));
 
+$action = isset($info['action'])
+      ? $info['action']
+      : '#tickets/export/'.$queue->getId();
 ?>
 <div id="tickets-export">
 <h3 class="drag-handle"><?php echo Format::htmlchars($qname); ?></h3>
@@ -30,7 +33,7 @@ if (isset($errors['err'])) { ?>
 Format::htmlchars($errors['err']); ?></div>
 <?php
 } ?>
-<form action="#tickets/export/<?php echo $queue->getId(); ?>" method="post"
+<form action="<?php echo $action; ?>" method="post"
 name="queue-export" id="queue-export">
   <div style="overflow-y: auto; height:400px; margin-bottom:5px;">
   <table class="table">
