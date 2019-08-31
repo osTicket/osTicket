@@ -16,7 +16,8 @@ class ExportAjaxAPI extends AjaxController {
                 Http::response(201, $this->json_encode([
                             'status' => 'ready',
                             'href' => sprintf('export.php?id=%s',
-                                $exporter->getId())]));
+                                $exporter->getId()),
+                            'filename' => $exporter->getFilename()]));
             else // Export is not ready... checkback in a few
                 Http::response(200, $this->json_encode([
                         'status' => 'notready']));

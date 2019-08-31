@@ -54,7 +54,12 @@ $action = $info[':action'] ?: ('#');
                 if (xhr.status == 201) {
                     clearInterval(interval);
                     $('a.close', $popup).trigger('click');
-                    window.location.href = resp.href;
+                    var aElement = document.createElement('a');
+                    aElement.href = resp.href;
+                    aElement.target = '_blank';
+                    aElement.download = resp.filename;
+                    aElement.click();
+                    aElement.remove();
                 }
             },
             error: function (xhr) {
