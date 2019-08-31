@@ -444,6 +444,35 @@ abstract class  Exporter {
         return $this->fp ? flock($this->fp, LOCK_EX | LOCK_NB) : false;
     }
 
+    function unlock() {
+        fflush($this->fp);
+        flock($this->fp, LOCK_UN);
+    }
+
+    // Acknowledge the export and close the session
+    // This is important when the export would be taking a long time or when
+    // it's being emailed out in the background
+    function ack() {
+        // Register the export in the session
+        self::register($this);
+        // Flush response / return export id and check interval
+        Http::flush(201, json_encode(['eid' =>
+                    $this->getId(), 'interval' => $this->getInterval()]));
+        // Phew... now we're free to do the export
+        session_write_close(); // Release session for other requests
+        ignore_user_abort(1);  // Leave us alone bro!
+        @set_time_limit(0);    // Useless when safe_mode is on
+        // Ask the queue to export to the exporter
+    }
+
+    // Finilize the export - unlock the file and close the ponter
+    function finalize($delay=true) {
+        $this->unlock();
+        $this->close();
+        // Sleep 3 times the interval to allow time for file download
+        if ($delay) sleep($this->getInterval()*3);
+    }
+
     function download($filename=false, $delete=true) {
         $this->close();
         $filename = $filename ?: $this->getFilename();

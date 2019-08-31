@@ -1650,20 +1650,12 @@ function refer($tid, $target=null) {
                     'interval' => $interval];
                 // Create desired exporter
                 $exporter = new CsvExporter($options);
-                // Register the export in the session
-                Exporter::register($exporter);
-                // Flush response / return export id and check interval
-                Http::flush(201, $this->json_encode(['eid' =>
-                            $exporter->getId(), 'interval' => $interval]));
+                // Acknowledge the export
+                $exporter->ack();
                 // Phew... now we're free to do the export
-                session_write_close(); // Release session for other requests
-                ignore_user_abort(1);  // Leave us alone bro!
-                @set_time_limit(0);    // Useless when safe_mode is on
                 // Ask the queue to export to the exporter
                 $queue->export($exporter);
-                $exporter->close();
-                // Sleep 3 times the interval to allow time for file download
-                sleep($interval*3);
+                $exporter->finalize();
                 // Email the export if it exists
                 $exporter->email($thisstaff);
                 // Delete the file.
