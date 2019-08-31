@@ -109,7 +109,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         title: this.lang.get('fontcolor')
       };
       var $dropdown = this._buildDropdown();
-      this.$button = this.toolbar.addButton('fontcolor', btnObj);
+      this.$button = this.toolbar.addButtonAuto('fontcolor', btnObj);
       this.$button.setIcon('<i class="re-icon-fontcolor"></i>');
       this.$button.setDropdown($dropdown);
     },
@@ -256,7 +256,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         title: this.lang.get('remove-font-family'),
         api: 'plugin.fontfamily.remove'
       };
-      var $button = this.toolbar.addButton('fontfamily', {
+      var $button = this.toolbar.addButtonAuto('fontfamily', {
         title: this.lang.get('fontfamily')
       });
       $button.setIcon('<i class="re-icon-fontfamily"></i>');
@@ -750,7 +750,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         title: this.lang.get('fullscreen'),
         api: 'plugin.fullscreen.toggle'
       };
-      var button = this.toolbar.addButton('fullscreen', data);
+      var button = this.toolbar.addButtonAuto('fullscreen', data);
       button.setIcon('<i class="re-icon-expand"></i>');
       button.addClass('pull-right');
       this.$target = (this.toolbar.isTarget()) ? this.toolbar.getTargetElement() : this.$body;

@@ -188,6 +188,21 @@
     },
   }));
 
+  // Monkey patch the toolbar server to support adding buttons in an automatic
+  // position based on the `buttons` setting
+  var stockToolbar = $R[$R.env['service']]['toolbar'];
+  R$.add('service', 'toolbar', $R.extend(stockToolbar.prototype, {
+      addButtonAuto: function(name, btnObj) {
+          var pos = this.opts.buttons.indexOf(name);
+
+          if (pos === -1)
+              return this.addButton(name, btnObj);
+          if (pos === 0)
+              return this.addButtonFirst(name, btnObj);
+          return this.addButtonAfter(this.opts.buttons[pos - 1], name, btnObj);
+      },
+  }));
+
   R$.add('plugin', 'autolock', {
     init: function (app) {
         this.app = app;
@@ -311,8 +326,7 @@ $(function() {
                   ? ['format', '|', 'bold', 'italic', 'underline', 'deleted', 'lists', 'link', 'image']
                   : ['html', 'format', 'fontcolor', 'fontfamily', 'bold',
                     'italic', 'underline', 'deleted', 'lists', 'image', 'video',
-                    'file', 'table', 'link', 'alignment',
-                    'line', 'fullscreen'],
+                    'file', 'table', 'link', 'line', 'fullscreen'],
                 'buttonSource': !el.hasClass('no-bar'),
                 'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
                 'maxHeight': el.closest('.dialog').length ? selectedSize : false,
@@ -321,7 +335,7 @@ $(function() {
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
-                  : ['imagemanager','table','video','definedlinks','autolock'],
+                  : ['imagemanager','table','video','definedlinks','autolock', 'fontcolor', 'fontfamily'],
                 'imageUpload': el.hasClass('draft'),
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'imagePosition': true,
@@ -384,8 +398,7 @@ $(function() {
             });
         }
         if (!$.clientPortal) {
-            options['plugins'] = options['plugins'].concat(
-                    'fontcolor', 'fontfamily', 'signature');
+            options['plugins'].push('signature');
         }
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
