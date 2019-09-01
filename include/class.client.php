@@ -129,6 +129,12 @@ implements EmailContact, ITicketUser, TemplateVariable {
         return new EndUser($user);
     }
 
+    static function lookupById($id) {
+        if (!($user=User::lookup(array('id' => $id))))
+            return null;
+        return new EndUser($user);
+    }
+
     function isOwner() {
         return $this instanceof TicketOwner;
     }

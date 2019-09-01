@@ -193,4 +193,8 @@ function url_get($regex, $func, $args=false) {
 function url_delete($regex, $func, $args=false) {
     return url($regex, $func, $args, "DELETE");
 }
+
+function url_put($regex, $func, $args=false) {
+    return url($regex, $func, $args, "PUT");
+}
 ?>

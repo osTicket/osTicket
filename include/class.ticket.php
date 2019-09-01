@@ -4299,6 +4299,44 @@ EOF;
             }
         }
     }
+
+    public function getTicketApiEntity() {
+        //Change this to utilize the "osticket" way of doing so.
+        $threads = $this->getThreadEntries(['M', 'R', 'N']); //Message, Response, Note
+        $thread_entries = [];
+        foreach ($threads as $thread) {
+            $thread_entries[]=$thread->getThreadApiEntity();
+        }
+        //How should attachments be included in thread?
+        $topic=$this->getTopic();
+        $status=$this->getStatus();
+        $priority=$this->getPriority();
+        return [
+            'id' => $this->getNumber(),
+            'subject' => $this->getSubject(),
+            'topic' => ['id' => $topic->getId(), 'name' => $topic->getName()],
+            'status' => ['id' => $status->getId(), 'name' => $status->getName()],
+            'priority' => ['id' => $priority->getId(), 'name' => $priority->getTag()],
+            'department' => $this->getDeptName(),
+            'timestamps' => [
+                'create' => $this->getCreateDate(),
+                'due' => $this->getEstDueDate(),
+                'close' => $this->getCloseDate(),
+                'last_message' => $this->getLastMsgDate(),
+                'last_response' => $this->getLastRespDate(),
+            ],
+            'user' => [
+                'fullname'=>$this->getName()->getFull(),
+                'firstname'=>$this->getName()->getFirst(),
+                'lastname'=>$this->getName()->getLast(),
+                'email'=>$this->getEmail()->email,
+                'phone'=>$this->getPhoneNumber(),
+            ],
+            'source' => $this->getSource(),
+            'assigned_to' => $this->getAssignees(),
+            'threads' =>$thread_entries
+        ];
+    }
 }
 RolePermission::register(/* @trans */ 'Tickets', Ticket::getPermissions(), true);
 
