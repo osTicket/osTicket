@@ -2732,6 +2732,36 @@ class TaskSet extends VerySimpleModel {
         ));
     }
 
+    /**
+     * Functionally equivalent to the method with the same name for the
+     * TaskTemplateGroup, except that this applies to instanciated tasks.
+     * In fact, the upstream set will be used and missing templates will be
+     * removed from the set.
+     */
+    function getTreeOrganizedTasks() {
+        $tree = $this->group->getTreeOrganizedTemplates();
+        $tasks = array();
+        foreach ($this->getTasks() as $T) {
+            $tasks[$T->template_id] = $T;
+        }
+        $do_level = function($items, $level=0) use ($tasks, &$do_level) {
+            foreach ($items as $id=>$info) {
+                list($template, $children) = $info;
+                if (!isset($tasks[$template->id]))
+                    return array();
+                if (count($children)) {
+                    $items[$id] = array($tasks[$template->id],
+                        $do_level($children, $level+1));
+                }
+                else {
+                    $items[$id] = array($tasks[$template->id], array());
+                }
+            }
+            return $items;
+        };
+        return $do_level($tree);
+    }
+
     function getRemainingTasks() {
         return $this->getTasks()->filter(array(
             'flags__hasbit' => Task::ISOPEN,

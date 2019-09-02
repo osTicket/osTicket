@@ -507,19 +507,32 @@ $getTimeNode = function($timestamp) use ($thisstaff, $dbnow) {
             : Format::datetime($timestamp)
     );
 };
-foreach ($related as $T) { ?>
+$display_level = function($items, $level=0) use ($task, $getTimeNode, &$display_level) {
+    foreach ($items as $id=>$info) {
+        list($T, $children) = $info;
+?>
             <tr><td><?php echo ($T->id == $task->id)
                     ? '<i class="icon-chevron-right"></i>'
                     : ($T->isClosed() ? '<i class="faded icon-ok"></i>' : ''); ?></td>
                 <td><?php echo Format::htmlchars($T->getStatus()); ?></td>
-                <td><?php echo sprintf(
+                <td><?php
+                for ($i=0; $i<$level; $i++) {
+                  echo '<span class="child indent"></span>';
+                }
+                echo sprintf(
                     $T->id == $task->id ? '%2$s' : '<a href="tasks.php?id=%d">%s</a>',
                     $T->getId(), Format::htmlchars($T->getTitle())); ?></td>
                 <td><?php echo $getTimeNode($T->started); ?></td>
                 <td><?php echo $getTimeNode($T->getCloseDate()); ?></td>
                 <td><?php echo $getTimeNode($T->getDueDate()); ?></td>
             </tr>
-<?php } ?>
+<?php
+        if ($children) {
+            $display_level($children, $level + 1);
+        }
+    }
+};
+$display_level($set->getTreeOrganizedTasks()); ?>
         </tbody>
     </table>
 </div>
