@@ -122,7 +122,7 @@ if ($task->isOverdue())
 <?php if ($T = $task->getTicket()) { ?>
         <small class="faded"><?php echo str_replace('<a>',
             sprintf('<a href="tickets.php?id=%d">', $T->getId()),
-            sprintf(__('via ticket <a> #%s </a>'), $T->getNumber(a))
+            sprintf(__('via ticket <a> #%s </a>'), $T->getNumber())
         ); ?></small>
 <?php } ?>
                 </h2>

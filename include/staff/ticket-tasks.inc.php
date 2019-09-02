@@ -29,11 +29,14 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
 </div>
 <div class="pull-right">
     <?php
+    $have_task_set_dropdown = $ticket && TaskTemplateGroup::forTicket($ticket)->count();
     if ($role && $role->hasPerm(Task::PERM_CREATE)) { ?>
         <span
             class="green button action-button">
+<?php if ($have_task_set_dropdown) { ?>
         <i class="icon-caret-down pull-right"
             data-placement="bottom" data-dropdown="#add-new-task-dropdown"></i>
+<?php } ?>
         <a class="ticket-task-action"
         data-url="tickets.php?id=<?php echo $ticket->getId(); ?>#tasks"
         data-dialog-config='{"size":"large"}'
@@ -58,9 +61,9 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
     ?>
     <div id="add-new-task-dropdown" class="action-dropdown anchor-right">
       <ul>
-<?php if ($ticket) { ?>
-        <li><a href="#" data-dialog="ajax.php/tickets/<?php echo $ticket->getId(); ?>/tasks/add-set"
-          >
+<?php if ($have_task_set_dropdown) { ?>
+        <li><a href="#" data-dialog="ajax.php/tickets/<?php echo $ticket->getId();
+            ?>/tasks/add-set">
           <i class="icon-tasks icon-fixed-width"></i>
           <?php echo __('Attach Task Template Group'); ?></a></li>
 <?php } ?>
