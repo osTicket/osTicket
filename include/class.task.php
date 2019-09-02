@@ -2507,10 +2507,18 @@ class TaskTemplateGroup extends VerySimpleModel {
         ));
         $set->save();
 
-        foreach ($this->templates->filter(array(
+        $templates = $this->templates->filter(array(
             // Don't add DRAFT templates
             'flags__hasbit' => TaskTemplate::FLAG_ENABLED,
-        )) as $tmpl) {
+        ))->all();
+
+        // Ensure templates are created in the set in the dependency order
+        usort($templates, function($a, $b) {
+            return in_array($a->id, $b->getDependentIds()) ? -1
+                : (in_array($b->id, $a->getDependentIds()) ? 1
+                : $a->sort - $b->sort);
+        });
+        foreach ($templates as $tmpl) {
             $task = $tmpl->instanciate(array(
                 'set_id' => $set->id,
                 'object_id' => $ticket->getId(),
