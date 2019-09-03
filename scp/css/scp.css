@@ -3516,6 +3516,12 @@ table.grid.form caption {
   background: transparent;
   color: black;
 }
+table.grid caption > div {
+    margin-top: 0.2em;
+}
+.dialog table.grid.form caption {
+    font-size: 1.2em;
+}
 table.grid.form div.section-break {
   margin-top: 0.5em;
   padding-left: 5px;

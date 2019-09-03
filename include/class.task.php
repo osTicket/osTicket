@@ -259,6 +259,24 @@ class TaskModel extends VerySimpleModel {
     }
 
     /**
+     * Similar to ::getDependents except that all recursive dependents are
+     * included.
+     */
+    function getRecursiveDependents() {
+        if (!$this->hasRelatedTasks())
+            return array();
+
+        // Find all depedencies of all tasks related to this one
+        $dependents = $this->getDependents();
+        $others = array();
+        foreach ($dependents as $D) {
+            array_merge($others, $D->getRecursiveDependents());
+        }
+
+        return array_unique(array_merge($dependents, $others));
+    }
+
+    /**
      * Fetch information on the related task set via the related
      * TaskTemplateGroup object.
      */
@@ -282,7 +300,21 @@ class TaskModel extends VerySimpleModel {
         return $this->isPending();
     }
 
-    function cancel() {
+    /**
+     * Cancel this task (close it without having starting it). Optionally,
+     * dependent tasks can be canceled at the same time, and un-cancelled
+     * dependent tasks can be automatically started after this task is
+     * cancelled.
+     *
+     * Parameters:
+     * $cascade - (bool | array) TRUE if all dependent tasks should be
+     *      recursively cancelled. ARRAY<id> if specific recursive
+     *      dependents should be cancelled. The ID of the dependent tasks
+     *      should be specified.
+     * $startDependents - (bool) TRUE if dependent tasks should be
+     *      automatically started after this task is cancelled.
+     */
+    function cancel($cascade=false, $startDependents=true) {
         // For now, an alias of close(), because no separate events or
         // signals are called.
         $this->clearFlag(self::ISOPEN);
@@ -291,6 +323,25 @@ class TaskModel extends VerySimpleModel {
 
         if (!$this->save())
             return false;
+
+        if ($cascade) {
+            foreach ($this->getDependents() as $task) {
+                if ($cascade === true
+                    || (is_array($cascade) && in_array($task->id, $cascade))
+                ) {
+                    $task->cancel($cascade, $startDependents);
+                }
+            }
+        }
+
+        // Start dependent tasks immediately
+        if ($startDependents) {
+            foreach ($this->getDependents() as $task) {
+                if ($task->canStart()) {
+                    $task->start();
+                }
+            }
+        }
     }
 
     function isClosed() {
@@ -1789,6 +1840,30 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             return;
 
         require STAFFINC_DIR.'templates/tasks-actions.tmpl.php';
+    }
+}
+
+class TaskCascadeCancelForm
+extends AbstractForm {
+    function getTitle() { return __('Also Cancel Dependent Tasks?'); }
+    function getInstructions() {
+        return __('Select dependent tasks to also cancel. By default, all dependencies are selected to be cancelled along with this task.');
+    }
+
+    function buildFields() {
+        $fields = array();
+        foreach ($this->options['task']
+            ->getRecursiveDependents()
+        as $task) {
+            $fields["task_{$task->id}"] = new BooleanField(array(
+                'default' => true,
+                'required' => false,
+                'configuration' => array(
+                    'desc' => $task->getTitle(),
+                ),
+            ));
+        }
+        return $fields;
     }
 }
 

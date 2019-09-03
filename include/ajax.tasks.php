@@ -777,6 +777,29 @@ class TasksAjaxAPI extends AjaxController {
                         $task->getId())
                     );
 
+            if (count($task->getDependents())) {
+                $form = new TaskCascadeCancelForm($_POST, array('task' => $task));
+                $info[':extra'] = $form->asTable();
+                if ($_POST) {
+                    $cascaded = array();
+                    foreach ($form->getClean(Form::FORMAT_PHP) as $id=>$value) {
+                        if ($value) {
+                            list($_, $task_id) = explode('_', $id);
+                            $T = Task::lookup($task_id);
+                            if ($T && $T->isCancellable()) {
+                                $T->cancel(false, false);
+                            }
+                        }
+                        // XXX: Some tasks might not get started? It's maybe
+                        // possible that if some odd combination of
+                        // dependent tasks were cancelled and only the
+                        // dependents of the main task were considered to be
+                        // started after this main task is cancelled, that
+                        // some tasks might get stuck?
+                    }
+                }
+            }
+
             if (($m=$task->isCancellable()) !== true)
                 $errors['err'] = $info['error'] = $m;
             else
