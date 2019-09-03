@@ -15,7 +15,7 @@ ALTER TABLE `%TABLE_PREFIX%help_topic`
 
 INSERT INTO `%TABLE_PREFIX%event`
   (`id`, `name`)
-  VALUES (15, 'started');
+  VALUES (15, 'started'), (16, 'cancelled');
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%task_set`;
 CREATE TABLE `%TABLE_PREFIX%task_set` (

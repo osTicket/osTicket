@@ -63,3 +63,7 @@
 - id: 15
   name: started
   description: Used when a task is started
+
+- id: 16
+  name: cancelled
+  description: Used when a task is cancelled (without starting)

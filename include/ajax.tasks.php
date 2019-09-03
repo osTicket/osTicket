@@ -773,7 +773,7 @@ class TasksAjaxAPI extends AjaxController {
             $info = array(
                     ':title' => sprintf(__('Cancel Task #%s'),
                         $task->getNumber()),
-                    ':action' => sprintf('#tasks/%d/close',
+                    ':action' => sprintf('#tasks/%d/cancel',
                         $task->getId())
                     );
 
