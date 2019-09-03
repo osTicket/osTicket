@@ -2015,6 +2015,8 @@ class ThreadEvent extends VerySimpleModel {
     const RELEASED  = 'released';
     const CLOSED    = 'closed';
     const CREATED   = 'created';
+    const STARTED   = 'started';
+    const CANCELLED = 'cancelled';
     const COLLAB    = 'collab';
     const EDITED    = 'edited';
     const ERROR     = 'error';
@@ -2026,7 +2028,6 @@ class ThreadEvent extends VerySimpleModel {
     const VIEWED    = 'viewed';
     const MERGED    = 'merged';
     const UNLINKED    = 'unlinked';
-    const STARTED   = 'started';
 
     const MODE_STAFF = 1;
     const MODE_CLIENT = 2;
@@ -2065,6 +2066,7 @@ class ThreadEvent extends VerySimpleModel {
             'linked'      => 'link',
             'unlinked'    => 'unlink',
             'started'     => 'level-up',
+            'cancelled' => 'stop',
         );
 
         if (isset(static::$icon))
@@ -2324,7 +2326,8 @@ class ThreadEvents extends InstrumentedList {
      * $object - Object to log activity for
      * $state - State name of the activity (one of 'created', 'edited',
      *      'deleted', 'closed', 'reopened', 'error', 'collab', 'resent',
-     *      'assigned', 'released', 'transferred', 'started', 'other')
+     *      'assigned', 'released', 'transferred', 'started', 'other',
+     *      'cancelled')
      * $data - (array?) Details about the state change
      * $user - (string|User|Staff) user triggering the state change
      * $annul - (state) a corresponding state change that is annulled by
@@ -2661,6 +2664,14 @@ class StartedEvent extends ThreadEvent {
     }
 }
 
+class CancelledEvent extends ThreadEvent {
+    static $icon = 'stop';
+    static $state = 'cancelled';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Cancelled by <b>{somebody}</b> {timestamp}'));
+    }
+}
 
 class ViewEvent extends ThreadEvent {
     static $state = 'viewed';

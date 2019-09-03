@@ -285,7 +285,12 @@ class TaskModel extends VerySimpleModel {
     function cancel() {
         // For now, an alias of close(), because no separate events or
         // signals are called.
-        return $this->close();
+        $this->clearFlag(self::ISOPEN);
+        $this->closed = SqlFunction::NOW();
+        $this->logEvent('cancelled');
+
+        if (!$this->save())
+            return false;
     }
 
     function isClosed() {
