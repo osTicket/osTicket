@@ -328,19 +328,18 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
     exit;
   }
 
-  static function audits($type, $abbrv='', $state='', $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true) {
+  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true, $data=array(), CsvExporter $exporter) {
       $headings = array('Description', 'Timestamp', 'IP');
       switch ($type) {
           case 'audit':
-              $sql = AuditEntry::objects()->filter(array('object_type'=>$abbrv));
-              if ($state && $state != 'All') {
-                  $eventId = Event::getIdByName(strtolower($state));
+              $sql = AuditEntry::objects()->filter(array('object_type'=>$data['type']));
+              if ($data['state'] && $data['state'] != 'All') {
+                  $eventId = Event::getIdByName(strtolower($data['state']));
                   $sql = $sql->filter(array('event_id'=>$eventId));
               }
-
-              if ($_REQUEST['starttime'] && $_REQUEST['endtime'])
-                $sql = $sql->filter(array('timestamp__range' =>
-                                    array('"'.$_REQUEST['starttime'].'"', '"'.$_REQUEST['endtime'].'"', true)));
+              if ($data['startDate'] && $data['endDate'])
+                  $sql = $sql->filter(array('timestamp__range' =>
+                                      array('"'.$data['startDate'].'"', '"'.$data['endDate'].'"', true)));
 
               $sql = $sql->order_by('-timestamp');
               $tableInfo = $sql;
@@ -358,28 +357,7 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
       if (!$show_viewed)
           $sql = $sql->filter(Q::not(array('event_id'=>Event::getIdByName('viewed'))))->order_by('-timestamp');
 
-      // Create and store export start time
-      $_SESSION['export']['start'] = microtime(true);
-      // Store filename
-      $_SESSION['export']['filename'] = $filename;
-      // Create and store export temp name
-      $prefix = base64_encode(sha1(microtime(), true));
-      $_SESSION['export']['tempname'] = str_replace(
-          array('=','+','/'),
-          array('','-','_'),
-          substr($prefix, 0, 5) . $sha1);
-
-      // Create temp file to build CSV
-      $output = fopen(tempnam(sys_get_temp_dir(),
-          $_SESSION['export']['tempname']), 'w+');
-
-      // Save path in session for later
-      $_SESSION['export']['tempath'] = stream_get_meta_data($output)['uri'];
-
-      $delimiter = Internationalization::getCSVDelimiter();
-      // Output a UTF-8 BOM (byte order mark)
-      fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-      fputcsv($output, $headings, $delimiter);
+      $exporter->write($headings);
       $row = array();
       foreach ($sql as $key => $value) {
         if (is_object($value)) {
@@ -387,13 +365,10 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
             $value = $value->ht;
         }
         $row[0] = $description;
-        $row[1] = $value['timestamp'];
+        $row[1] = Format::datetime($value['timestamp']);
         $row[2] = $value['ip'];
-        fputcsv($output, $row, $delimiter);
+        $exporter->write($row);
       }
-
-      // Create and store export end time
-      $_SESSION['export']['end'] = microtime(true);
     }
 }
 

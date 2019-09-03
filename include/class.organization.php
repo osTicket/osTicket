@@ -547,43 +547,6 @@ implements TemplateVariable, Searchable {
         return $this->save();
     }
 
-
-    function update($vars, &$errors) {
-
-        $valid = true;
-        $forms = $this->getForms($vars);
-        foreach ($forms as $entry) {
-            if (!$entry->isValid())
-                $valid = false;
-            if ($entry->getDynamicForm()->get('type') == 'O'
-                        && ($f = $entry->getField('name'))
-                        && $f->getClean()
-                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
-                        && $o->id != $this->getId()) {
-                $valid = false;
-                $f->addError(__('Organization with the same name already exists'));
-            }
-        }
-
-        if (!$valid || $errors)
-            return false;
-
-        // Save dynamic data.
-        foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getDynamicForm()->get('type') == 'O'
-               && ($name = $entry->getField('name'))
-            ) {
-                $this->name = $name->getClean();
-                $this->save();
-            }
-            $entry->setSource($vars);
-            if ($entry->save())
-                $this->updated = SqlFunction::NOW();
-        }
-
-        return true;
-    }
-
     function delete() {
         if (!parent::delete())
             return false;
