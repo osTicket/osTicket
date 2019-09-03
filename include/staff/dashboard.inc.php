@@ -15,7 +15,7 @@ $sitecolor = array(
 "NTC"=>"rgb(43, 144, 143)",
 "OH"=>"rgb(67, 67, 72)",
 "PAU"=>"#40c4ff",
-"RTA"=>"#18ffff",
+"NTA"=>"#18ffff",
 "RVC"=>"rgb(247, 163, 92)",
 "TNN1"=>"#69f0ae",
 "TNN2"=>"rgb(124, 181, 236)",
@@ -743,7 +743,7 @@ $sitecolor = array(
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
                                 UNION all 
-                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(RTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(NTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
                 STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
 
                 where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
@@ -892,7 +892,7 @@ $sitecolor = array(
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
                                 UNION all 
-                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(RTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(NTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
                 STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
 
                 where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
@@ -1030,7 +1030,7 @@ $sitecolor = array(
                                 GROUP BY FROM_DAYS(TO_DAYS(closed) - MOD(TO_DAYS(closed) - 2, 7))) data
                                 
                                 UNION all 
-                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(RTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
+                                select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(NTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
                 STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
 
                 where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
@@ -2246,8 +2246,8 @@ $(function() {
             ["OH", <?php echo $BacklogTickets["OH"]; ?>],
             <?php } if ($BacklogTickets["PAU"]) { ?>
             ["PAU", <?php echo $BacklogTickets["PAU"]; ?>],
-            <?php } if ($BacklogTickets["RTA"]) { ?>
-            ["RTA", <?php echo $BacklogTickets["RTA"]; ?>], 
+            <?php } if ($BacklogTickets["NTA"]) { ?>
+            ["NTA", <?php echo $BacklogTickets["NTA"]; ?>], 
             <?php } if ($BacklogTickets["RTC"]) { ?>
             ["RTC", <?php echo $BacklogTickets["RTC"]; ?>],         
              <?php } if ($BacklogTickets["RVC"]) { ?>
@@ -2323,8 +2323,8 @@ $(function() {
             ["OH", <?php echo $BacklogTTickets["OH"]; ?>],
             <?php } if ($BacklogTTickets["PAU"]) { ?>
             ["PAU", <?php echo $BacklogTTickets["PAU"]; ?>],
-            <?php } if ($BacklogTTickets["RTA"]) { ?>
-            ["RTA", <?php echo $BacklogTTickets["RTA"]; ?>], 
+            <?php } if ($BacklogTTickets["NTA"]) { ?>
+            ["NTA", <?php echo $BacklogTTickets["NTA"]; ?>], 
             <?php } if ($BacklogTTickets["RTC"]) { ?>
             ["RTC", <?php echo $BacklogTTickets["RTC"]; ?>],         
              <?php } if ($BacklogTTickets["RVC"]) { ?>
