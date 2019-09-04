@@ -39,7 +39,7 @@ class TicketApiController extends ApiController {
 
         if(!strcasecmp($format, 'email')) {
             $supported = array_merge($supported, array('header', 'mid',
-                'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name',
+                'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name','date',
                 'in-reply-to', 'references', 'thread-type',
                 'mailflags' => array('bounce', 'auto-reply', 'spam', 'viral'),
                 'recipients' => array('*' => array('name', 'email', 'source'))
