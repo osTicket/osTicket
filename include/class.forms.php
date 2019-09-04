@@ -4505,7 +4505,7 @@ class DatetimePickerWidget extends Widget {
             // See if we have time
             $data = $this->field->getSource();
             // Parse value into datetime object
-            $dt = Format::parseDatetime($value);
+            $dt = Format::parseDateTime($value);
             // Effective timezone for the selection
             if (($timezone = $this->field->getTimezone()))
                 $dt->setTimezone($timezone);
