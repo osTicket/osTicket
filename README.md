@@ -22,9 +22,9 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 5.6 to 7.2, 7.2 is recommended
+  * PHP version 7.0 to 7.3, 7.3 is recommended
   * mysqli extension for PHP
-  * MySQL database version 5.0 or greater
+  * MySQL database version 5.5
 
 ### Recommendations
   * gd, gettext, imap, json, mbstring, and xml extensions for PHP
