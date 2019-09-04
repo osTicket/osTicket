@@ -151,7 +151,10 @@ if($ticket->isOverdue())
                 <?php
                  if ($role->hasPerm(Ticket::PERM_EDIT)) { ?>
                     <li><a class="change-user" href="#tickets/<?php
-                    echo $ticket->getId(); ?>/change-user"><i class="icon-user"></i> <?php
+                    echo $ticket->getId(); ?>/change-user"
+                    onclick="javascript:
+                        $('#response').redactor('draft.saveDraft');"
+                    ><i class="icon-user"></i> <?php
                     echo __('Change Owner'); ?></a></li>
                 <?php
                  }
@@ -313,7 +316,10 @@ if($ticket->isOverdue())
                          <td>
                           <a class="tickets-action" data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>"
                               data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
-                              href="#statuses">
+                              href="#statuses"
+                              onclick="javascript:
+                                  $('#response').redactor('draft.saveDraft');"
+                              >
                               <?php echo $ticket->getStatus(); ?>
                           </a>
                         </td>
@@ -341,9 +347,12 @@ if($ticket->isOverdue())
                     <?php
                     if ($role->hasPerm(Ticket::PERM_TRANSFER)) {?>
                       <td>
-                        <a class="ticket-action" id="ticket-transfer" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
-                          data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
-                          href="#tickets/<?php echo $ticket->getId(); ?>/transfer"><?php echo Format::htmlchars($ticket->getDeptName()); ?>
+                          <a class="ticket-action" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
+                            data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
+                            href="#tickets/<?php echo $ticket->getId(); ?>/transfer"
+                            onclick="javascript:
+                                $('#response').redactor('draft.saveDraft');"
+                            ><?php echo Format::htmlchars($ticket->getDeptName()); ?>
                         </a>
                       </td>
                     <?php
@@ -363,6 +372,7 @@ if($ticket->isOverdue())
                     <th width="100"><?php echo __('User'); ?>:</th>
                     <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
                         onclick="javascript:
+                            $('#response').redactor('draft.saveDraft');
                             $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
                                     function (user) {
                                         $('#user-'+user.id+'-name').text(user.name);

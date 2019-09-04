@@ -62,6 +62,7 @@ RedactorPlugins.draft = function() {
 
             // Add [Delete Draft] button to the toolbar
             if (this.opts.draftDelete) {
+                this.opts.draftSave = true;
                 var trash = this.draft.deleteButton =
                     this.button.add('deleteDraft', __('Delete Draft'))
                 this.button.addCallback(trash, this.draft.deleteDraft);
@@ -70,6 +71,18 @@ RedactorPlugins.draft = function() {
                 trash.addClass('delete-draft');
                 if (!this.opts.draftId)
                     trash.hide();
+            }
+
+            // Add [Save Draft] button to the toolbar
+            if (this.opts.draftSave) {
+                var save = this.draft.saveButton =
+                    this.button.add('saveDraft', __('Save Draft'))
+                this.button.addCallback(save, this.draft.saveDraft);
+                this.button.setAwesome('saveDraft', 'icon-save');
+                save.parent().addClass('pull-right');
+                save.addClass('save-draft');
+                if (!this.opts.draftId)
+                    save.hide();
             }
         }
         if (this.code.get())
@@ -101,6 +114,9 @@ RedactorPlugins.draft = function() {
         // Show the button if there is a draft to delete
         if (this.opts.draftId && this.opts.draftDelete)
             this.draft.deleteButton.show();
+        // Show the save button if there is a draft to save
+        if (this.opts.draftId && this.opts.draftSave)
+            this.draft.saveButton.show();
         this.$box.trigger('draft:saved');
     },
     autosaveFailed: function(error) {
@@ -123,6 +139,42 @@ RedactorPlugins.draft = function() {
 
     hideDraftSaved: function() {
         this.$draft_saved.hide();
+    },
+
+    showDraftSaved: function() {
+        this.$draft_saved.show();
+    },
+
+    saveDraft: function() {
+        if (!this.opts.draftId) {
+            var url = 'ajax.php/draft/' + this.opts.draftNamespace;
+            if (this.opts.draftObjectId)
+                url += '.' + this.opts.draftObjectId;
+        } else
+            url = 'ajax.php/draft/'+this.opts.draftId;
+
+        response = $(".draft").val()
+        if (response) {
+            var data = {
+                name: 'response',
+                response: response,
+            };
+
+            var self = this;
+            $.ajax(url, {
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                async: false,
+                success: function() {
+                    self.draft_id = self.opts.draftId = undefined;
+                    self.draft.showDraftSaved();
+                    self.opts.autosave = self.opts.autoCreateUrl;
+                    self.draft.firstSave = false;
+                    self.$box.trigger('draft:saved');
+                }
+            });
+        }
     },
 
     deleteDraft: function() {
@@ -329,6 +381,7 @@ $(function() {
             options['plugins'].push('draft');
             options['plugins'].push('imagepaste');
             options.draftDelete = el.hasClass('draft-delete');
+            options.draftSave = el.hasClass('draft-save');
         }
         if (true || 'scp') { // XXX: Add this to SCP only
             options['plugins'].push('contexttypeahead');
