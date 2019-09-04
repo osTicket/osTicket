@@ -273,7 +273,7 @@ $pageNav->setURL('tickets.php', $args);
   ?>
 
 
-<div class="subnav" style="z-index: 8;">
+<div class="subnav">
 
 
                         <div class="float-left subnavtitle">

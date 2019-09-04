@@ -582,6 +582,14 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					<div class="alert alert-danger m-b-30" role="alert">
                                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-danger"><?php echo $BacklogTotal; ?></span>  which is greater than the established target of <span class="badge badge-success">45</span>.
                     </div>
+					
+					<?php }
+
+					if ($BacklogTotal <= 45) { ?>
+					
+					<div class="alert alert-success m-b-30" role="alert">
+                                        <i class="fa fa-check-square" aria-hidden="true"></i> Backlog is currently <span class="badge badge-success"><?php echo $BacklogTotal; ?></span>.
+                    </div>
 			
 					<?php } ?>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/moment.js"></script>
