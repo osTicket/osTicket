@@ -258,72 +258,81 @@ $bl_orgs = Organization::objects();
 
 
 //Support Backlog     
-$BacklogTTickets = array(); 
-$bl_orgs = Organization::objects();
-   
-   $bl_orgs->values('id','name');
-   foreach ($bl_orgs as $bl_org) {
-     //echo $org['id'];  
-   
 
-    $OpenTicket = Ticket::objects()
-        ->filter(array('user__org_id' => $bl_org['id']))
-        ->filter(array('status_id__ne' => '8')) //hold
-        ->filter(array('status_id__ne' => '3')) //3rd Party
-        ->filter(array('status_id__ne' => '6')) //Submitter Action
-        ->filter(array('status_id__ne' => '12')) //closed
-        ->filter(array('status_id__ne' => '9')) //autoclosed
-        ->filter(array('topic_id__ne' => '12')) //open issue
-        ->filter(array('topic_id__ne' => '13')) 
-		->filter(array('topic_id__ne' => '14')) 
-		->filter(array('topic_id__ne' => '15')) 
-		->filter(array('topic_id__ne' => '16')) 
-		->filter(array('topic_id__ne' => '17')) 
-		->filter(array('topic_id__ne' => '18')) 
-		->filter(array('topic_id__ne' => '19')) 
-		->filter(array('topic_id__ne' => '78')) 
-		->filter(array('topic_id__ne' => '94')) 
-		->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
- 
-        foreach ($OpenTicket as $orgOpenTicket) { 
-            $BacklogTTickets[$bl_org['name']] = $orgOpenTicket["count"];
-        }
-}        
-        
-     
+$sql="select org.name as LOCATION, IFNULL(s.count,0) as COUNT
+	from ost_organization org left join (
+	select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+	WHERE 
+	a.status_id not in (1,8,3,6,12,9)
+	AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
+	group by o.name ) s on org.name = s.name";
 
+$results = db_query($sql); 
+ $BacklogITTotal = 0;
+ foreach ($results as $result) {
+	 $BacklogITotal = (int) $result['COUNT'];
+	  $BacklogITTotal =  $BacklogITTotal +  $BacklogITotal;
+ }
+
+foreach ($results as $result) {
 	 
-$BacklogTotal = $BacklogTickets["CAN"]+
-$BacklogTickets["IND"]+
-$BacklogTickets["EXT"]+
-$BacklogTickets["SS"]+
-$BacklogTickets["MEX"]+
-$BacklogTickets["OH"]+
-$BacklogTickets["NTC"]+
-$BacklogTickets["TNN1"]+
-$BacklogTickets["TNN2"]+
-$BacklogTickets["TNS"]+
-$BacklogTickets["BRY"]+
-$BacklogTickets["PAU"]+
-$BacklogTickets["RVC"]+
-$BacklogTickets["NTA"]+
-$BacklogTickets["VIP"];   
+	  if ($result['LOCATION'] == 'CAN') {$BacklogITCAN = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'TNN2') {$BacklogITTNN2 = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'TNN1') {$BacklogITTNN1 = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'NTC') {$BacklogITNTC = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'MEX') {$BacklogITMEX = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'TNS') {$BacklogITTNS = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'IND') {$BacklogITIND = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'OH') {$BacklogITOH= $result['COUNT'];}
+	  if ($result['LOCATION'] == 'EXT') {$BacklogITEXT= $result['COUNT'];}
+	  if ($result['LOCATION'] == 'SS') {$BacklogITSS = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'VIP') {$BacklogITVIP = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'RVC') {$BacklogITRVC= $result['COUNT'];}
+	  if ($result['LOCATION'] == 'BRY') {$BacklogITBRY = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'PAU') {$BacklogITPAU = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'NTA') {$BacklogITNTA = $result['COUNT'];}
 
 
-$BacklogTTotal = $BacklogTTickets["CAN"]+
-$BacklogTTickets["IND"]+
-$BacklogTTickets["EXT"]+
-$BacklogTTickets["SS"]+
-$BacklogTTickets["MEX"]+
-$BacklogTTickets["OH"]+
-$BacklogTTickets["NTC"]+
-$BacklogTTickets["TNN1"]+
-$BacklogTTickets["TNN2"]+
-$BacklogTTickets["TNS"]+
-$BacklogTTickets["BRY"]+
-$BacklogTTickets["PAU"]+
-$BacklogTTickets["RVC"]+
-$BacklogTTickets["NTA"]+
-$BacklogTTickets["VIP"];   
+ }
+
+
+//SE Backlog
+$sql="select org.name as LOCATION, IFNULL(s.count,0) as COUNT
+	from ost_organization org left join (
+	select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+	WHERE 
+	a.status_id not in (1,8,3,6,12,9)
+	AND a.topic_id in (13,15,16,17,18,19,78)
+	group by o.name ) s on org.name = s.name";
+
+$results = db_query($sql); 
+ $BacklogSETotal = 0;
+ foreach ($results as $result) {
+	 $BacklogSTotal = (int) $result['COUNT'];
+	  $BacklogSETotal =  $BacklogSETotal +  $BacklogSTotal;
+ }
+
+foreach ($results as $result) {
+	 
+	  if ($result['LOCATION'] == 'CAN') {$BacklogSECAN = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'TNN2') {$BacklogSETNN2 = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'TNN1') {$BacklogSETNN1 = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'NTC') {$BacklogSENTC = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'MEX') {$BacklogSEMEX = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'TNS') {$BacklogSETNS = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'IND') {$BacklogSEIND = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'OH') {$BacklogSEOH= $result['COUNT'];}
+	  if ($result['LOCATION'] == 'EXT') {$BacklogSEEXT= $result['COUNT'];}
+	  if ($result['LOCATION'] == 'SS') {$BacklogSESS = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'VIP') {$BacklogSEVIP = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'RVC') {$BacklogSERVC= $result['COUNT'];}
+	  if ($result['LOCATION'] == 'BRY') {$BacklogSEBRY = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'PAU') {$BacklogSEPAU = $result['COUNT'];}
+	  if ($result['LOCATION'] == 'NTA') {$BacklogSENTA = $result['COUNT'];}
+
+
+ }
+
+$BacklogTotal = $BacklogITTotal+$BacklogSETotal+$UnassignedTickets;
 
 ?>

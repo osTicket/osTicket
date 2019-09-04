@@ -166,25 +166,30 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 </div>
 
                                 
-                                
+                                <?php if ($MyReplyTickets <> '0') { ?>
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=7" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-danger"><?php echo $MyReplyTickets; ?></div>
                                     <p class="notify-details">My Action<small class="text-muted">Waiting on my action</small></p>
-                                </a>                                <!-- item-->
+                                </a> 
+								<?php }
+								if ($MyTheirReplyTickets <> '0') { ?>
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=6" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-success"><?php echo $MyTheirReplyTickets; ?></div>
                                     <p class="notify-details">Their Action<small class="text-muted">Waiting on their action</small></p>
                                 </a>
-                                                               <!-- item-->
+                                <?php }
+								if ($MyThridPartyTickets <> '0') { ?>
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=9" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-purple"><?php echo $MyThridPartyTickets; ?></div>
                                     <p class="notify-details">3rd Party<small class="text-muted">Awaiting 3rd party</small></p>
                                 </a>
-                                                                <!-- item-->
+                                <?php }
+								if ($MyHeldTickets <> '0') { ?>
                                 <a href="/scp/tickets.php?queue=31&p=1&l=0&s=8" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-warning"><?php echo $MyHeldTickets; ?></div>
                                     <p class="notify-details">Held<small class="text-muted">Tickets on Hold</small></p>
                                 </a>
+								<?php } ?>
                                 <!-- All-->
                                 <a href="tickets.php?queue=31&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
                                     View All
@@ -192,79 +197,218 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 
                             </div>
                         </li>
-                        <li class="list-inline-item dropdown notification-list mr-0">
+						<li class="list-inline-item dropdown notification-list mr-0">
                             <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
-                               aria-haspopup="false" aria-expanded="false"  title="<?php echo __('Backlog'); ?>"> 
+                               aria-haspopup="falIT" aria-expanded="falIT"  title="<?php echo __(' IT Backlog'); ?>"> 
                                 <i class="mdi mdi-ticket-confirmation noti-icon"></i>
-                                <span class="badge badge-danger noti-icon-badge"><?php echo $BacklogTotal; ?></span>
+                                <span class="badge badge-danger noti-icon-badge"><?php echo $BacklogITTotal; ?></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
                                 <!-- item-->
                                 <div class="dropdown-item noti-title">
-                                    <h5 class="font-16"><a href="tickets.php?queue=241&p=1&l=0&s=0"><span class="badge badge-danger float-right"><?php echo $BacklogTotal; ?></span></a>Backlog</h5>
+                                    <h5 class="font-16"><a href="tickets.php?queue=241&p=1&l=0&s=0"><span class="badge badge-danger float-right"><?php echo $BacklogITTotal; ?></span></a> IT Backlog</h5>
                                 </div>
-
-                                <a href="/scp/tickets.php?queue=3&p=1&l=2&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-warning"><?php echo $BacklogTickets["CAN"]; ?></div>
-                                    <p class="notify-details">CAN<small class="text-muted">Canada's Backlog</small></p>
+								<?php if ($BacklogITCAN <> '0'){ ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=2&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-warning "><?php echo $BacklogITCAN; ?></div>
+                                    <p class="notify-details">CAN<small class="text-muted">Canada's IT Backlog</small></p>
                                 </a>
-                                 <a href="/scp/tickets.php?queue=3&p=1&l=14&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatgreenalt3"><?php echo $BacklogTickets["BRY"]; ?></div>
-                                    <p class="notify-details">BRY<small class="text-muted">Bryan's Backlog</small></p>
+								<?php } 
+								if ($BacklogITBRY <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=245&p=1&l=14&s=0" class="dropdown-item notify-item ">
+                                    <div class="notify-icon bg-flatgreenalt3"><?php echo $BacklogITBRY; ?></div>
+                                    <p class="notify-details">BRY<small class="text-muted">Bryan's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=10&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatbrown"><?php echo $BacklogTickets["EXT"]; ?></div>
-                                    <p class="notify-details">EXT<small class="text-muted">External's Backlog</small></p>
+								<?php }
+								if ($BacklogITEXT <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=10&s=0" class="dropdown-item notify-item ">
+                                    <div class="notify-icon bg-flatbrown"><?php echo $BacklogITEXT; ?></div>
+                                    <p class="notify-details">EXT<small class="text-muted">External's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=8&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-primary"><?php echo $BacklogTickets["IND"]; ?></div>
-                                    <p class="notify-details">IND<small class="text-muted">Indiana's Backlog</small></p>
+								<?php }
+								if ($BacklogITIND <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=8&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-primary"><?php echo $BacklogITIND; ?></div>
+                                    <p class="notify-details">IND<small class="text-muted">Indiana's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=6&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-purple"><?php echo $BacklogTickets["MEX"]; ?></div>
-                                    <p class="notify-details">MEX<small class="text-muted">Mexico's Backlog</small></p>
+								<?php } 
+								if ($BacklogITMEX <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=6&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-purple"><?php echo $BacklogITMEX; ?></div>
+                                    <p class="notify-details">MEX<small class="text-muted">Mexico's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=5&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatorange"><?php echo $BacklogTickets["NTC"]; ?></div>
-                                    <p class="notify-details">NTC<small class="text-muted">Tech Center's Backlog</small></p>
+								<?php } 
+								if ($BacklogITNTC <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=5&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatorange"><?php echo $BacklogITNTC; ?></div>
+                                    <p class="notify-details">NTC<small class="text-muted">Tech Center's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=9&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatpurple"><?php echo $BacklogTickets["OH"]; ?></div>
-                                    <p class="notify-details">OH<small class="text-muted">Ohio's Backlog</small></p>
+								<?php } 
+								if ($BacklogITOH <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=9&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatpurple"><?php echo $BacklogITOH; ?></div>
+                                    <p class="notify-details">OH<small class="text-muted">Ohio's IT Backlog</small></p>
                                 </a>
-                                 <a href="/scp/tickets.php?queue=3&p=1&l=15&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatpurplealt1"><?php echo $BacklogTickets["PAU"]; ?></div>
-                                    <p class="notify-details">PAU<small class="text-muted">Paulding's Backlog</small></p>
+								<?php }
+								if ($BacklogITPAU <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=245&p=1&l=15&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatpurplealt1"><?php echo $BacklogITPAU; ?></div>
+                                    <p class="notify-details">PAU<small class="text-muted">Paulding's IT Backlog</small></p>
                                 </a>
-                                
-                                 <a href="/scp/tickets.php?queue=3&p=1&l=16&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatorangealt1"><?php echo $BacklogTickets["RTA"]; ?></div>
-                                    <p class="notify-details">RTA<small class="text-muted">Ridge Tooling and Automation's Backlog</small></p>
+								<?php }
+								if ($BacklogITNTA <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=16&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatorangealt1"><?php echo $BacklogITNTA; ?></div>
+                                    <p class="notify-details">NTA<small class="text-muted">Ridge Tooling and Automation's IT Backlog</small></p>
                                 </a>
-                                 <a href="/scp/tickets.php?queue=3&p=1&l=13&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatbluealt1"><?php echo $BacklogTickets["RVC"]; ?></div>
+								<?php }
+								if ($BacklogITRVC <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=245&p=1&l=13&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatbluealt1"><?php echo $BacklogITRVC; ?></div>
                                     <p class="notify-details">RVC<small class="text-muted">Ridgeville Corner's Baklog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=11&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatgrey"><?php echo $BacklogTickets["SS"]; ?></div>
-                                    <p class="notify-details">SS<small class="text-muted">Shared Services's Backlog</small></p>
+								<?php }
+								if ($BacklogITSS <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=11&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatgrey"><?php echo $BacklogITSS; ?></div>
+                                    <p class="notify-details">SS<small class="text-muted">Shared ITrvices's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=4&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatbluegreen"><?php echo $BacklogTickets["TNN1"]; ?></div>
-                                    <p class="notify-details">TNN1<small class="text-muted">Tennessee North's Backlog</small></p>
+								<?php }
+								if ($BacklogITTNN1 <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=4&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatbluegreen"><?php echo $BacklogITTNN1; ?></div>
+                                    <p class="notify-details">TNN1<small class="text-muted">TennesITe North's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=3&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatred"><?php echo $BacklogTickets["TNN2"]; ?></div>
-                                    <p class="notify-details">TNN2<small class="text-muted">Tennessee North 2's Backlog</small></p>
+								<?php } 
+								if ($BacklogITTNN2<> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=3&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatred"><?php echo $BacklogITTNN2; ?></div>
+                                    <p class="notify-details">TNN2<small class="text-muted">TennesITe North 2's IT Backlog</small></p>
                                 </a>
-                                <a href="/scp/tickets.php?queue=3&p=1&l=7&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-flatgreen"><?php echo $BacklogTickets["TNS"]; ?></div>
-                                    <p class="notify-details">TNS<small class="text-muted">Tennesee South's Backlog</small></p>
+								<?php } 
+								if ($BacklogITTNS <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=245&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatgreen"><?php echo $BacklogITTNS; ?></div>
+                                    <p class="notify-details">TNS<small class="text-muted">TenneITe South's IT Backlog</small></p>
                                 </a>
-                                 <a href="/scp/tickets.php?queue=3&p=1&l=12&s=0" class="dropdown-item notify-item">
-                                    <div class="notify-icon bg-vipred"><?php echo $BacklogTickets["VIP"]; ?></div>
-                                    <p class="notify-details">VIP<small class="text-muted">VIP's Backlog</small></p>
+								<?php }
+								if ($BacklogITVIP <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=245&p=1&l=12&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-vipred"><?php echo $BacklogITVIP; ?></div>
+                                    <p class="notify-details">VIP<small class="text-muted">VIP's IT Backlog</small></p>
                                 </a>
+								<?php } ?>
+                                
+                                
+
+                                <!-- All-->
+                                <a href="tickets.php?queue=241&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
+                                    View All
+                                </a>
+
+                            </div>
+                        </li>
+						<li class="list-inline-item dropdown notification-list mr-0">
+                            <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
+                               aria-haspopup="false" aria-expanded="false"  title="<?php echo __(' SE Backlog'); ?>"> 
+                                <i class="mdi mdi-ticket-confirmation noti-icon"></i>
+                                <span class="badge badge-danger noti-icon-badge"><?php echo $BacklogSETotal; ?></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
+                                <!-- item-->
+                                <div class="dropdown-item noti-title">
+                                    <h5 class="font-16"><a href="tickets.php?queue=241&p=1&l=0&s=0"><span class="badge badge-danger float-right"><?php echo $BacklogSETotal; ?></span></a> SE Backlog</h5>
+                                </div>
+								<?php if ($BacklogSECAN <> '0'){ ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=2&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-warning "><?php echo $BacklogSECAN; ?></div>
+                                    <p class="notify-details">CAN<small class="text-muted">Canada's SE Backlog</small></p>
+                                </a>
+								<?php } 
+								if ($BacklogSEBRY <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=246&p=1&l=14&s=0" class="dropdown-item notify-item ">
+                                    <div class="notify-icon bg-flatgreenalt3"><?php echo $BacklogSEBRY; ?></div>
+                                    <p class="notify-details">BRY<small class="text-muted">Bryan's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSEEXT <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=10&s=0" class="dropdown-item notify-item ">
+                                    <div class="notify-icon bg-flatbrown"><?php echo $BacklogSEEXT; ?></div>
+                                    <p class="notify-details">EXT<small class="text-muted">External's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSEIND <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=8&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-primary"><?php echo $BacklogSEIND; ?></div>
+                                    <p class="notify-details">IND<small class="text-muted">Indiana's SE Backlog</small></p>
+                                </a>
+								<?php } 
+								if ($BacklogSEMEX <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=6&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-purple"><?php echo $BacklogSEMEX; ?></div>
+                                    <p class="notify-details">MEX<small class="text-muted">Mexico's SE Backlog</small></p>
+                                </a>
+								<?php } 
+								if ($BacklogSENTC <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=5&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatorange"><?php echo $BacklogSENTC; ?></div>
+                                    <p class="notify-details">NTC<small class="text-muted">Tech Center's SE Backlog</small></p>
+                                </a>
+								<?php } 
+								if ($BacklogSEOH <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=9&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatpurple"><?php echo $BacklogSEOH; ?></div>
+                                    <p class="notify-details">OH<small class="text-muted">Ohio's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSEPAU <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=246&p=1&l=15&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatpurplealt1"><?php echo $BacklogSEPAU; ?></div>
+                                    <p class="notify-details">PAU<small class="text-muted">Paulding's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSENTA <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=16&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatorangealt1"><?php echo $BacklogSENTA; ?></div>
+                                    <p class="notify-details">NTA<small class="text-muted">Ridge Tooling and Automation's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSERVC <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=246&p=1&l=13&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatbluealt1"><?php echo $BacklogSERVC; ?></div>
+                                    <p class="notify-details">RVC<small class="text-muted">Ridgeville Corner's Baklog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSESS <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=11&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatgrey"><?php echo $BacklogSESS; ?></div>
+                                    <p class="notify-details">SS<small class="text-muted">Shared Services's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSETNN1 <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=4&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatbluegreen"><?php echo $BacklogSETNN1; ?></div>
+                                    <p class="notify-details">TNN1<small class="text-muted">Tennessee North's SE Backlog</small></p>
+                                </a>
+								<?php } 
+								if ($BacklogSETNN2<> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=3&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatred"><?php echo $BacklogSETNN2; ?></div>
+                                    <p class="notify-details">TNN2<small class="text-muted">Tennessee North 2's SE Backlog</small></p>
+                                </a>
+								<?php } 
+								if ($BacklogSETNS <> '0') { ?>
+                                <a href="/scp/tickets.php?queue=246&p=1&l=7&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-flatgreen"><?php echo $BacklogSETNS; ?></div>
+                                    <p class="notify-details">TNS<small class="text-muted">Tennesee South's SE Backlog</small></p>
+                                </a>
+								<?php }
+								if ($BacklogSEVIP <> '0') { ?>
+                                 <a href="/scp/tickets.php?queue=246&p=1&l=12&s=0" class="dropdown-item notify-item">
+                                    <div class="notify-icon bg-vipred"><?php echo $BacklogSEVIP; ?></div>
+                                    <p class="notify-details">VIP<small class="text-muted">VIP's SE Backlog</small></p>
+                                </a>
+								<?php } ?>
                                 
                                 
 

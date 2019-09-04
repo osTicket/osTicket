@@ -940,7 +940,7 @@ $sitecolor = array(
 								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
 								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 								WHERE 
-								a.status_id not in (8,3,6,12,9)
+								a.status_id not in (1,8,3,6,12,9)
 								AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
 								group by o.name ) s on org.name = s.name
 								
@@ -1095,7 +1095,7 @@ $sitecolor = array(
 								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
 								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 								WHERE 
-								a.status_id not in (8,3,6,12,9)
+								a.status_id not in (1,8,3,6,12,9)
 								AND a.topic_id in (13,15,16,17,18,19,78)
 								group by o.name ) s on org.name = s.name
 								
@@ -2270,7 +2270,7 @@ $(function() {
             }
         },
         title: {
-            text: 'BACKLOG (<?php echo $BacklogTotal;?>)',
+            text: 'BACKLOG (<?php echo $BacklogITTotal+$BacklogSETotal+$UnassignedTickets;?>)',
             style: {
             color: '#797979',
             fontSize: '14px',
@@ -2347,7 +2347,7 @@ $(function() {
             }
         },
         title: {
-            text: 'SUPPORT BACKLOG (<?php echo $BacklogTTotal;?>)',
+            text: 'SUPPORT BACKLOG (<?php echo $BacklogITTotal;?>)',
             style: {
             color: '#797979',
             fontSize: '14px',
@@ -2373,38 +2373,38 @@ $(function() {
             type: 'pie',
             name: 'Backlog',
             data: [
-            <?php if ($BacklogTTickets["CAN"]) { ?>
-            ["CAN", <?php echo $BacklogTTickets["CAN"]; ?>],
-            <?php } if ($BacklogTTickets["BRY"]) { ?>
-            ["BRY", <?php echo $BacklogTTickets["BRY"]; ?>],              
-            <?php } if ($BacklogTTickets["EXT"]) { ?>
-            ["EXT", <?php echo $BacklogTTickets["EXT"]; ?>], 
-            <?php } if ($BacklogTTickets["IND"]) { ?>
-            ["IND", <?php echo $BacklogTTickets["IND"]; ?>], 
-            <?php } if ($BacklogTTickets["MEX"]) { ?>
-            ["MEX", <?php echo $BacklogTTickets["MEX"]; ?>], 
-            <?php } if ($BacklogTTickets["NTC"]) { ?>
-            ["NTC", <?php echo $BacklogTTickets["NTC"]; ?>], 
-            <?php } if ($BacklogTTickets["OH"]) { ?>
-            ["OH", <?php echo $BacklogTTickets["OH"]; ?>],
-            <?php } if ($BacklogTTickets["PAU"]) { ?>
-            ["PAU", <?php echo $BacklogTTickets["PAU"]; ?>],
-            <?php } if ($BacklogTTickets["NTA"]) { ?>
-            ["NTA", <?php echo $BacklogTTickets["NTA"]; ?>], 
-            <?php } if ($BacklogTTickets["RTC"]) { ?>
-            ["RTC", <?php echo $BacklogTTickets["RTC"]; ?>],         
-             <?php } if ($BacklogTTickets["RVC"]) { ?>
-            ["RVC", <?php echo $BacklogTTickets["RVC"]; ?>],           
-            <?php } if ($BacklogTTickets["SS"]) { ?>
-            ["SS", <?php echo $BacklogTTickets["SS"]; ?>], 
-            <?php } if ($BacklogTTickets["TNN1"]) { ?>   
-            ["TNN1", <?php echo $BacklogTTickets["TNN1"]; ?>], 
-            <?php } if ($BacklogTTickets["TNN2"]) { ?>
-            ["TNN2", <?php echo $BacklogTTickets["TNN2"]; ?>], 
-            <?php } if ($BacklogTTickets["TNS"]) { ?>
-            ["TNS", <?php echo $BacklogTTickets["TNS"]; ?>],
-            <?php } if ($BacklogTTickets["VIP"]) { ?>
-            ["VIP", <?php echo $BacklogTTickets["VIP"]; ?>],
+            <?php if ($BacklogITCAN) { ?>
+            ["CAN", <?php echo $BacklogITCAN ?>],
+            <?php } if ($BacklogITBRY) { ?>
+            ["BRY", <?php echo $BacklogITBRY; ?>],              
+            <?php } if ($BacklogITEXT) { ?>
+            ["EXT", <?php echo $BacklogITEXT; ?>], 
+            <?php } if ($BacklogITIND) { ?>
+            ["IND", <?php echo $BacklogITIND; ?>], 
+            <?php } if ($BacklogITMEX) { ?>
+            ["MEX", <?php echo $BacklogITMEX; ?>], 
+            <?php } if ($BacklogITNTC) { ?>
+            ["NTC", <?php echo $BacklogITNTC; ?>], 
+            <?php } if ($BacklogITOH) { ?>
+            ["OH", <?php echo $BacklogITOH; ?>],
+            <?php } if ($BacklogITPAU) { ?>
+            ["PAU", <?php echo $BacklogITPAU; ?>],
+            <?php } if ($BacklogITNTA) { ?>
+            ["NTA", <?php echo $BacklogITNTA; ?>], 
+            <?php } if ($BacklogITRTC) { ?>
+            ["RTC", <?php echo $BacklogITRTC; ?>],         
+             <?php } if ($BacklogITRVC) { ?>
+            ["RVC", <?php echo $BacklogITRVC; ?>],           
+            <?php } if ($BacklogITSS) { ?>
+            ["SS", <?php echo $BacklogITSS; ?>], 
+            <?php } if ($BacklogITTNN1) { ?>   
+            ["TNN1", <?php echo $BacklogITTNN1; ?>], 
+            <?php } if ($BacklogITTNN2) { ?>
+            ["TNN2", <?php echo $BacklogITTNN2; ?>], 
+            <?php } if ($BacklogITTNS) { ?>
+            ["TNS", <?php echo $BacklogITTNS; ?>],
+            <?php } if ($BacklogITVIP) { ?>
+            ["VIP", <?php echo $BacklogITVIP; ?>],
             <?php } ?>
             ]
         }]
@@ -2462,7 +2462,7 @@ $(function() {
             }
         },
         title: {
-            text: 'SHOPEDGE BACKLOG (<?php foreach ($seTotals as $seTotal) {echo $seTotal['COUNT'];}?>)',
+            text: 'SHOPEDGE BACKLOG (<?php echo $BacklogSETotal?>)',
             style: {
             color: '#797979',
             fontSize: '14px',
