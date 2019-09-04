@@ -178,7 +178,233 @@ class TicketApiController extends ApiController {
         return $this->createTicket($data);
     }
 
-}
+	
+	
+	
+
+    
+    function getTicketInfo() {
+	   try{
+            if(!($key=$this->requireApiKey()))
+                return $this->exerr(401, __('API key not authorized'));
+        
+    
+             $ticket_number = $_REQUEST['ticketNumber'];
+             if (! ($ticket_number))
+                 return $this->exerr(422, __('missing ticketNumber parameter '));
+             
+            # Checks for valid ticket number
+            if (!is_numeric($ticket_number))
+                return $this->response(404, __("Invalid ticket number"));
+    
+            
+    
+            # Checks for existing ticket with that number
+            $id = Ticket::getIdByNumber($ticket_number);
+            
+    
+            if ($id <= 0)
+                return $this->response(404, __("Ticket not found"));
+            # Load ticket and send response
+            $ticket = new Ticket(0);
+            //$ticket->load($id);
+            $ticket=Ticket::lookup($id);
+    
+            $result =  array('ticket'=> $ticket ,'status_code' => '0', 'status_msg' => 'ticket details retrieved successfully');
+            $result_code=200;
+            $this->response($result_code, json_encode($result ),
+                $contentType="application/json");
+            
+	 }
+	 catch ( Throwable $e){
+    	     $msg = $e-> getMessage();
+    	     $result =  array('ticket'=> array() ,'status_code' => 'FAILURE', 'status_msg' => $msg);
+    	     $this->response(500, json_encode($result),
+    	         $contentType="application/json");
+	 }
+
+    }
+    /**
+     * RESTful GET ticket collection
+     * 
+     * Pagination is made wit Range header.
+     * i.e.
+     *      Range: items=0-    <-- request all items
+     *      Range: items=0-9   <-- request first 10 items
+     *      Range: items 10-19 <-- request items 11 to 20
+     * 
+     * Pagination status is given on Content-Range header.
+     * i.e.
+     *      Content-Range items 0-9/100 <-- first 10 items retrieved, 100 total items.
+     *
+     * TODO: Add filtering support
+     * 
+     */
+    function restGetTickets() {
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        # Build query
+        $qfields = array('number', 'created', 'updated', 'closed');
+        $q = 'SELECT ';
+        foreach ($qfields as $f) {
+            $q.=$f.',';
+            }
+        $q=rtrim($q, ',');
+        $qfrom = ' FROM '.TICKET_TABLE;
+        $q .= $qfrom;
+
+        $res = db_query($q);
+
+        header("TEST:".$q);
+
+        mysqli_free_result($res2);
+        unset($row);
+        $tickets = array();
+        $result_rows = $res->num_rows ;
+        // header("rowNum :  ${result_rows}");
+        for ($row_no = 0; $row_no < $result_rows; $row_no++) {
+            $res->data_seek($row_no);
+            $row = $res->fetch_assoc();
+            $ticket = array();
+            foreach ($qfields as $f) {
+                array_push($ticket, array($f, $row[$f]));
+                }
+            array_push($ticket, array('href', '/api/tickets/'.$row['number']));
+            array_push($tickets, $ticket);
+        }
+        
+        $result_code = 200;
+        $this->response($result_code, json_encode($tickets), $contentType = "application/json");
+    }
+
+    // staff tickets
+    function getStaffTickets()
+    {
+        
+        try{
+        if (! ($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+        
+        $staffUserName = $_REQUEST['staffUserName'];
+        if (! ($staffUserName))
+            return $this->exerr(422, __('missing staffUserName parameter '));
+            mysqli_set_charset('utf8mb4');   
+        $staff = Staff::lookup(array(
+            'username' => $staffUserName
+        ));
+        
+        $myTickets = Ticket::objects()->filter(array(
+            'staff_id' => $staff->getId()
+        ))
+            ->all();
+       
+        
+        $tickets = array();
+        foreach ($myTickets as $ticket) {
+            array_push($tickets, $ticket);
+            
+        }
+
+        
+         
+  
+            $result_code = 200;
+            $result =  array('tickets'=> $tickets ,'status_code' => '0', 'status_msg' => 'success');
+            $this->response($result_code, json_encode($result),
+                $contentType="application/json");
+            
+        }
+        catch ( Throwable $e){
+            $msg = $e-> getMessage();
+            $result =  array('tickets'=> array() ,'status_code' => 'FAILURE', 'status_msg' => $msg);
+            $this->response($result_code, json_encode($result),
+                $contentType="application/json");
+        }
+    }
+
+    
+    //client tickets
+    function getClientTickets() {
+        try{
+        if(!($key=$this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+            mysqli_set_charset('utf8mb4');     
+            
+            $clientUserName = $_REQUEST['clientUserMail'];
+            if(!($clientUserName))
+                return $this->exerr(422, __('missing clientUserMail parameter '));
+            $user = TicketUser::lookupByEmail($clientUserName);
+            
+            $myTickets = Ticket::objects()->filter(array('user_id' => $user->getId()))->all();
+            
+            $tickets = array();
+            foreach ($myTickets as $ticket) {
+                array_push($tickets, $ticket);
+            }
+            
+
+            $result_code = 200;
+            $result =  array('tickets'=> $tickets ,'status_code' => '0', 'status_msg' => 'success');
+            
+            $this->response($result_code, json_encode($result ),
+                $contentType="application/json");
+            
+        }
+        catch ( Throwable $e){
+            $msg = $e-> getMessage();
+            $result =  array('tickets'=> array() ,'status_code' => 'FAILURE', 'status_msg' => $msg);
+            $this->response(500, json_encode($result),
+                $contentType="application/json");
+        }
+    }
+    
+    
+    //staff replies to client ticket with the updated status
+    function postReply($format) {
+        try{
+          if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
+            return $this->exerr(401, __('API key not authorized'));
+            
+            $data = $this->getRequest($format);
+            
+            # Checks for existing ticket with that number
+            $id = Ticket::getIdByNumber($data['ticketNumber']);
+            if ($id <= 0)
+                return $this->response(404, __("Ticket not found"));
+            
+            $data['id']=$id;
+            $staff = Staff::lookup(array('username'=>$data['staffUserName']));
+            $data['staffId']= $staff -> getId();
+            $data['poster'] = $staff;
+            
+            $ticket=Ticket::lookup($id);
+            $errors = array();
+            $response = $ticket->postReply($data , $errors);
+            
+            
+            if(!$response)
+                return $this->exerr(500, __("Unable to reply to this ticket: unknown error"));
+                
+                $location_base = '/api/tickets/';
+               // header('Location: '.$location_base.$ticket->getNumber());
+               // $this->response(201, $ticket->getNumber());
+                $result =  array( 'status_code' => '0', 'status_msg' => 'reply posted successfully');
+                $result_code=200;
+                $this->response($result_code, json_encode($result ),
+                    $contentType="application/json");
+                
+    }
+        catch ( Throwable $e){
+            $msg = $e-> getMessage();
+            $result =  array('tickets'=> array() ,'status_code' => 'FAILURE', 'status_msg' => $msg);
+            $this->response(500, json_encode($result),
+                $contentType="application/json");
+        }
+    }
+    
+
+ }
 
 //Local email piping controller - no API key required!
 class PipeApiController extends TicketApiController {
