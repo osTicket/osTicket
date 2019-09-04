@@ -744,15 +744,48 @@ $sitecolor = array(
                                 
                                 UNION all 
                                 select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(NTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
-                STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
-
-                where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
-
-                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE ()
-                group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+								STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
+					
+								where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+					
+								BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE ()
+								group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+									
+									union
+								
+								select sum(count) as VALUE,'BACKLOG' AS Status, STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from (select  sum(count) as count, WEEK, YEAR, YEARWEEK from(
+								select org.name as location, IFNULL(s.count,0) as count, week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
+								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+								WHERE 
+								a.status_id not in (8,3,6,12,9)
+								AND a.topic_id in (13,15,16,17,18,19,78)
+								group by o.name ) s on org.name = s.name
+								
+								union 
+								
+								select name as location, 0 as COUNT ,week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization)i
+					
+								group by  WEEK, YEAR, YEARWEEK 
+								union
+								select  sum(count) as count, WEEK, YEAR, YEARWEEK from(
+								select org.name as location, IFNULL(s.count,0) as count, week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
+								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+								WHERE 
+								a.status_id not in (8,3,6,12,9)
+								AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
+								group by o.name ) s on org.name = s.name
+								
+								union 
+								
+								select name as location, 0 as COUNT ,week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization)i
+					
+								group by  WEEK, YEAR, YEARWEEK )a
                                 
                 Order by CALENDARWEEK, STATUS)dt
-
                 group by CALENDARWEEK;";
         $results = db_query($sql); 
         
@@ -893,15 +926,32 @@ $sitecolor = array(
                                 
                                 UNION all 
                                 select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(NTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
-                STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
-
-                where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
-
-                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE () and Type = 'IT'
-                group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
-                                
-                Order by CALENDARWEEK, STATUS)dt
-
+								STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
+				
+								where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+				
+								BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE () and Type = 'IT'
+								group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+								
+								union
+								
+								select sum(count) as VALUE,'BACKLOG' AS Status, STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from (select  sum(count) as count, WEEK, YEAR, YEARWEEK from(
+								select org.name as location, IFNULL(s.count,0) as count, week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
+								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+								WHERE 
+								a.status_id not in (8,3,6,12,9)
+								AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
+								group by o.name ) s on org.name = s.name
+								
+								union 
+								
+								
+								select name as location, 0 as COUNT ,week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization)i
+							
+								group by  WEEK, YEAR, YEARWEEK )a				
+				Order by CALENDARWEEK, STATUS)dt
                 group by CALENDARWEEK;";
         $results = db_query($sql); 
         
@@ -1031,15 +1081,31 @@ $sitecolor = array(
                                 
                                 UNION all 
                                 select sum(CAN)+sum(EXT)+sum(IND)+sum(MEX)+sum(NTC)+sum(OH)+sum(TNN1)+sum(SS)+sum(TNN2)+sum(TNS)+sum(RVC)+sum(NTA)+sum(BRY)+sum(PAU)+sum(VIP) as VALUE, 'BACKLOG' AS Status,  
-                STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
-
-                where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
-
-                BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE () and Type = 'SE'
-                group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
-                                
-                Order by CALENDARWEEK, STATUS)dt
-
+								STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from ost_backlog 
+				
+								where STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+				
+								BETWEEN DATE_SUB(CURRENT_DATE (), INTERVAL 4 month) AND CURRENT_DATE () and Type = 'SE'
+								group by STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W')
+				
+								union
+											
+								select sum(count) as VALUE,'BACKLOG' AS Status, STR_TO_DATE(CONCAT(YEARWEEK,' Monday'), '%x%v %W') as CALENDARWEEK from (select  sum(count) as count, WEEK, YEAR, YEARWEEK from(
+								select org.name as location, IFNULL(s.count,0) as count, week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
+								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
+								WHERE 
+								a.status_id not in (8,3,6,12,9)
+								AND a.topic_id in (13,15,16,17,18,19,78)
+								group by o.name ) s on org.name = s.name
+								
+								union 
+												
+								select name as location, 0 as COUNT ,week(now()) as WEEK, 
+								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization)i
+				
+								group by  WEEK, YEAR, YEARWEEK )a				
+			    Order by CALENDARWEEK, STATUS)dt
                 group by CALENDARWEEK;";
         $results = db_query($sql); 
         

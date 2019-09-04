@@ -269,19 +269,20 @@ $bl_orgs = Organization::objects();
     $OpenTicket = Ticket::objects()
         ->filter(array('user__org_id' => $bl_org['id']))
         ->filter(array('status_id__ne' => '8')) //hold
-        ->filter(array('status_id__ne' => '9')) //3rd Party
+        ->filter(array('status_id__ne' => '3')) //3rd Party
         ->filter(array('status_id__ne' => '6')) //Submitter Action
-        ->filter(array('status_id__ne' => '3')) //closed
-        ->filter(array('status_id__ne' => '12')) //autoclosed
+        ->filter(array('status_id__ne' => '12')) //closed
+        ->filter(array('status_id__ne' => '9')) //autoclosed
         ->filter(array('topic_id__ne' => '12')) //open issue
-        ->filter(array('topic_id__ne' => '14')) 
-		->filter(array('topic_id__ne' => '94')) 
-		->filter(array('topic_id__ne' => '13')) 
+        ->filter(array('topic_id__ne' => '13')) 
+		->filter(array('topic_id__ne' => '14')) 
 		->filter(array('topic_id__ne' => '15')) 
 		->filter(array('topic_id__ne' => '16')) 
 		->filter(array('topic_id__ne' => '17')) 
 		->filter(array('topic_id__ne' => '18')) 
 		->filter(array('topic_id__ne' => '19')) 
+		->filter(array('topic_id__ne' => '78')) 
+		->filter(array('topic_id__ne' => '94')) 
 		->aggregate(array('count' => SqlAggregate::COUNT('ticket_id')));
  
         foreach ($OpenTicket as $orgOpenTicket) { 
@@ -305,7 +306,7 @@ $BacklogTickets["TNS"]+
 $BacklogTickets["BRY"]+
 $BacklogTickets["PAU"]+
 $BacklogTickets["RVC"]+
-$BacklogTickets["RTA"]+
+$BacklogTickets["NTA"]+
 $BacklogTickets["VIP"];   
 
 
@@ -322,7 +323,7 @@ $BacklogTTickets["TNS"]+
 $BacklogTTickets["BRY"]+
 $BacklogTTickets["PAU"]+
 $BacklogTTickets["RVC"]+
-$BacklogTTickets["RTA"]+
+$BacklogTTickets["NTA"]+
 $BacklogTTickets["VIP"];   
 
 ?>
