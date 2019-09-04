@@ -3108,7 +3108,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     // Print ticket... export the ticket thread as PDF.
-    function pdfExport($psize='Letter', $notes=false) {
+    function pdfExport($psize='Letter', $notes=false, $events=false) {
         global $thisstaff;
 
         require_once(INCLUDE_DIR.'class.pdf.php');
@@ -3119,7 +3119,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $psize = 'Letter';
         }
 
-        $pdf = new Ticket2PDF($this, $psize, $notes);
+        $pdf = new Ticket2PDF($this, $psize, $notes, $events);
         $name = 'Ticket-'.$this->getNumber().'.pdf';
         Http::download($name, 'application/pdf', $pdf->output($name, 'S'));
         //Remember what the user selected - for autoselect on the next print.
