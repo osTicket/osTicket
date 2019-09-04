@@ -60,30 +60,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
     </td></tr>
     <tr>
         <td colspan="2">
-            <select id="topicId" name="topicId" onchange="javascript:
-                    var data = $(':input[name]', '#dynamic-form').serialize();
-                    $.ajax(
-                      'ajax.php/form/help-topic/' + this.value,
-                      {
-                        data: data,
-                        dataType: 'json',
-                        success: function(json) {
-                          $('#dynamic-form').empty().append(json.html);
-                          $(document.head).append(json.media);
-                        }
-                      });">
-                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
-                <?php
-                if($topics=Topic::getPublicHelpTopics()) {
-                    foreach($topics as $id =>$name) {
-                        echo sprintf('<option value="%d" %s>%s</option>',
-                                $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
-                    }
-                } else { ?>
-                    <option value="0" ><?php echo __('General Inquiry');?></option>
-                <?php
-                } ?>
-            </select>
+            <input id="cc" name="topicId" class="easyui-combotree " style="width:250px; height:24px;"></input>
             <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
@@ -127,3 +104,92 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             window.location.href='index.php';">
   </p>
 </form>
+
+<script type="text/javascript">
+$.extend($.fn.tree.methods,{
+    getLevel: function(jq, target){
+        return $(target).find('span.tree-indent,span.tree-hit').length;
+    }
+});
+
+$(document).ready(function(){
+    var val = <?php echo Topic::getHelpTopicsTree(true);?> ;
+    $('#cc').combotree({
+        onLoadSuccess : function(){
+            var c = $('#cc');
+            var c = $('#cc');
+            c.combotree('setValue','<?php echo $info['topicId']; ?>');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('find', '<?php echo $info['topicId']; ?>');  // find the specify node
+            if (node){
+            t.tree('expandTo', node.target);
+            } else {
+            $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');   
+            };
+        }
+    });
+    $('#cc').combotree({ 
+        onChange: function (r) { 
+            var c = $('#cc');
+            var t = c.combotree('tree');  // get tree object
+            var node = t.tree('getSelected');
+            if (node){
+            var nodeLevel = t.tree('getLevel',node.target);
+            parentArry = new Array();
+            var parentArry = new Array();
+                var parents = getParentArry(t,node,nodeLevel,parentArry);
+                var parentStr = "";
+                if(parents.length > 0){
+                    var parentStr = "";
+                    for(var i = 0; i < parents.length; i++){
+                        parentStr += parents[i].text + " / ";
+                    }
+                }
+                
+             $('#cc').combotree('setText', parentStr + node.text);            
+            }
+        } 
+
+    });
+    $('#cc').combotree({ 
+        onSelect: function (r) { 
+        
+            //Loads the dynamic form on selection
+            var data = $(':input[name]', '#dynamic-form').serialize();
+            $.ajax(
+              'ajax.php/form/help-topic/' + r.id,
+              {
+                data: data,
+                dataType: 'json',
+                success: function(json) {
+                  $('#dynamic-form').empty().append(json.html);
+                  $(document.head).append(json.media);
+                }
+              });
+              
+              
+        } 
+
+    });
+
+    $('#cc').combotree('loadData', val);
+    
+    function getParentArry(tree,selectedNode,nodeLevel,parentArry){
+            //end condition: level of selected node equals 1, means it's root
+           if(nodeLevel == 1){
+              return parentArry;
+           }else{//if selected node isn't root
+              nodeLevel -= 1;
+              //the parent of the node
+              var parent = $(tree).tree('getParent',selectedNode.target);
+              //record the parent of selected to a array
+              parentArry.unshift(parent);
+              //recursive, to judge whether parent of selected node has more parent
+              return getParentArry(tree,parent,nodeLevel,parentArry);
+            }
+        }
+    
+     
+       
+});
+</script>
