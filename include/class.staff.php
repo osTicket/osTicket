@@ -1070,6 +1070,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable {
         $this->mobile = Format::phone($vars['mobile']);
         $this->notes = Format::sanitize($vars['notes']);
 
+        // Set staff password if exists
+        if (!$vars['welcome_email'] && $vars['passwd1']) {
+            $this->setPassword($vars['passwd1'], null);
+            $this->change_passwd = $vars['change_passwd'] ? 1 : 0;
+        }
+
         if ($errors)
             return false;
 
