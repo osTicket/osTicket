@@ -27,7 +27,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
 <div id="ticket-status" style="display:block; margin:5px;">
     <form method="post" name="status" id="status"
         action="<?php echo $action; ?>">
-        <table width="100%">
+        <table class="full-width">
             <?php
             if ($info['extra']) {
                 ?>

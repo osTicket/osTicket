@@ -30,7 +30,7 @@ $action = $info[':action'] ?: ('#');
     name="assign"
     id="<?php echo $form->getId(); ?>"
     action="<?php echo $action; ?>">
-    <table width="100%">
+    <table class="full-width">
         <?php
         if ($info[':extra']) {
             ?>

@@ -6,7 +6,7 @@ $org = $user->getOrganization();
 
 
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
+<table class="full-width" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="users.php?id=<?php echo $user->getId(); ?>"
@@ -80,10 +80,10 @@ $org = $user->getOrganization();
 <div class="avatar pull-left" style="margin: 10px; width: 80px;">
     <?php echo $user->getAvatar(); ?>
 </div>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="830" border="0">
+<table class="ticket_info" cellspacing="0" cellpadding="0" width="91.5%" border="0">
     <tr>
         <td width="50%">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
+            <table border="0" cellspacing="" cellpadding="4" class="full-width">
                 <tr>
                     <th width="150"><?php echo __('Name'); ?>:</th>
                     <td>
@@ -126,7 +126,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
             </table>
         </td>
         <td width="50%" style="vertical-align:top">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
+            <table border="0" cellspacing="" cellpadding="4" class="full-width">
                 <tr>
                     <th width="150"><?php echo __('Status'); ?>:</th>
                     <td> <span id="user-<?php echo $user->getId();

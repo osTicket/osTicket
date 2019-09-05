@@ -301,10 +301,10 @@ if ($task->isOverdue())
 </div>
 <?php
 if (!$ticket) { ?>
-    <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+    <table class="ticket_info full-width" cellspacing="0" cellpadding="0" border="0">
         <tr>
             <td width="50%">
-                <table border="0" cellspacing="" cellpadding="4" width="100%">
+                <table border="0" cellspacing="" cellpadding="4" class="full-width">
                     <tr>
                         <th width="100"><?php echo __('Status');?>:</th>
                         <td><?php echo $task->getStatus(); ?></td>
@@ -334,7 +334,7 @@ if (!$ticket) { ?>
                 </table>
             </td>
             <td width="50%" style="vertical-align:top">
-                <table cellspacing="0" cellpadding="4" width="100%" border="0">
+                <table cellspacing="0" cellpadding="4" class="full-width" border="0">
 
                     <tr>
                         <th><?php echo __('Department');?>:</th>
@@ -392,7 +392,7 @@ if (!$ticket) { ?>
     </table>
     <br>
     <br>
-    <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+    <table class="ticket_info full-width" cellspacing="0" cellpadding="0" border="0">
     <?php
     $idx = 0;
     foreach (DynamicFormEntry::forObject($task->getId(),
@@ -407,7 +407,7 @@ if (!$ticket) { ?>
         ?>
             <tr>
             <td colspan="2">
-                <table cellspacing="0" cellpadding="4" width="100%" border="0">
+                <table cellspacing="0" cellpadding="4" class="full-width" border="0">
                 <?php foreach($answers as $a) {
                     if (!($v = $a->display())) continue; ?>
                     <tr>
@@ -477,7 +477,7 @@ else
         <input type="hidden" name="a" value="postreply">
         <input type="hidden" name="lockCode" value="<?php echo ($mylock) ? $mylock->getCode() : ''; ?>">
         <span class="error"></span>
-        <table style="width:100%" border="0" cellspacing="0" cellpadding="3">
+        <table class="full-width" border="0" cellspacing="0" cellpadding="3">
             <tbody id="collab_sec" style="display:table-row-group">
              <tr>
                 <td>
@@ -566,7 +566,7 @@ else
         <?php csrf_token(); ?>
         <input type="hidden" name="id" value="<?php echo $task->getId(); ?>">
         <input type="hidden" name="a" value="postnote">
-        <table width="100%" border="0" cellspacing="0" cellpadding="3">
+        <table class="full-width" border="0" cellspacing="0" cellpadding="3">
             <tr>
                 <td>
                     <div><span class='error'><?php echo $errors['note']; ?></span></div>

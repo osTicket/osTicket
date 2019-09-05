@@ -34,7 +34,7 @@ if ($_POST)
         <h2><?php echo __('Open a New Ticket');?></h2>
     </div>
 </div>
- <table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table fixed full-width" border="0" cellspacing="0" cellpadding="2">
     <thead>
     <!-- This looks empty - but beware, with fixed table layout, the user
          agent will usually only consult the cells in the first row to
@@ -337,7 +337,7 @@ print $response_form->getField('attachments')->render();
 ?>
                     </div>
 
-                <table border="0" cellspacing="0" cellpadding="2" width="100%">
+                <table border="0" cellspacing="0" cellpadding="2" class="full-width">
             <tr>
                 <td width="100"><?php echo __('Ticket Status');?>:</td>
                 <td>

@@ -8,7 +8,7 @@
 <form method="post" action="?">
     <?php echo csrf_token(); ?>
     <input type="hidden" name="do" value="install"/>
-<table class="list" width="100%"><tbody>
+<table class="list full-width"><tbody>
 <?php
 
 $installed = $ost->plugins->allInstalled();

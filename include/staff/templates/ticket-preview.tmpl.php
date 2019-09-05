@@ -45,7 +45,7 @@ echo sprintf('
 echo '</ul>';
 echo '<div id="ticket-preview_container">';
 echo '<div class="tab_content" id="preview">';
-echo '<table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+echo '<table border="0" cellspacing="" cellpadding="1" class="ticket_info full-width">';
 
 $ticket_state=sprintf('<span>%s</span>',ucfirst($ticket->getStatus()));
 if($ticket->isOpen()) {
@@ -86,7 +86,7 @@ echo '</table>';
 
 
 echo '<hr>
-    <table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+    <table border="0" cellspacing="" cellpadding="1" class="ticket_info full-width">';
 if($ticket->isOpen()) {
     echo sprintf('
             <tr>

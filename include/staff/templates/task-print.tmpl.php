@@ -114,7 +114,7 @@ div.hr {
 
 <htmlpagefooter name="def" style="display:none">
     <div class="hr">&nbsp;</div>
-    <table width="100%"><tr><td class="flush-left">
+    <table class="full-width"><tr><td class="flush-left">
         Task #<?php echo $task->getNumber(); ?> printed by
         <?php echo $thisstaff->getUserName(); ?> on
         <?php echo Format::daydatetime(Misc::gmtime()); ?>
@@ -184,7 +184,7 @@ foreach (DynamicFormEntry::forObject($task->getId(),
     if (count($answers) == 0)
         continue;
     ?>
-        <table class="custom-data" cellspacing="0" cellpadding="4" width="100%" border="0">
+        <table class="custom-data" cellspacing="0" cellpadding="4" class="full-width" border="0">
         <tr><td colspan="2" class="headline flush-left"><?php echo $form->getTitle(); ?></th></tr>
         <?php foreach($answers as $a) {
             if (!($v = $a->display())) continue; ?>
@@ -211,7 +211,7 @@ if ($entries = $task->getThreadEntries($types)) {
     $entryTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     foreach ($entries as $entry) { ?>
         <div class="thread-entry <?php echo $entryTypes[$entry->type]; ?>">
-            <table class="header" style="width:100%"><tr><td>
+            <table class="header full-width"><tr><td>
                     <span><?php
                         echo Format::datetime($entry->created);?></span>
                     <span style="padding:0 1em" class="faded title"><?php

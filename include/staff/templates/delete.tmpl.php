@@ -28,7 +28,7 @@ $action = $info[':action'] ?: ('#');
     name="delete"
     id="delete"
     action="<?php echo $action; ?>">
-    <table width="100%">
+    <table class="full-width">
         <?php
         if ($info[':extra']) {
             ?>

@@ -9,7 +9,7 @@ if($info && $info['msg']) {
 if(($users=$thread->getCollaborators())) {?>
 <div id="manage_collaborators">
 <form method="post" class="collaborators" action="#thread/<?php echo $thread->getId(); ?>/collaborators">
-    <table border="0" cellspacing="1" cellpadding="1" width="100%">
+    <table border="0" cellspacing="1" cellpadding="1" class="full-width">
     <?php
     foreach($users as $user) {
         $checked = $user->isActive() ? 'checked="checked"' : '';

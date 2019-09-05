@@ -35,7 +35,7 @@ if ($task->getThread()->getNumCollaborators()) {
 echo '</ul>';
 echo '<div id="task-preview_container">';
 echo '<div class="tab_content" id="summary">';
-echo '<table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+echo '<table border="0" cellspacing="" cellpadding="1" class="ticket_info full-width">';
 $status=sprintf('<span>%s</span>',ucfirst($task->getStatus()));
 echo sprintf('
         <tr>
@@ -69,7 +69,7 @@ echo '</table>';
 
 
 echo '<hr>
-    <table border="0" cellspacing="" cellpadding="1" width="100%" class="ticket_info">';
+    <table border="0" cellspacing="" cellpadding="1" class="ticket_info full-width">';
 if ($task->isOpen()) {
     echo sprintf('
             <tr>

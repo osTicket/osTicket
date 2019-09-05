@@ -29,7 +29,7 @@ foreach ($sequences as $e) {
                 <a href="#"><i class="icon-trash"></i></a><?php } ?></div>
         </div>
         <div class="management hidden" data-id="<?php echo $e->id; ?>">
-            <table width="100%"><tbody>
+            <table class="full-width"><tbody>
                 <tr><td><label style="padding:0"><?php echo __('Increment'); ?>:
                     <input class="-increment" type="text" size="4" value="<?php echo Format::htmlchars($e->increment); ?>"/>
                     </label></td>
@@ -54,7 +54,7 @@ foreach ($sequences as $e) {
         <div class="delete new"><a href="#"><i class="icon-trash"></i></a></div>
     </div>
     <div class="management hidden" data-id="<?php echo $e->id; ?>">
-        <table width="100%"><tbody>
+        <table class="full-width"><tbody>
             <tr><td><label style="padding:0"><?php echo __('Increment'); ?>:
                 <input class="-increment" type="text" size="4" value="1"/>
                 </label></td>
