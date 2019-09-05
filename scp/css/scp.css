@@ -311,6 +311,19 @@ background: url('../images/icons/alert.png') 10px 50% no-repeat #ffeb3b;
     background: url('../images/icons/alert.png') 10px 50% no-repeat #ffeb3b;
     
 }
+
+.se {
+    background: url('../images/icons/se.png') 2px no-repeat;
+    
+}
+
+.se-noti-icon-badge {
+    display: inline-block;
+    position: absolute;
+    top: 16px;
+    right: 0px;
+}
+
 .task-warning-banner-empty {
    /* margin-top: 51px;*/
 }

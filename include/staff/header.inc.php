@@ -153,7 +153,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                         </li>
                         
 
-                        <li class="list-inline-item dropdown notification-list mr-0">
+                        <li class="list-inline-item dropdown notification-list mr-0" style="max-width: 32px;">
                             <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
                                aria-haspopup="false" aria-expanded="false" title="<?php echo __('My Tickets'); ?>">
                                 <i class="mdi mdi-ticket noti-icon"></i>
@@ -200,7 +200,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 						<li class="list-inline-item dropdown notification-list mr-0">
                             <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
                                aria-haspopup="falIT" aria-expanded="falIT"  title="<?php echo __(' IT Backlog'); ?>"> 
-                                <i class="mdi mdi-ticket-confirmation noti-icon"></i>
+                                <i class="fa fa-laptop noti-icon"></i>
                                 <span class="badge badge-danger noti-icon-badge"><?php echo $BacklogITTotal; ?></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
@@ -298,9 +298,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                     <p class="notify-details">VIP<small class="text-muted">VIP's IT Backlog</small></p>
                                 </a>
 								<?php } ?>
-                                
-                                
-
+                                      
                                 <!-- All-->
                                 <a href="tickets.php?queue=245&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
                                     View All
@@ -308,11 +306,11 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 
                             </div>
                         </li>
-						<li class="list-inline-item dropdown notification-list mr-0">
+						<li class="list-inline-item dropdown notification-list mr-0" style="max-width: 16px;">
                             <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
                                aria-haspopup="false" aria-expanded="false"  title="<?php echo __(' SE Backlog'); ?>"> 
-                                <i class="mdi mdi-ticket-confirmation noti-icon"></i>
-                                <span class="badge badge-danger noti-icon-badge"><?php echo $BacklogSETotal; ?></span>
+                                <i class=" se noti-icon"></i>
+                                <span class="badge badge-danger se-noti-icon-badge"><?php echo $BacklogSETotal; ?></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
                                 <!-- item-->
