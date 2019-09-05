@@ -2057,7 +2057,7 @@ class ThreadEvent extends VerySimpleModel {
                     return $name;
                 case 'timestamp':
                     $timeFormat = null;
-                    if ($thisstaff
+                    if ($mode != self::MODE_CLIENT && $thisstaff
                             && !strcasecmp($thisstaff->datetime_format,
                                 'relative')) {
                         $timeFormat = function ($timestamp) {
@@ -2338,7 +2338,7 @@ class AssignmentEvent extends ThreadEvent {
             $desc = __('<b>{somebody}</b> claimed this {timestamp}');
             break;
         }
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -2362,7 +2362,7 @@ class ReleaseEvent extends ThreadEvent {
             $desc = __('<b>{somebody}</b> released ticket assignment {timestamp}');
             break;
         }
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -2383,7 +2383,7 @@ class ReferralEvent extends ThreadEvent {
             $desc = __('<b>{somebody}</b> referred this to <strong>{<Dept>data.dept}</strong> {timestamp}');
             break;
         }
-        return $this->template($desc);
+        return $this->template($desc, $mode);
     }
 }
 
@@ -2553,7 +2553,7 @@ class OverdueEvent extends ThreadEvent {
     static $state = 'overdue';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('Flagged as overdue by the system {timestamp}'));
+        return $this->template(__('Flagged as overdue by the system {timestamp}'), $mode);
     }
 }
 
@@ -2571,7 +2571,7 @@ class ResendEvent extends ThreadEvent {
     static $state = 'resent';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('<b>{somebody}</b> resent <strong><a href="#thread-entry-{data.entry}">a previous response</a></strong> {timestamp}'));
+        return $this->template(__('<b>{somebody}</b> resent <strong><a href="#thread-entry-{data.entry}">a previous response</a></strong> {timestamp}'), $mode);
     }
 }
 
@@ -2580,7 +2580,7 @@ class TransferEvent extends ThreadEvent {
     static $state = 'transferred';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return $this->template(__('<b>{somebody}</b> transferred this to <strong>{dept}</strong> {timestamp}'));
+        return $this->template(__('<b>{somebody}</b> transferred this to <strong>{dept}</strong> {timestamp}'), $mode);
     }
 }
 
@@ -2593,7 +2593,7 @@ class MergedEvent extends ThreadEvent {
     static $state = 'merged';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> merged this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }
@@ -2603,7 +2603,7 @@ class LinkedEvent extends ThreadEvent {
     static $state = 'linked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> linked this ticket with %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }
@@ -2613,7 +2613,7 @@ class UnlinkEvent extends ThreadEvent {
     static $state = 'unlinked';
 
     function getDescription($mode=self::MODE_STAFF) {
-        return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}')),
+        return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
                 '<a href="tickets.php?id=', '">', '</a>');
     }
 }
