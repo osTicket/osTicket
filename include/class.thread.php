@@ -564,6 +564,11 @@ implements Searchable {
             $vars['thread-type'] = 'M';
         }
 
+        if ($mailinfo['system_emails']
+                && ($t = $this->getObject())
+                && $t instanceof Ticket)
+            $t->systemReferral($mailinfo['system_emails']);
+
         switch ($vars['thread-type']) {
         case 'M':
             $vars['message'] = $body;
