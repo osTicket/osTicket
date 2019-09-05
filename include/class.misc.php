@@ -147,12 +147,13 @@ class Misc {
     }
 
     // Date range for the period in a given time
-    function date_range($period, $time=false) {
+    function date_range($period, $time=false, $tz=null) {
         $time = $time ?: self::gmtime();
         if (!($dt = Format::parseDateTime($time)))
             return null;
-        // Force UTC
-        $dt->setTimezone(new DateTimeZone('UTC'));
+        // Force UTC if timezone is not provided
+        $tz = $tz ?: new DateTimeZone('UTC');
+        $dt->setTimezone($tz);
 
         // Make dt Immutable.
         $dt = DateTimeImmutable::createFromMutable($dt);
