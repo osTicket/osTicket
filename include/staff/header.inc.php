@@ -156,7 +156,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                         <li class="list-inline-item dropdown notification-list mr-0" style="max-width: 32px;">
                             <a class="nav-link dropdown-toggle arrow-none waves-light waves-effect" data-toggle="dropdown" href="#" role="button"
                                aria-haspopup="false" aria-expanded="false" title="<?php echo __('My Tickets'); ?>">
-                                <i class="mdi mdi-ticket noti-icon"></i>
+                                <i class="fa fa-user noti-icon"></i>
                                 <span class="badge badge-warning noti-icon-badge"><?php echo $MyOpenTickets; ?></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
