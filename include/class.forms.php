@@ -1441,6 +1441,8 @@ class TextboxField extends FormField {
     }
 
     function validateEntry($value) {
+        //check to see if value is the string '0'
+        $value = ($value == '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
