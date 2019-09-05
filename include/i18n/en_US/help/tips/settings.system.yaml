@@ -18,8 +18,7 @@ helpdesk_status:
     content: >
         If the status is changed to <span
         class="doc-desc-opt">Offline</span>, the client interface will be
-        disabled.  This does not however affect any normal Agent interaction
-        with the Agent Panel.
+        disabled.  Only Admins will be able to access the system.
 
 helpdesk_url:
     title: Helpdesk URL
@@ -106,6 +105,26 @@ allow_iframes:
     links:
       - title: Syntax Information (host-source)
         href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+
+acl:
+    title: ACL (Access Control List)
+    content: >
+        Enter a comma separated list of IP addresses to allow access to the system.
+        There are four options to choose which panel(s) to apply the ACL to.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Apply To</th>
+                <th>Description</th></tr>
+            <tr><td>Disabled</td>
+                <td>Disables ACL altogether.</td></tr>
+            <tr><td>All</td>
+                <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel,
+                 Admin Panel)</td></tr>
+            <tr><td>Client Portal</td>
+                <td>Applies ACL to only Client Portal.</td></tr>
+            <tr><td>Staff Panel</td>
+                <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr>
+        </tbody></table>
 
 # Date and time options
 date_time_options:

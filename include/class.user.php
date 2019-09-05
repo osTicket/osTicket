@@ -16,8 +16,9 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
-require_once INCLUDE_DIR . 'class.organization.php';
 require_once INCLUDE_DIR . 'class.variable.php';
+require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR . 'class.organization.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -33,6 +34,15 @@ class UserEmailModel extends VerySimpleModel {
     function __toString() {
         return (string) $this->address;
     }
+
+    static function getIdByEmail($email) {
+        $row = UserEmailModel::objects()
+            ->filter(array('address'=>$email))
+            ->values_flat('user_id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
 }
 
 class UserModel extends VerySimpleModel {
@@ -46,7 +56,7 @@ class UserModel extends VerySimpleModel {
             ),
             'tickets' => array(
                 'null' => true,
-                'reverse' => 'TicketModel.user',
+                'reverse' => 'Ticket.user',
             ),
             'account' => array(
                 'list' => false,
@@ -65,12 +75,12 @@ class UserModel extends VerySimpleModel {
                 'constraint' => array('id' => 'UserCdata.user_id'),
                 'null' => true,
             ),
-            'cdata_entry' => array(
+            'entries' => array(
                 'constraint' => array(
                     'id' => 'DynamicFormEntry.object_id',
                     "'U'" => 'DynamicFormEntry.object_type',
                 ),
-                'null' => true,
+                'list' => true,
             ),
         )
     );
@@ -148,6 +158,13 @@ class UserModel extends VerySimpleModel {
         return true;
     }
 
+    public function setFlag($flag, $val) {
+        if ($val)
+            $this->status |= $flag;
+        else
+            $this->status &= ~$flag;
+    }
+
     protected function hasStatus($flag) {
         return $this->get('status') & $flag !== 0;
     }
@@ -191,10 +208,13 @@ class UserCdata extends VerySimpleModel {
 }
 
 class User extends UserModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
+    var $_email;
     var $_entries;
     var $_forms;
+
+
 
     static function fromVars($vars, $create=true, $update=false) {
         // Try and lookup by email address
@@ -265,13 +285,22 @@ implements TemplateVariable {
     }
 
     function getEmail() {
-        return new EmailAddress($this->default_email->address);
+
+        if (!isset($this->_email))
+            $this->_email = new EmailAddress(sprintf('"%s" <%s>',
+                    $this->getName(),
+                    $this->default_email->address));
+
+        return $this->_email;
     }
 
-    function getAvatar() {
+    function getAvatar($size=null) {
         global $cfg;
         $source = $cfg->getClientAvatarSource();
-        return $source->getAvatar($this);
+        $avatar = $source->getAvatar($this);
+        if (isset($size))
+            $avatar->setSize($size);
+        return $avatar;
     }
 
     function getFullName() {
@@ -330,7 +359,7 @@ implements TemplateVariable {
                 'email' => (string) $this->getEmail(),
                 'phone' => (string) $this->getPhoneNumber());
 
-        return JsonDataEncoder::encode($info);
+        return Format::json_encode($info);
     }
 
     function __toString() {
@@ -362,6 +391,29 @@ implements TemplateVariable {
         return $base + $extra;
     }
 
+    static function getSearchableFields() {
+        $base = array();
+        $uform = UserForm::getUserForm();
+        $base = array();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            # XXX: email in the model corresponds to `emails__address` ORM path
+            if ($fname == 'email')
+                $fname = 'emails__address';
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
+    }
+
+    static function supportsCustomData() {
+        return true;
+    }
+
     function addDynamicData($data) {
         return $this->addForm(UserForm::objects()->one(), 1, $data);
     }
@@ -383,32 +435,36 @@ implements TemplateVariable {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
+            $vars += $entry->getFilterData();
+
+            // Add in special `name` and `email` fields
             if ($entry->getDynamicForm()->get('type') != 'U')
                 continue;
-            $vars += $entry->getFilterData();
-            // Add in special `name` and `email` fields
+
             foreach (array('name', 'email') as $name) {
                 if ($f = $entry->getField($name))
                     $vars['field.'.$f->get('id')] =
                         $name == 'name' ? $this->getName() : $this->getEmail();
             }
         }
+
         return $vars;
     }
 
-    function getForms($data=null) {
+    function getForms($data=null, $cb=null) {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
+            $cb = $cb ?: function ($f) use($data) { return ($data); };
             foreach ($this->getDynamicData() as $entry) {
                 $entry->addMissingFields();
-                if(!$data
-                        && ($form = $entry->getDynamicForm())
+                if(($form = $entry->getDynamicForm())
                         && $form->get('type') == 'U' ) {
+
                     foreach ($entry->getFields() as $f) {
-                        if ($f->get('name') == 'name')
+                        if ($f->get('name') == 'name' && !$cb($f))
                             $f->value = $this->getFullName();
-                        elseif ($f->get('name') == 'email')
+                        elseif ($f->get('name') == 'email' && !$cb($f))
                             $f->value = $this->getEmail();
                     }
                 }
@@ -474,17 +530,23 @@ implements TemplateVariable {
 
     function updateInfo($vars, &$errors, $staff=false) {
 
+
+        $isEditable = function ($f) use($staff) {
+            return ($staff ? $f->isEditableToStaff() :
+                    $f->isEditableToUsers());
+        };
         $valid = true;
-        $forms = $this->getForms($vars);
+        $forms = $this->getForms($vars, $isEditable);
         foreach ($forms as $entry) {
             $entry->setSource($vars);
-            if ($staff && !$entry->isValidForStaff())
+            if ($staff && !$entry->isValidForStaff(true))
                 $valid = false;
-            elseif (!$staff && !$entry->isValidForClient())
+            elseif (!$staff && !$entry->isValidForClient(true))
                 $valid = false;
             elseif ($entry->getDynamicForm()->get('type') == 'U'
                     && ($f=$entry->getField('email'))
-                    &&  $f->getClean()
+                    && $isEditable($f)
+                    && $f->getClean()
                     && ($u=User::lookup(array('emails__address'=>$f->getClean())))
                     && $u->id != $this->getId()) {
                 $valid = false;
@@ -503,7 +565,7 @@ implements TemplateVariable {
         foreach ($forms as $entry) {
             if ($entry->getDynamicForm()->get('type') == 'U') {
                 //  Name field
-                if (($name = $entry->getField('name'))) {
+                if (($name = $entry->getField('name')) && $isEditable($name) ) {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
@@ -511,14 +573,15 @@ implements TemplateVariable {
                 }
 
                 // Email address field
-                if (($email = $entry->getField('email'))) {
+                if (($email = $entry->getField('email'))
+                        && $isEditable($email)) {
                     $this->default_email->address = $email->getClean();
                     $this->default_email->save();
                 }
             }
 
-            // DynamicFormEntry::save returns the number of answers updated
-            if ($entry->save()) {
+            // DynamicFormEntry::saveAnswers returns the number of answers updated
+            if ($entry->saveAnswers($isEditable)) {
                 $this->updated = SqlFunction::NOW();
             }
         }
@@ -580,11 +643,11 @@ implements TemplateVariable {
     }
 
     function deleteAllTickets() {
-        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        $status_id = TicketStatus::lookup(array('state' => 'deleted'));
         foreach($this->tickets as $ticket) {
             if (!$T = Ticket::lookup($ticket->getId()))
                 continue;
-            if (!$T->setStatus($deleted))
+            if (!$T->setStatus($status_id))
                 return false;
         }
         $this->tickets->reset();
@@ -599,38 +662,83 @@ implements TemplateVariable {
         if ($user = static::lookup($id))
             return $user->getName();
     }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('scp/users.php?id=%s', $id);
+    }
 }
 
 class EmailAddress
 implements TemplateVariable {
+    var $email;
     var $address;
+    protected $_info;
 
     function __construct($address) {
-        $this->address = $address;
+        $this->_info = self::parse($address);
+        $this->email = sprintf('%s@%s',
+                $this->getMailbox(),
+                $this->getDomain());
+
+        if ($this->getName())
+            $this->address = sprintf('"%s" <%s>',
+                    $this->getName(),
+                    $this->email);
     }
 
     function __toString() {
-        return (string) $this->address;
+        return (string) $this->email;
     }
 
     function getVar($what) {
+
+        if (!$this->_info)
+            return '';
+
+        switch ($what) {
+        case 'host':
+        case 'domain':
+            return $this->_info->host;
+        case 'personal':
+            return trim($this->_info->personal, '"');
+        case 'mailbox':
+            return $this->_info->mailbox;
+        }
+    }
+
+    function getAddress() {
+        return $this->address ?: $this->email;
+    }
+
+    function getHost() {
+        return $this->getVar('host');
+    }
+
+    function getDomain() {
+        return $this->getHost();
+    }
+
+    function getName() {
+        return $this->getVar('personal');
+    }
+
+    function getMailbox() {
+        return $this->getVar('mailbox');
+    }
+
+    // Parse and email adddress (RFC822) into it's parts.
+    // @address - one address is expected
+    static function parse($address) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
-        if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
-            return '';
-
-        if (count($mails) > 1)
-            return '';
-
-        $info = $mails[0];
-        switch ($what) {
-        case 'domain':
-            return $info->host;
-        case 'personal':
-            return trim($info->personal, '"');
-        case 'mailbox':
-            return $info->mailbox;
-        }
+        if (($parts = Mail_RFC822::parseAddressList($address))
+                && !PEAR::isError($parts))
+            return current($parts);
     }
 
     static function getVarScope() {
@@ -756,6 +864,16 @@ implements TemplateVariable {
 
     function getName() {
         return $this;
+    }
+
+    function getNameFormats($user, $type) {
+      $nameFormats = array();
+
+      foreach (PersonsName::allFormats() as $format => $func) {
+          $nameFormats[$type . '.name.' . $format] = $user->getName()->$func[1]();
+      }
+
+      return $nameFormats;
     }
 
     function asVar() {
@@ -1084,16 +1202,10 @@ class UserAccount extends VerySimpleModel {
     }
 
     /*
-     * This assumes the staff is doing the update
+     * Updates may be done by Staff or by the User if registration
+     * options are set to Public
      */
     function update($vars, &$errors) {
-        global $thisstaff;
-
-
-        if (!$thisstaff) {
-            $errors['err'] = __('Access denied');
-            return false;
-        }
 
         // TODO: Make sure the username is unique
 
@@ -1247,51 +1359,17 @@ class UserAccountStatus {
     }
 }
 
-
 /*
  *  Generic user list.
  */
-class UserList extends ListObject
-implements TemplateVariable {
+class UserList extends MailingList {
 
-    function __toString() {
-        return $this->getNames();
-    }
+   function add($user) {
+        if (!$user instanceof ITicketUser)
+            throw new InvalidArgumentException('User expected');
 
-    function getNames() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list [] = $user->getName();
-        }
-        return $list ? implode(', ', $list) : '';
-    }
-
-    function getFull() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
-        }
-
-        return $list ? implode(', ', $list) : '';
-    }
-
-    function getEmails() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list[] = $user->getEmail();
-        }
-        return $list ? implode(', ', $list) : '';
-    }
-
-    static function getVarScope() {
-        return array(
-            'names' => __('List of names'),
-            'emails' => __('List of email addresses'),
-            'full' => __('List of names and email addresses'),
-        );
+        return parent::add($user);
     }
 }
+
 ?>

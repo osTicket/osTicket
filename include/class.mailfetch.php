@@ -29,6 +29,9 @@ class MailFetcher {
     var $mbox;
     var $srvstr;
 
+    var $authuser;
+    var $username;
+
     var $charset = 'UTF-8';
 
     var $tnef = false;
@@ -48,7 +51,17 @@ class MailFetcher {
 
         $this->charset = $charset;
 
-        if($this->ht) {
+        if ($this->ht) {
+            // Support Exchange shared mailbox auth
+            // (eg. user@domain.com\shared@domain.com)
+            $usernames = explode('\\', $this->ht['username'], 2);
+            if (count($usernames) == 2) {
+                $this->authuser = $usernames[0];
+                $this->username = $usernames[1];
+            } else {
+                $this->username = $this->ht['username'];
+            }
+
             if(!strcasecmp($this->ht['protocol'],'pop')) //force pop3
                 $this->ht['protocol'] = 'pop3';
             else
@@ -62,6 +75,9 @@ class MailFetcher {
             $this->srvstr=sprintf('{%s:%d/%s', $this->getHost(), $this->getPort(), $this->getProtocol());
             if(!strcasecmp($this->getEncryption(), 'SSL'))
                 $this->srvstr.='/ssl';
+
+            if ($this->authuser)
+                $this->srvstr .= sprintf('/authuser=%s', $this->authuser);
 
             $this->srvstr.='/novalidate-cert}';
 
@@ -93,7 +109,7 @@ class MailFetcher {
     }
 
     function getUsername() {
-        return $this->ht['username'];
+        return $this->username;
     }
 
     function getPassword() {
@@ -204,7 +220,7 @@ class MailFetcher {
                     $s_filter = stream_filter_append($f, 'convert.base64-decode',STREAM_FILTER_WRITE);
                     if (!fwrite($f, $text))
                         throw new Exception();
-                    stream_filter_remove($s_filter); 
+                    stream_filter_remove($s_filter);
                     fclose($f);
                     if (!($f = fopen($temp, 'r')) || !($text = fread($f, filesize($temp))))
                         throw new Exception();
@@ -333,22 +349,35 @@ class MailFetcher {
                 $tolist['delivered-to'] = $delivered_to;
         }
 
+        $header['system_emails'] = array();
         $header['recipients'] = array();
+        $header['thread_entry_recipients'] = array();
         foreach($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
+                    $name = $this->mime_decode(@$addr->personal);
+                    $email = strtolower($addr->mailbox).'@'.$addr->host;
                     $header['recipients'][] = array(
                             'source' => sprintf(_S("Email (%s)"),$source),
-                            'name' => $this->mime_decode(@$addr->personal),
-                            'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$header['emailId']) {
-                    $header['emailId'] = $emailId;
+                            'name' => $name,
+                            'email' => $email);
+
+                    $header['thread_entry_recipients'][$source][] = sprintf('%s <%s>', $name, $email);
+                } elseif ($emailId) {
+                    $header['system_emails'][] = $emailId;
+                    $system_email = Email::lookup($emailId);
+                    $header['thread_entry_recipients']['to'][] = (string) $system_email;
+                    if (!$header['emailId'])
+                        $header['emailId'] = $emailId;
                 }
             }
         }
+
+        if (isset($header['thread_entry_recipients']['to']))
+            $header['thread_entry_recipients']['to'] = array_unique($header['thread_entry_recipients']['to']);
 
         //See if any of the recipients is a delivered to address
         if ($tolist['delivered-to']) {
@@ -361,13 +390,17 @@ class MailFetcher {
         }
 
         //BCCed?
-        if(!$header['emailId']) {
-            if ($headerinfo->bcc) {
-                foreach($headerinfo->bcc as $addr)
-                    if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
-                        break;
+        if ($bcc = $headerinfo->bcc) {
+            foreach ($bcc as $addr) {
+                if (!($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
+                    continue;
+                $header['system_emails'][] = $emailId;
+                if (!$header['emailId'])
+                    $header['emailId'] = $emailId;
             }
         }
+
+        $header['system_emails'] = array_unique($header['system_emails']);
 
         // Ensure we have a message-id. If unable to read it out of the
         // email, use the hash of the entire email headers
@@ -654,6 +687,18 @@ class MailFetcher {
         // attachment. Download the body and pass it along to the mail
         // parsing engine.
         $info = Mail_Parse::splitHeaders($mailinfo['header']);
+
+        //make sure reply-to headers are correctly formatted
+        if ($mailinfo['reply-to'] && !Validator::is_email($mailinfo['reply-to']) && $info['Reply-To']) {
+            $replyto = Mail_Parse::parseAddressList($info['Reply-To']);
+            if ($replyto[0]) {
+                $mailinfo['reply-to'] = sprintf('%s@%s', $replyto[0]->mailbox, $replyto[0]->host);
+                $mailinfo['reply-to-name'] = $replyto[0]->personal;
+            } else {
+              $mailinfo['reply-to'] = null;
+            }
+        }
+
         if (strtolower($info['Content-Type']) == 'message/rfc822') {
             if ($wrapped = $this->getPart($mid, 'message/rfc822')) {
                 require_once INCLUDE_DIR.'api.tickets.php';
@@ -723,6 +768,7 @@ class MailFetcher {
         $vars['emailId'] = $mailinfo['emailId'] ?: $this->getEmailId();
         $vars['to-email-id'] = $mailinfo['emailId'] ?: 0;
         $vars['mailflags'] = new ArrayObject();
+        $vars['system_emails'] = $mailinfo['system_emails'];
 
         if ($this->isBounceNotice($mid)) {
             // Fetch the original References and assign to 'references'
@@ -811,6 +857,7 @@ class MailFetcher {
 
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($vars, $seen))
+            && ($entry instanceof ThreadEntry)
             && ($message = $entry->postEmail($vars))
         ) {
             if (!$message instanceof ThreadEntry)
@@ -818,6 +865,9 @@ class MailFetcher {
                 return $message;
             // NOTE: This might not be a "ticket"
             $ticket = $message->getThread()->getObject();
+        }
+        elseif ($entry && !$entry instanceof ThreadEntry) {
+          return null;
         }
         elseif ($seen) {
             // Already processed, but for some reason (like rejection), no

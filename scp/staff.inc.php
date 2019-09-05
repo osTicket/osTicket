@@ -21,6 +21,10 @@ require_once('../main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');
 
+// Enforce ACL (if applicable)
+if (!Validator::check_acl('staff'))
+    die(__('Access Denied'));
+
 /*Some more include defines specific to staff only */
 define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
 define('SCP_DIR',str_replace('//','/',dirname(__FILE__).'/'));
@@ -78,7 +82,7 @@ if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
 //2) if not super admin..check system status and group status
 if(!$thisstaff->isAdmin()) {
     //Check for disabled staff or group!
-    if (!$thisstaff->isactive()) {
+    if (!$thisstaff->isActive()) {
         staffLoginPage(__('Access Denied. Contact Admin'));
         exit;
     }

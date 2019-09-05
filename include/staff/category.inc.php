@@ -108,6 +108,32 @@ if (count($langs) > 1) { ?>
       <?php if ($i['direction'] == 'rtl') echo 'dir="rtl" class="rtl"'; ?>
     >
     <div style="padding-bottom:8px;">
+        <b><?php echo __('Parent');?></b>:
+        <div class="faded"><?php echo __('Parent Category');?></div>
+    </div>
+    <div style="padding-bottom:8px;">
+        <select name="pid">
+            <option value="">&mdash; <?php echo __('Top-Level Category'); ?> &mdash;</option>
+            <?php
+            foreach (Category::getCategories() as $id=>$name) {
+                if ($info['id'] && $id == $info['id'])
+                    continue; ?>
+                <option value="<?php echo $id; ?>" <?php
+                    if ($info['category_pid'] == $id) echo 'selected="selected"';
+                    ?>><?php echo $name; ?></option>
+            <?php
+            } ?>
+        </select>
+        <script>
+            $('select[name=pid]').on('change', function() {
+                var val = this.value;
+                $('select[name=pid]').each(function() {
+                    $(this).val(val);
+                });
+            });
+        </script>
+    </div>
+    <div style="padding-bottom:8px;">
         <b><?php echo __('Category Name');?></b>:
         <span class="error">*</span>
         <div class="faded"><?php echo __('Short descriptive name.');?></div>

@@ -59,15 +59,27 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             <td>
                 <select name="pid">
                     <option value="">&mdash; <?php echo __('Top-Level Department'); ?> &mdash;</option>
-<?php foreach (Dept::getDepartments() as $id=>$name) {
-    if ($info['id'] && $id == $info['id'])
-        continue; ?>
-                    <option value="<?php echo $id; ?>" <?php
-                    if ($info['pid'] == $id) echo 'selected="selected"';
-                    ?>><?php echo $name; ?></option>
-<?php } ?>
-                </select>
-                &nbsp;<span class="error"><?php echo $errors['pid']; ?></span>
+                    <?php
+                    if($info['pid'])
+                      $current_name = Dept::getNameById($info['pid']);
+                    if ($depts=Dept::getPublicDepartments())
+                    {
+                      if(!array_key_exists($info['pid'], $depts) && $info['pid'])
+                      {
+                        $depts[$info['pid']] = $current_name;
+                        $warn = sprintf(__('%s selected must be active'), __('Parent Department'));
+                      }
+                    foreach ($depts as $id=>$name) {
+                        $selected=($info['pid'] && $id==$info['pid'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
+                    }
+                  }
+                  ?>
+              </select>
+              <?php
+              if($warn) { ?>
+                  &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+              <?php } ?>
             </td>
         </tr>
         <tr>
@@ -83,6 +95,19 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         </tr>
         <tr>
             <td width="180" class="required">
+                <?php echo __('Status');?>:
+            </td>
+            <td>
+                <select name="status">
+                  <option value="active"<?php echo (!strcasecmp($info['status'], 'active'))?'selected="selected"':'';?>><?php echo __('Active'); ?></option>
+                  <option value="disabled"<?php echo (!strcasecmp($info['status'], 'disabled'))?'selected="selected"':'';?>><?php echo __('Disabled'); ?></option>
+                  <option value="archived"<?php echo (!strcasecmp($info['status'], 'archived'))?'selected="selected"':'';?>><?php echo __('Archived'); ?></option>
+                </select>
+                &nbsp;<span class="error">&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
                 <?php echo __('Type');?>:
             </td>
             <td>
@@ -94,6 +119,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>><strong><?php echo __('Private');?></strong> <?php echo mb_convert_case(__('(internal)'), MB_CASE_TITLE);?>
                 </label>
                 &nbsp;<i class="help-tip icon-question-sign" href="#type"></i>
+                &nbsp;<span class="error"><?php echo $errors['ispublic']; ?></span>
             </td>
         </tr>
         <tr>
@@ -141,17 +167,16 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Ticket Assignment'); ?>:</td>
+          <td><?php echo __('Ticket Assignment'); ?>:</td>
             <td>
-                <label>
-                <input type="checkbox" name="assign_members_only" <?php echo
-                $info['assign_members_only']?'checked="checked"':''; ?>>
-                <?php echo __('Restrict ticket assignment to department members'); ?>
-                </label>
-                <i class="help-tip icon-question-sign" href="#sandboxing"></i>
+                <select name="assignment_flag">
+                  <option value="all"<?php echo ($info['assignment_flag'] == 'all')?'selected="selected"':'';?>><?php echo __('All'); ?></option>
+                  <option value="members"<?php echo ($info['assignment_flag'] == 'members') ?'selected="selected"':'';?>><?php echo __('Department Members'); ?></option>
+                  <option value="primary"<?php echo ($info['assignment_flag'] == 'primary') ?'selected="selected"':'';?>><?php echo __('Primary Members'); ?></option>
+                </select>
+                &nbsp;<span class="error">&nbsp;</span> <i class="help-tip icon-question-sign" href="#sandboxing"></i>
             </td>
         </tr>
-
         <tr>
             <td><?php echo __('Claim on Response'); ?>:</td>
             <td>
@@ -302,6 +327,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <select name="group_membership">
 <?php foreach (array(
     Dept::ALERTS_DISABLED =>        __("No one (disable Alerts and Notices)"),
+    Dept::ALERTS_ADMIN_ONLY =>       __("Admin Email Only"),
     Dept::ALERTS_DEPT_ONLY =>       __("Department members only"),
     Dept::ALERTS_DEPT_AND_EXTENDED => __("Department and extended access members"),
 ) as $mode=>$desc) { ?>
@@ -341,7 +367,17 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo sprintf(__('Agents who are primary members of %s'), __('this department')); ?>
                 </small></div>
             </td>
-        </tr>
+            <td>
+              <?php
+                echo sprintf(
+                    '<a class="no-pjax" href="departments.php?id=%d&a=export"</a>',
+                    $dept->getId());
+                    ?>
+              <span class="action-button pull-right" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Export');?>">
+                  <i class="icon-download-alt icon-fixed-width"></i>
+              </span>
+            </td>
+          </tr>
         <?php
         if (!count($dept->members)) { ?>
         <tr><td colspan=2><em><?php

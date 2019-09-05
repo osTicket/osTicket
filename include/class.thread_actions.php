@@ -18,6 +18,65 @@
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.thread.php');
 
+class TEA_ShowEmailRecipients extends ThreadEntryAction {
+    static $id = 'emailrecipients';
+    static $name = /* trans */ 'View Email Recipients';
+    static $icon = 'group';
+
+    function isVisible() {
+        global $thisstaff;
+
+        if ($this->entry->getEmailHeader())
+          return ($thisstaff && $this->entry->getEmailHeader());
+        elseif ($this->entry->recipients)
+          return $this->entry->recipients;
+
+    }
+
+    function getJsStub() {
+        return sprintf("$.dialog('%s');",
+            $this->getAjaxUrl()
+        );
+    }
+
+    function trigger() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET' && $this->entry->recipients:
+            return $this->getRecipients();
+        case 'GET':
+            return $this->trigger__get();
+        }
+    }
+
+    private function trigger__get() {
+        $hdr = Mail_parse::splitHeaders(
+                $this->entry->getEmailHeader(), true);
+
+        $recipients = array();
+        foreach (array('To', 'TO', 'Cc', 'CC') as $k) {
+            if (isset($hdr[$k]) && $hdr[$k] &&
+                ($addresses=Mail_Parse::parseAddressList($hdr[$k]))) {
+                foreach ($addresses as $addr) {
+                    $email = sprintf('%s@%s', $addr->mailbox, $addr->host);
+                    $name = $addr->personal ?: '';
+                    $recipients[$k][] = sprintf('%s<%s>',
+                            (($name && strcasecmp($name, $email))? "$name ": ''),
+                            $email);
+                }
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/thread-email-recipients.tmpl.php';
+    }
+
+    private function getRecipients() {
+      $recipients = json_decode($this->entry->recipients, true);
+
+      include STAFFINC_DIR . 'templates/thread-email-recipients.tmpl.php';
+    }
+}
+ThreadEntry::registerAction(/* trans */ 'E-Mail', 'TEA_ShowEmailRecipients');
+
 class TEA_ShowEmailHeaders extends ThreadEntryAction {
     static $id = 'view_headers';
     static $name = /* trans */ 'View Email Headers';
@@ -76,7 +135,15 @@ class TEA_EditThreadEntry extends ThreadEntryAction {
                 && $T->getDept()->getManagerId() == $thisstaff->getId()
             )
             || ($T instanceof Ticket
-                && $thisstaff->getRole($T->getDeptId())->hasPerm(ThreadEntry::PERM_EDIT)
+                && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
+                && $role->hasPerm(ThreadEntry::PERM_EDIT)
+            )
+            || ($T instanceof Task
+                && $T->getDept()->getManagerId() == $thisstaff->getId()
+            )
+            || ($T instanceof Task
+                && ($role = $thisstaff->getRole($T->getDeptId(), $T->isAssigned($thisstaff)))
+                && $role->hasPerm(ThreadEntry::PERM_EDIT)
             )
         );
     }
@@ -134,6 +201,7 @@ JS
             'staffId' => $old->staff_id,
             'type' => $old->type,
             'threadId' => $old->thread_id,
+            'recipients' => $old->recipients,
 
             // Connect the new entry to be a child of the previous
             'pid' => $old->id,
@@ -313,16 +381,19 @@ class TEA_EditAndResendThreadEntry extends TEA_EditThreadEntry {
                 && ($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getReplyMsgTemplate())) {
 
+            $recipients = json_decode($response->recipients, true);
+
             $msg = $object->replaceVars($msg->asArray(),
                 $variables + array('recipient' => $object->getOwner()));
 
             $attachments = $cfg->emailAttachments()
                 ? $response->getAttachments() : array();
             $email->send($object->getOwner(), $msg['subj'], $msg['body'],
-                $attachments, $options);
+                $attachments, $options, $recipients);
         }
         // TODO: Add an option to the dialog
-        $object->notifyCollaborators($response, array('signature' => $signature));
+        if ($object instanceof Task)
+          $object->notifyCollaborators($response, array('signature' => $signature));
 
         // Log an event that the item was resent
         $object->logEvent('resent', array('entry' => $response->id));
@@ -366,3 +437,118 @@ class TEA_ResendThreadEntry extends TEA_EditAndResendThreadEntry {
     }
 }
 ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_ResendThreadEntry');
+
+/* Create a new ticket from thread entry as description */
+class TEA_CreateTicket extends ThreadEntryAction {
+    static $id = 'create_ticket';
+    static $name = /* trans */ 'Create Ticket';
+    static $icon = 'plus';
+
+    function isVisible() {
+        global $thisstaff;
+
+        return $thisstaff && $thisstaff->hasPerm(Ticket::PERM_CREATE, false);
+    }
+
+    function getJsStub() {
+        return sprintf(<<<JS
+         window.location.href = '%s';
+JS
+        , $this->getCreateTicketUrl()
+        );
+    }
+
+    function trigger() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            return $this->trigger__get();
+        }
+    }
+
+    private function trigger__get() {
+        Http::redirect($this->getCreateTicketUrl());
+    }
+
+    private function getCreateTicketUrl() {
+        return sprintf('tickets.php?a=open&tid=%d', $this->entry->getId());
+    }
+}
+
+ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_CreateTicket');
+
+
+class TEA_CreateTask extends ThreadEntryAction {
+    static $id = 'create_task';
+    static $name = /* trans */ 'Create Task';
+    static $icon = 'plus';
+
+    function isVisible() {
+        global $thisstaff;
+
+        return $thisstaff && $thisstaff->hasPerm(Task::PERM_CREATE, false);
+    }
+
+    function getJsStub() {
+        return sprintf(<<<JS
+var url = '%s';
+var redirect = $(this).data('redirect');
+$.dialog(url, [201], function(xhr, resp) {
+    if (!!redirect)
+        $.pjax({url: redirect, container: '#pjax-container'});
+    else
+        $.pjax({url: '%s.php?id=%d#tasks', container: '#pjax-container'});
+});
+JS
+        , $this->getAjaxUrl(),
+        $this->entry->getThread()->getObjectType() == 'T' ? 'tickets' : 'tasks',
+        $this->entry->getThread()->getObjectId()
+        );
+    }
+
+    function trigger() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+        case 'GET':
+            return $this->trigger__get();
+        case 'POST':
+            return $this->trigger__post();
+        }
+    }
+
+    private function trigger__get() {
+        $vars = array(
+                'description' => Format::htmlchars($this->entry->getBody()));
+
+        if ($_SESSION[':form-data'])
+          unset($_SESSION[':form-data']);
+
+        $_SESSION[':form-data']['tid'] = $this->entry->getThread()->getObJectId();
+        $_SESSION[':form-data']['eid'] = $this->entry->getId();
+        $_SESSION[':form-data']['timestamp'] = $this->entry->getCreateDate();
+        $_SESSION[':form-data']['type'] = $this->entry->getThread()->object_type;
+
+        if (($f= TaskForm::getInstance()->getField('description'))) {
+              $k = 'attach:'.$f->getId();
+              unset($_SESSION[':form-data'][$k]);
+              foreach ($this->entry->getAttachments() as $a)
+                  if (!$a->inline && $a->file) {
+                    $_SESSION[':form-data'][$k][$a->file->getId()] = $a->getFilename();
+                    $_SESSION[':uploadedFiles'][$a->file->getId()] = $a->getFilename();
+                  }
+        }
+
+        if ($this->entry->getThread()->getObjectType()  == 'T')
+          return $this->getTicketsAPI()->addTask($this->getObjectId(), $vars);
+        else
+          return $this->getTasksAPI()->add($this->getObjectId(), $vars);
+
+    }
+
+    private function trigger__post() {
+      if ($this->entry->getThread()->getObjectType()  == 'T')
+        return $this->getTicketsAPI()->addTask($this->getObjectId());
+      else
+        return $this->getTasksAPI()->add($this->getObjectId());
+    }
+
+}
+ThreadEntry::registerAction(/* trans */ 'Manage', 'TEA_CreateTask');

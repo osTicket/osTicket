@@ -94,14 +94,6 @@ case 'search':
         )));
         unset($_SESSION[$queue_key]);
         break;
-    } elseif (isset($_SESSION['advsearch:tasks'])) {
-        // XXX: De-duplicate and simplify this code
-        $form = $search->getFormFromSession('advsearch:tasks');
-        $form->loadState($_SESSION['advsearch:tasks']);
-        $tasks = $search->mangleQuerySet($tasks, $form);
-        $results_type=__('Advanced Search')
-            . '<a class="action-button" href="?clear_filter"><i class="icon-ban-circle"></i> <em>' . __('clear') . '</em></a>';
-        break;
     }
     // Fall-through and show open tickets
 case 'open':
@@ -289,7 +281,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
   <div class="pull-right" style="height:25px">
     <span class="valign-helper"></span>
     <?php
-        require STAFFINC_DIR.'templates/queue-sort.tmpl.php';
+        require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
     ?>
    </div>
     <form action="tasks.php" method="get" onsubmit="javascript:

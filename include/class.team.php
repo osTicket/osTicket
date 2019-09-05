@@ -126,6 +126,10 @@ implements TemplateVariable {
         return $this->isEnabled();
     }
 
+    function isAvailable() {
+        return ($this->isActive() && $this->members);
+    }
+
     function alertsEnabled() {
         return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
@@ -208,13 +212,19 @@ implements TemplateVariable {
           }
           $member->setAlerts($alerts);
       }
-      if (!$errors && $dropped) {
+
+      if ($errors)
+          return false;
+
+      $this->members->saveAll();
+      if ($dropped) {
           $this->members
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();
           $this->members->reset();
       }
-      return !$errors;
+
+      return true;
     }
 
     function save($refetch=false) {

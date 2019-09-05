@@ -67,6 +67,8 @@ core:
     assigned_alert_team_lead: 0
     assigned_alert_team_members: 0
     auto_claim_tickets: 1
+    collaborator_ticket_visibility: 1
+    require_topic_to_close: 0
     show_related_tickets: 1
     show_assigned_tickets: 1
     show_answered_tickets: 0
@@ -75,8 +77,10 @@ core:
     email_attachments: 1
     ticket_number_format: '######'
     ticket_sequence_id: 0
+    queue_bucket_counts: 0
     task_number_format: '#'
     task_sequence_id: 2
     log_level: 2
     log_graceperiod: 12
     client_registration: 'public'
+    default_ticket_queue: 1

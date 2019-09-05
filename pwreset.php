@@ -73,12 +73,8 @@ elseif ($_GET['token']) {
     else
         Http::redirect('index.php');
 }
-elseif ($cfg->allowPasswordReset()) {
-    $banner = __('Enter your username or email address below');
-}
 else {
-    $_SESSION['_staff']['auth']['msg']=__('Password resets are disabled');
-    return header('Location: index.php');
+    $banner = __('Enter your username or email address below');
 }
 
 $nav = new UserNav();

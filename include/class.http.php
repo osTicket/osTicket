@@ -42,7 +42,7 @@ class Http {
         if ($charset)
             $ct .= "; charset=$charset";
         header($ct);
-        if ($content) {
+        if (is_string($content)) {
             header('Content-Length: '.strlen($content)."\r\n\r\n");
             print $content;
             exit;
@@ -106,7 +106,7 @@ class Http {
     }
 
     function download($filename, $type, $data=null, $disposition='attachment') {
-        if (strpos($type, 'image/') !== 0 || preg_match('/image\/.*\+.*/', $type))
+        if (strpos($type, 'image/') !== false && preg_match('/image\/.*\+.*/', $type))
           $disposition='attachment';
 
         header('Pragma: private');

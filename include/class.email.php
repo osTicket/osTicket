@@ -118,7 +118,9 @@ class Email extends VerySimpleModel {
 
     function getInfo() {
         $base = $this->getHashtable();
-        $base['mail_proto'] = $this->mail_proto;
+        $base['mail_proto'] = $this->mail_protocol;
+        if ($this->mail_encryption != 'NONE')
+          $base['mail_proto'] .= "/{$this->mail_encryption}";
         return $base;
     }
 
@@ -169,13 +171,13 @@ class Email extends VerySimpleModel {
         return $info;
     }
 
-    function send($to, $subject, $message, $attachments=null, $options=null) {
+    function send($to, $subject, $message, $attachments=null, $options=null, $cc=array()) {
 
         $mailer = new Mailer($this);
         if($attachments)
             $mailer->addAttachments($attachments);
 
-        return $mailer->send($to, $subject, $message, $options);
+        return $mailer->send($to, $subject, $message, $options, $cc);
     }
 
     function sendAutoReply($to, $subject, $message, $attachments=null, $options=array()) {
@@ -263,6 +265,14 @@ class Email extends VerySimpleModel {
 
         if(!$vars['name'])
             $errors['name']=__('Email name required');
+
+        $dept = Dept::lookup($vars['dept_id']);
+        if($dept && !$dept->isActive())
+          $errors['dept_id'] = '';
+
+        $topic = Topic::lookup($vars['topic_id']);
+        if($topic && !$topic->isActive())
+          $errors['topic_id'] = '';
 
         if($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth'])) {
             if(!$vars['userid'])
@@ -387,16 +397,16 @@ class Email extends VerySimpleModel {
         $this->userid = $vars['userid'];
         $this->mail_active = $vars['mail_active'];
         $this->mail_host = $vars['mail_host'];
-        $this->mail_protocol = $vars['mail_protocol']?$vars['mail_protocol']:'POP';
+        $this->mail_protocol = $vars['mail_protocol'] ?: 'POP';
         $this->mail_encryption = $vars['mail_encryption'];
-        $this->mail_port = $vars['mail_port']?$vars['mail_port']:0;
-        $this->mail_fetchfreq = $vars['mail_fetchfreq']?$vars['mail_fetchfreq']:0;
-        $this->mail_fetchmax = $vars['mail_fetchmax']?$vars['mail_fetchmax']:0;
+        $this->mail_port = $vars['mail_port'] ?: 0;
+        $this->mail_fetchfreq = $vars['mail_fetchfreq'] ?: 0;
+        $this->mail_fetchmax = $vars['mail_fetchmax'] ?: 0;
         $this->smtp_active = $vars['smtp_active'];
         $this->smtp_host = $vars['smtp_host'];
-        $this->smtp_port = $vars['smtp_port']?$vars['smtp_port']:0;
+        $this->smtp_port = $vars['smtp_port'] ?: 0;
         $this->smtp_auth = $vars['smtp_auth'];
-        $this->smtp_spoofing = isset($vars['smtp_spoofing'])?1:0;
+        $this->smtp_spoofing = isset($vars['smtp_spoofing']) ? 1 : 0;
         $this->notes = Format::sanitize($vars['notes']);
 
         //Post fetch email handling...
@@ -435,10 +445,13 @@ class Email extends VerySimpleModel {
         return self::$perms;
     }
 
-    static function getAddresses($options=array()) {
+    static function getAddresses($options=array(), $flat=true) {
         $objects = static::objects();
         if ($options['smtp'])
             $objects = $objects->filter(array('smtp_active'=>true));
+
+        if (!$flat)
+            return $objects;
 
         $addresses = array();
         foreach ($objects->values_flat('email_id', 'email') as $row) {

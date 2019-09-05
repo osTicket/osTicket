@@ -43,6 +43,6 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$_SESSION['info'];
                 <?php echo __('Once again, thank you for choosing osTicket as your new customer support platform! ');?>
             </p>
             <p>
-               <?php echo __('Launching a new customer support platform can be a daunting task. Let us get you started! We provide professional support services to help get osTicket up and running smoothly for your organization.');?> <a target="_blank" href="http://osticket.com/support/professional_services.php"><?php echo __('Learn More!');?></a>
+               <?php echo __('Launching a new customer support platform can be a daunting task. Let us get you started! We provide professional support services to help get osTicket up and running smoothly for your organization.');?> <a target="_blank" href="https://osticket.com/services/professional-support/"><?php echo __('Learn More!');?></a>
             </p>
     </div>

@@ -38,7 +38,10 @@ $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 
-$pageNav->setURL('users.php', $qs);
+if (strpos($_SERVER['REQUEST_URI'], 'orgs.php') !== false)
+    $pageNav->setURL('orgs.php?id='.$org->getId().'&amp;', $qs);
+else
+    $pageNav->setURL('users.php', $qs);
 //Ok..lets roll...create the actual query
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
 

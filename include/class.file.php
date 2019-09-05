@@ -184,25 +184,43 @@ class AttachmentFile extends VerySimpleModel {
         exit();
     }
 
-    function getDownloadUrl($minage=false, $disposition=false, $handler=false) {
-        // XXX: Drop this when AttachmentFile goes to ORM
+    function getDownloadUrl($options=array()) {
+        // Add attachment ref id if object type is set
+        if (isset($options['type'])
+                && !isset($options['id'])
+                && ($a=$this->attachments->findFirst(array(
+                            'type' => $options['type']))))
+            $options['id'] = $a->getId();
+
         return static::generateDownloadUrl($this->getId(),
-            strtolower($this->getKey()), $this->getSignature(), $minage,
-            $disposition, $handler);
+                strtolower($this->getKey()), $this->getSignature(),
+                $options);
     }
 
-    static function generateDownloadUrl($id, $key, $hash, $minage=false,
-        $disposition=false, $handler=false
-    ) {
-        // Expire at the nearest midnight, allowing at least 12 hours access
-        $minage = $minage ?: 43200;
-        $gmnow = Misc::gmtime() + $minage;
+    // Generates full download URL for external sources.
+    // e.g. https://domain.tld/file.php?args=123
+    function getExternalDownloadUrl($options=array()) {
+        global $cfg;
+
+        $download = self::getDownloadUrl($options);
+        // Separate URL handle and args
+        list($handle, $args) = explode('file.php?', $download);
+
+        return (string) rtrim($cfg->getBaseUrl(), '/').'/file.php?'.$args;
+    }
+
+    static function generateDownloadUrl($id, $key, $hash, $options = array()) {
+
+        // Expire at the nearest midnight, allow at least12 hrs access
+        $minage = @$options['minage'] ?: 43200;
+        $gmnow = Misc::gmtime() +  $options['minage'];
         $expires = $gmnow + 86400 - ($gmnow % 86400);
 
         // Generate a signature based on secret content
         $signature = static::_genUrlSignature($id, $key, $hash, $expires);
 
-        $handler = $handler ?: ROOT_PATH . 'file.php';
+        // Handler / base url
+        $handler = @$options['handler'] ?: ROOT_PATH . 'file.php';
 
         // Return sanitized query string
         $args = array(
@@ -211,10 +229,13 @@ class AttachmentFile extends VerySimpleModel {
             'signature' => $signature,
         );
 
-        if ($disposition)
-            $args['disposition'] = $disposition;
+        if (isset($options['disposition']))
+            $args['disposition'] =  $options['disposition'];
 
-        return $handler . '?' . http_build_query($args);
+        if (isset($options['id']))
+            $args['id'] =  $options['id'];
+
+        return sprintf('%s?%s', $handler, http_build_query($args));
     }
 
     function verifySignature($signature, $expires) {
@@ -239,7 +260,7 @@ class AttachmentFile extends VerySimpleModel {
         return hash_hmac('sha1', implode("\n", $pieces), SECRET_SALT);
     }
 
-    function download($disposition=false, $expires=false) {
+    function download($name=false, $disposition=false, $expires=false) {
         $thisstaff = StaffAuthenticationBackend::getUser();
         $inline = ($thisstaff ? ($thisstaff->getImageAttachmentView() === 'inline') : false);
         $disposition = ((($disposition && strcasecmp($disposition, 'inline') == 0)
@@ -252,7 +273,7 @@ class AttachmentFile extends VerySimpleModel {
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
-        Http::download($this->getName(), $type, null, $disposition);
+        Http::download($name ?: $this->getName(), $type, null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
@@ -630,17 +651,20 @@ class AttachmentFile extends VerySimpleModel {
      * canned-response, or faq point to any more.
      */
     static function deleteOrphans() {
-        $sql = "SELECT `id` FROM ".FILE_TABLE.
-            " A1 WHERE (A1.ft = 'T' AND A1.created < NOW() - INTERVAL 1 DAY)".
-            " AND NOT EXISTS (SELECT id FROM ".ATTACHMENT_TABLE.
-            " A2 WHERE A1.`id` = A2.`file_id`)";
 
-        if (($res=db_query($sql)) && db_num_rows($res)) {
-            while (list($id) = db_fetch_row($res)) {
-                if ($f = static::lookup((int) $id))
-                    if (!$f->delete())
-                        break;
-            }
+        // XXX: Allow plugins to define filetypes which do not represent
+        //      files attached to tickets or other things in the attachment
+        //      table and are not logos
+        $files = static::objects()
+            ->filter(array(
+                'attachments__object_id__isnull' => true,
+                'ft' => 'T',
+                'created__lt' => SqlFunction::NOW()->minus(SqlInterval::DAY(1)),
+            ));
+
+        foreach ($files as $f) {
+            if (!$f->delete())
+                break;
         }
 
         return true;

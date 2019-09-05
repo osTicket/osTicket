@@ -10,6 +10,7 @@ $cmp = function ($a, $b) use ($sort) {
 };
 
 $events = $events->order_by($sort);
+$eventCount = count($events);
 $events = new IteratorIterator($events->getIterator());
 $events->rewind();
 $event = $events->current();
@@ -62,7 +63,7 @@ foreach (Attachment::objects()->filter(array(
         $event = $events->current();
     }
     // This should never happen
-    if (count($entries) + count($events) == 0) {
+    if (count($entries) + $eventCount == 0) {
         echo '<p><em>'.__('No entries have been posted to this thread.').'</em></p>';
     }
     ?>
@@ -80,7 +81,8 @@ foreach (Attachment::objects()->filter(array(
                 if (!$A->inline)
                     continue;
                 $urls[strtolower($A->file->getKey())] = array(
-                    'download_url' => $A->file->getDownloadUrl(),
+                    'download_url' => $A->file->getDownloadUrl(['id' =>
+                        $A->getId()]),
                     'filename' => $A->getFilename(),
                 );
             }

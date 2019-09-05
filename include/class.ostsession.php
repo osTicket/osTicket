@@ -182,14 +182,21 @@ extends SessionBackend {
 
     function read($id) {
         try {
-            $this->data = SessionData::objects()->filter([
-                'session_id' => $id,
-                'session_expire__gt' => SqlFunction::NOW(),
-            ])->one();
+            $this->data = SessionData::objects()
+              ->filter(['session_id' => $id])
+              ->annotate(array('is_expired' =>
+                new SqlExpr(new Q(array('session_expire__lt' => SqlFunction::NOW())))))
+              ->one();
+
+            if ($this->data->is_expired > 0) {
+                // session_expire is in the past. Pretend it is expired and
+                // reset the data. This will assist with CSRF issues
+                $this->data->session_data='';
+            }
             $this->id = $id;
         }
         catch (DoesNotExist $e) {
-            $this->data = new SessionData(['session_id' => $id]);
+            $this->data = new SessionData(['session_id' => $id, 'session_data' => '']);
         }
         catch (OrmException $e) {
             return false;
@@ -285,12 +292,13 @@ extends SessionBackend {
                 if ($data = $this->memcache->get($key))
                     break;
             }
+
         }
 
         // No session data on record -- new session
         $this->isnew = $data === false;
 
-        return $data;
+        return $data ?: '';
     }
 
     function update($id, $data) {
@@ -304,6 +312,9 @@ extends SessionBackend {
             if (!$this->memcache->replace($key, $data, 0, $this->getTTL()));
                 $this->memcache->set($key, $data, 0, $this->getTTL());
         }
+
+        return true;
+
     }
 
     function destroy($id) {
@@ -314,6 +325,8 @@ extends SessionBackend {
             $this->memcache->replace($key, '', 0, 1);
             $this->memcache->delete($key, 0);
         }
+
+        return true;
     }
 
     function gc($maxlife) {

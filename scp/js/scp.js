@@ -163,6 +163,7 @@ var scp_prep = function() {
 
     $('form.save, form:has(table.list)').submit(function() {
         $(window).unbind('beforeunload');
+        $.toggleOverlay(true);
         // Disable staff-side Post Reply/Open buttons to help prevent
         // duplicate POST
         var form = $(this);
@@ -482,7 +483,7 @@ var scp_prep = function() {
 
   $('div.tab_content[id] div.error:not(:empty)').each(function() {
     var div = $(this).closest('.tab_content');
-    $('a[href^=#'+div.attr('id')+']').parent().addClass('error');
+    $('a[href^="#'+div.attr('id')+'"]').parent().addClass('error');
   });
 
   $('[data-toggle="tooltip"]').tooltip()
@@ -495,6 +496,53 @@ var scp_prep = function() {
   $('.attached.input input')
     .on('focus', function() { $(this).parent().addClass('focus'); })
     .on('blur', function() { $(this).parent().removeClass('focus'); })
+
+  $(function() {
+    // whenever we hover over a menu item that has a submenu
+    $('.subQ').on('mouseover', function() {
+      var $menuItem = $(this),
+          $submenuWrapper = $('> .subMenuQ', $menuItem);
+
+      // grab the menu item's position relative to its positioned parent
+      var menuItemPos = $menuItem.position();
+
+      // place the submenu in the correct position relevant to the menu item
+      $submenuWrapper.css({
+        top: menuItemPos.top - 1,
+        left: menuItemPos.left + Math.round($menuItem.outerWidth())
+      });
+    });
+    // Ensure the "new ticket" link is never in the drop-down menu
+    $('#new-ticket').parent('li').addClass('primary-only');
+    $('#customQ_nav').overflowmenu({
+      guessHeight: false,
+      // items: 'li.top-queue',
+      change: function( e, ui ) {
+        var handle = ui.container.find('.jb-overflowmenu-menu-secondary-handle');
+        handle.toggle( ui.secondary.children().length > 0 );
+      }
+    });
+  });
+
+  // Auto fetch queue counts
+  $(function() {
+    var fired = false;
+    $('#customQ_nav li.item').hover(function() {
+      if (fired) return;
+      fired = true;
+      $.ajax({
+        url: 'ajax.php/queue/counts',
+        dataType: 'json',
+        success: function(json) {
+          $('li span.queue-count').each(function(i, e) {
+            var $e = $(e);
+            $e.text(json['q' + $e.data('queueId')]);
+            $(e).parents().find('#queue-count-bucket').show();
+          });
+        }
+      });
+    });
+  });
 };
 
 $(document).ready(scp_prep);
@@ -505,10 +553,7 @@ var fixupDatePickers = function() {
         var $e = $(e),
             d = $e.datepicker('getDate');
         if (!d || $e.data('fixed')) return;
-        var day = ('0'+d.getDate()).substr(-2),
-            month = ('0'+(d.getMonth()+1)).substr(-2),
-            year = d.getFullYear();
-        $e.val(year+'-'+month+'-'+day);
+        $e.val(d.toISOString());
         $e.data('fixed', true);
         $e.on('change', function() { $(this).data('fixed', false); });
     });
@@ -547,6 +592,7 @@ $(document).ajaxSend(function(event, xhr, settings) {
 /* Get config settings from the backend */
 jQuery.fn.exists = function() { return this.length>0; };
 
+$.pjax.defaults.timeout = 30000;
 $.translate_format = function(str) {
     var translation = {
         'DD':   'oo',
@@ -562,7 +608,6 @@ $.translate_format = function(str) {
         'yyyy': '`',
         'yyy':  '`',
         'yy':   'y',
-        'y':    'yy',
         '`':    'yy'
     };
     // Change PHP formats to datepicker ones
@@ -685,7 +730,9 @@ $.dialog = function (url, codes, cb, options) {
                         }
                         catch (e) { }
                         $('div.body', $popup).html(resp);
-                        $popup.effect('shake');
+                        if ($('#msg_error, .error-banner', $popup).length) {
+                            $popup.effect('shake');
+                        }
                         $('#msg_notice, #msg_error', $popup).delay(5000).slideUp();
                         $('div.tab_content[id] div.error:not(:empty)', $popup).each(function() {
                           var div = $(this).closest('.tab_content');
@@ -773,7 +820,7 @@ $.confirm = function(message, title, options) {
             .append($('<span class="buttons pull-left"></span>')
                 .append($('<input type="button" class="close"/>')
                     .attr('value', __('Cancel'))
-                    .click(function() { hide(); })
+                    .click(function() { hide();  D.resolve(false); })
             )).append($('<span class="buttons pull-right"></span>')
                 .append($('<input type="button"/>')
                     .attr('value', __('OK'))
@@ -785,8 +832,9 @@ $.confirm = function(message, title, options) {
 };
 
 $.userLookup = function (url, cb) {
-    $.dialog(url, 201, function (xhr) {
-        var user = $.parseJSON(xhr.responseText);
+    $.dialog(url, 201, function (xhr, user) {
+        if ($.type(user) == 'string')
+            user = $.parseJSON(user);
         if (cb) return cb(user);
     }, {
         onshow: function() { $('#user-search').focus(); }
@@ -794,8 +842,9 @@ $.userLookup = function (url, cb) {
 };
 
 $.orgLookup = function (url, cb) {
-    $.dialog(url, 201, function (xhr) {
-        var org = $.parseJSON(xhr.responseText);
+    $.dialog(url, 201, function (xhr, org) {
+        if ($.type(org) == 'string')
+            org = $.parseJSON(user);
         if (cb) cb(org);
     }, {
         onshow: function() { $('#org-search').focus(); }
@@ -965,7 +1014,7 @@ $(document).on('click.tab', 'ul.tabs > li > a', function(e) {
         $ul.children('li.active').removeClass('active');
         $(this).closest('li').addClass('active');
         $container.children('.tab_content').hide();
-        $tab.fadeIn('fast');
+        $tab.fadeIn('fast').show();
         return false;
     }
 
@@ -1003,12 +1052,11 @@ $(document).on('submit', 'form', function() {
 });
 
 //Collaborators
-$(document).on('click', 'a.collaborator, a.collaborators', function(e) {
+$(document).on('click', 'a.collaborator, a.collaborators:not(.noclick)', function(e) {
     e.preventDefault();
     var url = 'ajax.php/'+$(this).attr('href').substr(1);
     $.dialog(url, 201, function (xhr) {
        var resp = $.parseJSON(xhr.responseText);
-       $('input#t'+resp.id+'-emailcollab').show();
        $('#t'+resp.id+'-recipients').text(resp.text);
        $('.tip_box').remove();
     }, {
@@ -1077,10 +1125,11 @@ $(document).on('pjax:complete', function() {
 if ($.support.pjax) {
   $(document).on('click', 'a', function(event) {
     var $this = $(this);
+    var href = $this.attr('href');
     if (!$this.hasClass('no-pjax')
         && !$this.closest('.no-pjax').length
-        && $this.attr('href').charAt(0) != '#')
-      $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 2000});
+        && href && href.charAt(0) != '#')
+      $.pjax.click(event, {container: $this.data('pjaxContainer') || '#pjax-container', timeout: 30000});
   })
 }
 
@@ -1257,7 +1306,7 @@ jQuery(function($) {
     $.fn.show = function() {
         var argsArray = Array.prototype.slice.call(arguments),
             arg = argsArray[0],
-            options = {};
+            options = argsArray[1] || {duration: 0};
         if (typeof(arg) === 'number')
             options.duration = arg;
         else

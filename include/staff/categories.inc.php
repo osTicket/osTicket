@@ -95,7 +95,7 @@ $pageNav->paginate($categories);
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
                 <td><a class="truncate" style="width:500px" href="categories.php?id=<?php echo $C->getId(); ?>"><?php
-                    echo $C->getLocalName(); ?></a></td>
+                    echo Category::getNamebyId($C->getId()); ?></a></td>
                 <td><?php echo $C->getVisibilityDescription(); ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $faqs; ?></td>
                 <td>&nbsp;<?php echo Format::datetime($C->updated); ?></td>

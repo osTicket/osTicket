@@ -417,7 +417,7 @@ class i18n_Compiler extends Module {
                     break;
                 case T_WHITESPACE:
                     // noop
-                    continue;
+                    continue 2;
                 case T_STRING_VARNAME:
                 case T_NUM_STRING:
                 case T_ENCAPSED_AND_WHITESPACE:
@@ -472,7 +472,7 @@ class i18n_Compiler extends Module {
         while (list(,$T) = each($tokens)) {
             switch ($T[0]) {
             case T_WHITESPACE:
-                continue;
+                continue 2;
             case '(':
                 return $this->__read_args($tokens, $args);
             default:
@@ -500,7 +500,7 @@ class i18n_Compiler extends Module {
                     break;
                 }
                 if (!isset($funcs[$T[1]]))
-                    continue;
+                    continue 2;
                 $constants = $funcs[$T[1]];
                 if ($info = $this->__get_func_args($tokens, $constants))
                     $T_funcs[] = $info;
@@ -519,7 +519,7 @@ class i18n_Compiler extends Module {
                         case '@trans':
                             $translate = true;
                         default:
-                            continue;
+                            continue 2;
                         }
                     }
                 }
@@ -636,7 +636,7 @@ class i18n_Compiler extends Module {
         );
         $root = realpath($options['root'] ?: ROOT_DIR);
         $domain = $options['domain'] ? '('.$options['domain'].')/' : '';
-        $files = Test::getAllScripts(true, $root);
+        $files = Test::getAllScripts("*.php", $root);
         $strings = array();
         foreach ($files as $f) {
             $F = str_replace($root.'/', $domain, $f);

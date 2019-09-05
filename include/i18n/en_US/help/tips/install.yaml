@@ -28,7 +28,7 @@ default_lang:
         be installed for this language.</p>
     links:
       - title: osTicket Language Packs
-        href: http://osticket.com/download?product=langs
+        href: https://osticket.com/download/#ostLang
 
 first_name:
     title: First Name

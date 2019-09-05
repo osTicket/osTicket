@@ -72,7 +72,6 @@ $(function() {
             +'?count='+count
             +'&tids='+tids.join(',')
             +'&_uid='+new Date().getTime();
-            console.log(tids);
             $.dialog(url, [201], function (xhr) {
                 $.pjax.reload('#pjax-container');
              });

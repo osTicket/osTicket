@@ -13,13 +13,14 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+use Mpdf\Mpdf;
 
 define('THIS_DIR', str_replace('\\', '/', Misc::realpath(dirname(__FILE__))) . '/'); //Include path..
 
-require_once(INCLUDE_DIR.'mpdf/mpdf.php');
+require_once(INCLUDE_DIR.'mpdf/vendor/autoload.php');
 
-class mPDFWithLocalImages extends mPDF {
-    function WriteHtml($html) {
+class mPDFWithLocalImages extends Mpdf {
+    function WriteHtml($html, $sub = 0, $init = true, $close = true) {
         static $filenumber = 1;
         $args = func_get_args();
         $self = $this;
@@ -38,12 +39,16 @@ class mPDFWithLocalImages extends mPDF {
                 if (!($file = @$images[strtolower($match[1])]))
                     return $match[0];
                 $key = "__attached_file_".$filenumber++;
-                $self->{$key} = $file->getData();
+                $self->imageVars[$key] = $file->getData();
                 return 'var:'.$key;
             },
             $html
         );
         return call_user_func_array(array('parent', 'WriteHtml'), $args);
+    }
+
+    function output($name = '', $dest = '') {
+        return parent::Output($name, $dest);
     }
 }
 
@@ -52,17 +57,20 @@ class Ticket2PDF extends mPDFWithLocalImages
 
 	var $includenotes = false;
 
+       var $includeevents = false;
+
 	var $pageOffset = 0;
 
     var $ticket = null;
 
-	function __construct($ticket, $psize='Letter', $notes=false) {
+	function __construct($ticket, $psize='Letter', $notes=false, $events=false) {
         global $thisstaff;
 
         $this->ticket = $ticket;
         $this->includenotes = $notes;
+        $this->includeevents = $events;
 
-        parent::__construct('', $psize);
+	parent::__construct(['mode' => 'utf-8', 'format' => $psize, 'tempDir'=>sys_get_temp_dir()]);
 
         $this->_print();
 	}
@@ -86,7 +94,7 @@ class Ticket2PDF extends mPDFWithLocalImages
             return;
         $html = ob_get_clean();
 
-        $this->SetAutoFont(AUTOFONT_RTL);
+        $this->autoScriptToLang;
         $this->WriteHtml($html, 0, true, true);
     }
 }
@@ -103,7 +111,7 @@ class Task2PDF extends mPDFWithLocalImages {
         $this->task = $task;
         $this->options = $options;
 
-        parent::__construct('', $this->options['psize']);
+        parent::__construct(['mode' => 'utf-8', 'format' => $this->options['psize'], 'tempDir'=>sys_get_temp_dir()]);
         $this->_print();
     }
 
@@ -116,7 +124,7 @@ class Task2PDF extends mPDFWithLocalImages {
         ob_start();
         include STAFFINC_DIR.'templates/task-print.tmpl.php';
         $html = ob_get_clean();
-        $this->SetAutoFont(AUTOFONT_RTL);
+        $this->autoScriptToLang;
         $this->WriteHtml($html, 0, true, true);
 
     }

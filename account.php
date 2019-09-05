@@ -52,7 +52,6 @@ if ($user && $_POST) {
     if (!$errors && $user->updateInfo($_POST, $errors))
         Http::redirect('tickets.php');
 }
-
 elseif ($_POST) {
     $user_form = UserForm::getUserForm()->getForm($_POST);
     if ($thisclient) {
@@ -78,12 +77,16 @@ elseif ($_POST) {
             '</strong></a>'));
         $errors['err'] = __('Unable to register account. See messages below');
     }
+    elseif (!$addr)
+        $errors['email'] = sprintf(__('%s is a required field'), $user_form->getField('email')->getLocal('label'));
+    elseif (!$user_form->getField('name')->getClean())
+        $errors['name'] = sprintf(__('%s is a required field'), $user_form->getField('name')->getLocal('label'));
+    // Registration for existing users
+    elseif ($addr && ($user = User::lookupByEmail($addr)) && !$user->updateInfo($_POST, $errors))
+      $errors['err'] = __('Unable to register account. See messages below');
     // Users created from ClientCreateRequest
     elseif (isset($_POST['backend']) && !($user = User::fromVars($user_form->getClean())))
         $errors['err'] = __('Unable to create local account. See messages below');
-    // Registration for existing users
-    elseif (!$user && !$thisclient && !($user = User::fromVars($user_form->getClean())))
-        $errors['err'] = __('Unable to register account. See messages below');
     // New users and users registering from a ticket access link
     elseif (!$user && !($user = $thisclient ?: User::fromForm($user_form)))
         $errors['err'] = __('Unable to register account. See messages below');

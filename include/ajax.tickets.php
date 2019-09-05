@@ -32,21 +32,15 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$_REQUEST['q'])
             return $this->json_encode($tickets);
 
-        $visibility = Q::any(array(
-            'staff_id' => $thisstaff->getId(),
-            'team_id__in' => $thisstaff->teams->values_flat('team_id'),
-        ));
-
-        if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts())) {
-            $visibility->add(array('dept_id__in' => $depts));
-        }
-
-        $hits = TicketModel::objects()
+        $visibility = $thisstaff->getTicketsVisibility();
+        $hits = Ticket::objects()
             ->filter($visibility)
             ->values('user__default_email__address')
             ->annotate(array(
                 'number' => new SqlCode('null'),
-                'tickets' => SqlAggregate::COUNT('ticket_id', true)))
+                'tickets' => SqlAggregate::COUNT('ticket_id', true),
+            ))
+            ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
 
         $q = $_REQUEST['q'];
@@ -55,18 +49,17 @@ class TicketsAjaxAPI extends AjaxController {
             return $this->encode(array());
 
         global $ost;
-        $hits = $ost->searcher->find($q, $hits)
-            ->order_by(new SqlCode('__relevance__'), QuerySet::DESC);
+        $hits = $ost->searcher->find($q, $hits, false);
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
-            $hits = TicketModel::objects()
+            $hits = Ticket::objects()
                 ->values('user__default_email__address', 'number')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
-                    '__relevance__' => new SqlCode(1)
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
+                ->order_by('number')
                 ->limit($limit)
                 ->union($hits);
         }
@@ -80,15 +73,16 @@ class TicketsAjaxAPI extends AjaxController {
             $email = $T['user__default_email__address'];
             $count = $T['tickets'];
             if ($T['number']) {
-                $tickets[] = array('id'=>$T['number'], 'value'=>$T['number'],
+                $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
                     'info'=>"{$T['number']} — {$email}",
                     'matches'=>$_REQUEST['q']);
             }
             else {
-                $tickets[] = array('email'=>$email, 'value'=>$email,
+                $tickets[$email] = array('email'=>$email, 'value'=>$email,
                     'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
             }
         }
+        $tickets = array_values($tickets);
 
         return $this->json_encode($tickets);
     }
@@ -417,6 +411,134 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
 
+  function referrals($tid) {
+
+      return $this->refer($tid);
+
+  }
+
+function refer($tid, $target=null) {
+    global $thisstaff;
+
+    if (!($ticket=Ticket::lookup($tid)))
+        Http::response(404, __('No such ticket'));
+
+    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+            || !($form = $ticket->getReferralForm($_POST,
+                    array('target' => $target))))
+        Http::response(403, __('Permission denied'));
+
+    $errors = array();
+    $info = array(
+            ':title' => sprintf(__('Ticket #%s: %s'),
+                $ticket->getNumber(),
+                __('Refer')
+                ),
+            ':action' => sprintf('#tickets/%d/refer%s',
+                $ticket->getId(),
+                ($target  ? "/$target": '')),
+            );
+
+    if ($_POST) {
+
+        switch ($_POST['do']) {
+        case 'refer':
+            if ($form->isValid() && $ticket->refer($form, $errors)) {
+                $clean = $form->getClean();
+                if ($clean['comments'])
+                    $ticket->logNote('Referral', $clean['comments'], $thisstaff);
+                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                        __('%s successfully'),
+                        sprintf(
+                            __('%s referred to %s'),
+                            sprintf(__('Ticket #%s'),
+                                 sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                     $ticket->getId(),
+                                     $ticket->getNumber()))
+                            ,
+                            $form->getReferee())
+                        );
+                Http::response(201, $ticket->getId());
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
+            break;
+        case 'manage':
+            $remove = array();
+            if (is_array($_POST['referrals'])) {
+                $remove = array();
+                foreach ($_POST['referrals'] as $k => $v)
+                    if ($v[0] == '-')
+                        $remove[] = substr($v, 1);
+                if (count($remove)) {
+                    $num = $ticket->thread->referrals
+                        ->filter(array('id__in' => $remove))
+                        ->delete();
+                    if ($num) {
+                        $info['msg'] = sprintf(
+                                __('%s successfully'),
+                                sprintf(__('Removed %d referrals'),
+                                    $num
+                                    )
+                                );
+                    }
+                    //TODO: log removal
+                }
+            }
+            break;
+        default:
+             $errors['err'] = __('Unknown Action');
+        }
+    }
+
+    $thread = $ticket->getThread();
+    include STAFFINC_DIR . 'templates/refer.tmpl.php';
+}
+  function editField($tid, $fid) {
+      global $thisstaff;
+
+      if (!($ticket=Ticket::lookup($tid)))
+          Http::response(404, __('No such ticket'));
+
+      if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+          Http::response(403, __('Permission denied'));
+      elseif (!($field=$ticket->getField($fid)))
+          Http::response(404, __('No such field'));
+
+      $errors = array();
+      $info = array(
+              ':title' => sprintf(__('Ticket #%s: %s %s'),
+                  $ticket->getNumber(),
+                  __('Update'),
+                  $field->getLabel()
+                  ),
+              ':action' => sprintf('#tickets/%d/field/%s/edit',
+                  $ticket->getId(), $field->getId())
+              );
+
+      $form = $field->getEditForm($_POST);
+      if ($_POST && $form->isValid()) {
+            if ($ticket->updateField($form, $errors)) {
+              $_SESSION['::sysmsgs']['msg'] = sprintf(
+                      __('%s successfully'),
+                      sprintf(
+                          __('%s updated'),
+                          __($field->getLabel())
+                          )
+                      );
+
+              if ($field instanceof FileUploadField)
+                  $field->save();
+              Http::response(201, $field->getClean());
+          }
+          $form->addErrors($errors);
+          $info['error'] = $errors['err'] ?: __('Unable to update field');
+      }
+
+      include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
+  }
+
     function assign($tid, $target=null) {
         global $thisstaff;
 
@@ -534,6 +656,65 @@ class TicketsAjaxAPI extends AjaxController {
 
     }
 
+    function release($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_RELEASE) && !$thisstaff->isManager())
+            Http::response(403, __('Permission denied'));
+
+        $errors = array();
+        if (!$ticket->isAssigned())
+            $errors['err'] = __('Ticket is not assigned!');
+
+        $info = array(':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Release Confirmation')));
+
+        $form = ReleaseForm::instantiate($_POST);
+        $hasData = ($_POST['sid'] || $_POST['tid']);
+
+        $staff = $ticket->getStaff();
+        $team = $ticket->getTeam();
+        if ($_POST) {
+            if ($hasData && $ticket->release($_POST, $errors)) {
+                $data = array();
+
+                if ($staff && !$ticket->getStaff())
+                    $data['staff'] = array($staff->getId(), (string) $staff->getName()->getOriginal());
+                if ($team && !$ticket->getTeam())
+                    $data['team'] = $team->getId();
+                $ticket->logEvent('released', $data);
+
+                $comments = $form->getComments();
+                if ($comments) {
+                    $title = __('Assignment Released');
+                    $_errors = array();
+
+                    $ticket->postNote(
+                        array('note' => $comments, 'title' => $title),
+                        $_errors, $thisstaff, false);
+                }
+
+                $_SESSION['::sysmsgs']['msg'] = __('Ticket assignment released successfully');
+                Http::response(201, $ticket->getId());
+            }
+
+            if (!$hasData)
+                $errors['err'] = __('Please check an assignee to release assignment');
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to release ticket assignment');
+        }
+
+        if($errors && $errors['err'])
+            $info['error'] = $errors['err'] ?: __('Unable to release ticket');
+
+        include STAFFINC_DIR . 'templates/release.tmpl.php';
+    }
+
     function massProcess($action, $w=null)  {
         global $thisstaff, $cfg;
 
@@ -543,6 +724,9 @@ class TicketsAjaxAPI extends AjaxController {
                     ),
                 'assign' => array(
                     'verbed' => __('assigned'),
+                    ),
+                'refer' => array(
+                    'verbed' => __('referred'),
                     ),
                 'claim' => array(
                     'verbed' => __('assigned'),
@@ -594,7 +778,7 @@ class TicketsAjaxAPI extends AjaxController {
                     $depts = array();
                     $tids = $_POST['tids'] ?: array_filter(explode(',', $_REQUEST['tids']));
                     if ($tids) {
-                        $tickets = TicketModel::objects()
+                        $tickets = Ticket::objects()
                             ->distinct('dept_id')
                             ->filter(array('ticket_id__in' => $tids));
 
@@ -609,14 +793,25 @@ class TicketsAjaxAPI extends AjaxController {
                                 );
 
                     if ($depts) {
-                        $members->filter(Q::any( array(
+                        $all_agent_depts = Dept::objects()->filter(
+                            Q::all( array('id__in' => $depts,
+                            Q::not(array('flags__hasbit'
+                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY)),
+                            Q::not(array('flags__hasbit'
+                                => Dept::FLAG_ASSIGN_PRIMARY_ONLY))
+                            )))->values_flat('id');
+                        if (!count($all_agent_depts)) {
+                            $members->filter(Q::any( array(
                                         'dept_id__in' => $depts,
                                         Q::all(array(
                                             'dept_access__dept__id__in' => $depts,
                                             Q::not(array('dept_access__dept__flags__hasbit'
-                                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY))
+                                                => Dept::FLAG_ASSIGN_MEMBERS_ONLY,
+                                                'dept_access__dept__flags__hasbit'
+                                                    => Dept::FLAG_ASSIGN_PRIMARY_ONLY))
                                             ))
                                         )));
+                        }
                     }
 
                     switch ($cfg->getAgentNameFormat()) {
@@ -820,7 +1015,7 @@ class TicketsAjaxAPI extends AjaxController {
                 || !$ticket->checkStaffPerm($thisstaff))
             Http::response(404, 'Unknown ticket #');
 
-        $role = $thisstaff->getRole($ticket->getDeptId());
+        $role = $ticket->getRole($thisstaff);
 
         $info = array();
         $state = null;
@@ -830,7 +1025,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$role->hasPerm(TicketModel::PERM_CLOSE))
+                if (!$role->hasPerm(Ticket::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
 
@@ -840,7 +1035,7 @@ class TicketsAjaxAPI extends AjaxController {
 
                 break;
             case 'delete':
-                if (!$role->hasPerm(TicketModel::PERM_DELETE))
+                if (!$role->hasPerm(Ticket::PERM_DELETE))
                     Http::response(403, 'Access denied');
                 $state = 'deleted';
                 break;
@@ -873,22 +1068,22 @@ class TicketsAjaxAPI extends AjaxController {
         elseif ($status->getId() == $ticket->getStatusId())
             $errors['err'] = sprintf(__('Ticket already set to %s status'),
                     __($status->getName()));
-        elseif (($role = $thisstaff->getRole($ticket->getDeptId()))) {
+        elseif (($role = $ticket->getRole($thisstaff))) {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$role->hasPerm(TicketModel::PERM_CLOSE)
-                            && !$role->hasPerm(TicketModel::PERM_CREATE))
+                    if (!$role->hasPerm(Ticket::PERM_CLOSE)
+                            && !$role->hasPerm(Ticket::PERM_CREATE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$role->hasPerm(TicketModel::PERM_CLOSE))
+                    if (!$role->hasPerm(Ticket::PERM_CLOSE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$role->hasPerm(TicketModel::PERM_DELETE))
+                    if (!$role->hasPerm(Ticket::PERM_DELETE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to archive/delete tickets'));
                     break;
@@ -948,12 +1143,12 @@ class TicketsAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
+                if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
                 break;
             case 'delete':
-                if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
+                if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                     Http::response(403, 'Access denied');
 
                 $state = 'deleted';
@@ -987,18 +1182,18 @@ class TicketsAjaxAPI extends AjaxController {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
                 case 'open':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false)
-                            && !$thisstaff->hasPerm(TicketModel::PERM_CREATE, false))
+                    if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false)
+                            && !$thisstaff->hasPerm(Ticket::PERM_CREATE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to reopen tickets'));
                     break;
                 case 'closed':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_CLOSE, false))
+                    if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tickets'));
                     break;
                 case 'deleted':
-                    if (!$thisstaff->hasPerm(TicketModel::PERM_DELETE, false))
+                    if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to archive/delete tickets'));
                     break;
@@ -1069,6 +1264,70 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         return self::_changeSelectedTicketsStatus($state, $info, $errors);
+    }
+
+    function markAs($tid, $action='') {
+        global $thisstaff;
+
+        // Standard validation
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_REPLY) && !$thisstaff->isManager())
+            Http::response(403, __('Permission denied'));
+
+        $errors = array();
+        $info = array(':title' => __('Please Confirm'));
+
+        // Instantiate form for comment field
+        $form = MarkAsForm::instantiate($_POST);
+
+        // Mark as answered or unanswered
+        if ($_POST) {
+            switch($action) {
+                case 'answered':
+                    if($ticket->isAnswered())
+                        $errors['err'] = __('Ticket is already marked as answered');
+                    elseif (!$ticket->markAnswered())
+                        $errors['err'] = __('Cannot mark ticket as answered');
+                    break;
+
+                case 'unanswered':
+                    if(!$ticket->isAnswered())
+                        $errors['err'] = __('Ticket is already marked as unanswered');
+                    elseif (!$ticket->markUnAnswered())
+                        $errors['err'] - __('Cannot mark ticket as unanswered');
+                    break;
+
+                default:
+                    Http::response(404, __('Unknown action'));
+            }
+
+            // Retrun errors to form (if any)
+            if($errors) {
+                $info['error'] = $errors['err'] ?: sprintf(__('Unable to mark ticket as %s'), $action);
+                $form->addErrors($errors);
+            } else {
+                // Add comment (if provided)
+                $comments = $form->getComments();
+                if ($comments) {
+                    $title = __(sprintf('Ticket Marked %s', ucfirst($action)));
+                    $_errors = array();
+
+                    $ticket->postNote(
+                        array('note' => $comments, 'title' => $title),
+                        $_errors, $thisstaff, false);
+                }
+
+                // Add success messages and log activity
+                $_SESSION['::sysmsgs']['msg'] = sprintf(__('Ticket marked as %s successfully'), $action);
+                $msg = sprintf(__('Ticket flagged as %s by %s'), $action, $thisstaff->getName());
+                $ticket->logActivity(sprintf(__('Ticket Marked %s'), ucfirst($action)), $msg);
+                Http::response(201, $ticket->getId());
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/mark-as.tmpl.php';
     }
 
     function triggerThreadAction($ticket_id, $thread_id, $action) {
@@ -1178,7 +1437,7 @@ class TicketsAjaxAPI extends AjaxController {
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
     }
 
-    function addTask($tid) {
+    function addTask($tid, $vars=array()) {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
@@ -1189,6 +1448,16 @@ class TicketsAjaxAPI extends AjaxController {
 
         $info=$errors=array();
 
+        // Internal form
+        $iform = TaskForm::getInternalForm($_POST);
+        // Due date must be before tickets due date
+        if ($ticket && $ticket->getEstDueDate()
+                &&  Misc::db2gmtime($ticket->getEstDueDate()) > Misc::gmtime()
+                && ($f=$iform->getField('duedate'))) {
+            $f->configure('max', Misc::db2gmtime($ticket->getEstDueDate()));
+        }
+        $vars = array_merge($_SESSION[':form-data'] ?: array(), $vars);
+
         if ($_POST) {
             Draft::deleteForNamespace(
                     sprintf('ticket.%d.task', $ticket->getId()),
@@ -1196,8 +1465,7 @@ class TicketsAjaxAPI extends AjaxController {
             // Default form
             $form = TaskForm::getInstance();
             $form->setSource($_POST);
-            // Internal form
-            $iform = TaskForm::getInternalForm($_POST);
+
             $isvalid = true;
             if (!$iform->isValid())
                 $isvalid = false;
@@ -1214,12 +1482,48 @@ class TicketsAjaxAPI extends AjaxController {
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
-                    $vars['cannedattachments'] = $attachments->getClean();
+                    $vars['files'] = $attachments->getFiles();
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
-                if (($task=Task::create($vars, $errors)))
-                    Http::response(201, $task->getId());
+                if (($task=Task::create($vars, $errors))) {
+
+                  if ($_SESSION[':form-data']['eid']) {
+                    //add internal note to ticket:
+                    $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
+                        $task->getId(),
+                        $task->getNumber());
+
+                    $entryLink = sprintf('<a href="#entry-%d"><b>%s</b></a>',
+                        $_SESSION[':form-data']['eid'],
+                        Format::datetime($_SESSION[':form-data']['timestamp']));
+
+                    $note = array(
+                            'title' => __('Task Created From Thread Entry'),
+                            'body' => sprintf(__(
+                                // %1$s is the task ID number and %2$s is the thread
+                                // entry date
+                                'Task %1$s<br/> Thread Entry: %2$s'),
+                                $taskLink, $entryLink)
+                            );
+
+                  $ticket->logNote($note['title'], $note['body'], $thisstaff);
+
+                    //add internal note to task:
+                    $ticketLink = sprintf('<a href="tickets.php?id=%d"><b>#%s</b></a>',
+                        $ticket->getId(),
+                        $ticket->getNumber());
+
+                    $note = array(
+                            'title' => __('Task Created From Thread Entry'),
+                            'note' => sprintf(__('This Task was created from Ticket %1$s'), $ticketLink),
+                    );
+
+                    $task->postNote($note, $errors, $thisstaff);
+                  }
+                }
+
+                  Http::response(201, $task->getId());
             }
 
             $info['error'] = sprintf('%s - %s', __('Error adding task'), __('Please try again!'));
@@ -1264,9 +1568,9 @@ class TicketsAjaxAPI extends AjaxController {
             $vars = $_POST;
             switch ($_POST['a']) {
             case 'postnote':
-                $attachments = $note_attachments_form->getField('attachments')->getClean();
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+                $attachments = $note_attachments_form->getField('attachments')->getFiles();
+                $vars['files'] = array_merge(
+                    $vars['files'] ?: array(), $attachments);
                 if (($note=$task->postNote($vars, $errors, $thisstaff))) {
                     $msg=__('Note posted successfully');
                     // Clear attachment list
@@ -1280,9 +1584,9 @@ class TicketsAjaxAPI extends AjaxController {
                 }
                 break;
             case 'postreply':
-                $attachments = $reply_attachments_form->getField('attachments')->getClean();
-                $vars['cannedattachments'] = array_merge(
-                    $vars['cannedattachments'] ?: array(), $attachments);
+                $attachments = $reply_attachments_form->getField('attachments')->getFiles();
+                $vars['files'] = array_merge(
+                    $vars['files'] ?: array(), $attachments);
                 if (($response=$task->postReply($vars, $errors))) {
                     $msg=__('Update posted successfully');
                     // Clear attachment list
@@ -1301,6 +1605,37 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         include STAFFINC_DIR . 'templates/task-view.tmpl.php';
+    }
+
+
+    function export($id) {
+        global $thisstaff;
+
+        if (is_numeric($id))
+            $queue = SavedSearch::lookup($id);
+        else
+            $queue = AdhocSearch::load($id);
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$queue || !$queue->checkAccess($thisstaff))
+            Http::response(404, 'No such saved queue');
+
+        if ($_POST && is_array($_POST['fields'])) {
+            // Cache export preferences
+            $id = $queue->getId();
+            $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
+            $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
+            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
+
+            if ($queue->isSaved() && isset($_POST['save-changes']))
+               $queue->updateExports(array_flip($_POST['fields']));
+
+            Http::response(201, 'Export Ready');
+        }
+
+        include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
+
     }
 }
 ?>

@@ -228,15 +228,25 @@ if (count($bks) > 1) {
             <select name="dept_id" id="dept_id" data-quick-add="department">
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
-              foreach (Dept::getDepartments() as $id=>$name) {
-                $sel=($staff->dept_id==$id)?'selected="selected"':'';
-                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+              if($depts = Dept::getPublicDepartments()) {
+                if($staff->dept_id && !array_key_exists($staff->dept_id, $depts))
+                {
+                  $depts[$staff->dept_id] = $staff->dept;
+                  $warn = sprintf(__('%s selected must be active'), __('Department'));
+                }
+                  foreach($depts as $id =>$name) {
+                    $sel=($staff->dept_id==$id)?'selected="selected"':'';
+                      echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                  }
               }
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
-            <div class="error"><?php echo $errors['dept_id']; ?></div>
+            <?php
+            if($warn) { ?>
+                &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+            <?php } ?>
           </td>
           <td style="vertical-align:top">
             <select name="role_id" data-quick-add="role">
@@ -528,6 +538,7 @@ foreach ($staff->dept_access as $dept_access) {
 }
 
 foreach ($staff->teams as $member) {
+  if (!$member->team) continue;
   echo sprintf('joinTeam(%d, %s, %d, %s);', $member->team_id,
     JsonDataEncoder::encode($member->team->getName()),
     $member->isAlertsEnabled(),

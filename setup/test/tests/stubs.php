@@ -226,6 +226,9 @@ class Mail_mime {
     function headers() {}
     function setTXTBody() {}
     function setHTMLBody() {}
+    function addCc() {}
+    function addTo() {}
+    function addBcc() {}
 }
 
 class mPDF {

@@ -42,6 +42,7 @@ div#header a {
 
 .full-width {
     width: 100%;
+    box-sizing: border-box;
 }
 .headline {
     margin-bottom: 15px;
@@ -182,7 +183,7 @@ a time {
     white-space: nowrap;
 }
 
-#nav .active, #sub_nav li {
+#nav .active, #sub_nav > li  {
     padding:0;
     list-style:none;
     display:inline;
@@ -297,38 +298,645 @@ a time {
     color:#E65524;
     background-color: #fbfbfb;
     background-color: rgba(0,0,0,0.05);
+
 }
+
+/* Custom queue fields with background color should fill cell */
+.offset {
+    position: relative;
+}
+.offset .fill {
+    display: block;
+    padding: 4px!important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/***********************************************************************
+                 Start Custom Queues Menu System
+/***********************************************************************/
 
 #sub_nav {
     background:#f7f7f7;
     border-bottom:1px solid #bebebe;
     padding: 2px 20px;
 }
+#customQ_nav {
+    clear:both;
+    margin:0;
+    padding:0;
+    line-height:26px;
+}
 
-#sub_nav a {
+#sub_nav > ul {
+    margin-top: 0;
+}
+
+#sub_nav > li + li > a {
+    margin-left: 10px;
+}
+
+#customQ_nav .jb-overflowmenu-menu-primary li.item {
+    position:relative;
+    padding:3px 6px 4px;
+    display: inline-block;
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+    margin:0 2px;
+}
+
+#sub_nav > li > a,
+#customQ_nav .jb-overflowmenu-menu-primary li.item > a {
     display:inline-block;
     padding:0 10px 0 21px;
     background-position:0 50%;
     background-repeat:no-repeat;
     color:#000;
 }
-#sub_nav li + li > a {
-    margin-left:10px;
-}
 
-#sub_nav a:hover {
+#customQ_nav .jb-overflowmenu-menu-primary li.item:hover {
+    padding:2px 5px 3px;
     color:#E65524;
+    background-color: #fff;
+    border-left:1px solid #bebebe;
+    border-top:1px solid #bebebe;
+    border-right:1px solid #bebebe;
 }
 
-#sub_nav a.active {
+#sub_nav > li > a:hover,
+#customQ_nav .jb-overflowmenu-menu-primary li.item:hover > a {
+    color:#E65524;
+    text-decoration: none;
+}
+
+#sub_nav a.active, #sub_nav li.active > a, #sub_nav li.child.active > a
+#customQ_nav .jb-overflowmenu-menu-primary li.item > a.active {
     font-weight:bold;
+}
+
+#sub_nav li.child.active > a {
+    font-weight: 500;
+}
+
+#customQ_nav .jb-overflowmenu-menu-primary li.item a > i {
+    margin-top:5px;
 }
 
 #sub_nav .open     { background-image:url(../images/icons/open.gif) }
 #sub_nav .answered { background-image:url(../images/icons/answered.gif) }
 #sub_nav .mine     { background-image:url(../images/icons/mine.gif) }
 #sub_nav .closed   { background-image:url(../images/icons/closed.gif) }
+#sub_nav .search   { background-image:url(../images/icons/search.gif) }
 #sub_nav .new      { background-image:url(../images/icons/new.gif) }
+
+/**********************initiate Custom Queues Dropdown******************/
+
+#customQ_nav ul li.item div.customQ-dropdown {
+    display:none;
+}
+
+#customQ_nav ul li.item:hover div.customQ-dropdown {
+    display:block;
+}
+
+/***************************************
+          Custom Q Dropdown
+****************************************/
+
+/*** custom Queue global settings ***/
+
+.customQ-dropdown * {
+    padding:0;
+    margin:0;
+}
+
+.customQ-dropdown a:only-of-type   {
+    padding-top:2px;
+    padding-bottom:2px;
+    display:inline-block;
+    text-decoration:none;
+    text-transform:capitalize;
+}
+.customQ-dropdown a.truncate {
+    min-width: 140px;
+}
+
+.customQ-dropdown ul li {
+    list-style:none;
+    list-style-image: none;
+}
+
+.customQ-dropdown li h4,
+.customQ-dropdown li.top-level {
+    margin:0;
+    background-color:#eee;
+    color:#bbb;
+    text-align:left;
+}
+.customQ-dropdown li h4 {
+    padding:2px 8px;
+}
+.customQ-dropdown li.personalQ {
+    font-size:1px;
+    border-bottom:2px dashed #eee;
+    background-color:#fff;
+    margin:4px 0;
+}
+
+.customQ-dropdown li:not(.personalQ) > span {
+    color:#E65524;
+    font-weight:bold;
+    margin-right:0;
+}
+.customQ-dropdown li > span {
+    color:#E65524;
+    font-weight:bold;
+    margin-right:18px;
+}
+.customQ-dropdown li:hover > span {
+    color:#fff;
+}
+.customQ-dropdown li > span.disabled {
+    color:#ccc;
+    font-weight:normal;
+}
+
+/*** custom queue dropdown container ***/
+
+.jb-overflowmenu-menu-primary div.customQ-dropdown {
+    border-bottom-right-radius:6px;
+    border-bottom-left-radius:6px;
+    border: solid 1px #ddd;
+    border: solid 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    padding:3px 0;
+    background:#fff;
+    text-align: left;
+    font-size: 0.95em;
+    min-width: 100%;
+    list-style: none;
+    left:-1px;
+    top:31px;
+    position:absolute;
+    z-index:8;
+}
+
+
+.customQ-dropdown ul.scroll-height {
+    max-height:400px;
+    border-bottom:1px solid #ddd;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:4px 0;
+}
+
+/*** set max width for truncating long links ***/
+
+.customQ-dropdown ul li > a {
+    max-width:170px;
+}
+
+.customQ-dropdown ul li > ul li > a {
+    max-width:180px!IMPORTANT;
+}
+
+/************ Custom Queue Button Styles *************/
+
+.customQ-dropdown ul li, .customQ-dropdown ul li > a {
+    color:#666;
+    white-space: nowrap;
+
+}
+.customQ-dropdown ul li > a {
+    margin-right:60px;
+}
+
+.customQ-dropdown ul li:not(.personalQ):hover {
+    color:#fff;
+    background-color:#08C;
+    cursor:pointer;
+}
+.customQ-dropdown ul li:hover > a {
+    color:#fff;
+    cursor:pointer;
+}
+.customQ-dropdown ul li:not(.personalQ) .controlQ {
+    position:absolute;
+    right:0;
+    z-index:20;
+}
+/************ Custom Queue Button with Sub Queues *************/
+
+.subMenuQ:before, .subMenuQ:after {
+    content: "";
+    position: absolute;
+    display: block;
+    height: 10px;
+    width: 100%;
+    background: transparent;
+}
+.subMenuQ:before {
+    bottom: 100%;
+}
+.subMenuQ:after {
+    top: 100%;
+}
+
+.customQ-dropdown ul li.subQ > a i {
+    padding:2px 6px 0;
+    display:inline-block;
+    color:#000;
+    opacity:0.5
+}
+
+.customQ-dropdown ul li.subQ:hover > a i {
+    color:#fff;
+    opacity:0.5
+}
+
+.customQ-dropdown ul li div.editQ {
+    padding:0px 8px 0 0;
+
+}
+/************ Custom Queue Button without Sub Queues *************/
+
+.customQ-dropdown ul li.subQ > ul li > a:before  {
+    content:"";
+    padding:0px 4px;
+
+}
+.customQ-dropdown ul li.subQ > a:before  {
+    content:"";
+    padding:0px 4px;
+
+}
+
+.customQ-dropdown ul li:not(.subQ) > a:before  {
+    content:"";
+    padding:0px 4px;
+}
+
+.customQ-dropdown ul li:not(.subQ) > a {
+    max-width:190px;
+}
+
+/************ Custom Queue Nested Queue Container *************/
+
+.customQ-dropdown ul li.subQ > ul {
+    display:none;
+    position:absolute;
+    top:0;
+    left:0px;
+    background-color:#fff;
+    border:1px solid #ddd;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.customQ-dropdown ul li.subQ:hover > ul {
+    display:block;
+}
+
+.customQ-dropdown ul li > span.newItemQ {
+    padding:1px 8px 0 0;
+}
+/************ Custom Queue Add/Save a Queue Button *************/
+
+.customQ-dropdown .add-queue a {
+    display:block;
+    padding:2px 0;
+    color:#666!IMPORTANT;
+    cursor:pointer;
+    white-space: nowrap;
+}
+
+.customQ-dropdown .add-queue a span {
+    padding:0 10px;
+    -webkit-opacity: .4;
+    -moz-opacity: .4;
+    opacity: .4;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -ms-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+}
+
+.customQ-dropdown .add-queue a:hover span {
+    -webkit-opacity: 1;
+    -moz-opacity: 1;
+    opacity: 1;
+}
+
+.customQ-dropdown .add-queue a:hover {
+    color:#666!IMPORTANT;
+    text-decoration: none;
+    background-color:#ddd;
+}
+
+.customQ-dropdown .add-queue .add {
+    color: #16ab39;
+}
+
+.no-queue.customQ-dropdown .add-queue a span {
+    opacity: 1;
+}
+
+/***************** Custom Queue Edit Nav ******************/
+
+/*** icon cog styles ***/
+
+.jb-overflowmenu-menu-primary .customQ-dropdown ul li > .controlQ div.editQ {
+    margin-top:2px;
+}
+
+.customQ-dropdown ul li > .controlQ div.editQ i {
+    color:rgba(255, 255, 255, 0.6);
+}
+
+.customQ-dropdown ul li:hover > .controlQ div.editQ i {
+    color:rgba(255, 255, 255, 0.2);
+}
+
+.customQ-dropdown ul li > .controlQ div.editQ:hover i {
+    color:rgba(255, 255, 255, 1);
+}
+
+/*** edit nav popout ***/
+
+.customQ-dropdown ul li > .controlQ div.editQ .manageQ a:before  {
+    content:none;
+    padding:0;
+}
+
+.customQ-dropdown .controlQ div.editQ .manageQ a {
+    padding-left:0px;
+    padding-right:10px;
+    white-space: nowrap;
+    margin-right:0px!IMPORTANT;
+
+}
+
+.customQ-dropdown .controlQ div.editQ .manageQ a > i {
+    margin-left:5px;
+    margin-right:5px;
+}
+
+.jb-overflowmenu-menu-primary .customQ-dropdown .controlQ div.editQ .manageQ {
+    display:none;
+    position:absolute;
+    top:-1px;
+    left:0px;
+    margin-left:19px;
+}
+
+.jb-overflowmenu-menu-primary .customQ-dropdown .controlQ div.editQ .manageQ ul {
+    border:1px solid #ddd;
+    min-width:75px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    padding:0px 0;
+    background-color:#fff;
+}
+
+/*** edit nav link styles ***/
+
+.customQ-dropdown .controlQ div.editQ:hover .manageQ {
+    display:block;
+}
+
+.customQ-dropdown .controlQ div.editQ:hover .manageQ i {
+    color:#555;
+}
+
+.customQ-dropdown .controlQ div.editQ:hover .manageQ a {
+    min-width:100px;
+
+}
+
+.customQ-dropdown .controlQ div.editQ:hover .manageQ a:hover i {
+    color:#fff;
+}
+
+/***************************************
+          Overflow Menu
+****************************************/
+
+.jb-overflowmenu {
+    position: relative;
+    height:35px;
+    width: 960px;
+}
+
+
+.jb-overflowmenu .placeholder{
+    visibility: hidden;
+}
+
+.jb-overflowmenu .jb-overflowmenu-helper-postion {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0px;
+    overflow: visible;
+    position: absolute;
+}
+
+/*holds the overflow menu and label*/
+
+.jb-overflowmenu .jb-overflowmenu-menu-primary {
+    padding: 0;
+    margin: 2px 0 0 0;
+    height:30px!IMPORTANT;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-primary li.item {
+    display:inline-block;
+    padding:6px 0px;
+    margin:0 0px;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-primary li.item > a {
+     padding:4px 10px;
+ }
+
+/******** Overflow menu and Dropdown *********/
+
+.jb-overflowmenu .jb-overflowmenu-container {
+    left: auto;
+    bottom: 0;
+    right:  0;
+    top: 0;
+    border-bottom: 1px solid #bebebe;
+    border-left:1px solid #bebebe;
+    background-color: #eee;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary-handle {
+    width:12px;
+    text-align:center;
+    padding:5px;
+    line-height:15px;
+    color:#666;
+}
+
+.jb-overflowmenu .jb-overflowmenu-container > a.jb-overflowmenu-menu-secondary-handle {
+    color:#666;
+    padding:9px;
+    background-color:#eee;
+    border-right: 1px solid #aaa;
+}
+.jb-overflowmenu .jb-overflowmenu-container > a.jb-overflowmenu-menu-secondary-handle:hover {
+    color:#000;
+    background-color:#ddd;
+}
+
+/*** Overflow navigation ***/
+.jb-overflowmenu-menu-secondary {
+    background-color:#f7f7f7;
+    border:1px solid #bebebe;
+    padding:5px 0;
+}
+
+.jb-overflowmenu .jb-overflowmenu-menu-secondary {
+    top: auto;
+    bottom: auto;
+    left: auto;
+    display: none;
+    position: absolute;
+    z-index: 9;
+    padding:0;
+    margin:0;
+}
+
+/*** Overflow Dropdown ***/
+.jb-overflowmenu-menu-secondary li.item:before {
+    font-family: "FontAwesome";
+    content:"\F0D9";
+    padding:5px;
+}
+
+.jb-overflowmenu-menu-secondary li.item a > i {
+    margin-top:5px;
+}
+
+.jb-overflowmenu-menu-secondary li.item {
+    position:relative;
+    padding:0px 10px;
+    display: inline-block;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom:1px solid #bebebe;
+    white-space:nowrap;
+    list-style:none;
+}
+
+.jb-overflowmenu-menu-secondary li.item > a {
+    display:inline-block;
+    padding:5px 10px 5px 21px;
+    background-position:0 50%;
+    background-repeat:no-repeat;
+    color:#000;
+}
+
+.jb-overflowmenu-menu-secondary li.item:hover {
+    padding:0 10px;
+    color:#E65524;
+    background-color: #fff;
+    border-left:none;
+    border-top:none;
+    border-right:none;
+}
+
+.jb-overflowmenu-menu-secondary li.item:hover > a {
+    color:#E65524;
+    text-decoration: none;
+}
+
+.jb-overflowmenu-menu-secondary div.customQ-dropdown {
+    border-top-left-radius:6px;
+    border-top-right-radius:0px;
+    border-bottom-right-radius:6px;
+    border-bottom-left-radius:6px;
+    border: solid 1px #ddd;
+    border: solid 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    padding:12px 0;
+    background:#fff;
+    font-size: 0.95em;
+    min-width: 245px;
+    list-style: none;
+    left:-247px;
+    top:-1px;
+    position:absolute;
+    z-index:10;
+}
+.jb-overflowmenu-menu-secondary .customQ-dropdown ul li > .controlQ div.editQ {
+    margin-top:2px;
+    float:left;
+}
+.jb-overflowmenu-menu-secondary .customQ-dropdown .controlQ div.editQ .manageQ {
+    display:none;
+    position:absolute;
+    z-index:20;
+    top:0;
+    left:0px;
+    padding:34px 28px;
+}
+.jb-overflowmenu-menu-secondary .customQ-dropdown .controlQ div.editQ:hover .manageQ {
+    display:block;
+}
+
+.jb-overflowmenu-menu-secondary .customQ-dropdown .controlQ div.editQ .manageQ ul {
+    border:1px solid #ddd;
+    min-width:75px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding:6px 0;
+    background-color:#fff;
+}
+
+.jb-overflowmenu-menu-secondary .customQ-dropdown li > span {
+    padding:0 5px;
+}
+/**********************End Custom Queues Dropdown******************/
+
+/*************Qeueue Title Config dropdown options****************/
+.configureQ {
+    display:block;
+    float:left;
+    color:rgba(0,0,0,.2);
+    margin:4px 0 0 4px;
+    cursor:pointer;
+}
+.configureQ:hover {
+     color:rgba(0,0,0,.6);
+}
+
+.configureQ > .noclick-dropdown {
+    padding:25px 0 0 0;
+    margin-top:-20px;
+    margin-left:-11px;
+}
+.configureQ:hover > .noclick-dropdown {
+    display:block;
+
+}
+.configureQ > .noclick-dropdown:before {
+    top: 19px;
+    left: 9px;
+}
+.configureQ > .noclick-dropdown:after {
+    top: 20px;
+    left: 10px;
+}
+
+
+/*********************/
+
+
 
 a.test  { background-image:url(../images/icons/open.gif) }
 
@@ -574,26 +1182,6 @@ table.list tfoot td {
     padding: 2px;
 }
 
-table.list tbody td.webticket, table.list tbody tr.row1 td.webticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_web.gif) 0 50% no-repeat #fff;
-}
-
-table.list tbody td.emailticket, table.list tbody tr.row1 td.emailticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_email.gif) 0 50% no-repeat;
-}
-
-table.list tbody td.phoneticket, table.list tbody tr.row1 td.phoneticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_phone.gif) 0 50% no-repeat;
-}
-
-table.list tbody td.otherticket, table.list tbody tr.row1 td.otherticket {
-    text-indent:20px;
-    background:url(../images/icons/ticket_source_other.gif) 0 50% no-repeat;
-}
-
 a.refresh {
     display:block;
     float:right;
@@ -673,11 +1261,13 @@ a.print {
 .table tr:not(:last-child):not(.header) {
     border-bottom:1px dotted #ddd;
 }
+
 .table tr.header {
     border-bottom: 1px dotted #777;
 }
 .table td:not(:empty) {
-    padding: 5px;
+    padding: 4px;
+    background-color:#fff;
 }
 .table.two-column tbody tr td:first-child {
     width: 25%;
@@ -718,6 +1308,10 @@ table.fixed > thead > tr > td + td:not([width]),
 table.fixed > tbody > tr > td + td:not([width]),
 table.fixed > tr > td + td:not([width]) {
     width: auto;
+}
+
+tr.no_border > td, td.no_border{
+  border-style:hidden;
 }
 
 td.multi-line {
@@ -845,6 +1439,12 @@ h3 {
     padding:5px 0;
     color:#444;
 }
+
+h3.title { color: black; line-height: 1.25em; }
+h3.title > .sub-title {
+    font-weight: normal;
+    font-size: 1.1rem;
+}
 .tixTitle {
    padding:0 5px 0px;
 }
@@ -936,6 +1536,7 @@ a#post-note:hover {
     margin-left: -60px;
     display:inline-block;
     width:48px;
+    max-height:48px;
     height:auto;
 }
 .avatar {
@@ -951,7 +1552,9 @@ img.avatar {
     margin-right: 5px;
 }
 .avatar > img.avatar {
-    width: 100%;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
     height: auto;
 }
 .thread-entry .header {
@@ -1164,6 +1767,7 @@ li.error a:before {
 }
 ul.tabs li:not(.active) {
     box-shadow: inset 0 -5px 10px -9px rgba(0,0,0,0.2);
+    bottom: 2px;
 }
 ul.tabs.clean li.active {
     background-color: white;
@@ -1523,7 +2127,7 @@ h2 > i.help-tip {
   overflow:hidden;
   margin:0;
   background-image:url(../images/kb_large_folder.png), url(../images/kb_category_bg.png);
-  background-position:0 50%, bottom left;
+  background-position:0% 0%, top left;
   background-repeat:no-repeat, repeat-x;
   border-bottom:1px solid #ddd;
 }
@@ -1637,7 +2241,9 @@ time.faq {
     min-height: 50px;
     overflow-y: auto;
 }
-
+.dialog .table td:not(:empty) {
+    background-color:#f8f8f8!IMPORTANT;
+}
 .dialog#popup {
     width:650px;
 }
@@ -1710,7 +2316,7 @@ time.faq {
     width:100%;
 }
 
-.dialog fieldset {
+fieldset {
     margin:0;
     padding:0 0;
     border:none;
@@ -1755,13 +2361,43 @@ time.faq {
 
 .row {
     display: table-row;
+    width: 100%;
 }
 
-.row .span6 {
-    display: table-cell;
-    width: 48%;
+.row > [class~=" span"],
+.row > [class^="span"] {
     padding: 5px 10px;
     vertical-align: top;
+    display: table-cell;
+}
+.row > [class~=" span"] > select,
+.row > [class^="span"] > select,
+.row > [class~=" span"] > input,
+.row > [class^="span"] > input {
+    width: 100%;
+    max-width: 100%;
+}
+.row .span3 {
+    width: 23%;
+    width: calc(25% - 5px);
+}
+.row .span6 {
+    width: 48%;
+    width: calc(50% - 5px);
+}
+.row .span9 {
+    width: 73%;
+    width: calc(75% - 5px);
+}
+.row .span12 {
+    width: 100%;
+}
+.flex.row {
+    display: initial;
+}
+.flex.row > [class~=" span"],
+.flex.row > [class^="span"] {
+    display: inline-block;
 }
 
 .search-dropdown {
@@ -1772,12 +2408,12 @@ time.faq {
     margin-top: 5px !important;
 }
 
-#advanced-search fieldset {
+.advanced-search fieldset {
   margin-top: 3px;
   position: relative;
 }
-#advanced-search .adv-search-method:before,
-#advanced-search .adv-search-val:before {
+.advanced-search .adv-search-method:before,
+.advanced-search .adv-search-val:before {
   content: "";
   border-left: 2px dotted #ccc;
   border-bottom: 2px dotted #ccc;
@@ -1788,10 +2424,10 @@ time.faq {
   position: absolute;
   left: -16px;
 }
-#advanced-search .adv-search-method {
+.advanced-search .adv-search-method {
   margin-left: 24px;
 }
-#advanced-search .adv-search-val {
+.advanced-search .adv-search-val {
   margin-left: 45px;
 }
 
@@ -2505,7 +3141,7 @@ tr i.help-tip.warning {
     vertical-align: bottom;
 }
 .truncate.bleed {
-    text-overflow: hidden;
+    text-overflow: clip;
 }
 td.indented {
     padding-left: 20px;
@@ -2825,6 +3461,10 @@ label.inline.checkbox {
 label.checkbox + label.checkbox {
     margin-top: 0.3em;
 }
+[class^="icon-"], [class*=" icon-"] {
+    /* Fix icons inside label.checkbox */
+    text-indent: initial;
+}
 input[type=checkbox] {
   width: 1em;
   height: 1em;
@@ -2877,11 +3517,19 @@ table.grid.form caption {
 .grid.form .field textarea,
 .grid.form .field select {
   width: 100%;
+  max-width: 100%;
   display: block;
+  box-sizing: border-box;
 }
 .grid.form .field > label {
   display: block;
   margin-bottom: 5px;
+}
+
+.grid.form .field > .field-hint-text {
+  font-style: italic;
+  margin: 0 10px 5px 10px;
+  opacity: 0.8;
 }
 
 #basic_search {
@@ -2913,6 +3561,10 @@ select {
    -moz-border-radius: 4px;
 }
 
+#cannedResp {
+    margin-bottom: 10px;
+}
+
 a.attachment {
     padding-left: 1.2em;
     display: block;
@@ -2921,6 +3573,71 @@ a.attachment {
     font-weight: bold;
     margin-bottom: 0.3em;
 }
+
+#resizable-columns {
+  margin: 10px 0;
+  position: relative;
+}
+#resizable-columns .column-header:hover {
+  cursor: pointer;
+}
+#resizable-columns .column-header {
+  display: inline-block;
+  padding: 5px 20px;
+  background-color: #ddd;
+  margin: 0 1px;
+  position: relative;
+  text-align: center;
+  box-sizing: border-box;
+}
+#resizable-columns .column-header.ui-resizable:not(.active) {
+  opacity: 0.4;
+}
+#resizable-columns .column-header.ui-resizable.active {
+  background-color: #cfe6ff;
+}
+
+.ui-resizable-handle {
+  cursor: pointer;
+  cursor: ew-resize;
+  cursor: col-resize;
+  display: inline-block;
+  vertical-align: bottom;
+  position: absolute;
+  right: 5px;
+  color: #777;
+}
+.decoration + .decoration {
+    margin-top: 10px;
+}
+.advanced-search .condition-property {
+    margin: 7px  0 7px 25px;
+}
+.conditions .condition + .condition {
+    margin-top: 10px;
+}
+img.avatar + img.avatar {
+    margin-left: -14px;
+    z-index: 1;
+    transition: margin-left 0.1s linear;
+}
+.avatar.group:hover > img.avatar + img.avatar {
+    margin-left: -4px;
+}
+.avatar.group {
+    position: relative;
+    z-index: 1;
+    transition: margin-right 0.1s linear;
+}
+
+.avatar.group.\32:hover { margin-right: -10px; }
+.avatar.group.\33:hover { margin-right: -20px; }
+.avatar.group.\34:hover { margin-right: -30px; }
+.avatar.group.\35:hover { margin-right: -40px; }
+.avatar.group.\36:hover { margin-right: -50px; }
+.avatar.group.\37:hover { margin-right: -60px; }
+.avatar.group.\38:hover { margin-right: -70px; }
+.avatar.group.\39:hover { margin-right: -80px; }
 
 /* FIXME: Drop this with select2 4.0.1
  * Fixes a rendering issue on Safari

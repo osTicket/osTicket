@@ -2,9 +2,11 @@
 if(!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 $targets = Filter::getTargets();
 $qs = array();
-$sql='SELECT filter.*,count(rule.id) as rules '.
+$sql='SELECT filter.*,count(rule.id) as rules, topic.configuration AS topic, dept.configuration AS dept '.
      'FROM '.FILTER_TABLE.' filter '.
      'LEFT JOIN '.FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '.
+     'LEFT JOIN '.FILTER_ACTION_TABLE.' topic ON (topic.filter_id = filter.id AND topic.type = \'topic\') '.
+     'LEFT JOIN '.FILTER_ACTION_TABLE.' dept ON (dept.filter_id = filter.id AND dept.type = \'dept\') '.
      "WHERE filter.`name` <> 'SYSTEM BAN LIST' ".
      'GROUP BY filter.id';
 $sortOptions=array('name'=>'filter.name','status'=>'filter.isactive','order'=>'filter.execorder','rules'=>'rules',
@@ -113,7 +115,17 @@ else
                   <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $row['id']; ?>"
                             <?php echo $sel?'checked="checked"':''; ?>>
                 </td>
-                <td>&nbsp;<a href="filters.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a></td>
+                <td>&nbsp;<a href="filters.php?id=<?php echo $row['id']; ?>"><?php echo Format::htmlchars($row['name']); ?></a>
+                  <?php
+                    if ($row['flags'] & Filter::FLAG_INACTIVE_DEPT)
+                      echo '<a data-placement="bottom" data-toggle="tooltip" title="Inactive Department Selected"
+                        <i class="pull-right icon-warning-sign"></a>';
+
+                    if ($row['flags'] & Filter::FLAG_INACTIVE_HT)
+                      echo '<a data-placement="bottom" data-toggle="tooltip" title="Inactive Help Topic Selected"
+                        <i class="pull-right icon-warning-sign"></a>';
+                  ?>
+                </td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['execorder']; ?>&nbsp;</td>
                 <td style="text-align:right;padding-right:25px;"><?php echo $row['rules']; ?>&nbsp;</td>

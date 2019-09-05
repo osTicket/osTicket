@@ -647,21 +647,32 @@ class EmailDataParser {
         if (($dt = $parser->getDeliveredToAddressList()))
             $tolist['delivered-to'] = $dt;
 
+        $data['system_emails'] = array();
+        $data['thread_entry_recipients'] = array();
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
+                    $name = trim(@$addr->personal, '"');
+                    $email = strtolower($addr->mailbox).'@'.$addr->host;
                     $data['recipients'][] = array(
                         'source' => sprintf(_S("Email (%s)"), $source),
-                        'name' => trim(@$addr->personal, '"'),
-                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$data['emailId']) {
-                    $data['emailId'] = $emailId;
+                        'name' => $name,
+                        'email' => $email);
+
+                    $data['thread_entry_recipients'][$source][] = sprintf('%s <%s>', $name, $email);
+                } elseif ($emailId) {
+                    $data['system_emails'][] = $emailId;
+                    $system_email = Email::lookup($emailId);
+                    $data['thread_entry_recipients']['to'][] = (string) $system_email;
+                    if (!$data['emailId'])
+                        $data['emailId'] = $emailId;
                 }
             }
         }
+        $data['thread_entry_recipients']['to'] = array_unique($data['thread_entry_recipients']['to']);
 
         /*
          * In the event that the mail was delivered to the system although none of the system
@@ -680,15 +691,17 @@ class EmailDataParser {
 
 
         //maybe we got BCC'ed??
-        if(!$data['emailId']) {
-            $emailId =  0;
-            if($bcc = $parser->getBccAddressList()) {
-                foreach ($bcc as $addr)
-                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
-                        break;
+        if($bcc = $parser->getBccAddressList()) {
+            foreach ($bcc as $addr) {
+                if (($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host))) {
+                    $data['system_emails'][] = $emailId;
+                    if (!$data['emailId'])
+                        $data['emailId'] =  $emailId;
+                }
             }
-            $data['emailId'] = $emailId;
         }
+
+        $data['system_emails'] = array_unique($data['system_emails']);
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'

@@ -16,8 +16,6 @@
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.csrf.php');
-$info=array();
-$info['subj']='osTicket test email';
 
 if($_POST){
     $errors=array();
@@ -53,6 +51,8 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />'
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 
+$info=array();
+$info['subj']='osTicket test email';
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <form action="emailtest.php" method="post" class="save">

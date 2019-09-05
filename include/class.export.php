@@ -26,8 +26,8 @@ class Export {
 
     static function dumpQuery($sql, $headers, $how='csv', $options=array()) {
         $exporters = array(
-            'csv' => CsvResultsExporter,
-            'json' => JsonResultsExporter
+            'csv' => 'CsvResultsExporter',
+            'json' => 'JsonResultsExporter'
         );
         $exp = new $exporters[$how]($sql, $headers, $options);
         return $exp->dump();
@@ -40,7 +40,8 @@ class Export {
     #      SQL is exported, but for something like tickets, we will need to
     #      export attached messages, reponses, and notes, as well as
     #      attachments associated with each, ...
-    static function dumpTickets($sql, $how='csv') {
+    static function dumpTickets($sql, $target=array(), $how='csv',
+            $options=array()) {
         // Add custom fields to the $sql statement
         $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
@@ -56,11 +57,14 @@ class Export {
             $fields[$key] = $f;
             $cdata[$key] = $f->getLocal('label');
         }
+
+        if (!is_array($target))
+          $target = CustomQueue::getExportableFields() + $cdata;
+
         // Reset the $sql query
         $tickets = $sql->models()
             ->select_related('user', 'user__default_email', 'dept', 'staff',
                 'team', 'staff', 'cdata', 'topic', 'status', 'cdata__:priority')
-            ->options(QuerySet::OPT_NOCACHE)
             ->annotate(array(
                 'collab_count' => TicketThread::objects()
                     ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
@@ -69,6 +73,10 @@ class Export {
                     ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
                     ->filter(array('entries__attachments__inline' => 0))
                     ->aggregate(array('count' => SqlAggregate::COUNT('entries__attachments__id'))),
+                'reopen_count' => TicketThread::objects()
+                    ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                    ->filter(array('events__annulled' => 0, 'events__event_id' => Event::getIdByName('reopened')))
+                    ->aggregate(array('count' => SqlAggregate::COUNT('events__id'))),
                 'thread_count' => TicketThread::objects()
                     ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
                     ->exclude(array('entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN))
@@ -81,26 +89,7 @@ class Export {
             $S->get('junk');
 
         return self::dumpQuery($tickets,
-            array(
-                'number' =>         __('Ticket Number'),
-                'created' =>        __('Date Created'),
-                'cdata.subject' =>  __('Subject'),
-                'user.name' =>      __('From'),
-                'user.default_email.address' => __('From Email'),
-                'cdata.:priority.priority_desc' => __('Priority'),
-                'dept::getLocalName' => __('Department'),
-                'topic::getName' => __('Help Topic'),
-                'source' =>         __('Source'),
-                'status::getName' =>__('Current Status'),
-                'lastupdate' =>     __('Last Updated'),
-                'est_duedate' =>    __('Due Date'),
-                'isoverdue' =>      __('Overdue'),
-                'isanswered' =>     __('Answered'),
-                'staff::getName' => __('Agent Assigned'),
-                'team::getName' =>  __('Team Assigned'),
-                'thread_count' =>   __('Thread Count'),
-                'attachment_count' => __('Attachment Count'),
-            ) + $cdata,
+            $target,
             $how,
             array('modify' => function(&$record, $keys) use ($fields) {
                 foreach ($fields as $k=>$f) {
@@ -109,13 +98,21 @@ class Export {
                     }
                 }
                 return $record;
-            })
+            },
+            'delimiter' => @$options['delimiter'])
             );
     }
 
-    static  function saveTickets($sql, $filename, $how='csv') {
+    static  function saveTickets($sql, $fields, $filename, $how='csv',
+            $options=array()) {
+       global $thisstaff;
+
+       if (!$thisstaff)
+               return null;
+
+       $sql->filter($thisstaff->getTicketsVisibility());
         Http::download($filename, "text/$how");
-        self::dumpTickets($sql, $how);
+        self::dumpTickets($sql, $fields, $how, $options);
         exit;
     }
 
@@ -156,7 +153,7 @@ class Export {
                 'attachment_count' => __('Attachment Count'),
             ) + $cdata,
             $how,
-            array('modify' => function(&$record, $keys) use ($fields) {
+            array('modify' => function(&$record, $keys, $obj) use ($fields) {
                 foreach ($fields as $k=>$f) {
                     if (($i = array_search($k, $keys)) !== false) {
                         $record[$i] = $f->export($f->to_php($record[$i]));
@@ -201,7 +198,7 @@ class Export {
                     '::getEmail' =>          __('Email'),
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -240,7 +237,7 @@ class Export {
                     'name'  =>  'Name',
                     ) + $cdata,
                 $how,
-                array('modify' => function(&$record, $keys) use ($fields) {
+                array('modify' => function(&$record, $keys, $obj) use ($fields) {
                     foreach ($fields as $k=>$f) {
                         if ($f && ($i = array_search($k, $keys)) !== false) {
                             $record[$i] = $f->export($f->to_php($record[$i]));
@@ -258,6 +255,72 @@ class Export {
         return false;
     }
 
+    static function agents($agents, $filename='', $how='csv') {
+
+        // Filename or stream to export agents to
+        $filename = $filename ?: sprintf('Agents-%s.csv',
+                strftime('%Y%m%d'));
+        Http::download($filename, "text/$how");
+        $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+        echo self::dumpQuery($agents, array(
+                    '::getName'  =>  'Name',
+                    '::getUsername' => 'Username',
+                    '::getStatus' => 'Status',
+                    'permissions' => 'Permissions',
+                    '::getDept'  => 'Primary Department',
+                    ) + $depts,
+                $how,
+                array('modify' => function(&$record, $keys, $obj) use ($depts) {
+
+                   if (($i = array_search('permissions', $keys)))
+                       $record[$i] = implode(",", array_keys($obj->getPermission()->getInfo()));
+
+                    $roles = $obj->getRoles();
+                    foreach ($depts as $k => $v) {
+                        if (is_numeric($k) && ($i = array_search($k, $keys)) !== false) {
+                            $record[$i] = $roles[$k] ?: '';
+                        }
+                    }
+                    return $record;
+                    })
+                );
+        exit;
+
+    }
+
+static function departmentMembers($dept, $agents, $filename='', $how='csv') {
+    $primaryMembers = array();
+    foreach ($dept->getPrimaryMembers() as $agent) {
+      $primaryMembers[] = $agent->getId();
+    }
+
+    // Filename or stream to export depts' agents to
+    $filename = $filename ?: sprintf('%s-%s.csv', $dept->getName(),
+            strftime('%Y%m%d'));
+    Http::download($filename, "text/$how");
+    echo self::dumpQuery($agents, array(
+                '::getName'  =>  'Name',
+                '::getUsername' => 'Username',
+                2 => 'Access Type',
+                3 => 'Access Role',
+              ),
+            $how,
+            array('modify' => function(&$record, $keys, $obj) use ($dept, $primaries, $primaryMembers) {
+                $role = $obj->getRole($dept);
+
+                if (array_search($obj->getId(), $primaryMembers, true) === false)
+                  $type = 'Extended';
+                else {
+                  $type = 'Primary';
+                }
+
+                $record[2] = $type;
+                $record[3] = $role->name;
+                return $record;
+                })
+            );
+    exit;
+  }
 }
 
 class ResultSetExporter {
@@ -295,26 +358,32 @@ class ResultSetExporter {
         $this->_res->next();
 
         $record = array();
-
         foreach ($this->keys as $field) {
             list($field, $func) = explode('::', $field);
             $path = explode('.', $field);
+
             $current = $object;
             // Evaluate dotted ORM path
             if ($field) {
                 foreach ($path as $P) {
-                    $current = $current->{$P};
+                    if (isset($current->{$P}))
+                        $current = $current->{$P};
+                    else  {
+                        $current = $P;
+                        break;
+                    }
                 }
             }
             // Evalutate :: function call on target current
             if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
+
             $record[] = (string) $current;
         }
 
         if (isset($this->options['modify']) && is_callable($this->options['modify']))
-            $record = $this->options['modify']($record, $this->keys);
+            $record = $this->options['modify']($record, $this->keys, $object);
 
         return $record;
     }
@@ -335,23 +404,22 @@ class ResultSetExporter {
 
 class CsvResultsExporter extends ResultSetExporter {
 
+
+    function getDelimiter() {
+
+        if (isset($this->options['delimiter']))
+            return $this->options['delimiter'];
+
+        return Internationalization::getCSVDelimiter();
+    }
+
     function dump() {
 
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
 
-        // Detect delimeter from the current locale settings. For locales
-        // which use comma (,) as the decimal separator, the semicolon (;)
-        // should be used as the field separator
-        $delimiter = ',';
-        if (class_exists('NumberFormatter')) {
-            $nf = NumberFormatter::create(Internationalization::getCurrentLocale(),
-                NumberFormatter::DECIMAL);
-            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
-            if ($s == ',')
-                $delimiter = ';';
-        }
 
+        $delimiter = $this->getDelimiter();
         // Output a UTF-8 BOM (byte order mark)
         fputs($this->output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($this->output, $this->getHeaders(), $delimiter);

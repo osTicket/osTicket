@@ -38,8 +38,9 @@ if ($thisclient && $thisclient->isGuest()
                 </b>
                 <small>#<?php echo $ticket->getNumber(); ?></small>
 <div class="pull-right">
-    <a class="action-button" href="tickets.php?a=print&id=<?php
-        echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
+      <a class="action-button" href="tickets.php?a=print&id=<?php
+          echo $ticket->getId(); ?>"><i class="icon-print"></i> <?php echo __('Print'); ?></a>
+
 <?php if ($ticket->hasClientEditableFields()
         // Only ticket owners can edit the ticket details (and other forms)
         && $thisclient->getId() == $ticket->getUserId()) { ?>
@@ -136,13 +137,15 @@ echo $v;
 </tr>
 </table>
 <br>
+  <?php
+    $email = $thisclient->getUserName();
+    $clientId = TicketUser::lookupByEmail($email)->getId();
 
-<?php
-    $ticket->getThread()->render(array('M', 'R'), array(
-                'mode' => Thread::MODE_CLIENT,
-                'html-id' => 'ticketThread')
-            );
-?>
+    $ticket->getThread()->render(array('M', 'R', 'user_id' => $clientId), array(
+                    'mode' => Thread::MODE_CLIENT,
+                    'html-id' => 'ticketThread')
+                );
+  ?>
 
 <div class="clear" style="padding-bottom:10px;"></div>
 <?php if($errors['err']) { ?>
@@ -176,7 +179,8 @@ echo $attrs; ?>><?php echo $draft ?: $info['message'];
         print $attachments->render(array('client'=>true));
     } ?>
     </div>
-<?php if ($ticket->isClosed()) { ?>
+<?php
+  if ($ticket->isClosed() && $ticket->isReopenable()) { ?>
     <div class="warning-banner">
         <?php echo __('Ticket will be reopened on message post'); ?>
     </div>
@@ -198,7 +202,7 @@ foreach (AttachmentFile::objects()->filter(array(
     'attachments__inline' => true,
 )) as $file) {
     $urls[strtolower($file->getKey())] = array(
-        'download_url' => $file->getDownloadUrl(),
+        'download_url' => $file->getDownloadUrl(['type' => 'H']),
         'filename' => $file->name,
     );
 } ?>

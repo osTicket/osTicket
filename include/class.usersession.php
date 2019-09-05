@@ -123,6 +123,10 @@ class ClientSession extends EndUser {
         $this->session= new UserSession($user->getId());
     }
 
+    function getSessionUser() {
+        return $this->user;
+    }
+
     function isValid(){
         global $_SESSION,$cfg;
 

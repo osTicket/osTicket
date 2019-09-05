@@ -25,7 +25,8 @@ CREATE TABLE `%TABLE_PREFIX%attachment` (
   `inline` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `lang` varchar(16),
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `file-type` (`object_id`,`file_id`,`type`)
+  UNIQUE KEY `file-type` (`object_id`,`file_id`,`type`),
+  UNIQUE KEY `file_object` (`file_id`,`object_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq`;
@@ -48,6 +49,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%faq_category` (
   `category_id` int(10) unsigned NOT NULL auto_increment,
+  `category_pid` int(10) unsigned DEFAULT NULL,
   `ispublic` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(125) default NULL,
   `description` TEXT NOT NULL,
@@ -295,6 +297,7 @@ CREATE TABLE `%TABLE_PREFIX%filter` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `execorder` int(10) unsigned NOT NULL default '99',
   `isactive` tinyint(1) unsigned NOT NULL default '1',
+  `flags` int(10) unsigned DEFAULT '0',
   `status` int(11) unsigned NOT NULL DEFAULT '0',
   `match_all_rules` tinyint(1) unsigned NOT NULL default '0',
   `stop_onmatch` tinyint(1) unsigned NOT NULL default '0',
@@ -420,7 +423,6 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;
 CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `topic_id` int(11) unsigned NOT NULL auto_increment,
   `topic_pid` int(10) unsigned NOT NULL default '0',
-  `isactive` tinyint(1) unsigned NOT NULL default '1',
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
   `flags` int(10) unsigned DEFAULT '0',
@@ -637,6 +639,7 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry` (
   `body` text NOT NULL,
   `format` varchar(16) NOT NULL default 'html',
   `ip_address` varchar(64) NOT NULL default '',
+  `recipients` text,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
@@ -708,15 +711,24 @@ CREATE TABLE `%TABLE_PREFIX%lock` (
   KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%event`;
+CREATE TABLE `%TABLE_PREFIX%event` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(60) NOT NULL,
+  `description` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_event`;
 CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `thread_id` int(11) unsigned NOT NULL default '0',
+  `event_id` int(11) unsigned DEFAULT NULL,
   `staff_id` int(11) unsigned NOT NULL,
   `team_id` int(11) unsigned NOT NULL,
   `dept_id` int(11) unsigned NOT NULL,
   `topic_id` int(11) unsigned NOT NULL,
-  `state` enum('created','closed','reopened','assigned','transferred','overdue','edited','viewed','error','collab','resent') NOT NULL,
   `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
   `username` varchar(128) NOT NULL default 'SYSTEM',
   `uid` int(11) unsigned DEFAULT NULL,
@@ -724,9 +736,22 @@ CREATE TABLE `%TABLE_PREFIX%thread_event` (
   `annulled` tinyint(1) unsigned NOT NULL default '0',
   `timestamp` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `ticket_state` (`thread_id`, `state`, `timestamp`),
-  KEY `ticket_stats` (`timestamp`, `state`)
+  KEY `ticket_state` (`thread_id`, `event_id`, `timestamp`),
+  KEY `ticket_stats` (`timestamp`, `event_id`)
 ) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_referral`;
+CREATE TABLE `%TABLE_PREFIX%thread_referral` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `thread_id` int(11) unsigned NOT NULL,
+  `object_id` int(11) unsigned NOT NULL,
+  `object_type` char(1) NOT NULL,
+  `created` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ref` (`object_id`,`object_type`,`thread_id`),
+  KEY `thread_id` (`thread_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket_status`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
@@ -761,7 +786,7 @@ CREATE TABLE `%TABLE_PREFIX%ticket_priority` (
 
 CREATE TABLE `%TABLE_PREFIX%thread_collaborator` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `isactive` tinyint(1) NOT NULL DEFAULT '1',
+  `flags` int(10) unsigned NOT NULL DEFAULT '1',
   `thread_id` int(11) unsigned NOT NULL DEFAULT '0',
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   -- M => (message) clients, N => (note) 3rd-Party, R => (reply) external authority
@@ -827,14 +852,85 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%queue`;
 CREATE TABLE `%TABLE_PREFIX%queue` (
   `id` int(11) unsigned not null auto_increment,
   `parent_id` int(11) unsigned not null default 0,
+  `columns_id` int(11) unsigned default null,
+  `sort_id` int(11) unsigned default null,
   `flags` int(11) unsigned not null default 0,
   `staff_id` int(11) unsigned not null default 0,
   `sort` int(11) unsigned not null default 0,
   `title` varchar(60),
   `config` text,
+  `filter` varchar(64),
+  `root` varchar(32) DEFAULT NULL,
+  `path` varchar(80) NOT NULL DEFAULT '/',
   `created` datetime not null,
   `updated` datetime not null,
   primary key (`id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_column`;
+CREATE TABLE `%TABLE_PREFIX%queue_column` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `primary` varchar(64) NOT NULL DEFAULT '',
+  `secondary` varchar(64) DEFAULT NULL,
+  `filter` varchar(32) DEFAULT NULL,
+  `truncate` varchar(16) DEFAULT NULL,
+  `annotations` text,
+  `conditions` text,
+  `extra` text,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_columns`;
+CREATE TABLE `%TABLE_PREFIX%queue_columns` (
+  `queue_id` int(11) unsigned NOT NULL,
+  `column_id` int(11) unsigned NOT NULL,
+  `staff_id` int(11) unsigned NOT NULL,
+  `bits` int(10) unsigned NOT NULL DEFAULT '0',
+  `sort` int(10) unsigned NOT NULL DEFAULT '1',
+  `heading` varchar(64) DEFAULT NULL,
+  `width` int(10) unsigned NOT NULL DEFAULT '100',
+  PRIMARY KEY (`queue_id`, `column_id`, `staff_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_sort`;
+CREATE TABLE `%TABLE_PREFIX%queue_sort` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `root` varchar(32) DEFAULT NULL,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `columns` text,
+  `updated` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_sorts`;
+CREATE TABLE `%TABLE_PREFIX%queue_sorts` (
+  `queue_id` int(11) unsigned NOT NULL,
+  `sort_id` int(11) unsigned NOT NULL,
+  `bits` int(11) unsigned NOT NULL DEFAULT '0',
+  `sort` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`queue_id`, `sort_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_export`;
+CREATE TABLE `%TABLE_PREFIX%queue_export` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `queue_id` int(11) unsigned NOT NULL,
+  `path` varchar(64) NOT NULL DEFAULT '',
+  `heading` varchar(64) DEFAULT NULL,
+  `sort` int(10) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `queue_id` (`queue_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_config`;
+CREATE TABLE `%TABLE_PREFIX%queue_config` (
+  `queue_id` int(11) unsigned NOT NULL,
+  `staff_id` int(11) unsigned NOT NULL,
+  `setting` text,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`queue_id`,`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%translation`;

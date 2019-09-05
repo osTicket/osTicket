@@ -98,9 +98,11 @@ class Bootstrap {
         define('TICKET_TABLE',$prefix.'ticket');
         define('TICKET_CDATA_TABLE', $prefix.'ticket__cdata');
         define('THREAD_EVENT_TABLE',$prefix.'thread_event');
+        define('THREAD_REFERRAL_TABLE',$prefix.'thread_referral');
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+        define('EVENT_TABLE',$prefix.'event');
 
         define('TASK_TABLE', $prefix.'task');
         define('TASK_CDATA_TABLE', $prefix.'task__cdata');
@@ -133,6 +135,12 @@ class Bootstrap {
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
         define('QUEUE_TABLE', $prefix.'queue');
+        define('COLUMN_TABLE', $prefix.'queue_column');
+        define('QUEUE_COLUMN_TABLE', $prefix.'queue_columns');
+        define('QUEUE_SORT_TABLE', $prefix.'queue_sort');
+        define('QUEUE_SORTING_TABLE', $prefix.'queue_sorts');
+        define('QUEUE_EXPORT_TABLE', $prefix.'queue_export');
+        define('QUEUE_CONFIG_TABLE', $prefix.'queue_config');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
@@ -206,7 +214,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
-        require_once INCLUDE_DIR.'class.search.php';
+        require_once INCLUDE_DIR.'class.queue.php';
     }
 
     function i18n_prep() {
@@ -286,6 +294,16 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        if (intval(phpversion()) < 7) {
+            function random_int($a, $b) {
+                return rand($a, $b);
+            }
+        }
+
+        function mb_str_wc($str) {
+            return count(preg_split('~[^\p{L}\p{N}\'].+~u', trim($str)));
+        }
     }
 
     function croak($message) {
@@ -307,6 +325,9 @@ define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved out
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
 
+define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
+define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
+
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
 define('CLI_DIR', INCLUDE_DIR.'cli/');
@@ -315,7 +336,7 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 
 #Current version && schema signature (Changes from version to version)
 define('GIT_VERSION','$git');
-define('MAJOR_VERSION', '1.10');
+define('MAJOR_VERSION', '1.12');
 define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){

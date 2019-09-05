@@ -41,6 +41,12 @@ $order_by = 'sort';
                                 <?php echo __( 'Disable'); ?>
                             </a>
                         </li>
+                        <li>
+                            <a class="confirm" data-name="archive" href="helptopics.php?a=archive">
+                                <i class="icon-folder-close icon-fixed-width"></i>
+                                <?php echo __( 'Archive'); ?>
+                            </a>
+                        </li>
                         <li class="danger">
                             <a class="confirm" data-name="delete" href="helptopics.php?a=delete">
                                 <i class="icon-trash icon-fixed-width"></i>
@@ -142,7 +148,13 @@ $order_by = 'sort';
                     <a href="helptopics.php?id=<?php echo $id; ?>"><?php
                     echo Topic::getTopicName($id); ?></a>&nbsp;
                 </td>
-                <td><?php echo $topic->isactive ? __('Active') : '<b>'.__('Disabled').'</b>'; ?></td>
+                <td><?php
+                  if($topic->getStatus() == __('Active'))
+                    echo $topic->getStatus();
+                  else
+                    echo '<b>'.$topic->getStatus();
+                  ?>
+                </td>
                 <td><?php echo $topic->ispublic ? __('Public') : '<b>'.__('Private').'</b>'; ?></td>
                 <td><?php echo $priority; ?></td>
                 <td><a href="departments.php?id=<?php echo $deptId;
@@ -187,6 +199,10 @@ endif;
     </p>
     <p class="confirm-action" style="display:none;" id="disable-confirm">
         <?php echo sprintf(__('Are you sure you want to <b>disable</b> %s?'),
+            _N('selected help topic', 'selected help topics', 2));?>
+    </p>
+    <p class="confirm-action" style="display:none;" id="archive-confirm">
+        <?php echo sprintf(__('Are you sure you want to <b>archive</b> %s?'),
             _N('selected help topic', 'selected help topics', 2));?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
