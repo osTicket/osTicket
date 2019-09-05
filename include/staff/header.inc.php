@@ -575,7 +575,15 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                 <div class="content">
                     <div class="container">
 					
-					<?php if ($BacklogTotal >= 40 && $BacklogTotal <= 50) { ?>
+					<?php if ($UnassignedTickets > 0 ) { ?>
+					
+					<div class="alert alert-secondary m-b-30" role="alert">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i> There are currently <span class="badge badge-primary"><?php echo $UnassignedTickets; ?></span>  unassigned tickets.
+                    </div>
+					
+					<?php }
+					
+					if ($BacklogTotal >= 40 && $BacklogTotal <= 50) { ?>
 					
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  within 5 of the established target of <span class="badge badge-success">45</span>.
