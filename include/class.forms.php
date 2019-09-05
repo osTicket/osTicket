@@ -2466,18 +2466,14 @@ class DatetimeField extends FormField {
                 "{$name}__gte" => $now->plus($interval),
             ));
         case 'period':
-            // Get the period range boundaries - timezone doesn't matter
-            $period = Misc::date_range($value, Misc::gmtime('now'));
+            // User's effective timezone
             $tz = new DateTimeZone($cfg->getTimezone());
-            // Get datetime boundaries in user's effective timezone
-            $tz = new DateTimeZone($cfg->getTimezone());
-            $start = new DateTime($period->start->format('Y-m-d H:i:s'),
-                    $tz);
-            $end = new DateTime($period->end->format('Y-m-d H:i:s'), $tz);
+            // Get the period range boundaries in user's tz
+            $period = Misc::date_range($value, Misc::gmtime('now'), $tz);
             // Convert boundaries to db time
             $dbtz = new DateTimeZone($cfg->getDbTimezone());
-            $start->setTimezone($dbtz);
-            $end->setTimezone($dbtz);
+            $start = $period->start->setTimezone($dbtz);
+            $end = $period->end->setTimezone($dbtz);
             // Set the range
             return new Q(array(
                 "{$name}__range" => array(
