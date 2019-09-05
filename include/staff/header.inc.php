@@ -577,7 +577,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<?php if ($UnassignedTickets > 0 ) { ?>
 					
-					<div class="alert alert-secondary m-b-30" role="alert">
+					<div class="alert alert-secondary m-b-15 m-t--15" role="alert">
                                         <i class="fa fa-info-circle" aria-hidden="true"></i> There are currently <span class="badge badge-primary"><?php echo $UnassignedTickets; ?></span>  unassigned ticket<?php if ($UnassignedTickets > 1) echo "s";?>.
                     </div>
 					
