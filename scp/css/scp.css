@@ -320,7 +320,7 @@ background: url('../images/icons/alert.png') 10px 50% no-repeat #ffeb3b;
 .se-noti-icon-badge {
     display: inline-block;
     position: absolute;
-    top: 16px;
+    top: 17px;
     right: 0px;
 }
 
