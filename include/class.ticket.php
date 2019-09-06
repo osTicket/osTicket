@@ -237,10 +237,14 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getChildren() {
+<<<<<<< HEAD
         if (!isset($this->_children))
             $this->_children = self::getChildTickets($this->getId());
 
         return $this->_children;
+=======
+        return self::getChildTickets($this->getId());
+>>>>>>> Make getChildrenTickets Static
     }
 
     function getMergeTypeByFlag($flag) {
