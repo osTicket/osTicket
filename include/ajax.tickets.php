@@ -618,34 +618,32 @@ function refer($tid, $target=null) {
                       __($field->getLabel())
                       )
                   );
-                  if ($field instanceof FileUploadField)
+              if ($field instanceof FileUploadField)
                   $field->save();
 
-                  if (!$clean) {
-                      if (get_class($field) == 'DateTime' || get_class($field) == 'DatetimeField')
-                      $clean = Format::datetime((string) $field->getClean());
-                      elseif ($field instanceof FileUploadField) {
-                          $answer =  $field->getAnswer();
-                          $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
-                      } elseif ($field instanceof DepartmentField) {
-                          $id = $field->getClean();
-                          $clean = Dept::objects()->filter(array('id' => $id))->values_flat('name')->first();
-                          $clean = $clean[0];
-                      } else
-                      $clean = is_array($field->getClean()) ? implode($field->getClean(), ',') : (string) $field->getClean();
-                  }
+              if (get_class($field) == 'DateTime' || get_class($field) == 'DatetimeField')
+                  $clean = Format::datetime((string) $field->getClean());
+              elseif ($field instanceof FileUploadField) {
+                  $answer =  $field->getAnswer();
+                  $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
+              } elseif ($field instanceof DepartmentField) {
+                  $id = $field->getClean();
+                  $clean = Dept::objects()->filter(array('id' => $id))->values_flat('name')->first();
+                  $clean = $clean[0];
+              } else
+                  $clean = is_array($field->getClean()) ? implode($field->getClean(), ',') : (string) $field->getClean();
 
-                  $clean = is_array($clean) ? $clean[0] : $clean;
+              $clean = is_array($clean) ? $clean[0] : $clean;
 
-                  if (!$field instanceof FileUploadField && strlen($clean) > 200)
+              if (!$field instanceof FileUploadField && strlen($clean) > 200)
                   $clean = Format::truncate($clean, 200);
 
-                  Http::response(201, $this->json_encode(['value' =>
-                  $clean ?: '&mdash;' . __('Empty') .  '&mdash;', 'id' => $fid, 'msg' => $msg]));
-              }
+              Http::response(201, $this->json_encode(['value' =>
+              $clean ?: '&mdash;' . __('Empty') .  '&mdash;', 'id' => $fid, 'msg' => $msg]));
+          }
               $form->addErrors($errors);
               $info['error'] = $errors['err'] ?: __('Unable to update field');
-          }
+      }
 
       include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
   }
