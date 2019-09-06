@@ -583,7 +583,15 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<?php }
 					
-					if ($BacklogTotal >= 40 && $BacklogTotal <= 50) { ?>
+					if ($BacklogTotal == 45) { ?>
+					
+					<div class="alert alert-warning m-b-30" role="alert">
+                                        <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  at the target of <span class="badge badge-success">45</span>.
+                    </div>
+					
+					<?php }
+					
+					if ($BacklogTotal >= 40 && $BacklogTotal <= 44 || $BacklogTotal >= 46 && $BacklogTotal <==49 ) { ?>
 					
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  within 5 of the established target of <span class="badge badge-success">45</span>.
