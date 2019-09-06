@@ -68,6 +68,7 @@ class CustomQueue extends VerySimpleModel {
 
     const FLAG_INHERIT_EVERYTHING = 0x158; // Maskf or all INHERIT flags
 
+    var $filters;
     var $criteria;
     var $_conditions;
 
@@ -110,6 +111,14 @@ class CustomQueue extends VerySimpleModel {
 
     function getPath() {
         return $this->path ?: $this->buildPath();
+    }
+
+    function filter($filter) {
+        $this->filters[] = $filter;
+    }
+
+    function getFilters() {
+        return $this->filters ?: array();
     }
 
     function criteriaRequired() {
@@ -745,6 +754,13 @@ class CustomQueue extends VerySimpleModel {
         $col->queue = $this;
     }
 
+    function getColumn($id) {
+        // TODO: Got to be easier way to search instrumented list.
+        foreach ($this->getColumns() as $C)
+            if ($C->getId() == $id)
+                return $C;
+    }
+
     function getSortOptions() {
         if ($this->inheritSorting() && $this->parent) {
             return $this->parent->getSortOptions();
@@ -798,17 +814,14 @@ class CustomQueue extends VerySimpleModel {
         ));
     }
 
-    function export($options=array()) {
+    function export(CsvExporter $exporter, $options=array()) {
         global $thisstaff;
 
         if (!$thisstaff
-                || !($query=$this->getBasicQuery())
+                || !($query=$this->getQuery())
                 || !($fields=$this->getExportFields()))
             return false;
 
-        $filename = sprintf('%s Tickets-%s.csv',
-                $this->getName(),
-                strftime('%Y%m%d'));
         // See if we have cached export preference
         if (isset($_SESSION['Export:Q'.$this->getId()])) {
             $opts = $_SESSION['Export:Q'.$this->getId()];
@@ -822,17 +835,6 @@ class CustomQueue extends VerySimpleModel {
                     }
                  }
             }
-
-            if (isset($opts['filename'])
-                    && ($parts = pathinfo($opts['filename']))) {
-                $filename = $opts['filename'];
-                if (strcasecmp($parts['extension'], 'csv') !=0)
-                    $filename ="$filename.csv";
-            }
-
-            if (isset($opts['delimiter']) && !$options['delimiter'])
-                $options['delimiter'] = $opts['delimiter'];
-
         }
 
         // Apply columns
@@ -847,6 +849,19 @@ class CustomQueue extends VerySimpleModel {
         if (!$this->ignoreVisibilityConstraints($thisstaff))
             $query->filter($thisstaff->getTicketsVisibility());
 
+        // Get stashed sort or else get the default
+        if (!($sort = $_SESSION['sort'][$this->getId()]))
+            $sort = $this->getDefaultSort();
+
+        // Apply sort
+        if ($sort instanceof QueueSort)
+            $sort->applySort($query);
+        elseif ($sort && isset($sort['queuesort']))
+            $sort['queuesort']->applySort($query, $sort['dir']);
+        elseif ($sort && $sort['col'] &&
+                ($C=$this->getColumn($sort['col'])))
+            $query = $C->applySort($query, $sort['dir']);
+
         // Render Util
         $render = function ($row) use($columns) {
             if (!$row) return false;
@@ -859,16 +874,9 @@ class CustomQueue extends VerySimpleModel {
             return $record;
         };
 
-        $delimiter = $options['delimiter'] ?:
-            Internationalization::getCSVDelimiter();
-        $output = fopen('php://output', 'w');
-        Http::download($filename, "text/csv");
-        fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, $headers, $delimiter);
+        $exporter->write($headers);
         foreach ($query as $row)
-            fputcsv($output, $render($row), $delimiter);
-        fclose($output);
-        exit();
+            $exporter->write($render($row));
     }
 
     /**
@@ -898,6 +906,10 @@ class CustomQueue extends VerySimpleModel {
     function getQuery($form=false, $quick_filter=null) {
         // Start with basic criteria
         $query = $this->getBasicQuery($form);
+
+        // Apply filers if any.
+        foreach ($this->getFilters() as $filter)
+            $query->filter($filter);
 
         // Apply quick filter
         if (isset($quick_filter)

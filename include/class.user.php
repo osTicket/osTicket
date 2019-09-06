@@ -213,6 +213,7 @@ implements TemplateVariable, Searchable {
     var $_email;
     var $_entries;
     var $_forms;
+    var $_queue;
 
 
 
@@ -670,6 +671,31 @@ implements TemplateVariable, Searchable {
             return false;
 
         return ROOT_PATH . sprintf('scp/users.php?id=%s', $id);
+    }
+
+    function getTicketsQueue($collabs=true) {
+        global $thisstaff;
+
+        if (!$this->_queue) {
+            $email = $this->getDefaultEmailAddress();
+            $filter = new Q(array(
+                'user__id' => $this->getId()
+            ));
+            if ($collabs)
+                $filter = Q::any(array(
+                    'user__emails__address' => $email,
+                    'thread__collaborators__user__emails__address' => $email,
+                ));
+            $this->_queue = new AdhocSearch(array(
+                'id' => 'adhoc,uid'.$this->getId(),
+                'root' => 'T',
+                'staff_id' => $thisstaff->getId(),
+                'title' => $this->getName()
+            ));
+            $this->_queue->filter($filter);
+        }
+
+        return $this->_queue;
     }
 }
 

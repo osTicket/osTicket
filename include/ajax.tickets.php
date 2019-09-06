@@ -1833,22 +1833,60 @@ function refer($tid, $target=null) {
         else
             $queue = AdhocSearch::load($id);
 
+        return $this->queueExport($queue);
+    }
+
+    function queueExport(CustomQueue $queue) {
+        global $thisstaff;
+
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
         elseif (!$queue || !$queue->checkAccess($thisstaff))
             Http::response(404, 'No such saved queue');
 
+        $errors = array();
         if ($_POST && is_array($_POST['fields'])) {
             // Cache export preferences
             $id = $queue->getId();
             $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
             $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
             $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
-
+            // Save fields selection if requested
             if ($queue->isSaved() && isset($_POST['save-changes']))
                $queue->updateExports(array_flip($_POST['fields']));
 
-            Http::response(201, 'Export Ready');
+            // Filename of the report
+            if (isset($_POST['filename'])
+                    && ($parts = pathinfo($_POST['filename']))) {
+                $filename = $_POST['filename'];
+                if (strcasecmp($parts['extension'], 'csv'))
+                      $filename ="$filename.csv";
+            } else {
+                $filename = sprintf('%s Tickets-%s.csv',
+                        $queue->getName(),
+                        strftime('%Y%m%d'));
+            }
+
+            try {
+                $interval = 5;
+                $options = ['filename' => $filename,
+                    'interval' => $interval];
+                // Create desired exporter
+                $exporter = new CsvExporter($options);
+                // Acknowledge the export
+                $exporter->ack();
+                // Phew... now we're free to do the export
+                // Ask the queue to export to the exporter
+                $queue->export($exporter);
+                $exporter->finalize();
+                // Email the export if it exists
+                $exporter->email($thisstaff);
+                // Delete the file.
+                @$exporter->delete();
+                exit;
+            } catch (Exception $ex) {
+                $errors['err'] = __('Unable to prepare the export');
+            }
         }
 
         include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
