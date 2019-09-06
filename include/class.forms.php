@@ -663,6 +663,7 @@ class FormField {
         }
         return $this->_clean;
     }
+
     function reset() {
         $this->value = $this->_clean = $this->_widget = null;
     }
@@ -1360,9 +1361,9 @@ class FormField {
     }
 
     function getChanges() {
-        $a = $this->to_database($this->getClean());
-        $b = $this->to_database($this->answer ? $this->answer->getValue() : $this->get('default'));
-        return ($a != $b) ? array($b, $a) : false;
+        $new = $this->getValue();
+        $old = $this->answer ? $this->answer->getValue() : $this->get('default');
+        return ($old != $new) ? array($this->to_database($old), $this->to_database($new)) : false;
     }
 
 
@@ -1385,6 +1386,7 @@ class FormField {
         if (!$a->save(true))
             return false;
 
+        $this->_clean = $this->_widget = null;
         return $this->parent->save();
     }
 
@@ -1700,13 +1702,6 @@ class BooleanField extends FormField {
                 $this->validateEntry($this->_clean);
         }
         return $this->_clean;
-    }
-
-    function getChanges() {
-        $new = $this->getValue();
-        $old = $this->answer ? $this->answer->getValue() : $this->get('default');
-
-        return ($old != $new) ? array($this->to_database($old), $this->to_database($new)) : false;
     }
 
     function getSearchMethods() {
@@ -2764,7 +2759,7 @@ class PriorityField extends ChoiceField {
     function to_database($prio) {
         return ($prio instanceof Priority)
             ? array($prio->getDesc(), $prio->getId())
-            : $prio;
+            : array($prio[key($prio)],key($prio));
     }
 
     function display($prio, &$styles=null) {
@@ -2890,8 +2885,8 @@ class TimezoneField extends ChoiceField {
 
 class DepartmentField extends ChoiceField {
     function getWidget($widgetClass=false) {
-        $widget = parent::getWidget($widgetClass);
-        if ($widget->value instanceof Dept)
+        $widget = $this->_widget ?: parent::getWidget($widgetClass);
+        if (is_object($widget->value))
             $widget->value = $widget->value->getId();
         return $widget;
     }
@@ -2949,6 +2944,11 @@ class DepartmentField extends ChoiceField {
         return $this->to_php(null, $id);
     }
 
+    function getValue() {
+         if (($value = parent::getValue()) && ($id=$this->getClean()))
+            return $value[$id];
+     }
+
     function to_php($value, $id=false) {
         if ($id) {
             if (is_array($id)) {
@@ -2967,13 +2967,13 @@ class DepartmentField extends ChoiceField {
 
         if (!is_array($dept)) {
             $choices = $this->getChoices();
-            if (isset($choices[$dept]))
-                $dept = array($choices[$dept], $dept);
-        }
-        if (!$dept)
-            $dept = array();
+            if (in_array($dept, $choices)) {
+                $deptId = array_search($dept, $choices);
+                $dept = array($dept, $deptId);
+            }
+         }
 
-        return $dept;
+        return $dept ?: array();
     }
 
     function toString($value) {
@@ -3107,6 +3107,10 @@ class AssigneeField extends ChoiceField {
         $this->_choices = $choices;
     }
 
+    function display($value) {
+        return $this->getAnswer() ? $this->getAnswer()->value : $value;
+    }
+
     function getChoices($verbose=false) {
         global $cfg;
 
@@ -3142,9 +3146,12 @@ class AssigneeField extends ChoiceField {
     }
 
     function getValue() {
-
-        if (($value = parent::getValue()) && ($id=$this->getClean()))
-           return $value[$id];
+        if (($value = parent::getValue()) && ($id=$this->getClean())) {
+            $name = (is_object($value[key($value)]) && get_class($value[key($value)]) == 'AgentsName') ?
+                $value[key($value)]->name : $value[key($value)];
+            return array($name, substr(key($value), 1));
+        } else
+            return array();
     }
 
 
