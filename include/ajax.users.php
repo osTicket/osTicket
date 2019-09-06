@@ -19,6 +19,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 
 include_once(INCLUDE_DIR.'class.ticket.php');
 require_once INCLUDE_DIR.'class.note.php';
+require_once INCLUDE_DIR.'ajax.tickets.php';
 
 class UsersAjaxAPI extends AjaxController {
 
@@ -138,7 +139,6 @@ class UsersAjaxAPI extends AjaxController {
         return $resp;
 
     }
-
 
     function editUser($id) {
         global $thisstaff;
@@ -515,5 +515,28 @@ class UsersAjaxAPI extends AjaxController {
         Http::response(201, 'Successfully managed');
     }
 
+    function exportTickets($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$id)
+            Http::response(403, __('User ID Required'));
+
+        $user = User::lookup($id);
+        if (!$user)
+            Http::response(403, __('User Not Found'));
+
+        $queue = $user->getTicketsQueue();
+
+        if ($_POST) {
+            $api = new TicketsAjaxAPI();
+            return $api->queueExport($queue);
+        }
+
+        $info = array('action' => "#users/$id/tickets/export");
+
+        include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
+    }
 }
 ?>

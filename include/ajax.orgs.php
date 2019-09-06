@@ -17,6 +17,7 @@ if(!defined('INCLUDE_DIR')) die('403');
 
 require_once INCLUDE_DIR . 'class.organization.php';
 include_once(INCLUDE_DIR.'class.ticket.php');
+require_once INCLUDE_DIR.'ajax.tickets.php';
 
 class OrgsAjaxAPI extends AjaxController {
 
@@ -331,6 +332,30 @@ class OrgsAjaxAPI extends AjaxController {
         }
 
         Http::response(201, 'Successfully managed');
+    }
+
+    function exportTickets($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$id)
+            Http::response(403, __('Organization ID Required'));
+
+        $org = Organization::lookup($id);
+        if (!$org)
+            Http::response(403, __('Organization Not Found'));
+
+        $queue = $org->getTicketsQueue();
+
+        if ($_POST) {
+            $api = new TicketsAjaxAPI();
+            return $api->queueExport($queue);
+        }
+
+        $info = array('action' => "#orgs/$id/tickets/export");
+
+        include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
     }
 }
 ?>

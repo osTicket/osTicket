@@ -171,6 +171,7 @@ class Organization extends OrganizationModel
 implements TemplateVariable, Searchable {
     var $_entries;
     var $_forms;
+    var $_queue;
 
     function addDynamicData($data) {
         $entry = $this->addForm(OrganizationForm::objects()->one(), 1, $data);
@@ -563,6 +564,25 @@ implements TemplateVariable, Searchable {
         }
 
         return $org;
+    }
+
+    function getTicketsQueue() {
+        global $thisstaff;
+
+        if (!$this->_queue) {
+            $name = $this->getName();
+            $this->_queue = new AdhocSearch(array(
+                'id' => 'adhoc,orgid'.$this->getId(),
+                'root' => 'T',
+                'staff_id' => $thisstaff->getId(),
+                'title' => $name
+            ));
+            $this->_queue->filter(array(
+                'user__org__name' => $name
+            ));
+        }
+
+        return $this->_queue;
     }
 }
 

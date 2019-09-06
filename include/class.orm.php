@@ -2560,8 +2560,10 @@ class SqlCompiler {
                         $criteria["{$field}__{$f}"] = $v;
                     }
                 }
-                $filter[] = $this->compileQ(new Q($criteria), $model,
-                    $Q->ored || $Q->negated);
+                // New criteria here is joined with AND, so if the outer
+                // criteria is joined with OR, then parentheses are
+                // necessary
+                $filter[] = $this->compileQ(new Q($criteria), $model, $Q->ored);
             }
             // Handle simple field = <value> constraints
             else {
@@ -2595,16 +2597,10 @@ class SqlCompiler {
 
     function compileConstraints($where, $model) {
         $constraints = array();
-        $prev = $parens = false;
         foreach ($where as $Q) {
-            if ($prev && !$prev->isCompatibleWith($Q)) {
-                $parens = true;
-                break;
-            }
-            $prev = $Q;
-        }
-        foreach ($where as $Q) {
-            $constraints[] = $this->compileQ($Q, $model, $parens);
+            // Constraints are joined by AND operators, so if they have
+            // internal OR operators, then they need to be parenthesized
+            $constraints[] = $this->compileQ($Q, $model, $Q->ored);
         }
         return $constraints;
     }

@@ -8,26 +8,35 @@
 * is deleted while still maintaining dashboard statistics
 *
 */
--- Create a temporary table
-CREATE TABLE `tmp_table`
-SELECT *
+
+-- Create a blank temporary table with thread_event indexes
+CREATE TABLE `%TABLE_PREFIX%thread_event_new` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `thread_id` int(11) unsigned NOT NULL default '0',
+  `thread_type` char(1) DEFAULT '',
+  `event_id` int(11) unsigned DEFAULT NULL,
+  `staff_id` int(11) unsigned NOT NULL,
+  `team_id` int(11) unsigned NOT NULL,
+  `dept_id` int(11) unsigned NOT NULL,
+  `topic_id` int(11) unsigned NOT NULL,
+  `data` varchar(1024) DEFAULT NULL COMMENT 'Encoded differences',
+  `username` varchar(128) NOT NULL default 'SYSTEM',
+  `uid` int(11) unsigned DEFAULT NULL,
+  `uid_type` char(1) NOT NULL DEFAULT 'S',
+  `annulled` tinyint(1) unsigned NOT NULL default '0',
+  `timestamp` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ticket_state` (`thread_id`, `event_id`, `timestamp`),
+  KEY `ticket_stats` (`timestamp`, `event_id`)
+) DEFAULT CHARSET=utf8;
+
+-- Insert thread_events into `%TABLE_PREFIX%thread_event_new`
+INSERT `%TABLE_PREFIX%thread_event_new`
+SELECT id, thread_id, ' ', event_id, staff_id, team_id, dept_id, topic_id, data, username, uid, uid_type, annulled, timestamp
 FROM `%TABLE_PREFIX%thread_event`;
 
--- Add indexes to temporary table
-ALTER TABLE `tmp_table`
-ADD PRIMARY KEY (`id`),
-ADD KEY `ticket_state` (`thread_id`,`timestamp`),
-ADD KEY `ticket_stats` (`timestamp`),
-ADD KEY `uid` (`staff_id`),
-ADD KEY `uid_type` (`team_id`),
-ADD KEY `event_id` (`event_id`);
-
--- Add thread_type column
-ALTER TABLE `tmp_table`
-    ADD `thread_type` char(1) NOT NULL DEFAULT '' AFTER `thread_id`;
-
 -- Update thread_type column
-UPDATE `tmp_table` A1
+UPDATE `%TABLE_PREFIX%thread_event_new` A1
 JOIN `%TABLE_PREFIX%thread` A2 ON A1.thread_id = A2.id
 SET A1.thread_type = A2.object_type;
 
@@ -43,11 +52,20 @@ FROM `%TABLE_PREFIX%thread_entry` A1
 LEFT JOIN `%TABLE_PREFIX%thread` A2 ON(A2.id=A1.thread_id)
 WHERE A2.id IS NULL;
 
--- Set deleted threads to 0 in tmp_table
-UPDATE `tmp_table` A1
-JOIN `tmp_table` A2 ON A2.thread_id = A1.thread_id
+-- Set deleted threads to 0 in `%TABLE_PREFIX%thread_event_new`
+UPDATE `%TABLE_PREFIX%thread_event_new` A1
+JOIN `%TABLE_PREFIX%thread_event_new` A2 ON A2.thread_id = A1.thread_id
 SET A2.thread_id = 0
 WHERE A1.event_id = 14;
+
+-- Rename old thread_event table
+RENAME TABLE `%TABLE_PREFIX%thread_event` TO `%TABLE_PREFIX%thread_event_old`;
+
+-- Change tmp_table to thread_event
+RENAME TABLE `%TABLE_PREFIX%thread_event_new` TO `%TABLE_PREFIX%thread_event`;
+
+-- Drop old thread_event table
+DROP TABLE `%TABLE_PREFIX%thread_event_old`;
 
 -- Organization / Name
 UPDATE `%TABLE_PREFIX%_form_field` A1
@@ -88,5 +106,5 @@ WHERE (A1.`name` = 'website' AND A1.`type` = 'text') OR (A1.`name` = 'phone' AND
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-   SET `value` = 'e69781546e08be96d787199a911d0ffe', `updated` = NOW()
-   WHERE `key` = 'schema_signature' AND `namespace` = 'core';
+SET `value` = 'e69781546e08be96d787199a911d0ffe', `updated` = NOW()
+WHERE `key` = 'schema_signature' AND `namespace` = 'core';
