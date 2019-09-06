@@ -865,6 +865,7 @@ function refer($tid, $target=null) {
             $eventName = ($title && $title == 'link') ? 'linked' : 'merged';
             $permission = ($title && $title == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
             $hasPermission = array();
+            $parent = false;
 
             $tickets = Ticket::objects()
                 ->filter(array('ticket_id__in'=>$ticketIds))
