@@ -1358,7 +1358,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $this->clearOverdue(false);
 
                 $ecb = function($t) use ($status) {
-                    $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())));
+                    $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
                     $t->deleteDrafts();
                 };
                 break;
