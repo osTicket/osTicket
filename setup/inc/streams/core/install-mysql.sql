@@ -84,6 +84,7 @@ CREATE TABLE `%TABLE_PREFIX%sequence` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%sla`;
 CREATE TABLE `%TABLE_PREFIX%sla` (
   `id` int(11) unsigned NOT NULL auto_increment,
+  `schedule_id` int(10) unsigned NOT NULL default '0',
   `flags` int(10) unsigned NOT NULL default 3,
   `grace_period` int(10) unsigned NOT NULL default '0',
   `name` varchar(64) NOT NULL default '',
@@ -203,6 +204,7 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   `pid` int(11) unsigned default NULL,
   `tpl_id` int(10) unsigned NOT NULL default '0',
   `sla_id` int(10) unsigned NOT NULL default '0',
+  `schedule_id` int(10) unsigned NOT NULL default '0',
   `email_id` int(10) unsigned NOT NULL default '0',
   `autoresp_email_id` int(10) unsigned NOT NULL default '0',
   `manager_id` int(10) unsigned NOT NULL default '0',
@@ -417,6 +419,41 @@ CREATE TABLE `%TABLE_PREFIX%role` (
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%schedule`;
+CREATE TABLE `%TABLE_PREFIX%schedule` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `flags` int(11) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL,
+  `timezone` varchar(64) DEFAULT NULL,
+  `description` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%schedule_entry`;
+CREATE TABLE `%TABLE_PREFIX%schedule_entry` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `schedule_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `flags` int(11) unsigned NOT NULL DEFAULT '0',
+  `sort` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL,
+  `repeats` varchar(16) NOT NULL DEFAULT 'never',
+  `starts_on` date DEFAULT NULL,
+  `starts_at` time DEFAULT NULL,
+  `ends_on` date DEFAULT NULL,
+  `ends_at` time DEFAULT NULL,
+  `stops_on` datetime DEFAULT NULL,
+  `day` tinyint(4) DEFAULT NULL,
+  `week` tinyint(4) DEFAULT NULL,
+  `month` tinyint(4) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `schedule_id` (`schedule_id`),
+  KEY `repeats` (`repeats`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic`;

@@ -70,6 +70,8 @@ class Internationalization {
             'queue_column.yaml' =>  'QueueColumn::__create',
             'queue_sort.yaml' =>    'QueueSort::__create',
             'queue.yaml' =>         'CustomQueue::__create',
+            // Schedule
+            'schedule.yaml' =>      'Schedule::__create',
         );
 
         $errors = array();

@@ -160,6 +160,16 @@ class Form {
         return $this->_clean;
     }
 
+    /*
+     * Process the form input and return clean data.
+     *
+     * It's similar to getClean but forms downstream can use it to return
+     * database ready data.
+     */
+    function process($validate=true) {
+        return $this->getClean($validate);
+    }
+
     function errors($formOnly=false) {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
@@ -457,14 +467,12 @@ implements FormRenderer {
               <fieldset class="field <?php if (!$f->isVisible()) echo 'hidden'; ?>"
                 id="field<?php echo $f->getWidget()->id; ?>"
                 data-field-id="<?php echo $f->get('id'); ?>">
-<?php         if ($label = $f->get('label')) { ?>
+<?php         $label = $f->get('label'); ?>
               <label class="<?php if ($f->isRequired()) echo 'required'; ?>"
                   for="<?php echo $f->getWidget()->id; ?>">
-                  <?php echo Format::htmlchars($label); ?>:
+                  <?php echo $label ? (Format::htmlchars($label).':') : '&nbsp;'; ?>
                 <?php if ($f->isRequired()) { ?>
                 <span class="error">*</span>
-                <?php
-                }?>
               </label>
 <?php         }
               if ($f->get('hint')) { ?>
@@ -2585,6 +2593,24 @@ class DatetimeField extends FormField {
     }
 }
 
+
+/**
+ * TimeField for time selection
+ *
+ */
+class TimeField extends FormField {
+    static $widget = 'TimePickerWidget';
+
+    var $start = null;
+    var $end = null;
+
+    function getTimeZone() {
+        global $cfg;
+        $config = $this->getConfiguration();
+        return new DateTimeZone($config['timezone'] ?: $cfg->getTimezone());
+    }
+}
+
 /**
  * This is kind-of a special field that doesn't have any data. It's used as
  * a field to provide a horizontal section break in the display of a form
@@ -3885,8 +3911,8 @@ class Widget {
      * (<> == true, where <> is the result of this function). The %s token
      * will be replaced with a jQuery variable representing this widget.
      */
-    function getJsValueGetter() {
-        return '%s.val()';
+    function getJsValueGetter($id='%s') {
+        return sprintf('%s.val()', $id);
     }
 }
 
@@ -4143,7 +4169,7 @@ class ChoicesWidget extends Widget {
             return $this->emitComplexChoices($choices, $values, $have_def, $def_key);
 
         foreach ($choices as $key => $name) {
-            if (!$have_def && $key == $def_key)
+            if (!$have_def && $key === $def_key)
                 continue; ?>
             <option value="<?php echo $key; ?>" <?php
                 if (isset($values[$key])) echo 'selected="selected"';
@@ -4204,8 +4230,20 @@ class ChoicesWidget extends Widget {
         return $values;
     }
 
-    function getJsValueGetter() {
-        return '%s.find(":selected").val()';
+    function getJsValueGetter($id='%s') {
+        return sprintf('%s.find(":selected").val()', $id);
+    }
+
+    function getJsComparator($value, $id) {
+
+        if (strpos($value, '|') !== false)
+           return sprintf('$.inArray(%s, %s) !== -1',
+                   $this->getJsValueGetter($id),
+                   JsonDataEncoder::encode(explode('|', $value)));
+
+        return sprintf('%s == %s',
+                $this->getJsValueGetter($id),
+                JsonDataEncoder::encode($value));
     }
 }
 
@@ -4391,15 +4429,29 @@ class CheckboxWidget extends Widget {
     function getValue() {
         $data = $this->field->getSource();
         if (count($data)) {
-            if (!isset($data[$this->name]))
-                return null;
-            return @in_array($this->field->get('id'), $data[$this->name]);
+            if (isset($data[$this->name]))
+                return @in_array($this->field->get('id'),
+                        $data[$this->name]);
+            // initial value set on source
+            if (isset($data[$this->field->get('id')]))
+                return $data[$this->field->get('id')];
         }
+
+        if (isset($this->value))
+            return $this->value;
+
+
         return parent::getValue();
     }
 
-    function getJsValueGetter() {
-        return '%s.is(":checked")';
+    function getJsValueGetter($id='%s') {
+        return sprintf('%s.is(":checked")', $id);
+    }
+
+    function getJsComparator($value, $id) {
+        return sprintf('%s == %s',
+                $this->getJsValueGetter($id),
+                JsonDataEncoder::encode($value));
     }
 }
 
@@ -4415,14 +4467,7 @@ class DatetimePickerWidget extends Widget {
             $this->value = $default;
 
         if ($this->value) {
-
-            if (is_int($this->value))
-                // Assuming UTC timezone.
-                $datetime = DateTime::createFromFormat('U', $this->value);
-            else
-                $datetime = Format::parseDateTime($this->value);
-
-
+            $datetime = Format::parseDateTime($this->value);
             if ($config['time'])
                 // Convert to user's timezone for update.
                 $datetime->setTimezone($timezone);
@@ -4450,11 +4495,18 @@ class DatetimePickerWidget extends Widget {
             autocomplete="off" class="dp" />
         <?php
         // Timezone hint
-        echo sprintf('&nbsp;<span class="faded">(<a href="#"
-                    data-placement="top" data-toggle="tooltip"
-                    title="%s">%s</a>)</span>',
-                $datetime->getTimezone()->getName(),
-                $datetime->format('T'));
+        // Show timzone hit by default but allow field to turn it off.
+        $showtimezone = true;
+        if (isset($config['showtimezone']))
+            $showtimezone = $config['showtimezone'];
+
+        if ($datetime && $showtimezone) {
+            echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                        data-placement="top" data-toggle="tooltip"
+                        title="%s">%s</a>)</span>',
+                    $datetime->getTimezone()->getName(),
+                    $datetime->format('T'));
+        }
         ?>
         <script type="text/javascript">
             $(function() {
@@ -4500,21 +4552,88 @@ class DatetimePickerWidget extends Widget {
         global $cfg;
 
         if ($value = parent::getValue()) {
-            // See if we have time
-            $data = $this->field->getSource();
-            // Parse value into datetime object
-            $dt = Format::parseDateTime($value);
-            // Effective timezone for the selection
-            if (($timezone = $this->field->getTimezone()))
-                $dt->setTimezone($timezone);
-            // Format date time to universal format
-            $value = $dt->format('Y-m-d H:i:s T');
+            if (($dt = Format::parseDatetime($value))) {
+                // Effective timezone for the selection
+                if (($timezone = $this->field->getTimezone()))
+                    $dt->setTimezone($timezone);
+                // Format date time to universal format
+                $value = $dt->format('Y-m-d H:i:s T');
+            }
         }
 
         return $value;
     }
 }
 
+class TimePickerWidget extends Widget {
+
+    function render($options=array()) {
+        $config = $this->field->getConfiguration();
+        if (!isset($this->value) && ($default=$this->field->get('default')))
+            $this->value = $default;
+
+        // For timezone display purposes only - for now
+        $datetime = new DateTime('now');
+        // Selection timezone
+        $datetime->setTimezone($this->field->getTimeZone());
+
+        if ($this->value) {
+            // TODO: Reformat time here to match settings
+        }
+
+        ?>
+        <input type="text" name="<?php echo $this->name; ?>"
+            id="<?php echo $this->id; ?>" style="display:inline-block;width:auto"
+            value="<?php echo $this->value; ?>"
+            size="10"
+            autocomplete="off"  />
+        <?php
+        // Timezone hint
+        // Show timzone hit by default but allow field to turn it off.
+        $showtimezone = true;
+        if (isset($config['showtimezone']))
+            $showtimezone = $config['showtimezone'];
+
+        if ($showtimezone) {
+            echo sprintf('&nbsp;<span class="faded">(<a href="#"
+                        data-placement="top" data-toggle="tooltip"
+                        title="%s">%s</a>)</span>',
+                    $datetime->getTimezone()->getName(),
+                    $datetime->format('T'));
+        }
+        ?>
+        <script type="text/javascript">
+            $(function() {
+                $('input[name="<?php echo $this->name; ?>"]').timepicker({
+                    <?php
+                    // Set time options
+                    echo sprintf("
+                            controlType: 'select',\n
+                            timeInput: true,\n
+                            timeFormat: \"%s\",\n",
+                            "hh:mm tt");
+                    echo sprintf("timezone: %s\n",
+                            ($datetime->getOffset()/60));
+                    ?>
+                });
+            });
+        </script>
+        <?php
+    }
+
+    /**
+     * Function: getValue
+     */
+    function getValue() {
+        global $cfg;
+
+        if ($value = parent::getValue()) {
+            // TODO: Return ISO format.
+        }
+
+        return $value;
+    }
+}
 class SectionBreakWidget extends Widget {
     function render($options=array()) {
         ?><div class="form-header section-break"><h3><?php
@@ -4847,6 +4966,7 @@ class ColorPickerWidget extends Widget {
 class VisibilityConstraint {
     static $operators = array(
         'eq' => 1,
+        'neq' => 1,
     );
 
     const HIDDEN =      0x0001;
@@ -4865,34 +4985,37 @@ class VisibilityConstraint {
         if (!$this->constraint->constraints)
             return;
 
-        $func = 'recheck';
+        $func = 'recheck_'.$field->getWidget()->id;
         $form = $field->getForm();
 ?>
     <script type="text/javascript">
       !(function() {
         var <?php echo $func; ?> = function() {
           var target = $('#field<?php echo $field->getWidget()->id; ?>');
-
 <?php   $fields = $this->getAllFields($this->constraint);
         foreach ($fields as $f) {
-            $field = $form->getField($f);
-            echo sprintf('var %1$s = $("#%1$s");',
+            if (!($field = $form->getField($f)))
+                continue;
+            echo sprintf('var %1$s = x = $("#%1$s");',
                 $field->getWidget()->id);
         }
         $expression = $this->compileQ($this->constraint, $form);
 ?>
-          if (<?php echo $expression; ?>)
+          if (<?php echo $expression; ?>) {
             target.slideDown('fast', function (){
                 $(this).trigger('show');
                 });
-          else
+          } else {
             target.slideUp('fast', function (){
                 $(this).trigger('hide');
                 });
+          }
         };
 
 <?php   foreach ($fields as $f) {
-            $w = $form->getField($f)->getWidget();
+            if (!($field=$form->getField($f)))
+                continue;
+            $w = $field->getWidget();
 ?>
         $('#<?php echo $w->id; ?>').on('change', <?php echo $func; ?>);
         $('#field<?php echo $w->id; ?>').on('show hide', <?php
@@ -4937,10 +5060,14 @@ class VisibilityConstraint {
                 @list($f, $op) = self::splitFieldAndOp($c);
                 $field = $form->getField($f);
                 $wval = $field ? $field->getClean() : null;
+                $values = explode('|', $value);
                 switch ($op) {
+                case 'neq':
+                    $expr[] = ($wval && !in_array($wval, $values) && $field->isVisible());
+                    break;
                 case 'eq':
                 case null:
-                    $expr[] = ($wval == $value && $field->isVisible());
+                    $expr[] = (in_array($wval, $values) && $field->isVisible());
                 }
             }
         }
@@ -4975,17 +5102,18 @@ class VisibilityConstraint {
             }
             else {
                 list($f, $op) = self::splitFieldAndOp($c);
-                $widget = $form->getField($f)->getWidget();
+                if (!($field=$form->getField($f))) continue;
+                $widget = $field->getWidget();
                 $id = $widget->id;
                 switch ($op) {
+                case 'neq':
+                    $expr[] = sprintf('(%s.is(":visible") && !(%s))',
+                            $id, $widget->getJsComparator($value, $id));
+                    break;
                 case 'eq':
                 case null:
-                    $expr[] = sprintf('(%s.is(":visible") && %s)',
-                            $id,
-                            sprintf('%s == %s',
-                                sprintf($widget->getJsValueGetter(), $id),
-                                JsonDataEncoder::encode($value))
-                            );
+                    $expr[] = sprintf('(%s.is(":visible") && (%s))',
+                            $id, $widget->getJsComparator($value, $id));
                 }
             }
         }
