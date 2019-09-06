@@ -501,105 +501,101 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/transfer.tmpl.php';
     }
 
-
-  function referrals($tid) {
-
+    function referrals($tid) {
       return $this->refer($tid);
-
-  }
-
-function refer($tid, $target=null) {
-    global $thisstaff;
-
-    if (!($ticket=Ticket::lookup($tid)))
-        Http::response(404, __('No such ticket'));
-
-    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
-            || !($form = $ticket->getReferralForm($_POST,
-                    array('target' => $target))))
-        Http::response(403, __('Permission denied'));
-
-    $errors = array();
-    $info = array(
-            ':title' => sprintf(__('Ticket #%s: %s'),
-                $ticket->getNumber(),
-                __('Refer')
-                ),
-            ':action' => sprintf('#tickets/%d/refer%s',
-                $ticket->getId(),
-                ($target  ? "/$target": '')),
-            );
-
-    if ($_POST) {
-
-        switch ($_POST['do']) {
-        case 'refer':
-            if ($form->isValid() && $ticket->refer($form, $errors)) {
-                $clean = $form->getClean();
-                if ($clean['comments'])
-                    $ticket->logNote('Referral', $clean['comments'], $thisstaff);
-                $_SESSION['::sysmsgs']['msg'] = sprintf(
-                        __('%s successfully'),
-                        sprintf(
-                            __('%s referred to %s'),
-                            sprintf(__('Ticket #%s'),
-                                 sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
-                                     $ticket->getId(),
-                                     $ticket->getNumber()))
-                            ,
-                            $form->getReferee())
-                        );
-                Http::response(201, $ticket->getId());
-            }
-
-            $form->addErrors($errors);
-            $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
-            break;
-        case 'manage':
-            $remove = array();
-            if (is_array($_POST['referrals'])) {
-                $remove = array();
-                foreach ($_POST['referrals'] as $k => $v)
-                    if ($v[0] == '-')
-                        $remove[] = substr($v, 1);
-                if (count($remove)) {
-                    $num = $ticket->thread->referrals
-                        ->filter(array('id__in' => $remove))
-                        ->delete();
-                    if ($num) {
-                        $info['msg'] = sprintf(
-                                __('%s successfully'),
-                                sprintf(__('Removed %d referrals'),
-                                    $num
-                                    )
-                                );
-                    }
-                    //TODO: log removal
-                }
-            }
-            break;
-        default:
-             $errors['err'] = __('Unknown Action');
-        }
     }
 
-    $thread = $ticket->getThread();
-    include STAFFINC_DIR . 'templates/refer.tmpl.php';
-}
-  function editField($tid, $fid) {
-      global $thisstaff;
+    function refer($tid, $target=null) {
+        global $thisstaff;
 
-      if (!($ticket=Ticket::lookup($tid)))
-          Http::response(404, __('No such ticket'));
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
 
-      if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
-          Http::response(403, __('Permission denied'));
-      elseif (!($field=$ticket->getField($fid)))
-          Http::response(404, __('No such field'));
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !($form = $ticket->getReferralForm($_POST,
+                        array('target' => $target))))
+            Http::response(403, __('Permission denied'));
 
-      $errors = array();
-      $info = array(
-              ':title' => sprintf(__('Ticket #%s: %s %s'),
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Refer')
+                    ),
+                ':action' => sprintf('#tickets/%d/refer%s',
+                    $ticket->getId(),
+                    ($target  ? "/$target": '')),
+                );
+
+        if ($_POST) {
+            switch ($_POST['do']) {
+                case 'refer':
+                    if ($form->isValid() && $ticket->refer($form, $errors)) {
+                        $clean = $form->getClean();
+                        if ($clean['comments'])
+                            $ticket->logNote('Referral', $clean['comments'], $thisstaff);
+                        $_SESSION['::sysmsgs']['msg'] = sprintf(
+                                __('%s successfully'),
+                                sprintf(
+                                    __('%s referred to %s'),
+                                    sprintf(__('Ticket #%s'),
+                                         sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                             $ticket->getId(),
+                                             $ticket->getNumber()))
+                                    ,
+                                    $form->getReferee())
+                                );
+                        Http::response(201, $ticket->getId());
+                    }
+
+                    $form->addErrors($errors);
+                    $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
+                    break;
+                case 'manage':
+                    $remove = array();
+                    if (is_array($_POST['referrals'])) {
+                        $remove = array();
+                        foreach ($_POST['referrals'] as $k => $v)
+                            if ($v[0] == '-')
+                                $remove[] = substr($v, 1);
+                        if (count($remove)) {
+                            $num = $ticket->thread->referrals
+                                ->filter(array('id__in' => $remove))
+                                ->delete();
+                            if ($num) {
+                                $info['msg'] = sprintf(
+                                        __('%s successfully'),
+                                        sprintf(__('Removed %d referrals'),
+                                            $num
+                                            )
+                                        );
+                            }
+                            //TODO: log removal
+                        }
+                    }
+                    break;
+                default:
+                     $errors['err'] = __('Unknown Action');
+            }
+        }
+
+        $thread = $ticket->getThread();
+        include STAFFINC_DIR . 'templates/refer.tmpl.php';
+    }
+
+    function editField($tid, $fid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+            Http::response(403, __('Permission denied'));
+        elseif (!($field=$ticket->getField($fid)))
+            Http::response(404, __('No such field'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s %s'),
                   $ticket->getNumber(),
                   __('Update'),
                   $field->getLabel()
@@ -608,45 +604,51 @@ function refer($tid, $target=null) {
                   $ticket->getId(), $field->getId())
               );
 
-      $form = $field->getEditForm($_POST);
-      if ($_POST && $form->isValid()) {
-          if ($ticket->updateField($form, $errors)) {
-              $msg = sprintf(
-                  __('%s successfully'),
-                  sprintf(
-                      __('%s updated'),
-                      __($field->getLabel())
-                      )
-                  );
-              if ($field instanceof FileUploadField)
-                  $field->save();
+        $form = $field->getEditForm($_POST);
+        if ($_POST && $form->isValid()) {
 
-              if (get_class($field) == 'DateTime' || get_class($field) == 'DatetimeField')
-                  $clean = Format::datetime((string) $field->getClean());
-              elseif ($field instanceof FileUploadField) {
-                  $answer =  $field->getAnswer();
-                  $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
-              } elseif ($field instanceof DepartmentField) {
-                  $id = $field->getClean();
-                  $clean = Dept::objects()->filter(array('id' => $id))->values_flat('name')->first();
-                  $clean = $clean[0];
-              } else
-                  $clean = is_array($field->getClean()) ? implode($field->getClean(), ',') : (string) $field->getClean();
+            if ($ticket->updateField($form, $errors)) {
+                $msg = sprintf(
+                      __('%s successfully'),
+                      sprintf(
+                          __('%s updated'),
+                          __($field->getLabel())
+                          )
+                      );
 
-              $clean = is_array($clean) ? $clean[0] : $clean;
+                switch (true) {
+                    case $field instanceof DateTime:
+                    case $field instanceof DatetimeField:
+                        $clean = Format::datetime((string) $field->getClean());
+                        break;
+                    case $field instanceof FileUploadField:
+                        $field->save();
+                        $answer =  $field->getAnswer();
+                        $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
+                        break;
+                    case $field instanceof DepartmentField:
+                        $clean = (string) Dept::lookup($field->getClean());
+                        break;
+                    default:
+                        $clean =  $field->getClean();
+                        $clean = is_array($clean) ? implode($clean, ',') :
+                            (string) $clean;
+                }
 
-              if (!$field instanceof FileUploadField && strlen($clean) > 200)
-                  $clean = Format::truncate($clean, 200);
+                $clean = is_array($clean) ? $clean[0] : $clean;
+                Http::response(201, $this->json_encode(['value' =>
+                            $clean ?: '&mdash;' . __('Empty') .  '&mdash;',
+                            'id' => $fid, 'msg' => $msg]));
+            }
 
-              Http::response(201, $this->json_encode(['value' =>
-              $clean ?: '&mdash;' . __('Empty') .  '&mdash;', 'id' => $fid, 'msg' => $msg]));
-          }
-              $form->addErrors($errors);
-              $info['error'] = $errors['err'] ?: __('Unable to update field');
-      }
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to update field');
+        }
 
-      include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
-  }
+        include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
+    }
 
     function assign($tid, $target=null) {
         global $thisstaff;
