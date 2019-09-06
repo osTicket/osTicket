@@ -1305,7 +1305,7 @@ class TicketsAjaxAPI extends AjaxController {
             $failures = array();
             // Set children statuses (if applicable)
             if ($_REQUEST['children']) {
-                $children = $ticket->getChildTickets($ticket->getId());
+                $children = $ticket->getChildren();
 
                 foreach ($children as $cid) {
                     $child = Ticket::lookup($cid[0]);
@@ -1640,7 +1640,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
 
         // Has Children?
-        $info['children'] = ($ticket->getChildTickets($ticket->getId())->count());
+        $info['children'] = ($ticket->getChildren()->count());
 
         return self::_changeStatus($state, $info, $errors);
     }
