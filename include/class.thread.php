@@ -2128,6 +2128,7 @@ class ThreadEvent extends VerySimpleModel {
         $staff = $ticket->getStaffId();
 
         $inst = self::create(array(
+            'thread_type' => ObjectModel::OBJECT_TYPE_TICKET,
             'staff_id' => $staff,
             'team_id' => $ticket->getTeamId(),
             'dept_id' => $ticket->getDeptId(),
@@ -2138,6 +2139,7 @@ class ThreadEvent extends VerySimpleModel {
 
     static function forTask($task, $state, $user=false) {
         $inst = self::create(array(
+            'thread_type' => ObjectModel::OBJECT_TYPE_TASK,
             'staff_id' => $task->getStaffId(),
             'team_id' => $task->getTeamId(),
             'dept_id' => $task->getDeptId(),
