@@ -35,10 +35,13 @@ class TicketsAjaxAPI extends AjaxController {
         $visibility = $thisstaff->getTicketsVisibility();
         $hits = Ticket::objects()
             ->filter($visibility)
-            ->values('user__default_email__address')
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
             ->annotate(array(
                 'number' => new SqlCode('null'),
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
             ->limit($limit);
@@ -53,9 +56,12 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
             $hits = Ticket::objects()
-                ->values('user__default_email__address', 'number')
+                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
                 ->annotate(array(
                     'tickets' => new SqlCode('1'),
+                    'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                    'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                    'entries' => SqlAggregate::COUNT('thread__entries__id', true),
                 ))
                 ->filter($visibility)
                 ->filter(array('number__startswith' => $q))
@@ -74,7 +80,16 @@ class TicketsAjaxAPI extends AjaxController {
             $count = $T['tickets'];
             if ($T['number']) {
                 $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
+                    'ticket_id'=>$T['ticket_id'],
                     'info'=>"{$T['number']} — {$email}",
+                    'subject'=>$T['cdata__subject'],
+                    'user'=>$T['user__name'],
+                    'tasks'=>$T['tasks'],
+                    'thread_id'=>$T['thread__id'],
+                    'collaborators'=>$T['collaborators'],
+                    'entries'=>$T['entries'],
+                    'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
+                    'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
                     'matches'=>$_REQUEST['q']);
             }
             else {
@@ -327,6 +342,83 @@ class TicketsAjaxAPI extends AjaxController {
         }
 
         Http::response(201, 'Successfully managed');
+    }
+
+    function mergeTickets($ticket_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($ticket = Ticket::lookup($ticket_id)))
+            Http::response(404, "No such ticket");
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+            Http::response(403, "Access Denied");
+
+        //retrieve the parent and child tickets
+        $parent = Ticket::objects()
+            ->filter(array('ticket_id'=>$ticket_id))
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id', true),));
+        $tickets =  Ticket::getChildTickets($ticket_id);
+        $tickets = $parent->union($tickets);
+
+        //fix sort of tickets
+        $sql = sprintf('SELECT * FROM (%s) a ORDER BY sort', $tickets->getQuery());
+        $res = db_query($sql);
+        $tickets = db_assoc_array($res);
+        $info = array('action' => '#tickets/'.$ticket->getId().'/merge');
+
+        return self::_updateMerge($ticket, $tickets, $info);
+    }
+
+    function updateMerge($ticket_id) {
+        global $thisstaff;
+
+        $info = array();
+        $errors = array();
+
+        if ($_POST['tids']) {
+            if ($parent = Ticket::merge($_POST))
+                Http::response(201, 'Successfully managed');
+            else
+                $info['error'] = $errors['err'] ?: __('Unable to merge ticket');
+        }
+
+        $parentModel = Ticket::objects()
+            ->filter(array('ticket_id'=>$ticket_id))
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id', true),));
+
+        if ($parent->getMergeType() == 'visual') {
+            $tickets = Ticket::getChildTickets($ticket_id);
+            $tickets = $parentModel->union($tickets);
+        } else
+            $tickets = $parentModel;
+
+        return self::_updateMerge($parent, $tickets, $info);
+    }
+
+    private function _updateMerge($ticket, $tickets, $info) {
+        include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
+    }
+
+    function previewMerge($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        ob_start();
+        include STAFFINC_DIR . 'templates/merge-preview.tmpl.php';
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
     }
 
     function cannedResponse($tid, $cid, $format='text') {
@@ -728,6 +820,12 @@ function refer($tid, $target=null) {
                 'refer' => array(
                     'verbed' => __('referred'),
                     ),
+                'merge' => array(
+                    'verbed' => __('merged'),
+                    ),
+                'link' => array(
+                    'verbed' => __('linked'),
+                    ),
                 'claim' => array(
                     'verbed' => __('assigned'),
                     ),
@@ -758,6 +856,88 @@ function refer($tid, $target=null) {
             $count  =  $_REQUEST['count'];
         }
         switch ($action) {
+        case 'merge':
+        case 'link':
+            $inc = 'merge-tickets.tmpl.php';
+            $ticketIds = $_GET ? explode(',', $_GET['tids']) : explode(',', $_POST['tids']);
+            $tickets = array();
+            $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
+            $eventName = ($title && $title == 'link') ? 'linked' : 'merged';
+            $permission = ($title && $title == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
+            $hasPermission = array();
+
+            $tickets = Ticket::objects()
+                ->filter(array('ticket_id__in'=>$ticketIds))
+                ->values_flat('ticket_id', 'flags', 'dept_id', 'ticket_pid');
+            foreach ($tickets as $ticket) {
+                list($ticket_id, $flags, $dept_id, $ticket_pid) = $ticket;
+                $mergeType = Ticket::getMergeTypeByFlag($flags);
+                $isParent = Ticket::isParent($flags);
+                $role = $thisstaff->getRole($dept_id);
+                $hasPermission[] = $role->hasPerm($permission);
+
+                if (!$ticket)
+                    continue;
+                elseif (!$parent && $isParent && $mergeType != 'visual') {
+                    $parent = $ticket;
+                    $parentMergeType = $mergeType;
+                }
+
+                if ($mergeType != 'visual' && $title == 'link')
+                    $info['error'] = sprintf(
+                            __('One or more Tickets selected is part of a merge. Merged Tickets cannot be %s.'),
+                            __($eventName)
+                            );
+
+                if ($parent && ($isParent && $mergeType != 'visual') && $parent[0] != $ticket_id)
+                    $info['error'] = sprintf(
+                            __('More than one Parent Ticket selected. %1$s cannot be %2$s.'),
+                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __($eventName)
+                            );
+
+                if ($ticket_pid && $mergeType != 'visual' && $title == 'merge')
+                    $info['error'] = sprintf(
+                            __('One or more Tickets selected is a merged child. %1$s cannot be %2$s.'),
+                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __($eventName)
+                            );
+            }
+            //move parent ticket to top of list
+            if (count($ticketIds) > 1) {
+                $ticketIdsSorted = $ticketIds;
+                if ($parent && $parentMergeType != 'visual') {
+                    foreach ($ticketIdsSorted as $key => $value) {
+                        if ($value == $parent[0]) {
+                            unset($ticketIdsSorted[$key]);
+                            array_unshift($ticketIdsSorted, $value);
+                            array_unshift($ticketIdsSorted, new SqlField('ticket_id'));
+                        }
+                    }
+                }
+
+                $expr = call_user_func_array(array('SqlFunction', 'FIELD'), $ticketIdsSorted);
+            }
+            $tickets = Ticket::objects()
+                 ->filter(array('ticket_id__in'=>$ticketIds))
+                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
+                               'user_id', 'cdata__subject', 'user__name', 'flags')
+                 ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                                  'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                  'entries' => SqlAggregate::COUNT('thread__entries__id'),))
+                 ->order_by($expr ?: 'sort');
+            $ticket = Ticket::lookup($parent[0] ?: $ticket[0]);
+
+            // Generic permission check.
+            if (in_array(false, $hasPermission) && !$ticket->getThread()->isReferred()) {
+                $info['error'] = sprintf(
+                        __('You do not have permission to %1$s %2$s'),
+                        __($title),
+                        _N('the selected Ticket', 'the selected Tickets', $count));
+                $info = array_merge($info, Format::htmlchars($_POST));
+            } else
+                $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
+            break;
         case 'claim':
             $w = 'me';
         case 'assign':
@@ -1098,26 +1278,50 @@ function refer($tid, $target=null) {
         $state = strtolower($status->getState());
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
+            $failures = array();
 
-            if ($state == 'deleted') {
-                $msg = sprintf('%s %s',
-                        sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                        __('deleted sucessfully')
-                        );
-            } elseif ($state != 'open') {
-                 $msg = sprintf(__('%s status changed to %s'),
-                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                         $status->getName());
-            } else {
-                $msg = sprintf(
-                        __('%s status changed to %s'),
-                        __('Ticket'),
-                        $status->getName());
+            // Set children statuses (if applicable)
+            if ($_REQUEST['children']) {
+                $children = $ticket->getChildTickets($ticket->getId());
+
+                foreach ($children as $cid) {
+                    $child = Ticket::lookup($cid[0]);
+                    if (!$child->setStatus($status, '', $errors))
+                        $failures[$cid[0]] = $child->getNumber();
+                }
             }
 
-            $_SESSION['::sysmsgs']['msg'] = $msg;
+            if (!$failures) {
+                if ($state == 'deleted') {
+                    $msg = sprintf('%s %s',
+                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                            __('deleted sucessfully')
+                            );
+                } elseif ($state != 'open') {
+                    $msg = sprintf(__('%s status changed to %s'),
+                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                            $status->getName());
+                } else {
+                    $msg = sprintf(
+                           __('%s status changed to %s'),
+                           __('Ticket'),
+                           $status->getName());
+                }
 
-            Http::response(201, 'Successfully processed');
+                $_SESSION['::sysmsgs']['msg'] = $msg;
+
+                Http::response(201, 'Successfully processed');
+            } else {
+                $tickets = array();
+                foreach ($failures as $id=>$num) {
+                    $tickets[] = sprintf('<a href="tickets.php?id=%d"><b>#%s</b></a>',
+                                    $id,
+                                    $num);
+                }
+                $info['warn'] = sprintf(__('Error updating ticket status for %s'),
+                                 ($tickets) ? implode(', ', $tickets) : __('child tickets')
+                                 );
+            }
         } elseif (!$errors['err']) {
             $errors['err'] =  __('Error updating ticket status');
         }
@@ -1413,6 +1617,9 @@ function refer($tid, $target=null) {
         $info['status_id'] = $info['status_id'] ?: $ticket->getStatusId();
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
 
+        // Has Children?
+        $info['children'] = ($ticket->getChildTickets($ticket->getId())->count());
+
         return self::_changeStatus($state, $info, $errors);
     }
 
@@ -1435,6 +1642,16 @@ function refer($tid, $target=null) {
             Http::response(404, 'Unknown ticket');
 
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
+    }
+
+    function relations($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+         include STAFFINC_DIR . 'ticket-relations.inc.php';
     }
 
     function addTask($tid, $vars=array()) {

@@ -575,6 +575,9 @@ class CustomQueue extends VerySimpleModel {
             // Ignore non-data fields
             elseif (!$f->hasData() || $f->isPresentationOnly())
                 continue;
+            // Ignore disabled fields
+            elseif (!$f->hasFlag(DynamicFormField::FLAG_ENABLED))
+                continue;
 
             $name = $f->get('name') ?: 'field_'.$f->get('id');
             $key = 'cdata__'.$name;
@@ -598,6 +601,8 @@ class CustomQueue extends VerySimpleModel {
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
+                'merged' =>       __('Merged'),
+                'linked' =>       __('Linked'),
                 'isanswered' =>     __('Answered'),
                 'staff_id' => __('Agent Assigned'),
                 'team_id' =>  __('Team Assigned'),
@@ -685,7 +690,7 @@ class CustomQueue extends VerySimpleModel {
                 "width" => 85,
                 "bits" => QueueColumn::FLAG_SORTABLE,
                 "filter" => "link:ticketP",
-                "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}]',
+                "annotations" => '[{"c":"TicketSourceDecoration","p":"b"}, {"c":"MergedFlagDecoration","p":">"}]',
                 "conditions" => '[{"crit":["isanswered","nset",null],"prop":{"font-weight":"bold"}}]',
             )),
             QueueColumn::placeholder(array(
@@ -1741,6 +1746,54 @@ extends QueueColumnAnnotation {
 
     function isVisible($row) {
         return $row['isoverdue'];
+    }
+}
+
+class MergedFlagDecoration
+extends QueueColumnAnnotation {
+    static $icon = 'code-fork';
+    static $desc = /* @trans */ 'Merged Icon';
+
+    function annotate($query, $name=false) {
+        return $query->values('ticket_pid', 'flags');
+    }
+
+    function getDecoration($row, $text) {
+        $flags = $row['flags'];
+        $combine = ($flags & Ticket::FLAG_COMBINE_THREADS) != 0;
+        $separate = ($flags & Ticket::FLAG_SEPARATE_THREADS) != 0;
+        $linked = ($flags & Ticket::FLAG_LINKED) != 0;
+
+        if ($combine || $separate) {
+            return sprintf('<a data-placement="bottom" data-toggle="tooltip" title="%s" <i class="icon-code-fork"></i></a>',
+                           $combine ? __('Combine') : __('Separate'));
+        } elseif ($linked)
+            return '<i class="icon-link"></i>';
+    }
+
+    function isVisible($row) {
+        return $row['ticket_pid'];
+    }
+}
+
+class LinkedFlagDecoration
+extends QueueColumnAnnotation {
+    static $icon = 'link';
+    static $desc = /* @trans */ 'Linked Icon';
+
+    function annotate($query, $name=false) {
+        return $query->values('ticket_pid', 'flags');
+    }
+
+    function getDecoration($row, $text) {
+        $flags = $row['flags'];
+        $linked = ($flags & Ticket::FLAG_LINKED) != 0;
+        if ($linked && $_REQUEST['a'] == 'search')
+            return '<i class="icon-link"></i>';
+    }
+
+    function isVisible($row) {
+        return $row['ticket_pid'];
     }
 }
 

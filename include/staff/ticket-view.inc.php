@@ -9,13 +9,15 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 $info=($_POST && $errors)?Format::input($_POST):array();
 
 //Get the goodies.
-$dept  = $ticket->getDept();  //Dept
-$role  = $ticket->getRole($thisstaff);
-$staff = $ticket->getStaff(); //Assigned or closed by..
-$user  = $ticket->getOwner(); //Ticket User (EndUser)
-$team  = $ticket->getTeam();  //Assigned team.
-$sla   = $ticket->getSLA();
-$lock  = $ticket->getLock();  //Ticket lock obj
+$dept     = $ticket->getDept();  //Dept
+$role     = $ticket->getRole($thisstaff);
+$staff    = $ticket->getStaff(); //Assigned or closed by..
+$user     = $ticket->getOwner(); //Ticket User (EndUser)
+$team     = $ticket->getTeam();  //Assigned team.
+$sla      = $ticket->getSLA();
+$lock     = $ticket->getLock();  //Ticket lock obj
+$children = Ticket::getChildTickets($ticket->getId());
+$thread = $ticket->getThread();
 if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());
 $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
@@ -23,12 +25,14 @@ $id    = $ticket->getId();    //Ticket ID.
 $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
 $canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
 $canAnswer = ($isManager || $role->hasPerm(Ticket::PERM_REPLY)); //Check if Agent can mark as answered/unanswered
-
+$blockReply = $ticket->isChild() && $ticket->getMergeType() != 'visual';
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(
             __('Current ticket status (%s) does not allow the end user to reply.'),
             $ticket->getStatus());
+elseif ($blockReply)
+    $warn = __('Child Tickets do not allow the end user or agent to reply.');
 elseif ($ticket->isAssigned()
         && (($staff && $staff->getId()!=$thisstaff->getId())
             || ($team && !$team->hasMember($thisstaff))
@@ -151,6 +155,24 @@ if($ticket->isOverdue())
                 <?php
                  }
 
+                 if ($role->hasPerm(Ticket::PERM_MERGE) && !$ticket->isChild()) { ?>
+                     <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                         ?>/merge" onclick="javascript:
+                         $.dialog($(this).attr('href').substr(1), 201);
+                         return false"
+                         ><i class="icon-code-fork"></i> <?php echo __('Merge Tickets'); ?></a></li>
+                 <?php
+                  }
+
+                 if ($role->hasPerm(Ticket::PERM_LINK) && $ticket->getMergeType() == 'visual') { ?>
+                     <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
+                         ?>/link" onclick="javascript:
+                         $.dialog($(this).attr('href').substr(1), 201);
+                         return false"
+                         ><i class="icon-link"></i> <?php echo __('Link Tickets'); ?></a></li>
+                 <?php
+                 }
+
                  if ($ticket->isAssigned() && $canRelease) { ?>
                         <li><a href="#tickets/<?php echo $ticket->getId();
                             ?>/release" class="ticket-action"
@@ -201,7 +223,7 @@ if($ticket->isOverdue())
                 <?php
                 }
 
-                if ($role->hasPerm(Ticket::PERM_REPLY)) {
+                if ($role->hasPerm(Ticket::PERM_REPLY) && $thread && $ticket->getId() == $thread->getObjectId()) {
                     ?>
                 <li>
 
@@ -209,7 +231,7 @@ if($ticket->isOverdue())
                     $recipients = __(' Manage Collaborators');
 
                     echo sprintf('<a class="collaborators manage-collaborators"
-                            href="#thread/%d/collaborators"><i class="icon-group"></i>%s</a>',
+                            href="#thread/%d/collaborators/1"><i class="icon-group"></i>%s</a>',
                             $ticket->getThreadId(),
                             $recipients);
                    ?>
@@ -246,6 +268,10 @@ if($ticket->isOverdue())
               </ul>
             </div>
                 <?php
+                if (count($children) != 0)
+                    echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('PARENT'));
+                elseif ($ticket->isChild())
+                    echo sprintf('<span style="font-weight: 700; line-height: 26px;">%s</span>', __('CHILD'));
                 if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
                 <a href="#post-reply" class="post-response action-button"
                 data-placement="bottom" data-toggle="tooltip"
@@ -376,16 +402,17 @@ if($ticket->isOverdue())
                                 </ul>
                             </div>
                             <?php
-                            if ($role->hasPerm(Ticket::PERM_EDIT)) {
-                            $numCollaborators = $ticket->getThread()->getNumCollaborators();
-                             if ($ticket->getThread()->getNumCollaborators())
-                                $recipients = sprintf(__('%d'),
-                                        $numCollaborators);
-                            else
-                              $recipients = 0;
+                            if ($role->hasPerm(Ticket::PERM_EDIT) && $thread && $ticket->getId() == $thread->getObjectId()) {
+                                if ($thread) {
+                                    $numCollaborators = $thread->getNumCollaborators();
+                                    if ($thread->getNumCollaborators())
+                                        $recipients = sprintf(__('%d'),
+                                                $numCollaborators);
+                                } else
+                                  $recipients = 0;
 
                              echo sprintf('<span><a class="manage-collaborators preview"
-                                    href="#thread/%d/collaborators"><span><i class="icon-group"></i> (<span id="t%d-collaborators">%s</span>)</span></a></span>',
+                                    href="#thread/%d/collaborators/1"><span id="t%d-recipients"><i class="icon-group"></i> (%s)</span></a></span>',
                                     $ticket->getThreadId(),
                                     $ticket->getThreadId(),
                                     $recipients);
@@ -664,7 +691,7 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 <div class="clear"></div>
 
 <?php
-$tcount = $ticket->getThreadEntries($types)->count();
+$tcount = $ticket->getThreadEntries($types) ? $ticket->getThreadEntries($types)->count() : 0;
 ?>
 <ul  class="tabs clean threads" id="ticket_tabs" >
     <li class="active"><a id="ticket-thread-tab" href="#ticket_thread"><?php
@@ -676,6 +703,21 @@ $tcount = $ticket->getThreadEntries($types)->count();
         if ($ticket->getNumTasks())
             echo sprintf('&nbsp;(<span id="ticket-tasks-count">%d</span>)', $ticket->getNumTasks());
         ?></a></li>
+    <?php
+    if ((count($children) != 0 || $ticket->isChild())) { ?>
+    <li><a href="#relations" id="ticket-relations-tab"
+        data-url="<?php
+        echo sprintf('#tickets/%d/relations', $ticket->getId()); ?>"
+        ><?php echo __('Related Tickets');
+        if (count($children))
+            echo sprintf('&nbsp;(<span id="ticket-relations-count">%d</span>)', count($children));
+        elseif ($ticket->isChild())
+            echo sprintf('&nbsp;(<span id="ticket-relations-count">%d</span>)', 1);
+        ?></a></li>
+    <?php
+    }
+    ?>
+
 </ul>
 
 <div id="ticket_tabs_container">
@@ -683,14 +725,15 @@ $tcount = $ticket->getThreadEntries($types)->count();
 
 <?php
     // Render ticket thread
-    $ticket->getThread()->render(
-            array('M', 'R', 'N'),
-            array(
-                'html-id'   => 'ticketThread',
-                'mode'      => Thread::MODE_STAFF,
-                'sort'      => $thisstaff->thread_view_order
-                )
-            );
+    if ($thread)
+        $thread->render(
+                array('M', 'R', 'N'),
+                array(
+                    'html-id'   => 'ticketThread',
+                    'mode'      => Thread::MODE_STAFF,
+                    'sort'      => $thisstaff->thread_view_order
+                    )
+                );
 ?>
 <div class="clear"></div>
 <?php
@@ -709,18 +752,21 @@ if ($errors['err'] && isset($_POST['a'])) {
 >
     <ul class="tabs" id="response-tabs">
         <?php
-        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+        if ($role->hasPerm(Ticket::PERM_REPLY) && !($blockReply)) { ?>
         <li class="active <?php
             echo isset($errors['reply']) ? 'error' : ''; ?>"><a
             href="#reply" id="post-reply-tab"><?php echo __('Post Reply');?></a></li>
         <?php
-        } ?>
+        }
+        if (!($blockReply)) { ?>
         <li><a href="#note" <?php
             echo isset($errors['postnote']) ?  'class="error"' : ''; ?>
             id="post-note-tab"><?php echo __('Post Internal Note');?></a></li>
+        <?php
+        } ?>
     </ul>
     <?php
-    if ($role->hasPerm(Ticket::PERM_REPLY)) {
+    if ($role->hasPerm(Ticket::PERM_REPLY) && !($blockReply)) {
         $replyTo = $_POST['reply-to'] ?: 'all';
         $emailReply = ($replyTo != 'none');
         ?>
@@ -806,7 +852,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                  &nbsp;
                                  <a class="manage-collaborators
                                  collaborators preview noclick %s"
-                                  href="#thread/%d/collaborators">
+                                  href="#thread/%d/collaborators/1">
                                  %s</a></span>',
                                  __('Collaborators'),
                                  $ticket->getNumCollaborators()
@@ -822,7 +868,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                      <div>
                         <span style="margin: 10px 5px 1px 0;" class="faded pull-left"><?php echo __('Select or Add New Collaborators'); ?>&nbsp;</span>
                         <?php
-                        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+                        if ($role->hasPerm(Ticket::PERM_REPLY) && $thread && $ticket->getId() == $thread->getObjectId()) { ?>
                         <span class="action-button pull-left" style="margin: 2px  0 5px 20px;"
                             data-dropdown="#action-dropdown-collaborators"
                             data-placement="bottom"
@@ -834,7 +880,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                 data-redirect="tickets.php?id=<?php echo
                                 $ticket->getId(); ?>"
                                 href="#thread/<?php echo
-                                $ticket->getThreadId(); ?>/collaborators">
+                                $ticket->getThreadId(); ?>/collaborators/1">
                                 <i class="icon-group"></i></a>
                          </span>
                          <?php
@@ -842,7 +888,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                          <span class="error">&nbsp;&nbsp;<?php echo $errors['ccs']; ?></span>
                         </div>
                         <?php
-                        if ($role->hasPerm(Ticket::PERM_REPLY)) { ?>
+                        if ($role->hasPerm(Ticket::PERM_REPLY) && $thread && $ticket->getId() == $thread->getObjectId()) { ?>
                         <div id="action-dropdown-collaborators" class="action-dropdown anchor-right">
                           <ul>
                              <li><a class="manage-collaborators"
@@ -851,7 +897,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                 class="icon-plus"></i> <?php echo __('Add New'); ?></a>
                              <li><a class="manage-collaborators"
                                 href="#thread/<?php echo
-                                $ticket->getThreadId(); ?>/collaborators"><i
+                                $ticket->getThreadId(); ?>/collaborators/1"><i
                                 class="icon-cog"></i> <?php echo __('Manage Collaborators'); ?></a>
                           </ul>
                         </div>
@@ -862,15 +908,16 @@ if ($errors['err'] && isset($_POST['a'])) {
                           data-placeholder="<?php
                             echo __('Select Active Collaborators'); ?>">
                           <?php
-                          $collabs = $ticket->getCollaborators();
-                          foreach ($collabs as $c) {
-                              echo sprintf('<option value="%s" %s class="%s">%s</option>',
-                                      $c->getUserId(),
-                                      $c->isActive() ?
-                                      'selected="selected"' : '',
-                                      $c->isActive() ?
-                                      'active' : 'disabled',
-                                      $c->getName());
+                          if ($collabs = $ticket->getCollaborators()) {
+                              foreach ($collabs as $c) {
+                                  echo sprintf('<option value="%s" %s class="%s">%s</option>',
+                                          $c->getUserId(),
+                                          $c->isActive() ?
+                                          'selected="selected"' : '',
+                                          $c->isActive() ?
+                                          'active' : 'disabled',
+                                          $c->getName());
+                              }
                           }
                           ?>
                       </select>
@@ -1042,7 +1089,9 @@ if ($errors['err'] && isset($_POST['a'])) {
         </p>
     </form>
     <?php
-    } ?>
+    }
+    if (!($blockReply)) {
+    ?>
     <form id="note" class="hidden tab_content spellcheck exclusive save"
         data-lock-object-id="ticket/<?php echo $ticket->getId(); ?>"
         data-lock-id="<?php echo $mylock ? $mylock->getId() : ''; ?>"
@@ -1128,6 +1177,7 @@ if ($errors['err'] && isset($_POST['a'])) {
            <input class="" type="reset" value="<?php echo __('Reset');?>">
        </p>
    </form>
+   <?php } ?>
  </div>
  </div>
 </div>

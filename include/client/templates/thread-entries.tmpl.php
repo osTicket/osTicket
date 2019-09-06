@@ -1,5 +1,5 @@
 <?php
-$states = array('created', 'closed', 'reopened', 'edited', 'collab');
+$states = array('created', 'closed', 'reopened', 'edited', 'collab', 'merged');
 $event_ids = array();
 foreach ($states as $state) {
     $eid = Event::getIdByName($state);
@@ -14,38 +14,37 @@ $events->rewind();
 $event = $events->current();
 
 $htmlId = $options['html-id'] ?: ('thread-'.$this->getId());
+
+$tid = $this->getObJectId();
+if ($this->getObjectType() == 'T')
+    $ticket = Ticket::lookup($tid);
 ?>
 <div id="<?php echo $htmlId; ?>" data-thread-id="<?php echo $this->getId(); ?>">
 <?php
 if (count($entries)) {
-    // Go through all the entries and bucket them by time frame
-    $buckets = array();
-    $rel = 0;
-    foreach ($entries as $i=>$E) {
-        // First item _always_ shows up
-        if ($i != 0)
-            // Set relative time resolution to 12 hours
-            $rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
-        $buckets[$rel][] = $E;
-    }
+    $buckets = ThreadEntry::sortEntries($entries, $ticket);
+    foreach ($buckets as $entry) {
+        if ($entry->hasFlag(ThreadEntry::FLAG_CHILD) && $entry->extra) {
+            if (!is_array($entry->extra))
+                $entry->extra = json_decode($entry->extra, true);
+            if (!$thread = Thread::objects()->filter(array('id'=>$entry->extra['thread']))->values_flat('extra'))
+                continue;
+            foreach ($thread as $t)
+                $threadExtra = $t[0];
+            $threadExtra = json_decode($threadExtra, true);
+            $number = $threadExtra['number'];
+        } else
+            $number = null;
 
-    // Go back through the entries and render them on the page
-    $i = 0;
-    foreach ($buckets as $rel=>$entries) {
-        // TODO: Consider adding a date boundary to indicate significant
-        //       changes in dates between thread items.
-        foreach ($entries as $entry) {
-            // Emit all events prior to this entry
-            while ($event && $event->timestamp < $entry->created) {
-                $event->render(ThreadEvent::MODE_CLIENT);
-                $events->next();
-                $event = $events->current();
-            }
-            ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
-            include 'thread-entry.tmpl.php';
-            ?></div><?php
+        // Emit all events prior to this entry
+        while ($event && $event->timestamp < $entry->created) {
+            $event->render(ThreadEvent::MODE_CLIENT);
+            $events->next();
+            $event = $events->current();
         }
-        $i++;
+        ?><div id="thread-entry-<?php echo $entry->getId(); ?>"><?php
+        include 'thread-entry.tmpl.php';
+        ?></div><?php
     }
 }
 
@@ -57,8 +56,7 @@ while ($event) {
 }
 
 // This should never happen
-if (count($entries) + $eventCount == 0) {
+if (count($entries) + $eventCount == 0)
     echo '<p><em>'.__('No entries have been posted to this thread.').'</em></p>';
-}
 ?>
 </div>
