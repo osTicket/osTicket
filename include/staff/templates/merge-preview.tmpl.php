@@ -5,7 +5,7 @@
 <colgroup><col style="min-width: 250px;"></col></colgroup>
 <?php
 $tid = $ticket->getId();
-if (($children=$ticket->getChildTickets($tid)) && (count($children) > 0)) {
+if (($children=$ticket->getChildren()) && (count($children) > 0)) {
     foreach($children as $child)
         echo sprintf('<tr><td>%s</td></tr>', $child[1]);
 } else

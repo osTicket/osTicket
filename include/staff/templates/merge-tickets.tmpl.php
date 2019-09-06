@@ -53,7 +53,7 @@ foreach ($tickets as $t) {
         $nbsp = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         $iconLarge = '<i style="visibility: hidden;" class="icon-group"></i>';
         $iconSmall = '<i style="visibility: hidden;" class="icon-code-fork"></i>';
-        $children=$ticket->getChildTickets($ticket_id);
+        $children=$ticket->getChildren();
         $subject = (strlen($subject) > 15) ? sprintf('%s...',substr($subject, 0, 15)) : $subject;
         $entryCount = $entries > 0 ?
             sprintf('<a data-placement="bottom" <i class="icon-comments-alt" data-toggle="tooltip" title="%s %s"></i></a>',

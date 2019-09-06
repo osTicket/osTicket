@@ -235,14 +235,8 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->ticket_pid;
     }
 
-    function getChildTickets($pid) {
-        return Ticket::objects()
-                ->filter(array('ticket_pid'=>$pid))
-                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
-                ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
-                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
-                                 'entries' => SqlAggregate::COUNT('thread__entries__id'),))
-                ->order_by('sort');
+    function getChildren() {
+        return self::getChildTickets($this->getId());
     }
 
     function getMergeTypeByFlag($flag) {
@@ -3464,7 +3458,7 @@ implements RestrictedAccess, Threadable, Searchable {
         //deleting child ticket
         if ($this->isChild()) {
             $parent = Ticket::lookup($this->ticket_pid);
-            if ($parent->isParent() && count($parent->getChildTickets($parent->getId())) == 0) {
+            if ($parent->isParent() && count($parent->getChildren()) == 0) {
                 $parent->setMergeType(3);
                 $parent->save();
             }
@@ -3766,6 +3760,16 @@ implements RestrictedAccess, Threadable, Searchable {
         ->count();
 
     return ($num === 0);
+    }
+
+    static function getChildTickets($pid) {
+        return Ticket::objects()
+                ->filter(array('ticket_pid'=>$pid))
+                ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+                ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                                 'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                 'entries' => SqlAggregate::COUNT('thread__entries__id'),))
+                ->order_by('sort');
     }
 
     /* Quick client's tickets stats
