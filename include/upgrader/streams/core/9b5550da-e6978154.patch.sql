@@ -68,43 +68,43 @@ RENAME TABLE `%TABLE_PREFIX%thread_event_new` TO `%TABLE_PREFIX%thread_event`;
 DROP TABLE `%TABLE_PREFIX%thread_event_old`;
 
 -- Organization / Name
-UPDATE `%TABLE_PREFIX%_form_field` A1
-JOIN `%TABLE_PREFIX%_form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'O')
+UPDATE `%TABLE_PREFIX%form_field` A1
+JOIN `%TABLE_PREFIX%form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'O')
 SET A1.`flags` = A1.`flags` | 16, A1.`type` = 'text'
 WHERE A1.`name` = 'name';
 
 -- Contact Information / Name, Email
-UPDATE `%TABLE_PREFIX%_form_field` A1
-JOIN `%TABLE_PREFIX%_form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'U')
+UPDATE `%TABLE_PREFIX%form_field` A1
+JOIN `%TABLE_PREFIX%form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'U')
 SET A1.`flags` = A1.`flags` | 16
 WHERE (A1.`name` = 'name' OR A1.`name` = 'email')
 AND A1.`type` = 'text';
 
 -- Ticket Details / Issue Summary
-UPDATE `%TABLE_PREFIX%_form_field` A1
-JOIN `%TABLE_PREFIX%_form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'T')
+UPDATE `%TABLE_PREFIX%form_field` A1
+JOIN `%TABLE_PREFIX%form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'T')
 SET A1.`flags` = A1.`flags` | 16
 WHERE A1.`name` = 'subject' AND A1.`type` = 'text';
 
 -- Task Details / Title
-UPDATE `%TABLE_PREFIX%_form_field` A1
-JOIN `%TABLE_PREFIX%_form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'A')
+UPDATE `%TABLE_PREFIX%form_field` A1
+JOIN `%TABLE_PREFIX%form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'A')
 SET A1.`flags` = A1.`flags` | 16
 WHERE A1.`name` = 'title' AND A1.`type` = 'text';
 
 -- Company Information / Name
-UPDATE `%TABLE_PREFIX%_form_field` A1
-JOIN `%TABLE_PREFIX%_form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'C')
+UPDATE `%TABLE_PREFIX%form_field` A1
+JOIN `%TABLE_PREFIX%form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'C')
 SET A1.`flags` = A1.`flags` | 16
 WHERE A1.`name` = 'name' AND A1.`type` = 'text';
 
 -- Company Information / Website, Phone Number
-UPDATE `%TABLE_PREFIX%_form_field` A1
-JOIN `%TABLE_PREFIX%_form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'C')
+UPDATE `%TABLE_PREFIX%form_field` A1
+JOIN `%TABLE_PREFIX%form` A2 ON (A1.`form_id` = A2.`id` AND A2.`type` = 'C')
 SET A1.`flags` = A1.`flags` | 262160
 WHERE (A1.`name` = 'website' AND A1.`type` = 'text') OR (A1.`name` = 'phone' AND A1.`type` = 'phone');
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-SET `value` = 'e69781546e08be96d787199a911d0ffe', `updated` = NOW()
-WHERE `key` = 'schema_signature' AND `namespace` = 'core';
+  SET `value` = 'e69781546e08be96d787199a911d0ffe', `updated` = NOW()
+  WHERE `key` = 'schema_signature' AND `namespace` = 'core';
