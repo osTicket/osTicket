@@ -614,11 +614,17 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getPriority() {
-
         if (($a = $this->getAnswer('priority')))
             return $a->getValue();
 
         return null;
+    }
+
+    function getPriorityField() {
+        if (($a = $this->getAnswer('priority')))
+            return $a->getField();
+
+        return TicketForm::getInstance()->getField('priority');
     }
 
     function getPhoneNumber() {
@@ -1088,13 +1094,10 @@ implements RestrictedAccess, Threadable, Searchable {
         // Special fields
         switch ($fid) {
         case 'priority':
-            if (($a = $this->getAnswer('priority')))
-                return $a->getField();
-
-            return TicketForm::getInstance()->getField('priority');
+            return $this->getPriorityField();
             break;
         case 'sla':
-            return ChoiceField::init(array(
+            return SLAField::init(array(
                         'id' => $fid,
                         'name' => "{$fid}_id",
                         'label' => __('SLA Plan'),
@@ -1107,7 +1110,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($topic = $this->getTopic())
                 $current = array($topic->getId());
             $choices = Topic::getHelpTopics(false, $topic ? (Topic::DISPLAY_DISABLED) : false, true, $current);
-            return ChoiceField::init(array(
+            return TopicField::init(array(
                         'id' => $fid,
                         'name' => "{$fid}_id",
                         'label' => __('Help Topic'),
@@ -3683,7 +3686,8 @@ implements RestrictedAccess, Threadable, Searchable {
                               $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
                               $val = $dt->format('Y-m-d H:i:s');
                           }
-                }
+                } elseif (is_object($val))
+                    $val = $val->getId();
 
                 $changes = array();
                 $this->{$fid} = $val;

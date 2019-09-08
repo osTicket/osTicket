@@ -240,6 +240,10 @@ implements TemplateVariable {
         return $row ? $row[0] : 0;
     }
 
+    function __toString() {
+        return $this->getName();
+    }
+
     static function create($vars=false, &$errors=array()) {
         $sla = new static($vars);
         $sla->created = SqlFunction::NOW();
