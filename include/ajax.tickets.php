@@ -625,8 +625,6 @@ class TicketsAjaxAPI extends AjaxController {
                         $field->save();
                         $answer =  $field->getAnswer();
                         $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
-                        if (strlen($clean) > 200)
-                             $clean = Format::truncate($clean, 200);
                         break;
                     case $field instanceof DepartmentField:
                         $clean = (string) Dept::lookup($field->getClean());
@@ -635,6 +633,8 @@ class TicketsAjaxAPI extends AjaxController {
                         $clean =  $field->getClean();
                         $clean = is_array($clean) ? implode($clean, ',') :
                             (string) $clean;
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
                 }
 
                 $clean = is_array($clean) ? $clean[0] : $clean;
