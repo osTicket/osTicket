@@ -2994,10 +2994,14 @@ class PriorityField extends ChoiceField {
         return $this->getPriority($id);
     }
 
-    function to_database($prio) {
-        return ($prio instanceof Priority)
-            ? array($prio->getDesc(), $prio->getId())
-            : array($prio[key($prio)],key($prio));
+    function to_database($value) {
+        if ($value instanceof Priority)
+            return array($value->getDesc(), $value->getId());
+
+        if (is_array($value))
+            return array(current($value), key($value));
+
+        return $value;
     }
 
     function display($prio, &$styles=null) {
