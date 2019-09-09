@@ -599,7 +599,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<?php }
 					
-					if ($BacklogTotal > 50) { ?>
+					if ($BacklogTotal >= 50) { ?>
 					
 					<div class="alert alert-danger m-b-30" role="alert">
                                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-danger"><?php echo $BacklogTotal; ?></span> which is greater than 5 above the established target of <span class="badge badge-success">45</span>.
