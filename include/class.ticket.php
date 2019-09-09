@@ -3462,8 +3462,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $parent->setMergeType(3);
                 $parent->save();
             }
-        }
-
+        } else
+            $t->delete();
 
         $this->logEvent('deleted');
 
