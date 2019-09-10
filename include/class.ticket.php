@@ -203,6 +203,7 @@ implements RestrictedAccess, Threadable, Searchable {
     var $recipients;
     var $lastrespondent;
     var $lastuserrespondent;
+    var $_children;
 
     function loadDynamicData($force=false) {
         if (!isset($this->_answers) || $force) {
@@ -236,7 +237,10 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getChildren() {
-        return self::getChildTickets($this->getId());
+        if (!isset($this->_children))
+            $this->_children = self::getChildTickets($this->getId());
+
+        return $this->_children;
     }
 
     function getMergeTypeByFlag($flag) {
