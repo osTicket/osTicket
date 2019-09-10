@@ -238,13 +238,19 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getChildren() {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Cache Children Tickets
         if (!isset($this->_children))
             $this->_children = self::getChildTickets($this->getId());
 
         return $this->_children;
+<<<<<<< HEAD
 =======
         return self::getChildTickets($this->getId());
 >>>>>>> Make getChildrenTickets Static
+=======
+>>>>>>> Cache Children Tickets
     }
 
     function getMergeTypeByFlag($flag) {
