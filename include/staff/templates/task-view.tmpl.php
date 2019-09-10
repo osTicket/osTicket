@@ -513,7 +513,7 @@ else
                         placeholder="<?php echo __( 'Start writing your update here.'); ?>"
                         rows="9" wrap="soft"
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> draft draft-delete" <?php
+                            ?> draft draft-delete fullscreen" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('task.response', $task->getId(), $info['task.response']);
     echo $attrs; ?>><?php echo $draft ?: $info['task.response'];
                     ?></textarea>
@@ -574,7 +574,7 @@ else
                         placeholder="<?php echo __('Internal Note details'); ?>"
                         rows="9" wrap="soft" data-draft-namespace="task.note"
                         data-draft-object-id="<?php echo $task->getId(); ?>"
-                        class="richtext ifhtml draft draft-delete"><?php
+                        class="richtext ifhtml draft draft-delete fullscreen"><?php
                         echo $info['note'];
                         ?></textarea>
                     <div class="attachments">

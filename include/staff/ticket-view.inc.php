@@ -998,6 +998,8 @@ if ($errors['err'] && isset($_POST['a'])) {
                         ?>
                     </select>
                     </div>
+                    </td></tr>
+                    <tr><td colspan="2">
                 <?php } # endif (canned-resonse-enabled)
                     $signature = '';
                     switch ($thisstaff->getDefaultSignatureType()) {
@@ -1009,7 +1011,6 @@ if ($errors['err'] && isset($_POST['a'])) {
                         $signature = $thisstaff->getSignature();
                         break;
                     } ?>
-                  <div>
                     <input type="hidden" name="draft_id" value=""/>
                     <textarea name="response" id="response" cols="50"
                         data-signature-field="signature" data-dept-id="<?php echo $dept->getId(); ?>"
@@ -1020,11 +1021,10 @@ if ($errors['err'] && isset($_POST['a'])) {
                         ); ?>"
                         rows="9" wrap="soft"
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> draft draft-delete" <?php
+                            ?> draft draft-delete fullscreen" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
     echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
                     ?></textarea>
-                </div>
                 <div id="reply_form_attachments" class="attachments">
                 <?php
                     print $response_form->getField('attachments')->render();
@@ -1134,13 +1134,14 @@ if ($errors['err'] && isset($_POST['a'])) {
                         <br/>
                         <span class="error">&nbsp;<?php echo $errors['title']; ?></span>
                     </div>
-                    <br/>
+                </td></tr>
+                <tr><td colspan="2">
                     <div class="error"><?php echo $errors['note']; ?></div>
                     <textarea name="note" id="internal_note" cols="80"
                         placeholder="<?php echo __('Note details'); ?>"
                         rows="9" wrap="soft"
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> draft draft-delete" <?php
+                            ?> draft draft-delete fullscreen" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.note', $ticket->getId(), $info['note']);
     echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
                         ?></textarea>

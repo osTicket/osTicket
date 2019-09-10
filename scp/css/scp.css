@@ -2755,8 +2755,8 @@ div.patch {
 div.selected-signature {
     border: 1px solid #ddd;
     border: 1px solid rgba(0,0,0,0.1);
+    border-style: none;
     border-top-style: dotted;
-    border-bottom-style: none;
     padding: 0.3em 10px 5px;
     height: 2.5em;
     overflow-y: hidden;
