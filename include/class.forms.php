@@ -2752,8 +2752,7 @@ class TopicField extends ChoiceField {
 
     function getChoices($verbose=false) {
         if (!isset($this->_choices)) {
-            $this->_choices = array('' => '— '.__('Default').' —') +
-                $this->getTopics();
+            $this->_choices = $this->getTopics();
         }
 
         return $this->_choices;
@@ -2859,7 +2858,6 @@ class SLAField extends ChoiceField {
 
     function getChoices($verbose=false) {
         if (!isset($this->_choices)) {
-            $choices = array('' => '— '.__('Default').' —');
             foreach ($this->getSLAs() as $s)
                 $choices[$s->getId()] = $s->getName();
             $this->_choices = $choices;
@@ -2966,9 +2964,7 @@ class PriorityField extends ChoiceField {
     }
 
     function getChoices($verbose=false) {
-
         if (!isset($this->_choices)) {
-            $choices = array('' => '— '.__('Default').' —');
             foreach ($this->getPriorities() as $p)
                 $choices[$p->getId()] = $p->getDesc();
             $this->_choices = $choices;
@@ -3039,7 +3035,6 @@ class PriorityField extends ChoiceField {
 
     function getConfigurationOptions() {
         $choices = $this->getChoices();
-        $choices[''] = __('System Default');
         return array(
             'prompt' => new TextboxField(array(
                 'id'=>2, 'label'=>__('Prompt'), 'required'=>false, 'default'=>'',
@@ -4302,13 +4297,16 @@ class ChoicesWidget extends Widget {
         if (!strcasecmp($mode, 'search')) {
             $def_val = $prompt;
         } else {
+            $showdefault = true;
+            if ($mode != 'create')
+                 $showdefault = false;
             $def_key = $this->field->get('default');
-            if (!$def_key && $config['default'])
+            if (!$def_key && isset($config['default']))
                 $def_key = $config['default'];
             if (is_array($def_key))
                 $def_key = key($def_key);
             $have_def = isset($choices[$def_key]);
-            $def_val = $have_def ? $choices[$def_key] : $prompt;
+            $def_val = ($have_def && !$showdefault) ? $choices[$def_key] : $prompt;
         }
 
         $values = $this->value;
@@ -4332,8 +4330,8 @@ class ChoicesWidget extends Widget {
             data-placeholder="<?php echo $prompt; ?>"
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
-            <?php if (!$have_def && !$config['multiselect']) { ?>
-            <option value="<?php echo $def_key; ?>">&mdash; <?php
+            <?php if ($showdefault || (!$have_def && !$config['multiselect'])) { ?>
+            <option value="<?php echo $showdefault ? '' : $def_key; ?>">&mdash; <?php
                 echo $def_val; ?> &mdash;</option>
 <?php
         }
