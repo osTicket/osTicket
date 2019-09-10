@@ -37,10 +37,10 @@ if($_REQUEST['id'] || $_REQUEST['number']) {
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(array('number' => $_REQUEST['number']))))
          $errors['err']=sprintf(__('%s: Unknown or invalid number.'), __('ticket'));
-    elseif(!$ticket->checkStaffPerm($thisstaff)) {
-        $errors['err']=__('Access denied. Contact admin if you believe this is in error');
-        $ticket=null; //Clear ticket obj.
-    }
+     elseif(!$ticket->checkStaffPerm($thisstaff)) {
+         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
+         $ticket=null; //Clear ticket obj.
+     }
 }
 
 if (!$ticket) {
@@ -57,14 +57,15 @@ if (!$ticket) {
     if ($user
             && $_GET['a'] !== 'open'
     ) {
-        $criteria = [
-            ['user__emails__address', 'equal', $user->getDefaultEmailAddress()],
-            ['user_id', 'equal', $user->id],
-        ];
+        $Q = Q::any([
+            'user__emails__address' => $user->getDefaultEmailAddress(),
+            'user_id' => $user->id,
+        ]);
+
         if ($S = $_GET['status'])
             // The actual state is tracked by the key
-            $criteria[] = ['status__state', 'includes', [$S => $S]];
-        $_SESSION['advsearch']['uid'] = $criteria;
+            $Q = Q::all(array('status__state' => $S, $Q));
+        $_SESSION['advsearch']['uid'] = $Q;
         $queue_id = "adhoc,uid";
     }
     // Search for organization tickets
@@ -501,13 +502,8 @@ if($ticket) {
 } else {
     $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(Ticket::PERM_CREATE, false))
+            $thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
         $inc = 'ticket-open.inc.php';
-    elseif ($_REQUEST['a'] == 'export' && $queue) {
-        // XXX: Check staff access?
-        if (!$queue->export())
-            $errors['err'] = __('Unable to export results.')
-                .' '.__('Internal error occurred');
     } elseif ($queue) {
         // XXX: Check staff access?
         $quick_filter = @$_REQUEST['filter'];

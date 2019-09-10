@@ -105,7 +105,7 @@ extends InstrumentedList {
 
     function getId() { return $this->key['object_id']; }
     function getType() { return $this->key['type']; }
-
+    function getMimeType() { return $this->getType(); }
     /**
      * Drop attachments whose file_id values are not in the included list,
      * additionally, add new files whose IDs are in the list provided.

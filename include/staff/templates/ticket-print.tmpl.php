@@ -248,66 +248,52 @@ if ($this->includeevents) {
 }
 
 if ($entries->exists(true)) {
-    // Go through all the entries and bucket them by time frame
-    $buckets = array();
-    $rel = 0;
-    foreach ($entries as $i=>$E) {
-        // First item _always_ shows up
-        if ($i != 0)
-            // Set relative time resolution to 12 hours
-            $rel = Format::relativeTime(Misc::db2gmtime($E->created, false, 43200));
-        $buckets[$rel][] = $E;
-    }
-    // Go back through the entries and render them on the page
-    foreach ($buckets as $rel=>$entries) {
-        // TODO: Consider adding a date boundary to indicate significant
-        //       changes in dates between thread items.
-        foreach ($entries as $entry) {
+    $sortedEntries = ThreadEntry::sortEntries($entries, $ticket);
+        foreach ($sortedEntries as $entry) {
+            // TODO: Consider adding a date boundary to indicate significant
+            //       changes in dates between thread items.
             if ($this->includeevents) {
-                // Emit all events prior to this entry
                 while ($event && $cmp($event->timestamp, $entry->created)) {
-                    $event->render(ThreadEvent::MODE_STAFF);
+                    $event->render(ThreadEvent::MODE_CLIENT);
                     $events->next();
                     $event = $events->current();
                 }
             }
-    $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note'); ?>
-        <div class="thread-entry <?php echo $threadTypes[$entry->type]; ?>">
-            <table class="header" style="width:100%"><tr><td>
-                    <span><?php
-                        echo Format::datetime($entry->created);?></span>
-                    <span style="padding:0 1em" class="faded title"><?php
-                        echo Format::truncate($entry->title, 100); ?></span>
-                </td>
-                <td class="flush-right faded title" style="white-space:no-wrap">
-                    <?php
+            $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note'); ?>
+            <div class="thread-entry <?php echo $threadTypes[$entry->type]; ?>">
+                <table class="header" style="width:100%"><tr><td>
+                        <span><?php
+                            echo Format::datetime($entry->created);?></span>
+                        <span style="padding:0 1em" class="faded title"><?php
+                            echo Format::truncate($entry->title, 100); ?></span>
+                    </td>
+                    <td class="flush-right faded title" style="white-space:no-wrap">
+<?php
                         echo Format::htmlchars($entry->getName()); ?></span>
-                </td>
-            </tr></table>
-            <div class="thread-body">
-                <div><?php echo $entry->getBody()->display('pdf'); ?></div>
-            <?php
-            if ($entry->has_attachments
-                    && ($files = $entry->attachments)) { ?>
-                <div class="info">
-<?php           foreach ($files as $A) { ?>
-                    <div>
-                        <span><?php echo Format::htmlchars($A->file->name); ?></span>
-                        <span class="faded">(<?php echo Format::file_size($A->file->size); ?>)</span>
+                    </td>
+                </tr></table>
+                <div class="thread-body">
+                    <div><?php echo $entry->getBody()->display('pdf'); ?></div>
+<?php
+                if ($entry->has_attachments
+                        && ($files = $entry->attachments)) { ?>
+                    <div class="info">
+<?php               foreach ($files as $A) { ?>
+                        <div>
+                            <span><?php echo Format::htmlchars($A->file->name); ?></span>
+                            <span class="faded">(<?php echo Format::file_size($A->file->size); ?>)</span>
+                        </div>
+<?php               } ?>
                     </div>
 <?php           } ?>
                 </div>
-<?php       } ?>
             </div>
-        </div>
 <?php
-
         }
-    }
 }
 // Emit all other events
 while ($event) {
-    $event->render(ThreadEvent::MODE_STAFF);
+    $event->render(ThreadEvent::MODE_CLIENT);
     $events->next();
     $event = $events->current();
 } ?>

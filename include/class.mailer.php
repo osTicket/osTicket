@@ -86,13 +86,17 @@ class Mailer {
     function addAttachment(Attachment $attachment) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
-        $this->attachments[$attachment->file_id] = $attachment;
+        $this->attachments[] = $attachment;
     }
 
-    function addFile(AttachmentFile $file) {
+    function addAttachmentFile(AttachmentFile $file) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
-        $this->attachments[$file->file_id] = $file;
+        $this->attachments[] = $file;
+    }
+
+    function addFileObject(FileObject $file) {
+        $this->attachments[] = $file;
     }
 
     function addAttachments($attachments) {
@@ -100,7 +104,9 @@ class Mailer {
             if ($a instanceof Attachment)
                 $this->addAttachment($a);
             elseif ($a instanceof AttachmentFile)
-                $this->addFile($a);
+                $this->addAttachmentFile($a);
+            elseif ($a instanceof FileObject)
+                $this->addFileObject($a);
         }
     }
 
@@ -452,7 +458,7 @@ class Mailer {
             foreach ($attachments as $a) {
                 $file = $a->getFile();
                 $mime->addAttachment($file->getData(),
-                    $file->getType(), $file->getName(), false);
+                    $file->getMimeType(), $file->getName(), false);
             }
         }
 
@@ -508,7 +514,7 @@ class Mailer {
                     if (!$file)
                         return $match[0];
                     $mime->addHTMLImage($file->getData(),
-                        $file->getType(), $file->getName(), false,
+                        $file->getMimeType(), $file->getName(), false,
                         $match[1].$domain);
                     // Don't re-attach the image below
                     unset($self->attachments[$file->getId()]);
@@ -519,17 +525,20 @@ class Mailer {
         }
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
-            foreach($attachments as $id=>$file) {
+            foreach($attachments as $file) {
                 // Read the filename from the Attachment if possible
                 if ($file instanceof Attachment) {
                     $filename = $file->getFilename();
                     $file = $file->getFile();
-                }
-                else {
+                } elseif ($file instanceof AttachmentFile) {
                     $filename = $file->getName();
-                }
+                }  elseif ($file instanceof FileObject) {
+                    $filename = $file->getFilename();
+                } else
+                    continue;
+
                 $mime->addAttachment($file->getData(),
-                    $file->getType(), $filename, false);
+                    $file->getMimeType(), $filename, false);
             }
         }
 

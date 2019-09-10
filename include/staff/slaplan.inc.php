@@ -51,6 +51,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         </tr>
         <tr>
             <td width="180" class="required">
+                <?php echo __('Status');?>:
+            </td>
+            <td>
+                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
+                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled');?>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
               <?php echo __('Grace Period');?>:
             </td>
             <td>
@@ -60,13 +70,25 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">
-                <?php echo __('Status');?>:
+            <td width="180">
+                <?php echo __('Schedule');?>:
             </td>
             <td>
-                <input type="radio" name="isactive" value="1" <?php echo $info['isactive']?'checked="checked"':''; ?>><strong><?php echo __('Active');?></strong>
-                <input type="radio" name="isactive" value="0" <?php echo !$info['isactive']?'checked="checked"':''; ?>><?php echo __('Disabled');?>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['isactive']; ?></span>
+                <select name="schedule_id">
+                    <option value="0" selected="selected" >&mdash; <?php
+                    echo __('System Default');?> &mdash;</option>
+                    <?php
+                    if ($schedules=BusinessHoursSchedule::getSchedules()) {
+                        foreach ($schedules as $s) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $s->getId(), ($info['schedule_id']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['schedule_id']; ?></font>
+                <i class="help-tip icon-question-sign"
+                href="#schedule"></i>
             </td>
         </tr>
         <tr>

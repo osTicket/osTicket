@@ -42,6 +42,10 @@ class Format {
         return $size;
     }
 
+    function filename($filename) {
+        return preg_replace('/[^a-zA-Z0-9\-\._]/', '-', $filename);
+    }
+
     function mimedecode($text, $encoding='UTF-8') {
 
         if(function_exists('imap_mime_header_decode')
@@ -544,6 +548,37 @@ class Format {
         }
 
         return number_format((int) $number);
+    }
+
+    /*
+     * Add ORDINAL suffix to a number e.g 1st, 2nd, 3rd etc.
+     * TODO: Combine this routine with Format::number and pass in type of
+     * formatting.
+     */
+    function ordinalsuffix($number, $locale=false) {
+        if (is_array($number))
+            return array_map(array('Format', 'ordinalsuffix'), $number);
+
+        if (!is_numeric($number))
+            return $number;
+
+        if (extension_loaded('intl') && class_exists('NumberFormatter')) {
+            $nf = new NumberFormatter($locale ?:
+                    Internationalization::getCurrentLocale(),
+                    NumberFormatter::ORDINAL);
+            return $nf->format($number);
+        }
+
+        // Default to English ordinal
+        if (!in_array(($number % 100), [11,12,13])) {
+            switch ($number % 10) {
+            case 1:  return $number.'st';
+            case 2:  return $number.'nd';
+            case 3:  return $number.'rd';
+            }
+        }
+
+        return $number.'th';
     }
 
     /* elapsed time */

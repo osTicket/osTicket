@@ -91,6 +91,7 @@
                     icon: 'icon-trash',
                 });
             trash.addClass('pull-right icon-trash');
+
         }
     },
 
@@ -104,6 +105,7 @@
 
         this.statusbar.add('draft', __('all changes saved'));
         this.app.broadcast('draft.saved');
+
     },
 
     onautosaveSend: function() {
@@ -139,6 +141,42 @@
 
     onchanged: function() {
         this.statusbar.add('draft', __('unsaved'));
+    },
+
+    showDraftSaved: function() {
+        this.$draft_saved.show();
+    },
+
+    saveDraft: function() {
+        if (!this.opts.draftId) {
+            var url = 'ajax.php/draft/' + this.opts.draftNamespace;
+            if (this.opts.draftObjectId)
+                url += '.' + this.opts.draftObjectId;
+        } else
+            url = 'ajax.php/draft/'+this.opts.draftId;
+
+        response = $(".draft").val()
+        if (response) {
+            var data = {
+                name: 'response',
+                response: response,
+            };
+
+            var self = this;
+            $.ajax(url, {
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                async: false,
+                success: function() {
+                    self.draft_id = self.opts.draftId = undefined;
+                    self.draft.showDraftSaved();
+                    self.opts.autosave = self.opts.autoCreateUrl;
+                    self.draft.firstSave = false;
+                    self.$box.trigger('draft:saved');
+                }
+            });
+        }
     },
 
     deleteDraft: function() {
@@ -394,6 +432,7 @@ $(function() {
             options['plugins'].push('draft');
             options['plugins'].push('imageannotate');
             options.draftDelete = el.hasClass('draft-delete');
+            options.draftSave = el.hasClass('draft-save');
         }
         if (true || 'scp') { // XXX: Add this to SCP only
             options['plugins'].push('contexttypeahead');

@@ -13,6 +13,10 @@ if (!$ignoreVisibility || //limited visibility
 )
     $tickets->filter($thisstaff->getTicketsVisibility());
 
+// do not show children tickets unless agent is doing a search
+if ($queue->isAQueue() || $queue->isASubQueue())
+    $tickets->filter(Q::all(new Q(array('thread__object_type' => 'T'))));
+
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
 
@@ -278,23 +282,11 @@ foreach ($tickets as $T) {
 <?php
         echo __('Page').':'.$pageNav->getPageLinks().'&nbsp;';
         ?>
-        <a href="#tickets/export/<?php echo $queue->getId(); ?>" id="queue-export" class="no-pjax"
+        <a href="#tickets/export/<?php echo $queue->getId(); ?>"
+        id="queue-export" class="no-pjax export"
             ><?php echo __('Export'); ?></a>
         <i class="help-tip icon-question-sign" href="#export"></i>
     </div>
 <?php
     } ?>
 </form>
-<script type="text/javascript">
-$(function() {
-    $(document).on('click', 'a#queue-export', function(e) {
-        e.preventDefault();
-        var url = 'ajax.php/'+$(this).attr('href').substr(1)
-        $.dialog(url, 201, function (xhr) {
-            window.location.href = '?a=export&queue=<?php echo $queue->getId(); ?>';
-            return false;
-         });
-        return false;
-    });
-});
-</script>

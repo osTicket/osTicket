@@ -12,6 +12,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once INCLUDE_DIR.'class.businesshours.php';
+include_once INCLUDE_DIR.'class.schedule.php';
 
 class SLA extends VerySimpleModel
 implements TemplateVariable {
@@ -26,7 +28,8 @@ implements TemplateVariable {
     const FLAG_NOALERTS     = 0x0004;
     const FLAG_TRANSIENT    = 0x0008;
 
-    var $_config;
+    protected $_config;
+    protected $_schedule;
 
     function getId() {
         return $this->id;
@@ -38,6 +41,40 @@ implements TemplateVariable {
 
     function getGracePeriod() {
         return $this->grace_period;
+    }
+
+    // Add Grace Period to datetime
+    function addGracePeriod(Datetime $date, BusinessHoursSchedule $schedule
+            = null, &$timeline=array()) {
+        global $cfg;
+
+        // Requested schedule takes presidence, then local and lastly the
+        // system default as a fall-back
+        if (($schedule = $schedule ?: $this->getSchedule() ?:
+                    $cfg->getDefaultSchedule())) {
+            if (($schedule->addWorkingHours($date,
+                            $this->getGracePeriod(), $timeline)))
+                return $date;
+        }
+
+        // No schedule, no problem - just add the hours and call ot a day.
+        $time = round($this->getGracePeriod()*3600);
+        $interval = new DateInterval('PT'.$time.'S');
+        $date->add($interval);
+
+        return $date;
+    }
+
+    function getScheduleId() {
+        return $this->schedule_id;
+    }
+
+    function getSchedule() {
+        if (!isset($this->_schedule) && $this->getScheduleId())
+            $this->_schedule = BusinessHoursSchedule::lookup(
+                    $this->getScheduleId());
+
+        return $this->_schedule;
     }
 
     function getInfo() {
@@ -121,6 +158,7 @@ implements TemplateVariable {
             return false;
 
         $this->name = $vars['name'];
+        $this->schedule_id = $vars['schedule_id'];
         $this->grace_period = $vars['grace_period'];
         $this->notes = Format::sanitize($vars['notes']);
         $this->flags =
@@ -200,6 +238,10 @@ implements TemplateVariable {
             ->first();
 
         return $row ? $row[0] : 0;
+    }
+
+    function __toString() {
+        return $this->getName();
     }
 
     static function create($vars=false, &$errors=array()) {
