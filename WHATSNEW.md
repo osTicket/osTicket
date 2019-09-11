@@ -1,3 +1,30 @@
+osTicket v1.14-rc1
+==================
+### Major New Features
+* Feature: Merge/Link Tickets (a8a4dec…c870df0)
+* Introducing Schedules / Business Hours for SLAs (54e06e9…39771f8)
+* Export Revisited (19ac222…045f6a6)
+
+### Enhancements
+* Ticket Merge Code Fixes (06faacb)
+* Custom Priority Field Blank (f7ea1f6)
+* Field Length Truncate (4d6de40)
+* Formatting cleanup (d0de290)
+* issue: Fix Patch Issue (8a8167e)
+* Code Cleanup (6ff4491)
+* Add thread_type Patch (9f9292f)
+* Modify Draft Saving (e06fb46)
+* Don't require refresh for inline edit (1071d10)
+* ORM Parentheses Patch (fff2e29)
+* Delete Threads/Entries of Deleted Tickets (a39c115)
+* issue: Form Field Flags (94e770a)
+* issue: User/Org Ticket Export (25153ed)
+* Add thread_type Patch (15ed4b1)
+* queue: Add Filtering To Queues (cedd612)
+* issue: Default Queue Sorting (6db9507)
+* Fix Saving For Fields: (c3eaec1)
+* Issue: Queue with Teams in Criteria (d8b61e8)
+
 osTicket v1.12.2
 ================
 ### Enhancements
