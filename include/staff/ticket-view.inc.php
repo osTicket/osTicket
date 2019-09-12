@@ -153,7 +153,7 @@ if($ticket->isOverdue())
                     <li><a class="change-user" href="#tickets/<?php
                     echo $ticket->getId(); ?>/change-user"
                     onclick="javascript:
-                        $('#response').redactor('draft.saveDraft');"
+                        saveDraft();"
                     ><i class="icon-user"></i> <?php
                     echo __('Change Owner'); ?></a></li>
                 <?php
@@ -318,7 +318,7 @@ if($ticket->isOverdue())
                               data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
                               href="#statuses"
                               onclick="javascript:
-                                  $('#response').redactor('draft.saveDraft');"
+                                  saveDraft();"
                               >
                               <?php echo $ticket->getStatus(); ?>
                           </a>
@@ -351,7 +351,7 @@ if($ticket->isOverdue())
                             data-redirect="tickets.php?id=<?php echo $ticket->getId(); ?>"
                             href="#tickets/<?php echo $ticket->getId(); ?>/transfer"
                             onclick="javascript:
-                                $('#response').redactor('draft.saveDraft');"
+                                saveDraft();"
                             ><?php echo Format::htmlchars($ticket->getDeptName()); ?>
                         </a>
                       </td>
@@ -372,7 +372,7 @@ if($ticket->isOverdue())
                     <th width="100"><?php echo __('User'); ?>:</th>
                     <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
                         onclick="javascript:
-                            $('#response').redactor('draft.saveDraft');
+                            saveDraft();
                             $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
                                     function (user) {
                                         $('#user-'+user.id+'-name').text(user.name);
@@ -1408,4 +1408,9 @@ $(function() {
     $(this).parent().find('.select2-search__field').prop('disabled', true);
    });
 });
+function saveDraft() {
+    redactor = $('#response').redactor('plugin.draft');
+    if (redactor.opts.draftId)
+        $('#response').redactor('plugin.draft.saveDraft');
+}
 </script>
