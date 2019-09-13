@@ -609,6 +609,7 @@ $.translate_format = function(str) {
         'yyyy': '`',
         'yyy':  '`',
         'yy':   'y',
+        'y':    'yy',
         '`':    'yy'
     };
     // Change PHP formats to datepicker ones
