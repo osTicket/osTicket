@@ -100,29 +100,28 @@ if($_POST) {
                             ->filter(array('id__in'=>$_POST['ids']))
                             ->delete();
 
-                        if($i && $i==$count) {
+                        if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected site page', 'selected site pages', $count));
-                            if (PluginManager::auditPlugin()) {
-                                $data = array();
-                                foreach ($_POST['ids'] as $id) {
-                                    if ($exists = AuditEntry::getDataById($id, 'G'))
-                                        $data = json_decode($exists[1], true);
-                                    else
-                                        $data['name'] = 'NA';
-
-                                    $data[0] = 'G';
-                                    $type = array('type' => 'deleted');
-                                    Signal::send('object.deleted', $data, $type);
-                                }
-                            }
-                        }
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected site page', 'selected site pages', $count));
                         elseif(!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected site page', 'selected site pages', $count));
+                        if (PluginManager::auditPlugin() && ($i==$count || $i>0)) {
+                            $data = array();
+                            foreach ($_POST['ids'] as $id) {
+                                if ($data = AuditEntry::getDataById($id, 'G'))
+                                        $name = json_decode($data[2], true);
+                                else {
+                                    $name = __('NA');
+                                    $data = array('G', $id);
+                                }
+                                $type = array('type' => 'deleted');
+                                Signal::send('object.deleted', $data, $type);
+                            }
+                        }
                         break;
                     default:
                         $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));

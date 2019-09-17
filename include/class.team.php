@@ -135,8 +135,8 @@ implements TemplateVariable {
     }
 
     function flagChanged($flag, $var) {
-        if (($this->hasflag($flag) && $var != $flag) ||
-            (!$this->hasflag($flag) && $var == $flag))
+        if (($this->hasFlag($flag) && $var != $flag) ||
+            (!$this->hasFlag($flag) && $var == $flag))
                 return true;
     }
 
