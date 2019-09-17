@@ -2708,7 +2708,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->assignToStaff($assignee, $form->getComments(), false);
     }
 
-    function assignToStaff($staff, $note, $alert=true) {
+    function assignToStaff($staff, $note, $alert=true, $user=null) {
 
         if(!is_object($staff) && !($staff = Staff::lookup($staff)))
             return false;
@@ -2725,12 +2725,12 @@ implements RestrictedAccess, Threadable, Searchable {
         else
             $data['staff'] = $staff->getId();
 
-        $this->logEvent('assigned', $data);
+        $this->logEvent('assigned', $data, $user);
 
         return true;
     }
 
-    function assignToTeam($team, $note, $alert=true) {
+    function assignToTeam($team, $note, $alert=true, $user=null) {
 
         if(!is_object($team) && !($team = Team::lookup($team)))
             return false;
@@ -2744,7 +2744,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->setStaffId(0);
 
         $this->onAssign($team, $note, $alert);
-        $this->logEvent('assigned', array('team' => $team->getId()));
+        $this->logEvent('assigned', array('team' => $team->getId()), $user);
 
         return true;
     }
@@ -4330,11 +4330,12 @@ implements RestrictedAccess, Threadable, Searchable {
             else {
                 // Auto assign staff or team - auto assignment based on filter
                 // rules. Both team and staff can be assigned
+                $username = __('Ticket Filter');
                 if ($vars['staffId'])
-                     $ticket->assignToStaff($vars['staffId'], false);
+                     $ticket->assignToStaff($vars['staffId'], false, true, $username);
                 if ($vars['teamId'])
                     // No team alert if also assigned to an individual agent
-                    $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId']);
+                    $ticket->assignToTeam($vars['teamId'], false, !$vars['staffId'], $username);
             }
         }
 
