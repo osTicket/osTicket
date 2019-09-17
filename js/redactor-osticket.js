@@ -49,7 +49,7 @@
         if (this.opts.draftObjectId)
             autosave_url += '.' + this.opts.draftObjectId;
         this.opts.autosave = this.autoCreateUrl = autosave_url;
-        this.opts.autosaveDelay = 4000;
+        this.opts.autosaveDelay = 10000;
         if (this.opts.draftId) {
             this.statusbar.add('draft', __('all changes saved'));
             this._setup(this.opts.draftId);
@@ -84,6 +84,7 @@
 
         // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
+            this.opts.draftSave = true;
             var trash = this.deleteButton =
                 this.toolbar.addButton('deletedraft', {
                     title: __('Delete Draft'),
@@ -92,6 +93,17 @@
                 });
             trash.addClass('pull-right icon-trash');
 
+        }
+
+        // Add [Save Draft] button to the toolbar
+        if (this.opts.draftSave) {
+            var save = this.saveButton =
+                this.toolbar.addButton('savedraft', {
+                    title: __('Save Draft'),
+                    api: 'plugin.draft.saveDraft',
+                    icon: 'icon-save',
+                });
+            save.addClass('pull-right icon-save');
         }
     },
 
@@ -148,12 +160,8 @@
     },
 
     saveDraft: function() {
-        if (!this.opts.draftId) {
-            var url = 'ajax.php/draft/' + this.opts.draftNamespace;
-            if (this.opts.draftObjectId)
-                url += '.' + this.opts.draftObjectId;
-        } else
-            url = 'ajax.php/draft/'+this.opts.draftId;
+        if (!this.opts.draftId)
+            return;
 
         response = $(".draft").val()
         if (response) {
@@ -163,17 +171,14 @@
             };
 
             var self = this;
-            $.ajax(url, {
+            $.ajax('ajax.php/draft/'+this.opts.draftId, {
                 type: 'POST',
                 data: data,
                 dataType: 'json',
-                async: false,
                 success: function() {
-                    self.draft_id = self.opts.draftId = undefined;
-                    self.draft.showDraftSaved();
-                    self.opts.autosave = self.opts.autoCreateUrl;
-                    self.draft.firstSave = false;
-                    self.$box.trigger('draft:saved');
+                    self.draft_id = self.opts.draftId;
+                    self.opts.autosave = self.autoCreateUrl;
+                    self.app.statusbar.add('draft', __('all changes saved'));
                 }
             });
         }
@@ -194,6 +199,7 @@
                 self.opts.clipboardUpload =
                 self.opts.imageUpload = self.autoCreateUrl + '/attach';
                 self.deleteButton.hide();
+                self.saveButton.hide();
                 self.app.broadcast('draft.deleted');
             }
         });
