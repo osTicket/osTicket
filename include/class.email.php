@@ -241,7 +241,7 @@ class Email extends VerySimpleModel {
     }
 
     function update($vars, &$errors=false) {
-        global $cfg, $thisstaff;
+        global $cfg;
 
         // very basic checks
         $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.

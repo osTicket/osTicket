@@ -170,31 +170,25 @@ if($_POST){
                         if($topics && $topics==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
-                            if (class_exists('AuditEntry')) {
-                                $data = array();
-                                foreach ($_POST['ids'] as $id) {
-                                    $data = AuditEntry::getDataById($id, 'H');
-                                    if ($data)
-                                        $name = json_decode($data[1], true);
-                                    else {
-                                        $name = __('NA');
-                                        $data = array('H', $id);
-                                    }
-
-                                    if (PluginManager::auditPlugin()) {
-                                        $type = array('type' => 'deleted');
-                                        Signal::send('object.deleted', $data, $type);
-                                    }
-                                }
-                            }
-                        }
                         elseif($topics>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $topics, $count,
                                 _N('selected help topic', 'selected help topics', $count));
                         elseif(!$errors['err'])
                             $errors['err']  = sprintf(__('Unable to delete %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
-
+                        if (PluginManager::auditPlugin() && ($topics==$count || $topics>0)) {
+                            $data = array();
+                            foreach ($_POST['ids'] as $id) {
+                                if ($data = AuditEntry::getDataById($id, 'H'))
+                                    $name = json_decode($data[2], true);
+                                else {
+                                    $name = __('NA');
+                                    $data = array('H', $id);
+                                }
+                                $type = array('type' => 'deleted');
+                                Signal::send('object.deleted', $data, $type);
+                            }
+                        }
                         break;
                     case 'sort':
                         try {

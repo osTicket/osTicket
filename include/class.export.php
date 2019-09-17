@@ -558,13 +558,13 @@ abstract class  Exporter {
         return $id;
     }
 
-    static function register($exporter) {
+    static function register($exporter, $extra=array()) {
         if (!$exporter instanceof Exporter)
             return false;
 
         $_SESSION['Exports'][$exporter->getId()] = $exporter->getOptions() + array(
                  'file' => $exporter->getFile(),
-                 'class' => get_class($exporter));
+                 'class' => get_class($exporter)) + $extra ?: $extra;
     }
 
     static function load($id) {

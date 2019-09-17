@@ -624,8 +624,8 @@ implements TemplateVariable, Searchable {
     }
 
     function flagChanged($flag, $var) {
-        if (($this->hasflag($flag) && !$var) ||
-            (!$this->hasflag($flag) && $var))
+        if (($this->hasFlag($flag) && !$var) ||
+            (!$this->hasFlag($flag) && $var))
                 return true;
     }
 
@@ -780,7 +780,7 @@ implements TemplateVariable, Searchable {
     }
 
     function update($vars, &$errors) {
-        global $cfg, $thisstaff;
+        global $cfg;
 
         $id = $this->id;
         if ($id && $id != $vars['id'])
