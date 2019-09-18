@@ -3675,15 +3675,18 @@ implements RestrictedAccess, Threadable, Searchable {
                 $fid = $field->get('name');
 
                 // Convert duedate to DB timezone.
-                if ($fid == 'duedate'
-                        && ($dt = Format::parseDateTime($val))) {
-                          // Make sure the due date is valid
-                          if (Misc::user2gmtime($val) <= Misc::user2gmtime())
-                              $errors['field']=__('Due date must be in the future');
-                          else {
-                              $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
-                              $val = $dt->format('Y-m-d H:i:s');
-                          }
+                if ($fid == 'duedate') {
+                    if (empty($val))
+                        $val = null;
+                    elseif ($dt = Format::parseDateTime($val)) {
+                      // Make sure the due date is valid
+                      if (Misc::user2gmtime($val) <= Misc::user2gmtime())
+                          $errors['field']=__('Due date must be in the future');
+                      else {
+                          $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
+                          $val = $dt->format('Y-m-d H:i:s');
+                      }
+                   }
                 } elseif (is_object($val))
                     $val = $val->getId();
 
