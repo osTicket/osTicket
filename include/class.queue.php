@@ -861,6 +861,8 @@ class CustomQueue extends VerySimpleModel {
         elseif ($sort && $sort['col'] &&
                 ($C=$this->getColumn($sort['col'])))
             $query = $C->applySort($query, $sort['dir']);
+        else
+            $query->order_by('-created');
 
         // Render Util
         $render = function ($row) use($columns) {

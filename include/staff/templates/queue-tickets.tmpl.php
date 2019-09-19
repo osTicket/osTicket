@@ -74,9 +74,14 @@ foreach ($columns as $C) {
         $sorted = true;
     }
 }
-if (!$sorted && isset($sort['queuesort'])) {
+
+// Apply queue sort if it's not already sorted by a column
+if (!$sorted) {
     // Apply queue sort-dropdown selected preference
-    $sort['queuesort']->applySort($tickets, $sort['dir']);
+    if (isset($sort['queuesort']))
+        $sort['queuesort']->applySort($tickets, $sort['dir']);
+    else // otherwise sort by created DESC
+        $tickets->order_by('-created');
 }
 
 // Apply pagination
