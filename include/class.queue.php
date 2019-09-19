@@ -2621,6 +2621,7 @@ extends VerySimpleModel {
         $setting = array(
                 'sort_id' => (int) $vars['sort_id'],
                 'filter' => $vars['filter'],
+                'inherit-sort' => ($vars['sort_id'] == '::'),
                 'inherit-columns' => isset($vars['inherit-columns']),
                 'criteria' => $vars['criteria'] ?: array(),
                 );
@@ -2634,8 +2635,7 @@ extends VerySimpleModel {
         }
 
         $this->setting =  JsonDataEncoder::encode($setting);
-
-        return $this->save();
+        return $this->save(true);
     }
 
     function save($refetch=false) {

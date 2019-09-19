@@ -704,6 +704,19 @@ class SavedQueue extends CustomQueue {
         return CustomQueue::getHierarchicalQueues($staff, 0, false);
     }
 
+
+    /*
+     * Determine if sort is inherited
+     */
+    function isDefaultSortInherited() {
+        if ($this->parent
+                && $this->getSettings()
+                && @$this->_settings['inherit-sort'])
+            return true;
+
+        return parent::isDefaultSortInherited();
+    }
+
     /**
      * Fetch an AdvancedSearchForm instance for use in displaying or
      * configuring this search in the user interface.
@@ -841,8 +854,13 @@ class SavedQueue extends CustomQueue {
             }
         }
 
-        if (!$errors && $this->_config->update($vars, $errors))
+        if (!$errors && $this->_config->update($vars, $errors)) {
+            // reset settings
             $this->_settings = $this->_criteria = null;
+            // Reset chached queue options
+            unset($_SESSION['sort'][$this->getId()]);
+
+        }
 
         return (!$errors);
     }
