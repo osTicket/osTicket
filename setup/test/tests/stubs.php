@@ -244,4 +244,8 @@ class HashPassword {
     function HashPassword() {}
 }
 
+class SplFileObject {
+    function fseek() {}
+}
+
 ?>
