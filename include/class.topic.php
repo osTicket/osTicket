@@ -131,7 +131,7 @@ implements TemplateVariable, Searchable {
 
     static function getTopicName($id) {
         $names = static::getHelpTopics(false, true);
-        return $names[$id];
+        return is_numeric($id) && isset($names[$id]) ? $names[$id] : '';
     }
 
     function getDeptId() {

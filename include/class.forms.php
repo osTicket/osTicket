@@ -2703,17 +2703,15 @@ class TopicField extends ChoiceField {
 
     function getTopics() {
         if (!isset($this->topics))
-            $this->topics = Topic::objects();
+            $this->topics = Topic::getHelpTopics(false, false, true);
 
         return $this->topics;
     }
 
     function getTopic($id) {
         if ($this->getTopics() &&
-                ($s=$this->topics->findFirst(array('id' => $id))))
-            return $s;
-
-        return Topic::lookup($id);
+                isset($this->topics[$id]))
+            return Topic::lookup($id);
     }
 
     function getWidget($widgetClass=false) {
@@ -2732,10 +2730,8 @@ class TopicField extends ChoiceField {
 
     function getChoices($verbose=false) {
         if (!isset($this->_choices)) {
-            $choices = array('' => '— '.__('Default').' —');
-            foreach ($this->getTopics() as $t)
-                $choices[$t->getId()] = $t->getName();
-            $this->_choices = $choices;
+            $this->_choices = array('' => '— '.__('Default').' —') +
+                $this->getTopics();
         }
 
         return $this->_choices;
@@ -2775,7 +2771,8 @@ class TopicField extends ChoiceField {
 
     function toString($value) {
         if (!($value instanceof Topic) && is_numeric($value))
-            $value = $this->getSLA($value);
+            $value = $this->getTopic($value);
+
         return ($value instanceof Topic) ? $value->getName() : $value;
     }
 
