@@ -785,7 +785,7 @@ class ScheduleEntry extends VerySimpleModel {
     function getCurrent($from=null) {
         if (!isset($this->_current) || $from) {
             // Check to make sure we're still in scope
-            $start = is_object($from) ? clone $from : Format::parseDatetime($from ?: 'now');
+            $start = is_object($from) ? clone $from : Format::parseDateTime($from ?: 'now');
             $stop = $this->getStopsDatetime();
             if ($stop && $stop->getTimestamp() < $start->getTimestamp())
                 return null;
@@ -1264,13 +1264,13 @@ extends AbstractForm {
         $errors = array();
         $data = $this->getClean($validate);
         $vars = array('name' => $data['name'], 'repeats' => $data['repeats']);
-        if (($startsOn=Format::parseDatetime($data['starts_on'])))
+        if (($startsOn=Format::parseDateTime($data['starts_on'])))
             $vars['starts_on'] = $startsOn->format('Y-m-d');
         else
             $errors['starts_on'] = __('Valid Start Date required');
 
         if ($data['stops_on'] && $startsOn &&
-                ($stopsOn = Format::parseDatetime($data['stops_on']))) {
+                ($stopsOn = Format::parseDateTime($data['stops_on']))) {
             if ($stopsOn->getTimestamp() <= $startsOn->getTimestamp())
                 $errors['ends_on'] = __('Must be in the future');
         }

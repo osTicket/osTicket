@@ -15,7 +15,7 @@ $action = "#schedule/{$schedule->getId()}/diagnostic";
     if ($form->isValid()) {
         $timeline = array();
         $data = $form->getClean();
-        $schedule->addWorkingHours(Format::parseDatetime($data['date']), $data['hours'], $timeline);
+        $schedule->addWorkingHours(Format::parseDateTime($data['date']), $data['hours'], $timeline);
         ?>
         <div id="diagnostic-results"
             style="overflow-y: auto; max-height:400px; margin-bottom:5px;">
