@@ -968,7 +968,7 @@ CREATE TABLE `%TABLE_PREFIX%user_email` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `user_id` int(10) unsigned NOT NULL,
   `flags` int(10) unsigned NOT NULL DEFAULT 0,
-  `address` varchar(128) NOT NULL,
+  `address` varchar(255) NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `address` (`address`),
   KEY `user_email_lookup` (`user_id`)
