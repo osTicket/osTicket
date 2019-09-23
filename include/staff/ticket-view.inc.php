@@ -263,19 +263,7 @@ if($ticket->isOverdue())
                     <?php
                      }
                   }
-                if (PluginManager::auditPlugin()) {
-                    $extras = new ArrayObject();
-                    Signal::send('ticket.view.more', $ticket, $extras);
-                    foreach ($extras as $li) {
-                        ?><li><a href="#<?php echo $li['url']; ?>"
-                        onclick="javascript:
-                        $.dialog($(this).attr('href').substr(1), 201);
-                        return false;"
-                        ><i class="<?php echo $li['icon'] ?: 'icon-cogs'; ?>"></i>
-                        <?php echo $li['name'] ?: (string) $li; ?>
-                        </a></li>
-     <?php           }
-                 }
+                  Signal::send('ticket.view.more', $ticket, $extras);
                   if ($role->hasPerm(Ticket::PERM_DELETE)) {
                      ?>
                     <li class="danger"><a class="ticket-action" href="#tickets/<?php

@@ -3,8 +3,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
 
 $account = $user->getAccount();
 $org = $user->getOrganization();
-
-
+$extras = new ArrayObject();
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
@@ -70,24 +69,7 @@ $org = $user->getOrganization();
                     return false"
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
-<?php }
-                  if (PluginManager::auditPlugin()) {
-                      $extras = new ArrayObject();
-                      Signal::send('user.view.more', $user, $extras);
-
-                      foreach ($extras as $extra) {
-                        $tabTitle = str_replace('-', ' ', $extra['tab']);
-                      }
-                      foreach ($extras as $li) {
-                          ?><li><a href="#<?php echo $li['url']; ?>"
-                          onclick="javascript:
-                          $.dialog($(this).attr('href').substr(1), 201);
-                          return false"
-                          ><i class="<?php echo $li['icon'] ?: 'icon-cogs'; ?>"></i>
-                          <?php echo $li['name'] ?: (string) $li; ?>
-                          </a></li>
-                      <?php }
-                  } ?>
+<?php } ?>
               </ul>
             </div>
         </td>
@@ -167,8 +149,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
-    <?php if (PluginManager::auditPlugin()) { ?>
-    <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li> <?php } ?>
+    <?php Signal::send('usertab.audit', $user, $extras); ?>
 </ul>
 <div id="user-view-tabs_container">
     <div id="tickets" class="tab_content">
@@ -184,12 +165,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     include STAFFINC_DIR . 'templates/notes.tmpl.php';
     ?>
     </div>
-
-    <div class="hidden tab_content" id=<?php echo $extra['tab']; ?>>
-      <?php
-      include $extra['url'];
-      ?>
-    </div>
+    <?php Signal::send('user.audit', $user, $extras); ?>
 </div>
 <div class="hidden dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm'); ?></h3>
