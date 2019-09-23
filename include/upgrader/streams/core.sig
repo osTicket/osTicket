@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 86707325fc571e56242fccc46fd24466
 =======
 0ca8585781bc6656f3ca008212554441
@@ -47,3 +48,6 @@ e69781546e08be96d787199a911d0ffe
 =======
 e69781546e08be96d787199a911d0ffe
 >>>>>>> Add thread_type Patch
+=======
+cc6d1b03792f91fc3b6bc1d85bdc9813
+>>>>>>> issue: Staff/User Email Length
