@@ -41,10 +41,8 @@ if($_POST){
             if (($_sla->update($_POST, $errors))) {
                 $msg=sprintf(__('Successfully added %s.'),
                     __('a SLA plan'));
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'created');
-                    Signal::send('object.created', $_sla, $type);
-                }
+                $type = array('type' => 'created');
+                Signal::send('object.created', $_sla, $type);
                 $_REQUEST['a']=null;
             } elseif (!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
@@ -104,10 +102,8 @@ if($_POST){
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete()) {
-                                    if (PluginManager::auditPlugin()) {
-                                        $type = array('type' => 'deleted');
-                                        Signal::send('object.deleted', $p, $type);
-                                    }
+                                    $type = array('type' => 'deleted');
+                                    Signal::send('object.deleted', $p, $type);
                                     $i++;
                                 }
                         }

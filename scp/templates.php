@@ -82,10 +82,8 @@ if($_POST){
                 $msg=sprintf(__('Successfully added %s.'),
                     mb_convert_case(__('a template set'), MB_CASE_TITLE));
                 $_REQUEST['a']=null;
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'created');
-                    Signal::send('object.created', $new, $type);
-                }
+                $type = array('type' => 'created');
+                Signal::send('object.created', $new, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this message template')),
@@ -104,11 +102,9 @@ if($_POST){
                             .' WHERE tpl_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
                             foreach ($_POST['ids'] as $k=>$v) {
-                                if (PluginManager::auditPlugin()) {
-                                    $tmpl = EmailTemplateGroup::lookup($v);
-                                    $type = array('type' => 'edited', 'status' => 'Enabled');
-                                    Signal::send('object.edited', $tmpl, $type);
-                                }
+                                $tmpl = EmailTemplateGroup::lookup($v);
+                                $type = array('type' => 'edited', 'status' => 'Enabled');
+                                Signal::send('object.edited', $tmpl, $type);
                             }
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
@@ -134,10 +130,8 @@ if($_POST){
                             $msg = sprintf(__('Successfully disabled %s'),
                                 _N('selected template set', 'selected template sets', $count));
                             foreach ($templates as $tmpl) {
-                                if (PluginManager::auditPlugin()) {
-                                    $type = array('type' => 'edited', 'status' => 'Disabled');
-                                    Signal::send('object.edited', $tmpl, $type);
-                                }
+                                $type = array('type' => 'edited', 'status' => 'Disabled');
+                                Signal::send('object.edited', $tmpl, $type);
                             }
                         }
                         elseif($i)
@@ -153,10 +147,8 @@ if($_POST){
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete()) {
-                                if (PluginManager::auditPlugin()) {
-                                    $type = array('type' => 'deleted');
-                                    Signal::send('object.deleted', $t, $type);
-                                }
+                                $type = array('type' => 'deleted');
+                                Signal::send('object.deleted', $t, $type);
                                 $i++;
                             }
 

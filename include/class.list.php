@@ -407,10 +407,8 @@ class DynamicList extends VerySimpleModel implements CustomList {
                 $errors[$f] = sprintf(__('%s is required'), mb_convert_case($f, MB_CASE_TITLE));
             elseif (isset($vars[$f])) {
                 if ($vars[$f] != $this->get($f)) {
-                    if (PluginManager::auditPlugin()) {
-                        $type = array('type' => 'edited', 'key' => $f);
-                        Signal::send('object.edited', $this, $type);
-                    }
+                    $type = array('type' => 'edited', 'key' => $f);
+                    Signal::send('object.edited', $this, $type);
                     $this->set($f, $vars[$f]);
                 }
             }

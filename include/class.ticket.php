@@ -1492,11 +1492,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
-
-                    if (PluginManager::auditPlugin()) {
-                        $type = array('type' => 'closed');
-                        Signal::send('object.edited', $t, $type);
-                    }
+                    $type = array('type' => 'closed');
+                    Signal::send('object.edited', $t, $type);
 
                     $t->deleteDrafts();
                 };
@@ -2736,12 +2733,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
-        if (PluginManager::auditPlugin()) {
-            $thisstaff = $staff;
-            $key = $data['claim'] ? 'claim' : 'auto';
-            $type = array('type' => 'assigned', $key => true); //adriane
-            Signal::send('object.edited', $this, $type);
-        }
+        $thisstaff = $staff;
+        $key = $data['claim'] ? 'claim' : 'auto';
+        $type = array('type' => 'assigned', $key => true);
+        Signal::send('object.edited', $this, $type);
 
         return true;
     }
@@ -2818,11 +2813,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $evd);
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'assigned');
-            $type += $audit;
-            Signal::send('object.edited', $this, $type);
-        }
+        $type = array('type' => 'assigned');
+        $type += $audit;
+        Signal::send('object.edited', $this, $type);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
 
@@ -2922,11 +2915,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('referred', $evd);
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'referred');
-            $type += $audit;
-            Signal::send('object.edited', $this, $type);
-        }
+        $type = array('type' => 'referred');
+        $type += $audit;
+        Signal::send('object.edited', $this, $type);
 
         return true;
     }
@@ -3080,11 +3071,8 @@ implements RestrictedAccess, Threadable, Searchable {
             // TODO: Can collaborators add others?
             if ($collabs) {
                 $ticket->logEvent('collab', array('add' => $collabs), $message->user);
-
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'collab', 'add' => $collabs);
-                    Signal::send('object.created', $ticket, $type);
-                }
+                $type = array('type' => 'collab', 'add' => $collabs);
+                Signal::send('object.created', $ticket, $type);
             }
         }
 
@@ -3170,10 +3158,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $staff->getEmail();
             }
         }
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'message', 'uid' => $vars['userId']);
-            Signal::send('object.created', $this, $type);
-        }
+        $type = array('type' => 'message', 'uid' => $vars['userId']);
+        Signal::send('object.created', $this, $type);
 
         return $message;
     }
@@ -3311,10 +3297,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'message');
-            Signal::send('object.created', $this, $type);
-        }
+        $type = array('type' => 'message');
+        Signal::send('object.created', $this, $type);
 
         /* email the user??  - if disabled - then bail out */
         if (!$alert)
@@ -3385,26 +3369,24 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // History log -- used for statistics generation (pretty reports)
     function logEvent($state, $data=null, $user=null, $annul=null) {
-        if (PluginManager::auditPlugin()) {
-            switch ($state) {
-                case 'collab':
-                case 'transferred':
-                    $type = $data;
-                    $type['type'] = $state;
-                    break;
-                case 'edited':
-                    $type = array('type' => $state, 'fields' => $data['fields'] ? $data['fields'] : $data);
-                    break;
-                case 'assigned':
-                case 'referred':
-                    break;
-                default:
-                    $type = array('type' => $state);
-                    break;
-            }
-            if ($type)
-                Signal::send('object.created', $this, $type);
+        switch ($state) {
+            case 'collab':
+            case 'transferred':
+                $type = $data;
+                $type['type'] = $state;
+                break;
+            case 'edited':
+                $type = array('type' => $state, 'fields' => $data['fields'] ? $data['fields'] : $data);
+                break;
+            case 'assigned':
+            case 'referred':
+                break;
+            default:
+                $type = array('type' => $state);
+                break;
         }
+        if ($type)
+            Signal::send('object.created', $this, $type);
         if ($this->getThread())
             $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
@@ -3474,10 +3456,8 @@ implements RestrictedAccess, Threadable, Searchable {
             'assignee' => $assignee
         ), $alert);
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'note');
-            Signal::send('object.created', $this, $type);
-        }
+        $type = array('type' => 'note');
+        Signal::send('object.created', $this, $type);
 
         return $note;
     }

@@ -168,19 +168,17 @@ implements TemplateVariable {
 
         $vars['disable_overdue_alerts'] = isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0;
         $vars['transient'] = isset($vars['transient']) ? self::FLAG_TRANSIENT : 0;
-        if (PluginManager::auditPlugin()) {
-            //flags
-            $auditDisableOverdue = $this->flagChanged(self::FLAG_NOALERTS, $vars['disable_overdue_alerts']);
-            $auditTransient = $this->flagChanged(self::FLAG_TRANSIENT, $vars['transient']);
-            $auditStatus = $this->flagChanged(self::FLAG_ACTIVE, $vars['isactive']);
+        //flags
+        $auditDisableOverdue = $this->flagChanged(self::FLAG_NOALERTS, $vars['disable_overdue_alerts']);
+        $auditTransient = $this->flagChanged(self::FLAG_TRANSIENT, $vars['transient']);
+        $auditStatus = $this->flagChanged(self::FLAG_ACTIVE, $vars['isactive']);
 
-            foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value) ||
-                   ($auditDisableOverdue && $key == 'disable_overdue_alerts' ||
-                    $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
-                    $type = array('type' => 'edited', 'key' => $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) ||
+               ($auditDisableOverdue && $key == 'disable_overdue_alerts' ||
+                $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
 

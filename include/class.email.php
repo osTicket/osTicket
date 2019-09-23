@@ -389,12 +389,10 @@ class Email extends VerySimpleModel {
         //checkboxes
         $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
         $vars['smtp_spoofing'] = isset($vars['smtp_spoofing']) ? 1 : 0;
-        if (PluginManager::auditPlugin()) {
-            foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value)) {
-                    $type = array('type' => 'edited', 'key' => $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value)) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
 

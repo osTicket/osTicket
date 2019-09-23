@@ -53,10 +53,8 @@ if ($_POST) {
             unset($_REQUEST['a']);
             $msg = sprintf(__('Successfully added %s.'),
                     __('role'));
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'created');
-                Signal::send('object.created', $_role, $type);
-            }
+            $type = array('type' => 'created');
+            Signal::send('object.created', $_role, $type);
         } elseif ($errors) {
             $errors['err'] = sprintf('%s %s',
                 sprintf(__('Unable to add %s.'), __('this role')),
@@ -118,10 +116,8 @@ if ($_POST) {
                 $i=0;
                 foreach ($_POST['ids'] as $k=>$v) {
                     if (($r=Role::lookup($v)) && $r->isDeleteable() && $r->delete()) {
-                        if (PluginManager::auditPlugin()) {
-                            $type = array('type' => 'deleted');
-                            Signal::send('object.deleted', $r, $type);
-                        }
+                        $type = array('type' => 'deleted');
+                        Signal::send('object.deleted', $r, $type);
                         $i++;
                     }
                 }

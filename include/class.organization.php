@@ -429,24 +429,20 @@ implements TemplateVariable, Searchable {
             return false;
 
         foreach ($this->getDynamicData() as $entry) {
-            if (PluginManager::auditPlugin()) {
-                $fields = $entry->getFields();
-                foreach ($fields as $field) {
-                    $changes = $field->getChanges();
-                    if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
-                        $type = array('type' => 'edited', 'key' => $field->getLabel());
-                        Signal::send('object.edited', $this, $type);
-                    }
+            $fields = $entry->getFields();
+            foreach ($fields as $field) {
+                $changes = $field->getChanges();
+                if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                    $type = array('type' => 'edited', 'key' => $field->getLabel());
+                    Signal::send('object.edited', $this, $type);
                 }
             }
             if ($entry->getDynamicForm()->get('type') == 'O'
                && ($name = $entry->getField('name'))
             ) {
-                if (PluginManager::auditPlugin()) {
-                    if ($this->name != $name->getClean()) {
-                        $type = array('type' => 'edited', 'key' => 'Name');
-                        Signal::send('object.edited', $this, $type);
-                    }
+                if ($this->name != $name->getClean()) {
+                    $type = array('type' => 'edited', 'key' => 'Name');
+                    Signal::send('object.edited', $this, $type);
                 }
                 $this->name = $name->getClean();
                 $this->save();
@@ -456,27 +452,25 @@ implements TemplateVariable, Searchable {
                 $this->updated = SqlFunction::NOW();
         }
 
-        if (PluginManager::auditPlugin()) {
-            if ($auditCollabAll = $this->autoFlagChanged($this->autoAddMembersAsCollabs(),
-                $vars['collab-all-flag']))
-                    $key = 'collab-all-flag';
-            if ($auditCollabPc = $this->autoFlagChanged($this->autoAddPrimaryContactsAsCollabs(),
-                $vars['collab-pc-flag']))
-                    $key = 'collab-pc-flag';
-            if ($auditAssignAm = $this->autoFlagChanged($this->autoAssignAccountManager(),
-                $vars['assign-am-flag']))
-                    $key = 'assign-am-flag';
+        if ($auditCollabAll = $this->autoFlagChanged($this->autoAddMembersAsCollabs(),
+            $vars['collab-all-flag']))
+                $key = 'collab-all-flag';
+        if ($auditCollabPc = $this->autoFlagChanged($this->autoAddPrimaryContactsAsCollabs(),
+            $vars['collab-pc-flag']))
+                $key = 'collab-pc-flag';
+        if ($auditAssignAm = $this->autoFlagChanged($this->autoAssignAccountManager(),
+            $vars['assign-am-flag']))
+                $key = 'assign-am-flag';
 
-            if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
-            }
+        if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
+            $type = array('type' => 'edited', 'key' => $key);
+            Signal::send('object.edited', $this, $type);
+        }
 
-            foreach ($vars as $key => $value) {
-                if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
-                        $type = array('type' => 'edited', 'key' => $key);
-                        Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
             }
         }
 
@@ -501,11 +495,9 @@ implements TemplateVariable, Searchable {
                 'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
                 'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
-            if (PluginManager::auditPlugin()) {
-                if (($sharingPrimary || $sharingEverybody) && $key == $ck) {
-                    $type = array('type' => 'edited', 'key' => 'sharing');
-                    Signal::send('object.edited', $this, $type);
-                }
+            if (($sharingPrimary || $sharingEverybody) && $key == $ck) {
+                $type = array('type' => 'edited', 'key' => 'sharing');
+                Signal::send('object.edited', $this, $type);
             }
             if ($vars['sharing'] == $ck)
                 $this->setStatus($flag);
@@ -569,10 +561,8 @@ implements TemplateVariable, Searchable {
         }
 
         Signal::send('organization.created', $org);
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'created');
-            Signal::send('object.created', $org, $type);
-        }
+        $type = array('type' => 'created');
+        Signal::send('object.created', $org, $type);
         return $org;
     }
 

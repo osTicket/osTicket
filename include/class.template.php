@@ -641,12 +641,10 @@ class EmailTemplate {
         $vars['body'] = Format::sanitize($vars['body'], false);
 
         if ($id) {
-            if (PluginManager::auditPlugin()) {
-                foreach ($vars as $key => $value) {
-                    if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
-                        $type = array('type' => 'edited', 'key' => $this->getCodeName());
-                        Signal::send('object.edited', $this->getGroup(), $type);
-                    }
+            foreach ($vars as $key => $value) {
+                if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+                    $type = array('type' => 'edited', 'key' => $this->getCodeName());
+                    Signal::send('object.edited', $this->getGroup(), $type);
                 }
             }
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '
@@ -663,12 +661,10 @@ class EmailTemplate {
                 .', body='.db_input($vars['body']);
             if (db_query($sql) && ($id=db_insert_id())) {
                 $template = EmailTemplate::lookup($id);
-                if (PluginManager::auditPlugin()) {
                 foreach ($vars as $key => $value) {
-                        if (isset($template->ht[$key]) && ($template->ht[$key] != $value)) {
-                            $type = array('type' => 'edited', 'key' => $template->getCodeName());
-                            Signal::send('object.edited', $template->getGroup(), $type);
-                        }
+                    if (isset($template->ht[$key]) && ($template->ht[$key] != $value)) {
+                        $type = array('type' => 'edited', 'key' => $template->getCodeName());
+                        Signal::send('object.edited', $template->getGroup(), $type);
                     }
                 }
                 return $id;

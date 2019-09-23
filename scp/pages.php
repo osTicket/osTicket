@@ -28,10 +28,8 @@ if($_POST) {
                 $pageId = $page->getId();
                 $_REQUEST['a'] = null;
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'created');
-                    Signal::send('object.created', $page, $type);
-                }
+                $type = array('type' => 'created');
+                Signal::send('object.created', $page, $type);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
                 $errors['err']=sprintf('%s %s',
@@ -109,7 +107,7 @@ if($_POST) {
                         elseif(!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected site page', 'selected site pages', $count));
-                        if (PluginManager::auditPlugin() && ($i==$count || $i>0)) {
+                        if ($i==$count || $i>0) {
                             $data = array();
                             foreach ($_POST['ids'] as $id) {
                                 if ($data = AuditEntry::getDataById($id, 'G'))

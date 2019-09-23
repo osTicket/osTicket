@@ -73,10 +73,8 @@ if ($_POST) {
             switch (strtolower($_POST['do'])) {
             case 'delete':
                 foreach ($orgs as $O) {
-                  if (PluginManager::auditPlugin()) {
-                      $type = array('type' => 'deleted');
-                      Signal::send('object.deleted', $O, $type);
-                  }
+                  $type = array('type' => 'deleted');
+                  Signal::send('object.deleted', $O, $type);
                   if ($O->delete())
                       $count++;
                 }

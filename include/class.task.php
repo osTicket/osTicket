@@ -652,22 +652,20 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     /* util routines */
 
     function logEvent($state, $data=null, $user=null, $annul=null) {
-        if (PluginManager::auditPlugin()) {
-            switch ($state) {
-                case 'transferred':
-                case 'edited':
-                    $type = $data;
-                    $type['type'] = $state;
-                    break;
-                case 'assigned':
-                    break;
-                default:
-                    $type = array('type' => $state);
-                    break;
-            }
-            if ($type)
-                Signal::send('object.created', $this, $type);
+        switch ($state) {
+            case 'transferred':
+            case 'edited':
+                $type = $data;
+                $type['type'] = $state;
+                break;
+            case 'assigned':
+                break;
+            default:
+                $type = array('type' => $state);
+                break;
         }
+        if ($type)
+            Signal::send('object.created', $this, $type);
         $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
 
@@ -689,10 +687,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         if ($errors)
             return false;
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'assigned', 'claim' => true);
-            Signal::send('object.edited', $this, $type);
-        }
+        $type = array('type' => 'assigned', 'claim' => true);
+        Signal::send('object.edited', $this, $type);
 
         return $this->assignToStaff($assignee, $form->getComments(), false);
     }
@@ -771,11 +767,9 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $this->logEvent('assigned', $evd);
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'assigned');
-            $type += $audit;
-            Signal::send('object.edited', $this, $type);
-        }
+        $type = array('type' => 'assigned');
+        $type += $audit;
+        Signal::send('object.edited', $this, $type);
 
         $this->onAssignment($assignee,
                 $form->getField('comments')->getClean(),
@@ -974,10 +968,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'assignee' => $assignee
         ), $alert);
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'note');
-            Signal::send('object.created', $this, $type);
-        }
+        $type = array('type' => 'note');
+        Signal::send('object.created', $this, $type);
 
         return $note;
     }
@@ -1034,10 +1026,8 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             );
         }
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'message');
-            Signal::send('object.created', $this, $type);
-        }
+        $type = array('type' => 'message');
+        Signal::send('object.created', $this, $type);
 
         return $response;
     }

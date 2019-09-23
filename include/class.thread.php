@@ -192,13 +192,11 @@ implements Searchable {
               )
           );
 
-          if (PluginManager::auditPlugin()) {
-              $type = array('type' => 'collab', 'add' => array($user->getId() => array(
-                      'name' => $user->getName()->name,
-                      'src' => @$vars['source'],
-                  )));
-              Signal::send('object.created', $this->getObject(), $type);
-          }
+          $type = array('type' => 'collab', 'add' => array($user->getId() => array(
+                  'name' => $user->getName()->name,
+                  'src' => @$vars['source'],
+              )));
+          Signal::send('object.created', $this->getObject(), $type);
         }
 
 
@@ -222,13 +220,11 @@ implements Searchable {
                  $this->getEvents()->log($this->getObject(), 'collab', array(
                      'del' => array($c->user_id => array('name' => $c->getName()->getOriginal()))
                  ));
-                 if (PluginManager::auditPlugin()) {
-                     $type = array('type' => 'collab', 'del' => array($c->user_id => array(
-                             'name' => $c->getName()->getOriginal(),
-                             'src' => @$vars['source'],
-                         )));
-                     Signal::send('object.deleted', $this->getObject(), $type);
-                 }
+                 $type = array('type' => 'collab', 'del' => array($c->user_id => array(
+                         'name' => $c->getName()->getOriginal(),
+                         'src' => @$vars['source'],
+                     )));
+                 Signal::send('object.deleted', $this->getObject(), $type);
             }
         }
 

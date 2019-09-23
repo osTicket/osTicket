@@ -119,11 +119,9 @@ class Config {
         $before = $item->value;
         $item->value = $value;
 
-        if (PluginManager::auditPlugin()) {
-            if ($before != $item->value) {
-                $type = array('type' => 'edited', 'key' => $item->ht['key']);
-                Signal::send('object.edited', $item, $type);
-            }
+        if ($before != $item->value) {
+            $type = array('type' => 'edited', 'key' => $item->ht['key']);
+            Signal::send('object.edited', $item, $type);
         }
 
         return $item->save();
