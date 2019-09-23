@@ -35,13 +35,6 @@ else {
 }
 
 $extras = new ArrayObject();
-Signal::send('agent.audit', $staff, $extras);
-
-foreach ($extras as $extra) {
-  $tabTitle = str_replace('-', ' ', $extra['tab']);
-}
-$audit = true;
-
 ?>
 
 <form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" autocomplete="off">
@@ -61,8 +54,7 @@ $audit = true;
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
     <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
-    <?php if ($audit) { ?>
-    <li> <a href="#<?php echo $extra['tab']; ?>"><?php echo __(ucwords($tabTitle)); ?></a></li> <?php } ?>
+    <?php Signal::send('agenttab.audit', $staff, $extras); ?>
   </ul>
 
   <div class="tab_content" id="account">
@@ -454,13 +446,7 @@ foreach ($staff->teams as $TM) {
   </div>
 
   <!-- ============== Audits =================== -->
-  <?php if (PluginManager::auditPlugin()) { ?>
-  <div class="hidden tab_content" id=<?php echo $extra['tab']; ?>>
-    <?php
-    include $extra['url'];
-    ?>
-  </div>
-<?php } ?>
+<?php Signal::send('agent.audit', $staff, $extras); ?>
 
   <p style="text-align:center;">
       <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
