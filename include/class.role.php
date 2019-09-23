@@ -136,22 +136,18 @@ class Role extends RoleModel {
         $config = array();
         $permissions = $this->getPermission();
 
-        if (PluginManager::auditPlugin()) {
-            foreach ($vars as $k => $val) {
-                if (!array_key_exists($val, $permissions->perms)) {
-                    $type = array('type' => 'edited', 'key' => $val);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $k => $val) {
+            if (!array_key_exists($val, $permissions->perms)) {
+                $type = array('type' => 'edited', 'key' => $val);
+                Signal::send('object.edited', $this, $type);
             }
         }
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach($perms as $k => $v) {
-                if (PluginManager::auditPlugin()) {
-                    if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
-                        $type = array('type' => 'edited', 'key' => $k);
-                        Signal::send('object.edited', $this, $type);
-                    }
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                    $type = array('type' => 'edited', 'key' => $k);
+                    Signal::send('object.edited', $this, $type);
                 }
                 $permissions->set($k, in_array($k, $vars) ? 1 : 0);
             }
@@ -171,12 +167,10 @@ class Role extends RoleModel {
         if ($errors)
             return false;
 
-        if (PluginManager::auditPlugin()) {
-            foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms')) {
-                    $type = array('type' => 'edited', 'key' => $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
         $this->name = $vars['name'];

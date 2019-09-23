@@ -38,10 +38,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                 if(($_dept->update($_POST,$errors))){
                     $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['name']));
                     $_REQUEST['a']=null;
-                    if (PluginManager::auditPlugin()) {
-                        $type = array('type' => 'created');
-                        Signal::send('object.created', $_dept, $type);
-                    }
+                    $type = array('type' => 'created');
+                    Signal::send('object.created', $_dept, $type);
                 }elseif(!$errors['err']){
                     $errors['err']=sprintf('%s %s',
                         sprintf(__('Unable to add %s.'), __('this department')),
@@ -106,10 +104,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
                               FilterAction::setFilterFlag($filter_actions, 'dept', false);
                               if($d->save()) {
-                                  if (PluginManager::auditPlugin()) {
-                                      $type = array('type' => 'edited', 'status' => 'Active');
-                                      Signal::send('object.edited', $d, $type);
-                                  }
+                                  $type = array('type' => 'edited', 'status' => 'Active');
+                                  Signal::send('object.edited', $d, $type);
                                   $num++;
                               }
                             }
@@ -138,10 +134,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
                               FilterAction::setFilterFlag($filter_actions, 'dept', true);
                               if($d->save()) {
-                                if (PluginManager::auditPlugin()) {
-                                    $type = array('type' => 'edited', 'status' => 'Disabled');
-                                    Signal::send('object.edited', $d, $type);
-                                }
+                                $type = array('type' => 'edited', 'status' => 'Disabled');
+                                Signal::send('object.edited', $d, $type);
                                 $num++;
                               }
                             }
@@ -169,10 +163,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
                               FilterAction::setFilterFlag($filter_actions, 'dept', true);
                               if($d->save()) {
-                                if (PluginManager::auditPlugin()) {
-                                    $type = array('type' => 'edited', 'status' => 'Archived');
-                                    Signal::send('object.edited', $d, $type);
-                                }
+                                $type = array('type' => 'edited', 'status' => 'Archived');
+                                Signal::send('object.edited', $d, $type);
                                 $num++;
                                 //set dept_id to default for topics/emails using archived dept
                                 Dept::clearInactiveDept($d->getId());
@@ -201,10 +193,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                                 $i=0;
                                 foreach($_POST['ids'] as $k=>$v) {
                                     if($v!=$cfg->getDefaultDeptId() && ($d=Dept::lookup($v))) {
-                                      if (PluginManager::auditPlugin()) {
-                                          $type = array('type' => 'deleted');
-                                          Signal::send('object.deleted', $d, $type);
-                                      }
+                                      $type = array('type' => 'deleted');
+                                      Signal::send('object.deleted', $d, $type);
                                       $d->delete();
                                       $i++;
                                     }

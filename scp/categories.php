@@ -41,20 +41,16 @@ if($_POST){
                     sprintf(__('Unable to update %s.'), __('this category')),
                     __('Correct any errors below and try again.'));
             }
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $category, $type);
-            }
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $category, $type);
             break;
         case 'create':
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'created');
-                    Signal::send('object.created', $category, $type);
-                }
+                $type = array('type' => 'created');
+                Signal::send('object.created', $category, $type);
             } elseif(!$errors['err']) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this category')),
@@ -125,7 +121,7 @@ if($_POST){
                         elseif (!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected category', 'selected categories', $count));
-                        if (PluginManager::auditPlugin() && (count($categories)==$count || $categories>0)) {
+                        if (count($categories)==$count || $categories>0) {
                             $data = array();
                             foreach ($_POST['ids'] as $id) {
                                 if ($data = AuditEntry::getDataById($id, 'C'))

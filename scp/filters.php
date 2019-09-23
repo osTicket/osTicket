@@ -42,10 +42,8 @@ if($_POST){
             $filter = new Filter();
             if ($filter->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'created');
-                    Signal::send('object.created', $filter, $type);
-                }
+                $type = array('type' => 'created');
+                Signal::send('object.created', $filter, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err'] = sprintf('%s %s',
@@ -108,10 +106,8 @@ if($_POST){
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete()) {
-                                if (PluginManager::auditPlugin()) {
-                                    $type = array('type' => 'deleted');
-                                    Signal::send('object.deleted', $f, $type);
-                                }
+                                $type = array('type' => 'deleted');
+                                Signal::send('object.deleted', $f, $type);
                                 $i++;
                             }
 

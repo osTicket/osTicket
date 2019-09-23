@@ -251,10 +251,8 @@ implements TemplateVariable, Searchable {
             catch (OrmException $e) {
                 return null;
             }
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'created');
-                Signal::send('object.created', $user, $type);
-            }
+            $type = array('type' => 'created');
+            Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
         }
         elseif ($update) {
@@ -566,14 +564,12 @@ implements TemplateVariable, Searchable {
 
         // Save the entries
         foreach ($forms as $entry) {
-            if (PluginManager::auditPlugin()) {
-                $fields = $entry->getFields();
-                foreach ($fields as $field) {
-                    $changes = $field->getChanges();
-                    if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
-                        $type = array('type' => 'edited', 'key' => $field->getLabel());
-                        Signal::send('object.edited', $this, $type);
-                    }
+            $fields = $entry->getFields();
+            foreach ($fields as $field) {
+                $changes = $field->getChanges();
+                if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                    $type = array('type' => 'edited', 'key' => $field->getLabel());
+                    Signal::send('object.edited', $this, $type);
                 }
             }
 
@@ -583,11 +579,9 @@ implements TemplateVariable, Searchable {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
-                    if (PluginManager::auditPlugin()) {
-                        if ($this->name != $name) {
-                            $type = array('type' => 'edited', 'key' => 'Name');
-                            Signal::send('object.edited', $this, $type);
-                        }
+                    if ($this->name != $name) {
+                        $type = array('type' => 'edited', 'key' => 'Name');
+                        Signal::send('object.edited', $this, $type);
                     }
                     $this->name = $name;
                 }
@@ -595,11 +589,9 @@ implements TemplateVariable, Searchable {
                 // Email address field
                 if (($email = $entry->getField('email'))
                         && $isEditable($email)) {
-                    if (PluginManager::auditPlugin()) {
-                        if ($this->default_email->address != $email->getClean()) {
-                            $type = array('type' => 'edited', 'key' => 'Email');
-                            Signal::send('object.edited', $this, $type);
-                        }
+                    if ($this->default_email->address != $email->getClean()) {
+                        $type = array('type' => 'edited', 'key' => 'Email');
+                        Signal::send('object.edited', $this, $type);
                     }
                     $this->default_email->address = $email->getClean();
                     $this->default_email->save();
@@ -663,10 +655,8 @@ implements TemplateVariable, Searchable {
             $entry->delete();
         }
 
-        if (PluginManager::auditPlugin()) {
-            $type = array('type' => 'deleted');
-            Signal::send('object.deleted', $this, $type);
-        }
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         // Delete user
         return parent::delete();
@@ -1293,19 +1283,17 @@ class UserAccount extends VerySimpleModel {
 
         if ($errors) return false;
 
-        if (PluginManager::auditPlugin()) {
-            //flags
-            $pwreset = $this->statusChanged(UserAccountStatus::REQUIRE_PASSWD_RESET, $vars['pwreset-flag']);
-            $locked = $this->statusChanged(UserAccountStatus::LOCKED, $vars['locked-flag']);
-            $forbidPwChange = $this->statusChanged(UserAccountStatus::FORBID_PASSWD_RESET, $vars['forbid-pwchange-flag']);
+        //flags
+        $pwreset = $this->statusChanged(UserAccountStatus::REQUIRE_PASSWD_RESET, $vars['pwreset-flag']);
+        $locked = $this->statusChanged(UserAccountStatus::LOCKED, $vars['locked-flag']);
+        $forbidPwChange = $this->statusChanged(UserAccountStatus::FORBID_PASSWD_RESET, $vars['forbid-pwchange-flag']);
 
-            $info = $this->getInfo();
-            foreach ($vars as $key => $value) {
-                if (($key != 'id' && $info[$key] && $info[$key] != $value) || ($pwreset && $key == 'pwreset-flag' ||
-                        $locked && $key == 'locked-flag' || $forbidPwChange && $key == 'forbid-pwchange-flag')) {
-                    $type = array('type' => 'edited', 'key' => $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        $info = $this->getInfo();
+        foreach ($vars as $key => $value) {
+            if (($key != 'id' && $info[$key] && $info[$key] != $value) || ($pwreset && $key == 'pwreset-flag' ||
+                    $locked && $key == 'locked-flag' || $forbidPwChange && $key == 'forbid-pwchange-flag')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
 
@@ -1315,10 +1303,8 @@ class UserAccount extends VerySimpleModel {
         if ($vars['passwd1']) {
             $this->setPassword($vars['passwd1']);
             $this->setStatus(UserAccountStatus::CONFIRMED);
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'edited', 'key' => 'password');
-                Signal::send('object.edited', $this, $type);
-            }
+            $type = array('type' => 'edited', 'key' => 'password');
+            Signal::send('object.edited', $this, $type);
         }
 
         // Set flags
@@ -1330,12 +1316,10 @@ class UserAccount extends VerySimpleModel {
             if ($vars[$ck])
                 $this->setStatus($flag);
             else {
-                if (PluginManager::auditPlugin()) {
-                    if (($pwreset && $ck == 'pwreset-flag') || ($locked && $ck == 'locked-flag') ||
-                        ($forbidPwChange && $ck == 'forbid-pwchange-flag')) {
-                            $type = array('type' => 'edited', 'key' => $ck);
-                            Signal::send('object.edited', $this, $type);
-                    }
+                if (($pwreset && $ck == 'pwreset-flag') || ($locked && $ck == 'locked-flag') ||
+                    ($forbidPwChange && $ck == 'forbid-pwchange-flag')) {
+                        $type = array('type' => 'edited', 'key' => $ck);
+                        Signal::send('object.edited', $this, $type);
                 }
                 $this->clearStatus($flag);
             }

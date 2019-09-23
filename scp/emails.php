@@ -40,10 +40,8 @@ if($_POST){
                 $id = $box->getId();
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'created');
-                    Signal::send('object.created', $box, $type);
-                }
+                $type = array('type' => 'created');
+                Signal::send('object.created', $box, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this email')),
@@ -62,10 +60,8 @@ if($_POST){
                     $i=0;
                     foreach($_POST['ids'] as $k=>$v) {
                         if($v!=$cfg->getDefaultEmailId() && ($e=Email::lookup($v)) && $e->delete()) {
-                            if (PluginManager::auditPlugin()) {
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $e, $type);
-                            }
+                            $type = array('type' => 'deleted');
+                            Signal::send('object.deleted', $e, $type);
                             $i++;
                         }
 

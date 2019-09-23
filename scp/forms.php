@@ -65,10 +65,8 @@ if($_POST) {
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'edited');
-                Signal::send('object.edited', $form, $type);
-            }
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $form, $type);
             break;
         case 'add':
             $form = DynamicForm::create();
@@ -79,10 +77,8 @@ if($_POST) {
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             }
-            if (PluginManager::auditPlugin()) {
-                $type = array('type' => 'created');
-                Signal::send('object.created', $form, $type);
-            }
+            $type = array('type' => 'created');
+            Signal::send('object.created', $form, $type);
             break;
 
         case 'mass_process':
@@ -95,10 +91,8 @@ if($_POST) {
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=DynamicForm::lookup($v)) && $t->delete()) {
-                                if (PluginManager::auditPlugin()) {
-                                    $type = array('type' => 'deleted');
-                                    Signal::send('object.deleted', $t, $type);
-                                }
+                                $type = array('type' => 'deleted');
+                                Signal::send('object.deleted', $t, $type);
                                 $i++;
                             }
                         }

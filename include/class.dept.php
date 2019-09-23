@@ -972,10 +972,8 @@ implements TemplateVariable, Searchable {
                   'staff_id' => $staff_id, 'role_id' => $role_id
               ));
               $this->extended->add($da);
-              if (PluginManager::auditPlugin()) {
-                  $type = array('type' => 'edited', 'key' => 'Staff Added');
-                  Signal::send('object.edited', $this, $type);
-              }
+              $type = array('type' => 'edited', 'key' => 'Staff Added');
+              Signal::send('object.edited', $this, $type);
           }
           else {
               $da->role_id = $role_id;
@@ -988,10 +986,8 @@ implements TemplateVariable, Searchable {
           return false;
 
       if ($dropped) {
-          if (PluginManager::auditPlugin()) {
-              $type = array('type' => 'edited', 'key' => 'Staff Removed');
-              Signal::send('object.edited', $this, $type);
-          }
+          $type = array('type' => 'edited', 'key' => 'Staff Removed');
+          Signal::send('object.edited', $this, $type);
           $this->extended->saveAll();
           $this->extended
               ->filter(array('staff_id__in' => array_keys($dropped)))

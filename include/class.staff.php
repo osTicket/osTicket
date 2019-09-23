@@ -778,12 +778,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
 
-        if (PluginManager::auditPlugin()) {
-            foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value)) {
-                    $type = array('type' => 'edited', 'key' => $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value)) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
 
@@ -1197,13 +1195,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
         $vars['assigned_only'] = isset($vars['assigned_only']) ? 1 : 0;
 
-        if (PluginManager::auditPlugin()) {
-            foreach ($vars as $key => $value) {
-                if ($key == 'islocked') $key = 'isactive';
-                if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams') && ($key != 'dept_access')) {
-                    $type = array('type' => 'edited', 'key' => ($key == 'isactive') ? 'islocked' : $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if ($key == 'islocked') $key = 'isactive';
+            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams') && ($key != 'dept_access')) {
+                $type = array('type' => 'edited', 'key' => ($key == 'isactive') ? 'islocked' : $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
 
@@ -1275,11 +1271,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'dept_id' => $dept_id, 'role_id' => $role_id
                 ));
                 $this->dept_access->add($da);
-                if (PluginManager::auditPlugin()) {
-                    $type = array('type' => 'edited',
-                                  'key' => sprintf('%s Department Access Added', $dept->getName()));
-                    Signal::send('object.edited', $this, $type);
-                }
+                $type = array('type' => 'edited',
+                              'key' => sprintf('%s Department Access Added', $dept->getName()));
+                Signal::send('object.edited', $this, $type);
             }
             else {
                 $da->role_id = $role_id;
@@ -1293,13 +1287,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 ->filter(array('dept_id__in' => array_keys($dropped)))
                 ->delete();
             $this->dept_access->reset();
-            if (PluginManager::auditPlugin()) {
-                foreach (array_keys($dropped) as $dept_id) {
-                    $deptName = Dept::getNameById($dept_id);
-                    $type = array('type' => 'edited',
-                                  'key' => sprintf('%s Department Access Removed', $deptName));
-                    Signal::send('object.edited', $this, $type);
-                }
+            foreach (array_keys($dropped) as $dept_id) {
+                $deptName = Dept::getNameById($dept_id);
+                $type = array('type' => 'edited',
+                              'key' => sprintf('%s Department Access Removed', $deptName));
+                Signal::send('object.edited', $this, $type);
             }
         }
         return !$errors;

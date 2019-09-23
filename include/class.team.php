@@ -166,7 +166,7 @@ implements TemplateVariable {
         }
 
         $vars['noalerts'] = isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0;
-        if (PluginManager::auditPlugin() && $this->getId()) {
+        if ($this->getId()) {
             //flags
             $auditEnabled = $this->flagChanged(self::FLAG_ENABLED, $vars['isenabled']);
             $auditAlerts = $this->flagChanged(self::FLAG_NOALERTS, $vars['noalerts']);
@@ -233,10 +233,8 @@ implements TemplateVariable {
           if (!isset($member)) {
               $member = new TeamMember(array('staff_id' => $staff_id));
               $this->members->add($member);
-              if (PluginManager::auditPlugin()) {
-                  $type = array('type' => 'edited', 'key' => 'Members Added');
-                  Signal::send('object.edited', $this, $type);
-              }
+              $type = array('type' => 'edited', 'key' => 'Members Added');
+              Signal::send('object.edited', $this, $type);
           }
           $member->setAlerts($alerts);
       }
@@ -246,10 +244,8 @@ implements TemplateVariable {
 
       $this->members->saveAll();
       if ($dropped) {
-          if (PluginManager::auditPlugin()) {
-              $type = array('type' => 'edited', 'key' => 'Members Removed');
-              Signal::send('object.edited', $this, $type);
-          }
+          $type = array('type' => 'edited', 'key' => 'Members Removed');
+          Signal::send('object.edited', $this, $type);
           $this->members
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();

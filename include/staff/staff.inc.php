@@ -34,15 +34,13 @@ else {
     $qs += array('id' => $staff->getId());
 }
 
-if (PluginManager::auditPlugin()) {
-    $extras = new ArrayObject();
-    Signal::send('agent.audit', $staff, $extras);
+$extras = new ArrayObject();
+Signal::send('agent.audit', $staff, $extras);
 
-    foreach ($extras as $extra) {
-      $tabTitle = str_replace('-', ' ', $extra['tab']);
-    }
-    $audit = true;
+foreach ($extras as $extra) {
+  $tabTitle = str_replace('-', ' ', $extra['tab']);
 }
+$audit = true;
 
 ?>
 

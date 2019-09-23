@@ -373,12 +373,10 @@ extends VerySimpleModel {
             $vars['target'] = 'Email';
         }
 
-        if (PluginManager::auditPlugin()) {
-            foreach ($vars as $key => $value) {
-                if (isset($this->$key) && ($this->$key != $value) && $key != 'rules' && $key != 'actions') {
-                    $type = array('type' => 'edited', 'key' => $key);
-                    Signal::send('object.edited', $this, $type);
-                }
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) && $key != 'rules' && $key != 'actions') {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
             }
         }
 
