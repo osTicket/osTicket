@@ -655,7 +655,7 @@ class SavedQueue extends CustomQueue {
     private $_columns;
     private $_settings;
     private $_form;
-
+    private $_sorts;
 
 
     function __onload() {
@@ -702,6 +702,42 @@ class SavedQueue extends CustomQueue {
 
     static function getHierarchicalQueues(Staff $staff, $pid = 0, $primary = true) {
         return CustomQueue::getHierarchicalQueues($staff, 0, false);
+    }
+
+
+    /*
+     * Determine if sort is inherited
+     */
+    function isDefaultSortInherited() {
+        if ($this->parent
+                && $this->getSettings()
+                && @$this->_settings['inherit-sort'])
+            return true;
+
+        return parent::isDefaultSortInherited();
+    }
+
+    function getSortOptions() {
+
+        if (!isset($this->_sorts)) {
+            // See if the queue has sort options
+            if (($sorts=parent::getSortOptions()) && $sorts->count())
+                $this->_sorts = $sorts;
+            // otherwise return all sorts
+            else
+                 $this->_sorts = QueueSort::objects();
+        }
+
+        return $this->_sorts;
+    }
+
+    function getDefaultSort() {
+        if ($this->getSettings()
+                && $this->_settings['sort_id']
+                && ($sort = QueueSort::lookup($this->_settings['sort_id'])))
+            return $sort;
+
+        return parent::getDefaultSort();
     }
 
     /**
@@ -841,8 +877,13 @@ class SavedQueue extends CustomQueue {
             }
         }
 
-        if (!$errors && $this->_config->update($vars, $errors))
+        if (!$errors && $this->_config->update($vars, $errors)) {
+            // reset settings
             $this->_settings = $this->_criteria = null;
+            // Reset chached queue options
+            unset($_SESSION['sort'][$this->getId()]);
+
+        }
 
         return (!$errors);
     }
