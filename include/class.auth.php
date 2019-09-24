@@ -683,7 +683,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
-        $u = User::lookup($user->getId());
+        $u = $user->getSessionUser()->getUser();
         $type = array('type' => 'login');
         Signal::send('person.login', $u, $type);
 
@@ -723,7 +723,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
 
-        $u = User::lookup($user->getId());
+        $u = $user->getSessionUser()->getUser();
         $type = array('type' => 'logout');
         Signal::send('person.logout', $u, $type);
     }
@@ -906,14 +906,9 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
                     $alert, $admin_alert);
 
               if ($username) {
-                $staffId = Staff::objects()->filter(array('username'=>$username))->values_flat('staff_id')->first();
-                if ($staffId)
-                    $staff = Staff::lookup($staffId[0]);
-                if ($staff) {
-                    $agent = Staff::lookup($staff->getId());
-                    $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
-                    Signal::send('person.login', $agent, $type);
-                }
+                $agent = Staff::lookup($username);
+                $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
+                Signal::send('person.login', $agent, $type);
               }
 
             return new AccessDenied(__('Forgot your login info? Contact Admin.'));
@@ -986,9 +981,8 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                 $user = User::lookup($id);
 
               if ($user) {
-                $u = User::lookup($user->getId());
                 $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
-                Signal::send('person.login', $u, $type);
+                Signal::send('person.login', $user, $type);
               }
             }
 

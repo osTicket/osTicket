@@ -312,6 +312,13 @@ class EndUser extends BaseAuthenticatedUser {
         return $this->_account;
     }
 
+    function getUser() {
+        if ($this->user === false)
+            $this->user = User::lookup($this->getId());
+
+        return $this->user;
+    }
+
     function getLanguage($flags=false) {
         if ($acct = $this->getAccount())
             return $acct->getLanguage($flags);
