@@ -861,6 +861,8 @@ class CustomQueue extends VerySimpleModel {
         elseif ($sort && $sort['col'] &&
                 ($C=$this->getColumn($sort['col'])))
             $query = $C->applySort($query, $sort['dir']);
+        else
+            $query->order_by('-created');
 
         // Render Util
         $render = function ($row) use($columns) {
@@ -1326,6 +1328,8 @@ class CustomQueue extends VerySimpleModel {
             if ($vars['sort_id'] === '::') {
                 if (!$this->parent)
                     $errors['sort_id'] = __('No parent selected');
+                else
+                     $this->sort_id = 0;
             }
             elseif ($qs = QueueSort::lookup($vars['sort_id'])) {
                 $this->sort_id = $vars['sort_id'];
@@ -1333,7 +1337,8 @@ class CustomQueue extends VerySimpleModel {
             else {
                 $errors['sort_id'] = __('Select an item from the list');
             }
-        }
+        } else
+             $this->sort_id = 0;
 
         list($this->_conditions, $conditions)
             = QueueColumn::getConditionsFromPost($vars, $this->id, $this->getRoot());
@@ -2619,6 +2624,7 @@ extends VerySimpleModel {
         $setting = array(
                 'sort_id' => (int) $vars['sort_id'],
                 'filter' => $vars['filter'],
+                'inherit-sort' => ($vars['sort_id'] == '::'),
                 'inherit-columns' => isset($vars['inherit-columns']),
                 'criteria' => $vars['criteria'] ?: array(),
                 );
@@ -2632,8 +2638,7 @@ extends VerySimpleModel {
         }
 
         $this->setting =  JsonDataEncoder::encode($setting);
-
-        return $this->save();
+        return $this->save(true);
     }
 
     function save($refetch=false) {
