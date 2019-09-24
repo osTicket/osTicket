@@ -567,7 +567,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `lastname` varchar(32) default NULL,
   `passwd` varchar(128) default NULL,
   `backend` varchar(32) default NULL,
-  `email` varchar(128) default NULL,
+  `email` varchar(255) default NULL,
   `phone` varchar(24) NOT NULL default '',
   `phone_ext` varchar(6) default NULL,
   `mobile` varchar(24) NOT NULL default '',
@@ -1009,7 +1009,7 @@ CREATE TABLE `%TABLE_PREFIX%user_email` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `user_id` int(10) unsigned NOT NULL,
   `flags` int(10) unsigned NOT NULL DEFAULT 0,
-  `address` varchar(128) NOT NULL,
+  `address` varchar(255) NOT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `address` (`address`),
   KEY `user_email_lookup` (`user_id`)
