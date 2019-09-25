@@ -2432,7 +2432,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $child = Ticket::lookup($child[0]);
                 $child->unlinkChild($parent);
             }
-        } else
+        } elseif ($child)
             $child->unlinkChild($parent);
 
         if (count(Ticket::getChildTickets($pid)) == 0) {
