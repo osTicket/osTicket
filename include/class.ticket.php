@@ -2474,6 +2474,11 @@ implements RestrictedAccess, Threadable, Searchable {
                             $changeParent = true;
                     }
 
+                    if ($ticket->getMergeType() == 'visual') {
+                        $ticket->setSort($key);
+                        $ticket->save();
+                    }
+
                     if ($parent && $parent->getId() != $ticket->getId()) {
                         if (($changeParent) || ($parent->isParent() && $ticket->getMergeType() == 'visual' && !$ticket->isChild()) || //adding to link/merge
                            (!$parent->isParent() && !$ticket->isChild())) { //creating fresh link/merge
@@ -2481,7 +2486,6 @@ implements RestrictedAccess, Threadable, Searchable {
                                $ticket->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
                                if ($ticket->getPid() != $parent->getId())
                                    $ticket->setPid($parent->getId());
-                               $ticket->setSort($key);
                                $parent->setMergeType($tickets['combine'], true);
                                $ticket->setMergeType($tickets['combine']);
 
