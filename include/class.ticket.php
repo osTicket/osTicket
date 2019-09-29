@@ -3472,7 +3472,6 @@ implements RestrictedAccess, Threadable, Searchable {
         } else
             $t->delete();
 
-        $t->delete();
         $this->logEvent('deleted');
 
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form)
