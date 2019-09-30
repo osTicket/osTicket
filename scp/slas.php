@@ -102,8 +102,6 @@ if($_POST){
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
                                 && $p->delete()) {
-                                    $type = array('type' => 'deleted');
-                                    Signal::send('object.deleted', $p, $type);
                                     $i++;
                                 }
                         }

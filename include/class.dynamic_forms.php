@@ -197,6 +197,8 @@ class DynamicForm extends VerySimpleModel {
 
         // Soft Delete: Mark the form as deleted.
         $this->setFlag(self::FLAG_DELETED);
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
         return $this->save();
     }
 

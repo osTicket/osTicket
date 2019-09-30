@@ -543,8 +543,13 @@ implements TemplateVariable, Searchable {
         if (!parent::delete())
             return false;
 
+<<<<<<< HEAD
         // Clear organization from session to avoid refetch failure
         unset($_SESSION[':Q:orgs'], $_SESSION[':O:tickets']);
+=======
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+>>>>>>> Code Cleanup
 
         // Remove users from this organization
         User::objects()

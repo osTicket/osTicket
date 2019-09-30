@@ -413,6 +413,9 @@ class EmailTemplateGroup {
                 .' WHERE tpl_id='.db_input($this->getId()));
         }
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return $num;
     }
 
@@ -456,7 +459,7 @@ class EmailTemplateGroup {
         if($errors) return false;
 
         foreach ($vars as $key => $value) {
-            if ($id && PluginManager::auditPlugin() && isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+            if ($id && isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
                 $type = array('type' => 'edited', 'key' => $key);
                 Signal::send('object.edited', $this, $type);
             }

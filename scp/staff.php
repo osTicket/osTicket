@@ -104,8 +104,6 @@ if($_POST){
                         $i = 0;
                         foreach($members as $s) {
                             if ($s->staff_id != $thisstaff->getId()) {
-                              $type = array('type' => 'deleted');
-                              Signal::send('object.deleted', $s, $type);
                               $s->delete();
                               $i++;
                             }

@@ -438,6 +438,8 @@ extends VerySimpleModel {
 =======
         try {
             parent::delete();
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
             $this->rules->expunge();
             $this->actions->expunge();
         }

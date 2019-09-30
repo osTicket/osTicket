@@ -105,12 +105,8 @@ if($_POST){
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete()) {
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $f, $type);
+                            if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete()
                                 $i++;
-                            }
-
                         }
 
                         if($i && $i==$count)

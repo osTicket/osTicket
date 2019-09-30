@@ -99,8 +99,6 @@ if($_POST){
                     case 'delete':
                         foreach($_POST['ids'] as $k=>$v) {
                             if(($t=Team::lookup($v))) {
-                              $type = array('type' => 'deleted');
-                              Signal::send('object.deleted', $t, $type);
                               $t->delete();
                               $i++;
                             }

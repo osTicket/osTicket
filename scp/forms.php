@@ -90,11 +90,8 @@ if($_POST) {
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=DynamicForm::lookup($v)) && $t->delete()) {
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $t, $type);
+                            if(($t=DynamicForm::lookup($v)) && $t->delete())
                                 $i++;
-                            }
                         }
                         if ($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),

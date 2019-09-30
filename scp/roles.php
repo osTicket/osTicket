@@ -115,11 +115,8 @@ if ($_POST) {
             case 'delete':
                 $i=0;
                 foreach ($_POST['ids'] as $k=>$v) {
-                    if (($r=Role::lookup($v)) && $r->isDeleteable() && $r->delete()) {
-                        $type = array('type' => 'deleted');
-                        Signal::send('object.deleted', $r, $type);
+                    if (($r=Role::lookup($v)) && $r->isDeleteable() && $r->delete())
                         $i++;
-                    }
                 }
                 if ($i && $i==$count)
                     $msg = sprintf(__('Successfully deleted %s.'),

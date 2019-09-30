@@ -199,6 +199,9 @@ class Email extends VerySimpleModel {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         Dept::objects()
             ->filter(array('email_id' => $this->getId()))
             ->update(array(

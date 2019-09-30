@@ -149,11 +149,8 @@ if ($_POST) {
 
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($c=Canned::lookup($v)) && $c->delete()) {
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $c, $type);
+                            if(($c=Canned::lookup($v)) && $c->delete())
                                 $i++;
-                            }
                         }
 
                         if($i==$count)

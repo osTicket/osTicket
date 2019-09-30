@@ -496,7 +496,7 @@ if($ticket) {
             $f->filterFields(function($f) { return !$f->isStorable(); });
             $f->addMissingFields();
         }
-    } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes'], $_REQUEST['events'])) {
+    } elseif($_REQUEST['a'] == 'print') {
         if (!extension_loaded('mbstring'))
             $errors['err'] = sprintf('%s %s',
                 'mbstring',

@@ -130,8 +130,6 @@ if ($_POST) {
                         $category = $faq->getCategory();
                         if($faq->delete()) {
                             $msg=sprintf(__('Successfully deleted %s.'), Format::htmlchars($faq->getQuestion()));
-                            $type = array('type' => 'deleted');
-                            Signal::send('object.deleted', $faq, $type);
                             $faq=null;
                         } else {
                             $errors['err']=sprintf(__('Unable to delete %s.'), __('this FAQ article'));

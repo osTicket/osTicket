@@ -59,12 +59,8 @@ if($_POST){
                 case 'delete':
                     $i=0;
                     foreach($_POST['ids'] as $k=>$v) {
-                        if($v!=$cfg->getDefaultEmailId() && ($e=Email::lookup($v)) && $e->delete()) {
-                            $type = array('type' => 'deleted');
-                            Signal::send('object.deleted', $e, $type);
+                        if($v!=$cfg->getDefaultEmailId() && ($e=Email::lookup($v)) && $e->delete())
                             $i++;
-                        }
-
                     }
 
                     if($i && $i==$count)
