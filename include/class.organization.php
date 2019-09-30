@@ -528,6 +528,9 @@ implements TemplateVariable, Searchable {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         // Remove users from this organization
         User::objects()
             ->filter(array('org' => $this))

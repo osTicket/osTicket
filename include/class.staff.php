@@ -827,6 +827,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         // DO SOME HOUSE CLEANING
         //Move remove any ticket assignments...TODO: send alert to Dept. manager?
         Ticket::objects()
@@ -1266,7 +1269,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
         $permissions = $this->getPermission();
         foreach ($vars as $k => $val) {
-             if (!array_key_exists($val, $permissions->perms) && PluginManager::auditPlugin()) {
+             if (!array_key_exists($val, $permissions->perms)) {
                  $type = array('type' => 'edited', 'key' => $val);
                  Signal::send('object.edited', $this, $type);
              }
@@ -1274,7 +1277,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
-                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms) && PluginManager::auditPlugin()) {
+                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
                      $type = array('type' => 'edited', 'key' => $k);
                      Signal::send('object.edited', $this, $type);
                  }

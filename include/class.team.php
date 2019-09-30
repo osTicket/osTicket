@@ -272,6 +272,9 @@ implements TemplateVariable {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         # Remove members of this team
         $this->members->delete();
 

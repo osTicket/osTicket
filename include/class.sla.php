@@ -228,6 +228,9 @@ implements TemplateVariable {
             db_query('UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($cfg->getDefaultSLAId()).' WHERE sla_id='.db_input($id));
         }
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return $num;
     }
 

@@ -519,6 +519,9 @@ implements TemplateVariable, Searchable {
 
         $id = $this->getId();
         if (parent::delete()) {
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
+
             // DO SOME HOUSE CLEANING
             //Move tickets to default Dept. TODO: Move one ticket at a time and send alerts + log notes.
             Ticket::objects()
@@ -824,9 +827,10 @@ implements TemplateVariable, Searchable {
             return false;
 
         $vars['disable_auto_claim'] = isset($vars['disable_auto_claim']) ? 1 : 0;
-        if (PluginManager::auditPlugin() && $this->getId()) {
+        if ($this->getId()) {
             //flags
             $disableAutoClaim = $this->flagChanged(self::FLAG_DISABLE_AUTO_CLAIM, $vars['disable_auto_claim']);
+            $disableAutoAssign = $this->flagChanged(self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN, $vars['disable_reopen_auto_assign']);
             $ticketAssignment = ($this->getAssignmentFlag() != $vars['assignment_flag']);
             foreach ($vars as $key => $value) {
                 if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value) {
@@ -834,7 +838,8 @@ implements TemplateVariable, Searchable {
                     Signal::send('object.edited', $this, $type);
                 } elseif ((isset($this->$key) && ($this->$key != $value) && $key != 'members') ||
                          ($disableAutoClaim && $key == 'disable_auto_claim') ||
-                          $ticketAssignment && $key == 'assignment_flag') {
+                          $ticketAssignment && $key == 'assignment_flag' ||
+                          $disableAutoAssign && $key == 'disable_reopen_auto_assign') {
                     $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
                 }

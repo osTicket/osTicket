@@ -201,6 +201,9 @@ class Role extends RoleModel {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         // Remove dept access entries
         StaffDeptAccess::objects()
             ->filter(array('role_id'=>$this->getId()))

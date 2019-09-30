@@ -441,6 +441,9 @@ class DynamicList extends VerySimpleModel implements CustomList {
         if (!parent::delete())
             return false;
 
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
+
         if (($form = $this->getForm(false))) {
             $form->delete(false);
             $form->fields->delete();

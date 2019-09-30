@@ -146,12 +146,8 @@ if($_POST){
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete()) {
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $t, $type);
+                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->delete())
                                 $i++;
-                            }
-
                         }
 
                         if($i && $i==$count)

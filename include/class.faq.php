@@ -302,6 +302,8 @@ class FAQ extends VerySimpleModel {
     function delete() {
         try {
             parent::delete();
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
             // Cleanup help topics.
             $this->topics->expunge();
             // Cleanup attachments.
