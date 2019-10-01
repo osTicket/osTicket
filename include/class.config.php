@@ -335,14 +335,38 @@ class OsticketConfig extends Config {
     }
 
     /* Date & Time Formats */
-    function getTimeFormat() {
+    function getTimeFormat($propogate=false) {
+        global $cfg;
+
         if ($this->get('date_formats') == 'custom')
             return $this->get('time_format');
+
+        if ($propogate) {
+            $format = 'h:i a'; // Default
+            if (class_exists('IntlDateFormatter')) {
+                $formatter = new IntlDateFormatter(
+                    Internationalization::getCurrentLocale(),
+                    IntlDateFormatter::NONE,
+                    IntlDateFormatter::SHORT,
+                    $this->getTimezone(),
+                    IntlDateFormatter::GREGORIAN
+                );
+                $format = $formatter->getPattern();
+            }
+            // Check if we're forcing 24 hrs format
+            if ($cfg && $cfg->isForce24HourTime() && $format)
+                $format = trim(str_replace(array('a', 'h'), array('', 'H'),
+                            $format));
+            return $format;
+        }
+
         return '';
     }
+
     function isForce24HourTime() {
         return $this->get('date_formats') == '24';
     }
+
     /**
      * getDateFormat
      *
@@ -369,10 +393,8 @@ class OsticketConfig extends Config {
                 );
                 return $formatter->getPattern();
             }
-            else {
-                // Use a standard
-                return 'y-M-d';
-            }
+            // Use a standard
+            return 'y-M-d';
         }
         return '';
     }
@@ -380,6 +402,11 @@ class OsticketConfig extends Config {
     function getDateTimeFormat() {
         if ($this->get('date_formats') == 'custom')
             return $this->get('datetime_format');
+
+        if (class_exists('IntlDateFormatter'))
+            return sprintf('%s %s', $this->getDateFormat(true),
+                    $this->getTimeFormat(true));
+
         return '';
     }
 

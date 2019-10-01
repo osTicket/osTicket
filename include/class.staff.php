@@ -431,7 +431,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         // Grant access to the current department
         $old = $this->dept_id;
         if ($eavesdrop) {
-            $da = StaffDeptAccess::create(array(
+            $da = new StaffDeptAccess(array(
                 'dept_id' => $old,
                 'role_id' => $this->role_id,
             ));

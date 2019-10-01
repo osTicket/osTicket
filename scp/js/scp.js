@@ -262,7 +262,7 @@ var scp_prep = function() {
             showButtonPanel: true,
             buttonImage: './images/cal.png',
             showOn:'both',
-            dateFormat: $.translate_format(c.date_format||'m/d/Y')
+            dateFormat: c.date_format || 'm/d/Y'
         });
 
     });
@@ -590,30 +590,6 @@ $(document).ajaxSend(function(event, xhr, settings) {
 jQuery.fn.exists = function() { return this.length>0; };
 
 $.pjax.defaults.timeout = 30000;
-$.translate_format = function(str) {
-    var translation = {
-        'DD':   'oo',
-        'D':    'o',
-        'EEEE': 'DD',
-        'EEE':  'D',
-        'MMMM': '||',   // Double replace necessary
-        'MMM':  '|',
-        'MM':   'mm',
-        'M':    'm',
-        '||':   'MM',
-        '|':    'M',
-        'yyyy': '`',
-        'yyy':  '`',
-        'yy':   'y',
-        'y':    'yy',
-        '`':    'yy'
-    };
-    // Change PHP formats to datepicker ones
-    $.each(translation, function(php, jqdp) {
-        str = str.replace(php, jqdp);
-    });
-    return str;
-};
 $(document).keydown(function(e) {
 
     if (e.keyCode == 27 && !$('#overlay').is(':hidden')) {
