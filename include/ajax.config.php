@@ -40,7 +40,7 @@ class ConfigAjaxAPI extends AjaxController {
         $config=array(
               'lock_time'       => $cfg->getTicketLockMode() == Lock::MODE_DISABLED ? 0 : ($cfg->getLockTime()*60),
               'html_thread'     => (bool) $cfg->isRichTextEnabled(),
-              'date_format'     => $cfg->getDateFormat(true),
+              'date_format'     => Format::dtfmt_php2js($cfg->getDateFormat(true)),
               'lang'            => $lang,
               'short_lang'      => $sl,
               'has_rtl'         => $rtl,
