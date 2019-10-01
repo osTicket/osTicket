@@ -90,7 +90,7 @@ if($_POST && !$errors):
                     $task = null; //Going back to main listing.
                 else
                     // Task is still open -- clear draft for the note
-                    Draft::deleteForNamespace('task.reply.'.$task->getId(),
+                    Draft::deleteForNamespace('task.response.'.$task->getId(),
                         $thisstaff->getId());
 
             } else {
