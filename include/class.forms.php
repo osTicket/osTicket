@@ -2858,6 +2858,7 @@ class SLAField extends ChoiceField {
 
     function getChoices($verbose=false) {
         if (!isset($this->_choices)) {
+            $choices = array();
             foreach ($this->getSLAs() as $s)
                 $choices[$s->getId()] = $s->getName();
             $this->_choices = $choices;
@@ -2965,6 +2966,7 @@ class PriorityField extends ChoiceField {
 
     function getChoices($verbose=false) {
         if (!isset($this->_choices)) {
+            $choices = array();
             foreach ($this->getPriorities() as $p)
                 $choices[$p->getId()] = $p->getDesc();
             $this->_choices = $choices;
