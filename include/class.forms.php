@@ -4415,7 +4415,8 @@ class DatetimePickerWidget extends Widget {
 
         $config = $this->field->getConfiguration();
         $timezone = $this->field->getTimezone();
-
+        $dateFormat = $cfg->getDateFormat(true);
+        $timeFormat = $cfg->getTimeFormat(true);
         if (!isset($this->value) && ($default=$this->field->get('default')))
             $this->value = $default;
 
@@ -4432,14 +4433,14 @@ class DatetimePickerWidget extends Widget {
                 // Convert to user's timezone for update.
                 $datetime->setTimezone($timezone);
 
-            // Get the date
+            // Get formatted date
             $this->value = Format::date($datetime->getTimestamp(), false,
                         false, $timezone ? $timezone->getName() : 'UTC');
-
-            // TODO: Fix timeformat based on config. For now we're forcing
-            // hh:mm tt
+            // Get formatted time
             if ($config['time']) {
-                 $this->value .=$datetime->format(' h:i a');
+                 $this->value .=' '.Format::time($datetime->getTimestamp(),
+                         false, $timeFormat, $timezone ?
+                         $timezone->getName() : 'UTC');
             }
 
         } else {
@@ -4482,14 +4483,15 @@ class DatetimePickerWidget extends Widget {
                                 controlType: 'select',\n
                                 timeInput: true,\n
                                 timeFormat: \"%s\",\n",
-                                "hh:mm tt");
+                                Format::dtfmt_php2js($timeFormat));
                     }
                     ?>
                     numberOfMonths: 2,
                     showButtonPanel: true,
                     buttonImage: './images/cal.png',
                     showOn:'both',
-                    dateFormat: $.translate_format('<?php echo $cfg->getDateFormat(true); ?>')
+                    dateFormat: '<?php echo
+                        Format::dtfmt_php2js($dateFormat); ?>'
                 });
             });
         </script>
