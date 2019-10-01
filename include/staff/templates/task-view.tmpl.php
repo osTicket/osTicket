@@ -492,7 +492,7 @@ else
                                 $thread->getNumCollaborators());
 
                     echo sprintf('<span><a class="collaborators preview"
-                            href="#thread/%d/collaborators/1"><span id="t%d-recipients">%s</span></a></span>',
+                            href="#thread/%d/collaborators/1"> %s &nbsp;<span id="t%d-recipients">%s</span></a></span>',
                             $thread->getId(),
                             __('Collaborators'),
                             $thread->getId(),
