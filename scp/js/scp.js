@@ -1175,7 +1175,7 @@ $(document).on('click.note', '.quicknote .action.edit-note', function(e) {
     if (note.closest('.dialog, .tip_box').length)
         T.addClass('no-bar small');
     body.replaceWith(T);
-    $.redact(T, { focusEnd: true });
+    T.redactor({ focusEnd: true });
     note.find('.action.edit-note').hide();
     note.find('.action.save-note').show();
     note.find('.action.cancel-edit').show();
@@ -1187,7 +1187,7 @@ $(document).on('click.note', '.quicknote .action.cancel-edit', function() {
         T = note.find('textarea'),
         body = $('<div class="body">');
     body.load('ajax.php/note/' + note.data('id'), function() {
-      try { T.redactor('core.destroy'); } catch (e) {}
+      try { T.redactor('stop'); } catch (e) {}
       T.replaceWith(body);
       note.find('.action.save-note').hide();
       note.find('.action.cancel-edit').hide();
@@ -1200,10 +1200,10 @@ $(document).on('click.note', '.quicknote .action.save-note', function() {
     var note = $(this).closest('.quicknote'),
         T = note.find('textarea');
     $.post('ajax.php/note/' + note.data('id'),
-      { note: T.redactor('code.get') },
+      { note: T.redactor('source.getCode') },
       function(html) {
         var body = $('<div class="body">').html(html);
-        try { T.redactor('core.destroy'); } catch (e) {}
+        try { T.redactor('stop'); } catch (e) {}
         T.replaceWith(body);
         note.find('.action.save-note').hide();
         note.find('.action.cancel-edit').hide();
@@ -1234,9 +1234,10 @@ $(document).on('click', '#new-note', function() {
     button = $('<input type="button">').val(__('Create'));
     button.click(function() {
       $.post('ajax.php/' + note.data('url'),
-        { note: T.redactor('code.get'), no_options: note.hasClass('no-options') },
+        { note: T.redactor('source.getCode'), no_options: note.hasClass('no-options') },
         function(response) {
-          $(T).redactor('core.destroy').replaceWith(note);
+          T.redactor('stop');
+          T.replaceWith(note);
           $(response).show('highlight').insertBefore(note.parent());
           $('.submit', note.parent()).remove();
         },
@@ -1248,7 +1249,7 @@ $(document).on('click', '#new-note', function() {
     note.replaceWith(T);
     $('<p>').addClass('submit').css('text-align', 'center')
         .append(button).appendTo(T.parent());
-    $.redact(T, { focusEnd: true });
+    T.redactor({ focusEnd: true });
     return false;
 });
 
