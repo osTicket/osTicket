@@ -1837,7 +1837,7 @@ class TicketsAjaxAPI extends AjaxController {
                     // Clear attachment list
                     $reply_attachments_form->setSource(array());
                     $reply_attachments_form->getField('attachments')->reset();
-                    Draft::deleteForNamespace('task.reply.'.$task->getId(),
+                    Draft::deleteForNamespace('task.response.'.$task->getId(),
                             $thisstaff->getId());
                 } else {
                     if (!$errors['err'])
