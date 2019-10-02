@@ -1,3 +1,43 @@
+osTicket v1.12.3
+================
+### Enhancements
+* Datetime Formats (4709824)
+* issue: Revert 453e815 (ddde34b)
+* Revert "issue: Advanced Search Default Sorting" (d4befcd)
+* feature: Expanded Print View (b2bd45f)
+* i18n: Register Include (9b18dd6)
+* Lint Fix (68f11e1)
+* Update osTicket Requirements (a6a18ee)
+* Update osTicket Requirements (27f1578)
+* issue: Update Installer PHP Requirements (15d678b)
+* issue: Update Outdated Links (25bf88f)
+
+### Improvements
+* issue: Mbstring Extension Requirement (5a96884)
+* Instantiate  StaffDeptAccess (390ec3e)
+* issue: Complete Thread Var Padding (Outlook) (d96285f)
+* Issue: Empty Due Date (30f3b55)
+* issue: PHP 7.3 New Agent Set Password (1bcd0e2)
+* European Date Format Issue (df7306f)
+* issue: CSV Patch Adv. Search Error (6ea7526)
+* Issue: Annul Closed Events (8029b1b)
+* issue: Department Referral Email (26d2990)
+* Date Range Period Timezone (0f06f85)
+* Issue: Undefined Constant Warning (c2ca730)
+* issue: Support Exchange Shared Mailbox Auth (ac9ea5b)
+* Issue: Inline Ticket Assignment (b757ec4)
+* issue: Dashboard No Help Error (ab0cdc6)
+* Organization Update (1588344)
+* issue: Advanced Search Default Sorting (dda483e)
+* issue: Image Attachment View (eb1a4ea)
+* issue: Reset Role Permissions (0c2cecb)
+* issue: Error On QueueSort Config (1b1e742)
+* Required Short Answer Field = '0' (c58916b)
+* Fix Admin Alert (5f6bd42)
+* issue: Set Staff Password On Creation (d9108b1)
+* issue: THIS_VERSION Utilize MAJOR_VERSION (5b4c512)
+* Issue: Reopen Assignment (e73e881)
+
 osTicket v1.12.2
 ================
 ### Enhancements
