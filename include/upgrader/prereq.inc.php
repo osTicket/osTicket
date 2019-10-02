@@ -17,7 +17,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
                 <li class="<?php echo $upgrader->check_php()?'yes':'no'; ?>">
                 <?php echo sprintf(__('%s or later'), 'PHP v'.SetupWizard::getPHPVersion()); ?> - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql()?'yes':'no'; ?>">
-                <?php echo __('MySQLi extension for PHP'); ?>- (<small><b><?php
+                <?php echo __('MySQLi extension for PHP'); ?> - (<small><b><?php
                     echo extension_loaded('mysqli')?__('module loaded'):__('missing!'); ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql_version()?'yes':'no'; ?>">
                 <?php echo sprintf(__('%s or later'), 'MySQL v'.SetupWizard::getMySQLVersion()); ?> - (<small><b><?php echo db_version(); ?></b></small>)</li>
