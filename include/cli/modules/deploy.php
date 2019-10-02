@@ -122,7 +122,7 @@ class Deployment extends Unpacker {
         }
 
         if (!$version)
-            $version = preg_replace('/^v(\d{1}\.\d{2}).*$/', '$1-git', exec('git describe'));
+            $version = exec('git describe');
 
         if (!$short || !$version)
             return false;
