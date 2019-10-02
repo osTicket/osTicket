@@ -12,6 +12,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 =======
@@ -49,6 +50,34 @@ osTicket v1.14-rc1
 
 >>>>>>> Add Release Notes for v1.14-rc1
 =======
+=======
+osTicket v1.14-rc2
+==================
+### Enhancements
+* Oops: Lint Fixes (e76c64e)
+* Draft Saving in New Redactor (644da1b)
+* Cache Children Tickets (a0a58e4)
+* Make getChildrenTickets Static (42339c2)
+* Lint Fixes (98f4b37, 3eabaa1)
+
+### Improvements
+* Issue: Task Drafts (3e8bce4)
+* Lint Fixes (3eabaa1)
+* Issue: Task Collaborator Display (d1790f1)
+* Fix Link Sort (3a41a8a)
+* Issue: Unlinking From Child Ticket (c76cb21)
+* issue: Redactor QuickNotes (7251bcf)
+* Delete Thread Merge Conflict (d4b6ab6)
+* Custom Queue default sort selection (bbd2e80)
+* issue: Staff/User Email Length (b969407)
+* Queue Sort Options (d2611b5)
+* Default for Choice Fields (d85ede8)
+* Show list of nested help topics on edit (423c915)
+* Upgrader Issue: Ticket Flags (e0298f2)
+* issue: Ticket Filter Assignment Event (606993e)
+* Don't Delete Child Threads (24b220d)
+
+>>>>>>> Add Release Notes for v1.14-rc2
 osTicket v1.12.3
 ================
 ### Enhancements
