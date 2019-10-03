@@ -60,7 +60,7 @@ schedule:
         Schedule used by SLA when rendering tickets, routed to this Department,
         Overdue.
         <br><br>
-        This setting takes presidence over System and SLA schedule settings.
+        This setting takes precedence over System and SLA schedule settings.
     links:
       - title: Manage Schedules
         href: /scp/schedules.php
