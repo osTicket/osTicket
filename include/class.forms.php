@@ -4101,6 +4101,24 @@ class Widget {
     function getJsValueGetter($id='%s') {
         return sprintf('%s.val()', $id);
     }
+
+    /**
+     * getJsComparator
+     *
+     * Used with the dependent fields to get comparison expression
+     *
+     */
+    function getJsComparator($value, $id) {
+
+        if (strpos($value, '|') !== false)
+            return sprintf('$.inArray(%s, %s) !== -1',
+                   $this->getJsValueGetter($id),
+                   JsonDataEncoder::encode(explode('|', $value)));
+
+        return sprintf('%s == %s',
+                $this->getJsValueGetter($id),
+                JsonDataEncoder::encode($value));
+    }
 }
 
 class TextboxWidget extends Widget {
@@ -4423,17 +4441,6 @@ class ChoicesWidget extends Widget {
         return sprintf('%s.find(":selected").val()', $id);
     }
 
-    function getJsComparator($value, $id) {
-
-        if (strpos($value, '|') !== false)
-           return sprintf('$.inArray(%s, %s) !== -1',
-                   $this->getJsValueGetter($id),
-                   JsonDataEncoder::encode(explode('|', $value)));
-
-        return sprintf('%s == %s',
-                $this->getJsValueGetter($id),
-                JsonDataEncoder::encode($value));
-    }
 }
 
 /**
@@ -4637,11 +4644,6 @@ class CheckboxWidget extends Widget {
         return sprintf('%s.is(":checked")', $id);
     }
 
-    function getJsComparator($value, $id) {
-        return sprintf('%s == %s',
-                $this->getJsValueGetter($id),
-                JsonDataEncoder::encode($value));
-    }
 }
 
 class DatetimePickerWidget extends Widget {
