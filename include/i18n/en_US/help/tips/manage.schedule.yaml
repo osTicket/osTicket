@@ -20,7 +20,7 @@ schedule:
         <hr>
         <b>Type</b>: Choose the type of Schedule. <span
         class="doc-desc-title">Business Hours</span> defines the hours that are
-        inclduded when calculating SLA hours, where as <span
+        included when calculating SLA hours, whereas <span
         class="doc-desc-title">Holiday Hours</span> define hours that are excluded.
         <hr>
         <b>Timezone</b>: Choose the time zone for the schedule. It's recommended

@@ -48,7 +48,7 @@ implements TemplateVariable {
             = null, &$timeline=array()) {
         global $cfg;
 
-        // Requested schedule takes presidence, then local and lastly the
+        // Requested schedule takes precedence, then local and lastly the
         // system default as a fall-back
         if (($schedule = $schedule ?: $this->getSchedule() ?:
                     $cfg->getDefaultSchedule())) {
