@@ -1188,7 +1188,7 @@ class OsticketConfig extends Config {
             // Check if Admin's IP is in the list, if not, return error
             // to avoid locking self out
             if (!in_array($vars['acl_backend'], array(0,2))) {
-                $acl = explode(',', str_replace(' ', '', $acl));
+                $acl = explode(',', str_replace(' ', '', $vars['acl']));
                 if (!in_array(osTicket::get_client_ip(), $acl))
                     $errors['acl'] = __('Cowardly refusing to lock out active administrator');
             }
