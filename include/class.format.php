@@ -875,6 +875,7 @@ class Format {
         'Y' => 'y',
         // Time
         'a' => 'tt',
+        'HH' => 'H',
         'H' => 'HH',
         );
 
