@@ -206,6 +206,13 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Collaborator Tickets Visibility'); ?>:</td>
+            <td>
+                <input type="checkbox" name="collaborator_ticket_visibility" <?php echo $config['collaborator_ticket_visibility']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#collaborator_ticket_visibility"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Claim on Response'); ?>:</td>
             <td>
                 <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
@@ -213,10 +220,11 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Collaborator Tickets Visibility'); ?>:</td>
+            <td><?php echo __('Auto-refer on Close'); ?>:</td>
             <td>
-                <input type="checkbox" name="collaborator_ticket_visibility" <?php echo $config['collaborator_ticket_visibility']?'checked="checked"':''; ?>>
-                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#collaborator_ticket_visibility"></i>
+                <input type="checkbox" name="auto_refer_closed" <?php echo $config['auto_refer_closed']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip
+                icon-question-sign" href="#auto_refer"></i>
             </td>
         </tr>
         <tr>
