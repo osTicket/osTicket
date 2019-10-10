@@ -268,13 +268,6 @@ class Page extends VerySimpleModel {
 
         if($errors) return false;
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value)) {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
-            }
-        }
-
         $this->type = $vars['type'];
         $this->name = $vars['name'];
         $this->body = Format::sanitize($vars['body']);

@@ -389,16 +389,6 @@ class Email extends VerySimpleModel {
 
         if($errors) return false;
 
-        //checkboxes
-        $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
-        $vars['smtp_spoofing'] = isset($vars['smtp_spoofing']) ? 1 : 0;
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value)) {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
-            }
-        }
-
         $this->mail_errors = 0;
         $this->mail_lastfetch = null;
         $this->email = $vars['email'];
