@@ -742,14 +742,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
 
         $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
-
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value)) {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
-            }
-        }
-
         $this->firstname = $vars['firstname'];
         $this->lastname = $vars['lastname'];
         $this->email = $vars['email'];
@@ -1159,14 +1151,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $vars['isvisible'] = isset($vars['isvisible']) ? 1 : 0;
         $vars['onvacation'] = isset($vars['onvacation']) ? 1 : 0;
         $vars['assigned_only'] = isset($vars['assigned_only']) ? 1 : 0;
-
-        foreach ($vars as $key => $value) {
-            if ($key == 'islocked') $key = 'isactive';
-            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms') && ($key != 'teams') && ($key != 'dept_access')) {
-                $type = array('type' => 'edited', 'key' => ($key == 'isactive') ? 'islocked' : $key);
-                Signal::send('object.edited', $this, $type);
-            }
-        }
 
         $this->isadmin = $vars['isadmin'];
         $this->isactive = $vars['islocked'];

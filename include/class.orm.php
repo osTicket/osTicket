@@ -682,6 +682,10 @@ class VerySimpleModel {
         else {
             $data = array('dirty' => $this->dirty);
             Signal::send('model.updated', $this, $data);
+            foreach ($this->dirty as $key => $value) {
+                $type = array('type' => 'edited', 'key' => $key, 'orm_audit' => true);
+                Signal::send('object.edited', $this, $type);
+            }
         }
         # Refetch row from database
         if ($refetch) {

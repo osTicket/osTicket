@@ -449,9 +449,6 @@ implements TemplateVariable, Searchable {
             if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value && $this->topic) {
                 $type = array('type' => 'edited', 'status' => ucfirst($value));
                 Signal::send('object.edited', $this, $type);
-            } elseif (isset($this->$key) && ($this->$key != $value) && ($key != 'forms')) {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
             }
         }
 

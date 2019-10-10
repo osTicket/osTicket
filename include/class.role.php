@@ -167,12 +167,6 @@ class Role extends RoleModel {
         if ($errors)
             return false;
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value) && ($key != 'perms')) {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
-            }
-        }
         $this->name = $vars['name'];
         $this->notes = $vars['notes'];
 

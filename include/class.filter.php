@@ -360,13 +360,6 @@ extends VerySimpleModel {
             $vars['target'] = 'Email';
         }
 
-        foreach ($vars as $key => $value) {
-            if (isset($this->$key) && ($this->$key != $value) && $key != 'rules' && $key != 'actions') {
-                $type = array('type' => 'edited', 'key' => $key);
-                Signal::send('object.edited', $this, $type);
-            }
-        }
-
         //Note: this will be set when validating filters
         if ($vars['email_id'])
             $emailId = $vars['email_id'];

@@ -105,7 +105,7 @@ if($_POST){
                     case 'delete':
                         $i=0;
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete()
+                            if(($f=Filter::lookup($v)) && !$f->isSystemBanlist() && $f->delete())
                                 $i++;
                         }
 
