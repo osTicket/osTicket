@@ -13,6 +13,7 @@ $thread = $task->getThread();
 $iscloseable = $task->isCloseable();
 $canClose = ($role->hasPerm(TaskModel::PERM_CLOSE) && $iscloseable === true);
 $actions = array();
+$object = $task->ticket;
 
 if ($task->isOpen() && $role->hasPerm(Task::PERM_ASSIGN)) {
 
@@ -121,9 +122,17 @@ if ($task->isOverdue())
                     href="tasks.php?id=<?php echo $task->getId(); ?>"><i
                     class="icon-refresh"></i>&nbsp;<?php
                     echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
+                <?php if ($object) { ?>
+                    &nbsp;/&nbsp;
+                    <a class="preview"
+                      href="tickets.php?id=<?php echo $object->getId(); ?>"
+                      data-preview="#tickets/<?php echo $object->getId(); ?>/preview"
+                      ><?php echo sprintf(__('Ticket #%s'), $object->getNumber()); ?></a>
+                <?php } ?>
                 </h2>
             <?php
-            } ?>
+            }
+            ?>
         </div>
         <div class="flush-right">
             <?php
