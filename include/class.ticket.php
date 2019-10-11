@@ -2327,6 +2327,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'collaborator_count' => new ThreadCollaboratorCountField(array(
                         'label' => __('Collaborator Count'),
             )),
+            'task_count' => new TicketTasksCountField(array(
+                        'label' => __('Task Count'),
+            )),
             'reopen_count' => new TicketReopenCountField(array(
                         'label' => __('Reopen Count'),
             )),
