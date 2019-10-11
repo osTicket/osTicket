@@ -618,6 +618,7 @@ class CustomQueue extends VerySimpleModel {
                 'thread_count' =>   __('Thread Count'),
                 'reopen_count' =>   __('Reopen Count'),
                 'attachment_count' => __('Attachment Count'),
+                'task_count' => __('Task Count'),
                 ) + $cdata;
 
         return $fields;
@@ -1712,6 +1713,35 @@ extends QueueColumnAnnotation {
 
     function isVisible($row) {
         return $row[static::$qname] > 0;
+    }
+}
+
+class TicketTasksCount
+extends QueueColumnAnnotation {
+    static $icon = 'list-ol';
+    static $qname = '_task_count';
+    static $desc = /* @trans */ 'Tasks Count';
+
+    function annotate($query, $name=false) {
+        $name = $name ?: static::$qname;
+        return $query->annotate(array(
+            $name => Task::objects()
+            ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+            ->aggregate(array('count' => SqlAggregate::COUNT('id')))
+        ));
+    }
+
+    function getDecoration($row, $text) {
+        $count = $row[static::$qname];
+        if ($count) {
+            return sprintf(
+                '<small class="faded-more"><i class="icon-%s"></i> %s</small>',
+                static::$icon, $count);
+        }
+    }
+
+    function isVisible($row) {
+        return $row[static::$qname];
     }
 }
 
