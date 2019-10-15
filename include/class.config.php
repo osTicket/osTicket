@@ -220,6 +220,8 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'autoclose_duration' => 72,
+        'autoclose_status_id' => 0,
     );
 
     function __construct($section=null) {
