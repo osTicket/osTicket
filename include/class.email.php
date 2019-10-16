@@ -138,6 +138,7 @@ class Email extends VerySimpleModel {
                 //osTicket specific
                 'email_id'  => $this->getId(), //Required for email routing to work.
                 'max_fetch' => $this->mail_fetchmax,
+                'folder' => $this->mail_folder,
                 'delete_mail' => $this->mail_delete,
                 'archive_folder' => $this->mail_archivefolder
         );
@@ -250,6 +251,7 @@ class Email extends VerySimpleModel {
         $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
         $vars['name']=Format::striptags(trim($vars['name']));
         $vars['email']=trim($vars['email']);
+        $vars['mail_folder']=Format::striptags(trim($vars['mail_folder']));
 
         $id = isset($this->email_id) ? $this->getId() : 0;
         if($id && $id!=$vars['id'])
@@ -308,6 +310,9 @@ class Email extends VerySimpleModel {
             if(!$vars['mail_fetchmax'] || !is_numeric($vars['mail_fetchmax']))
                 $errors['mail_fetchmax']=__('Maximum emails required');
 
+            if($vars['mail_protocol'] == 'POP' && !empty($vars['mail_folder']))
+                $errors['mail_folder'] = __('POP mail servers do not support folders');
+
             if(!isset($vars['postfetch']))
                 $errors['postfetch']=__('Indicate what to do with fetched emails');
             elseif(!strcasecmp($vars['postfetch'],'archive')) {
@@ -350,6 +355,7 @@ class Email extends VerySimpleModel {
                     array(
                         'host'  => $vars['mail_host'],
                         'port'  => $vars['mail_port'],
+                        'folder' => $vars['mail_folder'],
                         'username'  => $vars['userid'],
                         'password'  => $passwd,
                         'protocol'  => $vars['mail_protocol'],
@@ -359,6 +365,10 @@ class Email extends VerySimpleModel {
                 //$errors['err']='Invalid login. Check '.Format::htmlchars($vars['mail_protocol']).' settings';
                 $errors['err']=sprintf(__('Invalid login. Check %s settings'),Format::htmlchars($vars['mail_protocol']));
                 $errors['mail']='<br>'.$fetcher->getLastError();
+            } elseif ($vars['mail_folder'] && !$fetcher->checkMailbox($vars['mail_folder'],true)) {
+                 $errors['mail_folder']=sprintf(__('Invalid or unknown mail folder! >> %s'),$fetcher->getLastError());
+                 if(!$errors['mail'])
+                     $errors['mail']=__('Invalid or unknown mail folder!');
             }elseif($vars['mail_archivefolder'] && !$fetcher->checkMailbox($vars['mail_archivefolder'],true)) {
                  //$errors['postfetch']='Invalid or unknown mail folder! >> '.$fetcher->getLastError().'';
                  $errors['postfetch']=sprintf(__('Invalid or unknown mail folder! >> %s'),$fetcher->getLastError());
@@ -400,6 +410,7 @@ class Email extends VerySimpleModel {
         $this->userid = $vars['userid'];
         $this->mail_active = $vars['mail_active'];
         $this->mail_host = $vars['mail_host'];
+        $this->mail_folder = $vars['mail_folder'] ?: null;
         $this->mail_protocol = $vars['mail_protocol'] ?: 'POP';
         $this->mail_encryption = $vars['mail_encryption'];
         $this->mail_port = $vars['mail_port'] ?: 0;

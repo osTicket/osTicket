@@ -79,6 +79,13 @@ host_and_port:
         may be available in the documentation for your hosting account or
         from your email administrator.
 
+mail_folder:
+    title: Mail Folder
+    content: >
+        Enter the <span class="doc-desc-title">Folder</span> name that you
+        wish to fetch mail from. If left emtpy the system will fetch from the
+        INBOX.
+
 protocol:
     title: Mail Box Protocol
     content: >

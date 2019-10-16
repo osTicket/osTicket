@@ -252,6 +252,7 @@ CREATE TABLE `%TABLE_PREFIX%email` (
   `mail_host` varchar(255) NOT NULL,
   `mail_protocol` enum('POP','IMAP') NOT NULL default 'POP',
   `mail_encryption` enum('NONE','SSL') NOT NULL,
+  `mail_folder` varchar(255) default NULL,
   `mail_port` int(6) default NULL,
   `mail_fetchfreq` tinyint(3) NOT NULL default '5',
   `mail_fetchmax` tinyint(4) NOT NULL default '30',
