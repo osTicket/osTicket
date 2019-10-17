@@ -3008,6 +3008,16 @@ implements RestrictedAccess, Threadable, Searchable {
             $attachments = $cfg->emailAttachments() ?
                 $response->getAttachments() : array();
 
+            $thread = $this->getThread();
+            $lastm = $thread->getLastEmailMessage();
+            if($lastm){
+                $mid = $lastm->getEmailMessageId();
+                if($mid){
+                    $options += array( 'inreplyto'=> $mid );
+                }
+            }
+
+            //$this->qdebug(print_r($lastm,true));
             //Send email to recepients
             $email->send($recipients, $msg['subj'], $msg['body'],
                     $attachments, $options);
