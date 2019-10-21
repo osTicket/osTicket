@@ -2371,6 +2371,10 @@ implements RestrictedAccess, Threadable, Searchable {
     function markOverdue($whine=true) {
         global $cfg;
 
+        // Only open tickets can be marked overdue
+        if (!$this->isOpen())
+            return false;
+
         if ($this->isOverdue())
             return true;
 
@@ -4535,6 +4539,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $overdue = static::objects()
             ->filter(array(
                 'isoverdue' => 0,
+                'status__state' => 'open',
                 Q::any(array(
                     Q::all(array(
                         'duedate__isnull' => true,
