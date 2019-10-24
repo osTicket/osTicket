@@ -289,30 +289,13 @@ class Email extends VerySimpleModel {
         if($topic && !$topic->isActive())
           $errors['topic_id'] = '';
 
-        if($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth']
-                && !$vars['smtp_auth_creds'])) {
-            if(!$vars['userid'])
-                $errors['userid']=__('Username missing');
+        // Validate Credentials
+        if ($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth']
+                && !$vars['smtp_auth_creds']))
+            $errors = self::validateCredentials($vars['userid'], $vars['passwd'], $id, $errors, false);
 
-            if(!$id && !$vars['passwd'])
-                $errors['passwd']=__('Password required');
-            elseif($vars['passwd']
-                    && $vars['userid']
-                    && !Crypto::encrypt($vars['passwd'], SECRET_SALT, $vars['userid'])
-                    )
-                $errors['passwd'] = sprintf('%s - %s', __('Unable to encrypt password'), __('Get technical help!'));
-        }
-
-        if ($vars['smtp_active'] && $vars['smtp_auth'] && $vars['smtp_auth_creds']) {
-            if (!$vars['smtp_userid'])
-                $errors['smtp_userid'] = __('Username missing');
-
-            if (!$vars['smtp_passwd'])
-                $errors['smtp_passwd'] = __('Password Required');
-            elseif ($vars['smtp_passwd'] && $vars['smtp_userid']
-                    && !Crypto::encrypt($vars['smtp_passwd'], SECRET_SALT, $vars['smtp_userid']))
-                $errors['smtp_passwd'] = sprintf('%s - %s', __('Unable to encrypt password'), __('Get technical help!'));
-        }
+        if ($vars['smtp_active'] && $vars['smtp_auth'] && $vars['smtp_auth_creds'])
+            $errors = self::validateCredentials($vars['smtp_userid'], $vars['smtp_passwd'], null, $errors, true);
 
         list($vars['mail_protocol'], $encryption) = explode('/', $vars['mail_proto']);
         $vars['mail_encryption'] = $encryption ?: 'NONE';
@@ -482,6 +465,19 @@ class Email extends VerySimpleModel {
         }
 
         return false;
+    }
+
+    static function validateCredentials($username=null, $password=null, $id=null, &$errors, $smtp=false) {
+        if (!$username)
+            $errors[$smtp ? 'smtp_userid' : 'userid'] = __('Username missing');
+
+        if (!$id && !$password)
+            $errors[$smtp ? 'smtp_passwd' : 'passwd'] = __('Password Required');
+        elseif ($password && $username
+                && !Crypto::encrypt($password, SECRET_SALT, $username))
+            $errors[$smtp ? 'smtp_passwd' : 'passwd'] = sprintf('%s - %s', __('Unable to encrypt password'), __('Get technical help!'));
+
+        return $errors;
     }
 
     static function getPermissions() {
