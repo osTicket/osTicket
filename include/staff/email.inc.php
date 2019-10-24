@@ -197,7 +197,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>"
-                    autocomplete="off">
+                    autocomplete="new-password">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?>&nbsp;</span>
                 <br><em><?php echo $passwdtxt; ?></em>
             </td>
@@ -351,7 +351,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr style="display:none;" class="smtp"><td><?php echo __('Password'); ?></td>
             <td>
                 <input type="password" size="35" name="smtp_passwd" value="<?php echo $info['smtp_passwd']; ?>"
-                    autocomplete="off">
+                    autocomplete="new-password">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_passwd']; ?>&nbsp;</span>
                 <br><em><?php if ($info['smtp_userpass']) echo $passwdtxt; ?></em>
             </td>
