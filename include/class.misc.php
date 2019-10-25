@@ -230,7 +230,7 @@ class Misc {
     function currentURL() {
 
         $str = 'http';
-        if ($_SERVER['HTTPS'] == 'on') {
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
             $str .='s';
         }
         $str .= '://';
