@@ -132,10 +132,14 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Allow iFrames'); ?>:</td>
-            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>">
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+            <td><?php echo __('Allow System iFrame'); ?>:</td>
+            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>"
+                    placeholder="eg. https://domain.tld, *.domain.tld">
                 <i class="help-tip icon-question-sign" href="#allow_iframes"></i>
+            <?php if ($errors['allow_iframes']) { ?>
+                <br>
+                <font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+            <?php } ?>
             </td>
         </tr>
         <tr>
