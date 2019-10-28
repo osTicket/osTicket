@@ -123,6 +123,14 @@ class Validator {
                 if(!is_numeric($this->input[$k]) || (strlen($this->input[$k])!=5))
                     $this->errors[$k]=$field['error'];
                 break;
+            case 'cs-domain': // Comma separated list of domains
+                if($values=explode(',', $this->input[$k]))
+                    foreach($values as $v)
+                        if(!preg_match_all(
+                                '/^([a-z0-9|-]+\.)*[a-z0-9|-]+\.[a-z]+$/',
+                                ltrim($v)))
+                            $this->errors[$k]=$field['error'];
+                break;
             case 'cs-url': // Comma separated list of urls
                 if($values=explode(',', $this->input[$k]))
                     foreach($values as $v)

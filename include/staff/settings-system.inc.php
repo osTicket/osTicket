@@ -143,6 +143,18 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Embedded Domain Whitelist'); ?>:</td>
+            <td><input type="text" size="40" name="embedded_domain_whitelist"
+                    value="<?php echo $config['embedded_domain_whitelist']; ?>"
+                    placeholder="eg. domain.tld, sub.domain.tld">
+                <i class="help-tip icon-question-sign" href="#embedded_domain_whitelist"></i>
+            <?php if ($errors['embedded_domain_whitelist']) { ?>
+                <br>
+                <font class="error">&nbsp;<?php echo $errors['embedded_domain_whitelist']; ?></font>
+            <?php } ?>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('ACL'); ?>:</td>
             <td><input type="text" size="40" name="acl" value="<?php echo $config['acl']; ?>"
                     placeholder="eg. 192.168.1.1, 192.168.2.2, 192.168.3.3">

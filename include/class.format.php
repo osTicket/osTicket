@@ -295,6 +295,7 @@ class Format {
     }
 
     function safe_html($html, $options=array()) {
+        global $cfg;
 
         $options = array_merge(array(
                     // Balance html tags
@@ -346,6 +347,7 @@ class Format {
             'deny_attribute' => 'id',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
+<<<<<<< HEAD
             'elements' => '*+iframe',
             'spec' =>
 <<<<<<< HEAD
@@ -357,7 +359,18 @@ class Format {
 =======
             'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?(youtube|dailymotion|vimeo|player.vimeo)\.com/`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : ''),
 >>>>>>> format: Fix Vimeo iFrames
+=======
+>>>>>>> feature: Configurable iFrame Whitelist
         );
+
+        // iFrame Whitelist
+        $whitelist = $cfg->getIframeWhitelist();
+        if (!empty($whitelist)) {
+            $config['elements'] = '*+iframe';
+            $config['spec'] = 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?('
+                .implode('|', $whitelist)
+                .')/?`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
+        }
 
         return Format::html($html, $config);
     }
