@@ -102,9 +102,9 @@ collision_avoidance:
         Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
 
 allow_iframes:
-    title: Allow iFrames
+    title: Allow System iFrame
     content: >
-        Enter comma separated list of domains for the system to be framed
+        Enter comma separated list of urls/domains for the system to be framed
         in. If left empty, the system will default to 'self'. This accepts
         domain wildcards, HTTP/HTTPS URL scheme, and port numbers.
         <br><br>
