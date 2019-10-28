@@ -135,6 +135,21 @@ acl:
                 <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr>
         </tbody></table>
 
+embedded_domain_whitelist:
+    title: Embedded Domain Whitelist
+    content: >
+        Enter a comma separated list of domains to be whitelisted for iFrames used
+        in the system. Do not input <code>http(s)</code> or <code>www</code> with
+        the domain; only the domain name will be accepted. This is used when you
+        would like to embed content in the system (eg. YouTube video) via Client
+        Portal, Knowledgebase, etc. If you add an iFrame with a non-whitelisted
+        domain, the system will remove the iFrame automatically. By default the
+        system allows YouTube, Vimeo, DailyMotion, and Microsoft Stream.
+        <br><br>
+        <b>Example:</b>
+        <br>
+        domain.tld, sub.domain.tld
+
 # Date and time options
 date_time_options:
     title: Date &amp; Time Options
