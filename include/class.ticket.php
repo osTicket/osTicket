@@ -102,6 +102,7 @@ implements RestrictedAccess, Threadable, Searchable {
     const PERM_TRANSFER = 'ticket.transfer';
     const PERM_REFER    = 'ticket.refer';
     const PERM_REPLY    = 'ticket.reply';
+    const PERM_MARKANSWERED = 'ticket.markanswered';
     const PERM_CLOSE    = 'ticket.close';
     const PERM_DELETE   = 'ticket.delete';
 
@@ -141,6 +142,11 @@ implements RestrictedAccess, Threadable, Searchable {
                 /* @trans */ 'Post Reply',
                 'desc'  =>
                 /* @trans */ 'Ability to post a ticket reply'),
+            self::PERM_MARKANSWERED => array(
+                'title' =>
+                /* @trans */ 'Mark as Answered',
+                'desc'  =>
+                /* @trans */ 'Ability to mark a ticket as Answered/Unanswered'),
             self::PERM_CLOSE => array(
                 'title' =>
                 /* @trans */ 'Close',
