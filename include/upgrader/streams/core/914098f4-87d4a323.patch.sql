@@ -9,6 +9,11 @@ ALTER TABLE `%TABLE_PREFIX%email`
     ADD `smtp_userid` varchar(255) NOT NULL AFTER `smtp_auth_creds`,
     ADD `smtp_userpass` varchar(255) CHARACTER SET ascii NOT NULL AFTER `smtp_userid`;
 
+-- Add Default MarkAnswered Permission For Roles w/ Reply Permission
+UPDATE `%TABLE_PREFIX%role` A1
+    SET A1.`permissions` = REPLACE(A1.`permissions`, '"ticket.reply":1,', '"ticket.reply":1,"ticket.markanswered":1,')
+    WHERE A1.`permissions` LIKE '%"ticket.reply":1%';
+
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = '87d4a3233469728d83b86d3ee2f066e1'
