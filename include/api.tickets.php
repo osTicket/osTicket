@@ -91,7 +91,9 @@ class TicketApiController extends ApiController {
                     $file['id'] = $F->getId();
                 }
                 catch (FileUploadError $ex) {
-                    $file['error'] = $file['name'] . ': ' . $ex->getMessage();
+                    $name = $file['name'];
+                    $file = array();
+                    $file['error'] = $name . ': ' . $ex->getMessage();
                 }
             }
             unset($file);
