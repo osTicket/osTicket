@@ -168,7 +168,6 @@ implements Searchable {
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
-
         if (!$user)
             return null;
 
@@ -183,15 +182,23 @@ implements Searchable {
 
         $this->_collaborators = null;
 
-        if ($event)
-            $this->getEvents()->log($this->getObject(),
-                'collab',
-                array('add' => array($user->getId() => array(
-                        'name' => $user->getName()->getOriginal(),
-                        'src' => @$vars['source'],
-                    ))
-                )
-            );
+        if ($event) {
+          $this->getEvents()->log($this->getObject(),
+              'collab',
+              array('add' => array($user->getId() => array(
+                      'name' => $user->getName()->getOriginal(),
+                      'src' => @$vars['source'],
+                  ))
+              )
+          );
+
+          $type = array('type' => 'collab', 'add' => array($user->getId() => array(
+                  'name' => $user->getName()->name,
+                  'src' => @$vars['source'],
+              )));
+          Signal::send('object.created', $this->getObject(), $type);
+        }
+
 
         return $c;
     }
@@ -213,6 +220,11 @@ implements Searchable {
                  $this->getEvents()->log($this->getObject(), 'collab', array(
                      'del' => array($c->user_id => array('name' => $c->getName()->getOriginal()))
                  ));
+                 $type = array('type' => 'collab', 'del' => array($c->user_id => array(
+                         'name' => $c->getName()->getOriginal(),
+                         'src' => @$vars['source'],
+                     )));
+                 Signal::send('object.deleted', $this->getObject(), $type);
             }
         }
 
@@ -2209,6 +2221,18 @@ class Event extends VerySimpleModel {
         }
 
         return $ids;
+    }
+
+    static function getStates($dropdown=false) {
+        $names = array();
+        if ($dropdown)
+            $names = array(__('All'));
+
+        $events = self::objects()->values_flat('name');
+        foreach ($events as $val)
+            $names[] = ucfirst($val[0]);
+
+        return $names;
     }
 
     static function create($vars=false, &$errors=array()) {

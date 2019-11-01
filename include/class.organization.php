@@ -115,12 +115,22 @@ class OrganizationModel extends VerySimpleModel {
         return $this->check(self::ASSIGN_AGENT_MANAGER);
     }
 
+    function autoFlagChanged($flag, $var) {
+        if (($flag && !$var) || (!$flag && $var))
+            return true;
+    }
+
     function shareWithPrimaryContacts() {
         return $this->check(self::SHARE_PRIMARY_CONTACT);
     }
 
     function shareWithEverybody() {
         return $this->check(self::SHARE_EVERYBODY);
+    }
+
+    function sharingFlagChanged($flag, $var, $title) {
+        if (($flag && !$var) || (!$flag && $var == $title))
+            return true;
     }
 
     function getUpdateDate() {
@@ -373,7 +383,21 @@ implements TemplateVariable, Searchable {
         return true;
     }
 
-    function updateProfile($vars, &$errors) {
+    function update($vars, &$errors) {
+        $valid = true;
+        $forms = $this->getForms($vars);
+        foreach ($forms as $entry) {
+            if (!$entry->isValid())
+                $valid = false;
+            if ($entry->getDynamicForm()->get('type') == 'O'
+                        && ($f = $entry->getField('name'))
+                        && $f->getClean()
+                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
+                        && $o->id != $this->getId()) {
+                $valid = false;
+                $f->addError(__('Organization with the same name already exists'));
+            }
+        }
 
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
@@ -401,9 +425,59 @@ implements TemplateVariable, Searchable {
         if (!$this->update($vars, $errors))
             $errors['error'] = __('Unable to update organization form');
 
-
         if ($errors)
             return false;
+
+        foreach ($this->getDynamicData() as $entry) {
+            $fields = $entry->getFields();
+            foreach ($fields as $field) {
+                $changes = $field->getChanges();
+                if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                    $type = array('type' => 'edited', 'key' => $field->getLabel());
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
+            if ($entry->getDynamicForm()->get('type') == 'O'
+               && ($name = $entry->getField('name'))
+            ) {
+                if ($this->name != $name->getClean()) {
+                    $type = array('type' => 'edited', 'key' => 'Name');
+                    Signal::send('object.edited', $this, $type);
+                }
+                $this->name = $name->getClean();
+                $this->save();
+            }
+            $entry->setSource($vars);
+            if ($entry->save())
+                $this->updated = SqlFunction::NOW();
+        }
+
+        if ($auditCollabAll = $this->autoFlagChanged($this->autoAddMembersAsCollabs(),
+            $vars['collab-all-flag']))
+                $key = 'collab-all-flag';
+        if ($auditCollabPc = $this->autoFlagChanged($this->autoAddPrimaryContactsAsCollabs(),
+            $vars['collab-pc-flag']))
+                $key = 'collab-pc-flag';
+        if ($auditAssignAm = $this->autoFlagChanged($this->autoAssignAccountManager(),
+            $vars['assign-am-flag']))
+                $key = 'assign-am-flag';
+
+        if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
+            $type = array('type' => 'edited', 'key' => $key);
+            Signal::send('object.edited', $this, $type);
+        }
+
+        foreach ($vars as $key => $value) {
+            if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
+            }
+        }
+
+        $sharingPrimary = $this->sharingFlagChanged($this->shareWithPrimaryContacts(),
+            $vars['sharing'], 'sharing-primary');
+        $sharingEverybody = $this->sharingFlagChanged($this->shareWithEverybody(),
+            $vars['sharing'], 'sharing-all');
 
         // Set flags
         foreach (array(
@@ -421,6 +495,10 @@ implements TemplateVariable, Searchable {
                 'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
                 'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
+            if (($sharingPrimary || $sharingEverybody) && $key == $ck) {
+                $type = array('type' => 'edited', 'key' => 'sharing');
+                Signal::send('object.edited', $this, $type);
+            }
             if ($vars['sharing'] == $ck)
                 $this->setStatus($flag);
             else
@@ -446,46 +524,12 @@ implements TemplateVariable, Searchable {
         return $this->save();
     }
 
-
-    function update($vars, &$errors) {
-
-        $valid = true;
-        $forms = $this->getForms($vars);
-        foreach ($forms as $entry) {
-            if (!$entry->isValid())
-                $valid = false;
-            if ($entry->getDynamicForm()->get('type') == 'O'
-                        && ($f = $entry->getField('name'))
-                        && $f->getClean()
-                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
-                        && $o->id != $this->getId()) {
-                $valid = false;
-                $f->addError(__('Organization with the same name already exists'));
-            }
-        }
-
-        if (!$valid || $errors)
-            return false;
-
-        // Save dynamic data.
-        foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getDynamicForm()->get('type') == 'O'
-               && ($name = $entry->getField('name'))
-            ) {
-                $this->name = $name->getClean();
-                $this->save();
-            }
-            $entry->setSource($vars);
-            if ($entry->save())
-                $this->updated = SqlFunction::NOW();
-        }
-
-        return true;
-    }
-
     function delete() {
         if (!parent::delete())
             return false;
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         // Remove users from this organization
         User::objects()
@@ -509,7 +553,6 @@ implements TemplateVariable, Searchable {
     }
 
     static function fromVars($vars) {
-
         $vars['name'] = Format::striptags($vars['name']);
         if (!($org = static::lookup(array('name' => $vars['name'])))) {
             $org = static::create(array(
@@ -521,6 +564,8 @@ implements TemplateVariable, Searchable {
         }
 
         Signal::send('organization.created', $org);
+        $type = array('type' => 'created');
+        Signal::send('object.created', $org, $type);
         return $org;
     }
 

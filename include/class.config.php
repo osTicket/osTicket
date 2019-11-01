@@ -116,7 +116,14 @@ class Config {
             return $this->create($key, $value);
 
         $item = $this->config[$key];
+        $before = $item->value;
         $item->value = $value;
+
+        if ($before != $item->value) {
+            $type = array('type' => 'edited', 'key' => $item->ht['key']);
+            Signal::send('object.edited', $item, $type);
+        }
+
         return $item->save();
     }
 

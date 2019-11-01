@@ -42,6 +42,8 @@ if($_POST){
             $filter = new Filter();
             if ($filter->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $filter, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err'] = sprintf('%s %s',

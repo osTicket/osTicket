@@ -3,6 +3,9 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
 
+$type = array('type' => 'viewed');
+Signal::send('object.view', $ticket, $type);
+
 $dept = $ticket->getDept();
 
 if ($ticket->isClosed() && !$ticket->isReopenable())

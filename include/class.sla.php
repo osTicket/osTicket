@@ -106,6 +106,16 @@ implements TemplateVariable {
         return 0 === ($this->flags & self::FLAG_NOALERTS);
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    function flagChanged($flag, $var) {
+        if (($this->hasFlag($flag) && $var != $flag) ||
+            (!$this->hasFlag($flag) && $var == $flag))
+                return true;
+    }
+
     function alertOnOverdue() {
         return $this->sendAlerts();
     }
@@ -143,7 +153,6 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors) {
-
         if (!$vars['grace_period'])
             $errors['grace_period'] = __('Grace period required');
         elseif (!is_numeric($vars['grace_period']))
@@ -157,15 +166,31 @@ implements TemplateVariable {
         if ($errors)
             return false;
 
+        $vars['disable_overdue_alerts'] = isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0;
+        $vars['transient'] = isset($vars['transient']) ? self::FLAG_TRANSIENT : 0;
+        //flags
+        $auditDisableOverdue = $this->flagChanged(self::FLAG_NOALERTS, $vars['disable_overdue_alerts']);
+        $auditTransient = $this->flagChanged(self::FLAG_TRANSIENT, $vars['transient']);
+        $auditStatus = $this->flagChanged(self::FLAG_ACTIVE, $vars['isactive']);
+
+        foreach ($vars as $key => $value) {
+            if (isset($this->$key) && ($this->$key != $value) ||
+               ($auditDisableOverdue && $key == 'disable_overdue_alerts' ||
+                $auditTransient && $key == 'transient' || $auditStatus && $key == 'isactive')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->name = $vars['name'];
         $this->schedule_id = $vars['schedule_id'];
         $this->grace_period = $vars['grace_period'];
         $this->notes = Format::sanitize($vars['notes']);
         $this->flags =
               ($vars['isactive'] ? self::FLAG_ACTIVE : 0)
-            | (isset($vars['disable_overdue_alerts']) ? self::FLAG_NOALERTS : 0)
-            | (isset($vars['enable_priority_escalation']) ? self::FLAG_ESCALATE : 0)
-            | (isset($vars['transient']) ? self::FLAG_TRANSIENT : 0);
+            | ($vars['disable_overdue_alerts'])
+            | ($vars['enable_priority_escalation'])
+            | ($vars['transient']);
 
         if ($this->save())
             return true;
@@ -202,6 +227,9 @@ implements TemplateVariable {
             db_query('UPDATE '.TOPIC_TABLE.' SET sla_id=0 WHERE sla_id='.db_input($id));
             db_query('UPDATE '.TICKET_TABLE.' SET sla_id='.db_input($cfg->getDefaultSLAId()).' WHERE sla_id='.db_input($id));
         }
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         return $num;
     }
