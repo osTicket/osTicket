@@ -85,6 +85,11 @@ merge_types:
         <b>Separate Threads:</b>
           Threads from Tickets will be displayed one Ticket at a time.
 
+child_status:
+    title: Child Ticket Status
+    content: >
+        All Child Tickets will be set to a closed status since thread entries will all be moved to the Parent Ticket.
+
 reply_types:
     title: Reply Types
     content: >
