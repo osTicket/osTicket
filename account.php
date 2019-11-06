@@ -34,7 +34,7 @@ elseif ($thisclient) {
                 $user_form = $f;
                 $user_form->getField('email')->configure('disabled', true);
             }
-        }    
+        }
     }
     // Existing client (with an account) updating profile
     else {
@@ -125,4 +125,3 @@ elseif ($_POST) {
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
 include(CLIENTINC_DIR.'footer.inc.php');
-

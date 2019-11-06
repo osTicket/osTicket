@@ -102,6 +102,8 @@ if($_POST) {
             if ($list=DynamicList::add($_POST, $errors)) {
                  $form = $list->getForm(true);
                  Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
+                 $type = array('type' => 'created');
+                 Signal::send('object.created', $list, $type);
                  // Redirect to list page
                  $redirect = "lists.php?id={$list->id}#items";
             } elseif ($errors) {

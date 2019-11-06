@@ -1254,7 +1254,6 @@ implements RestrictedAccess, Threadable, Searchable {
                         && $c->delete())
                      $collabs[] = (string) $c;
             }
-
             $this->logEvent('collab', array('del' => $collabs));
         }
 
@@ -1493,6 +1492,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
+                    $type = array('type' => 'closed');
+                    Signal::send('object.edited', $t, $type);
+
                     $t->deleteDrafts();
                 };
                 break;
@@ -2327,6 +2329,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'collaborator_count' => new ThreadCollaboratorCountField(array(
                         'label' => __('Collaborator Count'),
             )),
+            'task_count' => new TicketTasksCountField(array(
+                        'label' => __('Task Count'),
+            )),
             'reopen_count' => new TicketReopenCountField(array(
                         'label' => __('Reopen Count'),
             )),
@@ -2370,6 +2375,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function markOverdue($whine=true) {
         global $cfg;
+
+        // Only open tickets can be marked overdue
+        if (!$this->isOpen())
+            return false;
 
         if ($this->isOverdue())
             return true;
@@ -2536,6 +2545,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $child->getThread()->setExtra($parentThread);
 
                 $child->setMergeType($options['combine']);
+                $child->setStatus(intval($options['statusId']));
 
                 if ($options['delete-child'] || $options['move-tasks']) {
                     if ($tasks = Task::objects()
@@ -2615,7 +2625,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $this->selectSLAId($slaId);
 
         // Log transfer event
-        $this->logEvent('transferred');
+        $this->logEvent('transferred', array('dept' => $dept->getName()));
 
         // Post internal note if any
         $note = null;
@@ -2731,6 +2741,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data, $user);
 
+        $thisstaff = $staff;
+        $key = $data['claim'] ? 'claim' : 'auto';
+        $type = array('type' => 'assigned', $key => true);
+        Signal::send('object.edited', $this, $type);
+
         return true;
     }
 
@@ -2757,6 +2772,7 @@ implements RestrictedAccess, Threadable, Searchable {
         global $thisstaff;
 
         $evd = array();
+        $audit = array();
         $refer = null;
         $dept = $this->getDept();
         $assignee = $form->getAssignee();
@@ -2776,8 +2792,10 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($thisstaff && $thisstaff->getId() == $assignee->getId()) {
                     $alert = false;
                     $evd['claim'] = true;
+                    $audit = array('staff' => $assignee->getName()->name,'claim' => true);
                 } else {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
+                    $audit = array('staff' => $assignee->getName()->name);
                 }
             }
         } elseif ($assignee instanceof Team) {
@@ -2792,6 +2810,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
+                $audit = array('team' => $assignee->getName());
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
@@ -2801,6 +2820,10 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 
         $this->logEvent('assigned', $evd);
+
+        $type = array('type' => 'assigned');
+        $type += $audit;
+        Signal::send('object.edited', $this, $type);
 
         $this->onAssign($assignee, $form->getComments(), $alert);
 
@@ -2846,6 +2869,7 @@ implements RestrictedAccess, Threadable, Searchable {
         global $thisstaff;
 
         $evd = array();
+        $audit = array();
         $referee = $form->getReferee();
         switch (true) {
         case $referee instanceof Staff:
@@ -2860,6 +2884,7 @@ implements RestrictedAccess, Threadable, Searchable {
                         __('referral'));
             } else {
                 $evd['staff'] = array($referee->getId(), (string) $referee->getName()->getOriginal());
+                $audit = array('staff' => $referee->getName()->name);
             }
             break;
         case $referee instanceof Team:
@@ -2871,6 +2896,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 //TODO::
                 $evd = array('team' => $referee->getId());
+                $audit = array('team' => $referee->getName());
             }
             break;
         case $referee instanceof Dept:
@@ -2882,6 +2908,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 //TODO::
                 $evd = array('dept' => $referee->getId());
+                $audit = array('dept' => $referee->getName());
             }
             break;
         default:
@@ -2895,6 +2922,10 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 
         $this->logEvent('referred', $evd);
+
+        $type = array('type' => 'referred');
+        $type += $audit;
+        Signal::send('object.edited', $this, $type);
 
         return true;
     }
@@ -2945,7 +2976,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($c)
             $c->delete();
 
-        $this->logEvent('edited', array('owner' => $user->getId()));
+        $this->logEvent('edited', array('owner' => $user->getId(), 'fields' => array('Ticket Owner' => $user->getName()->name)));
 
         return true;
     }
@@ -3048,6 +3079,8 @@ implements RestrictedAccess, Threadable, Searchable {
             // TODO: Can collaborators add others?
             if ($collabs) {
                 $ticket->logEvent('collab', array('add' => $collabs), $message->user);
+                $type = array('type' => 'collab', 'add' => $collabs);
+                Signal::send('object.created', $ticket, $type);
             }
         }
 
@@ -3133,6 +3166,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 $sentlist[] = $staff->getEmail();
             }
         }
+        $type = array('type' => 'message', 'uid' => $vars['userId']);
+        Signal::send('object.created', $this, $type);
+
         return $message;
     }
 
@@ -3269,6 +3305,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
+        $type = array('type' => 'message');
+        Signal::send('object.created', $this, $type);
+
         /* email the user??  - if disabled - then bail out */
         if (!$alert)
             return $response;
@@ -3338,6 +3377,24 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // History log -- used for statistics generation (pretty reports)
     function logEvent($state, $data=null, $user=null, $annul=null) {
+        switch ($state) {
+            case 'collab':
+            case 'transferred':
+                $type = $data;
+                $type['type'] = $state;
+                break;
+            case 'edited':
+                $type = array('type' => $state, 'fields' => $data['fields'] ? $data['fields'] : $data);
+                break;
+            case 'assigned':
+            case 'referred':
+                break;
+            default:
+                $type = array('type' => $state);
+                break;
+        }
+        if ($type)
+            Signal::send('object.created', $this, $type);
         if ($this->getThread())
             $this->getThread()->getEvents()->log($this, $state, $data, $user, $annul);
     }
@@ -3406,6 +3463,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'threadentry' => $note,
             'assignee' => $assignee
         ), $alert);
+
+        $type = array('type' => 'note');
+        Signal::send('object.created', $this, $type);
 
         return $note;
     }
@@ -3628,8 +3688,10 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
 
-        if ($changes)
-            $this->logEvent('edited', $changes);
+        if ($changes) {
+          $this->logEvent('edited', $changes);
+        }
+
 
         // Reselect SLA if transient
         if (!$keepSLA
@@ -3879,7 +3941,7 @@ implements RestrictedAccess, Threadable, Searchable {
      */
     static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
-        global $ost, $cfg, $thisclient, $thisstaff;
+        global $ost, $cfg, $thisstaff;
 
         // Don't enforce form validation for email
         $field_filter = function($type) use ($origin) {
@@ -4535,6 +4597,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $overdue = static::objects()
             ->filter(array(
                 'isoverdue' => 0,
+                'status__state' => 'open',
                 Q::any(array(
                     Q::all(array(
                         'duedate__isnull' => true,

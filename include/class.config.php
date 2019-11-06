@@ -116,7 +116,14 @@ class Config {
             return $this->create($key, $value);
 
         $item = $this->config[$key];
+        $before = $item->value;
         $item->value = $value;
+
+        if ($before != $item->value) {
+            $type = array('type' => 'edited', 'key' => $item->ht['key']);
+            Signal::send('object.edited', $item, $type);
+        }
+
         return $item->save();
     }
 
@@ -450,6 +457,12 @@ class OsticketConfig extends Config {
 
     function getAllowIframes() {
         return str_replace(array(', ', ','), array(' ', ' '), $this->get('allow_iframes')) ?: "'self'";
+    }
+
+    function getIframeWhitelist() {
+        $whitelist = array_filter(explode(',', str_replace(' ', '', $this->get('embedded_domain_whitelist'))));
+
+        return !empty($whitelist) ? $whitelist : null;
     }
 
     function getACL() {
@@ -1184,7 +1197,8 @@ class OsticketConfig extends Config {
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
-        $f['allow_iframes']=array('type'=>'cs-domain',   'required'=>0, 'error'=>__('Enter comma separated list of domains'));
+        $f['allow_iframes']=array('type'=>'cs-url',   'required'=>0, 'error'=>__('Enter comma separated list of urls'));
+        $f['embedded_domain_whitelist']=array('type'=>'cs-domain',   'required'=>0, 'error'=>__('Enter comma separated list of domains'));
         $f['acl']=array('type'=>'ipaddr',   'required'=>0, 'error'=>__('Enter comma separated list of IP addresses'));
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
@@ -1258,6 +1272,7 @@ class OsticketConfig extends Config {
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
             'files_req_auth' => isset($vars['files_req_auth']) ? 1 : 0,
             'allow_iframes' => Format::sanitize($vars['allow_iframes']),
+            'embedded_domain_whitelist' => Format::sanitize($vars['embedded_domain_whitelist']),
             'acl' => Format::sanitize($vars['acl']),
             'acl_backend' => Format::sanitize((int) $vars['acl_backend']) ?: 0,
         ));

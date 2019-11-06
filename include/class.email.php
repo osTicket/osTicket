@@ -199,6 +199,9 @@ class Email extends VerySimpleModel {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         Dept::objects()
             ->filter(array('email_id' => $this->getId()))
             ->update(array(
@@ -393,7 +396,7 @@ class Email extends VerySimpleModel {
         $this->dept_id = $vars['dept_id'];
         $this->priority_id = $vars['priority_id'];
         $this->topic_id = $vars['topic_id'];
-        $this->noautoresp = isset($vars['noautoresp'])?1:0;
+        $this->noautoresp = $vars['noautoresp'];
         $this->userid = $vars['userid'];
         $this->mail_active = $vars['mail_active'];
         $this->mail_host = $vars['mail_host'];
@@ -406,7 +409,7 @@ class Email extends VerySimpleModel {
         $this->smtp_host = $vars['smtp_host'];
         $this->smtp_port = $vars['smtp_port'] ?: 0;
         $this->smtp_auth = $vars['smtp_auth'];
-        $this->smtp_spoofing = isset($vars['smtp_spoofing']) ? 1 : 0;
+        $this->smtp_spoofing = $vars['smtp_spoofing'];
         $this->notes = Format::sanitize($vars['notes']);
 
         //Post fetch email handling...

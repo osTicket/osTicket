@@ -130,6 +130,16 @@ implements TemplateVariable {
         return ($this->isActive() && $this->members);
     }
 
+    function hasFlag($flag) {
+        return ($this->get('flags', 0) & $flag) != 0;
+    }
+
+    function flagChanged($flag, $var) {
+        if (($this->hasFlag($flag) && $var != $flag) ||
+            (!$this->hasFlag($flag) && $var == $flag))
+                return true;
+    }
+
     function alertsEnabled() {
         return ($this->flags & self::FLAG_NOALERTS) == 0;
     }
@@ -149,11 +159,25 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors=array()) {
-
         if (!$vars['name']) {
             $errors['name']=__('Team name is required');
         } elseif(($tid=self::getIdByName($vars['name'])) && $tid!=$vars['id']) {
             $errors['name']=__('Team name already exists');
+        }
+
+        $vars['noalerts'] = isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0;
+        if ($this->getId()) {
+            //flags
+            $auditEnabled = $this->flagChanged(self::FLAG_ENABLED, $vars['isenabled']);
+            $auditAlerts = $this->flagChanged(self::FLAG_NOALERTS, $vars['noalerts']);
+
+            foreach ($vars as $key => $value) {
+                if (isset($this->$key) && ($this->$key != $value) && $key != 'members' ||
+                   ($auditEnabled && $key == 'isenabled' || $auditAlerts && $key == 'noalerts')) {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
         }
 
         // Reset team lead if they're getting removed
@@ -165,7 +189,7 @@ implements TemplateVariable {
 
         $this->flags =
               ($vars['isenabled'] ? self::FLAG_ENABLED : 0)
-            | (isset($vars['noalerts']) ? self::FLAG_NOALERTS : 0);
+            | ($vars['noalerts']);
         $this->lead_id = $vars['lead_id'] ?: 0;
         $this->name = Format::striptags($vars['name']);
         $this->notes = Format::sanitize($vars['notes']);
@@ -209,6 +233,8 @@ implements TemplateVariable {
           if (!isset($member)) {
               $member = new TeamMember(array('staff_id' => $staff_id));
               $this->members->add($member);
+              $type = array('type' => 'edited', 'key' => 'Members Added');
+              Signal::send('object.edited', $this, $type);
           }
           $member->setAlerts($alerts);
       }
@@ -218,6 +244,8 @@ implements TemplateVariable {
 
       $this->members->saveAll();
       if ($dropped) {
+          $type = array('type' => 'edited', 'key' => 'Members Removed');
+          Signal::send('object.edited', $this, $type);
           $this->members
               ->filter(array('staff_id__in' => array_keys($dropped)))
               ->delete();
@@ -243,6 +271,9 @@ implements TemplateVariable {
         # Remove the team
         if (!parent::delete())
             return false;
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         # Remove members of this team
         $this->members->delete();

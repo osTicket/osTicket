@@ -211,6 +211,20 @@ class PluginManager {
         return static::$plugin_list;
     }
 
+    static function getPluginByName($name, $active=false) {
+        $sql = sprintf('SELECT * FROM %s WHERE name="%s"', PLUGIN_TABLE, $name);
+        if ($active)
+            $sql = sprintf('%s AND isactive = true', $sql);
+        if (!($res = db_query($sql)))
+            return false;
+        $ht = db_fetch_array($res);
+        return $ht['name'];
+    }
+
+    static function auditPlugin() {
+        return self::getPluginByName('Help Desk Audit', true);
+    }
+
     static function allActive() {
         $plugins = array();
         foreach (static::allInstalled() as $p)

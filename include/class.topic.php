@@ -443,6 +443,15 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
+        $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
+
+        foreach ($vars as $key => $value) {
+            if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value && $this->topic) {
+                $type = array('type' => 'edited', 'status' => ucfirst($value));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->topic = $vars['topic'];
         $this->topic_pid = $vars['topic_pid'] ?: 0;
         $this->dept_id = $vars['dept_id'];
@@ -455,7 +464,7 @@ implements TemplateVariable, Searchable {
         $this->sequence_id = $vars['custom-numbers'] ? $vars['sequence_id'] : 0;
         $this->number_format = $vars['custom-numbers'] ? $vars['number_format'] : '';
         $this->flags = $vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : $this->flags;
-        $this->noautoresp = !!$vars['noautoresp'];
+        $this->noautoresp = $vars['noautoresp'];
         $this->notes = Format::sanitize($vars['notes']);
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));

@@ -8,6 +8,9 @@ if(!@$thisstaff->isStaff() || !$ticket->checkStaffPerm($thisstaff)) die('Access 
 //Re-use the post info on error...savekeyboards.org (Why keyboard? -> some people care about objects than users!!)
 $info=($_POST && $errors)?Format::input($_POST):array();
 
+$type = array('type' => 'viewed');
+Signal::send('object.view', $ticket, $type);
+
 //Get the goodies.
 $dept     = $ticket->getDept();  //Dept
 $role     = $ticket->getRole($thisstaff);
@@ -260,6 +263,7 @@ if($ticket->isOverdue())
                     <?php
                      }
                   }
+                  Signal::send('ticket.view.more', $ticket, $extras);
                   if ($role->hasPerm(Ticket::PERM_DELETE)) {
                      ?>
                     <li class="danger"><a class="ticket-action" href="#tickets/<?php

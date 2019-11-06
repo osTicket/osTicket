@@ -30,7 +30,7 @@ class Export {
             'json' => 'JsonResultsExporter'
         );
         $exp = new $exporters[$how]($sql, $headers, $options);
-        return $exp->dump();
+        return $exp->dump($options['tmp'] ? true : false);
     }
 
     # XXX: Think about facilitated exporting. For instance, we might have a
@@ -321,6 +321,49 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
             );
     exit;
   }
+
+  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true, $data=array(), CsvExporter $exporter) {
+      $headings = array('Description', 'Timestamp', 'IP');
+      switch ($type) {
+          case 'audit':
+              $sql = AuditEntry::objects()->filter(array('object_type'=>$data['type']));
+              if ($data['state'] && $data['state'] != 'All') {
+                  $eventId = Event::getIdByName(strtolower($data['state']));
+                  $sql = $sql->filter(array('event_id'=>$eventId));
+              }
+              if ($data['startDate'] && $data['endDate'])
+                  $sql = $sql->filter(array('timestamp__range' =>
+                                      array('"'.$data['startDate'].'"', '"'.$data['endDate'].'"', true)));
+
+              $sql = $sql->order_by('-timestamp');
+              $tableInfo = $sql;
+              break;
+          case 'user':
+              $sql = AuditEntry::objects()->filter(array('user_id'=>$object))->order_by('-timestamp');
+              break;
+          case 'staff':
+              $sql = AuditEntry::objects()->filter(array('staff_id'=>$object))->order_by('-timestamp');
+              break;
+          case 'ticket':
+              $sql = AuditEntry::objects()->filter(array('object_id'=>$object, 'object_type'=>'T'))->order_by('-timestamp');
+              break;
+      }
+      if (!$show_viewed)
+          $sql = $sql->filter(Q::not(array('event_id'=>Event::getIdByName('viewed'))))->order_by('-timestamp');
+
+      $exporter->write($headings);
+      $row = array();
+      foreach ($sql as $key => $value) {
+        if (is_object($value)) {
+            $description = AuditEntry::getDescription($value, true);
+            $value = $value->ht;
+        }
+        $row[0] = $description;
+        $row[1] = Format::datetime($value['timestamp']);
+        $row[2] = $value['ip'];
+        $exporter->write($row);
+      }
+    }
 }
 
 
@@ -509,13 +552,13 @@ abstract class  Exporter {
         return $id;
     }
 
-    static function register($exporter) {
+    static function register($exporter, $extra=array()) {
         if (!$exporter instanceof Exporter)
             return false;
 
         $_SESSION['Exports'][$exporter->getId()] = $exporter->getOptions() + array(
                  'file' => $exporter->getFile(),
-                 'class' => get_class($exporter));
+                 'class' => get_class($exporter)) + $extra ?: $extra;
     }
 
     static function load($id) {
@@ -674,11 +717,9 @@ class CsvResultsExporter extends ResultSetExporter {
         return Internationalization::getCSVDelimiter();
     }
 
-    function dump() {
-
+    function dump($tmp=false) {
         if (!$this->output)
              $this->output = fopen('php://output', 'w');
-
 
         $delimiter = $this->getDelimiter();
         // Output a UTF-8 BOM (byte order mark)
@@ -693,7 +734,8 @@ class CsvResultsExporter extends ResultSetExporter {
                 }, $row),
             $delimiter);
 
-        fclose($this->output);
+        if (!$tmp)
+            fclose($this->output);
     }
 }
 

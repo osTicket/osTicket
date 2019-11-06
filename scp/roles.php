@@ -53,6 +53,8 @@ if ($_POST) {
             unset($_REQUEST['a']);
             $msg = sprintf(__('Successfully added %s.'),
                     __('role'));
+            $type = array('type' => 'created');
+            Signal::send('object.created', $_role, $type);
         } elseif ($errors) {
             $errors['err'] = sprintf('%s %s',
                 sprintf(__('Unable to add %s.'), __('this role')),
