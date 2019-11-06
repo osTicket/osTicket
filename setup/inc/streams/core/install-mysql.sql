@@ -701,6 +701,15 @@ CREATE TABLE `%TABLE_PREFIX%thread_entry_email` (
   KEY `mid` (`mid`)
 ) DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry_merge`;
+CREATE TABLE `%TABLE_PREFIX%thread_entry_merge` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `thread_entry_id` int(11) unsigned NOT NULL,
+  `data` text,
+  PRIMARY KEY (`id`),
+  KEY `thread_entry_id` (`thread_entry_id`)
+) DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `%TABLE_PREFIX%ticket`;
 CREATE TABLE `%TABLE_PREFIX%ticket` (
   `ticket_id` int(11) unsigned NOT NULL auto_increment,

@@ -6,7 +6,6 @@
 * This patch adds new fields to the database to allow us to merge Tickets
 *
 */
-
 -- At some point, a flags field was added to the Ticket table in the
 -- installer, but it was never added to a patch, so for some people
 -- that try to upgrade, they get an error that says it is unable to add
@@ -26,14 +25,19 @@ SET @s = (SELECT IF(
 PREPARE stmt FROM @s;
 EXECUTE stmt;
 
--- Add sort and ticket_pid column to tickets
+-- Add ticket_pid and sort column to tickets
 ALTER TABLE `%TABLE_PREFIX%ticket`
-    ADD `sort` int(11) unsigned NOT NULL DEFAULT '0' AFTER `flags`,
-    ADD `ticket_pid` int(11) unsigned DEFAULT NULL AFTER `ticket_id`;
+    ADD `ticket_pid` int(11) unsigned DEFAULT NULL AFTER `ticket_id`,
+    ADD `sort` int(11) unsigned NOT NULL DEFAULT '0' AFTER `flags`;
 
--- Add extra column to thread entries
-ALTER TABLE `%TABLE_PREFIX%thread_entry`
-    ADD `extra` text AFTER `ip_address`;
+-- Create a new table for merge data
+CREATE TABLE `%TABLE_PREFIX%thread_entry_merge` (
+  `id` int(11) unsigned NOT NULL auto_increment,
+  `thread_entry_id` int(11) unsigned NOT NULL,
+  `data` text,
+  PRIMARY KEY (`id`),
+  KEY `thread_entry_id` (`thread_entry_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- Insert new events
 INSERT INTO `%TABLE_PREFIX%event` (`id`, `name`, `description`)
