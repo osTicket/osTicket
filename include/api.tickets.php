@@ -93,7 +93,7 @@ class TicketApiController extends ApiController {
                 catch (FileUploadError $ex) {
                     $name = $file['name'];
                     $file = array();
-                    $file['error'] = $name . ': ' . $ex->getMessage();
+                    $file['error'] = Format::htmlchars($name) . ': ' . $ex->getMessage();
                 }
             }
             unset($file);
