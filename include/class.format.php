@@ -330,7 +330,8 @@ class Format {
         );
 
         // iFrame Whitelist
-        $whitelist = $cfg->getIframeWhitelist();
+        if ($cfg)
+            $whitelist = $cfg->getIframeWhitelist();
         if (!empty($whitelist)) {
             $config['elements'] = '*+iframe';
             $config['spec'] = 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?('
