@@ -4512,9 +4512,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
             $msg = $ticket->replaceVars($msg->asArray(),
                 array(
-                    'message'   => $message,
-                    'signature' => $signature,
+                    'message'   => $message ?: '',
                     'response'  => $response ?: '',
+                    'signature' => $signature,
                     'recipient' => $ticket->getOwner(), //End user
                     'staff'     => $thisstaff,
                 )

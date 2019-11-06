@@ -148,7 +148,15 @@ extends InstrumentedList {
 
             $_inline = isset($file['inline']) ? $file['inline'] : $inline;
 
-            $att = $this->add(new Attachment(array(
+            // Check if Attachment exists
+            if ($F && $this->key)
+                $existing = Attachment::objects()->filter(array(
+                    'file__key' => $F->key,
+                    'object_id' => $this->key['object_id'],
+                    'type' => $this->key['type']
+                ))->first();
+
+            $att = $this->add(isset($existing) ? $existing : new Attachment(array(
                 'file_id' => $fileId,
                 'inline' => $_inline ? 1 : 0,
             )));

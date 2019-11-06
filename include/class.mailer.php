@@ -336,6 +336,9 @@ class Mailer {
 
                 $entry = null;
                 switch (true) {
+                case $recipients instanceof MailingList:
+                    $entry = $thread->getLastEmailMessage();
+                    break;
                 case $recipients instanceof TicketOwner:
                 case $recipients instanceof Collaborator:
                     $entry = $thread->getLastEmailMessage(array(
