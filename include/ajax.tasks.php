@@ -211,6 +211,249 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/task-edit.tmpl.php';
     }
 
+    function editField($tid, $fid) {
+        global $thisstaff;
+
+        if (!($task=Task::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+        elseif (!$task->checkStaffPerm($thisstaff, Task::PERM_EDIT))
+            Http::response(403, __('Permission denied'));
+        elseif (!($field=$task->getField($fid)))
+            Http::response(404, __('No such field'));
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Task #%s: %s %s'),
+                  $task->getNumber(),
+                  __('Update'),
+                  $field->getLabel()
+                  ),
+              ':action' => sprintf('#tasks/%d/field/%s/edit',
+                  $task->getId(), $field->getId())
+              );
+
+        $form = $field->getEditForm($_POST);
+        if ($_POST && $form->isValid()) {
+
+            if ($task->updateField($form, $errors)) {
+                $msg = sprintf(
+                      __('%s successfully'),
+                      sprintf(
+                          __('%s updated'),
+                          __($field->getLabel())
+                          )
+                      );
+
+                switch (true) {
+                    case $field instanceof DateTime:
+                    case $field instanceof DatetimeField:
+                        $clean = Format::datetime((string) $field->getClean());
+                        break;
+                    case $field instanceof FileUploadField:
+                        $field->save();
+                        $answer =  $field->getAnswer();
+                        $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
+                        break;
+                    case $field instanceof DepartmentField:
+                        $clean = (string) Dept::lookup($field->getClean());
+                        break;
+                    default:
+                        $clean =  $field->getClean();
+                        $clean = is_array($clean) ? implode($clean, ',') :
+                            (string) $clean;
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
+                }
+
+                $clean = is_array($clean) ? $clean[0] : $clean;
+                Http::response(201, $this->json_encode(['value' =>
+                            $clean ?: '&mdash;' . __('Empty') .  '&mdash;',
+                            'id' => $fid, 'msg' => $msg]));
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to update field');
+        }
+
+        include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
+    }
+
+    function changeTaskStatus($tid, $status, $id=0) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+        elseif (!$tid
+                || !($task=Task::lookup($tid))
+                || !$task->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown task #');
+
+        $role = $task->getRole($thisstaff);
+
+        $info = array();
+        $state = null;
+        switch($status) {
+            case 'open':
+            case 'reopen':
+                $state = 'open';
+                break;
+            case 'close':
+                if (!$role->hasPerm(Ticket::PERM_CLOSE))
+                    Http::response(403, 'Access denied');
+                $state = 'closed';
+
+                // Check if task is closeable
+                if (is_string($closeable=$task->isCloseable()))
+                    $info['warn'] =  $closeable;
+
+                break;
+            case 'delete':
+                if (!$role->hasPerm(Ticket::PERM_DELETE))
+                    Http::response(403, 'Access denied');
+                $state = 'deleted';
+                break;
+            default:
+                $state = $task->getStatus()->getState();
+                $info['warn'] = sprintf(__('%s: Unknown or invalid'),
+                        __('status'));
+        }
+
+        $info['status_id'] = $id ?: $task->getStatusId();
+
+        return self::_changeTaskStatus($task, $state, $info);
+    }
+
+    private function _changeTaskStatus($task, $state, $info=array(), $errors=array()) {
+
+        $verb = TicketStateField::getVerb($state);
+
+        $info['action'] = sprintf('#tasks/%d/status', $task->getId());
+        $info['title'] = sprintf(__(
+                    /* 1$ will be a verb, like 'open', 2$ will be the task number */
+                    '%1$s Task #%2$s'),
+                $verb ?: $state,
+                $task->getNumber()
+                );
+
+        // Deleting?
+        if (!strcasecmp($state, 'deleted')) {
+
+            $info['placeholder'] = sprintf(__(
+                        'Optional reason for deleting %s'),
+                    __('this task'));
+            $info[ 'warn'] = sprintf(__(
+                        'Are you sure you want to DELETE %s?'),
+                        __('this task'));
+            //TODO: remove message below once we ship data retention plug
+            $info[ 'extra'] = sprintf('<strong>%s</strong>',
+                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        );
+        }
+
+        $info['status_id'] = $info['status_id'] ?: $task->getStatusId();
+        $info['comments'] = Format::htmlchars($_REQUEST['comments']);
+
+        return self::_changeStatus($state, $info, $errors);
+    }
+
+    private function _changeStatus($state, $info=array(), $errors=array()) {
+
+        if ($info && isset($info['errors']))
+            $errors = array_merge($errors, $info['errors']);
+
+        if (!$info['error'] && isset($errors['err']))
+            $info['error'] = $errors['err'];
+
+        include(STAFFINC_DIR . 'templates/ticket-status.tmpl.php');
+    }
+
+    function setTaskStatus($tid) {
+        global $thisstaff, $ost;
+
+        if (!$thisstaff)
+            Http::response(403, 'Access denied');
+        elseif (!$tid
+                || !($task=Task::lookup($tid))
+                || !$task->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown ticket #');
+
+        $errors = $info = array();
+        if (!$_POST['status_id']
+                || !($status= TicketStatus::lookup($_POST['status_id'])))
+            $errors['status_id'] = sprintf('%s %s',
+                    __('Unknown or invalid'), __('status'));
+        elseif ($status->getId() == $task->getStatusId())
+            $errors['err'] = sprintf(__('Ticket already set to %s status'),
+                    __($status->getName()));
+        elseif (($role = $task->getRole($thisstaff))) {
+            // Make sure the agent has permission to set the status
+            switch(mb_strtolower($status->getState())) {
+                case 'open':
+                    if (!$role->hasPerm(Task::PERM_CLOSE)
+                            && !$role->hasPerm(Task::PERM_CREATE))
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
+                                __('to reopen tasks'));
+                    break;
+                case 'closed':
+                    if (!$role->hasPerm(Task::PERM_CLOSE))
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
+                                __('to resolve/close tasks'));
+                    break;
+                case 'deleted':
+                    if (!$role->hasPerm(Task::PERM_DELETE))
+                        $errors['err'] = sprintf(__('You do not have permission %s'),
+                                __('to archive/delete tasks'));
+                    break;
+                default:
+                    $errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
+            }
+        } else {
+            $errors['err'] = __('Access denied');
+        }
+
+        $state = strtolower($status->getState());
+        if (!$errors && $task->setStatus($status, $_REQUEST['comments'], $errors)) {
+            $failures = array();
+
+            if (!$failures) {
+                if ($state == 'deleted') {
+                    $msg = sprintf('%s %s',
+                            sprintf(__('Task #%s'), $task->getNumber()),
+                            __('deleted sucessfully')
+                            );
+                } elseif ($state != 'open') {
+                     $msg = sprintf(__('%s status changed to %s'),
+                             sprintf(__('Task #%s'), $task->getNumber()),
+                             $status->getName());
+                } else {
+                    $msg = sprintf(
+                            __('%s status changed to %s'),
+                            __('Task'),
+                            $status->getName());
+                }
+            } else {
+                $tasks = array();
+                foreach ($failures as $id=>$num) {
+                    $tasks[] = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
+                                    $id,
+                                    $num);
+                }
+                $info['warn'] = sprintf(__('Error updating task status for %s'),
+                                 implode(', ', $tasks));
+            }
+            $_SESSION['::sysmsgs']['msg'] = $msg;
+
+            Http::response(201, 'Successfully processed');
+        } elseif (!$errors['err'])
+            $errors['err'] =  __('Error updating task status');
+
+        $state = $state ?: $task->getStatus();
+        $info['status_id'] = $status
+            ? $status->getId() : $task->getStatusId();
+
+        return self::_changeTaskStatus($task, $state, $info, $errors);
+    }
+
     function massProcess($action, $w=null)  {
         global $thisstaff, $cfg;
 
@@ -618,7 +861,11 @@ class TasksAjaxAPI extends AjaxController {
                             __('Task'),
                             $form->getAssignee())
                         );
-                Http::response(201, $task->getId());
+
+                $assignee =  $task->isAssigned() ? Format::htmlchars(implode('/', $task->getAssignees())) :
+                                            '<span class="faded">&mdash; '.__('Unassigned').' &mdash;';
+                Http::response(201, $this->json_encode(['value' =>
+                    $assignee, 'id' => 'assign', 'msg' => $msg]));
             }
 
             $form->addErrors($errors);

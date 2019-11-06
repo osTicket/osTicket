@@ -21,7 +21,7 @@ if ($info['error']) {
            $info['notice']);
 }
 
-
+$type = ($info['action'] && strpos($info['action'], 'task') !== false) ? 'task' : 'ticket';
 $action = $info['action'] ?: ('#tickets/status/'. $state);
 ?>
 <div id="ticket-status" style="display:block; margin:5px;">
@@ -39,9 +39,14 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
             }
 
             $verb = '';
-            if ($state) {
+            if ($state && $type == 'ticket') {
                 $statuses = TicketStatusList::getStatuses(array('states'=>array($state)))->all();
                 $verb = TicketStateField::getVerb($state);
+            } else {
+                $status = TicketStatus::objects()
+                    ->filter(array('name' => $state))
+                    ->first();
+                $statuses[] = $status;
             }
 
             if ($statuses) {
@@ -51,7 +56,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                     <td colspan=2>
                         <span>
                         <?php
-                        if (count($statuses) > 1) { ?>
+                        if (count($statuses) > 1 || $type == 'task') { ?>
                             <strong><?php echo __('Status') ?>:&nbsp;</strong>
                             <select name="status_id">
                             <?php
