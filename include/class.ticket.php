@@ -1363,7 +1363,24 @@ implements RestrictedAccess, Threadable, Searchable {
                 };
                 break;
             case 'open':
-                // TODO: check current status if it allows for reopening
+                if ($this->isClosed() && $this->isReopenable()) {
+                    // Auto-assign to closing staff or the last respondent if the
+                    // agent is available and has access. Otherwise, put the ticket back
+                    // to unassigned pool.
+                    $dept = $this->getDept();
+                    $staff = $this->getStaff() ?: $this->getLastRespondent();
+                    $autoassign = (!$dept->disableReopenAutoAssign());
+                    if ($autoassign
+                            && $staff
+                            // Is agent on vacation ?
+                            && $staff->isAvailable()
+                            // Does the agent have access to dept?
+                            && $staff->canAccessDept($dept))
+                        $this->setStaffId($staff->getId());
+                    else
+                        $this->setStaffId(0); // Clear assignment
+                }
+
                 if ($this->isClosed()) {
                     $this->closed = $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
@@ -1701,24 +1718,8 @@ implements RestrictedAccess, Threadable, Searchable {
         // We're also checking autorespond flag because we don't want to
         // reopen closed tickets on auto-reply from end user. This is not to
         // confused with autorespond on new message setting
-        if ($reopen && $this->isClosed() && $this->isReopenable()) {
+        if ($reopen && $this->isClosed() && $this->isReopenable())
             $this->reopen();
-            // Auto-assign to closing staff or the last respondent if the
-            // agent is available and has access. Otherwise, put the ticket back
-            // to unassigned pool.
-            $dept = $this->getDept();
-            $staff = $this->getStaff() ?: $this->getLastRespondent();
-            $autoassign = (!$dept->disableReopenAutoAssign());
-            if ($autoassign
-                    && $staff
-                    // Is agent on vacation ?
-                    && $staff->isAvailable()
-                    // Does the agent have access to dept?
-                    && $staff->canAccessDept($dept))
-                $this->setStaffId($staff->getId());
-            else
-                $this->setStaffId(0); // Clear assignment
-        }
 
         if (!$autorespond)
             return;
