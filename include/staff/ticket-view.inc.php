@@ -95,6 +95,12 @@ if($ticket->isOverdue())
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
                  <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=1"><i
                  class="icon-list-alt"></i> <?php echo __('Thread + Internal Notes + Events'); ?></a>
+                 <?php if (extension_loaded('zip')) { ?>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1"><i
+                 class="icon-download-alt"></i> <?php echo __('Export with Notes + Attachments'); ?></a>
+                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1&tasks=1"><i
+                 class="icon-download"></i> <?php echo __('Export with Notes + Attachments + Tasks'); ?></a>
+                 <?php } ?>
               </ul>
             </div>
             <?php

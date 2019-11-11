@@ -3514,6 +3514,12 @@ implements RestrictedAccess, Threadable, Searchable {
         exit;
     }
 
+    function zipExport($notes=true, $tasks=false) {
+        $exporter = new TicketZipExporter($this);
+        $exporter->download(['notes'=>$notes, 'tasks'=>$tasks]);
+        exit;
+    }
+
     function delete($comments='') {
         global $ost, $thisstaff;
 
