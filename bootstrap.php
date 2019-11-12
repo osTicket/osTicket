@@ -92,6 +92,7 @@ class Bootstrap {
         define('THREAD_TABLE', $prefix.'thread');
         define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
         define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
+        define('THREAD_ENTRY_MERGE_TABLE', $prefix.'thread_entry_merge');
 
         define('LOCK_TABLE',$prefix.'lock');
 
