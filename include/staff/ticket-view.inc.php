@@ -27,8 +27,9 @@ $mylock = ($lock && $lock->getStaffId() == $thisstaff->getId()) ? $lock : null;
 $id    = $ticket->getId();    //Ticket ID.
 $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
 $canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
-$canAnswer = ($isManager || $role->hasPerm(Ticket::PERM_REPLY)); //Check if Agent can mark as answered/unanswered
 $blockReply = $ticket->isChild() && $ticket->getMergeType() != 'visual';
+$canMarkAnswered = ($isManager || $role->hasPerm(Ticket::PERM_MARKANSWERED)); //Check if Agent can mark as answered/unanswered
+
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(
@@ -200,7 +201,7 @@ if($ticket->isOverdue())
                     <?php
                     }
                  }
-                 if($ticket->isOpen() && $canAnswer) {
+                 if($ticket->isOpen() && $canMarkAnswered) {
                     if($ticket->isAnswered()) { ?>
                     <li><a href="#tickets/<?php echo $ticket->getId();
                         ?>/mark/unanswered" class="ticket-action"
