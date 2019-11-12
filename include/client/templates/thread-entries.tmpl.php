@@ -24,10 +24,11 @@ if ($this->getObjectType() == 'T')
 if (count($entries)) {
     $buckets = ThreadEntry::sortEntries($entries, $ticket);
     foreach ($buckets as $entry) {
-        if ($entry->hasFlag(ThreadEntry::FLAG_CHILD) && $entry->extra) {
-            if (!is_array($entry->extra))
-                $entry->extra = json_decode($entry->extra, true);
-            if (!$thread = Thread::objects()->filter(array('id'=>$entry->extra['thread']))->values_flat('extra'))
+        $extra = $entry->getMergeData();
+        if ($entry->hasFlag(ThreadEntry::FLAG_CHILD) && $extra) {
+            if (!is_array($extra))
+                $extra = json_decode($extra, true);
+            if (!$thread = Thread::objects()->filter(array('id'=>$extra['thread']))->values_flat('extra'))
                 continue;
             foreach ($thread as $t)
                 $threadExtra = $t[0];

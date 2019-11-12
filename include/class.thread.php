@@ -769,6 +769,18 @@ class ThreadEntryEmailInfo extends VerySimpleModel {
     );
 }
 
+class ThreadEntryMergeInfo extends VerySimpleModel {
+    static $meta = array(
+        'table' => THREAD_ENTRY_MERGE_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'thread_entry' => array(
+                'constraint' => array('thread_entry_id' => 'ThreadEntry.id'),
+            ),
+        ),
+    );
+}
+
 class ThreadEntry extends VerySimpleModel
 implements TemplateVariable {
     static $meta = array(
@@ -789,6 +801,10 @@ implements TemplateVariable {
             ),
             'email_info' => array(
                 'reverse' => 'ThreadEntryEmailInfo.thread_entry',
+                'list' => false,
+            ),
+            'merge_info' => array(
+                'reverse' => 'ThreadEntryMergeInfo.thread_entry',
                 'list' => false,
             ),
             'attachments' => array(
@@ -1539,17 +1555,25 @@ implements TemplateVariable {
     }
 
     function setExtra($entries, $info=NULL, $thread_id=NULL) {
-        foreach ($entries as $entry)
+        foreach ($entries as $entry) {
+            $mergeInfo = new ThreadEntryMergeInfo(array(
+                'thread_entry_id' => $entry->getId(),
+                'data' => json_encode($info),
+            ));
+            $mergeInfo->save();
             $entry->saveExtra($info, $thread_id);
+        }
+
     }
 
     function saveExtra($info=NULL, $thread_id=NULL) {
-        if (!$this->extra) {
-            $this->extra = !is_null($info) ? json_encode($info) : NULL;
-            $this->setFlag(ThreadEntry::FLAG_CHILD, true);
-        }
-        $this->thread_id = $thread_id ?: $thread_id;
+        $this->setFlag(ThreadEntry::FLAG_CHILD, true);
+        $this->thread_id = $thread_id;
         $this->save();
+    }
+
+    function getMergeData() {
+        return $this->merge_info ? $this->merge_info->data : null;
     }
 
     function sortEntries($entries, $ticket) {
@@ -1557,18 +1581,22 @@ implements TemplateVariable {
         $childEntries = array();
         foreach ($entries as $i=>$E) {
             if ($ticket) {
-                $E->extra = json_decode($E->extra, true);
+                $extra = json_decode($E->getMergeData(), true);
                 //separated entries
                 if ($ticket->getMergeType() == 'separate') {
-                    if ($E->extra['thread']) {
+                    if ($extra['thread']) {
                         $childEntries[$E->getId()] = $E;
                         if ($childEntries) {
                             uasort($childEntries, function ($a, $b) { //sort by child ticket
-                                if ($a->extra["thread"] != $b->extra["thread"])
-                                    return $b->extra["thread"] - $a->extra["thread"];
+                                $aExtra = json_decode($a->getMergeData(), true);
+                                $bExtra = json_decode($b->getMergeData(), true);
+                                if ($aExtra['thread'] != $bExtra["thread"])
+                                    return $bExtra["thread"] - $aExtra['thread'];
                             });
                             uasort($childEntries, function($a, $b) { //sort by child created date
-                                if ($a->extra["thread"] == $b->extra["thread"])
+                                $aExtra = json_decode($a->getMergeData(), true);
+                                $bExtra = json_decode($b->getMergeData(), true);
+                                if ($aExtra['thread'] == $bExtra["thread"])
                                     return strtotime($a->created) - strtotime($b->created);
                             });
                         }
