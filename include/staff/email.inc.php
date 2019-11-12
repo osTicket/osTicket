@@ -227,6 +227,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 		</span>
             </td>
         </tr>
+        <tr><td><?php echo __('Mail Folder'); ?></td>
+            <td>
+                <span>
+                        <input type="text" name="mail_folder" size=20 value="<?php echo $info['mail_folder']; ?>"
+                            placeholder="INBOX">
+                        &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_folder']; ?></font>
+                        <i class="help-tip icon-question-sign" href="#mail_folder"></i>
+                </span>
+            </td>
+        </tr>
         <tr><td><?php echo __('Port Number'); ?></td>
             <td><input type="text" name="mail_port" size=6 value="<?php echo $info['mail_port']?$info['mail_port']:''; ?>">
 		<span>
@@ -277,7 +287,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <label><input type="radio" name="postfetch" value="archive" <?php echo ($info['postfetch']=='archive')? 'checked="checked"': ''; ?> >
                 <?php echo __('Move to folder'); ?>:
                 <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/></label>
-                    &nbsp;<font class="error"><?php echo $errors['mail_folder']; ?></font>
+                    &nbsp;<font class="error"><?php echo $errors['mail_archivefolder']; ?></font>
                     <i class="help-tip icon-question-sign" href="#fetched_emails"></i>
                 <br/>
                 <label><input type="radio" name="postfetch" value="delete" <?php echo ($info['postfetch']=='delete')? 'checked="checked"': ''; ?> >

@@ -126,6 +126,10 @@ class MailFetcher {
         return $this->ht['max_fetch'];
     }
 
+    function getMailFolder() {
+        return $this->mailbox_encode($this->ht['folder'] ?: 'INBOX');
+    }
+
     function getArchiveFolder() {
         return $this->mailbox_encode($this->ht['archive_folder']);
     }
@@ -133,7 +137,7 @@ class MailFetcher {
     /* Core */
 
     function connect() {
-        return ($this->mbox && $this->ping())?$this->mbox:$this->open();
+        return ($this->mbox && $this->ping())?$this->mbox:$this->open($this->getMailFolder());
     }
 
     function ping() {
