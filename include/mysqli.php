@@ -74,6 +74,7 @@ function db_connect($host, $user, $passwd, $options = array()) {
         'CHARACTER SET'         => 'utf8',
         'COLLATION_CONNECTION'  => 'utf8_general_ci',
         'SQL_MODE'              => '',
+        'TIME_ZONE'             => '@@global.time_zone',
     ), 'session');
     $__db->set_charset('utf8');
 
