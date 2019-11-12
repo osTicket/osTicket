@@ -197,7 +197,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             </td>
             <td>
                 <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>"
-                    autocomplete="off">
+                    autocomplete="new-password">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?>&nbsp;</span>
                 <br><em><?php echo $passwdtxt; ?></em>
             </td>
@@ -225,6 +225,16 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_host']; ?></font>
 			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
 		</span>
+            </td>
+        </tr>
+        <tr><td><?php echo __('Mail Folder'); ?></td>
+            <td>
+                <span>
+                        <input type="text" name="mail_folder" size=20 value="<?php echo $info['mail_folder']; ?>"
+                            placeholder="INBOX">
+                        &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_folder']; ?></font>
+                        <i class="help-tip icon-question-sign" href="#mail_folder"></i>
+                </span>
             </td>
         </tr>
         <tr><td><?php echo __('Port Number'); ?></td>
@@ -277,7 +287,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <label><input type="radio" name="postfetch" value="archive" <?php echo ($info['postfetch']=='archive')? 'checked="checked"': ''; ?> >
                 <?php echo __('Move to folder'); ?>:
                 <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/></label>
-                    &nbsp;<font class="error"><?php echo $errors['mail_folder']; ?></font>
+                    &nbsp;<font class="error"><?php echo $errors['mail_archivefolder']; ?></font>
                     <i class="help-tip icon-question-sign" href="#fetched_emails"></i>
                 <br/>
                 <label><input type="radio" name="postfetch" value="delete" <?php echo ($info['postfetch']=='delete')? 'checked="checked"': ''; ?> >
@@ -324,7 +334,26 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                  &nbsp;
                  <label><input type="radio" name="smtp_auth"  value="0"
                      <?php echo !$info['smtp_auth']?'checked':''; ?> /> <?php echo __('No'); ?></label>
+                 &nbsp;
+                 <label><input type="checkbox" name="smtp_auth_creds" value="1"
+                     <?php echo $info['smtp_auth_creds']?'checked':''; ?> /> <?php echo __('Use Separate Authentication'); ?></label>
+                       <i class="help-tip icon-question-sign" href="#smtp_auth_creds"></i>
                 <font class="error">&nbsp;<?php echo $errors['smtp_auth']; ?></font>
+            </td>
+        </tr>
+        <tr style="display:none;" class="smtp"><td><?php echo __('Username'); ?></td>
+            <td>
+                <input type="text" size="35" name="smtp_userid" value="<?php echo $info['smtp_userid']; ?>"
+                    autocomplete="off" autocorrect="off">
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_userid']; ?>&nbsp;</span>
+            </td>
+        </tr>
+        <tr style="display:none;" class="smtp"><td><?php echo __('Password'); ?></td>
+            <td>
+                <input type="password" size="35" name="smtp_passwd" value="<?php echo $info['smtp_passwd']; ?>"
+                    autocomplete="new-password">
+                &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_passwd']; ?>&nbsp;</span>
+                <br><em><?php if ($info['smtp_userpass']) echo $passwdtxt; ?></em>
             </td>
         </tr>
         <tr>
@@ -355,3 +384,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="emails.php"'>
 </p>
 </form>
+<script type="text/javascript">
+// SMTP Authentication Credentials
+$(document).ready(function(){
+    $('input[name=smtp_auth], input[name=smtp_auth_creds]').bind('change', function(){
+        // Toggle Auth Checkbox
+        if ($('input[name=smtp_auth]:checked').val() == 1) {
+            $('input[name=smtp_auth_creds]').removeAttr('disabled');
+        } else {
+            $('input[name=smtp_auth_creds]').attr('disabled', true);
+        }
+        // Toggle Auth Input Visibility
+        if ($('input[name=smtp_auth_creds]:checked').val() == 1
+              && $('input[name=smtp_auth]:checked').val() == 1)
+            $('.smtp').show();
+        else
+            $('.smtp').hide();
+    });
+    $('input[name=smtp_auth], input[name=smtp_auth_creds]').trigger('change');
+});
+</script>
