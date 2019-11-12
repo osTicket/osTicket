@@ -46,7 +46,7 @@ $sitecolor = array(
     </div>
     <div class="col-lg-3">
         <div class="portlet" id="backlog-chart-container" ><!-- /primary heading -->
-            
+             
         </div>
     </div>
     <div class="col-lg-3">
@@ -1225,14 +1225,14 @@ FROM     (SELECT ost_ticket.number AS Ticket,
                                      THEN 'Hardware/Add' WHEN 60 THEN 'Hardware/Change' WHEN 61 THEN 'Hardware/Configuration' WHEN 62 THEN 'Hardware/Downtime' WHEN 63 THEN 'Hardware/Maintenance' WHEN 26 THEN 'Skype | Phones' WHEN 64 THEN 'Skype | Phones/Add'
                                      WHEN 65 THEN 'Skype | Phones/Change' WHEN 66 THEN 'Skype | Phones/Configuration' WHEN 68 THEN 'Skype | Phones/Downtime' WHEN 67 THEN 'Skype | Phones/Remove' WHEN 28 THEN 'Software' WHEN 34 THEN 'Software/Engineering | Design'
                                      WHEN 72 THEN 'Software/Engineering | Design/Install' WHEN 74 THEN 'Software/Engineering | Design/Remove' WHEN 73 THEN 'Software/Engineering | Design/Update' WHEN 69 THEN 'Software/Install' WHEN 33 THEN 'Software/Office'
-                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'Software/ShopEdge'
-                                     WHEN 78 THEN 'Software/ShopEdge/Downtime' WHEN 15 THEN 'Software/ShopEdge/EDI' WHEN 17 THEN 'Software/ShopEdge/Performance' WHEN 18 THEN 'Software/ShopEdge/Printing' WHEN 19 THEN 'Software/ShopEdge/Reports'
-                                     WHEN 16 THEN 'Software/ShopEdge/Security' WHEN 14 THEN 'Software/ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
+                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'ShopEdge'
+                                     WHEN 78 THEN 'ShopEdge/Downtime' WHEN 15 THEN 'ShopEdge/EDI' WHEN 17 THEN 'ShopEdge/Performance' WHEN 18 THEN 'ShopEdge/Printing' WHEN 19 THEN 'ShopEdge/Reports'
+                                     WHEN 16 THEN 'ShopEdge/Security' WHEN 14 THEN 'ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
                   FROM      ost_ticket LEFT JOIN
                                     ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
                   WHERE   ost_ticket.status_id <> 3 AND ost_ticket.status_id <> 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12) AS a
 WHERE  TOPIC IS NOT NULL
-GROUP BY TOPIC
+GROUP BY TOPIC 
 ORDER BY COUNT DESC limit 10";
         $tresults = db_query($sql1); 
     ?>    
@@ -1302,9 +1302,9 @@ FROM     (SELECT ost_ticket.number AS Ticket,
                                      THEN 'Hardware/Add' WHEN 60 THEN 'Hardware/Change' WHEN 61 THEN 'Hardware/Configuration' WHEN 62 THEN 'Hardware/Downtime' WHEN 63 THEN 'Hardware/Maintenance' WHEN 26 THEN 'Skype | Phones' WHEN 64 THEN 'Skype | Phones/Add'
                                      WHEN 65 THEN 'Skype | Phones/Change' WHEN 66 THEN 'Skype | Phones/Configuration' WHEN 68 THEN 'Skype | Phones/Downtime' WHEN 67 THEN 'Skype | Phones/Remove' WHEN 28 THEN 'Software' WHEN 34 THEN 'Software/Engineering | Design'
                                      WHEN 72 THEN 'Software/Engineering | Design/Install' WHEN 74 THEN 'Software/Engineering | Design/Remove' WHEN 73 THEN 'Software/Engineering | Design/Update' WHEN 69 THEN 'Software/Install' WHEN 33 THEN 'Software/Office'
-                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'Software/ShopEdge'
-                                     WHEN 78 THEN 'Software/ShopEdge/Downtime' WHEN 15 THEN 'Software/ShopEdge/EDI' WHEN 17 THEN 'Software/ShopEdge/Performance' WHEN 18 THEN 'Software/ShopEdge/Printing' WHEN 19 THEN 'Software/ShopEdge/Reports'
-                                     WHEN 16 THEN 'Software/ShopEdge/Security' WHEN 14 THEN 'Software/ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
+                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'ShopEdge'
+                                     WHEN 78 THEN 'ShopEdge/Downtime' WHEN 15 THEN 'ShopEdge/EDI' WHEN 17 THEN 'ShopEdge/Performance' WHEN 18 THEN 'ShopEdge/Printing' WHEN 19 THEN 'ShopEdge/Reports'
+                                     WHEN 16 THEN 'ShopEdge/Security' WHEN 14 THEN 'ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
                   FROM      ost_ticket LEFT JOIN
                                     ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
                   WHERE    year(ost_ticket.closed) = year(now()) and ost_ticket.status_id = 3 or ost_ticket.status_id = 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12 ) AS a
@@ -1381,9 +1381,9 @@ FROM     (SELECT ost_ticket.number AS Ticket,
                                      THEN 'Hardware/Add' WHEN 60 THEN 'Hardware/Change' WHEN 61 THEN 'Hardware/Configuration' WHEN 62 THEN 'Hardware/Downtime' WHEN 63 THEN 'Hardware/Maintenance' WHEN 26 THEN 'Skype | Phones' WHEN 64 THEN 'Skype | Phones/Add'
                                      WHEN 65 THEN 'Skype | Phones/Change' WHEN 66 THEN 'Skype | Phones/Configuration' WHEN 68 THEN 'Skype | Phones/Downtime' WHEN 67 THEN 'Skype | Phones/Remove' WHEN 28 THEN 'Software' WHEN 34 THEN 'Software/Engineering | Design'
                                      WHEN 72 THEN 'Software/Engineering | Design/Install' WHEN 74 THEN 'Software/Engineering | Design/Remove' WHEN 73 THEN 'Software/Engineering | Design/Update' WHEN 69 THEN 'Software/Install' WHEN 33 THEN 'Software/Office'
-                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'Software/ShopEdge'
-                                     WHEN 78 THEN 'Software/ShopEdge/Downtime' WHEN 15 THEN 'Software/ShopEdge/EDI' WHEN 17 THEN 'Software/ShopEdge/Performance' WHEN 18 THEN 'Software/ShopEdge/Printing' WHEN 19 THEN 'Software/ShopEdge/Reports'
-                                     WHEN 16 THEN 'Software/ShopEdge/Security' WHEN 14 THEN 'Software/ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
+                                     WHEN 75 THEN 'Software/Office/Install' WHEN 77 THEN 'Software/Office/Remove' WHEN 76 THEN 'Software/Office/Update' WHEN 71 THEN 'Software/Remove' WHEN 82 THEN 'Software/QuoteLog' WHEN 13 THEN 'ShopEdge'
+                                     WHEN 78 THEN 'ShopEdge/Downtime' WHEN 15 THEN 'ShopEdge/EDI' WHEN 17 THEN 'ShopEdge/Performance' WHEN 18 THEN 'ShopEdge/Printing' WHEN 19 THEN 'ShopEdge/Reports'
+                                     WHEN 16 THEN 'ShopEdge/Security' WHEN 14 THEN 'ShopEdge/Suggestion' WHEN 80 THEN 'Software/Suggestions System' WHEN 12 THEN 'Open Issue' END AS TOPIC
                   FROM      ost_ticket LEFT JOIN
                                     ost_help_topic ON ost_help_topic.topic_id = ost_ticket.topic_id
                   WHERE    year(ost_ticket.closed) = year(CURDATE() - INTERVAL 1 YEAR) and ost_ticket.status_id = 3 or ost_ticket.status_id = 2 AND ost_ticket.status_id <> 12 AND ost_ticket.topic_id <> 14 AND ost_ticket.topic_id <> 12 ) AS a
