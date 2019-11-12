@@ -32,9 +32,9 @@ if ($cfg && $cfg->isKnowledgebaseEnabled()) { ?>
     <button type="submit" class="green button"><?php echo __('Search'); ?></button>
     </form>
 </div>
-    <div class="thread-body">
+<?php } ?>
+<div class="thread-body">
 <?php
-}
     if($cfg && ($page = $cfg->getLandingPage()))
         echo $page->getBodyWithImages();
     else

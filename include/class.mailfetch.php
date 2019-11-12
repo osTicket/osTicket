@@ -849,7 +849,9 @@ class MailFetcher {
                         $file['id'] = $f->getId();
                 }
                 catch (FileUploadError $ex) {
-                    $file['error'] = $file['name'] . ': ' . $ex->getMessage();
+                    $name = $file['name'];
+                    $file = array();
+                    $file['error'] = Format::htmlchars($name) . ': ' . $ex->getMessage();
                 }
 
                 $vars['attachments'][] = $file;

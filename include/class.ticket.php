@@ -1499,7 +1499,24 @@ implements RestrictedAccess, Threadable, Searchable {
                 };
                 break;
             case 'open':
-                // TODO: check current status if it allows for reopening
+                if ($this->isClosed() && $this->isReopenable()) {
+                    // Auto-assign to closing staff or the last respondent if the
+                    // agent is available and has access. Otherwise, put the ticket back
+                    // to unassigned pool.
+                    $dept = $this->getDept();
+                    $staff = $this->getStaff() ?: $this->getLastRespondent();
+                    $autoassign = (!$dept->disableReopenAutoAssign());
+                    if ($autoassign
+                            && $staff
+                            // Is agent on vacation ?
+                            && $staff->isAvailable()
+                            // Does the agent have access to dept?
+                            && $staff->canAccessDept($dept))
+                        $this->setStaffId($staff->getId());
+                    else
+                        $this->setStaffId(0); // Clear assignment
+                }
+
                 if ($this->isClosed()) {
                     $this->closed = $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
@@ -1837,24 +1854,8 @@ implements RestrictedAccess, Threadable, Searchable {
         // We're also checking autorespond flag because we don't want to
         // reopen closed tickets on auto-reply from end user. This is not to
         // confused with autorespond on new message setting
-        if ($reopen && $this->isClosed() && $this->isReopenable()) {
+        if ($reopen && $this->isClosed() && $this->isReopenable())
             $this->reopen();
-            // Auto-assign to closing staff or the last respondent if the
-            // agent is available and has access. Otherwise, put the ticket back
-            // to unassigned pool.
-            $dept = $this->getDept();
-            $staff = $this->getStaff() ?: $this->getLastRespondent();
-            $autoassign = (!$dept->disableReopenAutoAssign());
-            if ($autoassign
-                    && $staff
-                    // Is agent on vacation ?
-                    && $staff->isAvailable()
-                    // Does the agent have access to dept?
-                    && $staff->canAccessDept($dept))
-                $this->setStaffId($staff->getId());
-            else
-                $this->setStaffId(0); // Clear assignment
-        }
 
         if (!$autorespond)
             return;
@@ -2328,6 +2329,9 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'collaborator_count' => new ThreadCollaboratorCountField(array(
                         'label' => __('Collaborator Count'),
+            )),
+            'task_count' => new TicketTasksCountField(array(
+                        'label' => __('Task Count'),
             )),
             'reopen_count' => new TicketReopenCountField(array(
                         'label' => __('Reopen Count'),
@@ -3500,6 +3504,12 @@ implements RestrictedAccess, Threadable, Searchable {
         exit;
     }
 
+    function zipExport($notes=true, $tasks=false) {
+        $exporter = new TicketZipExporter($this);
+        $exporter->download(['notes'=>$notes, 'tasks'=>$tasks]);
+        exit;
+    }
+
     function delete($comments='') {
         global $ost, $thisstaff;
 
@@ -4571,9 +4581,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
             $msg = $ticket->replaceVars($msg->asArray(),
                 array(
-                    'message'   => $message,
-                    'signature' => $signature,
+                    'message'   => $message ?: '',
                     'response'  => $response ?: '',
+                    'signature' => $signature,
                     'recipient' => $ticket->getOwner(), //End user
                     'staff'     => $thisstaff,
                 )

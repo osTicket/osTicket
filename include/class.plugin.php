@@ -548,7 +548,7 @@ abstract class Plugin {
     static function isVerified($phar) {
         static $pubkey = null;
 
-        if (!class_exists('Phar'))
+        if (!class_exists('Phar') || !extension_loaded('openssl'))
             return self::VERIFY_EXT_MISSING;
         elseif (!file_exists(INCLUDE_DIR . '/plugins/updates.pem'))
             return self::VERIFY_NO_KEY;

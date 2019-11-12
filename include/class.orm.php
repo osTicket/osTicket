@@ -721,9 +721,11 @@ class VerySimpleModel {
     }
 
     private function refetch() {
-        $this->ht =
-            static::objects()->filter($this->getPk())->values()->one()
-            + $this->ht;
+        try {
+            $this->ht =
+                static::objects()->filter($this->getPk())->values()->one()
+                + $this->ht;
+        } catch (DoesNotExist $ex) {}
     }
 
     private function getPk() {

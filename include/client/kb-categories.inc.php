@@ -41,7 +41,7 @@
             <li><i></i>
             <div style="margin-left:45px">
             <h4><?php echo sprintf('<a href="faq.php?cid=%d">%s %s</a>',
-                $C->getId(), Format::htmlchars($C->getFullName()),
+                $C->getId(), Format::htmlchars($C->getLocalName()),
                 $count ? "({$count})": ''
                 ); ?></h4>
             <div class="faded" style="margin:10px 0">

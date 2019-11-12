@@ -528,6 +528,8 @@ implements TemplateVariable, Searchable {
         if (!parent::delete())
             return false;
 
+        // Clear organization from session to avoid refetch failure
+        unset($_SESSION[':Q:orgs'], $_SESSION[':O:tickets']);
         $type = array('type' => 'deleted');
         Signal::send('object.deleted', $this, $type);
 

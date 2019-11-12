@@ -1783,6 +1783,17 @@ class ThreadCollaboratorCountField extends NumericField {
     }
 }
 
+class TicketTasksCountField extends NumericField {
+
+    function addToQuery($query, $name=false) {
+        return TicketTasksCount::addToQuery($query, $name);
+    }
+
+    function from_query($row, $name=false) {
+         return TicketTasksCount::from_query($row, $name);
+    }
+}
+
 interface Searchable {
     // Fetch an array of [ orm__path => Field() ] pairs. The field label is
     // used when this list is rendered in a dropdown, and the field search
