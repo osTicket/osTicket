@@ -557,9 +557,14 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function updateEstDueDate($clearOverdue=true) {
+<<<<<<< HEAD
         $DueDate = $this->getEstDueDate();
         $this->est_duedate = $this->getSLADueDate(true) ?: null;
+=======
+        $this->est_duedate = $this->getSLADueDate();
+>>>>>>> Clear Overdue Flag on Due Date Change
         // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
+        $DueDate = $this->getEstDueDate();
         if ($this->isOverdue()
             && $clearOverdue
             && (!$DueDate // Duedate + SLA cleared
@@ -3723,22 +3728,14 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->selectSLAId();
         }
 
-        // Update estimated due date in database
-        $estimatedDueDate = $this->getEstDueDate();
+        if (!$this->save())
+            return false;
+
         $this->updateEstDueDate();
-
-        // Clear overdue flag if duedate or SLA changes and the ticket is no longer overdue.
-        if($this->isOverdue()
-            && (!$estimatedDueDate //Duedate + SLA cleared
-                || Misc::db2gmtime($estimatedDueDate) > Misc::gmtime() //New due date in the future.
-        )) {
-            $this->clearOverdue();
-        }
-
         Signal::send('model.updated', $this);
-        return $this->save();
-    }
 
+        return true;
+    }
 
     function updateField($form, &$errors) {
         global $thisstaff, $cfg;
@@ -3826,10 +3823,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->lastupdate = SqlFunction::NOW();
 
+        $this->save();
         if ($updateDuedate)
             $this->updateEstDueDate();
-
-        $this->save();
 
         Signal::send('model.updated', $this);
 
