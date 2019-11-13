@@ -243,6 +243,7 @@ class HashPassword {
 
 class SplFileObject {
     function fseek() {}
+}
 
 class AuditEntry {
     function getDataById() {}
