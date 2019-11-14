@@ -119,8 +119,12 @@ if (isset($tickets->extra['tables'])) {
 >>>>>>> Changes Made:
 =======
 $tickets->distinct('ticket_id');
+<<<<<<< HEAD
 >>>>>>> Issue: Duplicate Tickets in Closed Queue
 $count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
+=======
+$count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT);
+>>>>>>> Queue Pages Default
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
