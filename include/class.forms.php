@@ -2440,14 +2440,15 @@ class DatetimeField extends FormField {
         case 'before':
             return new Q(array("{$name}__lt" => $value));
         case 'between':
-            $tz = new DateTimeZone($cfg->getTimezone());
-            $dbtz = new DateTimeZone($cfg->getDbTimezone());
             $left = Format::parseDateTime($value['left']);
             $right = Format::parseDateTime($value['right']);
+            // TODO: allow time selection for between
             $left = $left->setTime(00, 00, 00);
             $right = $right->setTime(23, 59, 59);
-            $left->setTimezone($tz)->setTimezone($dbtz);
-            $right->setTimezone($tz)->setTimezone($dbtz);
+            // Convert time to db timezone
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+            $left->setTimezone($dbtz);
+            $right->setTimezone($dbtz);
             return new Q(array(
                 "{$name}__gte" =>  $left->format('Y-m-d H:i:s'),
                 "{$name}__lte" =>  $right->format('Y-m-d H:i:s'),
