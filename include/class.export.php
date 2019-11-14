@@ -928,8 +928,8 @@ class TicketZipExporter {
     function download($options = array()) {
         global $thisstaff;
 
-        $notes = isset(@$options['notes']) ? @$options['notes'] : false;
-        $tasks = isset(@$options['tasks']) ? @$options['tasks'] : false;
+        $notes = isset($options['notes']) ? $options['notes'] : false;
+        $tasks = isset($options['tasks']) ? $options['tasks'] : false;
 
         // TODO: Use a streaming ZIP library
         $zipfile = tempnam(sys_get_temp_dir(), 'zip');
