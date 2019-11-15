@@ -108,7 +108,7 @@ if (isset($tickets->extra['tables'])) {
 }
 
 $tickets->distinct('ticket_id');
-$count = $queue->getCount($thisstaff) ?: (PAGE_LIMIT*3);
+$count = $queue->getCount($thisstaff) ?: PAGE_LIMIT;
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
