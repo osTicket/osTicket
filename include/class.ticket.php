@@ -534,7 +534,7 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$recompute && $this->est_duedate)
             return $this->est_duedate;
 
-        if ($sla = $this->getSLA()) {
+        if (($sla = $this->getSLA()) && $sla->isActive()) {
             $schedule = $this->getDept()->getSchedule();
             $tz = new DateTimeZone($cfg->getDbTimezone());
             $dt = new DateTime($this->getReopenDate() ?:
