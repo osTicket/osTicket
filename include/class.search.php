@@ -1291,6 +1291,7 @@ class AssigneeChoiceField extends ChoiceField {
             $Q->negate();
         case 'includes':
             $teams = $agents = array();
+            $matches = count($value);
             foreach ($value as $id => $ST) {
                 switch ($id[0]) {
                 case 'M':
@@ -1300,10 +1301,10 @@ class AssigneeChoiceField extends ChoiceField {
                     $agents[] = (int) substr($id, 1);
                     break;
                 case 'T':
-                    if (!$thisstaff || !($staffTeams = $thisstaff->getTeams()))
+                    if ($thisstaff && ($staffTeams = $thisstaff->getTeams()))
+                         $teams = array_merge($staffTeams);
+                    elseif ($matches == 1)
                         return Q::any(['team_id' => null]);
-
-                    $teams = array_merge($staffTeams);
                     break;
                 case 't':
                     $teams[] = (int) substr($id, 1);
