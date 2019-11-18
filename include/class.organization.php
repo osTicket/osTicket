@@ -347,7 +347,7 @@ implements TemplateVariable, Searchable {
             return $this->getAccountManager();
         case 'contacts':
             return new UserList($this->users->filter(array(
-                'flags__hasbit' => User::PRIMARY_ORG_CONTACT
+                'status' => User::PRIMARY_ORG_CONTACT
             )));
         }
     }
@@ -383,22 +383,7 @@ implements TemplateVariable, Searchable {
         return true;
     }
 
-    function update($vars, &$errors) {
-        $valid = true;
-        $forms = $this->getForms($vars);
-        foreach ($forms as $entry) {
-            if (!$entry->isValid())
-                $valid = false;
-            if ($entry->getDynamicForm()->get('type') == 'O'
-                        && ($f = $entry->getField('name'))
-                        && $f->getClean()
-                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
-                        && $o->id != $this->getId()) {
-                $valid = false;
-                $f->addError(__('Organization with the same name already exists'));
-            }
-        }
-
+    function updateProfile($vars, &$errors) {
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
                 if (!Validator::is_email('t@' . trim($d))) {
@@ -428,6 +413,28 @@ implements TemplateVariable, Searchable {
         if ($errors)
             return false;
 
+        return $this->save();
+    }
+
+    function update($vars, &$errors) {
+        $valid = true;
+        $forms = $this->getForms($vars);
+        foreach ($forms as $entry) {
+            if (!$entry->isValid())
+                $valid = false;
+            if ($entry->getDynamicForm()->get('type') == 'O'
+                        && ($f = $entry->getField('name'))
+                        && $f->getClean()
+                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
+                        && $o->id != $this->getId()) {
+                $valid = false;
+                $f->addError(__('Organization with the same name already exists'));
+            }
+        }
+        if (!$valid || $errors)
+            return false;
+
+        // Save dynamic data.
         foreach ($this->getDynamicData() as $entry) {
             $fields = $entry->getFields();
             foreach ($fields as $field) {
@@ -468,6 +475,20 @@ implements TemplateVariable, Searchable {
         }
 
         foreach ($vars as $key => $value) {
+            // Primary Contacts List Changes
+            if ($key == 'contacts') {
+                $ogContacts = $value;
+                if ($contacts = $this->getVar('contacts')) {
+                    $allContacts = array();
+                    foreach ($contacts as $key => $value)
+                        $allContacts[] = strval($value->getId());
+
+                    if ($ogContacts != $allContacts) {
+                        $type = array('type' => 'edited', 'key' => 'contacts');
+                        Signal::send('object.edited', $this, $type);
+                    }
+                }
+            }
             if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
                     $type = array('type' => 'edited', 'key' => $key);
                     Signal::send('object.edited', $this, $type);
@@ -495,7 +516,7 @@ implements TemplateVariable, Searchable {
                 'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
                 'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
-            if (($sharingPrimary || $sharingEverybody) && $key == $ck) {
+            if (($sharingPrimary || $sharingEverybody) && $vars['sharing'] == $ck) {
                 $type = array('type' => 'edited', 'key' => 'sharing');
                 Signal::send('object.edited', $this, $type);
             }
@@ -521,7 +542,7 @@ implements TemplateVariable, Searchable {
                 ));
         }
 
-        return $this->save();
+        return true;
     }
 
     function delete() {
