@@ -1448,7 +1448,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Ticket Status helper.
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
-        global $thisstaff;
+        global $cfg, $thisstaff;
 
         if ($thisstaff && !($role=$this->getRole($thisstaff)))
             return false;
@@ -1479,7 +1479,7 @@ implements RestrictedAccess, Threadable, Searchable {
             return true;
 
         // Perform checks on the *new* status, _before_ the status changes
-        $ecb = null;
+        $ecb = $refer = null;
         switch ($status->getState()) {
             case 'closed':
                 // Check if ticket is closeable
@@ -1490,6 +1490,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($errors)
                     return false;
 
+                $refer = $this->staff ?: $thisstaff;
                 $this->closed = $this->lastupdate = SqlFunction::NOW();
                 $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)
@@ -1524,7 +1525,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 }
 
                 if ($this->isClosed()) {
-                    $this->closed = $this->lastupdate = $this->reopened = SqlFunction::NOW();
+                    $this->closed = null;
+                    $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
                     };
@@ -1542,6 +1544,10 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->status = $status;
         if (!$this->save())
             return false;
+
+        // Refer thread to previously assigned or closing agent
+        if ($refer && $cfg->autoReferTicketsOnClose())
+            $this->thread->refer($refer);
 
         // Log status change b4 reload — if currently has a status. (On new
         // ticket, the ticket is opened and thereafter the status is set to
