@@ -416,16 +416,16 @@ $(function() {
                 if (file)
                     file.remove();
                 if (el.attr('data-draft-id')) {
-                    el.redactor('plugin.draft.delete');
+                    el.redactor('plugin.draft.deleteDraft');
                     el.attr('data-draft-id', '');
                 }
                 else {
                     try {
-                        el.redactor('module.source.set', '');
+                        el.redactor('source.setCode', '');
                     }
                     catch (error) {
                         el.redactor(); //reinitialize redactor
-                        el.redactor('module.source.set', '');
+                        el.redactor('source.setCode', '');
                     }
                 }
             });
