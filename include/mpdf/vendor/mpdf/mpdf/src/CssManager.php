@@ -2224,6 +2224,17 @@ class CssManager
 			$path = preg_replace('/\.css\?.*$/', '.css', $path);
 		}
 
+        /*** Start osTicket Security Patch ***/
+
+        // Make sure only schemes allowed are http & https - this is to
+        // neutralize phar:// attack
+        $scheme = parse_url($path, PHP_URL_SCHEME);
+        if ($scheme && !in_array(strtolower($scheme), ['http', 'https']))
+            return '';
+
+        /*** End osTicket Security Patch ***/
+
+
 		$contents = @file_get_contents($path);
 
 		if ($contents) {
