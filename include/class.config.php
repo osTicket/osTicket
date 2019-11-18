@@ -208,6 +208,7 @@ class OsticketConfig extends Config {
         'agent_name_format' =>  'full', # First Last
         'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
+        'auto_refer_closed' => true,
         'collaborator_ticket_visibility' =>  true,
         'require_topic_to_close' =>  false,
         'system_language' =>    'en_US',
@@ -1005,6 +1006,10 @@ class OsticketConfig extends Config {
         return $this->get('auto_claim_tickets');
     }
 
+    function autoReferTicketsOnClose() {
+         return $this->get('auto_refer_closed');
+    }
+
     function collaboratorTicketsVisibility() {
         return $this->get('collaborator_ticket_visibility');
     }
@@ -1386,6 +1391,7 @@ class OsticketConfig extends Config {
             'max_open_tickets'=>$vars['max_open_tickets'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
+            'auto_refer_closed' => isset($vars['auto_refer_closed']) ? 1 : 0,
             'collaborator_ticket_visibility'=>isset($vars['collaborator_ticket_visibility'])?1:0,
             'require_topic_to_close'=>isset($vars['require_topic_to_close'])?1:0,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,

@@ -101,6 +101,15 @@ claim_tickets:
         Reopened tickets are always assigned to the last respondent unless auto
         assign on reopen is disabled on the Department level.
 
+auto_refer:
+    title: Auto-refer Tickets on Close
+    content: >
+        Enable this to auto-refer tickets to the assigned or closing
+        Agent when a ticket is closed.
+        <br><br>
+        This is necessary when you want to give agents with limited access
+        continued access to assigned tickets after they're closed.
+
 collaborator_ticket_visibility:
     title: Collaborator Tickets Visibility
     content: >
