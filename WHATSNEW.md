@@ -1,3 +1,40 @@
+osTicket v1.12.4
+================
+### Enhancements
+* issue: Spaces In Username (7c8f557)
+* i18n: KnowledgeBase JS (bce8296)
+* i18n: KnowledgeBase Category (5646e7c)
+* i18n: OpenSSL Error (af6f0e9)
+* Message Variable - %{message} (315c4e7)
+* Datatimepicker: Time format (f0fccbc)
+
+### Improvements
+* Highlight tab with error(s) (b81b703)
+* format: Clickable URLs (4f7569d)
+* Queue Pages Default (dff8bc1, 5105250)
+* Add Time boundaries to Between date range (cbc89b3, 31c97cf)
+* Clear Overdue Flag on Due Date Change (8c76d70)
+* db: System Time Zone (76087fc, d8adf85)
+* Modify Reopen Assignment (d50ebbb)
+* issue: Format File Name (bd427cd)
+* issue: DB Error #1062 (27c925c)
+* Issue: Edit Task Fields (05cbb75)
+* issue: In-Reply-To Header (8849c19)
+* orm: Refetch Failure (eb4bda8)
+* issue: Delete Org Session Failure (bbd0c25)
+* Feature: Mark as Answered permission option (2fcc664, 52aaa0b)
+* issue: Umlauts In Subject (cccdb15)
+* issue: Umlauts In Sender's Name (e3f42c3)
+* Fix use of possibly uninitialised $_SERVER['HTTPS'] (8e9b150)
+* issue: ACL Oopsie (4d774bc)
+* issue: Revert  fefed14 (c9be2e0)
+
+### Performance and Security
+* Arbitrary Method Invocation (4dfb77c)
+* Auth: Authentication Token Bypass (a9834d8)
+* mPDF: Remote Code Execution Vulnerability (6e039ab)
+* issue: Attachment Filter (9f4fbc2)
+
 osTicket v1.12.3
 ================
 ### Enhancements
