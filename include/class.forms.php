@@ -2359,11 +2359,14 @@ class DatetimeField extends FormField {
             )),
             'between' => array('InlineformField', array(
                 'form' => array(
-                    'left' => new DatetimeField(),
+                    'left' => new DatetimeField($config + array('required' => true)),
                     'text' => new FreeTextField(array(
-                        'configuration' => array('content' => 'and'))
+                        'configuration' => array('content' => __('and')))
                     ),
-                    'right' => new DatetimeField(),
+                    'right' => new DatetimeField($config + array('required' => true)),
+                ),
+                'configuration' => array(
+                    'error' => '',
                 ),
             )),
             'period' => array('ChoiceField', array(
@@ -2420,6 +2423,9 @@ class DatetimeField extends FormField {
         case 'between':
             $left = Format::parseDateTime($value['left']);
             $right = Format::parseDateTime($value['right']);
+            if (!$left || !$right)
+                return null;
+
             // TODO: allow time selection for between
             $left = $left->setTime(00, 00, 00);
             $right = $right->setTime(23, 59, 59);
@@ -3945,7 +3951,9 @@ class InlineFormField extends FormField {
 
     function validateEntry($value) {
         if (!$this->getInlineForm()->isValid()) {
-            $this->_errors[] = __('Correct any errors below and try again.');
+            $config = $this->getConfiguration();
+            $this->_errors[] = isset($config['error'])
+                ? $config['error'] : __('Correct any errors below and try again.');
         }
     }
 
