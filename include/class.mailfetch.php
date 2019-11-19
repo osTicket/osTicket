@@ -835,7 +835,7 @@ class MailFetcher {
                 else {
                     // only fetch the body if necessary
                     $self = $this;
-                    $file['data'] = function() use ($self, $mid, $a) {
+                    $file['dataclb'] = function() use ($self, $mid, $a) {
                         return $self->decode(imap_fetchbody($self->mbox,
                             $mid, $a['index']), $a['encoding']);
                     };

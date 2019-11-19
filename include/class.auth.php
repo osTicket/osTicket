@@ -1099,7 +1099,8 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
             if (($ticket = Ticket::lookupByNumber($_GET['t'], $_GET['e']))
                     // Using old ticket auth code algo - hardcoded here because it
                     // will be removed in ticket class in the upcoming rewrite
-                    && !strcasecmp($_GET['a'], md5($ticket->getId() .  strtolower($_GET['e']) . SECRET_SALT))
+                    && strcasecmp((string) $_GET['a'], md5($ticket->getId()
+                            .  strtolower($_GET['e']) . SECRET_SALT)) === 0
                     && ($owner = $ticket->getOwner()))
                 $user = new ClientSession($owner);
         }
