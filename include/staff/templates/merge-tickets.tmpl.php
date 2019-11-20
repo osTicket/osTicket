@@ -101,7 +101,7 @@ foreach ($tickets as $t) {
 &nbsp;&nbsp;&nbsp;
     <label class="inline checkbox">
         <?php echo __('Child Status');?>
-        <select id="statusId" name="statusId">
+        <select id="childStatusId" name="childStatusId">
         <?php
         $states = array('closed');
         foreach (TicketStatusList::getStatuses(
@@ -114,6 +114,27 @@ foreach ($tickets as $t) {
         ?>
         </select>
         <i class="help-tip icon-question-sign" href="#child_status"></i>
+    </label>
+</div>
+<br/>
+<div id="parent-status">
+&nbsp;&nbsp;&nbsp;
+    <label class="inline checkbox">
+        <?php echo __('Parent Status');?>
+        <select id="parentStatusId" name="parentStatusId">
+        <option value="">— Select —</option>
+        <?php
+        $states = array('open', 'closed');
+        foreach (TicketStatusList::getStatuses(
+                    array('states' => $states)) as $s) {
+            if (!$s->isEnabled()) continue;
+            echo sprintf('<option value="%d">%s</option>',
+                    $s->getId(),
+                    $s->getLocalName());
+        }
+        ?>
+        </select>
+        <i class="help-tip icon-question-sign" href="#parent_status"></i>
     </label>
 </div>
 <br/>

@@ -2555,6 +2555,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 $child->setMergeType($options['combine']);
                 $child->setStatus(intval($options['statusId']), false, $errors, true, true); //force close status for children
 
+                if ($options['parentStatusId'])
+                    $parent->setStatus(intval($options['parentStatusId']));
+
                 if ($options['delete-child'] || $options['move-tasks']) {
                     if ($tasks = Task::objects()
                         ->filter(array('object_id' => $child->getId()))

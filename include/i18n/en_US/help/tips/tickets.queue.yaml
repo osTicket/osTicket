@@ -90,6 +90,12 @@ child_status:
     content: >
         All Child Tickets will be set to a closed status since thread entries will all be moved to the Parent Ticket.
 
+parent_status:
+    title: Parent Ticket Status
+    content: >
+        If you choose to set a Parent Status, the Parent Ticket will be changed to the status you select.
+        The Ticket on top of the list will be the Parent Ticket.
+
 reply_types:
     title: Reply Types
     content: >
