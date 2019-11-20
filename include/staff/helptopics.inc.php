@@ -4,7 +4,7 @@ if (!defined('OSTADMININC') || !$thisstaff->isAdmin()) die('Access Denied');
 
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = Topic::objects()->count();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav = new Pagenate($count, $page,500);
 $pageNav->setURL('helptopics.php', $_qstr);
 $showing = $pageNav->showing().' '._N('help topic', 'help topics', $count);
 
@@ -12,7 +12,7 @@ $order_by = 'sort';
 
 ?>
 <form action="helptopics.php" method="POST" name="topics">
-    <div class="sticky bar opaque">
+    <div>
         <div class="content">
             <div class="pull-left flush-left">
                 <h2><?php echo __('Help Topics');?></h2>
@@ -56,7 +56,7 @@ $order_by = 'sort';
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="sort" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="table table-striped table-sm">
 
     <thead>
 <tr><td colspan="7">
@@ -75,7 +75,7 @@ $order_by = 'sort';
         <tr>
             <th width="4%" style="height:20px;">&nbsp;</th>
             <th style="padding-left:4px;vertical-align:middle" width="36%"><?php echo __('Help Topic'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="10%"><?php echo __('Status'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Type'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="10%"><?php echo __('Priority'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="14%"><?php echo __('Department'); ?></th>
@@ -167,14 +167,7 @@ $order_by = 'sort';
      </tr>
     </tfoot>
 </table>
-<?php
-if ($count): //Show options..
-     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
-?>
 
-<?php
-endif;
-?>
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">
