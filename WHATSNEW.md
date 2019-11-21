@@ -16,6 +16,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 =======
@@ -30,6 +31,19 @@ osTicket v1.14-rc1
 * Feature: Merge/Link Tickets (a8a4dec…c870df0)
 * Introducing Schedules / Business Hours for SLAs (54e06e9…39771f8)
 * Export Revisited (19ac222…045f6a6)
+=======
+osTicket v1.14.1
+================
+### Improvements
+* Revert commit cedd6121 (7dd7bfa)
+* Clear Overdue On Reopen (6dc0b74)
+* Allow Repeatable Once Entries (cb9bb2f)
+
+osTicket v1.12.5
+================
+### Performance and Security
+* Hotfix: File data callback (d3e643d)
+>>>>>>> Add Release Notes for v1.14.1
 
 ### Enhancements
 * Ticket Merge Code Fixes (06faacb)
