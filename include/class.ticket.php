@@ -558,6 +558,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function updateEstDueDate($clearOverdue=true) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         $DueDate = $this->getEstDueDate();
         $this->est_duedate = $this->getSLADueDate(true) ?: null;
 =======
@@ -572,6 +573,12 @@ implements RestrictedAccess, Threadable, Searchable {
         )) {
              $this->isoverdue = 0;
         }
+=======
+        if ($this->isOverdue() && $clearOverdue)
+            $this->clearOverdue(false);
+
+        $this->est_duedate = $this->getSLADueDate(true) ?: null;
+>>>>>>> Clear Overdue On Reopen
 
         return $this->save();
     }
@@ -1507,16 +1514,15 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $refer = $this->staff ?: $thisstaff;
                 $this->closed = $this->lastupdate = SqlFunction::NOW();
-                $this->duedate = null;
                 if ($thisstaff && $set_closing_agent)
                     $this->staff = $thisstaff;
+                // Clear overdue flags & due dates
                 $this->clearOverdue(false);
 
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
                     $type = array('type' => 'closed');
                     Signal::send('object.edited', $t, $type);
-
                     $t->deleteDrafts();
                 };
                 break;
@@ -1544,6 +1550,8 @@ implements RestrictedAccess, Threadable, Searchable {
                     $this->lastupdate = $this->reopened = SqlFunction::NOW();
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
+                        // Set new sla duedate if any
+                        $t->updateEstDuedate();
                     };
                 }
 
@@ -1557,7 +1565,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         $this->status = $status;
-        if (!$this->save())
+        if (!$this->save(true))
             return false;
 
         // Refer thread to previously assigned or closing agent
@@ -2422,12 +2430,10 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function clearOverdue($save=true) {
-        if (!$this->isOverdue())
-            return true;
 
         //NOTE: Previously logged overdue event is NOT annuled.
-
-        $this->isoverdue = 0;
+        if (!$this->isOverdue())
+            $this->isoverdue = 0;
 
         // clear due date if it's in the past
         if ($this->getDueDate() && Misc::db2gmtime($this->getDueDate()) <= Misc::gmtime())
@@ -2435,7 +2441,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Clear SLA if est. due date is in the past
         if ($this->getSLADueDate() && Misc::db2gmtime($this->getSLADueDate()) <= Misc::gmtime())
-            $this->sla = null;
+            $this->est_duedate = null;
 
         return $save ? $this->save() : true;
     }
