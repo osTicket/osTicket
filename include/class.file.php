@@ -389,11 +389,11 @@ class AttachmentFile extends VerySimpleModel {
             }
         }
 
-        if (!isset($file['data']) && isset($file['dataclb'])
-                && is_callable($file['dataclb'])) {
+        if (!isset($file['data']) && isset($file['data_cbk'])
+                && is_callable($file['data_cbk'])) {
             // Allow a callback function to delay or avoid reading or
             // fetching ihe file contents
-            $file['data'] = $file['dataclb']();
+            $file['data'] = $file['data_cbk']();
         }
 
         if (isset($file['data'])) {
