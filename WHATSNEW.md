@@ -1,3 +1,8 @@
+osTicket v1.12.5
+================
+### Performance and Security
+* Hotfix: File data callback (d3e643d)
+
 osTicket v1.12.4
 ================
 ### Enhancements
