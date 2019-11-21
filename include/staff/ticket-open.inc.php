@@ -298,7 +298,7 @@ if ($_POST)
         
  </fieldset>      
 
-<div >
+<div class="hidden" id="submitrow">
     <input class="btn btn-primary btn-sm" type="submit" name="submit" class="save pending" value="<?php echo _P('action-button', 'Submit');?>">
     <input class="btn btn-warning btn-sm" type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input class="btn btn-warning btn-danger btn-sm" type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
@@ -360,20 +360,46 @@ $(document).ready(function(){
                     }
                 }
              $('#cc').combotree('setText', parentStr + node.text);            
-              
-             
-              
-        } 
-
+           } 
     });
+    
+    $('#cc').combotree({
+	
+	onClick:function(node){
+	     
+	   var c = $('#cc');
+        var t = c.combotree('tree');  // get tree object
+        var node = t.tree('getSelected');
+           
+            
+		$(t).tree('toggle', node.target);
+		c.combobox('showPanel');
+		if(t.tree('getLevel',node.target) == '1'){ 
+		    $('#submitrow').hide();
+		    $('#dynamic-form').hide();
+	      }
+	      if(t.tree('getLevel',node.target) == '2'){ 
+		   c.combobox('hidePanel');
+	      }
+	}
+})
+    
     $('#cc').combotree({ 
         onSelect: function (r) { 
         
-       
-        
-        
+        var c = $('#cc');
+        var t = c.combotree('tree');  // get tree object
+        var node = t.tree('getSelected');
+
+          if(t.tree('getLevel',node.target) == '2'){
+               
+           
+                  
             //Loads the dynamic form on selection
             var data = $(':input[name]', '#dynamic-form').serialize();
+         
+            $('#submitrow').show();
+            $('#dynamic-form').show();
             
             $.ajax(
               'ajax.php/form/help-topic/' + r.id,
@@ -385,10 +411,8 @@ $(document).ready(function(){
                   $(document.head).append(json.media);
                 }
               });
-              
-              
+            }    
         } 
-
     });
 
     $('#cc').combotree('loadData', val);
@@ -415,9 +439,7 @@ $(document).ready(function(){
                    showClear: true,
                    showTodayButton: true
                    
-               });
-     
-       
+               });   
 });
    <?php
     // Popup user lookup on the initial page load (not post) if we don't have a

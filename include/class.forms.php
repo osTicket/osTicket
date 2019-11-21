@@ -3886,7 +3886,27 @@ class TopicChoicesWidget extends Widget {
             });
             $(document).ready(function(){
                 var val = <?php echo Topic::getHelpTopicsTree();?> ;
-                
+                $('#cc').combotree({
+	
+	               onClick:function(node){
+	     
+               	   var c = $('#cc');
+                       var t = c.combotree('tree');  // get tree object
+                       var node = t.tree('getSelected');
+           
+            
+          		 $(t).tree('toggle', node.target);
+          		 c.combobox('showPanel');
+          		 if(t.tree('getLevel',node.target) == '1'){ 
+          		     $('#submitrow').hide();
+          		     
+          	      }
+          	      if(t.tree('getLevel',node.target) == '2'){ 
+          		           c.combobox('hidePanel');
+          		           $('#submitrow').show();
+          	      }
+	               }
+                })
                 $('#cc').combotree({ 
                     onChange: function (r) { 
                         var c = $('#cc');

@@ -47,15 +47,16 @@ $action = $info[':action'] ?: ('#');
         </tbody>
     </table>
     <hr>
-    <p class="full-width">
+    <p class="full-width hidden" id="submitrow">
         <span class="buttons pull-left">
-            <input class="btn btn-warning btn-sm" type="reset" value="<?php echo __('Reset'); ?>">
+            <input class="btn btn-warning btn-sm" type="reset" value="<?php echo __('Reset'); ?>" style="margin-top: 1px";
+>
             <input type="button" name="cancel" class="close btn-danger"
             value="<?php echo __('Cancel'); ?>">
         </span>
         <span class="buttons pull-right">
             <input class="btn btn-primary btn-sm" type="submit" value="<?php
-            echo $verb ?: __('Topic'); ?>">
+            echo $verb ?: __('Save Topic'); ?>">
         </span>
      </p>
 </form>

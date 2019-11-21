@@ -1219,18 +1219,48 @@ $(function() {
             
                      
     });
+    
+     $('#cc').combotree({
+	
+	onClick:function(node){
+	     
+	   var c = $('#cc');
+        var t = c.combotree('tree');  // get tree object
+        var node = t.tree('getSelected');
+           
+            
+		$(t).tree('toggle', node.target);
+		c.combobox('showPanel');
+		if(t.tree('getLevel',node.target) == '1'){ 
+               $("#savebutton").css("color", "#fff");
+               $("#savebutton").css("background-color", "#f8f9fa");
+               $("#cancelbutton").css("color", "#fff");
+               $("#cancelbutton").css("background-color", "#f8f9fa");
+               $("i.fa.fa-reply").css("color", "#eeeeee");
+               $("i.fa.fa-pencil-square-o").css("color", "#eeeeee");
+	      }
+	      if(t.tree('getLevel',node.target) == '2'){ 
+     		$("#savebutton").css("background-color", "#52bb56");
+               $("#savebutton").css("color", "#fff");
+               $("#cancelbutton").css("background-color", "#ef5350");
+               $("#cancelbutton").css("color", "#fff");
+               $("i.fa.fa-reply").css("color", "#eeeeee");
+               $("i.fa.fa-pencil-square-o").css("color", "#eeeeee");
+               $("#updatearea").css("display", "none");
+               $("#detailschanged").css("display", "inherit");
+            c.combobox('hidePanel');
+	      }
+	}
+})
+
      $('#cc').combotree({ 
         onSelect: function (r) { 
         
-            $("#savebutton").css("background-color", "#52bb56");
-            $("#savebutton").css("color", "#fff");
-            $("#cancelbutton").css("background-color", "#ef5350");
-            $("#cancelbutton").css("color", "#fff");
-            $("i.fa.fa-reply").css("color", "#eeeeee");
-            $("i.fa.fa-pencil-square-o").css("color", "#eeeeee");
-            $("#updatearea").css("display", "none");
-            $("#detailschanged").css("display", "inherit");
-            
+        var c = $('#cc');
+        var t = c.combotree('tree');  // get tree object
+        var node = t.tree('getSelected');
+
+          if(t.tree('getLevel',node.target) == '2'){      
             $("#help-topic-error").css("display", "none"); 
             if (!savetrigger) {
             $.notify({
@@ -1245,6 +1275,7 @@ $(function() {
         }
        savetrigger = true;       
         } 
+      }
     });
 // Hide form buttons By Default
 $('#save').find('input, select, text').change(function(){
