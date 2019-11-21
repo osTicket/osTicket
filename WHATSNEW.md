@@ -15,6 +15,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 osTicket 1.11.0
 ==================
 =======
@@ -114,6 +115,13 @@ osTicket v1.14
 * issue: Redactor Reset Buttons (8078d4d)
 
 >>>>>>> Add Release Notes for v1.14
+=======
+osTicket v1.12.5
+================
+### Performance and Security
+* Hotfix: File data callback (d3e643d)
+
+>>>>>>> Add Release Notes for v1.12.5
 osTicket v1.12.4
 ================
 ### Enhancements
