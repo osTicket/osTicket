@@ -204,6 +204,10 @@ class Schedule extends VerySimpleModel {
             $keys = array_intersect_key($vars, array_flip(
                         ['repeats', 'day', 'week', 'month']));
             $keys['schedule_id'] = $this->getId();
+            //  Once entries can repeat on different dates
+            if ($keys['repeats'] == 'never')
+                $keys['starts_on'] = $vars['starts_on'];
+
             $entries= ScheduleEntry::objects()
                 ->filter($keys);
             if ($vars['id'])

@@ -1091,12 +1091,7 @@ extends SavedSearch {
                    'staff_id' => $thisstaff->getId(),
                    'title' => __('Advanced Search'),
                 ));
-
-       // if instance of Q then assume filters otherwise it's criteria.
-       if ($config instanceof Q)
-           $queue->filter($config);
-       else
-           $queue->config = $config;
+       $queue->config = $config;
 
        return $queue;
     }

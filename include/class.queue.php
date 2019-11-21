@@ -68,7 +68,6 @@ class CustomQueue extends VerySimpleModel {
 
     const FLAG_INHERIT_EVERYTHING = 0x158; // Maskf or all INHERIT flags
 
-    var $filters;
     var $criteria;
     var $_conditions;
 
@@ -111,14 +110,6 @@ class CustomQueue extends VerySimpleModel {
 
     function getPath() {
         return $this->path ?: $this->buildPath();
-    }
-
-    function filter($filter) {
-        $this->filters[] = $filter;
-    }
-
-    function getFilters() {
-        return $this->filters ?: array();
     }
 
     function criteriaRequired() {
@@ -909,10 +900,6 @@ class CustomQueue extends VerySimpleModel {
     function getQuery($form=false, $quick_filter=null) {
         // Start with basic criteria
         $query = $this->getBasicQuery($form);
-
-        // Apply filers if any.
-        foreach ($this->getFilters() as $filter)
-            $query->filter($filter);
 
         // Apply quick filter
         if (isset($quick_filter)
