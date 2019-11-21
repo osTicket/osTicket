@@ -57,15 +57,14 @@ if (!$ticket) {
     if ($user
             && $_GET['a'] !== 'open'
     ) {
-        $Q = Q::any([
-            'user__emails__address' => $user->getDefaultEmailAddress(),
-            'user_id' => $user->id,
-        ]);
-
+        $criteria = [
+            ['user__emails__address', 'equal', $user->getDefaultEmailAddress()],
+            ['user_id', 'equal', $user->id],
+        ];
         if ($S = $_GET['status'])
             // The actual state is tracked by the key
-            $Q = Q::all(array('status__state' => $S, $Q));
-        $_SESSION['advsearch']['uid'] = $Q;
+            $criteria[] = ['status__state', 'includes', [$S => $S]];
+        $_SESSION['advsearch']['uid'] = $criteria;
         $queue_id = "adhoc,uid";
     }
     // Search for organization tickets
