@@ -130,11 +130,18 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     ?>);
 
 jQuery(document).ready(function($) {
-                $('.counter').counterUp({
-                    delay: 100,
-                    time: 1200
-                });
-            });
+     $('.counter').counterUp({
+         delay: 100,
+         time: 1200
+     });
+
+     $('#unassignedtickets').click(function(e) {  
+            window.location.href = "tickets.php?queue=3&p=1&l=0&s=1";
+      });
+     $('#backlogtickets').click(function(e) {  
+            window.location.href = "tickets.php?queue=3&p=1&l=0&s=1";
+      });
+ });
 </script>
 <?php
 if ($thisstaff

@@ -569,7 +569,20 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
             <!-- Left Sidebar End -->
             <!-- ============================================================== -->
             <!-- Start right Content here -->
-            <!-- ============================================================== -->                      
+            <!-- ============================================================== -->   
+            
+            <style>
+              .sei {
+                 
+                  background: url("./images/icons/ise.png") no-repeat;
+                      padding:0px 4px 0px 12px;
+                      position: relative;
+                      top: 4px;
+              }
+              .sei:hover {
+                  background: url("./images/icons/iseh.png") no-repeat;
+              }
+          </style>                   
             <div class="content-page">
                 <!-- Start content -->
                 <div class="content">
@@ -577,9 +590,10 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<?php if ($UnassignedTickets > 0 ) { ?>
 					
-					<div class="alert alert-secondary m-b-15 m-t--15" role="alert">
-                                        <i class="fa fa-info-circle" aria-hidden="true"></i> There are currently <span class="badge badge-primary"><?php echo $UnassignedTickets; ?></span>  unassigned ticket<?php if ($UnassignedTickets > 1) echo "s";?>.
-                    </div>
+				     <div class="alert alert-secondary m-b-15 m-t--15" role="alert">
+                                        <i class="fa fa-info-circle" aria-hidden="true"></i> There are currently <span class="badge badge-primary"><?php echo $UnassignedTickets; ?></span>  unassigned ticket<?php if ($UnassignedTickets > 1) echo "s";?>. 
+                            <div class="float-right"></span> <a href="tickets.php?queue=3&p=1&l=0&s=1"><i class="mdi mdi-ticket-account" aria-hidden="true"></i></a></div>        
+                         </div>
 					
 					<?php }
 					
@@ -587,7 +601,11 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  at the target of <span class="badge badge-success">45</span>.
-                    </div>
+                                                                 <div class="float-right">
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                        </div> 
+                         </div>
 					
 					<?php }
 					
@@ -595,15 +613,23 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  within 5 of the established target of <span class="badge badge-success">45</span>.
-                    </div>
+                                                                 <div class="float-right">
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                        </div> 
+                         </div>
 					
 					<?php }
 					
 					if ($BacklogTotal >= 50) { ?>
 					
-					<div class="alert alert-danger m-b-30" role="alert">
+				     <div class="alert alert-danger m-b-30" role="alert">
                                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-danger"><?php echo $BacklogTotal; ?></span> which is greater than 5 above the established target of <span class="badge badge-success">45</span>.
-                    </div>
+                                        <div class="float-right">
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                        </div> 
+                         </div>
 					
 					<?php }
 
@@ -611,7 +637,11 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<div class="alert alert-success m-b-30" role="alert">
                                         <i class="fa fa-check-square" aria-hidden="true"></i> Backlog is currently <span class="badge badge-success"><?php echo $BacklogTotal; ?></span> is greater than 5 below the established target of <span class="badge badge-success">45
-                    </div>
+                                                                 <div class="float-right">
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                        </div> 
+                         </div>
 			
 					<?php } ?>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/moment.js"></script>
