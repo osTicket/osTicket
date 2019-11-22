@@ -601,7 +601,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  at the target of <span class="badge badge-success">45</span>.
-                                                                 <div class="float-right">
+                                        <div class="float-right">
                                              </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
                                              </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
                                         </div> 
@@ -636,8 +636,8 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					if ($BacklogTotal < 40) { ?>
 					
 					<div class="alert alert-success m-b-30" role="alert">
-                                        <i class="fa fa-check-square" aria-hidden="true"></i> Backlog is currently <span class="badge badge-success"><?php echo $BacklogTotal; ?></span> is greater than 5 below the established target of <span class="badge badge-success">45
-                                                                 <div class="float-right">
+                                        <i class="fa fa-check-square" aria-hidden="true"></i> Backlog is currently <span class="badge badge-success"><?php echo $BacklogTotal; ?></span> is greater than 5 below the established target of <span class="badge badge-success">45</span>.
+                                        <div class="float-right">
                                              </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
                                              </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
                                         </div> 
