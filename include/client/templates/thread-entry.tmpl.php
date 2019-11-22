@@ -9,6 +9,8 @@ else
 $avatar = '';
 if ($cfg->isAvatarsEnabled() && $user)
     $avatar = $user->getAvatar();
+if ($entry->getType()=='R' && ($cfg->hideStaffName() || !$entry->getStaffId()))
+    $name = $cfg->getTitle();
 ?>
 <?php
  $type = $entryTypes[$entry->type];
