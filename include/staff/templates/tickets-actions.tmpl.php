@@ -41,7 +41,7 @@ if ($agent->hasPerm(Ticket::PERM_EDIT, false)) { ?>
 if ($agent->hasPerm(Ticket::PERM_EDIT, false)) {?>
 
         <a class="btn btn-light tickets-action" id="tickets-helptopic" data-placement="bottom"
-    data-toggle="tooltip" title="<?php echo __('Change Help Topic'); ?>"
+    data-toggle="tooltip" title="<?php echo __('Change Type'); ?>"
    href="#tickets/mass/topic"><i class="icon-bookmark"></i></a>
 
 <?php } ?>

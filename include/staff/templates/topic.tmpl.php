@@ -56,7 +56,7 @@ $action = $info[':action'] ?: ('#');
         </span>
         <span class="buttons pull-right">
             <input class="btn btn-primary btn-sm" type="submit" value="<?php
-            echo $verb ?: __('Save Topic'); ?>">
+            echo $verb ?: __('Save Type'); ?>">
         </span>
      </p>
 </form>

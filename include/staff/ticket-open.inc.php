@@ -170,7 +170,7 @@ if ($_POST)
         </div>
         <div class="form-group">
             <label>
-                <?php echo __('Help Topic'); ?>:
+                <?php echo __('Type'); ?>:
             </label>
             
                     <input id="cc" name="topicId" class="easyui-combotree "  style="width:95%;  border-radius: 2px !important;"></input>
@@ -431,7 +431,7 @@ $(document).ready(function(){
               return getParentArry(tree,parent,nodeLevel,parentArry);
             }
         }
-    $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');
+    $('#cc').combotree('setText', '— <?php echo __('Select Type'); ?> —');
     
     $('#datepicker1').datetimepicker({
                    useCurrent: false,

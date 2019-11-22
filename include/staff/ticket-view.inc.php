@@ -216,7 +216,7 @@ $unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
 </div>
  <?php if (!$topic) { ?>
 <div class="alert alert-danger">
-      <strong>Help Topic!</strong> Please set the Help Topic..
+      <strong>Type!</strong> Please set the Type..
 </div>
  <?php } ?>
 <?php if($ticket->isOverdue()) { ?>
@@ -506,10 +506,10 @@ $class = ($_REQUEST['reponse']) ? 'queue-' : 'ticket-';
             </div>
                   <div>
             <div class=" <?php if ($errors['topicId'] || !$topic){ echo 'has-danger';}?>">
-            <label><?php echo __('Help Topic');?>:</label>
+            <label><?php echo __('Type');?>:</label>
             	<input id="cc" name="topicId" class="easyui-combotree " style="width:95%;  border-radius: 2px !important;"></input>
 				<?php if ($errors['topicId'] || !$topic){ ?>
-                <div class="form-control-feedback-danger"><?php echo __('Help topic selection is required');?></div>
+                <div class="form-control-feedback-danger"><?php echo __('Type selection is required');?></div>
                 <?php }?>
 					  </div>    
         </div></div>
@@ -1140,7 +1140,7 @@ $(function() {
                 if (node){
                 t.tree('expandTo', node.target);
                 } else {
-                $('#cc').combotree('setText', '— <?php echo __('Select Help Topic'); ?> —');   
+                $('#cc').combotree('setText', '— <?php echo __('Select Type'); ?> —');   
                 };
                 
                 

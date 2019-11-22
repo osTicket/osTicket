@@ -3965,7 +3965,7 @@ class TopicChoicesWidget extends Widget {
                           return getParentArry(tree,parent,nodeLevel,parentArry);
                         }
                     }
-                $('#cc').combotree('setText', '— <?php echo __('Select Category'); ?> —');
+                $('#cc').combotree('setText', '— <?php echo __('Select Type'); ?> —');
                  
                    
             });
@@ -5025,10 +5025,10 @@ class TopicForm extends Form {
         $fields = array(
             'topic' => new TopicField(array(
                     'id'=>1,
-                    'label' => __('Category'),
+                    'label' => __('Type'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
-                    'validator-error' => __('Category selection is required.'),
+                    'validator-error' => __('Type selection is required.'),
                     )
                 ),
             'comments' => new TextareaField(array(
@@ -5039,7 +5039,7 @@ class TopicForm extends Form {
                     'configuration' => array(
                         'html' => true,
                         'size' => 'small',
-                        'placeholder' => __('Optional reason changing the Category'),
+                        'placeholder' => __('Optional reason changing the Type'),
                         ),
                     )
                 ),

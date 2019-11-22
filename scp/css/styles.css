@@ -799,6 +799,13 @@ a:focus {
   text-align: center;
   width: 30px; }
 
+.filtercancel {
+    position: absolute;
+    left: 16px;
+    margin-top: 10px;
+    font-size: 9px !important;
+    text-align: right;
+}
 /* ===========
    Bootstrap-custom
  =============*/
@@ -823,6 +830,8 @@ a:focus {
 
 .dropdown-menu {
   z-index: 7 !important;  
+  max-height: 500px !important;
+  overflow-y: auto !important;
 }   /*
   padding: 4px 0;
   -webkit-animation: dropdownOpen 0.3s ease-out;
@@ -835,6 +844,11 @@ a:focus {
 
 .dropdown-menu-lg {
   max-width: 280px; }
+  
+
+.dropdown-menu-xxlg {
+    max-width: 400px !important;
+}
 
 code {
   color: #5d9cec;

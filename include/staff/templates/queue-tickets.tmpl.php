@@ -29,6 +29,7 @@ if (!$view_all_tickets) {
 }
 
 $l = $_GET['l'];
+$t = $_GET['t'];
 $s = $_GET['s'];
 
 if (isset($l)||isset($t)||isset($s)) $_SESSION['filter']=1;
@@ -37,31 +38,37 @@ if ($_GET['a'] == 'search' || $_GET['queue'] == 'adhoc') $filters=0;
 
 
 if (is_numeric($l)) $_SESSION['loc'] = $l;
+if (is_numeric($t)) $_SESSION['top'] = $t;
 if (is_numeric($s)) $_SESSION['sta'] = $s;
 
 $loc = $_SESSION['loc'];
+$top = $_SESSION['top'];
 $sta = $_SESSION['sta'];
 
 $_SESSION['loc'] = $loc;
+$_SESSION['top'] = $top;
 $_SESSION['sta'] = $sta;
 $_SESSION['filter'] = $filters;
 
 $qfl = array();
+$qft = array();
 $qfs = array();
 
 if ($loc !== '0')
   $qfl =  array('user__org_id' => $loc );
 
+if ($top !=='0')
+  $qft =  array('topic_id' => $top );
 
 if ($sta && $sta !==0)
   $qfs = array('status_id' => $sta);
   
 // Merge the filters  
-  $qf = array_merge($qfl,$qfs);
+  $qf = array_merge($qfl,$qft,$qfs);
   
  $qfilter = Q::any(new Q($qf));
 
-if (($loc && $loc !==0) || ($sta && $sta !==0))
+if (($loc && $loc !==0) || ($top && $top !==0) || ($sta && $sta !==0))
 $tickets->filter($qfilter);
 
 
@@ -284,6 +291,7 @@ $pageNav->setURL('tickets.php', $args);
             <?php if (isset($queue->id)) { ?> 
             <?php echo $queue->getFullName();} ?>
             <?php if (Organization::getNamebyId($l)){ ?><span class="text-danger">(<i class="fa fa-filter"></i> <?php echo Organization::getNamebyId($loc) ?>)</span> <?php }?> 
+            <?php if (Topic::getTopicName($t)){ ?><span class="text-danger">(<i class="fa fa-filter"></i> <?php echo Topic::getTopicName($top) ?>)</span> <?php }?>
             <?php if ($sselected){ ?><span class="text-danger">(<i class="fa fa-filter"></i> <?php echo $sselected; ?>)</span> <?php }?>            
                                 </span>
                         
@@ -433,6 +441,42 @@ $pageNav->setURL('tickets.php', $args);
     return;
 //var_dump($nextStatuses);
 
+$tselected = Topic::getTopicName($t);            
+     
+      if (!$tselected ) {$tselected = 'Type';}
+?>
+ <div class="btn-group btn-group-sm" role="group">
+        <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-light dropdown-toggle scrollable-menu"  <?php if ($filters == 0){ echo 'disabled';}?>
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-placement="bottom" data-toggle="tooltip" 
+         title="<?php echo __('Filter Type'); ?>"><i class="fa fa-filter"></i> <?php echo $tselected;?>
+        </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+              
+              <a href="tickets.php?t=0&l=<?php echo $_GET['l']?>&s=<?php echo $_GET['s'];?>&r=<?php echo $_GET['r']?>" class="dropdown-item no-pjax"><i class="fa fa-filter"></i> All</a>
+              
+              <?php
+    
+                if ($top =='0'){
+                $Topic = Topic::objects()
+                ->order_by('topic_pid');
+                    
+                } else {
+                $Topic = Topic::objects()
+                ->order_by('topic_pid') 
+                ->filter(array('topic_id' => $top));
+                }   
+                 
+                     
+                     foreach ($Topic as $cTopic) { 
+                     if ($tfiltercount[$cTopic->getId()]['__count'] > 0) {?>
+                
+                   <a href="tickets.php?t=<?php echo $cTopic->topic_id ?>&l=<?php echo $_GET['l']?>&s=<?php echo $_GET['s']?>&r=<?php echo $_GET['r']?>" class="dropdown-item no-pjax"><i class="fa fa-filter"></i> <?php echo Topic::getTopicName($cTopic->getId())?>
+                     <span class="badge badge-pill badge-default  pull-right"><?php echo $tfiltercount[$cTopic->getId()]['__count'] ?></span> </a>
+                     <?php }}      
+        ?>
+            </div>
+    </div>
+<?php
 if (!$sselected) {$sselected = 'Status';}
 ?>
 <div class="btn-group btn-group-sm <?php if ($filters == 0){ echo 'hidden';}?>" role="group">
@@ -461,9 +505,17 @@ if (!$sselected) {$sselected = 'Status';}
            }} ?>
         
             </div>
-  </div>    
-</div>
+  </div>
+      
 
+
+	<div class="btn-group btn-group-sm" role="group">
+		<button id="btnGroupDrop1" type="button" class="btn btn-sm btn-light" 
+
+         title="<?php echo __('Clear Filters'); ?>" onclick="location.href = '/scp/tickets.php?queue=1&p=1&l=0&t=0&s=0';"><span><i class="fa fa-filter"></i><i class="fa fa-ban filtercancel"></i></span> 
+        </button
+	</div>    
+</div>
 </div></div>
 <div class="row subnavspacer">
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -528,7 +580,7 @@ if (!$sselected) {$sselected = 'Status';}
         case "Date Created":
            $foo = 'data-breakpoints="xs sm"';
             break; 
-        case "Help Topic":
+        case "Type":
             $foo = 'data-breakpoints="xs"';
             break;
         case "Location":

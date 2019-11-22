@@ -694,7 +694,7 @@ class TicketsAjaxAPI extends AjaxController {
                 case 'topic':
                 $inc = 'topic.tmpl.php';
                 $info[':action'] = '#tickets/mass/topic';
-                $info[':title'] = sprintf('Change Help Topic On %s',
+                $info[':title'] = sprintf('Change  %s Type',
                     _N('selected ticket', 'selected tickets', $count));
                 $form = TopicForm::instantiate($_POST);
                
