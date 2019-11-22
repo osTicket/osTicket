@@ -16,9 +16,9 @@
 require('admin.inc.php');
 
 if (PluginManager::auditPlugin())
-    require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
+    require_once('phar://' . INCLUDE_DIR . '/plugins/audit.phar/class.audit.php');
 
-$page= sprintf('phar:///%s/plugins/audit.phar/templates/auditlogs.tmpl.php', INCLUDE_DIR);
+$page = 'phar://' . INCLUDE_DIR . '/plugins/audit.phar/templates/auditlogs.tmpl.php';
 $nav->setTabActive('dashboard');
 $ost->addExtraHeader('<meta name="tip-namespace" content="dashboard.audit_logs" />',
     "$('#content').data('tipNamespace', 'dashboard.audit_logs');");
