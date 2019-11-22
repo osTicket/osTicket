@@ -4619,6 +4619,34 @@ implements RestrictedAccess, Threadable, Searchable {
             $ticket->markOverdue();
 
     }
+    
+    // Close tickets based on Ticket Auto-Close from config
+    static function AutoClose() {
+        global $cfg;
+        
+        $grace = $cfg->getAutoCloseDuration();
+        $graceStatusId = $cfg->getAutoCloseStatusId();
+        
+        if($graceStatusId != 0){ 
+            if($grace == 1){
+                $plural = 'hour';
+                } else {
+                $plural = 'hours';
+            }
+            
+            // select all tickets marked as selected status from config page where updated is older than ($grace) hours ago
+            $autoclose = static::objects()
+                  ->filter(array(
+                      'status_id' => $graceStatusId,
+                      'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::HOUR($grace))
+                      ))
+                   ->limit(100);
+
+            foreach ($autoclose as $ticket)
+                  $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$grace.' '.$plural.' of no activity.',$errors, false);
+        }
+    }
+    //END Close tickets based on Ticket Auto-Close from config
 
     static function agentActions($agent, $options=array()) {
         if (!$agent)

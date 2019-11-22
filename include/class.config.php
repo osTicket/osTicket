@@ -228,6 +228,8 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'autoclose_duration' => 72,
+        'autoclose_status_id' => 0,
     );
 
     function __construct($section=null) {
@@ -732,6 +734,14 @@ class OsticketConfig extends Config {
          return $this->get('max_open_tickets');
     }
 
+    function getAutoCloseStatusId() {
+        return $this->get('autoclose_status_id');
+    }
+
+    function getAutoCloseDuration() {
+        return $this->get('autoclose_duration');
+    }
+ 
     function getMaxFileSize() {
         return $this->get('max_file_size');
     }
@@ -1342,6 +1352,8 @@ class OsticketConfig extends Config {
         $f['default_ticket_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
         $f['default_priority_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Selection required'));
         $f['max_open_tickets']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
+        $f['autoclose_status_id'] = array('type'=>'int', 'required'=>1, 'error'=>__('Selection required'));
+        $f['autoclose_duration']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter valid numeric value'));
 
 
         if($vars['enable_captcha']) {
@@ -1397,6 +1409,8 @@ class OsticketConfig extends Config {
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
+            'autoclose_duration'=>$vars['autoclose_duration'],
+            'autoclose_status_id'=>$vars['autoclose_status_id'],
             'default_ticket_queue'=>$vars['default_ticket_queue'],
         ));
     }
