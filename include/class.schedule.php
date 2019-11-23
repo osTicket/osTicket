@@ -788,15 +788,18 @@ class ScheduleEntry extends VerySimpleModel {
 
     function getCurrent($from=null) {
         if (!isset($this->_current) || $from) {
+            // Figure out starting  point (from)
+            $from = is_object($from) ? clone $from : Format::parseDateTime($from ?: 'now');
+            $start =  $this->getStartsDatetime();
+            if ($start->getTimestamp() > $from->getTimestamp())
+                $from = clone $start;
             // Check to make sure we're still in scope
-            $start = is_object($from) ? clone $from : Format::parseDateTime($from ?: 'now');
             $stop = $this->getStopsDatetime();
-            if ($stop && $stop->getTimestamp() < $start->getTimestamp())
+            if ($stop && $stop->getTimestamp() < $from->getTimestamp())
                 return null;
-
             // Figure out start time for the entry.
-            $start->modify($this->getIntervalSpec($start));
-            $this->_current = clone $start;
+            $from->modify($this->getIntervalSpec($from));
+            $this->_current = clone $from;
         }
         return $this->_current;
     }
