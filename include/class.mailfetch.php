@@ -55,12 +55,24 @@ class MailFetcher {
             // Support Exchange shared mailbox auth
             // (eg. user@domain.com\shared@domain.com)
             $usernames = explode('\\', $this->ht['username'], 2);
-            if (count($usernames) == 2) {
-                $this->authuser = $usernames[0];
-                $this->username = $usernames[1];
-            } else {
-                $this->username = $this->ht['username'];
-            }
+           if (count($usernames) == 3) 
+           {
+                $this->authuser = $usernames[0]."\\".$usernames[1];
+                $this->username = $usernames[2];
+           } 
+	   else 
+		if (count($usernames) == 2) 
+		{
+			$this->authuser = $usernames[0];
+			if(strpos($usernames[1],'@'))
+				$this->username = $usernames[1];
+			else
+				$this->authuser = $usernames[0]."\\".$usernames[1];
+		}
+		else
+		{
+			$this->username = $this->ht['username'];
+		}
 
             if(!strcasecmp($this->ht['protocol'],'pop')) //force pop3
                 $this->ht['protocol'] = 'pop3';
