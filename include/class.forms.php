@@ -1332,7 +1332,6 @@ class FormField {
     }
 
     function getEditForm($source=null) {
-
         $fields = array(
                 'field' => $this,
                 'comments' => new TextareaField(array(

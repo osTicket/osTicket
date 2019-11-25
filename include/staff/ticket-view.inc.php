@@ -649,6 +649,13 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                     }
                     else
                       echo $v;
+
+                    $a = $field->getAnswer();
+                    $hint = ($field->isRequiredForClose() && $a && !$a->getValue() && get_class($field) != 'BooleanField') ?
+                        sprintf('<i class="icon-warning-sign help-tip warning field-label" data-title="%s" data-content="%s"
+                        /></i>', __('Required to close ticket'),
+                        __('Data is required in this field in order to close the related ticket')) : '';
+                    echo $hint;
                   ?>
               </a>
             <?php
