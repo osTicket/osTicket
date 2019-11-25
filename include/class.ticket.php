@@ -2404,7 +2404,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function clearOverdue($save=true) {
 
         //NOTE: Previously logged overdue event is NOT annuled.
-        if (!$this->isOverdue())
+        if ($this->isOverdue())
             $this->isoverdue = 0;
 
         // clear due date if it's in the past
