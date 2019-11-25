@@ -414,7 +414,8 @@ if (!$ticket) { ?>
     <?php
     $idx = 0;
     foreach (DynamicFormEntry::forObject($task->getId(),
-                ObjectModel::OBJECT_TYPE_TASK) as $form) { ?>
+                ObjectModel::OBJECT_TYPE_TASK) as $form) {
+        $form->addMissingFields(); ?>
         <thead>
             <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
         </thead>
@@ -423,14 +424,19 @@ if (!$ticket) { ?>
             'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
             'field__name__in' => array('title')
         )));
-        if (!$answers || count($answers) == 0)
+        $displayed = array();
+        foreach($answers as $a) {
+            if (!$a->getField()->isVisibleToStaff())
+                continue;
+            $displayed[] = $a;
+        }
+        if (count($displayed) == 0)
             continue;
-
         ?>
             <tr>
             <td colspan="2">
                 <table cellspacing="0" cellpadding="4" width="100%" border="0">
-                <?php foreach($answers as $a) {
+                <?php foreach($displayed as $a) {
                     $field = $a->getField();
                     $id =  $a->getLocal('id');
                     $label = $a->getLocal('label');
@@ -439,11 +445,9 @@ if (!$ticket) { ?>
                     $clean = $v ?: '&mdash;' . __('Empty') .  '&mdash;';
                     $field = $a->getField();
                     $isFile = ($field instanceof FileUploadField);
-                    if (!$v) continue; ?>
+                    ?>
                     <tr>
-                        <th width="200"><?php
-                            echo $field->get('label');
-                        ?>:</th>
+                        <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
                         <td>
                         <?php if ($role->hasPerm(Task::PERM_EDIT)
                                 && $field->isEditableToStaff()) {
