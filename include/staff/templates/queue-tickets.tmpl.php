@@ -15,7 +15,8 @@ if (!$ignoreVisibility || //limited visibility
 
 // do not show children tickets unless agent is doing a search
 if ($queue->isAQueue() || $queue->isASubQueue())
-    $tickets->filter(Q::all(new Q(array('thread__object_type' => 'T'))));
+    $tickets->filter(Q::any(
+            array('ticket_pid' => null, 'flags__hasbit' => TICKET::FLAG_LINKED)));
 
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
