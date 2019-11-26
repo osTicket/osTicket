@@ -19,6 +19,8 @@
   permissions: [
     ticket.create,
     ticket.edit,
+    ticket.merge,
+    ticket.link,
     ticket.assign,
     ticket.release,
     ticket.transfer,
@@ -45,6 +47,8 @@
   permissions: [
     ticket.create,
     ticket.edit,
+    ticket.merge,
+    ticket.link,
     ticket.assign,
     ticket.release,
     ticket.transfer,
@@ -67,6 +71,8 @@
 
   permissions: [
     ticket.create,
+    ticket.merge,
+    ticket.link,
     ticket.assign,
     ticket.release,
     ticket.transfer,
