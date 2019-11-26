@@ -263,7 +263,7 @@ class ConfigVariables
 			'packTableData' => false,
 
 			'ignore_table_percents' => false,
-			'ignore_table_widths' => false,
+			'ignore_table_widths' => true,
 			// If table width set > page width, force resizing but keep relative sizes
 			// Also forces respect of cell widths set by %
 			'keep_table_proportions' => true,
