@@ -61,6 +61,7 @@ $dispatcher = patterns('',
         url_delete('^answer/(?P<entry>\d+)/(?P<field>\d+)$', 'deleteAnswer'),
         url_post('^upload/(\d+)?$', 'upload'),
         url_post('^upload/(\w+)?$', 'attach'),
+        url_post('^upload/(?P<object>ticket|task)/(\w+)$', 'attach'),
         url_get('^(?P<id>\d+)/fields/view$', 'getAllFields')
     )),
     url('^/filter/', patterns('ajax.filter.php:FilterAjaxAPI',

@@ -40,7 +40,8 @@ $dispatcher = patterns('',
     url('^/form/', patterns('ajax.forms.php:DynamicFormsAjaxAPI',
         url_get('^help-topic/(?P<id>\d+)$', 'getClientFormsForHelpTopic'),
         url_post('^upload/(\d+)?$', 'upload'),
-        url_post('^upload/(\w+)?$', 'attach')
+        url_post('^upload/(\w+)?$', 'attach'),
+        url_post('^upload/(?P<object>ticket|task)/(\w+)$', 'attach')
     )),
     url('^/i18n/(?P<lang>[\w_]+)/', patterns('ajax.i18n.php:i18nAjaxAPI',
         url_get('(?P<tag>\w+)$', 'getLanguageFile')
