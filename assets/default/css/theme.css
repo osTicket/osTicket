@@ -89,6 +89,7 @@ textarea {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+  width:100%;
 }
 th,
 td {
@@ -287,11 +288,12 @@ h2, .subject {
   background-color: #0299d2;
 }
 body {
-  background: url('../images/page_bg.png') top left repeat-x #c8c8c8;
+  background:#00034c;
+  /* background: url('../images/page_bg.png') top left repeat-x #c8c8c8; */
 }
 #container {
   background: #fff;
-  width: 840px;
+  width: 95%;
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
@@ -628,6 +630,7 @@ label.required, span.required {
 }
 #ticketForm > table {
     table-layout: fixed;
+	width: 98%;
 }
 #ticketForm > table td {
     width: 160px;
@@ -796,6 +799,7 @@ label.required, span.required {
   border: 1px solid #aaa;
   border-left: none;
   border-bottom: none;
+  width: 100%;
 }
 #ticketTable caption {
   padding: 5px;
