@@ -294,6 +294,7 @@ body {
 #container {
   background: #fff;
   width: 95%;
+  min-width: 790px;
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
