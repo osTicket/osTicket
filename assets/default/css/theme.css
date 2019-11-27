@@ -212,6 +212,7 @@ h2, .subject {
   margin-bottom: 10px;
   border: 1px solid #f26522;
   background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
+  box-sizing: content-box;
 }
 #msg_error {
   margin: 0;
