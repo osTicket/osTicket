@@ -1530,7 +1530,7 @@ implements TemplateVariable {
             'created' => SqlFunction::NOW(),
             'type' => $vars['type'],
             'thread_id' => $vars['threadId'],
-            'title' => Format::sanitize($vars['title'], true),
+            'title' => Format::strip_emoticons(Format::sanitize($vars['title'], true)),
             'format' => $vars['body']->getType(),
             'staff_id' => $vars['staffId'],
             'user_id' => $vars['userId'],
