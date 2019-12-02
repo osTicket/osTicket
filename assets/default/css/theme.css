@@ -198,7 +198,7 @@ h2, .subject {
 #msg_notice {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin-bottom: 10px;
   border: 1px solid #0a0;
@@ -207,7 +207,7 @@ h2, .subject {
 #msg_warning, .warning-banner {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin-bottom: 10px;
   border: 1px solid #f26522;
@@ -217,7 +217,7 @@ h2, .subject {
 #msg_error {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin-bottom: 10px;
   border: 1px solid #a00;
