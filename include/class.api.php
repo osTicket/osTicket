@@ -396,7 +396,7 @@ class ApiJsonDataParser extends JsonDataParser {
                 $value = (bool)$value;
             } elseif ($key == "message") {
                 // Allow message specified in RFC 2397 format
-                $data = Format::parseRfc2397($value, 'utf-8');
+                $data = Format::strip_emoticons(Format::parseRfc2397($value, 'utf-8'));
 
                 if (isset($data['type']) && $data['type'] == 'text/html')
                     $value = new HtmlThreadEntryBody($data['data']);
