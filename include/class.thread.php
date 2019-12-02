@@ -1319,12 +1319,14 @@ implements TemplateVariable {
 
     /* static */
     function logEmailHeaders($id, $mid, $header=false) {
+        $headerInfo = Mail_Parse::splitHeaders($header);
 
         if (!$id || !$mid)
             return false;
 
         $this->email_info = new ThreadEntryEmailInfo(array(
             'thread_entry_id' => $id,
+            'email_id' => Email::getIdByEmail($headerInfo['Delivered-To']),
             'mid' => $mid,
         ));
 
@@ -1996,6 +1998,12 @@ class ThreadEvent extends VerySimpleModel {
             'topic' => array(
                 'constraint' => array(
                     'topic_id' => 'Topic.topic_id',
+                ),
+                'null' => true,
+            ),
+            'event' => array(
+                'constraint' => array(
+                    'event_id' => 'Event.id',
                 ),
                 'null' => true,
             ),

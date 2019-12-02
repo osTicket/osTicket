@@ -2983,12 +2983,27 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function systemReferral($emails) {
+        global $cfg;
 
-        if (!$this->getThread())
+        if (!$thread = $this->getThread())
             return;
 
+        $eventEmails = array();
+        $events = ThreadEvent::objects()
+            ->filter(array('thread_id' => $thread->getId(),
+                           'event__name' => 'transferred'));
+        if ($events) {
+            foreach ($events as $e) {
+                $emailId = Dept::getEmailIdById($e->dept_id) ?: $cfg->getDefaultEmailId();
+                if (!in_array($emailId, $eventEmails))
+                    $eventEmails[] = $emailId;
+            }
+        }
+
         foreach ($emails as $id) {
+            $refer = $eventEmails ? !in_array($id, $eventEmails) : true;
             if ($id != $this->email_id
+                    && $refer
                     && ($email=Email::lookup($id))
                     && $this->getDeptId() != $email->getDeptId()
                     && ($dept=Dept::lookup($email->getDeptId()))

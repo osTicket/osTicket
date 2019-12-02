@@ -695,11 +695,13 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry_email`;
 CREATE TABLE `%TABLE_PREFIX%thread_entry_email` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `thread_entry_id` int(11) unsigned NOT NULL,
+  `email_id` int(11) unsigned DEFAULT NULL,
   `mid` varchar(255) NOT NULL,
   `headers` text,
   PRIMARY KEY (`id`),
   KEY `thread_entry_id` (`thread_entry_id`),
-  KEY `mid` (`mid`)
+  KEY `mid` (`mid`),
+  KEY `email_id` (`email_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread_entry_merge`;
@@ -750,7 +752,8 @@ CREATE TABLE `%TABLE_PREFIX%ticket` (
   KEY `closed` (`closed`),
   KEY `duedate` (`duedate`),
   KEY `topic_id` (`topic_id`),
-  KEY `sla_id` (`sla_id`)
+  KEY `sla_id` (`sla_id`),
+  KEY `ticket_pid` (`ticket_pid`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%lock`;
