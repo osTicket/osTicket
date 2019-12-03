@@ -140,7 +140,7 @@ if ($_POST) {
                     $errors['err'] = __('Unable to manage any of the selected end users');
                 }
                 elseif ($_POST['count'] && $count != $_POST['count']) {
-                    $warn = __('Not all selected items were updated');
+                    $warn = sprintf(__('Successfully managed %s of %s selected end users'), $count, $_POST['count']);
                 }
                 elseif ($count) {
                     $msg = __('Successfully managed selected end users');

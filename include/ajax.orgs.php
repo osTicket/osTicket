@@ -20,7 +20,7 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 
 class OrgsAjaxAPI extends AjaxController {
 
-    function search($type = null) {
+    function search($type = null, $fulltext=false) {
 
         if(!isset($_REQUEST['q'])) {
             Http::response(400, 'Query argument is required');
@@ -39,15 +39,23 @@ class OrgsAjaxAPI extends AjaxController {
             ->values_flat('id', 'name')
             ->limit($limit);
 
-        global $ost;
-        $orgs = $ost->searcher->find($q, $orgs);
-        $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
-            ->distinct('id');
+        if ($fulltext) {
+            global $ost;
+            $orgs = $ost->searcher->find($q, $orgs);
+            $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+                ->distinct('id');
 
-        if (!count($orgs) && preg_match('`\w$`u', $q)) {
-            // Do wildcard full-text search
-            $_REQUEST['q'] = $q."*";
-            return $this->search($type);
+            if (!count($orgs) && preg_match('`\w$`u', $q)) {
+                // Do wildcard full-text search
+                $_REQUEST['q'] = $q."*";
+                return $this->search($type, $fulltext);
+            }
+        } else {
+            $filter = Q::any(array(
+                'name__contains' => $q,
+            ));
+
+            $orgs->filter($filter);
         }
 
         $matched = array();

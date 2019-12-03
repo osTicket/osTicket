@@ -149,8 +149,10 @@ class UserModel extends VerySimpleModel {
     }
 
     function setOrganization($org, $save=true) {
-
-        $this->set('org', $org);
+        if ($org && $this->get('org'))
+            return false;
+        else
+            $this->set('org', $org);
 
         if ($save)
             $this->save();
