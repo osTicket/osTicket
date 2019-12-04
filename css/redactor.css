@@ -436,7 +436,8 @@
     display: none; }
 
 .redactor-toolbar-wrapper {
-  position: relative; }
+  position: relative;
+  z-index: 1; }
 
 .redactor-toolbar,
 .redactor-air {
