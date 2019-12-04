@@ -862,7 +862,7 @@ implements TemplateVariable, Searchable {
         $this->flags = $vars['flags'] ?: 0;
 
         $this->setFlag(self::FLAG_ASSIGN_MEMBERS_ONLY, isset($vars['assign_members_only']));
-        $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, isset($vars['disable_auto_claim']));
+        $this->setFlag(self::FLAG_DISABLE_AUTO_CLAIM, ($vars['disable_auto_claim'] == 1) ? true : false);
         $this->setFlag(self::FLAG_DISABLE_REOPEN_AUTO_ASSIGN, isset($vars['disable_reopen_auto_assign']));
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $this->getId().'}'));
