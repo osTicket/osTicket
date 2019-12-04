@@ -263,8 +263,8 @@ $sql="select org.name as LOCATION, IFNULL(s.count,0) as COUNT
 	from ost_organization org left join (
 	select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 	WHERE 
-	a.status_id not in (1,8,3,6,12,9)
-	AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
+	a.status_id in (7)
+	AND a.topic_id not in (163,94,93,12,92,13,14,161,15,99,78,17,18,19,100,16,101,102)
 	group by o.name ) s on org.name = s.name";
 
 $results = db_query($sql); 
@@ -291,18 +291,15 @@ foreach ($results as $result) {
 	  if ($result['LOCATION'] == 'BRY') {$BacklogITBRY = $result['COUNT'];}
 	  if ($result['LOCATION'] == 'PAU') {$BacklogITPAU = $result['COUNT'];}
 	  if ($result['LOCATION'] == 'NTA') {$BacklogITNTA = $result['COUNT'];}
-
-
  }
-
 
 //SE Backlog
 $sql="select org.name as LOCATION, IFNULL(s.count,0) as COUNT
 	from ost_organization org left join (
 	select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 	WHERE 
-	a.status_id not in (1,8,3,6,12,9)
-	AND a.topic_id in (13,15,16,17,18,19,78)
+	a.status_id in (7)
+	AND a.topic_id in (13,161,15,99,78,17,18,19,100,16,101,102)
 	group by o.name ) s on org.name = s.name";
 
 $results = db_query($sql); 

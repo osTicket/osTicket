@@ -724,27 +724,27 @@ $sitecolor = array(
  /*current backlog*/
  select sum(count) as value, 'BACKLOG' AS Status, FROM_DAYS(TO_DAYS(now()) - MOD(TO_DAYS(now()) 
                                                          - 2, 7)) AS CALENDARWEEK from(
-    /* shopedge */ 
+/* shopedge */ 
 		select  sum(count) as count from(
 									select org.name as location, IFNULL(s.count,0) as count from ost_organization org left join (
 									select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 									WHERE 
-									a.status_id not in (1,8,3,6,12,9)
-									AND a.topic_id  in (13,15,16,17,18,19,78)
+									a.status_id in (7)
+									AND a.topic_id  in (13,161,15,99,78,17,18,19,100,16,101,102)
 									group by o.name ) s on org.name = s.name
 									
 									union 
 									
 									select name as location, 0 as COUNT from ost_organization)i
-  /* shopedge */                                  
+/* shopedge */                                  
 							        union
 /* support */
 									select  sum(count) as count from(
 									select org.name as location, IFNULL(s.count,0) as count from ost_organization org left join (
 									select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 									WHERE 
-									a.status_id not in (1,8,3,6,12,9)
-									AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
+									a.status_id in (7)
+									AND a.topic_id not in (163,94,93,12,92,13,14,161,15,99,78,17,18,19,100,16,101,102)
 									group by o.name ) s on org.name = s.name
 									
 									union 
@@ -912,8 +912,8 @@ $sitecolor = array(
 								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
 								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 								WHERE 
-								a.status_id not in (1,8,3,6,12,9)
-								AND a.topic_id not in (12,13,14,15,16,17,18,19,78,94)
+								a.status_id in (7)
+							     AND a.topic_id not in (163,94,93,12,92,13,14,161,15,99,78,17,18,19,100,16,101,102)
 								group by o.name ) s on org.name = s.name
 								
 								union 
@@ -1067,8 +1067,8 @@ $sitecolor = array(
 								year(now()) as YEAR,yearweek(now(),3) as YEARWEEK  from ost_organization org left join (
 								select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 								WHERE 
-								a.status_id not in (1,8,3,6,12,9)
-								AND a.topic_id in (13,15,16,17,18,19,78)
+								a.status_id in (7)
+								AND a.topic_id  in (13,161,15,99,78,17,18,19,100,16,101,102)
 								group by o.name ) s on org.name = s.name
 								
 								union 
@@ -1728,17 +1728,8 @@ OR a.topic_id = '19')";
 $sql="select org.name as location, IFNULL(s.count,0) as COUNT from ost_organization org left join (
  select o.name ,count(a.ticket_id) as count  from ost_ticket a join ost_user u on a.user_id = u.id right join ost_organization o on u.org_id = o.id
 WHERE 
-a.status_id != '8' 
-AND a.status_id != '9' 
-AND a.status_id != '6' 
-AND a.status_id != '3' 
-AND a.status_id != '12' 
-AND (a.topic_id = '13' 
-OR a.topic_id = '15' 
-OR a.topic_id = '16' 
-OR a.topic_id = '17' 
-OR a.topic_id = '18' 
-OR a.topic_id = '19')
+a.status_id in (7)
+AND a.topic_id  in (13,161,15,99,78,17,18,19,100,16,101,102)
  group by o.name ) s on org.name = s.name order by org.name";
  
   $SElocsdata = db_query($sql); 
@@ -1796,14 +1787,8 @@ $(function() {
 <?php
 $sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
 WHERE 
-a.status_id != '2' 
-AND a.status_id != '3' 
-AND a.status_id != '4' 
-AND a.status_id != '5' 
-AND a.status_id != '12' 
-AND (a.topic_id !=  '14' 
-AND a.topic_id !=  '12'
-AND a.topic_id !=  '92')
+a.status_id not in (1,3,12)
+AND a.topic_id not in (14,163,94,93,12,92)
 ";
 
  $tTotals = db_query($sql); 
@@ -1870,42 +1855,16 @@ $(function() {
 
 $sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
 WHERE 
-a.status_id != '2' 
-AND a.status_id != '3' 
-AND a.status_id != '4' 
-AND a.status_id != '5' 
-AND a.status_id != '12' 
-AND (a.topic_id != '12' 
-AND a.topic_id != '13' 
-AND a.topic_id !=  '14' 
-AND a.topic_id !=  '15' 
-AND a.topic_id !=  '16' 
-AND a.topic_id !=  '17' 
-AND a.topic_id !=  '18' 
-AND a.topic_id !=  '19'
-AND a.topic_id !=  '12'
-AND a.topic_id !=  '92')
+a.status_id not in (1,3,12)
+AND a.topic_id not in (163,94,93,12,92,13,14,161,15,99,78,17,18,19,100,16,101,102)
 ";
 
  $tTotals = db_query($sql); 
 
 $sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
 WHERE 
-a.status_id != '2' 
-AND a.status_id != '3' 
-AND a.status_id != '4' 
-AND a.status_id != '5' 
-AND a.status_id != '12' 
-AND (a.topic_id != '12' 
-AND a.topic_id != '13' 
-AND a.topic_id !=  '14' 
-AND a.topic_id !=  '15' 
-AND a.topic_id !=  '16' 
-AND a.topic_id !=  '17' 
-AND a.topic_id !=  '18' 
-AND a.topic_id !=  '19'
-AND a.topic_id !=  '12'
-AND a.topic_id !=  '92')
+a.status_id not in (1,3,12)
+AND a.topic_id not in (163,94,93,12,92,13,14,161,15,99,78,17,18,19,100,16,101,102)
 group by s.name";
  
   $tStatusesdata = db_query($sql); 
@@ -1963,34 +1922,16 @@ $(function() {
 
 $sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
 WHERE 
-a.status_id != '2' 
-AND a.status_id != '3' 
-AND a.status_id != '4' 
-AND a.status_id != '5' 
-AND a.status_id != '12' 
-AND (a.topic_id = '13' 
-OR a.topic_id = '15' 
-OR a.topic_id = '16' 
-OR a.topic_id = '17' 
-OR a.topic_id = '18' 
-OR a.topic_id = '19')
+a.status_id not in (3,12)
+AND a.topic_id  in (13,161,15,99,78,17,18,19,100,16,101,102)
 ";
 
  $seTotals = db_query($sql); 
 
 $sql="select s.name ,count(a.ticket_id) as COUNT  from ost_ticket a join ost_ticket_status s on a.status_id = s.id
 WHERE 
-a.status_id != '2' 
-AND a.status_id != '3' 
-AND a.status_id != '4' 
-AND a.status_id != '5' 
-AND a.status_id != '12' 
-AND (a.topic_id = '13' 
-OR a.topic_id = '15' 
-OR a.topic_id = '16' 
-OR a.topic_id = '17' 
-OR a.topic_id = '18' 
-OR a.topic_id = '19')
+a.status_id not in (3,12)
+AND a.topic_id  in (13,161,15,99,78,17,18,19,100,16,101,102)
 group by s.name";
  
   $SEStatusesdata = db_query($sql); 
