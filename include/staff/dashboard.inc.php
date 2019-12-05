@@ -1159,7 +1159,7 @@ $sitecolor = array(
         }, {
             name: 'BACKLOG',
             data: [<?php foreach ($results as $result) { 
-			$bvalue = ( $result['BACKLOG'] == 0 ? 'null':$result['BACKLOG'] );
+			$bvalue = ( $result['BACKLOG'] == 0 ? 0:$result['BACKLOG'] );
 			echo $bvalue.',';}?>],
             color: '#dd3c37'
             
