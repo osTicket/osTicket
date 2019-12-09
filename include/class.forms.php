@@ -3212,6 +3212,11 @@ class DepartmentField extends ChoiceField {
             return $value[$id];
      }
 
+    function display($value) {
+        $value = $this->toString($value ?: $this->value) ?: $value;
+        return Format::htmlchars($value);
+    }
+
     function to_php($value, $id=false) {
         if ($id) {
             if (is_array($id)) {
@@ -3368,18 +3373,19 @@ class AssigneeField extends ChoiceField {
             $id = key($id);
             $type = $id[0];
             $id = substr($id, 1);
-        }
 
-        switch ($type) {
-        case 's':
-            return Staff::lookup($id);
-        case 't':
-            return Team::lookup($id);
-        case 'd':
-            return Dept::lookup($id);
-        default:
-            return $id;
-        }
+            switch ($type) {
+            case 's':
+                return Staff::lookup($id);
+            case 't':
+                return Team::lookup($id);
+            case 'd':
+                return Dept::lookup($id);
+            default:
+                return $id;
+            }
+        } elseif ($value && !is_numeric($value))
+            return $value;
     }
 
 

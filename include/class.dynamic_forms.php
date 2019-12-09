@@ -325,7 +325,9 @@ class DynamicForm extends VerySimpleModel {
         $f = $answer->getField();
         $name = $f->get('name') ? $f->get('name')
             : 'field_'.$f->get('id');
-        $fields = sprintf('`%s`=', $name) . db_input($answer->getSearchKeys());
+        $json = is_object(json_decode($answer->value)) ? json_decode($answer->value, true) : '';
+        $clean = $json ? implode(', ', $json) : $answer->value;
+        $fields = sprintf('`%s`="%s"', $name, $clean);
         $sql = 'INSERT INTO `'.$cdata['table'].'` SET '.$fields
             . sprintf(', `%s`= %s',
                     $cdata['object_id'],
@@ -399,12 +401,12 @@ class DynamicForm extends VerySimpleModel {
 
             if ($impl instanceof ChoiceField || $impl instanceof SelectionField) {
                 $fields[] = sprintf(
-                    'MAX(CASE WHEN field.id=\'%1$s\' THEN REPLACE(REPLACE(REPLACE(REPLACE(coalesce(ans.value_id, ans.value), \'{\', \'\'), \'}\', \'\'), \'"\', \'\'), \':\', \',\') ELSE NULL END) as `%2$s`',
+                    'MAX(CASE WHEN field.id=\'%1$s\' THEN REPLACE(REPLACE(REPLACE(REPLACE(coalesce(ans.value, ans.value_id), \'{\', \'\'), \'}\', \'\'), \'"\', \'\'), \':\', \',\') ELSE NULL END) as `%2$s`',
                     $id, $name);
             }
             else {
                 $fields[] = sprintf(
-                    'MAX(IF(field.id=\'%1$s\',coalesce(ans.value_id, ans.value),NULL)) as `%2$s`',
+                    'MAX(IF(field.id=\'%1$s\',coalesce(ans.value, ans.value_id),NULL)) as `%2$s`',
                     $id, $name);
             }
         }
