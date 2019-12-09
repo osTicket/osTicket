@@ -41,6 +41,7 @@ class TicketsAjaxAPI extends AjaxController {
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
+            ->distinct('user__default_email__address')
             ->limit($limit);
 
         $q = $_REQUEST['q'];
