@@ -34,6 +34,9 @@ class Form {
 
     function __construct($source=null, $options=array()) {
 
+        $vars = ['source' => &$source, 'options' => &$options];
+        Signal::send('form.init.before', $this, $vars);
+
         $this->options = $options;
         if (isset($options['title']))
             $this->title = $options['title'];
@@ -74,6 +77,10 @@ class Form {
 
     function getFields() {
         return $this->fields;
+    }
+
+    function getDefaultFields() {
+        return [];
     }
 
     function getField($name) {
@@ -5323,37 +5330,7 @@ class AssignmentForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
-            'assignee' => new AssigneeField(array(
-                    'id'=>1, 'label' => __('Assignee'),
-                    'flags' => hexdec(0X450F3), 'required' => true,
-                    'validator-error' => __('Assignee selection required'),
-                    'configuration' => array(
-                        'criteria' => array(
-                            'available' => true,
-                            ),
-                       ),
-                    )
-                ),
-            'refer' => new BooleanField(array(
-                    'id'=>2, 'label'=>'', 'required'=>false,
-                    'default'=>false,
-                    'configuration'=>array(
-                        'desc' => 'Maintain referral access to current assignees')
-                    )
-                ),
-            'comments' => new TextareaField(array(
-                    'id' => 3, 'label'=> '', 'required'=>false, 'default'=>'',
-                    'configuration' => array(
-                        'html' => true,
-                        'size' => 'small',
-                        'placeholder' => __('Optional reason for the assignment'),
-                        ),
-                    )
-                ),
-            );
-
-
+        $fields = $this->getDefaultFields();
         if (isset($this->_assignees))
             $fields['assignee']->setChoices($this->_assignees);
 
@@ -5361,6 +5338,39 @@ class AssignmentForm extends Form {
         $this->setFields($fields);
 
         return $this->fields;
+    }
+
+    function getDefaultFields()
+    {
+        return array(
+            'assignee' => new AssigneeField(array(
+                    'id'=>1, 'label' => __('Assignee'),
+                    'flags' => hexdec(0X450F3), 'required' => true,
+                    'validator-error' => __('Assignee selection required'),
+                    'configuration' => array(
+                        'criteria' => array(
+                            'available' => true,
+                        ),
+                    ),
+                )
+            ),
+            'refer' => new BooleanField(array(
+                    'id'=>2, 'label'=>'', 'required'=>false,
+                    'default'=>false,
+                    'configuration'=>array(
+                        'desc' => 'Maintain referral access to current assignees')
+                )
+            ),
+            'comments' => new TextareaField(array(
+                    'id' => 3, 'label'=> '', 'required'=>false, 'default'=>'',
+                    'configuration' => array(
+                        'html' => true,
+                        'size' => 'small',
+                        'placeholder' => __('Optional reason for the assignment'),
+                    ),
+                )
+            ),
+        );
     }
 
     function getField($name) {
@@ -5479,22 +5489,27 @@ class ReleaseForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
+        $fields = $this->getDefaultFields();
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getDefaultFields()
+    {
+        return array(
             'comments' => new TextareaField(array(
                     'id' => 1, 'label'=> '', 'required'=>false, 'default'=>'',
                     'configuration' => array(
                         'html' => true,
                         'size' => 'small',
                         'placeholder' => __('Optional reason for releasing assignment'),
-                        ),
-                    )
-                ),
-            );
-
-
-        $this->setFields($fields);
-
-        return $this->fields;
+                    ),
+                )
+            ),
+        );
     }
 
     function getField($name) {
@@ -5522,22 +5537,27 @@ class MarkAsForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
+        $fields = $this->getDefaultFields();
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getDefaultFields()
+    {
+        return array(
             'comments' => new TextareaField(array(
                     'id' => 1, 'label'=> '', 'required'=>false, 'default'=>'',
                     'configuration' => array(
                         'html' => true,
                         'size' => 'small',
                         'placeholder' => __('Optional reason for marking ticket as (un)answered'),
-                        ),
-                    )
-                ),
-            );
-
-
-        $this->setFields($fields);
-
-        return $this->fields;
+                    ),
+                )
+            ),
+        );
     }
 
     function getField($name) {
@@ -5570,7 +5590,16 @@ class ReferralForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
+        $fields = $this->getDefaultFields();
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getDefaultFields()
+    {
+        return array(
             'target' => new ChoiceField(array(
                     'id'=>1,
                     'label' => __('Referee'),
@@ -5578,25 +5607,25 @@ class ReferralForm extends Form {
                     'required' => true,
                     'validator-error' => __('Selection required'),
                     'choices' => array(
-                    'agent' => __('Agent'),
-                    'team'  => __('Team'),
-                                'dept'  => __('Department'),
-                               ),
-                            )
-                ),
+                        'agent' => __('Agent'),
+                        'team'  => __('Team'),
+                        'dept'  => __('Department'),
+                    ),
+                )
+            ),
             'agent' => new ChoiceField(array(
                     'id'=>2,
                     'label' => '',
                     'flags' => hexdec(0X450F3),
                     'required' => true,
                     'configuration'=>array('prompt'=>__('Select Agent')),
-                            'validator-error' => __('Agent selection required'),
+                    'validator-error' => __('Agent selection required'),
                     'visibility' => new VisibilityConstraint(
                         new Q(array('target__eq'=>'agent')),
                         VisibilityConstraint::HIDDEN
-                      ),
-                            )
-                ),
+                    ),
+                )
+            ),
             'team' => new ChoiceField(array(
                     'id'=>3,
                     'label' => '',
@@ -5604,12 +5633,12 @@ class ReferralForm extends Form {
                     'required' => true,
                     'validator-error' => __('Team selection required'),
                     'configuration'=>array('prompt'=>__('Select Team')),
-                            'visibility' => new VisibilityConstraint(
-                                    new Q(array('target__eq'=>'team')),
-                                    VisibilityConstraint::HIDDEN
-                              ),
-                            )
-                ),
+                    'visibility' => new VisibilityConstraint(
+                        new Q(array('target__eq'=>'team')),
+                        VisibilityConstraint::HIDDEN
+                    ),
+                )
+            ),
             'dept' => new DepartmentField(array(
                     'id'=>4,
                     'label' => '',
@@ -5617,12 +5646,12 @@ class ReferralForm extends Form {
                     'required' => true,
                     'validator-error' => __('Dept. selection required'),
                     'configuration'=>array('prompt'=>__('Select Department')),
-                            'visibility' => new VisibilityConstraint(
-                                    new Q(array('target__eq'=>'dept')),
-                                    VisibilityConstraint::HIDDEN
-                              ),
-                            )
-                ),
+                    'visibility' => new VisibilityConstraint(
+                        new Q(array('target__eq'=>'dept')),
+                        VisibilityConstraint::HIDDEN
+                    ),
+                )
+            ),
             'comments' => new TextareaField(array(
                     'id' => 5,
                     'label'=> '',
@@ -5632,14 +5661,10 @@ class ReferralForm extends Form {
                         'html' => true,
                         'size' => 'small',
                         'placeholder' => __('Optional reason for the referral'),
-                        ),
-                    )
-                ),
-            );
-
-        $this->setFields($fields);
-
-        return $this->fields;
+                    ),
+                )
+            ),
+        );
     }
 
     function getField($name) {
@@ -5742,7 +5767,13 @@ class TransferForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
+        $this->setFields($this->getDefaultFields());
+
+        return $this->fields;
+    }
+
+    function getDefaultFields() {
+        return array(
             'dept' => new DepartmentField(array(
                     'id'=>1,
                     'label' => __('Department'),
