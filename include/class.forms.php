@@ -34,6 +34,9 @@ class Form {
 
     function __construct($source=null, $options=array()) {
 
+        $vars = ['source' => &$source, 'options' => &$options];
+        Signal::send('form.init.before', $this, $vars);
+
         $this->options = $options;
         if (isset($options['title']))
             $this->title = $options['title'];
@@ -71,6 +74,10 @@ class Form {
 
     function getFields() {
         return $this->fields;
+    }
+
+    function getDefaultFields() {
+        return [];
     }
 
     function getField($name) {
@@ -4040,7 +4047,19 @@ class AssignmentForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
+        $fields = $this->getDefaultFields();
+        if (isset($this->_assignees))
+            $fields['assignee']->setChoices($this->_assignees);
+
+
+        $this->setFields($fields);
+
+        return $this->fields;
+    }
+
+    function getDefaultFields()
+    {
+        return array(
             'assignee' => new AssigneeField(array(
                     'id'=>1,
                     'label' => __('Assignee'),
@@ -4050,10 +4069,10 @@ class AssignmentForm extends Form {
                     'configuration' => array(
                         'criteria' => array(
                             'available' => true,
-                            ),
-                       ),
-                    )
-                ),
+                        ),
+                    ),
+                )
+            ),
             'comments' => new TextareaField(array(
                     'id' => 2,
                     'label'=> '',
@@ -4063,19 +4082,10 @@ class AssignmentForm extends Form {
                         'html' => true,
                         'size' => 'small',
                         'placeholder' => __('Optional reason for the assignment'),
-                        ),
-                    )
-                ),
-            );
-
-
-        if (isset($this->_assignees))
-            $fields['assignee']->setChoices($this->_assignees);
-
-
-        $this->setFields($fields);
-
-        return $this->fields;
+                    ),
+                )
+            ),
+        );
     }
 
     function getField($name) {
@@ -4197,15 +4207,21 @@ class TransferForm extends Form {
         if ($this->fields)
             return $this->fields;
 
-        $fields = array(
+        $this->setFields($this->getDefaultFields());
+
+        return $this->fields;
+    }
+
+    function getDefaultFields() {
+        return array(
             'dept' => new DepartmentField(array(
                     'id'=>1,
                     'label' => __('Department'),
                     'flags' => hexdec(0X450F3),
                     'required' => true,
                     'validator-error' => __('Department selection is required'),
-                    )
-                ),
+                )
+            ),
             'comments' => new TextareaField(array(
                     'id' => 2,
                     'label'=> '',
@@ -4215,14 +4231,10 @@ class TransferForm extends Form {
                         'html' => true,
                         'size' => 'small',
                         'placeholder' => __('Optional reason for the transfer'),
-                        ),
-                    )
-                ),
-            );
-
-        $this->setFields($fields);
-
-        return $this->fields;
+                    ),
+                )
+            ),
+        );
     }
 
     function isValid($include=false) {
