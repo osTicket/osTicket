@@ -50,6 +50,18 @@ default_schedule:
       - title: Manage Schedules
         href: /scp/schedules.php
 
+force_https:
+    title: Force HTTPS
+    content: >
+        This setting allows Admins to configure wether or not they want to Force
+        HTTPS system-wide. If enabled, any request that is using the HTTP protocol
+        will be redirected to the HTTPS protocol. Note, this will only work if you
+        have an SSL certificate installed and have HTTPS configured on the server.
+        <br/><br/>
+        <b>Note:</b><rb/>
+        This might affect remote piping scripts. Reference new scripts included in
+        <code>setup/scripts/</code> for updates.
+
 default_page_size:
     title: Default Page Size
     content: >

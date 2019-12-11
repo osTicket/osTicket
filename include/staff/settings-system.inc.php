@@ -62,6 +62,16 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Force HTTPS'); ?>:</td>
+            <td>
+                <input type="checkbox" name="force_https" <?php
+                echo $config['force_https'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('Force all requests through HTTPS.'); ?>
+                <font class="error"><?php echo $errors['force_https']; ?></font>
+                <i class="help-tip icon-question-sign" href="#force_https"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Collision Avoidance Duration'); ?>:</td>
             <td>
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
