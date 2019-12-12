@@ -569,6 +569,7 @@ implements TemplateVariable, Searchable {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
+                    $name = str_replace('"', '', $name);
                     $this->name = $name;
                 }
 
