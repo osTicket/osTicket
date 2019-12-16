@@ -797,6 +797,7 @@ class ScheduleEntry extends VerySimpleModel {
             $stop = $this->getStopsDatetime();
             if ($stop && $stop->getTimestamp() < $from->getTimestamp())
                 return null;
+
             // Figure out start time for the entry.
             $from->modify($this->getIntervalSpec($from));
             $this->_current = clone $from;
@@ -1421,7 +1422,7 @@ extends AbstractForm {
                         'gmt' => false,
                         'future' => false,
                         'max' => time(),
-                        'showtimezone' => false,
+                        'showtimezone' => true,
                         ),
                 )),
                 'hours'  =>  new TextboxField(array(

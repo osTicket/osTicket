@@ -116,7 +116,13 @@ class BusinessHours {
                     // partial / remaining hours
                     if (!$e->isBeforeHours($date))
                         $partial = true;
+
+                } elseif (strtotime("$d ".$e->getEndsTime()) <
+                           $date->getTimestamp()) {
+                    // Entry is out of scope
+                    continue;
                 }
+
                 // Handle holidays - if within scope of current work day
                 $leadtime =0;
                 if (($holiday=$this->holidays[$d])) {

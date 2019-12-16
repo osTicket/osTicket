@@ -15,6 +15,10 @@ $action = "#schedule/{$schedule->getId()}/diagnostic";
     if ($form->isValid()) {
         $timeline = array();
         $data = $form->getClean();
+        // Add timezone if it's not ISO compliant date (GET request)
+        if (strlen($data['date']) <= 16)
+            $data['date'] .= ' '.$schedule->getTimezone();
+
         $schedule->addWorkingHours(Format::parseDateTime($data['date']), $data['hours'], $timeline);
         ?>
         <div id="diagnostic-results"
