@@ -4299,6 +4299,9 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
+        $vars['ticket'] = $ticket;
+        self::filterTicketData($origin, $vars,
+            array_merge(array($form), $topic_forms), $user);
 
         // Save the (common) dynamic form
         // Ensure we have a subject
