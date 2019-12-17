@@ -3669,8 +3669,8 @@ class FileUploadField extends FormField {
         $A = (array) $after;
         $added = array_diff($A, $B);
         $deleted = array_diff($B, $A);
-        $added = Format::htmlchars(array_keys($added));
-        $deleted = Format::htmlchars(array_keys($deleted));
+        $added = Format::htmlchars(array_values($added));
+        $deleted = Format::htmlchars(array_values($deleted));
 
         if ($added && $deleted) {
             $desc = sprintf(
