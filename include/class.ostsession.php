@@ -228,7 +228,7 @@ extends SessionBackend {
     }
 
     function destroy($id){
-        return SessionData::objects()->filter(['session_id' => $id])->delete();
+        return (SessionData::objects()->filter(['session_id' => $id])->delete());
     }
 
     function cleanup() {
