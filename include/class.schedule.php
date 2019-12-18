@@ -846,16 +846,18 @@ class ScheduleEntry extends VerySimpleModel {
         return $current;
     }
 
-    function getOccurrences($start=null, $end=null, $num=2) {
+    function getOccurrences($start=null, $end=null, $num=5) {
         $occurrences = array();
         if (($current = $this->getCurrent($start))) {
-            $occurrences[$current->format('Y-m-d')] = $this;
+            $start = $start ?: $current;
             while (count($occurrences) < $num) {
-                if (!($next=$this->next()))
-                    break;
                 $date = $current->format('Y-m-d');
-                $occurrences[$date] = $this;
-                if ($end && strtotime($date) >= strtotime($end))
+                if ($end && strtotime($date) > strtotime($end))
+                    break;
+                if (strtotime($date) >= strtotime($start->format('Y-m-d')))
+                    $occurrences[$date] = $this;
+
+                if (!($current=$this->next()))
                     break;
             }
         }
