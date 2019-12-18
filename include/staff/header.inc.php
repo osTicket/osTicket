@@ -427,7 +427,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                
                                <!-- item-->
                                 <div class="dropdown-item noti-title">
-                                    <h5 class="font-16"><a href="tickets.php?queue=3&p=1&l=0&s=1"><span class="badge badge-primary float-right"><?php echo $UnassignedTickets; ?></span></a>Unassigned</h5>
+                                    <h5 class="font-16"><a href="tickets.php?queue=30&p=1&l=0&t=0&s=0"><span class="badge badge-primary float-right"><?php echo $UnassignedTickets; ?></span></a>Unassigned</h5>
                                 </div>
 
                             <?php
