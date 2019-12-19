@@ -84,7 +84,7 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
                     ?>" data-entry-id="<?php echo $field->getAnswer()->get('entry_id');
                     ?>"> <i class="icon-trash"></i> </a></div><?php
                 }
-                if ($a && !$a->getValue() && $field->isRequiredForClose()) {
+                if ($a && !$a->getValue() && $field->isRequiredForClose() && get_class($field) != 'BooleanField') {
     ?><i class="icon-warning-sign help-tip warning"
         data-title="<?php echo __('Required to close ticket'); ?>"
         data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
