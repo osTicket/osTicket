@@ -52,25 +52,30 @@ class BusinessHours {
     }
 
     // Intitialize occurrenses buckets
-    private function initOccurrences(Datetime $date) {
+    private function initOccurrences(Datetime $date, $grace_period_hrs=72) {
 
         $dt = clone $date;
         // Start from next day if current date is already processed
-        if ($this->workhours[$dt->format('Y-m-d')])
+        if (isset($this->workhours[$dt->format('Y-m-d')]))
             $dt->modify('+1 day');
+
+        // Apply grace period
+        $period =  clone $dt;
+        $period->modify("+$grace_period_hrs hour");
 
         // Reset occurrense buckets
         $this->workhours = $this->holidays = array();
         // Init workhours
         foreach ($this->getSchedule()->getEntries() as $entry)
-            $this->workhours += $entry->getOccurrences($dt, null, 4);
+            $this->workhours += $entry->getOccurrences($dt,
+                    $period->format('Y-m-d'));
         ksort($this->workhours);
         // Init holidays taking into account end date of the workhours in
         // the current scope.
         $enddate = array_pop(array_keys($this->workhours));
         foreach ($this->getSchedule()->getHolidaysSchedules() as $schedule) {
             foreach ($schedule->getEntries() as $entry)
-                $this->holidays += $entry->getOccurrences($dt, $enddate, 5);
+                $this->holidays += $entry->getOccurrences($dt, $enddate);
         }
         ksort($this->holidays);
 
@@ -116,7 +121,13 @@ class BusinessHours {
                     // partial / remaining hours
                     if (!$e->isBeforeHours($date))
                         $partial = true;
+
+                } elseif (strtotime("$d ".$e->getEndsTime()) <
+                           $date->getTimestamp()) {
+                    // Entry is out of scope
+                    continue;
                 }
+
                 // Handle holidays - if within scope of current work day
                 $leadtime =0;
                 if (($holiday=$this->holidays[$d])) {
@@ -125,10 +136,11 @@ class BusinessHours {
                             $holiday->getHours(),
                             $holiday->getSchedule()->getName(),
                             $holiday->getDesc()));
+
+                    //Move the date to end of the day of the holiday
+                    $date->modify("$d ".$holiday->getEndsTime());
                     // If the holiday is a full day then assume the day is a goner
                     if ($holiday->isFullDay()) continue;
-                    //Move the date to end of the partial day of the holiday
-                    $date->modify("$d ".$holiday->getEndsTime());
                     $partial = true;
                     // See if we need to recover any time prior to start of
                     // holiday e.g if the day starts at 8am but the  holiday

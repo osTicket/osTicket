@@ -797,6 +797,7 @@ class ScheduleEntry extends VerySimpleModel {
             $stop = $this->getStopsDatetime();
             if ($stop && $stop->getTimestamp() < $from->getTimestamp())
                 return null;
+
             // Figure out start time for the entry.
             $from->modify($this->getIntervalSpec($from));
             $this->_current = clone $from;
@@ -845,16 +846,18 @@ class ScheduleEntry extends VerySimpleModel {
         return $current;
     }
 
-    function getOccurrences($start=null, $end=null, $num=2) {
+    function getOccurrences($start=null, $end=null, $num=5) {
         $occurrences = array();
         if (($current = $this->getCurrent($start))) {
-            $occurrences[$current->format('Y-m-d')] = $this;
+            $start = $start ?: $current;
             while (count($occurrences) < $num) {
-                if (!($next=$this->next()))
-                    break;
                 $date = $current->format('Y-m-d');
-                $occurrences[$date] = $this;
-                if ($end && strtotime($date) >= strtotime($end))
+                if ($end && strtotime($date) > strtotime($end))
+                    break;
+                if (strtotime($date) >= strtotime($start->format('Y-m-d')))
+                    $occurrences[$date] = $this;
+
+                if (!($current=$this->next()))
                     break;
             }
         }
@@ -1421,7 +1424,7 @@ extends AbstractForm {
                         'gmt' => false,
                         'future' => false,
                         'max' => time(),
-                        'showtimezone' => false,
+                        'showtimezone' => true,
                         ),
                 )),
                 'hours'  =>  new TextboxField(array(
