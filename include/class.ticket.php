@@ -2270,6 +2270,13 @@ implements RestrictedAccess, Threadable, Searchable {
         return $save ? $this->save() : true;
     }
 
+    function hasReferral($object, $type) {
+        if (($referral=$this->thread->getReferral($object->getId(), $type)))
+            return $referral;
+
+        return false;
+    }
+
     //Dept Transfer...with alert.. done by staff
     function transfer(TransferForm $form, &$errors, $alert=true) {
         global $thisstaff, $cfg;
@@ -2313,6 +2320,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Log transfer event
         $this->logEvent('transferred');
+
+        if (($referral=$this->hasReferral($dept,ObjectModel::OBJECT_TYPE_DEPT)))
+            $referral->delete();
 
         // Post internal note if any
         $note = null;
@@ -2428,6 +2438,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->logEvent('assigned', $data);
 
+        if (($referral=$this->hasReferral($staff,ObjectModel::OBJECT_TYPE_STAFF)))
+            $referral->delete();
+
         return true;
     }
 
@@ -2446,6 +2459,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onAssign($team, $note, $alert);
         $this->logEvent('assigned', array('team' => $team->getId()));
+
+        if (($referral=$this->hasReferral($team,ObjectModel::OBJECT_TYPE_TEAM)))
+            $referral->delete();
 
         return true;
     }
@@ -2476,6 +2492,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 } else {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
                 }
+
+                if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_STAFF)))
+                    $referral->delete();
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -2489,6 +2508,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
+                if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_TEAM)))
+                    $referral->delete();
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');
