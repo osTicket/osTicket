@@ -423,12 +423,23 @@ class Mail_Parse {
             // random filename for the image
             elseif (isset($part->headers['content-id'])
                     && $part->headers['content-id']
-                    && 0 === strcasecmp($part->ctype_primary, 'image'))
+                    && 0 === strcasecmp($part->ctype_primary, 'image')) {
                 $filename = 'image-'.Misc::randCode(4).'.'
                     .strtolower($part->ctype_secondary);
-            else
+            // Attachment of type message/rfc822 without name!!!
+            } elseif (strcasecmp($part->ctype_primary, 'message') === 0) {
+                $struct = $part->parts[0];
+                if ($struct && isset($struct->headers['subject']))
+                    $filename = Format::mimedecode($struct->headers['subject'],
+                                $this->charset);
+                else
+                    $filename = 'email-message-'.Misc::randCode(4);
+
+                $filename .='.eml';
+            } else {
                 // Not an attachment?
                 return false;
+            }
 
             $file=array(
                     'name'  => $filename,
