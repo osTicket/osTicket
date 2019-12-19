@@ -955,7 +955,7 @@ class SavedQueue extends CustomQueue {
             if ($Q->constraints) {
                 $empty = false;
                 if (count($Q->constraints) > 1) {
-                    foreach ($Q->constraints as $key => $value) {
+                    foreach ($Q->constraints as $value) {
                         if (!$value->constraints)
                             $empty = true;
                     }
