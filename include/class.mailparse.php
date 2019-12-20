@@ -436,6 +436,10 @@ class Mail_Parse {
                     $filename = 'email-message-'.Misc::randCode(4);
 
                 $filename .='.eml';
+            } elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches)) {
+                $filename = Format::mimedecode($matches[1], $this->charset);
             } else {
                 // Not an attachment?
                 return false;
