@@ -418,6 +418,8 @@ class MailFetcher {
                 $header['mid'] = '<' . md5($header['header']) . '@local>';
         }
 
+        Signal::send('mail.header', $this, $header);
+
         return $header;
     }
 
