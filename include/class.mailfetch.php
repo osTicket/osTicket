@@ -334,16 +334,22 @@ class MailFetcher {
         }
 
         $header['recipients'] = array();
+        $allAddressees = array();
         foreach($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
+                    $name = $this->mime_decode(@$addr->personal);
+                    $email = strtolower($addr->mailbox).'@'.$addr->host;
+                    if(!in_array($email, $allAddressees)){
+                        $allAddressees[] = $email;
+                    }
                     $header['recipients'][] = array(
                             'source' => sprintf(_S("Email (%s)"),$source),
-                            'name' => $this->mime_decode(@$addr->personal),
-                            'email' => strtolower($addr->mailbox).'@'.$addr->host);
+                            'name' => $name,
+                            'email' => $email);
                 } elseif(!$header['emailId']) {
                     $header['emailId'] = $emailId;
                 }
@@ -354,8 +360,12 @@ class MailFetcher {
         if ($tolist['delivered-to']) {
             foreach ($tolist['delivered-to'] as $addr) {
                 foreach ($header['recipients'] as $i => $r) {
-                    if (strcasecmp($r['email'], $addr->mailbox.'@'.$addr->host) === 0)
+                    $toEmail = $addr->mailbox.'@'.$addr->host;
+                    if (strcasecmp($r['email'], $toEmail) === 0)
                         $header['recipients'][$i]['source'] = 'delivered-to';
+                    if(!in_array($toEmail, $allAddressees)){
+                        $allAddressees[] = $toEmail;
+                    }
                 }
             }
         }
@@ -363,11 +373,18 @@ class MailFetcher {
         //BCCed?
         if(!$header['emailId']) {
             if ($headerinfo->bcc) {
-                foreach($headerinfo->bcc as $addr)
-                    if (($header['emailId'] = Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host)))
+                foreach($headerinfo->bcc as $addr) {
+                    $bccEmail = strtolower($addr->mailbox.'@'.$addr->host);
+                    if(!in_array($bccEmail, $allAddressees)){
+                        $allAddressees[] = $bccEmail;
+                    }
+                    if (($header['emailId'] = Email::getIdByEmail($bccEmail)))
                         break;
+                }
             }
         }
+
+        $header['all-addressee'] = implode(',', $allAddressees);
 
         // Ensure we have a message-id. If unable to read it out of the
         // email, use the hash of the entire email headers
@@ -381,9 +398,9 @@ class MailFetcher {
                 $header['mid'] = '<' . md5($header['header']) . '@local>';
         }
 
-        Signal::send('mail.header', $this, $header);
-
-        return $header;
+        $mailHeader = ['info' => $info, 'header' => $header];
+        Signal::send('mail.header', $this, $mailHeader);
+        return $mailHeader['header'];
     }
 
     //search for specific mime type parts....encoding is the desired encoding.

@@ -32,6 +32,7 @@ class Filter {
             array('reply-to'  =>    /* @trans */ 'Reply-To Email',
                 'reply-to-name' =>  /* @trans */ 'Reply-To Name',
                 'addressee' =>      /* @trans */ 'Addressee (To and Cc)',
+                'all-addressee' =>      /* @trans */ 'All Addressees as comma separated string (To, Cc & Bcc)',
             ),
             200
         ),
