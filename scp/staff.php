@@ -43,6 +43,10 @@ if($_POST){
                 foreach ($_SESSION['new-agent-passwd'] as $k=>$v)
                     if (!isset($_POST[$k]))
                         $_POST[$k] = $v;
+            } else { // If no password && no backend set or is local then send Welcome Email
+                $bk = array_key_exists('backend', $_POST) ? $_POST['backend'] : null;
+                if (!$bk || $bk == 'local')
+                    $_POST['welcome_email'] = 1;
             }
             if ($staff->update($_POST,$errors)) {
                 unset($_SESSION['new-agent-passwd']);
