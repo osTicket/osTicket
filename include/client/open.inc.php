@@ -124,7 +124,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             $('.richtext').each(function() {
                 var redactor = $(this).data('redactor');
                 if (redactor && redactor.opts.draftDelete)
-                    redactor.draft.deleteDraft();
+                    redactor.plugin.draft.deleteDraft();
             });
             window.location.href='index.php';">
   </p>
