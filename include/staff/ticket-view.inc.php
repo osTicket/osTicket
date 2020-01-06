@@ -510,6 +510,12 @@ if($ticket->isOverdue())
                     ?>
                  </td>
                 </tr>
+                <tr>
+                    <th><?php echo __('Phone'); ?>:</th>
+                    <td>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo $ticket->getPhoneNumber(); ?></span>
+                    </td>
+                </tr>
             </table>
         </td>
     </tr>
