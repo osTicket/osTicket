@@ -513,7 +513,20 @@ if($ticket->isOverdue())
                 <tr>
                     <th><?php echo __('Phone'); ?>:</th>
                     <td>
-                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo $ticket->getPhoneNumber(); ?></span>
+                        <a href="#tickets/<?php echo $ticket->getId(); ?>/user"
+                           onclick="javascript:
+                                   saveDraft();
+                                   $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
+                                   function (user) {
+                                   $('#user-'+user.id+'-name').text(user.name);
+                                   $('#user-'+user.id+'-email').text(user.email);
+                                   $('#user-'+user.id+'-phone').text(user.phone);
+                                   $('#user-'+user.id+'-phone-url').attr('href', 'tel:'+user.phone.substr(0, ( ( user.phone.indexOf('x') == -1 ) ? user.phone.length : user.phone.indexOf('x') ) ).trim());
+                                   $('select#emailreply option[value=1]').text(user.name+' <'+user.email+'>');
+                                   });
+                                   return false;
+                                   "><span id="user-<?php echo $ticket->getOwnerId(); ?>-phone"><?php echo ( ( $ticket->getPhoneNumber() != '' ) ? $ticket->getPhoneNumber() : __('None') )?></span></a>
+                                    <a id="user-<?php echo $ticket->getOwnerId(); ?>-phone-url" href="tel:<?php echo trim( substr( $ticket->getPhoneNumber(), 0, ( ( strpos($ticket->getPhoneNumber(), 'x') === FALSE ) ? strlen( $ticket->getPhoneNumber() ) : strripos( $ticket->getPhoneNumber(), 'x' ) ) ) ); ?>"><i class="icon-phone"></i></a>
                     </td>
                 </tr>
             </table>
