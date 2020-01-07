@@ -37,7 +37,8 @@ class StaffAjaxAPI extends AjaxController {
           $clean = $form->getClean();
           try {
               // Validate password
-              PasswordPolicy::checkPassword($clean['passwd1'], null);
+              if (!$clean['welcome_email'])
+                  PasswordPolicy::checkPassword($clean['passwd1'], null);
               if ($id == 0) {
                   // Stash in the session later when creating the user
                   $_SESSION['new-agent-passwd'] = $clean;
