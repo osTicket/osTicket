@@ -845,6 +845,8 @@ implements TemplateVariable, Searchable {
                 }
             }
         }
+        if ($vars['disable_auto_claim'] !== 1)
+            unset($vars['disable_auto_claim']);
 
         $this->pid = $vars['pid'] ?: null;
         $this->ispublic = isset($vars['ispublic']) ? (int) $vars['ispublic'] : 0;
