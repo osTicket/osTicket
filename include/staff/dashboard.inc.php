@@ -1121,7 +1121,7 @@ $sitecolor = array(
               plotLines: [{
                 color: 'green', // Color value
                 dashStyle: 'shortdash', // Style of the plot line. Default to solid
-                value: 10, // Value of where the line will appear
+                value: 5, // Value of where the line will appear
                 width: 2, // Width of the line
                 label: {
                     text: '',
