@@ -457,6 +457,8 @@ $(function() {
                 options['plugins'].push('textdirection');
             if (el.find('rtl').length)
                 options['direction'] = 'rtl';
+            if (c.editor_spacing == 'single')
+                options.breakline = true;
             el.data('redactor', el.redactor(options));
         });
     },
