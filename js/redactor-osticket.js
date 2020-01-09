@@ -377,6 +377,7 @@ $(function() {
                 'minHeight': selectedSize,
                 'maxWidth': el.hasClass('fullscreen') ? '950px' : false,
                 'focus': false,
+                'breakline': true,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
                   : ['imagemanager','table','video','definedlinks','autolock', 'fontcolor', 'fontfamily'],
