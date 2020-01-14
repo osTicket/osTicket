@@ -384,12 +384,12 @@ class TicketsAjaxAPI extends AjaxController {
                 if (is_numeric($key) && $ticket = Ticket::lookup($value))
                     $ticket->unlink();
             }
-            return true;
+            Http::response(201, 'Successfully managed');
         } elseif ($_POST['tids']) {
             if ($parent = Ticket::merge($_POST))
                 Http::response(201, 'Successfully managed');
             else
-                $info['error'] = $errors['err'] ?: __('Unable to merge ticket');
+                Http::response(404, 'Unable to manage ticket');
         }
 
         $parentModel = Ticket::objects()
