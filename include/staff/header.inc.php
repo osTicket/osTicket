@@ -54,7 +54,6 @@ if ($lang) {
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
-	Signal::send('staff.headers',  null);
     ?>
 </head>
 <body>
