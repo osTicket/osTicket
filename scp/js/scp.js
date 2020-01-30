@@ -1191,6 +1191,8 @@ $(document).on('click.note', '.quicknote .action.save-note', function() {
     return false;
 });
 $(document).on('click.note', '.quicknote .delete', function() {
+  if (!window.confirm(__('Confirm Deletion')))
+    return;
   var that = $(this),
       id = $(this).closest('.quicknote').data('id');
   $.ajax('ajax.php/note/' + id, {
