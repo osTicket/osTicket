@@ -47,6 +47,16 @@ auto_response:
         You may disable the Auto-Response sent to the User when a new ticket
         is created via this Email Address.
 
+userid:
+    title: Username
+    content: >
+        The Username is utilized in the email authentication process. We accept
+        single address strings, shared mailbox strings, servername + username
+        strings, and a combination of all.
+    links:
+      - title: More Information
+        href: https://docs.osticket.com/en/latest/Admin/Emails/Emails.html
+
 username:
     title: Username
     content: >
