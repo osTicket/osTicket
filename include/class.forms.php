@@ -1475,6 +1475,9 @@ class TextboxField extends FormField {
             $valid = 'formula';
         $func = $validators[$valid];
         $error = $func[1];
+        // If validator is number and the value is &#48 set to 0 (int) for is_numeric
+        if ($valid == 'number' && $value == '&#48')
+            $value = 0;
         if ($config['validator-error'])
             $error = $this->getLocal('validator-error', $config['validator-error']);
         if (is_array($func) && is_callable($func[0]))
