@@ -2530,7 +2530,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $children[] = $ticket;
         }
 
-        if ($parent->getMergeType() != 'visual') {
+        if ($parent && $parent->getMergeType() != 'visual') {
             $errors = array();
             foreach ($children as $child) {
                 if ($options['participants'] == 'all' && $collabs = $child->getCollaborators()) {
@@ -2570,8 +2570,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($options['delete-child'])
                      $child->delete();
             }
+            return $parent;
         }
-        return $parent;
+        return false;
     }
 
     function getRelatedTickets() {
