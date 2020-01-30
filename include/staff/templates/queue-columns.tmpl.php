@@ -108,6 +108,8 @@ $hidden_cols = $queue->inheritColumns() || ($queue->useStandardColumns() &&
 </div>
 <script>
 +function() {
+if ($('[name=inherit-columns]').attr('disabled'))
+    $('.if-not-inherited').hide();
 $('[name=inherit-columns]').on('click', function() {
     $('.standard-columns').toggle();
 });
