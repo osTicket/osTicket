@@ -4427,6 +4427,9 @@ class DatetimePickerWidget extends Widget {
         if (!isset($this->value) && ($default=$this->field->get('default')))
             $this->value = $default;
 
+        if ($this->value == 0)
+            $this->value = '';
+
         if ($this->value) {
 
             if (is_int($this->value))
