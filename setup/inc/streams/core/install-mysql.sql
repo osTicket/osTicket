@@ -124,7 +124,8 @@ CREATE TABLE `%TABLE_PREFIX%form` (
     `notes` text,
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_field`;
@@ -140,7 +141,9 @@ CREATE TABLE `%TABLE_PREFIX%form_field` (
     `hint` varchar(512),
     `created` datetime NOT NULL,
     `updated` datetime NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `form_id` (`form_id`),
+    KEY `sort` (`sort`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%form_entry`;
@@ -222,7 +225,8 @@ CREATE TABLE `%TABLE_PREFIX%department` (
   UNIQUE KEY `name` (`name`, `pid`),
   KEY `manager_id` (`manager_id`),
   KEY `autoresp_email_id` (`autoresp_email_id`),
-  KEY `tpl_id` (`tpl_id`)
+  KEY `tpl_id` (`tpl_id`),
+  KEY `flags` (`flags`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%draft`;
@@ -234,7 +238,9 @@ CREATE TABLE `%TABLE_PREFIX%draft` (
   `extra` text,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `namespace` (`namespace`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email`;
@@ -388,7 +394,10 @@ CREATE TABLE `%TABLE_PREFIX%file` (
   PRIMARY KEY  (`id`),
   KEY `ft` (`ft`),
   KEY `key` (`key`),
-  KEY `signature` (`signature`)
+  KEY `signature` (`signature`),
+  KEY `type` (`type`),
+  KEY `created` (`created`),
+  KEY `size` (`size`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%file_chunk`;
@@ -600,7 +609,9 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   PRIMARY KEY  (`staff_id`),
   UNIQUE KEY `username` (`username`),
   KEY `dept_id` (`dept_id`),
-  KEY `issuperuser` (`isadmin`)
+  KEY `issuperuser` (`isadmin`),
+  KEY `isactive` (`isactive`),
+  KEY `onvacation` (`onvacation`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%staff_dept_access`;
@@ -646,7 +657,8 @@ CREATE TABLE `%TABLE_PREFIX%team_member` (
   `team_id` int(10) unsigned NOT NULL default '0',
   `staff_id` int(10) unsigned NOT NULL,
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY  (`team_id`,`staff_id`)
+  PRIMARY KEY  (`team_id`,`staff_id`),
+  KEY `staff_id` (`staff_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%thread`;
@@ -823,7 +835,8 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
-  KEY `state` (`state`)
+  KEY `state` (`state`),
+  KEY `id` (`id`)
 ) DEFAULT CHARSET=utf8;
 
 
@@ -875,7 +888,8 @@ CREATE TABLE `%TABLE_PREFIX%task` (
   KEY `staff_id` (`staff_id`),
   KEY `team_id` (`team_id`),
   KEY `created` (`created`),
-  KEY `object` (`object_id`,`object_type`)
+  KEY `object` (`object_id`,`object_type`),
+  KEY `flags` (`flags`)
 ) DEFAULT CHARSET=utf8;
 
 -- pages
@@ -921,7 +935,9 @@ CREATE TABLE `%TABLE_PREFIX%queue` (
   `path` varchar(80) NOT NULL DEFAULT '/',
   `created` datetime not null,
   `updated` datetime not null,
-  primary key (`id`)
+  primary key (`id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `parent_id` (`parent_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%queue_column`;
@@ -1017,7 +1033,10 @@ CREATE TABLE `%TABLE_PREFIX%user` (
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `org_id` (`org_id`)
+  KEY `org_id` (`org_id`),
+  KEY `default_email_id` (`default_email_id`),
+  KEY `id` (`id`),
+  KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%user_email`;
