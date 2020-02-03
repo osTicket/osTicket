@@ -1015,12 +1015,6 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function inheritColumns() {
-        global $thisstaff;
-
-        if ($thisstaff && ($inherit = self::staffSettings('inherit-columns'))
-                && !is_null($inherit))
-            return $inherit == 'true';
-
         return $this->hasFlag(self::FLAG_INHERIT_COLUMNS);
     }
 
@@ -1040,22 +1034,6 @@ class CustomQueue extends VerySimpleModel {
 
     function isDefaultSortInherited() {
         return $this->hasFlag(self::FLAG_INHERIT_DEF_SORT);
-    }
-
-    function staffSettings($key=null) {
-        global $thisstaff;
-
-        if (!$config = QueueConfig::objects()->filter(array(
-                'staff_id' => $thisstaff->getId(),
-                'queue_id' => $this->getId()))->first())
-            return null;
-
-        $settings = JsonDataParser::decode($config->setting) ?: null;
-
-        if ($key && $settings)
-            return $settings[$key];
-
-        return $settings;
     }
 
     function buildPath() {

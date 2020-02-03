@@ -788,6 +788,13 @@ class SavedQueue extends CustomQueue {
         return parent::useStandardColumns();
     }
 
+    function inheritColumns() {
+        if ($this->getSettings() && isset($this->_settings['inherit-columns']))
+            return $this->_settings['inherit-columns'];
+
+        return parent::inheritColumns();
+    }
+
     function getStandardColumns() {
         return parent::getColumns(is_null($this->parent));
     }
