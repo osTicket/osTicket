@@ -31,11 +31,11 @@ $url=URL;
                 <tr>
                     <td width="50%">
                         <strong><?php echo __('osTicket Forums');?>:</strong><Br>
-                        <a href="#">https://forum.osticket.com/</a>
+                        <a href="https://forum.osticket.com/" target="_blank">https://forum.osticket.com/</a>
                     </td>
                     <td width="50%">
                         <strong><?php echo __('osTicket Documentation');?>:</strong><Br>
-                        <a href="#">https://docs.osticket.com/</a>
+                        <a href="https://docs.osticket.com/" target="_blank">https://docs.osticket.com/</a>
                     </td>
                 </tr>
             </table>
