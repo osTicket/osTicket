@@ -50,6 +50,7 @@ class ConfigAjaxAPI extends AjaxController {
               'secondary_languages' => $cfg->getSecondaryLanguages(),
               'page_size'       => $thisstaff->getPageLimit() ?: PAGE_LIMIT,
               'path'            => ROOT_PATH,
+              'editor_spacing' => $thisstaff->editorSpacing(),
         );
         return $this->json_encode($config);
     }
