@@ -611,6 +611,17 @@ class osTicket {
                 && !strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https'));
     }
 
+    /**
+     * Returns TRUE if the current browser is IE and FALSE otherwise
+     */
+    function is_ie() {
+        if (preg_match('/MSIE|Internet Explorer|Trident\/[\d]{1}\.[\d]{1,2}/',
+                $_SERVER['HTTP_USER_AGENT']))
+            return true;
+
+        return false;
+    }
+
     /* returns true if script is being executed via commandline */
     static function is_cli() {
         return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')

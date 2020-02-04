@@ -15,6 +15,10 @@ if (($lang = Internationalization::getCurrentLanguage())
 if ($lang) {
     echo ' lang="' . Internationalization::rfc1766($lang) . '"';
 }
+
+// Dropped IE Support Warning
+if (osTicket::is_ie())
+    $ost->setWarning(__('osTicket no longer supports Internet Explorer.'));
 ?>>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
