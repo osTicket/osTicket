@@ -1443,7 +1443,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     // Ticket Status helper.
-    function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
+    function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true, $force_close=false) {
         global $cfg, $thisstaff;
 
         if ($thisstaff && !($role=$this->getRole($thisstaff)))
@@ -1479,7 +1479,7 @@ implements RestrictedAccess, Threadable, Searchable {
         switch ($status->getState()) {
             case 'closed':
                 // Check if ticket is closeable
-                $closeable = $this->isCloseable();
+                $closeable = $force_close ? true : $this->isCloseable();
                 if ($closeable !== true)
                     $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This ticket'));
 
@@ -2553,7 +2553,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $child->getThread()->setExtra($parentThread);
 
                 $child->setMergeType($options['combine']);
-                $child->setStatus(intval($options['statusId']));
+                $child->setStatus(intval($options['statusId']), false, $errors, true, true); //force close status for children
 
                 if ($options['delete-child'] || $options['move-tasks']) {
                     if ($tasks = Task::objects()
