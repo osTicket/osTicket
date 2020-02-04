@@ -441,8 +441,8 @@ if (!$ticket) { ?>
                     $id =  $a->getLocal('id');
                     $label = $a->getLocal('label');
                     $v = $a->display();
-                    $class = $v ? '' : 'class="faded"';
-                    $clean = $v ?: '&mdash;' . __('Empty') .  '&mdash;';
+                    $class = (Format::striptags($v)) ? '' : 'class="faded"';
+                    $clean = (Format::striptags($v)) ? $v : '&mdash;' . __('Empty') .  '&mdash;';
                     $field = $a->getField();
                     $isFile = ($field instanceof FileUploadField);
                     ?>
