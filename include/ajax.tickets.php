@@ -635,12 +635,16 @@ class TicketsAjaxAPI extends AjaxController {
                     case $field instanceof DepartmentField:
                         $clean = (string) Dept::lookup($field->getClean());
                         break;
+                    case $field instanceof TextareaField:
+                        $clean =  (string) $field->getClean();
+                        $clean = Format::striptags($clean) ? $clean : '&mdash;' . __('Empty') .  '&mdash;';
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
+                        break;
                     default:
                         $clean =  $field->getClean();
                         $clean = is_array($clean) ? implode($clean, ',') :
                             (string) $clean;
-                        if (strlen($clean) > 200)
-                             $clean = Format::truncate($clean, 200);
                 }
 
                 // Set basic response data
