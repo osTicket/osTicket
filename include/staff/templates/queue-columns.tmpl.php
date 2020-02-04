@@ -29,8 +29,7 @@ if ($queue->parent) { ?>
     </tr>
   </tbody>
 <?php }
-$hidden_cols = $queue->inheritColumns() || ($queue->useStandardColumns() &&
-        $queue->parent_id);
+$hidden_cols = $queue->inheritColumns() || $queue->useStandardColumns();
 ?>
   <tbody class="if-not-inherited <?php if ($hidden_cols) echo 'hidden'; ?>">
     <tr class="header">
@@ -108,8 +107,6 @@ $hidden_cols = $queue->inheritColumns() || ($queue->useStandardColumns() &&
 </div>
 <script>
 +function() {
-if ($('[name=inherit-columns]').attr('disabled'))
-    $('.if-not-inherited').hide();
 $('[name=inherit-columns]').on('click', function() {
     $('.standard-columns').toggle();
 });
