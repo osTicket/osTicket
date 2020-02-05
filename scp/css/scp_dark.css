@@ -1074,6 +1074,10 @@ width: 100%;
 .thread-entry span{
 	color: rgb(215, 218, 220) !important;
 }
+
+.thread-teaser span{
+	color: rgb(215, 218, 220) !important;
+}
 /* Line 621 */
 .thread-entry.message .header
 {
