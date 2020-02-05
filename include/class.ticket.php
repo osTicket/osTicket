@@ -3902,7 +3902,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return db_fetch_array(db_query($sql));
     }
 
-    protected function filterTicketData($origin, $vars, $forms, $user=false) {
+    protected function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
         global $cfg;
 
         // Unset all the filter data field data in case things change
@@ -3960,7 +3960,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
             // Init ticket filters...
             $ticket_filter = new TicketFilter($origin, $vars);
-            $ticket_filter->apply($vars);
+            $ticket_filter->apply($vars, $postCreate);
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
@@ -4098,7 +4098,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
             try {
                 $vars = self::filterTicketData($origin, $vars,
-                    array_merge(array($form), $topic_forms), $user);
+                    array_merge(array($form), $topic_forms), $user, false);
             }
             catch (RejectedException $ex) {
                 return $reject_ticket(
@@ -4301,7 +4301,7 @@ implements RestrictedAccess, Threadable, Searchable {
         /* -------------------- POST CREATE ------------------------ */
         $vars['ticket'] = $ticket;
         self::filterTicketData($origin, $vars,
-            array_merge(array($form), $topic_forms), $user);
+            array_merge(array($form), $topic_forms), $user, true);
 
         // Save the (common) dynamic form
         // Ensure we have a subject

@@ -331,8 +331,14 @@ extends VerySimpleModel {
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
-    function apply(&$ticket, $vars) {
+    function apply(&$ticket, $vars, $postCreate=false) {
         foreach ($this->getActions() as $a) {
+            //control when certain actions should be applied
+            //if action is send email and postCreate == false, skip
+            //if action is not send email and postCreate == true, skip
+            if ((($a->type == 'email') ? !$postCreate : $postCreate))
+                continue;
+
             $a->setFilter($this);
             $a->apply($ticket, $vars);
         }
@@ -848,9 +854,9 @@ class TicketFilter {
      * should be rejected, the first filter that matches and has reject
      * ticket set is returned.
      */
-    function apply(&$ticket) {
+    function apply(&$ticket, $postCreate=false) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            $filter->apply($ticket, $this->vars);
+            $filter->apply($ticket, $this->vars, $postCreate);
             if ($filter->stopOnMatch()) break;
         }
     }
