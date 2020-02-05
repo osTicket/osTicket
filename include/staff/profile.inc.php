@@ -317,20 +317,18 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
 </div>
 <div class="col-md-3">
 <?php if (extension_loaded('intl')) { ?>
-        <div class="form-group">
-        <label><?php echo __('Preferred Locale');?>:</label>
+        
+<div class="form-group">
+        <label class="custom-control custom-checkbox">
+					<input type="checkbox" class="custom-control-input"  name="darkmode"
+					              <?php echo ($staff->darkmode) ? 'checked="checked"' : ''; ?>>
+					<span class="custom-control-indicator"></span>
+					<span class="custom-control-description"><?php echo __('Dark Mode'); ?>
+					 </span>
+					</label>     
             
-                <select name="locale" class="form-control form-control-sm">
-                    <option value=""><?php echo __('Use Language Preference'); ?></option>
-<?php foreach (Internationalization::allLocales() as $code=>$name) { ?>
-                    <option value="<?php echo $code; ?>" <?php
-                        if ($code == $staff->locale)
-                            echo 'selected="selected"';
-                    ?>><?php echo $name; ?></option>
-<?php } ?>
-                </select>
-           
-        </div>
+        </div>          
+      
 <?php } ?>
     
   </div>

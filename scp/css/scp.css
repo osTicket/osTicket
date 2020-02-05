@@ -536,6 +536,7 @@ input.rlc-search {
     height:30px;
     position:absolute;
     z-index:2;
+    margin-top: -70px;
 }
 
 .tip_arrow {
@@ -782,7 +783,9 @@ select {
    -moz-border-radius: 4px;
 }
 
-
+.select2-dropdown{
+	margin-top: -76px;
+}
 div#datepicker1.input-group.date > span.input-group-addon{    
     display: inline;
     padding-top: 4px;

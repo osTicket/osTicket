@@ -1,0 +1,64 @@
+/* FROM bootstrap.css - just what is needed for typeahead */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  /*left: 0;*/
+  z-index: 7 !important;
+  float: left;
+  display: none;
+  min-width: 160px;
+  padding: 4px 0 2px;
+  /*margin-top: -75px;*/
+  list-style: none;
+  background-color: rgb(26, 26, 27);
+  border: 1px solid rgb(71, 71, 72);
+  -webkit-border-radius: 0 0 5px 5px;
+  -moz-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);`
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 15px -5px rgba(0, 0, 0, 0.5);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+  opacity: 0.95;
+}
+
+.typeaheadmargin {
+	margin-top: -76px;
+}
+
+.dropdown-menu.pull-right {
+  right: 0;
+  left: auto;
+}
+.dropdown-menu.scroll {
+  max-height: 180px;
+  height: auto;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 4px 15px;
+  clear: both;
+  font-weight: normal;
+  line-height: 18px;
+  color: #a8b5c3 !important;
+  white-space: nowrap;
+}
+.dropdown-menu li > a:hover,
+.dropdown-menu .active > a,
+.dropdown-menu .active > a:hover {
+  color: #000;
+  text-decoration: none;
+  background-color: #f8f9fa;;
+}
+.dropdown-menu li > a:hover .faded,
+.dropdown-menu .active > a .faded,
+.dropdown-menu .active > a:hover .faded {
+  color: rgba(255,255,255,0.6);
+}

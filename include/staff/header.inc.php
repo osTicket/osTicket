@@ -1,6 +1,8 @@
 <!DOCTYPE HTML>
 <?php
 require(INCLUDE_DIR.'class.dashboard.php');
+//require_once('staff.inc.php');
+$staff=Staff::lookup($thisstaff->getId());
 
 header("Content-Type: text/html; charset=UTF-8");
 $title = ($ost && ($title=$ost->getPageTitle()))
@@ -16,6 +18,8 @@ if ($lang) {
     echo ' lang="' . Internationalization::rfc1766($lang) . '"';
 }
 ?>>
+
+
 <script>
             var resizefunc = [];
 </script>
@@ -42,8 +46,17 @@ if ($lang) {
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/morris.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/footable.bootstrap.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/icons.css" media="all">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/styles.css" media="all">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/scp.css" media="all">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
+    <?php if ($staff->darkmode ==1){?>
+    	<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/styles_dark.css" media="all">
+  	<?php } else { ?>
+  		<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/styles.css" media="all">
+ 		 <?php } 
+ 		 if ($staff->darkmode ==1){?>
+    	<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/scp_dark.css" media="all">
+  	<?php } else { ?>
+  		<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/scp.css" media="all">  	
+  	<?php } ?>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/notify-metro.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/thread.css" media="all">
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/bootstrap-datepicker.min.css" media="all">
@@ -54,17 +67,24 @@ if ($lang) {
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/dropdown.css">
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/loadingbar.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
+    
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/helptopic.css"/>
+    <?php if ($staff->darkmode ==1){?>
+    	<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/helptopic_dark.css"/>
+    <?php } else { ?>
+    	<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/helptopic.css"/>
+    <?php } ?>	
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/loadingoverlay.min.css"/>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/loadingoverlay.min.js"></script>
     <link type="text/css" rel="stylesheet" href="./css/translatable.css"/>
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/accordian.css" media="all">
-    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/typeahead.css" media="screen">
-    <?php
-    
+    <?php if ($staff->darkmode ==1){?>
+    <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/typeahead_dark.css" media="screen">
+  <?php } else { ?>	
+    	<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/typeahead.css" media="screen">
+    <?php } 
+        
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }

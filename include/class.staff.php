@@ -500,7 +500,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     function onVacation() {
         return $this->onvacation;
     }
-
+ 		
+ 		function DarkMode() {
+        return $this->darkmode;
+    }
+    
     function isAvailable() {
         return ($this->isactive() && !$this->onVacation());
     }
@@ -682,6 +686,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->default_paper_size = $vars['default_paper_size'];
         $this->lang = $vars['lang'];
         $this->onvacation = isset($vars['onvacation']) ? 1 : 0;
+        $this->darkmode = isset($vars['darkmode']) ? 1 : 0;
 
         if (isset($vars['avatar_code']))
           $this->setExtraAttr('avatar', $vars['avatar_code']);
@@ -1087,6 +1092,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->isactive = isset($vars['islocked']) ? 0 : 1;
         $this->isvisible = isset($vars['isvisible'])?1:0;
         $this->onvacation = isset($vars['onvacation'])?1:0;
+        $this->darkmode = isset($vars['darkmode'])?1:0;
         $this->assigned_only = isset($vars['assigned_only'])?1:0;
         $this->role_id = $vars['role_id'];
         $this->username = $vars['username'];

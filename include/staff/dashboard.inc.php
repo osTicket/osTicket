@@ -36,7 +36,7 @@ $sitecolor = array(
       </div>   
    <div class="clearfix"></div> 
 </div> 
-
+ 
 <div class="row">
 
     <div class="col-lg-6">
@@ -453,7 +453,7 @@ $sitecolor = array(
                             
 
                             ?>
-                            <tr><td>&nbsp;</td></tr>
+                            <tr><td colspan=17 style="border-top-color: #1a1a1b;">&nbsp;</td></tr>
                             <tr class="bg-graphgreen"><th>CLOSED</th>
                             <?php
                              
@@ -622,7 +622,7 @@ $sitecolor = array(
                             $usertotals = db_query($sql);
 
                             ?>
-                            <tr><td>&nbsp;</td></tr>
+                            <tr><td colspan=17 style="border-top-color: #1a1a1b;">&nbsp;</td></tr>
                             <tr class="bg-graphgreen"><th>ALL TICKETS</th>
                             <?php
                              

@@ -28,6 +28,11 @@
   *border-bottom-width: 2px;
   opacity: 0.95;
 }
+
+.typeaheadmargin {
+	margin-top: -76px;
+}
+
 .dropdown-menu.pull-right {
   right: 0;
   left: auto;

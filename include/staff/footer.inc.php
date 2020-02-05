@@ -52,7 +52,7 @@
     </div>
 <?php
 if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
-    <div  style="background-color: #f5f5f5;">
+    <div>
         <!-- Do not remove <img src="autocron.php" alt="" width="1" height="1" border="0" /> or your auto cron will cease to function -->
         <img src="<?php echo ROOT_PATH; ?>scp/autocron.php" alt="" width="1" height="1" border="0"/>
         <!-- Do not remove <img src="autocron.php" alt="" width="1" height="1" border="0" /> or your auto cron will cease to function -->
