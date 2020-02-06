@@ -1,10 +1,25 @@
-<link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/highcharts.css" media="all">
+<?php if ($staff->darkmode ==1){?>
+  <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/highcharts_dark.css" media="all">
+<?php } else { ?>
+	 <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/highcharts.css" media="all">
+<?php } ?>
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-3d.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/highcharts-more.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/exporting.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/export-data.js"></script>
 <script src="<?php echo ROOT_PATH; ?>scp/js/modules/pareto.js"></script>
+
+<script>
+	
+
+Highcharts.theme = {
+    chart: {styledMode: true,
+    },
+};
+// Apply the theme
+Highcharts.setOptions(Highcharts.theme);
+</script>
 
 <?php
 $sitecolor = array(
@@ -767,7 +782,7 @@ $sitecolor = array(
  $(function() {        
      Highcharts.chart('backlog-chart-container1', {
         chart: {
-            type: 'areaspline'
+            type: 'areaspline',
         },
         title: {
             text: 'IT TICKETS (OPENED|CLOSED|BACKLOG)',
@@ -2118,7 +2133,7 @@ $(function () {
                 enabled: true,
                 style: {
                     fontWeight: 'bold',
-                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                   color: 'red'
                 }
             }
         },
@@ -2195,10 +2210,7 @@ $(function () {
             },
             stackLabels: {
                 enabled: true,
-                style: {
-                    fontWeight: 'bold',
-                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-                }
+                className: 'stackLabel'
             }
         },
         legend: {
@@ -2286,7 +2298,7 @@ $(function () {
                 enabled: true,
                 style: {
                     fontWeight: 'bold',
-                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                   color: 'red'
                 }
             }
         },
@@ -2372,7 +2384,7 @@ $(function () {
                 enabled: true,
                 style: {
                     fontWeight: 'bold',
-                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                   color: 'red'
                 }
             }
         },
@@ -2558,7 +2570,7 @@ $(function () {
             enabled: true,
             style: {
                 fontWeight: 'bold',
-                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+               color: 'red'
             }
         }
         },
@@ -2727,7 +2739,7 @@ $(function () {
             enabled: true,
             style: {
                 fontWeight: 'bold',
-                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+               color: 'red'
             }
         }
         },
@@ -2895,7 +2907,7 @@ $(function () {
             enabled: true,
             style: {
                 fontWeight: 'bold',
-                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+               color: 'red'
             }
         }
         },
