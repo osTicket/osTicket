@@ -189,7 +189,7 @@ body.fixed-left .side-menu.left {
   position: fixed; }
 
 .content-page {
-  margin-left: 240px;
+  margin-left: 220px;
   /*overflow: hidden; */}
 
 .content-page > .content {
@@ -375,23 +375,26 @@ body.fixed-left .side-menu.left {
 #wrapper.enlarged .menu-title, #wrapper.enlarged .menu-arrow {
   display: none !important; }
 #wrapper.enlarged #sidebar-menu ul ul {
-  border: 2px solid #eeeeee;
+  border: 1px solid rgb(71, 71, 72);
   margin-top: -5px;
   padding-top: 5px;
   z-index: 9999;
   background-color: rgb(26, 26, 27);}
 #wrapper.enlarged .left.side-menu {
-  width: 70px;
-  z-index: 5; }
+  width: 65px;
+  z-index: 10; }
   #wrapper.enlarged .left.side-menu #sidebar-menu > ul > li > a {
     padding: 15px 20px;
     min-height: 52px; }
     #wrapper.enlarged .left.side-menu #sidebar-menu > ul > li > a:hover {
-      background: #eeeeee !important; }
+      background: #000 !important; 
+      border: 1px solid rgb(71, 71, 72);}
     #wrapper.enlarged .left.side-menu #sidebar-menu > ul > li > a:active {
-      background: #eeeeee !important; }
+      background: #000 !important;
+      border: 1px solid rgb(71, 71, 72); }
     #wrapper.enlarged .left.side-menu #sidebar-menu > ul > li > a:focus {
-      background: #eeeeee !important; }
+      background: #000 !important;
+      border: 1px solid rgb(71, 71, 72); }
     #wrapper.enlarged .left.side-menu #sidebar-menu > ul > li > a i {
       margin-right: 20px !important;
       font-size: 20px; }
@@ -408,7 +411,8 @@ body.fixed-left .side-menu.left {
     #wrapper.enlarged .left.side-menu #sidebar-menu ul > li:hover > a {
       position: relative;
       width: 260px;
-      background: #eeeeee;
+      background: #000;
+      border: 1px solid rgb(71, 71, 72);
       color: #039cfd;
       border-color: #039cfd; }
     #wrapper.enlarged .left.side-menu #sidebar-menu ul > li:hover > ul {
@@ -466,7 +470,7 @@ body.fixed-left .side-menu.left {
   #wrapper.enlarged .left.side-menu .user-details {
     display: none; }
 #wrapper.enlarged .content-page {
-  margin-left: 70px; }
+  margin-left: 45px; }
 #wrapper.enlarged .footer {
   left: 70px; }
 #wrapper.enlarged .topbar .topbar-left {
