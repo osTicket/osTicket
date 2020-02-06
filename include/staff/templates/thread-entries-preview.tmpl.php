@@ -19,7 +19,7 @@ foreach ($entries as $entry) {
                <div class="thread-info">
                     <?php
                     echo sprintf('<div class="thread-name">
-                            <span>%s</span>&nbsp;<span>%s</span></div>',
+                            <span>%s</span>&nbsp;<span>%s</span><i class="fa fa-arrows-v float-right" aria-hidden="true"></i></div>',
                             $name,
                             Format::datetime($entry->created));
                     ?>

@@ -27,6 +27,11 @@ img {
   }
 }
 
+.notifyjs-metro-base .text {
+	margin-top: 6px !important;
+}
+
+}
 .action-button,
 .button {
     cursor: pointer;
@@ -62,7 +67,6 @@ input.close{
     display: inline-block;
     padding: 0.25rem 0.5rem;
     margin-bottom: 0;
-    margin-top: 1px;
     margin-left: 5px;
     font-size:  0.875rem;
     font-weight: normal;
@@ -571,7 +575,7 @@ input.rlc-search {
     min-height:20px;
     padding:10px;
     border:1px solid #666;
-    background:#1a1a1b;
+    background:#232323;
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
     border-radius:2px;
@@ -1081,7 +1085,7 @@ width: 100%;
 /* Line 621 */
 .thread-entry.message .header
 {
-  background-color: #4787be;
+  background-color: #224665;
   background-image: none;
   background-repeat: repeat;
   background-attachment: scroll;
@@ -1097,7 +1101,7 @@ width: 100%;
 /* Line 613 */
 .thread-entry.response .header
 {
-  background-color: #dddddd;
+  background-color: #345035;
   background-image: none;
   background-repeat: repeat;
   background-attachment: scroll;
@@ -1109,12 +1113,12 @@ width: 100%;
 }
 div.thread-entry.message > div.header > a > time.relative{
     
-    color:#000;
+    color: #62bff6;
 }
 
 .thread-entry.note .header
 {
-  background-color: #ffffcc;
+  background-color: #6d2121;
   color: #000;
   background-image: none;
   background-repeat: repeat;
@@ -1124,6 +1128,7 @@ div.thread-entry.message > div.header > a > time.relative{
   background-position-x: 0%;
   background-position-y: 0%;
   background-size: auto auto;
+  color: #ffffff;
 }
 
 .thread-entry .thread-body
@@ -1981,15 +1986,15 @@ html > body > div#popup.dialog.draggable.ui-draggable.size-normal > div.body > p
 }
 /***Types of headers***/
 .thread-preview-entry.message .header  {
-    background-color:#C3D9FF !important;
+    background-color:#224665 !important;
 }
 
 .thread-preview-entry.response .header  {
-    background-color:#FFE0B3 !important;
+    background-color:#345035 !important;
 }
 
 .thread-preview-entry.note .header {
-    background-color:#ffffcc !important;
+    background-color:#6d2121 !important;
 }
 
 .thread-preview-entry.message .header .thread-name span:first-child,
@@ -1999,7 +2004,6 @@ html > body > div#popup.dialog.draggable.ui-draggable.size-normal > div.body > p
 /***Collapsed CSS***/
 
 .thread-preview-entry.collapsed {
-    background-color:#f7f7f7;
     margin-bottom:0;
     cursor:pointer;
 }
@@ -2007,11 +2011,7 @@ html > body > div#popup.dialog.draggable.ui-draggable.size-normal > div.body > p
     margin-bottom:0px;
     margin-top:0px;
 }
-.thread-preview-entry.collapsed.message .header,
-.thread-preview-entry.collapsed.response .header {
-    background-color:#f7f7f7;
-    border-bottom:1px solid #f7f7f7;
-}
+
 .thread-preview-entry.collapsed.message .header .thread-name span:first-child {
     color:#0088cc;
 }

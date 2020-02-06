@@ -612,8 +612,15 @@ if (!$sselected) {$sselected = 'Status';}
     foreach ($tickets as $T) {
         echo '<tr>';
         if ($canManageTickets) { ?>
-            <td><input type="checkbox" class="ckb" name="tids[]"
-                value="<?php echo $T['ticket_id']; ?>" /></td>
+            <td>
+            	<label class="custom-control custom-checkbox">
+            	<input type="checkbox" class="custom-control-input" name="tids[]"
+                value="<?php echo $T['ticket_id']; ?>" />
+              <span class="custom-control-indicator"></span>
+							<span class="custom-control-description"></span>
+							</label>       
+                
+                </td>
     <?php
         }
         
