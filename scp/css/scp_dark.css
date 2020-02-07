@@ -821,8 +821,7 @@ select {
 input {
 	  background-color: rgb(26, 26, 27) !important;
 	  color: rgb(215, 218, 220) !important;
-	  border: 1px solid rgb(71, 71, 72) !important;
-    min-height: 30px
+	  min-height: 30px
     line-height:24px;
     max-width:350px;
     border:1px solid #bbb;
@@ -841,10 +840,13 @@ div#datepicker1.input-group.date > span.input-group-addon{
     padding-right: 7px;
     padding-left: 5px;
     margin-left: -2px;
-    border: 1px solid #ccc;
+    border: 1px solid rgb(71, 71, 72) !important;
     border-radius: 2px;
 }
 
+.datetimetablecolor {
+		color:rgb(168, 181, 195) !important;	
+	}
 
 
 a.attachment {

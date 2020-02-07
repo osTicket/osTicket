@@ -2525,7 +2525,7 @@ label {
   font-weight: 500; }
 
 .form-control {
-  border: 1px solid #cfcfcf;
+  border: 1px solid rgb(71, 71, 72) !important;
   box-shadow: none;
   color: rgba(0, 0, 0, 0.6); }
   .form-control:focus {

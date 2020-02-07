@@ -797,7 +797,9 @@ div#datepicker1.input-group.date > span.input-group-addon{
     border-radius: 2px;
 }
 
-
+.datetimetablecolor {
+		color: #000 !important;	
+	}
 
 a.attachment {
     padding-left: 1.2em;
