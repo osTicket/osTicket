@@ -565,7 +565,7 @@ class TicketsAjaxAPI extends AjaxController {
                             if ($v[0] == '-')
                                 $remove[] = substr($v, 1);
                         if (count($remove)) {
-                            $num = $ticket->thread->referrals
+                            $num = $ticket->getThread()->referrals
                                 ->filter(array('id__in' => $remove))
                                 ->delete();
                             if ($num) {
