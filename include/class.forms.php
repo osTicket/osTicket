@@ -1848,7 +1848,7 @@ class ChoiceField extends FormField {
         if (!is_array($value))
             $choice = $this->getChoice($value);
         if (is_array($choice))
-            return implode(', ', [$value, $choice[$value]]);
+            return implode(',', [$value, $choice[$value]]);
         return (string) $choice;
     }
 
