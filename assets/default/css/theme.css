@@ -89,6 +89,7 @@ textarea {
 table {
   border-collapse: collapse;
   border-spacing: 0;
+  width:100%;
 }
 th,
 td {
@@ -197,7 +198,7 @@ h2, .subject {
 #msg_notice {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin-bottom: 10px;
   border: 1px solid #0a0;
@@ -206,16 +207,17 @@ h2, .subject {
 #msg_warning, .warning-banner {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin-bottom: 10px;
   border: 1px solid #f26522;
   background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
+  box-sizing: content-box;
 }
 #msg_error {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
+  height: 26px;
   line-height: 16px;
   margin-bottom: 10px;
   border: 1px solid #a00;
@@ -287,11 +289,13 @@ h2, .subject {
   background-color: #0299d2;
 }
 body {
-  background: url('../images/page_bg.png') top left repeat-x #c8c8c8;
+  background:#00034c !important;
+  /* background: url('../images/page_bg.png') top left repeat-x #c8c8c8; */
 }
 #container {
   background: #fff;
-  width: 840px;
+  width: 95%;
+  min-width: 790px;
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
@@ -325,7 +329,7 @@ body {
 #nav {
   margin: 0 20px;
   padding: 2px 10px;
-  height: 20px;
+  height: 25px;
   background: url('../images/nav_bg.png') top left repeat-x;
   border-top: 1px solid #aaa;
   box-shadow: 0 3px 2px rgba(0, 0, 0, 0.4);
@@ -628,6 +632,7 @@ label.required, span.required {
 }
 #ticketForm > table {
     table-layout: fixed;
+	width: 98%;
 }
 #ticketForm > table td {
     width: 160px;
@@ -796,6 +801,7 @@ label.required, span.required {
   border: 1px solid #aaa;
   border-left: none;
   border-bottom: none;
+  width: 100%;
 }
 #ticketTable caption {
   padding: 5px;
