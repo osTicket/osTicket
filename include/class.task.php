@@ -1062,6 +1062,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             break;
         case 'last_update':
             return new FormattedDate($this->last_update);
+        case 'description':
+            return Format::display($this->getThread()->getVar('original') ?: '');
+        case 'subject':
+            return Format::htmlchars($this->getTitle());
         default:
             if (isset($this->_answers[$tag]))
                 // The answer object is retrieved here which will
@@ -1084,6 +1088,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'dept' => array(
                 'class' => 'Dept', 'desc' => __('Department'),
             ),
+            'description' => __('Description'),
             'due_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Due Date'),
             ),
@@ -1344,7 +1349,12 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         // Create a thread + message.
         $thread = TaskThread::create($task);
-        $thread->addDescription($vars);
+        $desc = $thread->addDescription($vars);
+        // Set the ORIGINAL_MESSAGE Flag if Description is added
+        if ($desc) {
+            $desc->setFlag(ThreadEntry::FLAG_ORIGINAL_MESSAGE);
+            $desc->save();
+        }
 
 
         $task->logEvent('created', null, $thisstaff);
