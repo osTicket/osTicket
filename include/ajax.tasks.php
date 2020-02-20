@@ -262,6 +262,10 @@ class TasksAjaxAPI extends AjaxController {
                         if (strlen($clean) > 200)
                              $clean = Format::truncate($clean, 200);
                         break;
+                    case $field instanceof BooleanField:
+                        $clean = $field->getClean();
+                        $clean = $field->toString($clean);
+                        break;
                     default:
                         $clean =  $field->getClean();
                         $clean = is_array($clean) ? implode($clean, ',') :
