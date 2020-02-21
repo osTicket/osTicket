@@ -56,7 +56,7 @@ class ThreadAjaxAPI extends AjaxController {
     }
 
 
-    function addRemoteCollaborator($tid, $bk, $id) {
+    function addRemoteCollaborator($tid, $type, $bk, $id) {
         global $thisstaff;
 
         if (!($thread=Thread::lookup($tid))
@@ -74,7 +74,7 @@ class ThreadAjaxAPI extends AjaxController {
         if (!$user_info)
             $info['error'] = __('Unable to find user in directory');
 
-        return self::_addcollaborator($thread, null, $form, 'addcc', $info);
+        return self::_addcollaborator($thread, null, $form, $type, $info);
     }
 
     //Collaborators utils
