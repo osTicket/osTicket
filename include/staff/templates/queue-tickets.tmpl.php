@@ -614,7 +614,7 @@ if (!$sselected) {$sselected = 'Status';}
         if ($canManageTickets) { ?>
             <td>
             	<label class="custom-control custom-checkbox">
-            	<input type="checkbox" class="custom-control-input" name="tids[]"
+            	<input type="checkbox" class="custom-control-input ckb" name="tids[]"
                 value="<?php echo $T['ticket_id']; ?>" />
               <span class="custom-control-indicator"></span>
 							<span class="custom-control-description"></span>
