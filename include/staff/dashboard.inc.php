@@ -1,4 +1,6 @@
-<?php if ($staff->darkmode ==1){?>
+<?php 
+
+if ($staff->darkmode ==1 && !isset($_GET["r"])){?>
   <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/highcharts_dark.css" media="all">
 <?php } else { ?>
 	 <link rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/highcharts.css" media="all">
