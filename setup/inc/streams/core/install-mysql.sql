@@ -835,8 +835,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%ticket_status` (
   `updated` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
-  KEY `state` (`state`),
-  KEY `id` (`id`)
+  KEY `state` (`state`)
 ) DEFAULT CHARSET=utf8;
 
 
@@ -1035,7 +1034,6 @@ CREATE TABLE `%TABLE_PREFIX%user` (
   PRIMARY KEY  (`id`),
   KEY `org_id` (`org_id`),
   KEY `default_email_id` (`default_email_id`),
-  KEY `id` (`id`),
   KEY `name` (`name`)
 ) DEFAULT CHARSET=utf8;
 
