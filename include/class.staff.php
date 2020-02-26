@@ -451,6 +451,21 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->getDepartments();
     }
 
+    function getDepartmentNames() {
+        $depts = Dept::getDepartments(array('publiconly' => true));
+
+        if ($staffDepts = $this->getDepts()) {
+            foreach ($depts as $id => $name) {
+                if (!in_array($id, $staffDepts))
+                    unset($depts[$id]);
+            }
+
+            return $depts;
+        }
+
+        return false;
+    }
+
     function getManagedDepartments() {
 
         return ($depts=Dept::getDepartments(
