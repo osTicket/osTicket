@@ -54,6 +54,16 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     var $_config = null;
     var $_perm;
 
+    const PERM_STAFF = 'visibility.agents';
+
+    static protected $perms = array(
+        self::PERM_STAFF => array(
+            'title' => /* @trans */ 'Agent',
+            'desc'  => /* @trans */ 'Ability to see Agents in all Departments',
+            'primary' => true,
+        ),
+    );
+
     function __onload() {
     }
 
@@ -1339,7 +1349,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         Export::agents($agents, $filename);
     }
 
+    static function getPermissions() {
+        return self::$perms;
+    }
+
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Staff::getPermissions());
 
 interface RestrictedAccess {
     function checkStaffPerm($staff);

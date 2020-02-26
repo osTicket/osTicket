@@ -14,6 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR.'class.role.php';
 
 class Dept extends VerySimpleModel
 implements TemplateVariable, Searchable {
@@ -75,6 +76,16 @@ implements TemplateVariable, Searchable {
     const FLAG_ARCHIVED = 0x0008;
     const FLAG_ASSIGN_PRIMARY_ONLY = 0x0010;
     const FLAG_DISABLE_REOPEN_AUTO_ASSIGN = 0x0020;
+
+    const PERM_DEPT = 'visibility.departments';
+
+    static protected $perms = array(
+        self::PERM_DEPT => array(
+            'title' => /* @trans */ 'Department',
+            'desc'  => /* @trans */ 'Ability to see all Departments',
+            'primary' => true,
+        ),
+    );
 
     function asVar() {
         return $this->getName();
@@ -982,7 +993,12 @@ implements TemplateVariable, Searchable {
 
       return true;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Dept::getPermissions());
 
 class DepartmentQuickAddForm
 extends Form {
