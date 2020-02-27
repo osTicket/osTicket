@@ -3171,8 +3171,8 @@ class DepartmentField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
-        global $cfg;
+    function getChoices($verbose=false, $options=array()) {
+        global $cfg, $thisstaff;
 
         $selected = self::getWidget();
         if($selected && $selected->value) {
@@ -3188,18 +3188,10 @@ class DepartmentField extends ChoiceField {
           }
         }
 
-        $active_depts = Dept::objects()
-          ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
-          ->values('id', 'name')
-          ->order_by('name');
+        $active = $thisstaff->getDepartmentNames();
 
         $choices = array();
         if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
-          //create array w/queryset
-          $active = array();
-          foreach ($active_depts as $dept)
-            $active[$dept['id']] = $dept['name'];
-
           //add selected dept to list
           if($current_id)
             $active[$current_id] = $current_name;
@@ -4463,7 +4455,7 @@ class ChoicesWidget extends Widget {
 
         // Determine the value for the default (the one listed if nothing is
         // selected)
-        $choices = $this->field->getChoices(true);
+        $choices = $this->field->getChoices(true, $options);
         $prompt = ($config['prompt'])
             ? $this->field->getLocal('prompt', $config['prompt'])
             : __('Select'
