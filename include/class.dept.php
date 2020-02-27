@@ -674,7 +674,7 @@ implements TemplateVariable, Searchable {
             // XXX: This will upset the static $depts array
             $depts = array();
             $query = self::objects();
-            if (isset($criteria['publiconly']))
+            if (isset($criteria['publiconly']) && $criteria['publiconly'])
                 $query->filter(array(
                             'flags__hasbit' => Dept::FLAG_ACTIVE));
 

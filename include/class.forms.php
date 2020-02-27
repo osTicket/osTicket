@@ -3188,7 +3188,7 @@ class DepartmentField extends ChoiceField {
           }
         }
 
-        $active = $thisstaff->getDepartmentNames();
+        $active = $thisstaff->getDepartmentNames(true);
 
         $choices = array();
         if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {

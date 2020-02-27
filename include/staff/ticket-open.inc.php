@@ -263,7 +263,7 @@ if ($_POST)
                 <select name="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
-                    if($depts=$thisstaff->getDepartmentNames()) {
+                    if($depts=$thisstaff->getDepartmentNames(true)) {
                         foreach($depts as $id =>$name) {
                             if (!($role = $thisstaff->getRole($id))
                                 || !$role->hasPerm(Ticket::PERM_CREATE)
