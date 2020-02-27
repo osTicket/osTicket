@@ -16,9 +16,17 @@
 require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 
+if ($thisstaff && $roles = $thisstaff->getRoles()) {
+    $cannedManage = array();
+    foreach ($roles as $r) {
+        if ($r->hasPerm(Canned::PERM_MANAGE, false))
+            $cannedManage[] = 1;
+    }
+}
+
 /* check permission */
 if(!$thisstaff
-        || !$thisstaff->getRole()->hasPerm(Canned::PERM_MANAGE, false)
+        || !in_array(1, $cannedManage)
         || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;
