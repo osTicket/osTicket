@@ -277,7 +277,7 @@ $(document).ready(function() {
       width: '450px',
       minimumInputLength: 3,
       ajax: {
-        url: "ajax.php/tickets/lookup",
+        url: "ajax.php/tickets/number-lookup",
         dataType: 'json',
         data: function (params) {
           return {
