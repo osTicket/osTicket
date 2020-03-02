@@ -101,7 +101,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$_REQUEST['q'])
             return $this->json_encode($tickets);
 
-        $q = $_REQUEST['q'];
+        $q = trim($_REQUEST['q']);
 
         if (!$visibility)
             $visibility = $thisstaff->getTicketsVisibility();
