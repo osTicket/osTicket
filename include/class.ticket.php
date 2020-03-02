@@ -1525,7 +1525,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
                         // Set new sla duedate if any
-                        $t->updateEstDuedate();
+                        $t->updateEstDueDate();
                     };
                 }
 
