@@ -1247,7 +1247,7 @@ class AssigneeChoiceField extends ChoiceField {
                 'M' => __('Me'),
                 'T' => __('One of my teams'),
             );
-            foreach (Staff::getStaffMembers() as $id=>$name) {
+            foreach ($thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true)) as $id=>$name) {
                 // Don't include $thisstaff (since that's 'Me')
                 if ($thisstaff && $thisstaff->getId() == $id)
                     continue;
@@ -1528,9 +1528,21 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
     static $_agents;
 
     function getChoices($verbose=false) {
+        global $thisstaff;
+
         if (!isset($this->_agents)) {
-            $this->_agents = array('M' => __('Me')) +
-                Staff::getStaffMembers();
+          $this->_agents = array('M' => __('Me'));
+          $agents = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+          foreach (Staff::getStaffMembers() as $id => $name) {
+            if (!$agents || array_key_exists($id, $agents)) {
+                // Don't include $thisstaff (since that's 'Me')
+                if ($thisstaff && $thisstaff->getId() == $id)
+                    continue;
+
+                $this->_agents[$id] = $name;
+            }
+
+          }
         }
         return $this->_agents;
     }
@@ -1575,11 +1587,16 @@ class DepartmentManagerSelectionField extends AgentSelectionField {
     static $_members;
 
     function getChoices($verbose=false) {
+        global $thisstaff;
+
         if (!isset($this->_members)) {
             $managers = array();
-            $staff = Staff::objects()->filter(array('dept__manager_id__gt' => 0));
-            foreach ($staff as $s) {
-                $managers['s'.$s->getId()] = $s->getName()->name;
+            $mgr = Dept::objects()->filter(array('manager_id__gt' => 0))->values_flat('manager_id');
+            $staff = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+            foreach ($mgr as $mid) {
+                $mid = $mid[0];
+                if (array_key_exists($mid, $staff))
+                    $managers['s'.$mid] = $staff[$mid]->getName()->name;
             }
             $this->_members = $managers;
         }

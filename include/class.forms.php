@@ -3303,7 +3303,7 @@ class AssigneeField extends ChoiceField {
 
     function getCriteria() {
         if (!isset($this->_criteria)) {
-            $this->_criteria = array('available' => true);
+            $this->_criteria = array('available' => true, 'namesOnly' => true);
             if (($c=parent::getCriteria()))
                 $this->_criteria = array_merge($this->_criteria, $c);
         }
@@ -3329,7 +3329,7 @@ class AssigneeField extends ChoiceField {
     }
 
     function getChoices($verbose=false) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         if (!isset($this->_choices)) {
             $config = $this->getConfiguration();
@@ -3339,13 +3339,7 @@ class AssigneeField extends ChoiceField {
             $A = current($choices);
             $criteria = $this->getCriteria();
             $agents = array();
-            if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
-                if (($members = $dept->getAvailableMembers()))
-                    foreach ($members as $member)
-                        $agents[$member->getId()] = $member;
-            } else {
-                $agents = Staff::getStaffMembers($criteria);
-            }
+            $agents = $thisstaff->getDeptAgents($criteria);
 
             foreach ($agents as $id => $name)
                 $A['s'.$id] = $name;
@@ -5775,7 +5769,7 @@ class ReferralForm extends Form {
                                ),
                             )
                 ),
-            'agent' => new ChoiceField(array(
+            'agent' => new AgentSelectionField(array(
                     'id'=>2,
                     'label' => '',
                     'flags' => hexdec(0X450F3),

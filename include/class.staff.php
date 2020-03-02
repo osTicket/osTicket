@@ -956,6 +956,40 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return self::getStaffMembers(array('available'=>true));
     }
 
+    //returns agents in departments this agent has access to
+    function getDeptAgents($criteria=array()) {
+        $agents = static::objects()
+            ->distinct('staff_id')
+            ->select_related('dept')
+            ->select_related('dept_access');
+
+        if (!$this->hasPerm(Staff::PERM_STAFF)) {
+            $agents = Staff::objects()
+                ->distinct('staff_id')
+                ->filter(Q::any(array(
+                    'dept_access__dept_id__in' => $this->getDepts(),
+                    'dept_id__in' => $this->getDepts(),
+                )));
+        }
+
+        if (isset($criteria['available'])) {
+            $agents = $agents->filter(array(
+                'onvacation' => 0,
+                'isactive' => 1,
+            ));
+        }
+
+        if (isset($criteria['namesOnly'])) {
+            $clean = array();
+            foreach ($agents as $a) {
+                $clean[$a->getId()] = $a->getName();
+            }
+            return $clean;
+        }
+
+        return $agents;
+    }
+
     static function getsortby($path='', $format=null) {
         global $cfg;
 
