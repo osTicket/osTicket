@@ -222,11 +222,11 @@ class Form {
         echo $this->getMedia();
     }
 
-    function getMedia() {
+    function getMedia($options=array()) {
         static $dedup = array();
 
         foreach ($this->getFields() as $f) {
-            if (($M = $f->getMedia()) && is_array($M)) {
+            if (($M = $f->getMedia($options)) && is_array($M)) {
                 foreach ($M as $type=>$files) {
                     foreach ($files as $url) {
                         $key = strtolower($type.$url);
@@ -1197,8 +1197,8 @@ class FormField {
         return;
     }
 
-    function getMedia() {
-        $widget = $this->getWidget();
+    function getMedia($options=array()) {
+        $widget = $this->getWidget(false,$options);
         return $widget::$media;
     }
 
@@ -1312,13 +1312,13 @@ class FormField {
         $this->_config[$prop] = $value;
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         if (!static::$widget)
             throw new Exception(__('Widget not defined for this field'));
         if (!isset($this->_widget)) {
             $wc = $widgetClass ?: $this->get('widget') ?: static::$widget;
             $this->_widget = new $wc($this);
-            $this->_widget->parseValue();
+            $this->_widget->parseValue($options);
         }
         return $this->_widget;
     }
@@ -1943,7 +1943,7 @@ class ChoiceField extends FormField {
         return $selection;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if ($this->_choices === null || $verbose) {
             // Allow choices to be set in this->ht (for configurationOptions)
             $this->_choices = $this->get('choices');
@@ -1988,16 +1988,16 @@ class ChoiceField extends FormField {
         );
     }
 
-    function getSearchMethodWidgets() {
+    function getSearchMethodWidgets($options=array()) {
         return array(
             'set' => null,
             'nset' => null,
             'includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
             '!includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
         );
@@ -2034,7 +2034,7 @@ class ChoiceField extends FormField {
     }
 
     function getQuickFilterChoices() {
-        return $this->getChoices();
+        return $this->getChoices(false, array('filterVisibility' => true));
     }
 
     function applyQuickFilter($query, $qf_value, $name=false) {
@@ -2696,7 +2696,7 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
-    function getMedia() {
+    function getMedia($options=array()) {
         $config = $this->getConfiguration();
         $media = parent::getMedia() ?: array();
         if ($config['attachments'])
@@ -2745,7 +2745,7 @@ class ThreadEntryField extends FormField {
         return $config['attachments'];
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         if ($hint = $this->getLocal('hint'))
             $this->set('placeholder', Format::striptags($hint));
         $this->set('hint', null);
@@ -2771,7 +2771,7 @@ class TopicField extends ChoiceField {
             return Topic::lookup($id);
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         $default = $this->get('default');
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Topic)
@@ -2785,7 +2785,7 @@ class TopicField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $this->_choices = $this->getTopics();
         }
@@ -2877,7 +2877,7 @@ class SLAField extends ChoiceField {
         return SLA::lookup($id);
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         $default = $this->get('default');
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof SLA)
@@ -2891,7 +2891,7 @@ class SLAField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $choices = array();
             foreach ($this->getSLAs() as $s)
@@ -2988,7 +2988,7 @@ class PriorityField extends ChoiceField {
         return Priority::lookup($id);
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Priority)
             $widget->value = $widget->value->getId();
@@ -2999,7 +2999,7 @@ class PriorityField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $choices = array();
             foreach ($this->getPriorities() as $p)
@@ -3124,7 +3124,7 @@ class TimezoneField extends ChoiceField {
         return false;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $cfg;
 
         $choices = array();
@@ -3160,7 +3160,7 @@ class TimezoneField extends ChoiceField {
 
 
 class DepartmentField extends ChoiceField {
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         $widget = $this->_widget ?: parent::getWidget($widgetClass);
         if (is_object($widget->value))
             $widget->value = $widget->value->getId();
@@ -3191,19 +3191,25 @@ class DepartmentField extends ChoiceField {
         $active = $thisstaff->getDepartmentNames(true);
 
         $choices = array();
-        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
-          //add selected dept to list
-          if($current_id)
+        if ($options['filterVisibility'])
+            $depts = $thisstaff->getDepartmentNames();
+        else {
+            $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+            return $depts;
+        }
+
+
+         //add selected dept to list
+         if($current_id)
             $active[$current_id] = $current_name;
-          else
+         else
             return $active;
 
-          foreach ($depts as $id => $name) {
+         foreach ($depts as $id => $name) {
             $choices[$id] = $name;
             if(!array_key_exists($id, $active) && $current_id)
                 unset($choices[$id]);
-          }
-        }
+         }
 
         return $choices;
     }
@@ -3328,7 +3334,7 @@ class AssigneeField extends ChoiceField {
         return $value;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $cfg, $thisstaff;
 
         if (!isset($this->_choices)) {
@@ -3339,7 +3345,17 @@ class AssigneeField extends ChoiceField {
             $A = current($choices);
             $criteria = $this->getCriteria();
             $agents = array();
-            $agents = $thisstaff->getDeptAgents($criteria);
+            if ($options['filterVisibility'])
+                $agents = $thisstaff->getDeptAgents($criteria);
+            else {
+                if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
+                    if (($members = $dept->getAvailableMembers()))
+                        foreach ($members as $member)
+                            $agents[$member->getId()] = $member;
+                } else
+                    $agents = Staff::getStaffMembers($criteria);
+            }
+
 
             foreach ($agents as $id => $name)
                 $A['s'.$id] = $name;
@@ -3526,7 +3542,7 @@ class TicketStateField extends ChoiceField {
         return false;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         static $_choices;
 
         $states = static::$_states;
@@ -3614,7 +3630,7 @@ class TicketFlagField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         $this->ht['default'] =  '';
 
         if (!$this->_choices) {
@@ -4176,8 +4192,8 @@ class Widget {
         $this->id = '_' . $this->name;
     }
 
-    function parseValue() {
-        $this->value = $this->getValue();
+    function parseValue($options=array()) {
+        $this->value = $this->getValue($options);
         if (!isset($this->value) && is_object($this->field->getAnswer()))
             $this->value = $this->field->getAnswer()->getValue();
         if (!isset($this->value) && isset($this->field->value))
@@ -4327,7 +4343,7 @@ class PasswordWidget extends TextboxWidget {
         return parent::render($mode, $extra);
     }
 
-    function parseValue() {
+    function parseValue($options=array()) {
         parent::parseValue();
         // Show empty box unless failed POST
         if ($_SERVER['REQUEST_METHOD'] != 'POST'
@@ -4382,7 +4398,7 @@ class TextareaWidget extends Widget {
         <?php
     }
 
-    function parseValue() {
+    function parseValue($options=array()) {
         parent::parseValue();
         if (isset($this->value)) {
             $value = $this->value;
@@ -4544,7 +4560,7 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function getValue() {
+    function getValue($options=array()) {
 
         if (!($value = parent::getValue()))
             return null;
@@ -4554,7 +4570,7 @@ class ChoicesWidget extends Widget {
 
         // Assume multiselect
         $values = array();
-        $choices = $this->field->getChoices();
+        $choices = $this->field->getChoices(false, $options);
 
         if ($choices && is_array($value)) {
             // Complex choices
@@ -5029,7 +5045,7 @@ class ThreadEntryWidget extends Widget {
         return $field;
     }
 
-    function parseValue() {
+    function parseValue($options=array()) {
         parent::parseValue();
         if (isset($this->value)) {
             $value = $this->value;
@@ -5541,7 +5557,6 @@ class AssignmentForm extends Form {
 
         if (isset($this->_assignees))
             $fields['assignee']->setChoices($this->_assignees);
-
 
         $this->setFields($fields);
 
