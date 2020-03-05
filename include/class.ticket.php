@@ -989,7 +989,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getField($fid) {
 
         if (is_numeric($fid))
-            return $this->getDymanicFieldById($fid);
+            return $this->getDynamicFieldById($fid);
 
         // Special fields
         switch ($fid) {
@@ -1050,7 +1050,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
     }
 
-    function getDymanicFieldById($fid) {
+    function getDynamicFieldById($fid) {
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form) {
             foreach ($form->getFields() as $field)
                 if ($field->getId() == $fid)
