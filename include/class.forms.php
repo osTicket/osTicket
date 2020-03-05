@@ -3372,6 +3372,7 @@ class AssigneeField extends ChoiceField {
         return $this->_choices;
     }
 
+    
     function getChoice($value) {
         $choices = $this->getChoices();
         $selection = array();
@@ -3389,6 +3390,17 @@ class AssigneeField extends ChoiceField {
         }
 
         return parent::getChoice($value);
+    }
+
+    function getQuickFilterChoices() {
+        $choices = $this->getChoices(false, array('filterVisibility' => true));
+        $names = array();
+        foreach ($choices as $value) {
+            foreach ($value as $key => $value)
+                $names[$key] = is_object($value) ? $value->name : $value;
+        }
+
+        return $names;
     }
 
     function getValue() {
