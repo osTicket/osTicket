@@ -56,19 +56,7 @@ class TicketsAjaxAPI extends AjaxController {
         $hits = $ost->searcher->find($q, $hits, false);
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
-            $hits = Ticket::objects()
-                ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
-                ->annotate(array(
-                    'tickets' => new SqlCode('1'),
-                    'tasks' => SqlAggregate::COUNT('tasks__id', true),
-                    'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
-                    'entries' => SqlAggregate::COUNT('thread__entries__id', true),
-                ))
-                ->filter($visibility)
-                ->filter(array('number__startswith' => $q))
-                ->order_by('number')
-                ->limit($limit)
-                ->union($hits);
+            $hits = $this->lookupByNumber($limit, $visibility, $hits);
         }
         elseif (!count($hits) && preg_match('`\w$`u', $q)) {
             // Do wild-card fulltext search
@@ -97,6 +85,58 @@ class TicketsAjaxAPI extends AjaxController {
                 $tickets[$email] = array('email'=>$email, 'value'=>$email,
                     'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
             }
+        }
+        $tickets = array_values($tickets);
+
+        return $this->json_encode($tickets);
+    }
+
+    function lookupByNumber($limit=false, $visibility=false, $matches=false) {
+        global $thisstaff;
+
+        if (!$limit)
+            $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+
+        $tickets=array();
+        // Bail out of query is empty
+        if (!$_REQUEST['q'])
+            return $this->json_encode($tickets);
+
+        $q = trim($_REQUEST['q']);
+
+        if (!$visibility)
+            $visibility = $thisstaff->getTicketsVisibility();
+
+        $hits = Ticket::objects()
+            ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
+            ->annotate(array(
+                'tickets' => new SqlCode('1'),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
+            ))
+            ->filter($visibility)
+            ->filter(array('number__startswith' => $q))
+            ->order_by('number')
+            ->limit($limit);
+
+        if ($matches && is_a($matches, 'QuerySet'))
+            return $hits->union($matches);
+
+        foreach ($hits as $T) {
+            $email = $T['user__default_email__address'];
+            $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
+                'ticket_id'=>$T['ticket_id'],
+                'info'=>"{$T['number']} — {$email}",
+                'subject'=>$T['cdata__subject'],
+                'user'=>$T['user__name'],
+                'tasks'=>$T['tasks'],
+                'thread_id'=>$T['thread__id'],
+                'collaborators'=>$T['collaborators'],
+                'entries'=>$T['entries'],
+                'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
+                'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
+                'matches'=>$_REQUEST['q']);
         }
         $tickets = array_values($tickets);
 
@@ -385,12 +425,12 @@ class TicketsAjaxAPI extends AjaxController {
                 if (is_numeric($key) && $ticket = Ticket::lookup($value))
                     $ticket->unlink();
             }
-            return true;
+            Http::response(201, 'Successfully managed');
         } elseif ($_POST['tids']) {
             if ($parent = Ticket::merge($_POST))
                 Http::response(201, 'Successfully managed');
             else
-                $info['error'] = $errors['err'] ?: __('Unable to merge ticket');
+                Http::response(404, 'Unable to manage ticket');
         }
 
         $parentModel = Ticket::objects()
@@ -566,7 +606,7 @@ class TicketsAjaxAPI extends AjaxController {
                             if ($v[0] == '-')
                                 $remove[] = substr($v, 1);
                         if (count($remove)) {
-                            $num = $ticket->thread->referrals
+                            $num = $ticket->getThread()->referrals
                                 ->filter(array('id__in' => $remove))
                                 ->delete();
                             if ($num) {
@@ -591,7 +631,7 @@ class TicketsAjaxAPI extends AjaxController {
     }
 
     function editField($tid, $fid) {
-        global $thisstaff;
+        global $cfg, $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
@@ -636,18 +676,44 @@ class TicketsAjaxAPI extends AjaxController {
                     case $field instanceof DepartmentField:
                         $clean = (string) Dept::lookup($field->getClean());
                         break;
+                    case $field instanceof TextareaField:
+                        $clean =  (string) $field->getClean();
+                        $clean = Format::striptags($clean) ? $clean : '&mdash;' . __('Empty') .  '&mdash;';
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
+                        break;
+                    case $field instanceof BooleanField:
+                        $clean = $field->toString($field->getClean());
+                        break;
                     default:
                         $clean =  $field->getClean();
                         $clean = is_array($clean) ? implode($clean, ',') :
                             (string) $clean;
-                        if (strlen($clean) > 200)
-                             $clean = Format::truncate($clean, 200);
+                }
+
+                // Set basic response data
+                $response = array(
+                    'value' => $clean ?: '&mdash;' . __('Empty') .  '&mdash;',
+                    'id' => $fid, 'msg' => $msg
+                );
+
+                // If we require HT to close, the ticket is open, the staff has permission
+                // to close, and we set a HT - ensure we provide all available statuses
+                if ($cfg->requireTopicToClose() && $ticket->isOpen()
+                        && $ticket->checkStaffPerm($thisstaff, Ticket::PERM_CLOSE)
+                        && ($field instanceof TopicField) && $clean) {
+                    $statuses = array();
+                    foreach (TicketStatusList::getStatuses(
+                            array('states' => array('closed'))) as $s) {
+                        if (!$s->isEnabled()) continue;
+                        $statuses[$s->getId()] = $s->getName();
+                    }
+                    if (!is_null($statuses))
+                        $response['statuses'] = $statuses;
                 }
 
                 $clean = is_array($clean) ? $clean[0] : $clean;
-                Http::response(201, $this->json_encode(['value' =>
-                            $clean ?: '&mdash;' . __('Empty') .  '&mdash;',
-                            'id' => $fid, 'msg' => $msg]));
+                Http::response(201, $this->json_encode($response));
             }
 
             $form->addErrors($errors);

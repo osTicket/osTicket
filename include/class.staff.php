@@ -94,6 +94,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                         'default_ticket_queue_id' => 0,
                         'reply_redirect' => 'Ticket',
                         'img_att_view' => 'download',
+                        'editor_spacing' => 'double',
                         ));
             $this->_config = $_config->getInfo();
         }
@@ -356,6 +357,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function getImageAttachmentView() {
         return $this->img_att_view;
+    }
+
+    function editorSpacing() {
+        return $this->editor_spacing;
     }
 
     function forcePasswdChange() {
@@ -776,6 +781,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                     'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
                     'reply_redirect' => ($vars['reply_redirect'] == 'Queue') ? 'Queue' : 'Ticket',
                     'img_att_view' => ($vars['img_att_view'] == 'inline') ? 'inline' : 'download',
+                    'editor_spacing' => ($vars['editor_spacing'] == 'double') ? 'double' : 'single'
                     )
                 );
         $this->_config = $_config->getInfo();

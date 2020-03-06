@@ -4626,7 +4626,7 @@ class CheckboxWidget extends Widget {
                 return $data[$this->field->get('id')];
         }
 
-        if (isset($this->value))
+        if (!$data && isset($this->value))
             return $this->value;
 
 

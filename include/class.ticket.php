@@ -803,11 +803,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getLastRespondent() {
         if (!isset($this->lastrespondent)) {
-            if (!$this->thread || !$this->thread->entries)
+            if (!$this->getThread() || !$this->getThread()->entries)
                 return $this->lastrespondent = false;
             $this->lastrespondent = Staff::objects()
                 ->filter(array(
-                'staff_id' => $this->thread->entries
+                'staff_id' => $this->getThread()->entries
                     ->filter(array(
                         'type' => 'R',
                         'staff_id__gt' => 0,
@@ -824,11 +824,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getLastUserRespondent() {
         if (!isset($this->$lastuserrespondent)) {
-            if (!$this->thread || !$this->thread->entries)
+            if (!$this->getThread() || !$this->getThread()->entries)
                 return $this->$lastuserrespondent = false;
             $this->$lastuserrespondent = User::objects()
                 ->filter(array(
-                'id' => $this->thread->entries
+                'id' => $this->getThread()->entries
                     ->filter(array(
                         'user_id__gt' => 0,
                     ))
@@ -843,7 +843,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getLastMessageDate() {
-        return $this->thread->lastmessage;
+        return $this->getThread()->lastmessage;
     }
 
     function getLastMsgDate() {
@@ -851,7 +851,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getLastResponseDate() {
-        return $this->thread->lastresponse;
+        return $this->getThread()->lastresponse;
     }
 
     function getLastRespDate() {
@@ -1443,7 +1443,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     // Ticket Status helper.
-    function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
+    function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true, $force_close=false) {
         global $cfg, $thisstaff;
 
         if ($thisstaff && !($role=$this->getRole($thisstaff)))
@@ -1479,7 +1479,7 @@ implements RestrictedAccess, Threadable, Searchable {
         switch ($status->getState()) {
             case 'closed':
                 // Check if ticket is closeable
-                $closeable = $this->isCloseable();
+                $closeable = $force_close ? true : $this->isCloseable();
                 if ($closeable !== true)
                     $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This ticket'));
 
@@ -1525,7 +1525,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $ecb = function ($t) {
                         $t->logEvent('reopened', false, null, 'closed');
                         // Set new sla duedate if any
-                        $t->updateEstDuedate();
+                        $t->updateEstDueDate();
                     };
                 }
 
@@ -1544,7 +1544,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Refer thread to previously assigned or closing agent
         if ($refer && $cfg->autoReferTicketsOnClose())
-            $this->thread->refer($refer);
+            $this->getThread()->refer($refer);
 
         // Log status change b4 reload — if currently has a status. (On new
         // ticket, the ticket is opened and thereafter the status is set to
@@ -2499,7 +2499,7 @@ implements RestrictedAccess, Threadable, Searchable {
                                //referrals for merged tickets
                                if ($parent->getDeptId() != ($ticketDeptId = $ticket->getDeptId()) && $tickets['combine'] != 2) {
                                    $refDept = $ticket->getDept();
-                                   $parent->thread->refer($refDept);
+                                   $parent->getThread()->refer($refDept);
                                    $evd = array('dept' => $ticketDeptId);
                                    $parent->logEvent('referred', $evd);
                                }
@@ -2530,7 +2530,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $children[] = $ticket;
         }
 
-        if ($parent->getMergeType() != 'visual') {
+        if ($parent && $parent->getMergeType() != 'visual') {
             $errors = array();
             foreach ($children as $child) {
                 if ($options['participants'] == 'all' && $collabs = $child->getCollaborators()) {
@@ -2553,7 +2553,10 @@ implements RestrictedAccess, Threadable, Searchable {
                     $child->getThread()->setExtra($parentThread);
 
                 $child->setMergeType($options['combine']);
-                $child->setStatus(intval($options['statusId']));
+                $child->setStatus(intval($options['childStatusId']), false, $errors, true, true); //force close status for children
+
+                if ($options['parentStatusId'])
+                    $parent->setStatus(intval($options['parentStatusId']));
 
                 if ($options['delete-child'] || $options['move-tasks']) {
                     if ($tasks = Task::objects()
@@ -2570,8 +2573,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($options['delete-child'])
                      $child->delete();
             }
+            return $parent;
         }
-        return $parent;
+        return false;
     }
 
     function getRelatedTickets() {
@@ -2661,7 +2665,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         if ($form->refer() && $cdept)
-            $this->thread->refer($cdept);
+            $this->getThread()->refer($cdept);
 
         //Send out alerts if enabled AND requested
         if (!$alert || !$cfg->alertONTransfer() || !$dept->getNumMembersForAlerts())
@@ -2856,7 +2860,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->onAssign($assignee, $form->getComments(), $alert);
 
         if ($refer && $form->refer())
-            $this->thread->refer($refer);
+            $this->getThread()->refer($refer);
 
         return true;
     }
@@ -2943,7 +2947,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $errors['target'] = __('Unknown referral');
         }
 
-        if (!$errors && !$this->thread->refer($referee))
+        if (!$errors && !$this->getThread()->refer($referee))
             $errors['err'] = __('Unable to refer ticket');
 
         if ($errors)
@@ -2960,7 +2964,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function systemReferral($emails) {
 
-        if (!$this->thread)
+        if (!$this->getThread())
             return;
 
         foreach ($emails as $id) {
@@ -2968,7 +2972,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     && ($email=Email::lookup($id))
                     && $this->getDeptId() != $email->getDeptId()
                     && ($dept=Dept::lookup($email->getDeptId()))
-                    && $this->thread->refer($dept)
+                    && $this->getThread()->refer($dept)
                     )
                 $this->logEvent('referred',
                             array('dept' => $dept->getId()));

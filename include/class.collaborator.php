@@ -61,7 +61,7 @@ implements EmailContact, ITicketUser {
     }
 
     function getTicketId() {
-        if ($this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
+        if ($this->thread && $this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
             return $this->thread->object_id;
     }
 

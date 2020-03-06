@@ -474,7 +474,7 @@ print $response_form->getField('attachments')->render();
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
         $(this.form).find('textarea.richtext')
-          .redactor('draft.deleteDraft');
+          .redactor('plugin.draft.deleteDraft');
         window.location.href='tickets.php'; " />
 </p>
 </form>
