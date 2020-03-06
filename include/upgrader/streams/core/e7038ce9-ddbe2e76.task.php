@@ -27,7 +27,7 @@ class AddIndexMigration extends MigrationTask {
         'user:name'
     );
 
-    function run() {
+    function run($time) {
         global $ost;
 
         foreach ($this->indexes as $index) {
@@ -54,6 +54,17 @@ class AddIndexMigration extends MigrationTask {
                     $ost->logError('Upgrader: Add Index Migrater', $message, false);
                 }
             }
+        }
+
+        //add permissions to staff
+        foreach (Staff::objects() as $staff) {
+            $perms = array();
+            foreach ($staff->getPermissionInfo() as $value => $setting)
+                $perms[] = $value;
+
+            array_push($perms, 'visibility.departments', 'visibility.agents');
+            $staff->updatePerms($perms);
+            $staff->save();
         }
     }
 }
