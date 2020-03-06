@@ -1485,6 +1485,9 @@ class TextboxField extends FormField {
             $valid = 'formula';
         $func = $validators[$valid];
         $error = $func[1];
+        // If validator is number and the value is &#48 set to 0 (int) for is_numeric
+        if ($valid == 'number' && $value == '&#48')
+            $value = 0;
         if ($config['validator-error'])
             $error = $this->getLocal('validator-error', $config['validator-error']);
         if (is_array($func) && is_callable($func[0]))
@@ -3861,8 +3864,8 @@ class FileUploadField extends FormField {
         $A = (array) $after;
         $added = array_diff($A, $B);
         $deleted = array_diff($B, $A);
-        $added = Format::htmlchars(array_keys($added));
-        $deleted = Format::htmlchars(array_keys($deleted));
+        $added = Format::htmlchars(array_values($added));
+        $deleted = Format::htmlchars(array_values($deleted));
 
         if ($added && $deleted) {
             $desc = sprintf(
@@ -4647,6 +4650,9 @@ class DatetimePickerWidget extends Widget {
         $timeFormat = $cfg->getTimeFormat(true);
         if (!isset($this->value) && ($default=$this->field->get('default')))
             $this->value = $default;
+
+        if ($this->value == 0)
+            $this->value = '';
 
         if ($this->value) {
             $datetime = Format::parseDateTime($this->value);

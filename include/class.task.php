@@ -1094,6 +1094,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             break;
         case 'last_update':
             return new FormattedDate($this->last_update);
+        case 'description':
+            return Format::display($this->getThread()->getVar('original') ?: '');
+        case 'subject':
+            return Format::htmlchars($this->getTitle());
         default:
             if (isset($this->_answers[$tag]))
                 // The answer object is retrieved here which will
@@ -1116,6 +1120,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             'dept' => array(
                 'class' => 'Dept', 'desc' => __('Department'),
             ),
+            'description' => __('Description'),
             'due_date' => array(
                 'class' => 'FormattedDate', 'desc' => __('Due Date'),
             ),
@@ -1375,7 +1380,12 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         // Create a thread + message.
         $thread = TaskThread::create($task);
-        $thread->addDescription($vars);
+        $desc = $thread->addDescription($vars);
+        // Set the ORIGINAL_MESSAGE Flag if Description is added
+        if ($desc) {
+            $desc->setFlag(ThreadEntry::FLAG_ORIGINAL_MESSAGE);
+            $desc->save();
+        }
 
         $task->logEvent('created', null, $thisstaff);
 
@@ -1396,9 +1406,74 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             $task->assign($form, $_errors);
         }
 
+        $task->onNewTask();
+
         Signal::send('task.created', $task);
 
         return $task;
+    }
+
+    function onNewTask($vars=array()) {
+        global $cfg, $thisstaff;
+
+        if (!$cfg->alertONNewTask() // Check if alert is enabled
+            || !($dept=$this->getDept())
+            || ($dept->isGroupMembershipEnabled() == Dept::ALERTS_DISABLED)
+            || !($email=$cfg->getAlertEmail())
+            || !($tpl = $dept->getTemplate())
+            || !($msg=$tpl->getNewTaskAlertMsgTemplate())
+        ) {
+            return;
+        }
+
+        // Check if Dept recipients is Admin Only
+        $adminOnly = ($dept->isGroupMembershipEnabled() == Dept::ALERTS_ADMIN_ONLY);
+
+        // Alert recipients
+        $recipients = array();
+
+        // Department Manager
+        if ($cfg->alertDeptManagerONNewTask()
+            && $dept->getManagerId()
+            && !$adminOnly)
+            $recipients[] = $dept->getManager();
+
+        // Department Members
+        if ($cfg->alertDeptMembersONNewTask() && !$adminOnly)
+            foreach ($dept->getMembersForAlerts() as $M)
+                $recipients[] = $M;
+
+        $options = array();
+        $staffId = $thisstaff ? $thisstaff->getId() : 0;
+
+        $msg = $this->replaceVars($msg->asArray(), $vars);
+
+        $sentlist=array();
+        foreach ($recipients as $k=>$staff) {
+            if (!is_object($staff)
+                // Don't bother vacationing staff.
+                || !$staff->isAvailable()
+                // No need to alert the poster!
+                || $staffId == $staff->getId()
+                // No duplicates.
+                || isset($sentlist[$staff->getEmail()])
+                // Make sure staff has access to task
+                || !$this->checkStaffPerm($staff)
+            ) {
+                continue;
+            }
+            $alert = $this->replaceVars($msg, array('recipient' => $staff));
+            $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
+            $sentlist[$staff->getEmail()] = 1;
+        }
+
+        // Alert Admin ONLY if not already a staff
+        if ($cfg->alertAdminONNewTask()
+                && !in_array($cfg->getAdminEmail(), $sentlist)) {
+            $alert = $this->replaceVars($msg, array('recipient' => __('Admin')));
+            $email->sendAlert($cfg->getAdminEmail(), $alert['subj'],
+                    $alert['body'], null, $options);
+        }
     }
 
     function delete($comments='') {

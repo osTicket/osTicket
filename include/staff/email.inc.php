@@ -189,6 +189,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <input type="text" size="35" name="userid" value="<?php echo $info['userid']; ?>"
                     autocomplete="off" autocorrect="off">
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['userid']; ?>&nbsp;</span>
+                <i class="help-tip icon-question-sign" href="#userid"></i>
             </td>
         </tr>
         <tr>

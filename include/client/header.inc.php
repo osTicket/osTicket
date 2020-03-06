@@ -23,6 +23,10 @@ if ($lang
 if ($lang) {
     echo ' lang="' . $lang . '"';
 }
+
+// Dropped IE Support Warning
+if (osTicket::is_ie())
+    $ost->setWarning(__('osTicket no longer supports Internet Explorer.'));
 ?>>
 <head>
     <meta charset="utf-8">
@@ -85,6 +89,14 @@ if ($lang) {
 </head>
 <body>
     <div id="container">
+        <?php
+        if($ost->getError())
+            echo sprintf('<div class="error_bar">%s</div>', $ost->getError());
+        elseif($ost->getWarning())
+            echo sprintf('<div class="warning_bar">%s</div>', $ost->getWarning());
+        elseif($ost->getNotice())
+            echo sprintf('<div class="notice_bar">%s</div>', $ost->getNotice());
+        ?>
         <div id="header">
             <div class="pull-right flush-right">
             <p>

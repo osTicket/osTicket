@@ -1089,7 +1089,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getField($fid) {
 
         if (is_numeric($fid))
-            return $this->getDymanicFieldById($fid);
+            return $this->getDynamicFieldById($fid);
 
         // Special fields
         switch ($fid) {
@@ -1147,7 +1147,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
     }
 
-    function getDymanicFieldById($fid) {
+    function getDynamicFieldById($fid) {
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form) {
             foreach ($form->getFields() as $field)
                 if ($field->getId() == $fid)
@@ -2591,6 +2591,13 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->getDeptName(), $this->getAssignee(), Format::datetime($this->getCreateDate()));
     }
 
+    function hasReferral($object, $type) {
+        if (($referral=$this->thread->getReferral($object->getId(), $type)))
+            return $referral;
+
+        return false;
+    }
+
     //Dept Transfer...with alert.. done by staff
     function transfer(TransferForm $form, &$errors, $alert=true) {
         global $thisstaff, $cfg;
@@ -2634,6 +2641,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Log transfer event
         $this->logEvent('transferred', array('dept' => $dept->getName()));
+
+        if (($referral=$this->hasReferral($dept,ObjectModel::OBJECT_TYPE_DEPT)))
+            $referral->delete();
 
         // Post internal note if any
         $note = null;
@@ -2753,6 +2763,9 @@ implements RestrictedAccess, Threadable, Searchable {
         $type = array('type' => 'assigned', $key => true);
         Signal::send('object.edited', $this, $type);
 
+        if (($referral=$this->hasReferral($staff,ObjectModel::OBJECT_TYPE_STAFF)))
+            $referral->delete();
+
         return true;
     }
 
@@ -2771,6 +2784,9 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->onAssign($team, $note, $alert);
         $this->logEvent('assigned', array('team' => $team->getId()), $user);
+
+        if (($referral=$this->hasReferral($team,ObjectModel::OBJECT_TYPE_TEAM)))
+            $referral->delete();
 
         return true;
     }
@@ -2804,6 +2820,9 @@ implements RestrictedAccess, Threadable, Searchable {
                     $evd['staff'] = array($assignee->getId(), (string) $assignee->getName()->getOriginal());
                     $audit = array('staff' => $assignee->getName()->name);
                 }
+
+                if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_STAFF)))
+                    $referral->delete();
             }
         } elseif ($assignee instanceof Team) {
             if ($this->getTeamId() == $assignee->getId()) {
@@ -2818,6 +2837,8 @@ implements RestrictedAccess, Threadable, Searchable {
                 $this->team_id = $assignee->getId();
                 $evd = array('team' => $assignee->getId());
                 $audit = array('team' => $assignee->getName());
+                if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_TEAM)))
+                    $referral->delete();
             }
         } else {
             $errors['assignee'] = __('Unknown assignee');

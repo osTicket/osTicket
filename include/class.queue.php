@@ -1026,7 +1026,8 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function useStandardColumns() {
-        return !count($this->columns);
+        return ($this->hasFlag(self::FLAG_INHERIT_COLUMNS) ||
+                !count($this->columns));
     }
 
     function inheritExport() {
@@ -1249,6 +1250,9 @@ class CustomQueue extends VerySimpleModel {
         $this->setFlag(self::FLAG_INHERIT_SORTING,
             $this->parent_id > 0 && isset($vars['inherit-sorting']));
 
+        // Saved Search - Use standard columns
+        if ($this instanceof SavedSearch && isset($vars['inherit-columns']))
+            $this->setFlag(self::FLAG_INHERIT_COLUMNS);
         // Update queue columns (but without save)
         if (!isset($vars['columns']) && $this->parent) {
             // No columns -- imply column inheritance

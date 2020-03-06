@@ -785,6 +785,13 @@ class OsticketConfig extends Config {
         return $this->get('client_registration');
     }
 
+    function isClientRegistrationMode($modes) {
+        if (!is_array($modes))
+            $modes = array($modes);
+
+        return in_array($this->getClientRegistrationMode(), $modes);
+    }
+
     function isClientEmailVerificationRequired() {
         return $this->get('client_verify_email');
     }
@@ -1628,11 +1635,6 @@ class OsticketConfig extends Config {
 
 
     function updateKBSettings($vars, &$errors) {
-
-        if ($vars['restrict_kb'] && !$this->isClientRegistrationEnabled())
-            $errors['restrict_kb'] =
-                __('The knowledge base cannot be restricted unless client registration is enabled');
-
         if ($errors) return false;
 
         return $this->updateAll(array(

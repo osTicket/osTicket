@@ -823,6 +823,13 @@ class SavedQueue extends CustomQueue {
         return parent::useStandardColumns();
     }
 
+    function inheritColumns() {
+        if ($this->getSettings() && isset($this->_settings['inherit-columns']))
+            return $this->_settings['inherit-columns'];
+
+        return parent::inheritColumns();
+    }
+
     function getStandardColumns() {
         return parent::getColumns(is_null($this->parent));
     }
@@ -960,25 +967,27 @@ class SavedQueue extends CustomQueue {
                             $empty = true;
                     }
                 }
-
-                if (!$empty) {
-                    $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
-                    $query->aggregate(array(
-                        "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
-                    ));
-                }
             }
 
             // Add extra tables joins  (if any)
             if ($Q->extra && isset($Q->extra['tables'])) {
-               $counts['q'.$queue->getId()] = 500;
+               // skip counting keyword searches. Display them as '-'
+               $counts['q'.$queue->getId()] = '-';
                continue;
-                $contraints = array();
-                if ($Q->constraints)
-                     $constraints = new Q($Q->constraints);
-                foreach ($Q->extra['tables'] as $T)
-                    $query->addExtraJoin(array($T, $constraints, ''));
+               $contraints = array();
+               if ($Q->constraints)
+                    $constraints = new Q($Q->constraints);
+               foreach ($Q->extra['tables'] as $T)
+                   $query->addExtraJoin(array($T, $constraints, ''));
             }
+
+            if ($Q->constraints && !$empty) {
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
+                $query->aggregate(array(
+                    "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
+                ));
+            } else //display skipped counts as '-'
+                $counts['q'.$queue->getId()] = '-';
         }
 
         try {

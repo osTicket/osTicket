@@ -462,8 +462,8 @@ implements TemplateVariable, Searchable {
         $this->isactive = $vars['isactive'];
         $this->ispublic = $vars['ispublic'];
         $this->sequence_id = $vars['custom-numbers'] ? $vars['sequence_id'] : 0;
-        $this->number_format = $vars['custom-numbers'] ? $vars['number_format'] : '';
-        $this->flags = $vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : $this->flags;
+        $this->number_format = $vars['number_format'];
+        $this->setFlag(self::FLAG_CUSTOM_NUMBERS, ($vars['custom-numbers']));
         $this->noautoresp = $vars['noautoresp'];
         $this->notes = Format::sanitize($vars['notes']);
 

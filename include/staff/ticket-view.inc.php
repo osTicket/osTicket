@@ -643,6 +643,7 @@ if($ticket->isOverdue())
 <br>
 <?php
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+    $form->addMissingFields();
     //Find fields to exclude if disabled by help topic
     $disabled = Ticket::getMissingRequiredFields($ticket, true);
 

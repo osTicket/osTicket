@@ -348,6 +348,8 @@ class PluginManager {
             .', install_path='.db_input($path)
             .', name='.db_input($info['name'])
             .', isphar='.db_input($is_phar);
+        if ($info['version'])
+            $sql.=', version='.db_input($info['version']);
         if (!db_query($sql) || !db_affected_rows())
             return false;
         static::clearCache();
@@ -402,6 +404,7 @@ abstract class Plugin {
     function getName() { return $this->__($this->info['name']); }
     function isActive() { return $this->ht['isactive']; }
     function isPhar() { return $this->ht['isphar']; }
+    function getVersion() { return $this->ht['version'] ?: $this->info['version']; }
     function getInstallDate() { return $this->ht['installed']; }
     function getInstallPath() { return $this->ht['install_path']; }
 
