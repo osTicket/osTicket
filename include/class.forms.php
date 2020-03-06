@@ -1446,6 +1446,9 @@ class TextboxField extends FormField {
         $config = $this->getConfiguration();
         $validators = array(
             '' => '',
+            'noop' => array(
+                function($a, &$b) { return true; }
+            ),
             'formula' => array(array('Validator', 'is_formula'),
                 __('Content cannot start with the following characters: = - + @')),
             'email' =>  array(array('Validator', 'is_valid_email'),
@@ -1455,6 +1458,8 @@ class TextboxField extends FormField {
             'ip' =>     array(array('Validator', 'is_ip'),
                 __('Enter a valid IP address')),
             'number' => array('is_numeric', __('Enter a number')),
+            'password' => array(array('Validator', 'check_passwd'),
+                __('Invalid Password')),
             'regex' => array(
                 function($v) use ($config) {
                     $regex = $config['regex'];
@@ -1496,6 +1501,11 @@ class TextboxField extends FormField {
 
 class PasswordField extends TextboxField {
     static $widget = 'PasswordWidget';
+
+    function __construct($options=array()) {
+        parent::__construct($options);
+        $this->set('validator', 'password');
+    }
 
     function parse($value) {
         // Don't trim the value
