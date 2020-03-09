@@ -875,7 +875,7 @@ class TasksAjaxAPI extends AjaxController {
                 $assignee =  $task->isAssigned() ? Format::htmlchars(implode('/', $task->getAssignees())) :
                                             '<span class="faded">&mdash; '.__('Unassigned').' &mdash;';
                 Http::response(201, $this->json_encode(['value' =>
-                    $assignee, 'id' => 'assign', 'msg' => $msg]));
+                    $assignee, 'id' => 'assign', 'msg' => $_SESSION['::sysmsgs']['msg']]));
             }
 
             $form->addErrors($errors);
