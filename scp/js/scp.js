@@ -205,7 +205,25 @@ var scp_prep = function() {
         }
      });
 
-    $('form select#cannedResp').select2({width: '350px'});
+    // Custom matcher for non-adjacent keywords
+    // Thanks, https://stackoverflow.com/a/31626588/10706339
+    $('form select#cannedResp').select2({
+        width: '350px',
+        matcher: function (params, data) {
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+
+            keywords = (params.term).split(" ");
+
+            for (var i = 0; i < keywords.length; i++) {
+                if (((data.text).toUpperCase()).indexOf((keywords[i]).toUpperCase()) == -1)
+                    return null;
+            }
+
+            return data;
+        }
+    });
     $('form select#cannedResp').on('select2:opening', function (e) {
         var redactor = $('.richtext', $(this).closest('form')).data('redactor');
         if (redactor)
