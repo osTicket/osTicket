@@ -1817,7 +1817,7 @@ class ChoiceField extends FormField {
         if (is_string($value) && strpos($value, ',')) {
             $values = array();
             $choices = $this->getChoices();
-            $vals = explode(',', $value);
+            $vals = array_map('trim', explode(',', $value));
             foreach ($vals as $V) {
                 if (isset($choices[$V]))
                     $values[$V] = $choices[$V];
