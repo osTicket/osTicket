@@ -386,7 +386,7 @@ class Mail_Parse {
     }
 
     function getAttachments($part=null){
-        $files=array();
+        $files = $matches = array();
 
         /* Consider this part as an attachment if
          *   * It has a Content-Disposition header
