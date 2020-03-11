@@ -229,10 +229,24 @@ extends VerySimpleModel {
     }
 
     static function getCannedResponses($deptId=0, $explicit=false) {
+        global $thisstaff;
+
         $canned = static::objects()
             ->filter(array('isenabled' => true))
             ->order_by('title')
             ->values_flat('canned_id', 'title');
+
+        if ($thisstaff) {
+            $departments = array();
+            //get responses for all depts
+            $departments[] = 0;
+            //get the responses for the agent's departments
+            $staffDepts = $thisstaff->getDepartmentNames(true);
+            foreach ($staffDepts as $k => $v)
+                $departments[] = $k;
+
+            $canned->filter(array('dept_id__in' => $departments));
+        }
 
         if ($deptId) {
             $depts = array($deptId);
