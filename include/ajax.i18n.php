@@ -73,7 +73,7 @@ class i18nAjaxAPI extends AjaxController {
                 }
                 else {
                     // Avoid XSS injection
-                    $p->text = trim(Format::striptags($phrase));
+                    $p->text = trim(Format::sanitize($phrase));
                     $p->agent_id = $thisstaff->getId();
                 }
             }
