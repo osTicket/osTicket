@@ -234,7 +234,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
+                    if ($topics=$thisstaff->getTopicNames(false, false)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>

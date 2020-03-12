@@ -2759,8 +2759,10 @@ class TopicField extends ChoiceField {
     var $_choices;
 
     function getTopics() {
+        global $thisstaff;
+
         if (!isset($this->topics))
-            $this->topics = Topic::getHelpTopics(false, false, true);
+            $this->topics = $thisstaff->getTopicNames();
 
         return $this->topics;
     }

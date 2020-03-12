@@ -1182,8 +1182,13 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
     }
 
     function getChoices($verbose=false, $options=array()) {
-        if (!isset($this->_topics))
-            $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        global $thisstaff;
+        if (!isset($this->_topics)) {
+            if ($options['filterVisibility'])
+                $this->_topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
+            else
+                $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        }
 
         return $this->_topics;
     }

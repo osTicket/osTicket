@@ -319,25 +319,25 @@ implements TemplateVariable, Searchable {
             $this->flags &= ~$flag;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array()) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array(), $allData=false) {
       global $cfg;
       static $topics, $names = array();
 
       // If localization is specifically requested, then rebuild the list.
       if (!$names || $localize) {
           $objects = self::objects()->values_flat(
-              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic'
+              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic', 'dept_id'
           )
           ->order_by('sort');
 
           // Fetch information for all topics, in declared sort order
           $topics = array();
           foreach ($objects as $T) {
-              list($id, $pid, $pub, $flags, $topic) = $T;
+              list($id, $pid, $pub, $flags, $topic, $deptId) = $T;
 
               $display = ($flags & self::FLAG_ACTIVE);
               $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
-                  'disabled'=>!$display, 'topic'=>$topic);
+                  'disabled'=>!$display, 'topic'=>$topic, 'dept_id'=>$deptId);
           }
 
           $localize_this = function($id, $default) use ($localize) {
@@ -381,7 +381,11 @@ implements TemplateVariable, Searchable {
           if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
               $n .= " - ".__("(disabled)");
           $requested_names[$id] = $n;
+          $topics[$id]['topic'] = $n;
       }
+
+      if ($allData)
+        return $topics;
 
       // If localization requested and the current locale is not the
       // primary, the list may need to be sorted. Caching is ok here,
