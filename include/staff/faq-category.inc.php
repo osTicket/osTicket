@@ -58,7 +58,10 @@ echo sprintf('<div class="pull-right flush-right">
     ?>
     </div>
 <?php
-
+if (!$thisstaff->hasPerm(Dept::PERM_DEPT)) {
+    $staffTopics = $thisstaff->getTopicNames(false);
+    $filter = true;
+}
 
 $faqs = $category->faqs
     ->constrain(array('attachments__inline' => 0))
@@ -67,11 +70,23 @@ if ($faqs->exists(true)) {
     echo '<div id="faq">
             <ol>';
     foreach ($faqs as $faq) {
-        echo sprintf('
-            <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
-            $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
-            $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
-        );
+        if ($filter) {
+            if ($faqTopics = $faq->getHelpTopicsIds()) {
+                foreach ($faqTopics as $key => $value) {
+                    if (array_key_exists($value, $staffTopics))
+                        $show = true;
+                }
+            } else
+                $show = true;
+        } else
+            $show = true;
+
+        if ($show)
+            echo sprintf('
+                <li><strong><a href="faq.php?id=%d" class="previewfaq">%s <span>- %s</span></a> %s</strong></li>',
+                $faq->getId(),$faq->getQuestion(),$faq->isPublished() ? __('Published'):__('Internal'),
+                $faq->attachments ? '<i class="icon-paperclip"></i>' : ''
+            );
     }
     echo '  </ol>
          </div>';
