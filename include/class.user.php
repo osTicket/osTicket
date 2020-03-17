@@ -698,21 +698,21 @@ implements TemplateVariable, Searchable {
 
         if (!$this->_queue) {
             $email = $this->getDefaultEmailAddress();
-            $filter = new Q(array(
-                'user__id' => $this->getId()
-            ));
+            $filter = [
+                ['user__id', 'equal', $this->getId()],
+            ];
             if ($collabs)
-                $filter = Q::any(array(
-                    'user__emails__address' => $email,
-                    'thread__collaborators__user__emails__address' => $email,
-                ));
+                $filter = [
+                    ['user__emails__address', 'equal', $email],
+                    ['thread__collaborators__user__emails__address', 'equal',  $email],
+                ];
             $this->_queue = new AdhocSearch(array(
                 'id' => 'adhoc,uid'.$this->getId(),
                 'root' => 'T',
                 'staff_id' => $thisstaff->getId(),
                 'title' => $this->getName()
             ));
-            $this->_queue->filter($filter);
+            $this->_queue->config = $filter;
         }
 
         return $this->_queue;

@@ -645,9 +645,9 @@ implements TemplateVariable, Searchable {
                 'staff_id' => $thisstaff->getId(),
                 'title' => $name
             ));
-            $this->_queue->filter(array(
-                'user__org__name' => $name
-            ));
+            $this->_queue->config = [[
+                'user__org__name', 'equal', $name
+            ]];
         }
 
         return $this->_queue;
