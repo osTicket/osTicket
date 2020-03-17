@@ -121,7 +121,7 @@ class DynamicForm extends VerySimpleModel {
         $fields = $this->getFields();
         $form = new SimpleForm($fields, $source, array(
             'title' => $this->getLocal('title'),
-            'instructions' => $this->getLocal('instructions'),
+            'instructions' => Format::htmldecode($this->getLocal('instructions')),
             'id' => $this->getId(),
         ));
         return $form;
