@@ -225,6 +225,15 @@ class Validator {
         return $error == '';
     }
 
+    static function check_passwd($passwd, &$error='') {
+        try {
+            PasswordPolicy::checkPassword($passwd, null);
+        } catch (BadPassword $ex) {
+            $error = $ex->getMessage();
+        }
+        return $error == '';
+    }
+
     /*
      * check_ip
      * Checks if an IP (IPv4 or IPv6) address is contained in the list of given IPs or subnets.

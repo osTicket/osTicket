@@ -528,7 +528,9 @@ implements TemplateVariable, Searchable {
     }
 
     function importFromPost($stream, $extra=array()) {
-        $stream = sprintf('name, email%s %s',PHP_EOL, $stream);
+        if (!is_array($stream))
+            $stream = sprintf('name, email%s %s',PHP_EOL, $stream);
+
         return User::importCsv($stream, $extra);
     }
 
