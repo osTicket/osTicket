@@ -1556,11 +1556,17 @@ implements TemplateVariable {
 
     function setExtra($entries, $info=NULL, $thread_id=NULL) {
         foreach ($entries as $entry) {
-            $mergeInfo = new ThreadEntryMergeInfo(array(
-                'thread_entry_id' => $entry->getId(),
-                'data' => json_encode($info),
-            ));
-            $mergeInfo->save();
+            $mergeInfo = ThreadEntryMergeInfo::objects()
+                ->filter(array('thread_entry_id'=>$entry->getId()))
+                ->values_flat('thread_entry_id')
+                ->first();
+            if (!$mergeInfo) {
+                $mergeInfo = new ThreadEntryMergeInfo(array(
+                    'thread_entry_id' => $entry->getId(),
+                    'data' => json_encode($info),
+                ));
+                $mergeInfo->save();
+            }
             $entry->saveExtra($info, $thread_id);
         }
 
