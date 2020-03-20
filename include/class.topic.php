@@ -371,6 +371,7 @@ implements TemplateVariable, Searchable {
 
       // Apply requested filters
       $requested_names = array();
+      $topicsClean = array();
       foreach ($names as $id=>$n) {
           $info = $topics[$id];
           if ($publicOnly && !$info['public'])
@@ -381,11 +382,11 @@ implements TemplateVariable, Searchable {
           if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
               $n .= " - ".__("(disabled)");
           $requested_names[$id] = $n;
-          $topics[$id]['topic'] = $n;
+          $topicsClean[$id] = $info;
       }
 
       if ($allData)
-        return $topics;
+        return $topicsClean;
 
       // If localization requested and the current locale is not the
       // primary, the list may need to be sorted. Caching is ok here,
