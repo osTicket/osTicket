@@ -1313,6 +1313,23 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->save();
     }
 
+    //mark as read for given staff
+    function setStaffLastVisitNow($staff) {
+        $stafflastvisit = TicketStaffLastVisit::lookup(array(
+            'ticket_id'=>$this->ticket_id,
+            'staff_id'=>$staff->getId()
+        ));        
+        if(!isset($stafflastvisit)) {
+            $stafflastvisit = new TicketStaffLastVisit(array(
+                'ticket_id' => $this->ticket_id,
+                'staff_id' => $staff->getId(),
+                'lastvisit_date' => SqlFunction::NOW()
+            ));
+        }
+        $stafflastvisit->lastvisit_date = SqlFunction::NOW();
+        $stafflastvisit->save();        
+    }
+
     // Ticket Status helper.
     function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true) {
         global $thisstaff;
