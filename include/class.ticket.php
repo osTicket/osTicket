@@ -4343,3 +4343,19 @@ class TicketCData extends VerySimpleModel {
     );
 }
 TicketCData::$meta['table'] = TABLE_PREFIX . 'ticket__cdata';
+
+class TicketStaffLastVisit extends VerySimpleModel {
+    static $meta = array(
+        'pk' => array('ticket_id', 'staff_id'),
+        'select_related' => array('staff'),
+        'joins' => array(
+            'ticket' => array(
+                'constraint' => array('ticket_id' => 'Ticket.ticket_id'),
+            ),
+            'staff' => array(
+                'constraint' => array('staff_id' => 'Staff.staff_id')
+            ),
+        ),
+    );
+}
+TicketStaffLastVisit::$meta['table'] = TABLE_PREFIX . 'ticket_stafflastvisit';
