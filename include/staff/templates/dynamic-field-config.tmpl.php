@@ -161,7 +161,7 @@
         </div>
         <div style="width:100%">
         <textarea style="width:90%; width:calc(100% - 20px)" name="hint" rows="2" cols="40"
-            class="richtext small no-bar"
+            class="richtext small"
             data-translate-tag="<?php echo $field->getTranslateTag('hint'); ?>"><?php
             echo Format::htmlchars($field->get('hint')); ?></textarea>
         </div>
