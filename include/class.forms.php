@@ -1457,7 +1457,8 @@ class TextboxField extends FormField {
                 __('Enter a valid phone number')),
             'ip' =>     array(array('Validator', 'is_ip'),
                 __('Enter a valid IP address')),
-            'number' => array('is_numeric', __('Enter a number')),
+            'number' => array(array('Validator', 'is_numeric'),
+                __('Enter a number')),
             'password' => array(array('Validator', 'check_passwd'),
                 __('Invalid Password')),
             'regex' => array(
