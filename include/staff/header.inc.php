@@ -431,7 +431,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 
 
                                 <!-- All-->
-                                <a href="tickets.php?queue=246&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=246&p=1&l=0&t=0&s=0" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
 
@@ -482,7 +482,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 if ($r > 8) {
                                 ?>                               
                                 <!-- All-->
-                                <a href="tickets.php?queue248&p=1&l=0&s=1" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=3&p=1&l=0&t=0&s=1" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
                                  <?php } ?> 
@@ -612,7 +612,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 				     <div class="alert alert-secondary m-b-15 m-t--15" role="alert">
                                         <i class="fa fa-info-circle" aria-hidden="true"></i> There are currently <span class="badge badge-primary"><?php echo $UnassignedTickets; ?></span>  unassigned ticket<?php if ($UnassignedTickets > 1) echo "s";?>. 
-                            <div class="float-right"></span> <a href="tickets.php?queue=3&l=0&s=1&st=0"><i class="mdi mdi-ticket-account" aria-hidden="true"></i></a></div>        
+                            <div class="float-right"></span> <a href="tickets.php?queue=3&l=0&t=0&s=1&st=0"><i class="mdi mdi-ticket-account" aria-hidden="true"></i></a></div>        
                          </div>
 					
 					<?php }
