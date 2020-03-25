@@ -181,37 +181,37 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                             </a>
                             <div class="dropdown-menu dropdown-menu-right dropdown-arrow dropdown-menu-lg" aria-labelledby="Preview">
                                 <!-- item-->
-                                <div class="dropdown-item noti-title" onclick="location.href='tickets.php?queue=31&p=1&l=0&s=0';">
-                                    <h5 class="font-16"><a href="tickets.php?queue=31&p=1&l=0&s=0"><span class="badge badge-warning float-right"><?php echo $MyOpenTickets; ?></span></a>My Tickets</h5>
+                                <div class="dropdown-item noti-title" onclick="location.href='tickets.php?queue=31&p=1&l=0&s=0&st=<?php echo $staff->staff_id;?>">
+                                    <h5 class="font-16"><a href="tickets.php?queue=3&p=1&l=0&s=0&st=<?php echo $staff->staff_id;?>"><span class="badge badge-warning float-right"><?php echo $MyOpenTickets; ?></span></a>My Tickets</h5>
                                 </div>
 
                                 
                                 <?php if ($MyReplyTickets <> '0') { ?>
-                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=7" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=0&s=7&st=<?php echo $staff->staff_id;?>" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-danger"><?php echo $MyReplyTickets; ?></div>
                                     <p class="notify-details">My Action<small class="text-muted">Waiting on my action</small></p>
                                 </a> 
 								<?php }
 								if ($MyTheirReplyTickets <> '0') { ?>
-                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=6" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=0&s=6&st=<?php echo $staff->staff_id;?>" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-success"><?php echo $MyTheirReplyTickets; ?></div>
                                     <p class="notify-details">Their Action<small class="text-muted">Waiting on their action</small></p>
                                 </a>
                                 <?php }
 								if ($MyThridPartyTickets <> '0') { ?>
-                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=9" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=0&s=9&st=<?php echo $staff->staff_id;?>" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-purple"><?php echo $MyThridPartyTickets; ?></div>
                                     <p class="notify-details">3rd Party<small class="text-muted">Awaiting 3rd party</small></p>
                                 </a>
                                 <?php }
 								if ($MyHeldTickets <> '0') { ?>
-                                <a href="/scp/tickets.php?queue=31&p=1&l=0&s=8" class="dropdown-item notify-item">
+                                <a href="/scp/tickets.php?queue=3&p=1&l=0&s=8&st=<?php echo $staff->staff_id;?>" class="dropdown-item notify-item">
                                     <div class="notify-icon bg-warning"><?php echo $MyHeldTickets; ?></div>
                                     <p class="notify-details">Held<small class="text-muted">Tickets on Hold</small></p>
                                 </a>
 								<?php } ?>
                                 <!-- All-->
-                                <a href="tickets.php?queue=31&p=1&l=0&s=0" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue=3&p=1&l=0&s=0&st=<?php echo $staff->staff_id;?>" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
 
@@ -447,7 +447,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                
                                <!-- item-->
                                 <div class="dropdown-item noti-title"  onclick="location.href='tickets.php?queue=30&p=1&l=0&s=0';">
-                                    <h5 class="font-16"><a href="tickets.php?queue=30&p=1&l=0&t=0&s=0"><span class="badge badge-primary float-right"><?php echo $UnassignedTickets; ?></span></a>Unassigned</h5>
+                                    <h5 class="font-16"><a href="tickets.php?queue=3&p=1&l=0&t=0&s=1&st=0"><span class="badge badge-primary float-right"><?php echo $UnassignedTickets; ?></span></a>Unassigned</h5>
                                 </div>
 
                             <?php
@@ -482,7 +482,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
                                 if ($r > 8) {
                                 ?>                               
                                 <!-- All-->
-                                <a href="tickets.php?queue=3&p=1&l=0&s=1" class="dropdown-item notify-item notify-all">
+                                <a href="tickets.php?queue248&p=1&l=0&s=1" class="dropdown-item notify-item notify-all">
                                     View All
                                 </a>
                                  <?php } ?> 
@@ -612,7 +612,7 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					
 				     <div class="alert alert-secondary m-b-15 m-t--15" role="alert">
                                         <i class="fa fa-info-circle" aria-hidden="true"></i> There are currently <span class="badge badge-primary"><?php echo $UnassignedTickets; ?></span>  unassigned ticket<?php if ($UnassignedTickets > 1) echo "s";?>. 
-                            <div class="float-right"></span> <a href="tickets.php?queue=3&p=1&l=0&s=1"><i class="mdi mdi-ticket-account" aria-hidden="true"></i></a></div>        
+                            <div class="float-right"></span> <a href="tickets.php?queue=3&l=0&s=1&st=0"><i class="mdi mdi-ticket-account" aria-hidden="true"></i></a></div>        
                          </div>
 					
 					<?php }
@@ -622,8 +622,8 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  at the target of <span class="badge badge-success">45</span>.
                                         <div class="float-right">
-                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
-                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&t=0&s=0&st=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&t=0&s=0&st=0"><i class="sei"></i></a>
                                         </div> 
                          </div>
 					
@@ -634,8 +634,8 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					<div class="alert alert-warning m-b-30" role="alert">
                                         <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-warning"><?php echo $BacklogTotal; ?></span>  within 5 of the established target of <span class="badge badge-success">45</span>.
                                                                  <div class="float-right">
-                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
-                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&t=0&s=0&st=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0&p=1&l=0&t=0&s=0&st=0"><i class="sei"></i></a>
                                         </div> 
                          </div>
 					
@@ -646,8 +646,8 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 				     <div class="alert alert-danger m-b-30" role="alert">
                                         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Backlog is currently <span class="badge badge-danger"><?php echo $BacklogTotal; ?></span> which is greater than 5 above the established target of <span class="badge badge-success">45</span>.
                                         <div class="float-right">
-                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
-                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&t=0&s=0&st=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&t=0&s=0&st=0"><i class="sei"></i></a>
                                         </div> 
                          </div>
 					
@@ -658,8 +658,8 @@ if($msg) {echo "$.Notification.notify('success','top right', '', '".$msg."');";}
 					<div class="alert alert-success m-b-30" role="alert">
                                         <i class="fa fa-check-square" aria-hidden="true"></i> Backlog is currently <span class="badge badge-success"><?php echo $BacklogTotal; ?></span> is greater than 5 below the established target of <span class="badge badge-success">45</span>.
                                         <div class="float-right">
-                                             </span> <a href="tickets.php?queue=245&p=1&l=0&s=0"><i class="fa fa-laptop"></i></a> &nbsp;
-                                             </span> <a href="tickets.php?queue=246&p=1&l=0&s=0"><i class="sei"></i></a>
+                                             </span> <a href="tickets.php?queue=245&p=1&l=0&t=0&s=0&st=0"><i class="fa fa-laptop"></i></a> &nbsp;
+                                             </span> <a href="tickets.php?queue=246&p=1&l=0&t=0&s=0&st=0"><i class="sei"></i></a>
                                         </div> 
                          </div>
 			

@@ -56,7 +56,7 @@ if(!defined('ADMINPAGE')) { ?>
         <a href=
         <?php if (count($children)) {echo '"javascript:void(0);"';} else {
          
-        echo '"tickets.php?queue='. $q->getId().'&p=1&l=0&t=0&s=0"';
+        echo '"tickets.php?queue='. $q->getId().'&p=1&l=0&t=0&s=0&st=0"';
             
         }
 

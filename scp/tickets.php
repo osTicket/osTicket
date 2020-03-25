@@ -105,6 +105,7 @@ if (!$ticket) {
             'root' => 'T',
         ));
         $queue->config = $_SESSION['advsearch'][$key];
+        
     }
 
     // Make the current queue sticky
@@ -115,8 +116,9 @@ if (!$ticket) {
     }
     if (!$queue) {
         $queue = CustomQueue::lookup($cfg->getDefaultTicketQueueId());
+        $_SESSION['st'] = $staff->staff_id;
     }
-
+		
     // Set the queue_id for navigation to turn a top-level item bold
     $_REQUEST['queue'] = $queue->getId();
 }
@@ -178,7 +180,7 @@ if($_POST && !$errors):
             if(!$errors && ($response=$ticket->postReply($vars, $errors, $_POST['emailreply']))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
                         sprintf(__('Ticket #%s'),
-                            sprintf('<a href="tickets.php?queue=30&id=%d"><b>%s</b></a>',
+                            sprintf('<a href="tickets.php?queue=248&id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber()))
                         );
 
@@ -230,7 +232,7 @@ if($_POST && !$errors):
 
                 $msg = sprintf(__('%s: Internal note posted successfully'),
                         sprintf(__('Ticket #%s'),
-                            sprintf('<a href="tickets.php?queue=30&id=%d"><b>%s</b></a>',
+                            sprintf('<a href="tickets.php?queue=248&id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber()))
                         );
 
