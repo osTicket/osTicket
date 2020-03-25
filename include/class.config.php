@@ -228,6 +228,7 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'force_https' => '',
     );
 
     function __construct($section=null) {
@@ -653,6 +654,10 @@ class OsticketConfig extends Config {
 
     function getTopicSortMode() {
         return $this->get('help_topic_sort_mode');
+    }
+
+    function forceHttps() {
+        return $this->get('force_https') == 'on';
     }
 
     function setTopicSortMode($mode) {
@@ -1265,6 +1270,7 @@ class OsticketConfig extends Config {
             'helpdesk_title'=>$vars['helpdesk_title'],
             'helpdesk_url'=>$vars['helpdesk_url'],
             'default_dept_id'=>$vars['default_dept_id'],
+            'force_https'=>$vars['force_https'] ? 'on' : '',
             'max_page_size'=>$vars['max_page_size'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
