@@ -2256,9 +2256,9 @@ class SqlCompiler {
     );
 
     function __construct($options=false) {
-        if ($options)
+        if (is_array($options))
             $this->options = array_merge($this->options, $options);
-        if ($options['subquery'])
+        if (is_array($options) && isset($options['subquery']))
             $this->alias_num += 150;
     }
 
