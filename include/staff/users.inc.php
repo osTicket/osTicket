@@ -300,7 +300,11 @@ $(function() {
             return;
           }
           if (!confirmed)
-              $.confirm(__('You sure?'), undefined, options).then(submit);
+              $.confirm(__('You sure?'), undefined, options).then(function(promise) {
+                if (promise === false)
+                  return false;
+                submit();
+              });
           else
               submit();
         }
