@@ -2567,22 +2567,33 @@ class SqlCompiler {
             }
             // Handle simple field = <value> constraints
             else {
-                list($field, $op) = $this->getField($field, $model);
-                if ($field instanceof SqlAggregate) {
+                list($fieldNew, $op) = $this->getField($field, $model);
+
+                if ($fieldNew instanceof SqlAggregate) {
                     // This constraint has to go in the HAVING clause
-                    $field = $field->toSql($this, $model);
+                    $fieldNew = $fieldNew->toSql($this, $model);
                     $type = CompiledExpression::TYPE_HAVING;
                 }
+
+                if ($this->options['fields'] && is_string($field)) {
+                    foreach ($this->options['fields'] as $fieldName) {
+                        if (strpos($field, $fieldName) !== false) {
+                            $fieldNew = $fieldName;
+                            $type = $this->options['type'];
+                        }
+                    }
+                }
+
                 if ($value === null)
-                    $filter[] = sprintf('%s IS NULL', $field);
+                    $filter[] = sprintf('%s IS NULL', $fieldNew);
                 elseif ($value instanceof SqlField)
-                    $filter[] = sprintf($op, $field, $value->toSql($this, $model));
+                    $filter[] = sprintf($op, $fieldNew, $value->toSql($this, $model));
                 // Allow operators to be callable rather than sprintf
                 // strings
                 elseif (is_callable($op))
-                    $filter[] = call_user_func($op, $field, $value, $model);
+                    $filter[] = call_user_func($op, $fieldNew, $value, $model);
                 else
-                    $filter[] = sprintf($op, $field, $this->input($value));
+                    $filter[] = sprintf($op, $fieldNew, $this->input($value));
             }
         }
         $glue = $Q->ored ? ' OR ' : ' AND ';

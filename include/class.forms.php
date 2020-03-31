@@ -2067,6 +2067,28 @@ class NumericField extends FormField {
             )),
         );
     }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $cfg;
+
+        switch ($method) {
+        case 'equal':
+            return new Q(array(
+                "{$name}__exact" => intval($value)
+            ));
+        break;
+        case 'greater':
+            return Q::any(array(
+                "{$name}__gt" => intval($value)
+            ));
+        break;
+        case 'less':
+            return Q::any(array(
+                "{$name}__lt" => intval($value)
+            ));
+        break;
+        }
+    }
 }
 
 class DatetimeField extends FormField {

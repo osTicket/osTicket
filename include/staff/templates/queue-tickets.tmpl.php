@@ -12,7 +12,29 @@ if (!$ignoreVisibility || //limited visibility
    ($ignoreVisibility && ($queue->isAQueue() || $queue->isASubQueue())) //unlimited visibility + not a search
 )
     $tickets->filter($thisstaff->getTicketsVisibility());
-
+    $optionName = array();
+    foreach ($tickets->constraints as $key => $value) {
+        switch ($constraint = key($value->constraints)) {
+            case (strpos($constraint, 'collaborator_count') !== false):
+                $optionName[] = 'collaborator_count';
+                ThreadCollaboratorCount::annotate($tickets, 'collaborator_count');
+                break;
+            case (strpos($constraint, 'attachment_count') !== false):
+                $optionName[] = 'attachment_count';
+                ThreadAttachmentCount::annotate($tickets, 'attachment_count');
+                break;
+            case (strpos($constraint, 'thread_count') !== false):
+                $optionName[] = 'thread_count';
+                TicketThreadCount::annotate($tickets, 'thread_count');
+                break;
+            case (strpos($constraint, 'reopen_count') !== false):
+                $optionName[] = 'reopen_count';
+                TicketReopenCount::annotate($tickets, 'reopen_count');
+                break;
+        }
+        if ($optionName)
+            $tickets->options(array('type' => CompiledExpression::TYPE_HAVING, 'fields' => $optionName));
+    }
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
 
