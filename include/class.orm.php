@@ -2256,10 +2256,11 @@ class SqlCompiler {
     );
 
     function __construct($options=false) {
-        if (is_array($options))
+        if (is_array($options)) {
             $this->options = array_merge($this->options, $options);
-        if (is_array($options) && isset($options['subquery']))
-            $this->alias_num += 150;
+            if (isset($options['subquery']))
+                $this->alias_num += 150;
+        }
     }
 
     function getParent() {
