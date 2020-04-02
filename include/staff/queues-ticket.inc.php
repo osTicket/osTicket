@@ -89,7 +89,9 @@ $(function() {
       ids.push($(this).val());
     });
     if (ids.length) {
-      $.confirm(__('You sure?')).then(function() {
+      $.confirm(__('You sure?')).then(function(promise) {
+        if (promise === false)
+          return false;
         $.each(ids, function() { $form.append($('<input type="hidden" name="ids[]">').val(this)); });
         $form.append($('<input type="hidden" name="a" />')
           .val($(that).data('action')));
