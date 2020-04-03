@@ -288,8 +288,9 @@ $(function() {
             $.dialog('ajax.php/orgs/lookup/form', 201, function(xhr, json) {
               var $form = $('form#users-list');
               try {
-                  var json = $.parseJSON(json),
-                      org_id = $form.find('#org_id');
+                  if ($.type(json) == 'string')
+                    var json = $.parseJSON(json);
+                  var org_id = $form.find('#org_id');
                   if (json.id) {
                       org_id.val(json.id);
                       goBaby('setorg', true);
@@ -300,7 +301,11 @@ $(function() {
             return;
           }
           if (!confirmed)
-              $.confirm(__('You sure?'), undefined, options).then(submit);
+              $.confirm(__('You sure?'), undefined, options).then(function(promise) {
+                if (promise === false)
+                  return false;
+                submit();
+              });
           else
               submit();
         }
