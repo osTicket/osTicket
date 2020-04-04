@@ -973,9 +973,14 @@ class CustomQueue extends VerySimpleModel {
                 }
 
                 // Fetch a criteria Q for the query
-                if (list(,$field) = $searchable[$name])
+                if (list(,$field) = $searchable[$name]) {
+                    // Add annotation if the field supports it.
+                    if (is_subclass_of($field, 'AnnotatedField'))
+                       $qs = $field->annotate($qs, $name);
+
                     if ($q = $field->getSearchQ($method, $value, $name))
                         $qs = $qs->filter($q);
+                }
             }
         }
 
