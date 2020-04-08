@@ -165,7 +165,10 @@ implements RestrictedAccess, Threadable, Searchable {
             /* @trans */ 'Phone',
             'Email' =>
             /* @trans */ 'Email',
-
+	    'WhatsApp' =>
+            /* @trans */ 'WhatsApp',
+	    'Chat' =>
+            /* @trans */ 'Chat',
             'Web' =>
             /* @trans */ 'Web',
             'API' =>
