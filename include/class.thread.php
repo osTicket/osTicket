@@ -167,7 +167,9 @@ implements Searchable {
                     'thread_id'   => $this->getId()));
     }
 
-    function addCollaborator($user, $vars, &$errors, $event=true) {
+    function addCollaborator($user, &$vars, &$errors, $event=true) {
+        global $cfg;
+
         if (!$user)
             return null;
 
@@ -179,6 +181,13 @@ implements Searchable {
                 'userId' => $user->getId()), $vars);
         if (!($c=Collaborator::add($vars, $errors)))
             return null;
+
+        $vars['active'] = true;
+        // Disable Agent Collabs (if configured)
+        if ($this->object_type === 'T'
+                && $cfg->disableAgentCollaborators()
+                && Staff::lookup($user->getDefaultEmailAddress()))
+            $vars['active'] = false;
 
         $this->_collaborators = null;
 

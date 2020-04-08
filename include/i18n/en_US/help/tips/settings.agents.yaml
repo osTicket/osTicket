@@ -27,6 +27,17 @@ staff_identity_masking:
         If enabled, this will hide the Agent’s name from the Client during any
         communication.
 
+disable_agent_collabs:
+    title: Disable Agent Collaborators
+    content: >
+        If Enabled, Agents that are added as Collaborators will be automatically Disabled.
+        This is helpful when Users are blindly adding Agents to the CC field causing the
+        Agents to receive all of the Participant Alerts.
+        <br><br>
+        <strong>Note:</strong>
+        <br>
+        This setting is global for all Tickets created via Web, API, Piping, and Fetching.
+
 # Authentication settings
 password_reset:
     title: Password Expiration Policy

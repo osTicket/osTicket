@@ -144,8 +144,8 @@ implements EmailContact, ITicketUser {
             $this->flags &= ~$flag;
     }
 
-    public function setCc() {
-      $this->setFlag(Collaborator::FLAG_ACTIVE, true);
+    public function setCc($active=true) {
+      $this->setFlag(Collaborator::FLAG_ACTIVE, $active);
       $this->setFlag(Collaborator::FLAG_CC, true);
       $this->save();
     }
