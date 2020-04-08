@@ -4318,6 +4318,11 @@ implements RestrictedAccess, Threadable, Searchable {
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
 
+        // Set default ticket status (if none) for Thread::getObject()
+        // in addCollaborators()
+        if ($ticket->getStatusId() <= 0)
+            $ticket->setStatusId($cfg->getDefaultTicketStatusId());
+
         // Add collaborators (if any)
         if (isset($vars['ccs']) && count($vars['ccs']))
           $ticket->addCollaborators($vars['ccs'], array(), $errors);
