@@ -1493,7 +1493,7 @@ class TextboxField extends FormField {
     }
 
     function parse($value) {
-        return Format::striptags($value);
+        return Format::strip_emoticons(Format::striptags($value));
     }
 
     function display($value) {
