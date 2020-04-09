@@ -108,8 +108,12 @@ elseif (isset($_GET['do'])) {
     switch($_GET['do']) {
     case 'ext':
         // Lookup external backend
-        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk']))
-            $bk->triggerAuth();
+        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk'])) {
+            $result = $bk->triggerAuth();
+            if ($result instanceof AccessDenied) {
+                $errors['err'] = $result->getMessage();
+            }
+        }
     }
 }
 elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
