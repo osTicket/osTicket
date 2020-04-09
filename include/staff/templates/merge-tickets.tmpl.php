@@ -85,6 +85,82 @@ foreach ($tickets as $t) {
 </div>
 </ul>
 
+<div>
+    <i class="icon-plus"></i>&nbsp;
+    <span>
+        <select class="ticketSelection" name="name" id="ticket-number"
+        data-placeholder="<?php echo __('Select Ticket'); ?>">
+      </select>
+    </span>
+    <button type="button" class="inline green button" onclick="javascript:
+        ids = [];
+        $('input[name^=\'tids\']:checked').each(function() {
+            ids.push($(this).val());
+        });
+        var select = $(this).parent().find('select'),
+            $sel = select.find('option:selected'),
+            id = $sel.val();
+            data = $sel.data();
+            for(var key in data) {
+                 ticket_id = data[key]['ticket_id'];
+                 ticketLink = '<?php echo Ticket::getLink('');?>';
+                 tasks = data[key]['tasks'];
+                 showTasks = (tasks > 0) ? '<a data-placement=\'bottom\' <i class=\'icon-tasks\' data-toggle=\'tooltip\' title=\''+tasks+' Tasks\'>' : '';
+                 spaces = data[key]['spaces'];
+                 user = data[key]['user'];
+                 collaborators = data[key]['collaborators'];
+                 thread_id = data[key]['thread_id'] ? data[key]['thread_id'] : 0;
+                 showEntries = (data[key]['entries'] > 0) ?
+                    '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-comments-alt\' data-toggle=\'tooltip\' title=\''+data[key]['entries']+' Thread Entries\'>' : '';
+                 icon = (data[key]['mergeType'] == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
+                 showMergePrev = data[key]['mergePrev'] ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
+                 showCollaborators = (collaborators > 0) ?
+                    '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators/0\'><i class=\'icon-group\'></i></a>' : '';
+                inOriginalIds = ids.includes(ticket_id.toString());
+            }
+        if (data[key]['mergeType'] != 'visual') {
+            alert('<?php echo __('Merged tickets cannot be added manually. They must be preselected.');?>');
+            return;
+        }
+        if ($sel.prop('disabled'))
+            return;
+        if (!inOriginalIds) {
+            $('.merge-tickets').append($('<li></li>').addClass('sortable row-item')
+                .text(spaces + user + spaces)
+                .data('id', id)
+                .append(data[key]['subject'])
+                .append(spaces)
+                .append($('<div style=\'position:absolute; right:40px; top:10px;\'></div>')
+                    .append(showEntries)
+                    .append(showTasks ? spaces : '')
+                    .append(showTasks)
+                    .append(showMergePrev ? spaces : '')
+                    .append(showMergePrev)
+                    .append((collaborators > 0) ? spaces : '')
+                    .append(showCollaborators))
+                .prepend($('<a target=\'_blank\' href=\''+ticketLink+ticket_id+'\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
+                .prepend($('<i>').addClass('icon-reorder'))
+                .append($('<input/>').attr({name:'tids[]', type:'hidden'}).val(id))
+                .append($('<div></div>').addClass('button-group')
+                  .append($('<div></div>').addClass('delete')
+                    .append($('<a href=\'#\'>')
+                      .append($('<i>').addClass('icon-trash'))
+                      .click(function() {
+                        $sel.prop('disabled',false);
+                        $(this).closest('li.row-item').remove();
+                        $('#delete-warning').show();
+                        return false;
+                      })
+                    )
+                ))
+            );
+            $('#ticket-number').empty();
+        } else
+            alert('<?php echo __('This Ticket is already in the list.');?>');
+        $sel.prop('disabled',true);"><i class="icon-plus-sign"></i>
+    <?php echo __('Add a Ticket'); ?></button>
+    &nbsp;&nbsp;&nbsp;
+</div>
 <?php if ($title == 'merge') { ?>
 <div id="participant-options">
 &nbsp;&nbsp;&nbsp;
@@ -107,8 +183,9 @@ foreach ($tickets as $t) {
         foreach (TicketStatusList::getStatuses(
                     array('states' => $states)) as $s) {
             if (!$s->isEnabled()) continue;
-            echo sprintf('<option value="%d">%s</option>',
+            echo sprintf('<option value="%d" %s>%s</option>',
                     $s->getId(),
+                    (!$s->isDisableable()) ? 'selected="selected"' : '',
                     $s->getLocalName());
         }
         ?>
@@ -140,80 +217,6 @@ foreach ($tickets as $t) {
 <br/>
 <?php } ?>
 
-<div>
-<i class="icon-plus"></i>&nbsp;
-<span>
-    <select class="ticketSelection" name="name" id="ticket-number"
-    data-placeholder="<?php echo __('Select Ticket'); ?>">
-  </select>
-</span>
-<button type="button" class="inline green button" onclick="javascript:
-    ids = [];
-    $('input[name^=\'tids\']:checked').each(function() {
-        ids.push($(this).val());
-    });
-    var select = $(this).parent().find('select'),
-        $sel = select.find('option:selected'),
-        id = $sel.val();
-        data = $sel.data();
-        for(var key in data) {
-             ticket_id = data[key]['ticket_id'];
-             ticketLink = '<?php echo Ticket::getLink('');?>';
-             tasks = data[key]['tasks'];
-             showTasks = (tasks > 0) ? '<a data-placement=\'bottom\' <i class=\'icon-tasks\' data-toggle=\'tooltip\' title=\''+tasks+' Tasks\'>' : '';
-             spaces = data[key]['spaces'];
-             user = data[key]['user'];
-             collaborators = data[key]['collaborators'];
-             thread_id = data[key]['thread_id'] ? data[key]['thread_id'] : 0;
-             showEntries = (data[key]['entries'] > 0) ?
-                '<a data-placement=\'bottom\' data-toggle=\'tooltip\' <i class=\'icon-comments-alt\' data-toggle=\'tooltip\' title=\''+data[key]['entries']+' Thread Entries\'>' : '';
-             icon = (data[key]['mergeType'] == 'visual') ? '<i class=\'icon-link\'></i>' : '<i class=\'icon-code-fork\'></i>';
-             showMergePrev = data[key]['mergePrev'] ? '<a class=\'merge preview\' href=\'#tickets/'+ticket_id+'/merge\'>'+icon+'</i></a>' : '';
-             showCollaborators = (collaborators > 0) ?
-                '<a class=\'collaborators preview\' href=\'#thread/'+thread_id+'/collaborators/0\'><i class=\'icon-group\'></i></a>' : '';
-            inOriginalIds = ids.includes(ticket_id.toString());
-        }
-    if (data[key]['mergeType'] != 'visual') {
-        alert('<?php echo __('Merged tickets cannot be added manually. They must be preselected.');?>');
-        return;
-    }
-    if ($sel.prop('disabled'))
-        return;
-    if (!inOriginalIds) {
-        $('.merge-tickets').append($('<li></li>').addClass('sortable row-item')
-            .text(spaces + user + spaces)
-            .data('id', id)
-            .append(data[key]['subject'])
-            .append(spaces)
-            .append($('<div style=\'position:absolute; right:40px; top:10px;\'></div>')
-                .append(showEntries)
-                .append(showTasks ? spaces : '')
-                .append(showTasks)
-                .append(showMergePrev ? spaces : '')
-                .append(showMergePrev)
-                .append((collaborators > 0) ? spaces : '')
-                .append(showCollaborators))
-            .prepend($('<a target=\'_blank\' href=\''+ticketLink+ticket_id+'\' data-preview=\'#tickets/'+ticket_id+'/preview\' class=\'preview\'>\xa0'+id+'</a>'))
-            .prepend($('<i>').addClass('icon-reorder'))
-            .append($('<input/>').attr({name:'tids[]', type:'hidden'}).val(id))
-            .append($('<div></div>').addClass('button-group')
-              .append($('<div></div>').addClass('delete')
-                .append($('<a href=\'#\'>')
-                  .append($('<i>').addClass('icon-trash'))
-                  .click(function() {
-                    $sel.prop('disabled',false);
-                    $(this).closest('li.row-item').remove();
-                    $('#delete-warning').show();
-                    return false;
-                  })
-                )
-            ))
-        );
-    } else
-        alert('<?php echo __('This Ticket is already in the list.');?>');
-    $sel.prop('disabled',true);"><i class="icon-plus-sign"></i>
-<?php echo __('Add a Ticket'); ?></button>
-</div>
 <div>
     <hr>
     <?php echo ($title == 'merge') ? __('Merge Type: ') : ''; ?>
