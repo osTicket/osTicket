@@ -804,7 +804,7 @@ class TicketFilter {
             'Precedence'        => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'X-Precedence'      => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'X-Autoreply'       => 'YES',
-            'X-Auto-Response-Suppress' => array('ALL', 'DR', 'RN', 'NRN', 'OOF', 'AutoReply'),
+            'X-Auto-Response-Suppress' => array('AutoReply'),
             'X-Autoresponse'    => '*',
             'X-AutoReply-From'  => '*',
             'X-Autorespond'     => '*',

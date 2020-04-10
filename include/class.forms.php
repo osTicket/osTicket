@@ -1503,7 +1503,7 @@ class TextboxField extends FormField {
     }
 
     function parse($value) {
-        return Format::striptags($value);
+        return Format::strip_emoticons(Format::striptags($value));
     }
 
     function display($value) {
@@ -2081,6 +2081,28 @@ class NumericField extends FormField {
                         ),
             )),
         );
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        switch ($method) {
+        case 'equal':
+            return new Q(array(
+                "{$name}__exact" => intval($value)
+            ));
+        break;
+        case 'greater':
+            return Q::any(array(
+                "{$name}__gt" => intval($value)
+            ));
+        break;
+        case 'less':
+            return Q::any(array(
+                "{$name}__lt" => intval($value)
+            ));
+        break;
+        default:
+            return parent::getSearchQ($method, $value, $name);
+        }
     }
 }
 
