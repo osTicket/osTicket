@@ -5141,7 +5141,7 @@ class FreeTextWidget extends Widget {
         }
         if ($hint = $this->field->getLocal('hint')) { ?>
         <em><?php
-            echo Format::htmlchars($hint);
+            echo Format::display($hint);
         ?></em><?php
         } ?>
         <div><?php
