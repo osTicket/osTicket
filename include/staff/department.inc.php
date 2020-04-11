@@ -67,7 +67,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                       if(!array_key_exists($info['pid'], $depts) && $info['pid'])
                       {
                         $depts[$info['pid']] = $current_name;
-                        $warn = sprintf(__('%s selected must be active'), __('Parent Department'));
+                        $errors['pid'] = sprintf(__('%s selected must be active'), __('Parent Department'));
                       }
                     foreach ($depts as $id=>$name) {
                         $selected=($info['pid'] && $id==$info['pid'])?'selected="selected"':'';
@@ -76,10 +76,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                   }
                   ?>
               </select>
-              <?php
-              if($warn) { ?>
-                  &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
-              <?php } ?>
+              &nbsp;<span class="error">*&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>
         <tr>

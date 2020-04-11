@@ -795,8 +795,12 @@ implements TemplateVariable, Searchable {
             $errors['pid'] = __('Department selection is required');
 
         $dept = Dept::lookup($vars['pid']);
-        if($dept && !$dept->isActive())
-          $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Parent Department'));
+        if ($dept) {
+          if (!$dept->isActive())
+            $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Parent Department'));
+          elseif (strpos($dept->getFullPath(), '/'.$this->getId().'/') !== false)
+            $errors['pid'] = sprintf(__('%s cannot contain the current %s'), __('Parent Department'), __('Department'));
+        }
 
         if ($vars['sla_id'] && !SLA::lookup($vars['sla_id']))
             $errors['sla_id'] = __('Invalid SLA');
