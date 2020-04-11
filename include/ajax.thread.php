@@ -102,15 +102,18 @@ class ThreadAjaxAPI extends AjaxController {
 
         $errors = $info = array();
         if ($user) {
-            // FIXME: Refuse to add ticket owner??
-            if (($c=$thread->addCollaborator($user,
-                            array(), $errors))) {
-                $info = array('msg' => sprintf(__('%s added as a collaborator'),
-                            Format::htmlchars($c->getName())));
-                $c->setCc();
-                $c->save();
-                return self::_collaborators($thread, $info);
-            }
+            if ($object->getOwnerId() !== $user->getId()) {
+                $vars = array();
+                if (($c=$thread->addCollaborator($user,
+                                $vars, $errors))) {
+                    $info = array('msg' => sprintf(__('%s added as a collaborator'),
+                                Format::htmlchars($c->getName())));
+                    $c->setCc($vars['active']);
+                    $c->save();
+                    return self::_collaborators($thread, $info);
+                }
+            } else
+                $errors['err'] = __('Ticket Owner cannot be a Collaborator');
         }
 
         if($errors && $errors['err']) {

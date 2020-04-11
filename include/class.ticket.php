@@ -1209,12 +1209,14 @@ implements RestrictedAccess, Threadable, Searchable {
         return $fields ? $fields[0] : null;
     }
 
-    function addCollaborator($user, $vars, &$errors, $event=true) {
+    function addCollaborator($user, &$vars, &$errors, $event=true) {
 
         if (!$user || $user->getId() == $this->getOwnerId())
             return null;
 
         if ($c = $this->getThread()->addCollaborator($user, $vars, $errors, $event)) {
+            $c->setCc($vars['active']);
+            $c->save();
             $this->collaborators = null;
             $this->recipients = null;
         }
@@ -3094,7 +3096,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 if (($cuser=User::fromVars($recipient))) {
                   if (!$existing = Collaborator::getIdByUserId($cuser->getId(), $ticket->getThreadId())) {
                     if ($c=$ticket->addCollaborator($cuser, $info, $errors, false)) {
-                      $c->setCc();
+                      $c->setCc($info['active']);
 
                       // FIXME: This feels very unwise — should be a
                       // string indexed array for future
@@ -4315,6 +4317,11 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Start tracking ticket lifecycle events (created should come first!)
         $ticket->logEvent('created', null, $thisstaff ?: $user);
+
+        // Set default ticket status (if none) for Thread::getObject()
+        // in addCollaborators()
+        if ($ticket->getStatusId() <= 0)
+            $ticket->setStatusId($cfg->getDefaultTicketStatusId());
 
         // Add collaborators (if any)
         if (isset($vars['ccs']) && count($vars['ccs']))

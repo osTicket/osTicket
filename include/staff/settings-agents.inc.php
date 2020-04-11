@@ -69,6 +69,15 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                         </td>
                     </tr>
                     <tr>
+                        <td><?php echo __('Disable Agent Collaborators'); ?>:</td>
+                        <td>
+                            <input type="checkbox" name="disable_agent_collabs"
+                                <?php echo $config['disable_agent_collabs']?'checked="checked"':''; ?>>
+                            <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign"
+                                href="#disable_agent_collabs"></i>
+                        </td>
+                    </tr>
+                    <tr>
                         <th colspan="2">
                             <em><b><?php echo __('Authentication Settings'); ?></b></em>
                         </th>

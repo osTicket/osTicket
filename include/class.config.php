@@ -210,6 +210,7 @@ class OsticketConfig extends Config {
         'auto_claim_tickets'=>  true,
         'auto_refer_closed' => true,
         'collaborator_ticket_visibility' =>  true,
+        'disable_agent_collabs' => false,
         'require_topic_to_close' =>  false,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
@@ -1026,6 +1027,10 @@ class OsticketConfig extends Config {
         return $this->get('collaborator_ticket_visibility');
     }
 
+    function disableAgentCollaborators() {
+        return $this->get('disable_agent_collabs');
+    }
+
     function requireTopicToClose() {
         return $this->get('require_topic_to_close');
     }
@@ -1321,6 +1326,7 @@ class OsticketConfig extends Config {
             'agent_name_format'=>$vars['agent_name_format'],
             'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
+            'disable_agent_collabs'=>isset($vars['disable_agent_collabs'])?1:0,
         ));
     }
 

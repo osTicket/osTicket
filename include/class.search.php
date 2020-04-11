@@ -1830,7 +1830,8 @@ implements  AnnotatedField {
     }
 }
 
-class TicketTasksCountField extends NumericField {
+class TicketTasksCountField extends NumericField
+implements  AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return TicketTasksCount::addToQuery($query, $name);
@@ -1838,6 +1839,10 @@ class TicketTasksCountField extends NumericField {
 
     function from_query($row, $name=false) {
          return TicketTasksCount::from_query($row, $name);
+    }
+
+    function annotate($query, $name) {
+        return TicketTasksCount::annotate($query, $name);
     }
 }
 
