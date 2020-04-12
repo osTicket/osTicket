@@ -1211,17 +1211,19 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
 
-        if (!$user || $user->getId() == $this->getOwnerId())
-            return null;
+        if ($user && $user->getId() == $this->getOwnerId())
+            $errors['err'] = __('Ticket Owner cannot be a Collaborator');
 
-        if ($c = $this->getThread()->addCollaborator($user, $vars, $errors, $event)) {
+        if ($user && !$errors
+                && ($c = $this->getThread()->addCollaborator($user, $vars,
+                        $errors, $event))) {
             $c->setCc($c->active);
-            $c->save();
             $this->collaborators = null;
             $this->recipients = null;
+            return $c;
         }
 
-        return $c;
+        return null;
     }
 
     function addCollaborators($users, $vars, &$errors, $event=true) {
@@ -3745,92 +3747,91 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->updateEstDueDate();
         Signal::send('model.updated', $this);
+   }
 
-        return true;
-    }
+   function updateField($form, &$errors) {
+       global $thisstaff, $cfg;
 
-    function updateField($form, &$errors) {
-        global $thisstaff, $cfg;
+       if (!($field = $form->getField('field')))
+           return null;
 
-        if (!($field = $form->getField('field')))
-            return null;
+       $updateDuedate = false;
+       if (!($changes = $field->getChanges()))
+           $errors['field'] = sprintf(__('%s is already assigned this value'),
+                   __($field->getLabel()));
+       else {
+           if ($field->answer) {
+               if (!$field->isEditableToStaff())
+                   $errors['field'] = sprintf(__('%s can not be edited'),
+                           __($field->getLabel()));
+               elseif (!$field->save(true))
+                   $errors['field'] =  __('Unable to update field');
+               $changes['fields'] = array($field->getId() => $changes);
+           } else {
+               $val =  $field->getClean();
+               $fid = $field->get('name');
 
-        $updateDuedate = false;
-        if (!($changes = $field->getChanges()))
-            $errors['field'] = sprintf(__('%s is already assigned this value'),
-                    __($field->getLabel()));
-        else {
-            if ($field->answer) {
-                if (!$field->isEditableToStaff())
-                    $errors['field'] = sprintf(__('%s can not be edited'),
-                            __($field->getLabel()));
-                elseif (!$field->save(true))
-                    $errors['field'] =  __('Unable to update field');
-                $changes['fields'] = array($field->getId() => $changes);
-            } else {
-                $val =  $field->getClean();
-                $fid = $field->get('name');
+               // Convert duedate to DB timezone.
+               if ($fid == 'duedate') {
+                   if (empty($val))
+                       $val = null;
+                   elseif ($dt = Format::parseDateTime($val)) {
+                     // Make sure the due date is valid
+                     if (Misc::user2gmtime($val) <= Misc::user2gmtime())
+                         $errors['field']=__('Due date must be in the future');
+                     else {
+                         $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
+                         $val = $dt->format('Y-m-d H:i:s');
+                     }
+                  }
+               } elseif (is_object($val))
+                   $val = $val->getId();
 
-                // Convert duedate to DB timezone.
-                if ($fid == 'duedate') {
-                    if (empty($val))
-                        $val = null;
-                    elseif ($dt = Format::parseDateTime($val)) {
-                      // Make sure the due date is valid
-                      if (Misc::user2gmtime($val) <= Misc::user2gmtime())
-                          $errors['field']=__('Due date must be in the future');
-                      else {
-                          $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
-                          $val = $dt->format('Y-m-d H:i:s');
-                      }
+               $changes = array();
+               $this->{$fid} = $val;
+               foreach ($this->dirty as $F=>$old) {
+                   switch ($F) {
+                   case 'sla_id':
+                   case 'duedate':
+                        $updateDuedate = true;
+                   case 'topic_id':
+                   case 'user_id':
+                   case 'source':
+                       $changes[$F] = array($old, $this->{$F});
                    }
-                } elseif (is_object($val))
-                    $val = $val->getId();
+               }
 
-                $changes = array();
-                $this->{$fid} = $val;
-                foreach ($this->dirty as $F=>$old) {
-                    switch ($F) {
-                    case 'sla_id':
-                    case 'duedate':
-                         $updateDuedate = true;
-                    case 'topic_id':
-                    case 'user_id':
-                    case 'source':
-                        $changes[$F] = array($old, $this->{$F});
-                    }
-                }
+               if (!$errors && !$this->save())
+                   $errors['field'] =  __('Unable to update field');
+           }
+       }
 
-                if (!$errors && !$this->save())
-                    $errors['field'] =  __('Unable to update field');
-            }
-        }
+       if ($errors)
+           return false;
 
-        if ($errors)
-            return false;
+       // Record the changes
+       $this->logEvent('edited', $changes);
 
-        // Record the changes
-        $this->logEvent('edited', $changes);
+       // Log comments (if any)
+       if (($comments = $form->getField('comments')->getClean())) {
+           $title = sprintf(__('%s updated'), __($field->getLabel()));
+           $_errors = array();
+           $this->postNote(
+                   array('note' => $comments, 'title' => $title),
+                   $_errors, $thisstaff, false);
+       }
 
-        // Log comments (if any)
-        if (($comments = $form->getField('comments')->getClean())) {
-            $title = sprintf(__('%s updated'), __($field->getLabel()));
-            $_errors = array();
-            $this->postNote(
-                    array('note' => $comments, 'title' => $title),
-                    $_errors, $thisstaff, false);
-        }
+       $this->lastupdate = SqlFunction::NOW();
 
-        $this->lastupdate = SqlFunction::NOW();
+       if ($updateDuedate)
+           $this->updateEstDueDate();
 
-        $this->save();
-        if ($updateDuedate)
-            $this->updateEstDueDate();
+       $this->save();
 
-        Signal::send('model.updated', $this);
+       Signal::send('model.updated', $this);
 
-        return true;
-    }
+       return true;
+   }
 
    /*============== Static functions. Use Ticket::function(params); =============nolint*/
     static function getIdByNumber($number, $email=null, $ticket=false) {
