@@ -3747,6 +3747,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $this->updateEstDueDate();
         Signal::send('model.updated', $this);
+
+        return true;
    }
 
    function updateField($form, &$errors) {
