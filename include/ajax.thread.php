@@ -101,7 +101,7 @@ class ThreadAjaxAPI extends AjaxController {
             $user = User::fromForm($form);
         }
 
-        $errors = $info = array();
+        $errors = $info = $vars = array();
         if ($user && ($c=$object->addCollaborator($user, $vars, $errors))) {
             $info = array('msg' => sprintf(__('%s added as a collaborator'),
                         Format::htmlchars($c->getName())));
