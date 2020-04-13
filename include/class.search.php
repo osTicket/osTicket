@@ -1610,7 +1610,18 @@ class TicketStatusChoiceField extends SelectionField {
     }
 }
 
-class TicketThreadCountField extends NumericField {
+/*
+ * Implemented by annotated fields
+ *
+ */
+
+interface AnnotatedField {
+     // Add the annotation to a QuerySet
+    function annotate($query, $name);
+}
+
+class TicketThreadCountField extends NumericField
+implements AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return TicketThreadCount::addToQuery($query, $name);
@@ -1619,9 +1630,14 @@ class TicketThreadCountField extends NumericField {
     function from_query($row, $name=false) {
          return TicketThreadCount::from_query($row, $name);
     }
+
+    function annotate($query, $name) {
+        return TicketThreadCount::annotate($query, $name);
+    }
 }
 
-class TicketReopenCountField extends NumericField {
+class TicketReopenCountField extends NumericField
+implements AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return TicketReopenCount::addToQuery($query, $name);
@@ -1630,9 +1646,14 @@ class TicketReopenCountField extends NumericField {
     function from_query($row, $name=false) {
          return TicketReopenCount::from_query($row, $name);
     }
+
+    function annotate($query, $name) {
+        return TicketReopenCount::annotate($query, $name);
+    }
 }
 
-class ThreadAttachmentCountField extends NumericField {
+class ThreadAttachmentCountField extends NumericField
+implements AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return ThreadAttachmentCount::addToQuery($query, $name);
@@ -1641,9 +1662,14 @@ class ThreadAttachmentCountField extends NumericField {
     function from_query($row, $name=false) {
          return ThreadAttachmentCount::from_query($row, $name);
     }
+
+    function annotate($query, $name) {
+        return ThreadAttachmentCount::annotate($query, $name);
+    }
 }
 
-class ThreadCollaboratorCountField extends NumericField {
+class ThreadCollaboratorCountField extends NumericField
+implements  AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return ThreadCollaboratorCount::addToQuery($query, $name);
@@ -1651,6 +1677,10 @@ class ThreadCollaboratorCountField extends NumericField {
 
     function from_query($row, $name=false) {
          return ThreadCollaboratorCount::from_query($row, $name);
+    }
+
+    function annotate($query, $name) {
+        return ThreadCollaboratorCount::annotate($query, $name);
     }
 }
 
