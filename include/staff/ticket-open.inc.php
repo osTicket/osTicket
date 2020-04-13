@@ -88,6 +88,7 @@ if ($_POST)
                   <tr><td><?php echo __('User'); ?>:</td><td>
                     <div id="user-info">
                       <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
+                      <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
                       <a href="#" onclick="javascript:
                       $.userLookup('ajax.php/users/<?php echo $user->getId(); ?>/edit',
                       function (user) {
@@ -95,7 +96,11 @@ if ($_POST)
                         $('#user-email').text(user.email);
                       });
                       return false;
-                      "><i class="icon-user"></i>
+                      ">
+                      <?php } else { ?>
+                      <a href="#">
+                      <?php } ?>
+                      <i class="icon-user"></i>
                       <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                       &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                     </a>
