@@ -1110,8 +1110,6 @@ $(document).on('pjax:start', function() {
     // Cancel save-changes warning banner
     $(document).unbind('pjax:beforeSend.changed');
     $(window).unbind('beforeunload');
-    // Close popups
-    $('.dialog .body').empty().parent().hide();
     $.toggleOverlay(false);
     // Close tooltips
     $('.tip_box').remove();
