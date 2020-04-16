@@ -972,7 +972,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.response', $ticket->getId(), $info['response']);
-    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
+    echo $attrs; ?>><?php echo ThreadEntryBody::clean($_POST ? $info['response'] : $draft);
                     ?></textarea>
                 </div>
                 <div id="reply_form_attachments" class="attachments">
@@ -1090,7 +1090,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                             ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.note', $ticket->getId(), $info['note']);
-    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
+    echo $attrs; ?>><?php echo ThreadEntryBody::clean($_POST ? $info['note'] : $draft);
                         ?></textarea>
                 <div class="attachments">
                 <?php
