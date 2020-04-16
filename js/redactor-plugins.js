@@ -245,9 +245,9 @@ if (!RedactorPlugins) var RedactorPlugins = {};
     start: function () {
       var dropdown = {};
       for (var i = 0; i < this.fonts.length; i++) {
-        var font = this.fonts[i].replace(/'/g, '');
+        var font = this.fonts[i];
         dropdown[i] = {
-          title: $R.dom('<span>').css('font-family', font).text(font).get().outerHTML,
+          title: font.replace(/'/g, ''),
           api: 'plugin.fontfamily.set',
           args: font,
         };
@@ -563,7 +563,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
             .get(index);
           var $origCell = $R.dom(origCell);
           var $td = $origCell.clone();
-          $td.html('');
+          $td.html('<div data-redactor-tag="tbr"></div>');
           if (type === 'right') $origCell.after($td);
           else $origCell.before($td);
         });
@@ -631,6 +631,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       for (var i = 0; i < columns; i++) {
         var $cell = $R.dom(tag);
         $cell.attr('contenteditable', true);
+        $cell.html('<div data-redactor-tag="tbr"></div>');
         $row.append($cell);
       }
       return $row;
@@ -654,6 +655,9 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         'tabindex': '-1',
         'contenteditable': false
       });
+      if (this.app.detector.isIe()) {
+        this.removeAttr('contenteditable');
+      }
     }
   });
 
@@ -752,7 +756,6 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       };
       var button = this.toolbar.addButtonAuto('fullscreen', data);
       button.setIcon('<i class="re-icon-expand"></i>');
-      button.addClass('pull-right');
       this.$target = (this.toolbar.isTarget()) ? this.toolbar.getTargetElement() : this.$body;
       if (this.opts.fullscreen) this.toggle();
     },
@@ -774,9 +777,6 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       $html.css('overflow', 'hidden');
       if (this.opts.maxHeight) $editor.css('max-height', '');
       if (this.opts.minHeight) $editor.css('min-height', '');
-      if (this.opts.maxWidth) {
-        this.toolbar.$wrapper.css({'max-width': this.opts.maxWidth, 'margin': 'auto'});
-      }
       this._resize();
       this.$win.on('resize.redactor-plugin-fullscreen', this._resize.bind(this));
       this.$doc.scrollTop(0);
@@ -801,7 +801,6 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       $editor.css('height', 'auto');
       if (this.opts.minHeight) $editor.css('minHeight', this.opts.minHeight);
       if (this.opts.maxHeight) $editor.css('maxHeight', this.opts.maxHeight);
-      if (this.opts.maxWidth) this.toolbar.$wrapper.css('max-width', '');
       var button = this.toolbar.getButton('fullscreen');
       button.setIcon('<i class="re-icon-expand"></i>');
       this._removePlacemarker($container);
@@ -853,7 +852,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       'video':
         '<form action=""> \
            <div class="form-item"> \
-             <label for="modal-video-input">## video-html-code ## <span class="req">*</span></label> \
+             <label for="modal-video-input">## video-html-code ##</label> \
              <textarea id="modal-video-input" name="video" style="height: 160px;"></textarea> \
            </div> \
          </form>'
@@ -946,14 +945,16 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       if (this._isVideoIframe(data)) {
         var allowed = ['iframe', 'video', 'source'];
         var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+        data = data.replace(/<p(.*?[^>]?)>([\w\W]*?)<\/p>/gi, '');
         data = data.replace(tags, function ($0, $1) {
           return (allowed.indexOf($1.toLowerCase()) === -1) ? '' : $0;
         });
-      }
-      if (data.match(this.opts.regex.youtube)) {
-        data = data.replace(this.opts.regex.youtube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
-      } else if (data.match(this.opts.regex.vimeo)) {
-        data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
+      } else {
+        if (data.match(this.opts.regex.youtube)) {
+          data = data.replace(this.opts.regex.youtube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
+        } else if (data.match(this.opts.regex.vimeo)) {
+          data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
+        }
       }
       return data;
     }
