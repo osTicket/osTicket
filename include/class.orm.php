@@ -755,7 +755,6 @@ class VerySimpleModel {
         $dup->__new__ = true;
         return $dup;
     }
-
 }
 
 /**

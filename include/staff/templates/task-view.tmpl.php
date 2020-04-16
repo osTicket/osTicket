@@ -455,7 +455,7 @@ if (!$ticket) { ?>
                                 if ($isFile && !$isEmpty) {
                                     echo sprintf('<span id="field_%s" %s >%s</span><br>', $id,
                                         $class,
-                                        $v ?: '<span class="faded">&mdash;' . __('Empty') .  '&mdash; </span>');
+                                        $clean);
                                 }
                                      ?>
                               <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"

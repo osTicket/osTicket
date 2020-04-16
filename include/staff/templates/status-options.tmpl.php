@@ -26,11 +26,14 @@ if (!$object || $object->isCloseable())
 
 $nextStatuses = array();
 if ($objectName == 'task') {
-    $statusName = ($object->getStatus() == 'Open') ? 'Closed' : 'Open';
-    $status = TicketStatus::objects()
-        ->filter(array('name' => $statusName))
-        ->first();
-    $nextStatuses[] = $status;
+    $state = ($object->getStatus() == 'Open') ? 'open' : 'closed';
+    foreach (TicketStatusList::getStatuses(
+                array('states' => $states)) as $status) {
+        if (isset($actions[$status->getState()])
+                && !$status->isDisableable()
+                && $status->getState() != $state)
+            $nextStatuses[] = $status;
+    }
 } else {
     $statusId = $object ? $object->getStatusId() : 0;
     foreach (TicketStatusList::getStatuses(

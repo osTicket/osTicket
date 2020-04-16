@@ -215,7 +215,7 @@ class TasksAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($task=Task::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such task'));
         elseif (!$task->checkStaffPerm($thisstaff, Task::PERM_EDIT))
             Http::response(403, __('Permission denied'));
         elseif (!($field=$task->getField($fid)))
@@ -307,7 +307,7 @@ class TasksAjaxAPI extends AjaxController {
                 $state = 'open';
                 break;
             case 'close':
-                if (!$role->hasPerm(Ticket::PERM_CLOSE))
+                if (!$role->hasPerm(Task::PERM_CLOSE))
                     Http::response(403, 'Access denied');
                 $state = 'closed';
 
@@ -316,50 +316,25 @@ class TasksAjaxAPI extends AjaxController {
                     $info['warn'] =  $closeable;
 
                 break;
-            case 'delete':
-                if (!$role->hasPerm(Ticket::PERM_DELETE))
-                    Http::response(403, 'Access denied');
-                $state = 'deleted';
-                break;
             default:
                 $state = $task->getStatus()->getState();
                 $info['warn'] = sprintf(__('%s: Unknown or invalid'),
                         __('status'));
         }
 
-        $info['status_id'] = $id ?: $task->getStatusId();
+        $info['status_id'] = $id;
 
         return self::_changeTaskStatus($task, $state, $info);
     }
 
     private function _changeTaskStatus($task, $state, $info=array(), $errors=array()) {
 
-        $verb = TicketStateField::getVerb($state);
-
         $info['action'] = sprintf('#tasks/%d/status', $task->getId());
         $info['title'] = sprintf(__(
                     /* 1$ will be a verb, like 'open', 2$ will be the task number */
                     '%1$s Task #%2$s'),
-                $verb ?: $state,
-                $task->getNumber()
-                );
+                $state, $task->getNumber());
 
-        // Deleting?
-        if (!strcasecmp($state, 'deleted')) {
-
-            $info['placeholder'] = sprintf(__(
-                        'Optional reason for deleting %s'),
-                    __('this task'));
-            $info[ 'warn'] = sprintf(__(
-                        'Are you sure you want to DELETE %s?'),
-                        __('this task'));
-            //TODO: remove message below once we ship data retention plug
-            $info[ 'extra'] = sprintf('<strong>%s</strong>',
-                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
-                        );
-        }
-
-        $info['status_id'] = $info['status_id'] ?: $task->getStatusId();
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
 
         return self::_changeStatus($state, $info, $errors);
@@ -384,16 +359,13 @@ class TasksAjaxAPI extends AjaxController {
         elseif (!$tid
                 || !($task=Task::lookup($tid))
                 || !$task->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket #');
+            Http::response(404, 'Unknown task #');
 
         $errors = $info = array();
         if (!$_POST['status_id']
                 || !($status= TicketStatus::lookup($_POST['status_id'])))
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
-        elseif ($status->getId() == $task->getStatusId())
-            $errors['err'] = sprintf(__('Ticket already set to %s status'),
-                    __($status->getName()));
         elseif (($role = $task->getRole($thisstaff))) {
             // Make sure the agent has permission to set the status
             switch(mb_strtolower($status->getState())) {
@@ -408,11 +380,6 @@ class TasksAjaxAPI extends AjaxController {
                         $errors['err'] = sprintf(__('You do not have permission %s'),
                                 __('to resolve/close tasks'));
                     break;
-                case 'deleted':
-                    if (!$role->hasPerm(Task::PERM_DELETE))
-                        $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to archive/delete tasks'));
-                    break;
                 default:
                     $errors['err'] = sprintf('%s %s',
                             __('Unknown or invalid'), __('status'));
@@ -426,12 +393,7 @@ class TasksAjaxAPI extends AjaxController {
             $failures = array();
 
             if (!$failures) {
-                if ($state == 'deleted') {
-                    $msg = sprintf('%s %s',
-                            sprintf(__('Task #%s'), $task->getNumber()),
-                            __('deleted sucessfully')
-                            );
-                } elseif ($state != 'open') {
+                if ($state != 'open') {
                      $msg = sprintf(__('%s status changed to %s'),
                              sprintf(__('Task #%s'), $task->getNumber()),
                              $status->getName());
@@ -458,8 +420,7 @@ class TasksAjaxAPI extends AjaxController {
             $errors['err'] =  __('Error updating task status');
 
         $state = $state ?: $task->getStatus();
-        $info['status_id'] = $status
-            ? $status->getId() : $task->getStatusId();
+        $info['status_id'] = $status->getId();
 
         return self::_changeTaskStatus($task, $state, $info, $errors);
     }
@@ -481,7 +442,7 @@ class TasksAjaxAPI extends AjaxController {
                     'verbed' => __('deleted'),
                     ),
                 'reopen' => array(
-                    'verbed' => __('reopen'),
+                    'verbed' => __('reopened'),
                     ),
                 'close' => array(
                     'verbed' => __('closed'),
@@ -655,7 +616,7 @@ class TasksAjaxAPI extends AjaxController {
             $inc = 'task-status.tmpl.php';
             $info[':action'] = "#tasks/mass/$action";
             $info['status'] = $info['status'] ?: 'closed';
-            $perm = $action = '';
+            $perm = '';
             switch ($info['status']) {
             case 'open':
                 // If an agent can create a task then they're allowed to

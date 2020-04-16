@@ -172,16 +172,6 @@ class TaskModel extends VerySimpleModel {
         return $this->isClosed() ? $this->closed : '';
     }
 
-    function getStatusId() {
-        $statusName = $this->getStatus();
-        $status = TicketStatus::objects()
-            ->filter(array('name' => $statusName))
-            ->values_flat('id')
-            ->first();
-
-        return $status[0];
-    }
-
     function isOpen() {
         return $this->hasFlag(self::ISOPEN);
     }
@@ -593,7 +583,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         global $thisstaff;
 
         $ecb = null;
-        switch(strtolower($status->getName())) {
+        switch(is_string($status) ? $status : strtolower($status->getName())) {
         case 'open':
             if ($this->isOpen())
                 return false;

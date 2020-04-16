@@ -2,7 +2,7 @@
 global $cfg;
 
 if (!$info['title'])
-    $info['title'] = __('Change Tickets Status');
+    $info['title'] = __('Change Status');
 
 ?>
 <h3 class="drag-handle"><?php echo $info['title']; ?></h3>
@@ -43,10 +43,15 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                 $statuses = TicketStatusList::getStatuses(array('states'=>array($state)))->all();
                 $verb = TicketStateField::getVerb($state);
             } else {
-                $status = TicketStatus::objects()
-                    ->filter(array('name' => $state))
-                    ->first();
-                $statuses[] = $status;
+                // Map states to actions
+                $actions = array('closed','open');
+                foreach (TicketStatusList::getStatuses(
+                            array('states' => $states)) as $status) {
+                    if (in_array($status->getState(), $actions)
+                            && !$status->isDisableable()
+                            && $status->getState() == $state)
+                        $statuses[] = $status;
+                }
             }
 
             if ($statuses) {
