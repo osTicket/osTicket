@@ -106,7 +106,7 @@ implements TemplateVariable {
     }
 
     function update($vars, &$errors) {
-
+        $vars = Format::htmlchars($vars);
         if (!$vars['grace_period'])
             $errors['grace_period'] = __('Grace period required');
         elseif (!is_numeric($vars['grace_period']))
@@ -208,6 +208,7 @@ implements TemplateVariable {
     }
 
     static function create($vars=false, &$errors=array()) {
+        $vars = Format::htmlchars($vars);
         $sla = new static($vars);
         $sla->created = SqlFunction::NOW();
         return $sla;
