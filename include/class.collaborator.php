@@ -37,6 +37,8 @@ implements EmailContact, ITicketUser {
     const FLAG_ACTIVE = 0x0001;
     const FLAG_CC = 0x0002;
 
+    var $active;
+
     function __toString() {
         return Format::htmlchars($this->toString());
     }
