@@ -43,7 +43,7 @@ if ($_POST) {
     case 'create':
         $queue = CustomQueue::create(array(
             'staff_id' => 0,
-            'title' => $_POST['queue-name'],
+            'title' => Format::htmlchars($_POST['queue-name']),
             'root' => 'T'
         ));
 
