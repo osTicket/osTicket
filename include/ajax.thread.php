@@ -108,7 +108,7 @@ class ThreadAjaxAPI extends AjaxController {
                                 $vars, $errors))) {
                     $info = array('msg' => sprintf(__('%s added as a collaborator'),
                                 Format::htmlchars($c->getName())));
-                    $c->setCc($vars['active']);
+                    $c->setCc($c->active);
                     $c->save();
                     return self::_collaborators($thread, $info);
                 }
