@@ -469,9 +469,9 @@ implements TemplateVariable, Searchable {
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));
         if ($filter_actions && $vars['status'] == 'active')
-          FilterAction::setFilterFlag($filter_actions, 'topic', false);
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', false);
         else
-          FilterAction::setFilterFlag($filter_actions, 'topic', true);
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
 
         switch ($vars['status']) {
           case 'active':

@@ -1455,10 +1455,12 @@ implements CustomListItem, TemplateVariable, Searchable {
     function delete() {
 
         // Statuses with tickets are not deletable
-        if (!$this->isDeletable())
+        if (!$this->isDeletable() || !parent::delete())
             return false;
 
-        return parent::delete();
+        Signal::send('object.deleted', $this);
+
+        return true;
     }
 
     function __toString() {

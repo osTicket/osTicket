@@ -124,6 +124,10 @@ else
                     if ($row['flags'] & Filter::FLAG_INACTIVE_HT)
                       echo '<a data-placement="bottom" data-toggle="tooltip" title="Inactive Help Topic Selected"
                         <i class="pull-right icon-warning-sign"></a>';
+
+                    if ($row['flags'] & Filter::FLAG_DELETED_OBJECT)
+                      echo '<a data-placement="bottom" data-toggle="tooltip" title="Deleted Object Selected"
+                        <i class="pull-right icon-warning-sign"></a>';
                   ?>
                 </td>
                 <td><?php echo $row['isactive']?__('Active'):'<b>'.__('Disabled').'</b>'; ?></td>
@@ -190,4 +194,3 @@ endif;
      </p>
     <div class="clear"></div>
 </div>
-
