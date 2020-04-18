@@ -171,7 +171,8 @@ if($_POST){
                         if ($topics==$count || $topics>0) {
                             $data = array();
                             foreach ($_POST['ids'] as $id) {
-                                if ($data = AuditEntry::getDataById($id, 'H'))
+                                if (class_exists('AuditEntry')
+                                        && $data = AuditEntry::getDataById($id, 'H'))
                                     $name = json_decode($data[2], true);
                                 else {
                                     $name = __('NA');

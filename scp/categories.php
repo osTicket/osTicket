@@ -124,7 +124,8 @@ if($_POST){
                         if (count($categories)==$count || $categories>0) {
                             $data = array();
                             foreach ($_POST['ids'] as $id) {
-                                if ($data = AuditEntry::getDataById($id, 'C'))
+                                if (class_exists('AuditEntry')
+                                        && $data = AuditEntry::getDataById($id, 'C'))
                                     $name = json_decode($data[2], true);
                                 else {
                                     $name = __('NA');
