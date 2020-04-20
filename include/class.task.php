@@ -276,13 +276,6 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->__cdata('title', ObjectModel::OBJECT_TYPE_TASK);
     }
 
-    function getRole($staff) {
-        if (!$staff instanceof Staff)
-            return null;
-
-        return $staff->getRole($this->getDept(), $this->isAssigned($staff));
-    }
-
     function checkStaffPerm($staff, $perm=null) {
 
         // Must be a valid staff
@@ -583,7 +576,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         global $thisstaff;
 
         $ecb = null;
-        switch(is_string($status) ? $status : strtolower($status->getName())) {
+        switch($status) {
         case 'open':
             if ($this->isOpen())
                 return false;

@@ -2,7 +2,7 @@
 global $cfg;
 
 if (!$info['title'])
-    $info['title'] = __('Change Status');
+    $info['title'] = __('Change Tickets Status');
 
 ?>
 <h3 class="drag-handle"><?php echo $info['title']; ?></h3>
@@ -21,7 +21,7 @@ if ($info['error']) {
            $info['notice']);
 }
 
-$type = ($info['action'] && strpos($info['action'], 'task') !== false) ? 'task' : 'ticket';
+
 $action = $info['action'] ?: ('#tickets/status/'. $state);
 ?>
 <div id="ticket-status" style="display:block; margin:5px;">
@@ -39,19 +39,9 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
             }
 
             $verb = '';
-            if ($state && $type == 'ticket') {
+            if ($state) {
                 $statuses = TicketStatusList::getStatuses(array('states'=>array($state)))->all();
                 $verb = TicketStateField::getVerb($state);
-            } else {
-                // Map states to actions
-                $actions = array('closed','open');
-                foreach (TicketStatusList::getStatuses(
-                            array('states' => $states)) as $status) {
-                    if (in_array($status->getState(), $actions)
-                            && !$status->isDisableable()
-                            && $status->getState() == $state)
-                        $statuses[] = $status;
-                }
             }
 
             if ($statuses) {
@@ -61,7 +51,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                     <td colspan=2>
                         <span>
                         <?php
-                        if (count($statuses) > 1 || $type == 'task') { ?>
+                        if (count($statuses) > 1) { ?>
                             <strong><?php echo __('Status') ?>:&nbsp;</strong>
                             <select name="status_id">
                             <?php

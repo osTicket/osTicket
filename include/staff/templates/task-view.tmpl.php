@@ -199,8 +199,43 @@ if ($task->isOverdue())
                 </ul>
             </div>
             <?php
-           } else {
-                echo TicketStatus::status_options();
+        } else { ?>
+                <span
+                    class="action-button"
+                    data-dropdown="#action-dropdown-tasks-status">
+                    <i class="icon-caret-down pull-right"></i>
+                    <a class="tasks-status-action"
+                        href="#statuses"
+                        data-placement="bottom"
+                        data-toggle="tooltip"
+                        title="<?php echo __('Change Status'); ?>"><i
+                        class="icon-flag"></i></a>
+                </span>
+                <div id="action-dropdown-tasks-status"
+                    class="action-dropdown anchor-right">
+                    <ul>
+                        <?php
+                        if ($task->isClosed()) { ?>
+                        <li>
+                            <a class="no-pjax task-action"
+                                href="#tasks/<?php echo $task->getId(); ?>/reopen"><i
+                                class="icon-fixed-width icon-undo"></i> <?php
+                                echo __('Reopen');?> </a>
+                        </li>
+                        <?php
+                        } elseif ($canClose) {
+                        ?>
+                        <li>
+                            <a class="no-pjax task-action"
+                                href="#tasks/<?php echo $task->getId(); ?>/close"><i
+                                class="icon-fixed-width icon-ok-circle"></i> <?php
+                                echo __('Close');?> </a>
+                        </li>
+                        <?php
+                        } ?>
+                    </ul>
+                </div>
+                <?php
                 // Assign
                 unset($actions['claim'], $actions['assign/agents'], $actions['assign/teams']);
                 if ($task->isOpen() && $role->hasPerm(Task::PERM_ASSIGN)) {?>
@@ -285,14 +320,14 @@ if (!$ticket) { ?>
                     <tr>
                         <th width="100"><?php echo __('Status');?>:</th>
                         <?php
-                             if ($role->hasPerm(Task::PERM_CLOSE)) {?>
-                             <td>
-                              <a class="task-action" data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>"
-                                  data-redirect="tasks.php?id=<?php echo $task->getId(); ?>"
-                                  href="#statuses"
-                                  >
-                                  <?php echo $task->getStatus(); ?>
-                              </a>
+                             if ($role->hasPerm(Task::PERM_CLOSE)) {
+                                 $state = $task->isClosed() ? 'reopen' : 'close'; ?>
+                            <td>
+                                <a class="task-action"
+                                    href=<?php echo sprintf('#tasks/%s/%s', $task->getId(), $state); ?>
+                                    data-placement="bottom"
+                                    data-toggle="tooltip"
+                                    title="<?php echo __('Change Status'); ?>"><?php echo $task->getStatus(); ?></a>
                             </td>
                           <?php } else { ?>
                               <td><?php echo ($S = $task->getStatus()) ? $S->display() : ''; ?></td>

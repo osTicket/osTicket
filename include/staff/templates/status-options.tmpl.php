@@ -1,9 +1,7 @@
 <?php
-global $thisstaff, $ticket, $task;
+global $thisstaff, $ticket;
 
-$object = $task ?: $ticket;
-$objectName = $task ? 'task' : 'ticket';
-$role = $object ? $object->getRole($thisstaff) : $thisstaff->getRole();
+$role = $ticket ? $ticket->getRole($thisstaff) : $thisstaff->getRole();
 if ($role && !$role->hasPerm(Ticket::PERM_CLOSE))
     return;
 
@@ -12,7 +10,7 @@ $actions= array(
         'closed' => array(
             'icon'  => 'icon-ok-circle',
             'action' => 'close',
-            'href' => sprintf('%ss.php', $objectName)
+            'href' => 'tickets.php'
             ),
         'open' => array(
             'icon'  => 'icon-undo',
@@ -21,29 +19,19 @@ $actions= array(
         );
 
 $states = array('open');
-if (!$object || $object->isCloseable())
+if (!$ticket || $ticket->isCloseable())
     $states[] = 'closed';
 
+$statusId = $ticket ? $ticket->getStatusId() : 0;
 $nextStatuses = array();
-if ($objectName == 'task') {
-    $state = ($object->getStatus() == 'Open') ? 'open' : 'closed';
-    foreach (TicketStatusList::getStatuses(
-                array('states' => $states)) as $status) {
-        if (isset($actions[$status->getState()])
-                && !$status->isDisableable()
-                && $status->getState() != $state)
-            $nextStatuses[] = $status;
-    }
-} else {
-    $statusId = $object ? $object->getStatusId() : 0;
-    foreach (TicketStatusList::getStatuses(
-                array('states' => $states)) as $status) {
-        if (!isset($actions[$status->getState()])
-                || $statusId == $status->getId())
-            continue;
-        $nextStatuses[] = $status;
-    }
+foreach (TicketStatusList::getStatuses(
+            array('states' => $states)) as $status) {
+    if (!isset($actions[$status->getState()])
+            || $statusId == $status->getId())
+        continue;
+    $nextStatuses[] = $status;
 }
+
 if (!$nextStatuses)
     return;
 ?>
@@ -63,10 +51,10 @@ if (!$nextStatuses)
 <?php foreach ($nextStatuses as $status) { ?>
         <li>
             <a class="no-pjax <?php
-                echo $object ? sprintf('%s-action', $objectName) : sprintf('%ss-action', $objectName); ?>"
+                echo $ticket? 'ticket-action' : 'tickets-action'; ?>"
                 href="<?php
                     echo sprintf('#%s/status/%s/%d',
-                            $object ? (sprintf('%ss/%d', $objectName, $object->getId())) : sprintf('%ss', $objectName),
+                            $ticket ? ('tickets/'.$ticket->getId()) : 'tickets',
                             $actions[$status->getState()]['action'],
                             $status->getId()); ?>"
                 <?php
