@@ -109,7 +109,7 @@ if($_POST){
                                       foreach ($faqs as $key => $faq)
                                           $faq->delete();
                                   }
-                             $c->delete();
+                              $c->delete();
                         }
 
                         if (count($categories)==$count)
@@ -121,20 +121,6 @@ if($_POST){
                         elseif (!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected category', 'selected categories', $count));
-                        if (count($categories)==$count || $categories>0) {
-                            $data = array();
-                            foreach ($_POST['ids'] as $id) {
-                                if (class_exists('AuditEntry')
-                                        && $data = AuditEntry::getDataById($id, 'C'))
-                                    $name = json_decode($data[2], true);
-                                else {
-                                    $name = __('NA');
-                                    $data = array('C', $id);
-                                }
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $data, $type);
-                            }
-                        }
                         break;
                     default:
                         $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
