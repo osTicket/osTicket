@@ -110,7 +110,8 @@ if($_POST) {
                         if ($i==$count || $i>0) {
                             $data = array();
                             foreach ($_POST['ids'] as $id) {
-                                if ($data = AuditEntry::getDataById($id, 'G'))
+                                if (class_exists('AuditEntry')
+                                    && $data = AuditEntry::getDataById($id, 'G'))
                                         $name = json_decode($data[2], true);
                                 else {
                                     $name = __('NA');
