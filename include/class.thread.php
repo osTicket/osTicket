@@ -168,7 +168,7 @@ implements Searchable {
     }
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
-        global $cfg;
+        global $cfg, $thisstaff;
 
         if (!$user)
             return null;
@@ -183,8 +183,8 @@ implements Searchable {
             return null;
 
         $c->active = true;
-        // Disable Agent Collabs (if configured)
-        if ($this->object_type === 'T'
+        // Disable Agent Collabs (if configured) for User created tickets
+        if (!$thisstaff && $this->object_type === 'T'
                 && $cfg->disableAgentCollaborators()
                 && Staff::lookup($user->getDefaultEmailAddress()))
             $c->active = false;
