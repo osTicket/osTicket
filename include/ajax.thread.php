@@ -83,6 +83,7 @@ class ThreadAjaxAPI extends AjaxController {
 
         if (!($thread=Thread::lookup($tid))
                 || !($object=$thread->getObject())
+                || !is_subclass_of($object, 'Threadable')
                 || !$object->checkStaffPerm($thisstaff))
             Http::response(404, __('No such thread'));
 
@@ -101,22 +102,13 @@ class ThreadAjaxAPI extends AjaxController {
         }
 
         $errors = $info = array();
-        if ($user) {
-            if ($object->getOwnerId() !== $user->getId()) {
-                $vars = array();
-                if (($c=$thread->addCollaborator($user,
-                                $vars, $errors))) {
-                    $info = array('msg' => sprintf(__('%s added as a collaborator'),
-                                Format::htmlchars($c->getName())));
-                    $c->setCc($c->active);
-                    $c->save();
-                    return self::_collaborators($thread, $info);
-                }
-            } else
-                $errors['err'] = __('Ticket Owner cannot be a Collaborator');
+        if ($user && ($c=$object->addCollaborator($user, $vars, $errors))) {
+            $info = array('msg' => sprintf(__('%s added as a collaborator'),
+                        Format::htmlchars($c->getName())));
+            return self::_collaborators($thread, $info);
         }
 
-        if($errors && $errors['err']) {
+        if ($errors && $errors['err']) {
             $info +=array('error' => $errors['err']);
         } else {
             $info +=array('error' =>__('Unable to add collaborator.').' '.__('Internal error occurred'));
