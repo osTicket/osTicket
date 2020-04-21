@@ -314,7 +314,7 @@ class Schedule extends VerySimpleModel {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
         if (isset($this->dirty['description']))
-            $this->description = Format::sanitize($this->notes);
+            $this->description = Format::sanitize($this->description);
 
         return parent::save($refetch);
     }
