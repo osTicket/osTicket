@@ -1211,17 +1211,19 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function addCollaborator($user, $vars, &$errors, $event=true) {
 
-        if (!$user || $user->getId() == $this->getOwnerId())
-            return null;
+        if ($user && $user->getId() == $this->getOwnerId())
+            $errors['err'] = __('Ticket Owner cannot be a Collaborator');
 
-        if ($c = $this->getThread()->addCollaborator($user, $vars, $errors, $event)) {
+        if ($user && !$errors
+                && ($c = $this->getThread()->addCollaborator($user, $vars,
+                        $errors, $event))) {
             $c->setCc($c->active);
-            $c->save();
             $this->collaborators = null;
             $this->recipients = null;
+            return $c;
         }
 
-        return $c;
+        return null;
     }
 
     function addCollaborators($users, $vars, &$errors, $event=true) {

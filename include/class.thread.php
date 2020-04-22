@@ -178,7 +178,7 @@ implements Searchable {
 
         $vars = array_merge(array(
                 'threadId' => $this->getId(),
-                'userId' => $user->getId()), $vars);
+                'userId' => $user->getId()), $vars ?: array());
         if (!($c=Collaborator::add($vars, $errors)))
             return null;
 
@@ -3364,6 +3364,7 @@ interface Threadable {
     function getThreadId();
     function getThread();
     function postThreadEntry($type, $vars, $options=array());
+    function addCollaborator($user, $vars, &$errors, $event=true);
 }
 
 /**
