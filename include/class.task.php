@@ -370,6 +370,37 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         return $this->lastrespondent;
     }
 
+    function getField($fid) {
+        if (is_numeric($fid))
+            return $this->getDymanicFieldById($fid);
+
+        // Special fields
+        switch ($fid) {
+        case 'duedate':
+            return DateTimeField::init(array(
+                'id' => $fid,
+                'name' => $fid,
+                'default' => Misc::db2gmtime($this->getDueDate()),
+                'label' => __('Due Date'),
+                'configuration' => array(
+                    'min' => Misc::gmtime(),
+                    'time' => true,
+                    'gmt' => false,
+                    'future' => true,
+                    )
+                ));
+        }
+    }
+
+    function getDymanicFieldById($fid) {
+        foreach (DynamicFormEntry::forObject($this->getId(),
+            ObjectModel::OBJECT_TYPE_TASK) as $form) {
+                foreach ($form->getFields() as $field)
+                    if ($field->getId() == $fid)
+                        return $field;
+        }
+    }
+
     function getDynamicFields($criteria=array()) {
 
         $fields = DynamicFormField::objects()->filter(array(
@@ -1336,6 +1367,84 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         Signal::send('model.updated', $this);
         return $this->save();
+    }
+
+    function updateField($form, &$errors) {
+        global $thisstaff, $cfg;
+
+        if (!($field = $form->getField('field')))
+            return null;
+
+        if (!($changes = $field->getChanges()))
+            $errors['field'] = sprintf(__('%s is already assigned this value'),
+                    __($field->getLabel()));
+        else {
+            if ($field->answer) {
+                if (!$field->isEditableToStaff())
+                    $errors['field'] = sprintf(__('%s can not be edited'),
+                            __($field->getLabel()));
+                elseif (!$field->save(true))
+                    $errors['field'] =  __('Unable to update field');
+                $changes['fields'] = array($field->getId() => $changes);
+            } else {
+                $val =  $field->getClean();
+                $fid = $field->get('name');
+
+                // Convert duedate to DB timezone.
+                if ($fid == 'duedate') {
+                    if (empty($val))
+                        $val = null;
+                    elseif ($dt = Format::parseDateTime($val)) {
+                      // Make sure the due date is valid
+                      if (Misc::user2gmtime($val) <= Misc::user2gmtime())
+                          $errors['field']=__('Due date must be in the future');
+                      else {
+                          $dt->setTimezone(new DateTimeZone($cfg->getDbTimezone()));
+                          $val = $dt->format('Y-m-d H:i:s');
+                      }
+                   }
+                } elseif (is_object($val))
+                    $val = $val->getId();
+
+                $changes = array();
+                $this->{$fid} = $val;
+                foreach ($this->dirty as $F=>$old) {
+                    switch ($F) {
+                    case 'sla_id':
+                    case 'topic_id':
+                    case 'user_id':
+                    case 'source':
+                        $changes[$F] = array($old, $this->{$F});
+                    }
+                }
+
+                if (!$errors && !$this->save())
+                    $errors['field'] =  __('Unable to update field');
+            }
+        }
+
+        if ($errors)
+            return false;
+
+        // Record the changes
+        $this->logEvent('edited', $changes);
+
+        // Log comments (if any)
+        if (($comments = $form->getField('comments')->getClean())) {
+            $title = sprintf(__('%s updated'), __($field->getLabel()));
+            $_errors = array();
+            $this->postNote(
+                    array('note' => $comments, 'title' => $title),
+                    $_errors, $thisstaff, false);
+        }
+
+        $this->lastupdate = SqlFunction::NOW();
+
+        $this->save();
+
+        Signal::send('model.updated', $this);
+
+        return true;
     }
 
     /* static routines */
