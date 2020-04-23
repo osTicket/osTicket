@@ -305,7 +305,7 @@ class FA_RouteDepartment extends TriggerAction {
         if ($config['dept_id']) {
           $dept = Dept::lookup($config['dept_id']);
 
-          if ($dept->isActive())
+          if ($dept && $dept->isActive())
             $ticket['deptId'] = $config['dept_id'];
         }
     }
@@ -450,8 +450,7 @@ class FA_AssignTopic extends TriggerAction {
         $config = $this->getConfiguration();
         if ($config['topic_id']) {
           $topic = Topic::lookup($config['topic_id']);
-
-          if ($topic->isActive())
+          if ($topic && $topic->isActive())
             $ticket['topicId'] = $config['topic_id'];
         }
     }
