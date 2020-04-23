@@ -398,6 +398,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     function update($vars, &$errors) {
+        $vars = Format::htmlchars($vars);
         $required = array();
         if ($this->isEditable())
             $required = array('name');
@@ -463,7 +464,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 
     static function add($vars, &$errors) {
-
+        $vars = Format::htmlchars($vars);
         $required = array('name');
         $ht = array();
         foreach (static::$fields as $f) {
@@ -477,7 +478,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             return false;
 
         // Create the list && form
-        if (!($list = self::create($ht))
+        if (!($list = self::create($ht, $errors, false))
                 || !$list->save(true)
                 || !$list->createConfigurationForm())
             return false;
@@ -485,7 +486,10 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return $list;
     }
 
-    static function create($ht=false, &$errors=array()) {
+    static function create($ht=false, &$errors=array(), $sanitize=true) {
+        if ($ht && $sanitize)
+            $ht = Format::htmlchars($ht);
+
         if (isset($ht['configuration'])) {
             $ht['configuration'] = JsonDataEncoder::encode($ht['configuration']);
         }

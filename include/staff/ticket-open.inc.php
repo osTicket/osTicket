@@ -399,7 +399,7 @@ if ($_POST)
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
-    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
+    echo $attrs; ?>><?php echo ThreadEntryBody::clean($_POST ? $info['response'] : $draft);
                 ?></textarea>
                     <div class="attachments">
 <?php
@@ -468,7 +468,7 @@ print $response_form->getField('attachments')->render();
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
                     name="note" cols="21" rows="6" style="width:80%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
-    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
+    echo $attrs; ?>><?php echo ThreadEntryBody::clean($_POST ? $info['note'] : $draft);
                 ?></textarea>
             </td>
         </tr>

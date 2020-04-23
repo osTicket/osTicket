@@ -1211,14 +1211,14 @@ class CustomQueue extends VerySimpleModel {
         if (!$vars['queue-name'])
             $errors['queue-name'] = __('A title is required');
         elseif (($q=CustomQueue::lookup(array(
-                        'title' => $vars['queue-name'],
+                        'title' => Format::htmlchars($vars['queue-name']),
                         'parent_id' => $vars['parent_id'] ?: 0,
                         'staff_id'  => $this->staff_id)))
                 && $q->getId() != $this->id
                 )
             $errors['queue-name'] = __('Saved queue with same name exists');
 
-        $this->title = $vars['queue-name'];
+        $this->title = Format::htmlchars($vars['queue-name']);
         $this->parent_id = @$vars['parent_id'] ?: 0;
         if ($this->parent_id && !$this->parent)
             $errors['parent_id'] = __('Select a valid queue');
