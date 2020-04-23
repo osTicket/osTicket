@@ -330,7 +330,7 @@ if (!$ticket) { ?>
                                     title="<?php echo __('Change Status'); ?>"><?php echo $task->getStatus(); ?></a>
                             </td>
                           <?php } else { ?>
-                              <td><?php echo ($S = $task->getStatus()) ? $S->display() : ''; ?></td>
+                              <td><?php echo $task->getStatus(); ?></td>
                           <?php } ?>
                     </tr>
                     <tr>
