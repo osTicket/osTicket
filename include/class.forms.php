@@ -1490,8 +1490,7 @@ class TextboxField extends FormField {
         if (!$valid && !($this->getForm() instanceof AdvancedSearchForm))
             $valid = 'formula';
         $func = $validators[$valid];
-        $error = $func[1];
-        $err = null;
+        $error = $err = null;
         // If validator is number and the value is &#48 set to 0 (int) for is_numeric
         if ($valid == 'number' && $value == '&#48')
             $value = 0;
@@ -1499,7 +1498,7 @@ class TextboxField extends FormField {
             $error = $this->getLocal('validator-error', $config['validator-error']);
         if (is_array($func) && is_callable($func[0]))
             if (!call_user_func_array($func[0], array($value, &$err)))
-                $this->_errors[] = $err ?: $error;
+                $this->_errors[] =  $error ?: $err ?: $func[1];
     }
 
     function parse($value) {
