@@ -154,9 +154,9 @@ class Page extends VerySimpleModel {
         if (!parent::delete())
             return false;
 
-        return Topic::objects()
-            ->filter(array('page_id'=>$this->getId()))
-            ->update(array('page_id'=>0));
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+        return true;
     }
 
     function save($refetch=false) {

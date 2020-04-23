@@ -4650,7 +4650,7 @@ class CheckboxWidget extends Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        if (count($data)) {
+        if (is_array($data)) {
             if (isset($data[$this->name]))
                 return @in_array($this->field->get('id'),
                         $data[$this->name]);

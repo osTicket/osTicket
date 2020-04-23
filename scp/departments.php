@@ -102,7 +102,7 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, true);
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
-                              FilterAction::setFilterFlag($filter_actions, 'dept', false);
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', false);
                               if($d->save()) {
                                   $type = array('type' => 'edited', 'status' => 'Active');
                                   Signal::send('object.edited', $d, $type);
@@ -132,7 +132,7 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
-                              FilterAction::setFilterFlag($filter_actions, 'dept', true);
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
                               if($d->save()) {
                                 $type = array('type' => 'edited', 'status' => 'Disabled');
                                 Signal::send('object.edited', $d, $type);
@@ -161,7 +161,7 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $d->setFlag(Dept::FLAG_ARCHIVED, true);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
-                              FilterAction::setFilterFlag($filter_actions, 'dept', true);
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
                               if($d->save()) {
                                 $type = array('type' => 'edited', 'status' => 'Archived');
                                 Signal::send('object.edited', $d, $type);

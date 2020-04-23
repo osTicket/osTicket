@@ -72,7 +72,7 @@ if($_POST){
                           $t->setFlag(Topic::FLAG_ARCHIVED, false);
                           $t->setFlag(Topic::FLAG_ACTIVE, true);
                           $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
-                          FilterAction::setFilterFlag($filter_actions, 'topic', false);
+                          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', false);
                           if($t->save()) {
                               $type = array('type' => 'edited', 'status' => 'Active');
                               Signal::send('object.edited', $t, $type);
@@ -103,7 +103,7 @@ if($_POST){
                           $t->setFlag(Topic::FLAG_ARCHIVED, false);
                           $t->setFlag(Topic::FLAG_ACTIVE, false);
                           $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
-                          FilterAction::setFilterFlag($filter_actions, 'topic', true);
+                          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
                           if($t->save()) {
                               $type = array('type' => 'edited', 'status' => 'Disabled');
                               Signal::send('object.edited', $t, $type);
@@ -132,7 +132,7 @@ if($_POST){
                           $t->setFlag(Topic::FLAG_ARCHIVED, true);
                           $t->setFlag(Topic::FLAG_ACTIVE, false);
                           $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
-                          FilterAction::setFilterFlag($filter_actions, 'topic', true);
+                          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
                           if($t->save()) {
                             $type = array('type' => 'edited', 'status' => 'Archived');
                             Signal::send('object.edited', $t, $type);
@@ -168,20 +168,6 @@ if($_POST){
                         elseif(!$errors['err'])
                             $errors['err']  = sprintf(__('Unable to delete %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
-                        if ($topics==$count || $topics>0) {
-                            $data = array();
-                            foreach ($_POST['ids'] as $id) {
-                                if (class_exists('AuditEntry')
-                                        && $data = AuditEntry::getDataById($id, 'H'))
-                                    $name = json_decode($data[2], true);
-                                else {
-                                    $name = __('NA');
-                                    $data = array('H', $id);
-                                }
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $data, $type);
-                            }
-                        }
                         break;
                     case 'sort':
                         try {

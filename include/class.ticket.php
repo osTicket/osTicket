@@ -245,10 +245,10 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getChildren() {
-        if (!isset($this->_children))
+        if (!isset($this->_children) && $this->isParent())
             $this->_children = self::getChildTickets($this->getId());
 
-        return $this->_children;
+        return $this->_children ?: array();
     }
 
     function getMergeTypeByFlag($flag) {
@@ -2437,7 +2437,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $pid = $this->isChild() ? $this->getPid() : $this->getId();
         $parent = $this->isParent() ? $this : (Ticket::lookup($pid));
         $child = $this->isChild() ? $this : '';
-        $children = $this->isParent() ? (Ticket::getChildTickets($pid)) : '';
+        $children = $this->getChildren();
+
         if ($children) {
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
@@ -2446,7 +2447,7 @@ implements RestrictedAccess, Threadable, Searchable {
         } elseif ($child)
             $child->unlinkChild($parent);
 
-        if (count(Ticket::getChildTickets($pid)) == 0) {
+        if (count($children) == 0) {
             $parent->setFlag(Ticket::FLAG_LINKED, false);
             $parent->setFlag(Ticket::FLAG_PARENT, false);
             $parent->save();
@@ -2538,10 +2539,13 @@ implements RestrictedAccess, Threadable, Searchable {
             $errors = array();
             foreach ($children as $child) {
                 if ($options['participants'] == 'all' && $collabs = $child->getCollaborators()) {
-                    foreach ($collabs as $collab)
-                        $parent->addCollaborator($collab->getUser(), array(), $errors);
+                    foreach ($collabs as $collab) {
+                        if ($collab->getId() != $parent->getOwnerId())
+                            $parent->addCollaborator($collab->getUser(), array(), $errors);
+                    }
                 }
-                $parent->addCollaborator($child->getUser(), array(), $errors);
+                if ($child->getId() != $parent->getOwnerId())
+                    $parent->addCollaborator($child->getUser(), array(), $errors);
                 $parentThread = $parent->getThread();
 
                 $deletedChild = Thread::objects()
@@ -3556,9 +3560,11 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 
         //deleting parent ticket
-        if ($children = Ticket::getChildTickets($this->getId())) {
+        if ($children = $this->getChildren()) {
             foreach ($children as $childId) {
-                $child = Ticket::lookup($childId[0]);
+                if (!($child = Ticket::lookup($childId[0])))
+                    continue;
+
                 $child->setPid(NULL);
                 $child->setMergeType(3);
                 $child->save();
@@ -3684,7 +3690,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
         $this->duedate = $vars['duedate']
-            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate']))
+            ? date('Y-m-d H:i:s',Misc::dbtime($vars['duedate']))
             : null;
 
         if ($vars['user_id'])

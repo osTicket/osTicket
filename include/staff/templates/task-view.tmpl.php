@@ -330,7 +330,7 @@ if (!$ticket) { ?>
                                     title="<?php echo __('Change Status'); ?>"><?php echo $task->getStatus(); ?></a>
                             </td>
                           <?php } else { ?>
-                              <td><?php echo ($S = $task->getStatus()) ? $S->display() : ''; ?></td>
+                              <td><?php echo $task->getStatus(); ?></td>
                           <?php } ?>
                     </tr>
                     <tr>
@@ -444,17 +444,11 @@ if (!$ticket) { ?>
         </tr>
     </table>
     <br>
-    <br>
-    <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="940" border="0">
     <?php
     $idx = 0;
     foreach (DynamicFormEntry::forObject($task->getId(),
                 ObjectModel::OBJECT_TYPE_TASK) as $form) {
-        $form->addMissingFields(); ?>
-        <thead>
-            <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
-        </thead>
-        <tbody> <?php
+        $form->addMissingFields();
         $answers = $form->getAnswers()->exclude(Q::any(array(
             'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
             'field__name__in' => array('title')
@@ -468,6 +462,12 @@ if (!$ticket) { ?>
         if (count($displayed) == 0)
             continue;
         ?>
+        <br>
+        <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="940" border="0">
+        <thead>
+            <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
+        </thead>
+        <tbody>
             <tr>
             <td colspan="2">
                 <table cellspacing="0" cellpadding="4" width="100%" border="0">
@@ -511,14 +511,14 @@ if (!$ticket) { ?>
                     </tr>
                     <?php
                 } ?>
-                </tbody>
                 </table>
             </td>
             </tr>
+           </tbody>
+         </table>
         <?php
         $idx++;
     } ?>
-    </table>
 <?php
 } ?>
 <div class="clear"></div>

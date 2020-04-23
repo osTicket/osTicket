@@ -303,7 +303,7 @@ extends SessionBackend {
 
     function update($id, $data) {
         if (defined('DISABLE_SESSION') && $this->isnew)
-            return;
+            return true;
 
         $key = $this->getKey($id);
         foreach ($this->servers as $S) {
