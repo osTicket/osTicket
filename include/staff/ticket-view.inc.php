@@ -19,7 +19,7 @@ $user     = $ticket->getOwner(); //Ticket User (EndUser)
 $team     = $ticket->getTeam();  //Assigned team.
 $sla      = $ticket->getSLA();
 $lock     = $ticket->getLock();  //Ticket lock obj
-$children = Ticket::getChildTickets($ticket->getId());
+$children = $ticket->getChildren();
 $thread = $ticket->getThread();
 if (!$lock && $cfg->getTicketLockMode() == Lock::MODE_ON_VIEW)
     $lock = $ticket->acquireLock($thisstaff->getId());

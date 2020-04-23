@@ -245,10 +245,10 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getChildren() {
-        if (!isset($this->_children))
+        if (!isset($this->_children) && $this->isParent())
             $this->_children = self::getChildTickets($this->getId());
 
-        return $this->_children;
+        return $this->_children ?: array();
     }
 
     function getMergeTypeByFlag($flag) {
@@ -2437,7 +2437,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $pid = $this->isChild() ? $this->getPid() : $this->getId();
         $parent = $this->isParent() ? $this : (Ticket::lookup($pid));
         $child = $this->isChild() ? $this : '';
-        $children = $this->isParent() ? (Ticket::getChildTickets($pid)) : '';
+        $children = $this->getChildren();
+
         if ($children) {
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
@@ -2446,7 +2447,7 @@ implements RestrictedAccess, Threadable, Searchable {
         } elseif ($child)
             $child->unlinkChild($parent);
 
-        if (count(Ticket::getChildTickets($pid)) == 0) {
+        if (count($children) == 0) {
             $parent->setFlag(Ticket::FLAG_LINKED, false);
             $parent->setFlag(Ticket::FLAG_PARENT, false);
             $parent->save();
@@ -3556,9 +3557,11 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 
         //deleting parent ticket
-        if ($children = Ticket::getChildTickets($this->getId())) {
+        if ($children = $this->getChildren()) {
             foreach ($children as $childId) {
-                $child = Ticket::lookup($childId[0]);
+                if (!($child = Ticket::lookup($childId[0])))
+                    continue;
+
                 $child->setPid(NULL);
                 $child->setMergeType(3);
                 $child->save();
