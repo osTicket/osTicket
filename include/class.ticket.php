@@ -3684,7 +3684,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->sla_id = $vars['slaId'];
         $this->source = $vars['source'];
         $this->duedate = $vars['duedate']
-            ? date('Y-m-d G:i',Misc::dbtime($vars['duedate']))
+            ? date('Y-m-d H:i:s',Misc::dbtime($vars['duedate']))
             : null;
 
         if ($vars['user_id'])
