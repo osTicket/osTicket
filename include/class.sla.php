@@ -111,6 +111,11 @@ implements TemplateVariable {
             $errors['grace_period'] = __('Grace period required');
         elseif (!is_numeric($vars['grace_period']))
             $errors['grace_period'] = __('Numeric value required (in hours)');
+        elseif ($vars['grace_period'] > 8760)
+            $errors['grace_period'] = sprintf(
+                    __('%s cannot be more than 8760 hours'),
+                    __('Grace period')
+                    );
 
         if (!$vars['name'])
             $errors['name'] = __('Name is required');
