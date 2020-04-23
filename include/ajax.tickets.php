@@ -1928,6 +1928,9 @@ class TicketsAjaxAPI extends AjaxController {
         else
             $queue = AdhocSearch::load($id);
 
+       if (!$queue)
+           Http::response(404, 'Unknown Queue');
+
         return $this->queueExport($queue);
     }
 
