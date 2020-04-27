@@ -184,8 +184,8 @@ class Validator {
         // MX if no MX records exist for the domain. Also, include a
         // full-stop trailing char so that the default domain of the server
         // is not added automatically
-        if ($verify and !count(dns_get_record($m->host.'.', DNS_MX)))
-            return 0 < count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
+        if ($verify and !dns_get_record($m->host.'.', DNS_MX))
+            return 0 < @count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
 
         return true;
     }

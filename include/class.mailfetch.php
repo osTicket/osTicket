@@ -731,7 +731,8 @@ class MailFetcher {
         }
 
         // Process overloaded attachments
-        if (($struct = imap_fetchstructure($this->mbox, $mid))
+        $attachments = array();
+        if (($struct = @imap_fetchstructure($this->mbox, $mid))
                 && ($attachments = $this->getAttachments($struct))) {
             foreach ($attachments as $i=>$info) {
                 switch (strtolower($info['type'])) {

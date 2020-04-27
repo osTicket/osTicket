@@ -417,7 +417,10 @@ class Mail_Parse {
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
-
+            elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches))
+                $filename = Format::mimedecode($matches[1], $this->charset);
             // Some mail clients / servers (like Lotus Notes / Domino) will
             // send images without a filename. For such a case, generate a
             // random filename for the image
