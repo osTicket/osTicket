@@ -327,7 +327,7 @@ $(function() {
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
-            options['plugins'].push('imagepaste');
+            //options['plugins'].push('imagepaste');
             options.draftDelete = el.hasClass('draft-delete');
         }
         if (true || 'scp') { // XXX: Add this to SCP only
