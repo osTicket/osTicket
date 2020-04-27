@@ -94,9 +94,11 @@ if($_POST) {
                                 _N('selected site page', 'selected site pages', $count));
                         break;
                     case 'delete':
-                        $i = Page::objects()
-                            ->filter(array('id__in'=>$_POST['ids']))
-                            ->delete();
+                        $i = 0;
+                        foreach (Page::objects()->filter(array('id__in'=>$_POST['ids'])) as $p) {
+                            if ($p->delete())
+                                $i++;
+                        }
 
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),
@@ -107,20 +109,6 @@ if($_POST) {
                         elseif(!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected site page', 'selected site pages', $count));
-                        if ($i==$count || $i>0) {
-                            $data = array();
-                            foreach ($_POST['ids'] as $id) {
-                                if (class_exists('AuditEntry')
-                                    && $data = AuditEntry::getDataById($id, 'G'))
-                                        $name = json_decode($data[2], true);
-                                else {
-                                    $name = __('NA');
-                                    $data = array('G', $id);
-                                }
-                                $type = array('type' => 'deleted');
-                                Signal::send('object.deleted', $data, $type);
-                            }
-                        }
                         break;
                     default:
                         $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
