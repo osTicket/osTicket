@@ -1,3 +1,60 @@
+osTicket v1.14.2
+================
+### Enhancements
+* Task Inline Edit (ad04c05, 027c8d2, 7209b03, 2b8a6dc, 79b69aa, 49aba87, 1179d60, cc8d64e)
+* feature: Configurable Agents As Collaborators (5f5403d, bdcaeea, 9426e67, 4ed30c5)
+* Ticket Merge Modal Improvements (d31a0c7)
+* redactor: Double Spacing Optional (fa418e6)
+* inline: Set Help Topic Refresh Statuses (be4e01e)
+* lint: updateEstDueDate (a8fe0bd)
+* Ticket Merge Parent Status (bebc724)
+* Schedule Entry - getOccurrences algo. (0184473)
+* Queue Query Optimization (8c07c17)
+
+### Improvements
+* Issue: Merge Child Status (34af390)
+* 1.14 Misc. Fixes (869d117)
+* Issue: Filter Actions for Deleted Objects (b918e2d)
+* ui: improve action buttons (b25c66b, a11f882)
+* Misc. Fixes (e8acf81, f5d1664, aed5d6f, ac5f93e, 77577df, e397f03,
+* bfa7b57, 3c0dd3d, 5955c3a, c2b99ab, c9cc1e2, 51b5839)
+* Issue: Class AuditEntry Not Found (8023ba9)
+* oopsie: Revert errant delete by commit 027c8d29 (f16cd79)
+* lint: oopsie on undefined variable (4f19924)
+* issue: Move Owner Check to Ticket Collabs (7d44262)
+* oops: Update Schedule No Description (774d5f7)
+* revert: Agent Added Agent Collabs (cc7deda)
+* issue: AuditEntry Not Found (9e3ca8c)
+* issue: Collab Pass By Reference (a3a1d45)
+* Add AnnotatedField interface to  TicketTasksCountField (fbc1b11)
+* Audit Plugin Modal Fix (a883f90)
+* Issue: Duplicate Thread Entry Merge Records (ef6b7da)
+* export: User/Org Tickets (0cd4168)
+* i18n: Help Text Translate Button (cc2d0ab)
+* install: Task Title/Description Field Flags (6727ebb)
+* issue: Trailing Whitespaces Number Lookups (d8cb1e8)
+* issue: Duplicate Tickets in Lookup (95f9b83)
+* issue: BooleanField Inline Edit Value (23a463c)
+* issue: BooleanField Cannot Be Unchecked (1556242)
+* Issue: Managing Child Ticket Threads (7f85946)
+* Oops: Set Child Ticket Status (c216a72)
+* feature: Force HTTPS (1de9b4c)
+* Issue: Close Child Ticket Without Help Topic (2fb81aa)
+* Issue: Inline Edit Long Answer (608044d)
+* Issue: Ticket Link/Merge (bb0f9bd)
+* dept: Disable Auto Claim (3684879)
+* redactor: Cancel Button (3bab103)
+* issue: Redactor z-index (19cc9a0)
+* Issue: Overwriting thisstaff on Assign (77065f5)
+* Schedule Entry - Initial Occurrence Scope (3a41b09, 3da5bd7)
+* issue: mPDF Print Tables (2bd464f)
+* Clear Overdue Flag 4realz (057c817)
+* Ticket Merge/Link Defaults (3f93cd9)
+* User Audit Issue (97a55a4, 613b4ab)
+
+### Performance and Security
+* upgrade: Redactor 3.3.5 (4634a86)
+
 osTicket v1.12.6
 ================
 ### Enhancements
