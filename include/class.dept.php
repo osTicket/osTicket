@@ -546,18 +546,6 @@ implements TemplateVariable, Searchable {
                 ->filter(array('dept_id' => $id))
                 ->delete();
 
-            foreach(FilterAction::objects()
-                ->filter(array('type' => FA_RouteDepartment::$type)) as $fa
-            ) {
-                $config = $fa->getConfiguration();
-                if ($config && $config['dept_id'] == $id) {
-                    $config['dept_id'] = 0;
-                    // FIXME: Move this code into FilterAction class
-                    $fa->set('configuration', JsonDataEncoder::encode($config));
-                    $fa->save();
-                }
-            }
-
             // Delete extended access entries
             StaffDeptAccess::objects()
                 ->filter(array('dept_id' => $id))
@@ -873,9 +861,9 @@ implements TemplateVariable, Searchable {
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $this->getId().'}'));
         if ($filter_actions && $vars['status'] == 'active')
-          FilterAction::setFilterFlag($filter_actions, 'dept', false);
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', false);
         else
-          FilterAction::setFilterFlag($filter_actions, 'dept', true);
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
 
         switch ($vars['status']) {
           case 'active':

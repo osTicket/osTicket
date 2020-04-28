@@ -34,6 +34,7 @@ extends VerySimpleModel {
 
     const FLAG_INACTIVE_HT = 0x0001;
     const FLAG_INACTIVE_DEPT  = 0x0002;
+    const FLAG_DELETED_OBJECT  = 0x0004;
 
     static $match_types = array(
         /* @trans */ 'User Information' => array(
@@ -162,6 +163,58 @@ extends VerySimpleModel {
 
     function useReplyToEmail() {
         return ($this->use_replyto_email);
+    }
+
+    function disableFilters($object) {
+        switch (get_class($object)) {
+            case 'Topic':
+                $object_id = 'topic_id';
+                $FAClass = 'FA_AssignTopic';
+                break;
+            case 'Dept':
+                $object_id = 'dept_id';
+                $FAClass = 'FA_RouteDepartment';
+                break;
+            case 'Staff':
+                $object_id = 'staff_id';
+                $FAClass = 'FA_AssignAgent';
+                break;
+            case 'Team':
+                $object_id = 'team_id';
+                $FAClass = 'FA_AssignTeam';
+                break;
+            case 'SLA':
+                $object_id = 'sla_id';
+                $FAClass = 'FA_AssignSLA';
+                break;
+            case 'TicketStatus':
+                $object_id = 'status_id';
+                $FAClass = 'FA_SetStatus';
+                break;
+            case 'Email':
+                $object_id = 'from';
+                $FAClass = 'FA_SendEmail';
+                break;
+            case 'Canned':
+                $object_id = 'canned_id';
+                $FAClass = 'FA_AutoCannedResponse';
+            default:
+                return false;
+        }
+        $id = $object->getId();
+        $actions = FilterAction::objects()
+            ->filter(array('type' => $FAClass::$type,
+                           'configuration__like' => sprintf('%%"%s":%s}', $object_id, $id)));
+        foreach($actions as $fa) {
+            // Put a flag on the filter
+            $fa->setFilterFlags(false, 'Filter::FLAG_DELETED_OBJECT', true);
+            $fa->save();
+
+            // Disable the filter
+            $filter = Filter::lookup($fa->filter_id);
+            $filter->isactive = 0;
+            $filter->save();
+        }
     }
 
     function disableAlerts() {
@@ -517,7 +570,7 @@ extends VerySimpleModel {
 
         if (!is_array(@$vars['actions']))
             return;
-      foreach ($vars['actions'] as $sort=>$v) {
+        foreach ($vars['actions'] as $sort=>$v) {
           if (is_array($v)) {
               $info = $v['type'];
               $sort = $v['sort'] ?: $sort;
@@ -527,18 +580,38 @@ extends VerySimpleModel {
               'type'=>$info,
               'sort' => (int) $sort,
           ));
-          $errors = array();
-          $action->setConfiguration($errors, $vars);
+          $err = array();
+          $action->setConfiguration($err, $vars);
           $config = json_decode($action->ht['configuration'], true);
           if (is_numeric($action->ht['type'])) {
               foreach ($config as $key => $value) {
-                  if ($key == 'topic_id') {
-                      $action->ht['type'] = 'topic';
-                      $config['topic_id'] = $value;
-                  }
-                  if ($key == 'dept_id') {
-                      $action->ht['type'] = 'dept';
-                      $config['dept_id'] = $value;
+                  switch ($key) {
+                      case 'topic_id':
+                          $action->ht['type'] = 'topic';
+                          $config['topic_id'] = $value;
+                          break;
+                      case 'dept_id':
+                          $action->ht['type'] = 'dept';
+                          $config['dept_id'] = $value;
+                          break;
+                      case 'sla_id':
+                          $action->ht['type'] = __('SLA');
+                          break;
+                      case 'team_id':
+                          $action->ht['type'] = __('Team');
+                          break;
+                      case 'staff_id':
+                          $action->ht['type'] = __('Agent');
+                          break;
+                      case 'status_id':
+                          $action->ht['type'] = __('Ticket Status');
+                          break;
+                      case 'canned_id':
+                          $action->ht['type'] = __('Canned Response');
+                          break;
+                      default:
+                          $action->ht['type'] = __('All Actions');
+                          break;
                   }
               }
           }
@@ -560,12 +633,23 @@ extends VerySimpleModel {
                   break;
                 default:
                   foreach ($config as $key => $value) {
-                    if (!$value) {
-                      $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
+                    if (!$value || is_null($value)) {
+                        $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), $action->ht['type']);
+                        return 1;
                     }
                   }
                   break;
               }
+          }
+      }
+      if (count($errors) == 0) {
+          $fa = FilterAction::lookup($info);
+          if ($fa) {
+              $filter = Filter::lookup($fa->getFilterId());
+              //Clear flags that may have been set on a successful save
+              $filter->setFlag(constant('Filter::FLAG_DELETED_OBJECT'), false);
+              $filter->setFlag(constant('Filter::FLAG_INACTIVE_DEPT'), false);
+              $filter->setFlag(constant('Filter::FLAG_INACTIVE_HT'), false);
           }
       }
       return count($errors) == 0;
@@ -609,6 +693,7 @@ extends VerySimpleModel {
         }
     }
 }
+Signal::connect('object.deleted', array('Filter', 'disableFilters'));
 
 class FilterRule
 extends VerySimpleModel {
