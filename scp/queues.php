@@ -32,7 +32,7 @@ if ($_POST) {
             break;
         }
         if ($queue->update($_POST, $errors) && $queue->save()) {
-            $msg = sprintf(__('Successfully updated %s'), Format::htmlchars($_POST['name']));
+            $msg = sprintf(__('Successfully updated %s'), Format::htmlchars($_POST['queue-name']));
         }
         elseif (!$errors['err']) {
             $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
@@ -43,7 +43,7 @@ if ($_POST) {
     case 'create':
         $queue = CustomQueue::create(array(
             'staff_id' => 0,
-            'title' => $_POST['queue-name'],
+            'title' => Format::htmlchars($_POST['queue-name']),
             'root' => 'T'
         ));
 

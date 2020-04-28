@@ -202,6 +202,7 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function _saveSearch(SavedSearch $search) {
+        $_POST['queue-name'] = Format::htmlchars($_POST['queue-name']);
 
         // Validate the form.
         $form = $search->getForm($_POST);
