@@ -2539,12 +2539,14 @@ implements RestrictedAccess, Threadable, Searchable {
             foreach ($children as $child) {
                 if ($options['participants'] == 'all' && $collabs = $child->getCollaborators()) {
                     foreach ($collabs as $collab) {
+                        $collab = $collab->getUser();
                         if ($collab->getId() != $parent->getOwnerId())
-                            $parent->addCollaborator($collab->getUser(), array(), $errors);
+                            $parent->addCollaborator($collab, array(), $errors);
                     }
                 }
-                if ($child->getId() != $parent->getOwnerId())
-                    $parent->addCollaborator($child->getUser(), array(), $errors);
+                $cUser = $child->getUser();
+                if ($cUser->getId() != $parent->getOwnerId())
+                    $parent->addCollaborator($cUser, array(), $errors);
                 $parentThread = $parent->getThread();
 
                 $deletedChild = Thread::objects()
