@@ -1239,6 +1239,9 @@ implements RestrictedAccess, Threadable, Searchable {
                 continue;
             if ($collabs->findFirst(array('user_id' => $user->getId())))
                 continue;
+            if ($user->getId() == $this->getOwnerId())
+                continue;
+
             if ($c=$this->addCollaborator($user, $vars, $errors, $event))
                 $new[] = $c;
         }
@@ -3299,23 +3302,6 @@ implements RestrictedAccess, Threadable, Searchable {
         if (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
             $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
 
-        // Add new collaborators (if any).
-        if (isset($vars['ccs']) && count($vars['ccs']))
-            $this->addCollaborators($vars['ccs'], array(), $errors);
-
-        if ($collabs = $this->getCollaborators()) {
-            foreach ($collabs as $collaborator) {
-                $cid = $collaborator->getUserId();
-                // Enable collaborators if they were reselected
-                if (!$collaborator->isActive() && ($vars['ccs'] && in_array($cid, $vars['ccs'])))
-                    $collaborator->setFlag(Collaborator::FLAG_ACTIVE, true);
-                // Disable collaborators if they were unchecked
-                elseif ($collaborator->isActive() && (!$vars['ccs'] || !in_array($cid, $vars['ccs'])))
-                    $collaborator->setFlag(Collaborator::FLAG_ACTIVE, false);
-
-                $collaborator->save();
-            }
-        }
         // clear db cache
         $this->getThread()->_collaborators = null;
 
@@ -4345,8 +4331,9 @@ implements RestrictedAccess, Threadable, Searchable {
             $settings = array('isactive' => true);
             $collabs = array();
             foreach ($org->allMembers() as $u) {
+                $_errors = array();
                 if ($members || ($pris && $u->isPrimaryContact())) {
-                    if ($c = $ticket->addCollaborator($u, $settings, $errors)) {
+                    if ($c = $ticket->addCollaborator($u, $settings, $_errors)) {
                         $collabs[] = (string) $c;
                     }
                 }
