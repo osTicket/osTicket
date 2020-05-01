@@ -23,6 +23,7 @@ $id    = $ticket->getId();    //Ticket ID.
 $isManager = $dept->isManager($thisstaff); //Check if Agent is Manager
 $canRelease = ($isManager || $role->hasPerm(Ticket::PERM_RELEASE)); //Check if Agent can release tickets
 $canMarkAnswered = ($isManager || $role->hasPerm(Ticket::PERM_MARKANSWERED)); //Check if Agent can mark as answered/unanswered
+$ticket->setStaffLastVisitNow($thisstaff); //reset last visit time for read/unread mod
 
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())

@@ -1042,6 +1042,7 @@ a.Icon:hover {
 .Icon.assignedTicket { background:url(../images/icons/assigned_ticket.gif) 0 0 no-repeat; }
 .Icon.lockedTicket { background:url(../images/icons/locked_ticket.gif) 0 0 no-repeat; }
 .Icon.editTicket { background-image: url(../images/icons/edit_ticket.png); }
+.Icon.unreadTicket { background:url(../images/icons/add.png) 0 0 no-repeat; }
 
 .Icon.staffAssigned { background-image: url(../images/icons/user.gif); }
 .Icon.teamAssigned { background-image: url(../images/icons/teams.png); }
