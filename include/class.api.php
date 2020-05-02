@@ -71,6 +71,44 @@ class API {
         return ($this->ht['can_create_tickets']);
     }
 
+    //Potentially future add ability to configure in gui.
+    function canViewTickets() {
+        return true;
+    }
+    function canUpdateTickets() {
+        return $this->canCreateTickets();
+    }
+    function canCloseTickets() {
+        return $this->canCreateTickets();
+    }
+    function canReopenTickets() {
+        return $this->canCreateTickets();
+    }
+    function canPostReplyToTickets() {
+        return $this->canCreateTickets();
+    }
+    function canViewTopics() {
+        return true;
+    }
+    function canViewUser() {
+        return true;
+    }
+    function canAddUser() {
+        return true;
+    }
+    function canDeleteUser() {
+        return true;
+    }
+    function canViewOrganization() {
+        return true;
+    }
+    function canAddOrganization() {
+        return true;
+    }
+    function canDeleteOrganization() {
+        return true;
+    }
+
     function canExecuteCron() {
         return ($this->ht['can_exec_cron']);
     }
@@ -381,7 +419,7 @@ class ApiXmlDataParser extends XmlDataParser {
 
 include_once "class.json.php";
 class ApiJsonDataParser extends JsonDataParser {
-    function parse($stream, $tidy=false) {
+    function parse($stream) {
         return $this->fixup(parent::parse($stream));
     }
     function fixup($current) {
@@ -448,6 +486,17 @@ class ApiEmailDataParser extends EmailDataParser {
             unset($data['priorityId']);
 
         return $data;
+    }
+}
+
+class ApiUser extends Staff {   //StaffSession
+    //StaffSession has additional methods: isValid, refreshSession, getSession, getSessionToken, getIP
+    function getRole($dept=null, $assigned=false) {
+        if(!$this->role) {
+            $roles=array_fill_keys(['ticket.create','ticket.delete','ticket.edit','user.create','user.delete','user.edit'],1);    //['user.create','user.delete','user.edit','user.manage','user.dir','org.create','org.delete','org.edit','faq.manage','emails.banlist']
+            $this->role = new Role(['permissions'=>json_encode($roles)]);
+        }
+        return $this->role;
     }
 }
 ?>
