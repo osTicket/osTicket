@@ -522,6 +522,62 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->updated;
     }
 
+    function getTimeSpent(){
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $this->getId()])
+            ->values('thread__entries__time_type')
+            ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
+
+        $totals = 0;
+        foreach ($times as $T) {
+            $totals = $totals + $T['totaltime'];
+        }
+
+        return $this->formatTime($totals);
+    }
+
+    function convTimeSpent($time) {
+        return $this->formatTime($time);
+    }
+
+    static function convTimeType($type) {
+        $typetext = DynamicListItem::lookup($type);
+        return $typetext->value;
+    }
+
+    static function formatTime($time) {
+        $hours = floor($time / 60);
+        $minutes = $time % 60;
+        $formatted = '';
+
+        if ($hours > 0) {
+            $formatted .= sprintf('%d %s', $hours, _N('Hour', 'Hours', $hours));
+        }
+        if ($minutes > 0) {
+            if ($formatted) $formatted .= ', ';
+            $formatted .= sprintf('%d %s', $minutes, _N('Minute', 'Minutes', $minutes));
+        }
+        return $formatted;
+    }
+
+    function getTimeTotalsByType($billable=true, $typeid=false) {
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $this->getId()])
+            ->values('thread__entries__time_type')
+            ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
+
+        if ($typeid)
+            $times = $times->filter(['thread__entries__time_type' => $typeid]);
+        if ($billable)
+            $times = $times->filter(['thread__entries__time_bill' => 1]);
+
+        $totals = array();
+        foreach ($times as $T) {
+            $totals[$T['thread__entries__time_type']] = $T['totaltime'];
+        }
+        return $totals;
+    }
+
     function getEffectiveDate() {
         return $this->lastupdate;
     }

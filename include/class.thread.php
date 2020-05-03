@@ -382,6 +382,7 @@ implements Searchable {
 
     // Render thread
     function render($type=false, $options=array()) {
+        global $cfg;
 
         $mode = $options['mode'] ?: self::MODE_STAFF;
 
@@ -965,6 +966,12 @@ implements TemplateVariable {
 
         $this->format = $body->getType();
         $this->body = (string) $body;
+        return $this->save();
+    }
+
+    function setTimeInvoice($time_invoice) {
+        global $cfg;
+        $this->time_invoice = (int) $time_invoice;
         return $this->save();
     }
 
@@ -1647,6 +1654,19 @@ implements TemplateVariable {
         if (!($body = Format::strip_emoticons($vars['body']->getClean())))
             $body = '-'; //Special tag used to signify empty message as stored.
 
+        $time_spent = $vars['time_spent'];
+        if ($time_spent && is_object($time_spent))
+            $time_spent = (float) $time_spent;
+        $time_type = $vars['time_type'];
+        if ($time_type && is_object($time_type))
+            $time_type = (int) $time_type;
+        $time_bill = $vars['time_bill'];
+        if ($time_bill && is_object($time_bill))
+            $time_bill = (int) $time_bill;
+        $time_invoice = $vars['time_invoice'];
+        if ($time_invoice && is_object($time_invoice))
+            $time_invoice = (int) $time_invoice;
+
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
@@ -1660,6 +1680,10 @@ implements TemplateVariable {
             'staff_id' => $vars['staffId'],
             'user_id' => $vars['userId'],
             'poster' => $poster,
+            'time_spent' => $time_spent,
+            'time_type' => $time_type,
+            'time_bill' => $time_bill,
+            'time_invoice' => $time_invoice,
             'source' => $vars['source'],
             'flags' => $vars['flags'] ?: 0,
         ));
