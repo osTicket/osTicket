@@ -4,7 +4,7 @@ if ($ticket->isChild())
 else
     $children = Ticket::getChildTickets($ticket->getId());
 
-if (count($children) != 0 || $ticket->isChild()) { ?>
+if (count($children ?: array()) != 0 || $ticket->isChild()) { ?>
     <form action="#tickets/<?php echo $ticket->getId(); ?>/relations" method="POST"
         name='relations' id="relations" style="padding-top:7px;">
   <?php csrf_token(); ?>
