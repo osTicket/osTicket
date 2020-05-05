@@ -13,9 +13,9 @@
 ?>
 <h3 class="drag-handle"><i class="<?php echo $title == 'link' ? 'icon-link' : 'icon-code-fork' ?>"></i> <?php echo sprintf(__('%s Tickets'), ucfirst($title)); ?></i></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
-<hr/><?php echo sprintf(__(
+<hr/><?php echo __(sprintf(
 'Choose which Tickets to %s. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
-), ($title == 'merge' ? 'merge into this one' : 'link'));
+, ($title == 'merge' ? 'merge into this one' : 'link')));
 ?>
 <br/>
 <br/>
