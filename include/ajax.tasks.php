@@ -113,7 +113,7 @@ class TasksAjaxAPI extends AjaxController {
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
-                    $vars['files'] = $attachments->getFiles();
+                            $vars['files'] = $attachments->getFiles();
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];

@@ -1282,7 +1282,18 @@ class DynamicFormEntry extends VerySimpleModel {
 
             try {
                 $field->setForm($this);
-                $val = $field->to_database($field->getClean());
+                //for form entry values of file upload fields, we want to save the value as
+                //json with the file id(s) and file name(s) of each file stored in the field
+                //so that they display correctly within tasks/tickets
+                if (get_class($field) == 'FileUploadField') {
+                    //use getChanges if getClean returns an empty array
+                    $fieldClean = $field->getClean() ?: $field->getChanges();
+                    if (is_array($fieldClean) && $fieldClean[0])
+                        $fieldClean = json_decode($fieldClean[0], true);
+                } else
+                    $fieldClean = $field->getClean();
+
+                $val = $field->to_database($fieldClean);
             }
             catch (FieldUnchanged $e) {
                 // Don't update the answer.
