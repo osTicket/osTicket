@@ -298,7 +298,7 @@ class ModelMeta implements ArrayAccess {
 
     static function flushModelCache() {
         if (self::$model_cache)
-            @apcu_clear_cache('user');
+            @apcu_clear_cache();
     }
 }
 
