@@ -86,3 +86,4 @@ core:
     log_graceperiod: 12
     client_registration: 'public'
     default_ticket_queue: 1
+    embedded_domain_whitelist: 'youtube.com, dailymotion.com, vimeo.com, player.vimeo.com, web.microsoftstream.com'
