@@ -86,7 +86,10 @@ class MailFetcher {
             if ($this->authuser)
                 $this->srvstr .= sprintf('/authuser=%s', $this->authuser);
 
-            $this->srvstr.='/novalidate-cert}';
+            if(!strcasecmp($this->getEncryption(), 'SSL'))
+				$this->srvstr.='/novalidate-cert}';
+			else
+				$this->srvstr.='/notls}';
 
         }
 
