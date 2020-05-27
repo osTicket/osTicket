@@ -195,6 +195,8 @@ $types = array('M', 'R');
 if ($thread = $ticket->getThreadEntries($types)) {
     $thread = ThreadEntry::sortEntries($thread, $ticket);
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
+    // Check for Agent Identity Masking
+    $agentmasking = $cfg->hideStaffName();
     foreach ($thread as $entry) { ?>
         <div class="thread-entry <?php echo $threadTypes[$entry->type]; ?>">
             <table class="header"><tr><td>
@@ -205,7 +207,9 @@ if ($thread = $ticket->getThreadEntries($types)) {
                 </td>
                 <td class="flush-right faded title" style="white-space:no-wrap">
                     <?php
-                        echo Format::htmlchars($entry->getName()); ?></span>
+                        // If Identity Masking is Enabled hide Agent's name
+                        echo ($entry->staff_id && $agentmasking)
+                            ? __('Staff') : Format::htmlchars($entry->getName()); ?></span>
                 </td>
             </tr></table>
             <div class="thread-body">
