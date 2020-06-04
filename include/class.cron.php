@@ -61,6 +61,11 @@ class Cron {
         ConfigItem::cleanPwResets();
     }
 
+    function CleanEmail2FA() {
+        require_once(INCLUDE_DIR.'class.config.php');
+        ConfigItem::cleanEmail2FATokens();
+    }
+
     function MaybeOptimizeTables() {
         // Once a week on a 5-minute cron
         $chance = rand(1,2000);
@@ -112,6 +117,7 @@ class Cron {
         self::PurgeLogs();
         self::CleanExpiredSessions();
         self::CleanPwResets();
+        self::CleanEmail2FA();
         // Run file purging about every 10 cron runs
         if (mt_rand(1, 9) == 4)
             self::CleanOrphanedFiles();

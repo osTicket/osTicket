@@ -1002,6 +1002,55 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $msg['body']);
     }
 
+    function send2FAEmail($template='email2fa-staff') {
+        global $ost, $cfg;
+
+        if (is_null($this->backend2fa) || $this->backend2fa != 'email2fa')
+            return false;
+
+        $content = Page::lookupByType($template);
+        $token = Misc::randCode(6, '0123456789');
+
+        if (!$content)
+            return new BaseError(/* @trans */ 'Unable to retrieve two factor authentication email template');
+
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'token' => $token,
+            'staff' => $this,
+            'recipient' => $this,
+        );
+
+        if (!($email = $cfg->getAlertEmail()))
+            $email = $cfg->getDefaultEmail();
+
+        $lang = $this->lang ?: $this->getExtraAttr('browser_lang');
+        $msg = $ost->replaceTemplateVariables(array(
+            'subj' => $content->getLocalName($lang),
+            'body' => $content->getLocalBody($lang),
+        ), $vars);
+
+        //delete existing 2FA config
+        if ($token = ConfigItem::getTokenByNamespace('email2fa', $this->getId()))
+            $token->delete();
+
+        $_config = new Config('email2fa');
+        $_config->set($vars['token'], $this->getId());
+
+        $email->send($this->getEmail(), Format::striptags($msg['subj']),
+            $msg['body']);
+    }
+
+    function setBackend2fa($backend) {
+        if ($this->backend2fa && $this->backend2fa != $backend) {
+            //delete existing 2FA config
+            if ($token = ConfigItem::getTokenByNamespace($this->backend2fa, $this->getId()))
+                $token->delete();
+        }
+        $this->backend2fa = $backend;
+        $this->save();
+    }
+
     static function importCsv($stream, $defaults=array(), $callback=false) {
         require_once INCLUDE_DIR . 'class.import.php';
 
@@ -1151,6 +1200,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->phone_ext = $vars['phone_ext'];
         $this->mobile = Format::phone($vars['mobile']);
         $this->notes = Format::sanitize($vars['notes']);
+        $this->setBackend2fa($vars['backend2fa']);
 
         // Set staff password if exists
         if (!$vars['welcome_email'] && $vars['passwd1']) {

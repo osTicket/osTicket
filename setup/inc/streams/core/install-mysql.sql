@@ -571,6 +571,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `lastname` varchar(32) default NULL,
   `passwd` varchar(128) default NULL,
   `backend` varchar(32) default NULL,
+  `backend2fa` varchar(32) default NULL,
   `email` varchar(255) default NULL,
   `phone` varchar(24) NOT NULL default '',
   `phone_ext` varchar(6) default NULL,

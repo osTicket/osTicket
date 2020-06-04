@@ -162,6 +162,35 @@ if (count($bks) > 1) {
           </td>
         </tr>
 <?php
+}
+if (Email2FA::registerEmail2fa()) {
+    $bks2fa = array();
+
+    foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
+        if (!$ab->supportsTwoFactorAuthentication()) continue;
+        $bks2fa[] = $ab;
+    }
+
+    if (count($bks2fa) > 0) {
+        ?>
+        <tr>
+          <td><?php echo __('Two Factor Authentication Backend'); ?>:</td>
+          <td>
+            <select name="backend2fa" id="backend2fa-selection"
+              style="width:300px">
+            <option value="">&mdash; <?php echo __('Select'); ?> &mdash;</option>
+    <?php foreach ($bks2fa as $ab) {
+        ?>
+        <option value="<?php echo $ab::$id; ?>" <?php
+          if ($staff->backend2fa == $ab::$id)
+            echo 'selected="selected"'; ?>><?php
+          echo $ab->getName(); ?></option>
+    <?php } ?>
+            </select>
+          </td>
+        </tr>
+    <?php
+    }
 } ?>
       </tbody>
       <!-- ================================================ -->

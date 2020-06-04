@@ -1,4 +1,5 @@
 <?php
+require_once(INCLUDE_DIR.'class.config.php');
 
 interface AuthenticatedUser {
 /* PHP 5.3 < 5.3.8 will crash with some abstract inheritance issue
@@ -339,6 +340,10 @@ abstract class AuthenticationBackend {
         return true;
     }
 
+    function supportsTwoFactorAuthentication() {
+        return true;
+    }
+
     /**
      * Indicates if the backend supports changing a user's password. This
      * would be done in two fashions. Either the currently-logged in user
@@ -491,6 +496,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $agent = Staff::lookup($staff->getId());
         $type = array('type' => 'login');
         Signal::send('person.login', $agent, $type);
+
+        $agent->send2FAEmail();
+
         // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
 
@@ -835,6 +843,10 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
         return false;
     }
 
+    function supportsTwoFactorAuthentication() {
+        return false;
+    }
+
     function getAllowedBackends($userid) {
         return array();
     }
@@ -1023,6 +1035,10 @@ class osTicketAuthentication extends StaffAuthenticationBackend {
         return true;
     }
 
+    function supportsTwoFactorAuthentication() {
+        return false;
+    }
+
     function syncPassword($staff, $password) {
         $staff->passwd = Passwd::hash($password);
     }
@@ -1034,6 +1050,10 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     static $id = "pwreset.staff";
 
     function supportsInteractiveAuthentication() {
+        return false;
+    }
+
+    function supportsTwoFactorAuthentication() {
         return false;
     }
 
@@ -1067,6 +1087,60 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     }
 }
 StaffAuthenticationBackend::register('PasswordResetTokenBackend');
+
+class Email2FA extends StaffAuthenticationBackend {
+    static $name = "Email Two Factor Authentication";
+    static $id = "email2fa";
+
+    function email2faLogin($vars) {
+        $code = is_array($vars) ? $vars['code'] : $vars;
+
+        if (is_null($vars))
+            $_SESSION['_staff']['auth']['msg'] = '';
+
+        if($code) {
+            $email2fa = new Email2FA;
+
+            if ($isValid = $email2fa->validateLoginCode($code)) {
+                $staffId = $_SESSION['staff'];
+                $staff = Staff::lookup($staffId);
+                $_SESSION['_staff']['email2fa'] = 'true';
+
+                return header('Location: index.php');
+            }
+        }
+        $_SESSION['_staff']['email2fa'] = 'false';
+        $_SESSION['_staff']['auth']['msg'] = __('Invalid code entered. Please try again.');
+    }
+
+    function supportsTwoFactorAuthentication() {
+        return true;
+    }
+
+    function validateLoginCode($code) {
+        $staffId = $_SESSION['_auth']['staff']['id'];
+        $token = ConfigItem::getTokenByNamespace('email2fa', $staffId);
+
+        if ($token->key == $code) {
+            $token->delete();
+            return true;
+        }
+
+        return false;
+    }
+
+    function registerEmail2fa() {
+        global $cfg;
+
+        if ($cfg->allowEmail2fa()) {
+            StaffAuthenticationBackend::register('Email2FA');
+            return true;
+        }
+
+        return false;
+    }
+
+}
 
 /*
  * AuthToken Authentication Backend
@@ -1109,6 +1183,10 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
     }
 
     function supportsInteractiveAuthentication() {
+        return false;
+    }
+
+    function supportsTwoFactorAuthentication() {
         return false;
     }
 
@@ -1231,6 +1309,10 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
     function supportsInteractiveAuthentication() {
         return false;
     }
+
+    function supportsTwoFactorAuthentication() {
+        return false;
+    }
 }
 UserAuthenticationBackend::register('AccessLinkAuthentication');
 
@@ -1257,6 +1339,10 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
     static $id = "pwreset.client";
 
     function supportsInteractiveAuthentication() {
+        return false;
+    }
+
+    function supportsTwoFactorAuthentication() {
         return false;
     }
 
@@ -1295,6 +1381,10 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
     static $id = "confirm.client";
 
     function supportsInteractiveAuthentication() {
+        return false;
+    }
+
+    function supportsTwoFactorAuthentication() {
         return false;
     }
 

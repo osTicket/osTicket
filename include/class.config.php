@@ -186,6 +186,27 @@ extends VerySimpleModel {
                 'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::SECOND($period)),
             ))->delete();
     }
+
+    function getTokenByNamespace($namespace, $value) {
+        $token = ConfigItem::objects()
+            ->filter(array('namespace'=>$namespace, 'value'=>$value))
+            ->first();
+
+        return $token;
+    }
+
+    static function cleanEmail2FATokens() {
+        global $cfg;
+
+        if (!$cfg || !($period = $cfg->getEmail2faWindow())) // In seconds
+            return false;
+
+        return ConfigItem::objects()
+             ->filter(array(
+                'namespace' => 'email2FA',
+                'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::SECOND($period)),
+            ))->delete();
+    }
 }
 
 class OsticketConfig extends Config {
@@ -202,6 +223,8 @@ class OsticketConfig extends Config {
     var $defaults = array(
         'allow_pw_reset' =>     true,
         'pw_reset_window' =>    30,
+        'allow_email2fa' => true,
+        'email2fa_window' => 30,
         'enable_richtext' =>    true,
         'enable_avatars' =>     true,
         'allow_attachments' =>  true,
@@ -778,6 +801,15 @@ class OsticketConfig extends Config {
         return $this->get('pw_reset_window') * 60;
     }
 
+    function allowEmail2fa() {
+        return $this->get('allow_email2fa');
+    }
+
+    function getEmail2faWindow() {
+        // email2fa_window is stored in minutes. Return value in seconds
+        return $this->get('email2fa_window') * 60;
+    }
+
     function isClientLoginRequired() {
         return $this->get('clients_only');
     }
@@ -1306,6 +1338,8 @@ class OsticketConfig extends Config {
         $f['staff_session_timeout']=array('type'=>'int',   'required'=>1, 'error'=>'Enter idle time in minutes');
         $f['pw_reset_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
             'error'=>__('Valid password reset window required'));
+        $f['email2fa_window']=array('type'=>'int', 'required'=>1, 'min'=>1,
+            'error'=>__('Valid email 2FA window required'));
 
         require_once INCLUDE_DIR.'class.avatar.php';
         list($avatar_source) = explode('.', $vars['agent_avatar']);
@@ -1315,6 +1349,9 @@ class OsticketConfig extends Config {
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
+        if (!isset($vars['allow_email2fa']))
+            $this->updateAgents('backend2fa', 'email2fa', NULL);
+
         return $this->updateAll(array(
             'passwd_reset_period'=>$vars['passwd_reset_period'],
             'staff_max_logins'=>$vars['staff_max_logins'],
@@ -1323,11 +1360,25 @@ class OsticketConfig extends Config {
             'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
+            'allow_email2fa'=>isset($vars['allow_email2fa'])?1:0,
+            'email2fa_window'=>$vars['email2fa_window'],
             'agent_name_format'=>$vars['agent_name_format'],
             'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
             'disable_agent_collabs'=>isset($vars['disable_agent_collabs'])?1:0,
         ));
+    }
+
+    function updateAgents($field, $old, $new) {
+        $agents = Staff::objects()
+            ->filter(array($field=>$old));
+
+        if ($agents) {
+            foreach ($agents as $agent) {
+                $agent->$field = $new;
+                $agent->save();
+            }
+        }
     }
 
     function updateUsersSettings($vars, &$errors) {

@@ -85,3 +85,20 @@ bind_staff_session_to_ip:
         upon Log In.
         <br><br>
         This setting is not recommened for users assigned IP addresses dynamically.
+
+allow_email2fa:
+    title: Allow Email Two Factor Authentication
+    content: >
+        Enable this feature if you would like to have an extra layer of authentication
+        set up for Agents when they log into the helpdesk. Once they correctly submit
+        their username and password, they will be emailed a token they must then
+        submit to finish logging into the helpdesk.
+
+email2fa_token_expiration:
+    title: Email Two Factor Authentication Window
+    content: >
+        Choose the duration (in minutes) for which the <span class="doc-desc-title">
+        Email 2FA Tokens</span> will be valid. When an Agent has <span
+        class="doc-desc-title">Email Two Factor Authentication</span>,
+        set as their 2FA Backend, they are emailed a token that they must enter in
+        order to finish logging into the helpdesk.

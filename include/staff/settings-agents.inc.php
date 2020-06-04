@@ -151,6 +151,23 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                             <i class="help-tip icon-question-sign" href="#bind_staff_session_to_ip"></i>
                         </td>
                     </tr>
+                    <tr>
+                        <td><?php echo __('Allow Email Two Factor Authentication'); ?>:</td>
+                        <td>
+                            <input type="checkbox" name="allow_email2fa" <?php echo $config['allow_email2fa']?'checked="checked"':''; ?>>
+                            &nbsp;<i class="help-tip icon-question-sign" href="#allow_email2fa"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><?php echo __('Email 2FA Token Expiration'); ?>:</td>
+                        <td>
+                            <input type="text" name="email2fa_window" size="6" value="<?php
+                                echo $config['email2fa_window']; ?>">
+                                <em><?php echo __('minutes'); ?></em>
+                                <i class="help-tip icon-question-sign" href="#email2fa_token_expiration"></i>
+                                &nbsp;<font class="error"><?php echo $errors['email2fa_window']; ?></font>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -207,6 +224,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                     <?php $manage_content(__('Agent Welcome Email'), 'registration-staff'); ?>
                     <?php $manage_content(__('Sign-in Login Banner'), 'banner-staff'); ?>
                     <?php $manage_content(__('Password Reset Email'), 'pwreset-staff'); ?>
+                    <?php $manage_content(__('Two Factor Authentication Email'), 'email2fa-staff'); ?>
                 </tbody>
             </table>
         </div>
