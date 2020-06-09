@@ -1273,10 +1273,13 @@ class UserAccount extends VerySimpleModel {
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = __('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = __('Must be at least 6 characters');
-            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = __('Passwords do not match');
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         // Make sure the username is not an email.
@@ -1359,10 +1362,15 @@ class UserAccount extends VerySimpleModel {
                 && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = 'Temporary password required';
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2'] = 'Passwords do not match';
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         if ($errors) return false;
@@ -1395,6 +1403,10 @@ class UserAccount extends VerySimpleModel {
             $account->sendConfirmEmail();
 
         return $account;
+    }
+
+    static function checkPassword($new, $current=null) {
+        osTicketClientAuthentication::checkPassword($new, $current);
     }
 
 }

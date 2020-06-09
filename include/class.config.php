@@ -450,8 +450,19 @@ class OsticketConfig extends Config {
         return $this->get('overdue_grace_period');
     }
 
+    // This is here for legacy reasons - default osTicket Password Policy
+    // uses it, if previously set.
     function getPasswdResetPeriod() {
         return $this->get('passwd_reset_period');
+    }
+
+
+    function getStaffPasswordPolicy() {
+        return $this->get('agent_passwd_policy');
+    }
+
+    function getClientPasswordPolicy() {
+        return $this->get('client_passwd_policy');
     }
 
     function isRichTextEnabled() {
@@ -1316,7 +1327,7 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
-            'passwd_reset_period'=>$vars['passwd_reset_period'],
+            'agent_passwd_policy'=>$vars['agent_passwd_policy'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
             'staff_session_timeout'=>$vars['staff_session_timeout'],
@@ -1343,6 +1354,7 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
+            'client_passwd_policy'=>$vars['client_passwd_policy'],
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],

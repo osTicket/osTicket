@@ -55,16 +55,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     var $_perm;
 
     function __onload() {
-
-        // WE have to patch info here to support upgrading from old versions.
-        $time = null;
-        if (isset($this->passwdreset) && $this->passwdreset)
-            $time=strtotime($this->passwdreset);
-        elseif (isset($this->added) && $this->added)
-            $time=strtotime($this->added);
-
-        if ($time)
-            $this->passwd_change = time()-$time; //XXX: check timezone issues.
     }
 
     function get($field, $default=false) {
@@ -228,11 +218,22 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->save();
     }
 
-    /* check if passwd reset is due. */
-    function isPasswdResetDue() {
-        global $cfg;
-        return ($cfg && $cfg->getPasswdResetPeriod()
-                    && $this->passwd_change>($cfg->getPasswdResetPeriod()*30*24*60*60));
+    function getPasswdResetTimestamp() {
+        if (!isset($this->passwd_change)) {
+            // WE have to patch info here to support upgrading from old versions.
+            if (isset($this->passwdreset) && $this->passwdreset)
+                $this->passwd_change = strtotime($this->passwdreset);
+            elseif (isset($this->added) && $this->added)
+                $this->passwd_change = strtotime($this->added);
+            elseif (isset($this->created) && $this->created)
+                $this->passwd_change = strtotime($this->created);
+        }
+
+        return $this->passwd_change;
+    }
+
+    static function checkPassword($new, $current=null) {
+        osTicketStaffAuthentication::checkPassword($new, $current);
     }
 
     function setPassword($new, $current=false) {
@@ -246,7 +247,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             || !$bk instanceof AuthBackend
         ) {
             // Fallback to osTicket authentication token udpates
-            $bk = new osTicketAuthentication();
+            $bk = new osTicketStaffAuthentication();
         }
 
         // And now for the magic
@@ -273,10 +274,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             return $something->checkStaffPerm($this);
 
         return true;
-    }
-
-    function isPasswdChangeDue() {
-        return $this->isPasswdResetDue();
     }
 
     function getRefreshRate() {

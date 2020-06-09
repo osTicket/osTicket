@@ -83,20 +83,23 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                         </th>
                     </tr>
                     <tr>
-                        <td><?php echo __('Password Expiration Policy'); ?>:</td>
+                        <td><?php echo __('Password Policy'); ?>:</td>
                         <td>
-                            <select name="passwd_reset_period">
-                            <option value="0"> &mdash; <?php echo __('No expiration'); ?> &mdash;</option>
+                            <select name="agent_passwd_policy">
+                            <option value=" "> &mdash; <?php echo __('All Active Policies'); ?> &mdash;</option>
                             <?php
-                                for ($i = 1; $i <= 12; $i++) {
-                                echo sprintf('<option value="%d" %s>%s</option>',
-                                    $i,(($config['passwd_reset_period']==$i)?'selected="selected"':''),
-                                    sprintf(_N('Monthly', 'Every %d months', $i), $i));
+                                foreach (PasswordPolicy::allActivePolicies()
+                                        as $P) {
+                                echo sprintf('<option value="%s" %s>%s</option>',
+                                    $P::$id,
+                                    (($config['agent_passwd_policy'] == $P::$id) ? 'selected="selected"' : ''),
+                                    $P->getName());
                                 }
                             ?>
                             </select>
-                            <font class="error"><?php echo $errors['passwd_reset_period']; ?></font>
-                            <i class="help-tip icon-question-sign" href="#password_expiration_policy"></i>
+                            <font class="error"><?php echo
+                            $errors['agent_passwd_policy']; ?></font>
+                            <i class="help-tip icon-question-sign" href="#agent_password_policy"></i>
                         </td>
                     </tr>
                     <tr>
