@@ -205,7 +205,7 @@ if ($thread = $ticket->getThreadEntries($types)) {
                 </td>
                 <td class="flush-right faded title" style="white-space:no-wrap">
                     <?php
-                        echo Format::htmlchars($entry->getName()); ?></span>
+                        echo Format::htmlchars($entry->staff && $cfg->hideStaffName() ? __('Staff') : $entry->getName()); ?></span>
                 </td>
             </tr></table>
             <div class="thread-body">
