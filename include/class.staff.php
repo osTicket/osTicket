@@ -1352,6 +1352,14 @@ extends AbstractForm {
                     new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
@@ -1363,6 +1371,14 @@ extends AbstractForm {
                     new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
             'change_passwd' => new BooleanField(array(
                 'default' => true,
@@ -1399,10 +1415,26 @@ extends AbstractForm {
                 'label' => __('Enter a new password'),
                 'placeholder' => __('New Password'),
                 'required' => true,
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
                 'required' => true,
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
         );
 
@@ -1589,6 +1621,14 @@ extends AbstractForm {
                 'configuration' => array(
                     'placeholder' => __("Temporary Password"),
                 ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false))
                 ),

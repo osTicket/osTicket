@@ -56,8 +56,8 @@ class StaffAjaxAPI extends AjaxController {
                   Http::response(201, 'Successfully updated');
           }
           catch (BadPassword $ex) {
-              $passwd1 = $form->getField('passwd1');
-              $passwd1->addError($ex->getMessage());
+              if ($passwd1 = $form->getField('passwd1'))
+                  $passwd1->addError($ex->getMessage());
           }
           catch (PasswordUpdateFailed $ex) {
               $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
@@ -108,8 +108,8 @@ class StaffAjaxAPI extends AjaxController {
                     }
                 }
                 catch (BadPassword $ex) {
-                    $passwd1 = $form->getField('passwd1');
-                    $passwd1->addError($ex->getMessage());
+                    if ($passwd1 = $form->getField('passwd1'))
+                        $passwd1->addError($ex->getMessage());
                 }
                 catch (PasswordUpdateFailed $ex) {
                     $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
