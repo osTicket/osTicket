@@ -249,7 +249,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         dropdown[i] = {
           title: font.replace(/'/g, ''),
           api: 'plugin.fontfamily.set',
-          args: font,
+          args: font
         };
       }
       dropdown.remove = {
