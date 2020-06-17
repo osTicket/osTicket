@@ -361,7 +361,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     ))
                     ->values_flat('thread__entries__staff_id')
                     ->order_by('-thread__entries__id')
-                    ->limit(1)
+                    ->limit('1,1')
                 ))
                 ->first()
                 ?: false;
@@ -1039,9 +1039,6 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         }
         */
 
-        $this->lastrespondent = $response->staff;
-        $this->save();
-
         // Send activity alert to agents
         $activity = $vars['activity'] ?: $response->getActivity();
         $this->onActivity( array(
@@ -1049,6 +1046,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     'threadentry' => $response,
                     'assignee' => $assignee,
                     ));
+
+        $this->lastrespondent = $response->staff;
+        $this->save();
+
         // Send alert to collaborators
         if ($alert && $vars['emailcollab']) {
             $signature = '';

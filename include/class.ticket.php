@@ -814,7 +814,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     ))
                     ->values_flat('staff_id')
                     ->order_by('-id')
-                    ->limit(1)
+                    ->limit('1,1')
                 ))
                 ->first()
                 ?: false;
@@ -3329,9 +3329,9 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
         }
 
-        $this->lastrespondent = $response->staff;
-
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
+
+        $this->lastrespondent = $response->staff;
 
         $type = array('type' => 'message');
         Signal::send('object.created', $this, $type);
