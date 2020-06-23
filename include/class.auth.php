@@ -1090,7 +1090,7 @@ StaffAuthenticationBackend::register('PasswordResetTokenBackend');
 
 class Email2FA extends StaffAuthenticationBackend {
     static $name = "Email Two Factor Authentication";
-    static $id = "email2fa";
+    static $id = "Email2FA";
 
     function email2faLogin($vars) {
         $code = is_array($vars) ? $vars['code'] : $vars;
@@ -1109,8 +1109,11 @@ class Email2FA extends StaffAuthenticationBackend {
                 return header('Location: index.php');
             }
         }
-        $_SESSION['_staff']['email2fa'] = 'false';
-        $_SESSION['_staff']['auth']['msg'] = __('Invalid code entered. Please try again.');
+
+        if (!$isValid) {
+            $_SESSION['_staff']['email2fa'] = 'false';
+            $_SESSION['_staff']['auth']['msg'] = __('Invalid code entered. Please try again.');
+        }
     }
 
     function supportsTwoFactorAuthentication() {
@@ -1119,20 +1122,18 @@ class Email2FA extends StaffAuthenticationBackend {
 
     function validateLoginCode($code) {
         $staffId = $_SESSION['_auth']['staff']['id'];
-        $token = ConfigItem::getTokenByNamespace('email2fa', $staffId);
+        $token = $_SESSION['_staff']['2fatoken'];
 
-        if ($token->key == $code) {
-            $token->delete();
+        if ($token == $code)
             return true;
-        }
 
         return false;
     }
 
-    function registerEmail2fa() {
+    function registerEmail2FA() {
         global $cfg;
 
-        if ($cfg->allowEmail2fa()) {
+        if ($cfg->allowEmail2FA()) {
             StaffAuthenticationBackend::register('Email2FA');
             return true;
         }

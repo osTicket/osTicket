@@ -187,18 +187,27 @@ extends VerySimpleModel {
             ))->delete();
     }
 
-    function getTokenByNamespace($namespace, $value) {
-        $token = ConfigItem::objects()
-            ->filter(array('namespace'=>$namespace, 'value'=>$value))
-            ->first();
+    function getConfigsByNamespace($namespace=false, $key, $value=false) {
+        $filter = array();
 
-        return $token;
+        $filter['key'] = $key;
+
+        if ($namespace)
+            $filter['namespace'] = $namespace;
+
+        if ($value)
+            $filter['value'] = $value;
+
+        $token = ConfigItem::objects()
+            ->filter($filter);
+
+        return $namespace ? $token[0] : $token;
     }
 
     static function cleanEmail2FATokens() {
         global $cfg;
 
-        if (!$cfg || !($period = $cfg->getEmail2faWindow())) // In seconds
+        if (!$cfg || !($period = $cfg->getEmail2FAWindow())) // In seconds
             return false;
 
         return ConfigItem::objects()
@@ -801,11 +810,11 @@ class OsticketConfig extends Config {
         return $this->get('pw_reset_window') * 60;
     }
 
-    function allowEmail2fa() {
+    function allowEmail2FA() {
         return $this->get('allow_email2fa');
     }
 
-    function getEmail2faWindow() {
+    function getEmail2FAWindow() {
         // email2fa_window is stored in minutes. Return value in seconds
         return $this->get('email2fa_window') * 60;
     }
@@ -1349,8 +1358,11 @@ class OsticketConfig extends Config {
         if(!Validator::process($f, $vars, $errors) || $errors)
             return false;
 
-        if (!isset($vars['allow_email2fa']))
-            $this->updateAgents('backend2fa', 'email2fa', NULL);
+        if (!isset($vars['allow_email2fa'])) {
+            $tokens = ConfigItem::getConfigsByNamespace(false, 'backend2fa', 'Email2FA');
+            foreach($tokens as $token)
+                $token->delete();
+        }
 
         return $this->updateAll(array(
             'passwd_reset_period'=>$vars['passwd_reset_period'],
@@ -1367,18 +1379,6 @@ class OsticketConfig extends Config {
             'agent_avatar'=>$vars['agent_avatar'],
             'disable_agent_collabs'=>isset($vars['disable_agent_collabs'])?1:0,
         ));
-    }
-
-    function updateAgents($field, $old, $new) {
-        $agents = Staff::objects()
-            ->filter(array($field=>$old));
-
-        if ($agents) {
-            foreach ($agents as $agent) {
-                $agent->$field = $new;
-                $agent->save();
-            }
-        }
     }
 
     function updateUsersSettings($vars, &$errors) {

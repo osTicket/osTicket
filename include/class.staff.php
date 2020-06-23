@@ -53,6 +53,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     var $_teams = null;
     var $_config = null;
     var $_perm;
+    var $backend2fa;
 
     function __onload() {
 
@@ -1005,7 +1006,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     function send2FAEmail($template='email2fa-staff') {
         global $ost, $cfg;
 
-        if (is_null($this->backend2fa) || $this->backend2fa != 'email2fa')
+        $bk = $this->getBackend2fa();
+        if (is_null($bk) || $bk != 'Email2FA')
             return false;
 
         $content = Page::lookupByType($template);
@@ -1030,25 +1032,39 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             'body' => $content->getLocalBody($lang),
         ), $vars);
 
-        //delete existing 2FA config
-        if ($token = ConfigItem::getTokenByNamespace('email2fa', $this->getId()))
-            $token->delete();
-
-        $_config = new Config('email2fa');
-        $_config->set($vars['token'], $this->getId());
+        $_SESSION['_staff']['2fatoken'] = $vars['token'];
 
         $email->send($this->getEmail(), Format::striptags($msg['subj']),
             $msg['body']);
     }
 
-    function setBackend2fa($backend) {
-        if ($this->backend2fa && $this->backend2fa != $backend) {
-            //delete existing 2FA config
-            if ($token = ConfigItem::getTokenByNamespace($this->backend2fa, $this->getId()))
-                $token->delete();
+    function getBackend2fa() {
+        if ($token = ConfigItem::getConfigsByNamespace('staff.'.$this->getId(), 'backend2fa')) {
+            if (!isset($this->backend2fa))
+                $this->backend2fa = $token->value;
+
+            return $token->value;
         }
-        $this->backend2fa = $backend;
-        $this->save();
+
+        return null;
+    }
+
+    function setBackend2fa($backend) {
+        //delete existing 2FA config
+        if ($token = ConfigItem::getConfigsByNamespace('staff.'.$this->getId(), 'backend2fa')) {
+            if ($extra = ConfigItem::getConfigsByNamespace('staff.'.$this->getId(), $token->value))
+                $extra->delete();
+            $token->delete();
+        }
+
+
+        if (!empty($backend)) {
+            $_config = new Config('staff.'.$this->getId());
+            $_config->set('backend2fa', $backend);
+            return $_config->value;
+        }
+
+        return null;
     }
 
     static function importCsv($stream, $defaults=array(), $callback=false) {
@@ -1200,7 +1216,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->phone_ext = $vars['phone_ext'];
         $this->mobile = Format::phone($vars['mobile']);
         $this->notes = Format::sanitize($vars['notes']);
-        $this->setBackend2fa($vars['backend2fa']);
+        $this->backend2fa = $this->setBackend2fa($vars['backend2fa']);
+        Signal::send('agent.google2fa', $this, $vars);
 
         // Set staff password if exists
         if (!$vars['welcome_email'] && $vars['passwd1']) {

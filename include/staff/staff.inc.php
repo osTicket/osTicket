@@ -163,7 +163,7 @@ if (count($bks) > 1) {
         </tr>
 <?php
 }
-if (Email2FA::registerEmail2fa()) {
+if (Email2FA::registerEmail2FA()) {
     $bks2fa = array();
 
     foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
@@ -182,7 +182,7 @@ if (Email2FA::registerEmail2fa()) {
     <?php foreach ($bks2fa as $ab) {
         ?>
         <option value="<?php echo $ab::$id; ?>" <?php
-          if ($staff->backend2fa == $ab::$id)
+          if ($staff->getBackend2fa() == $ab::$id)
             echo 'selected="selected"'; ?>><?php
           echo $ab->getName(); ?></option>
     <?php } ?>

@@ -1,6 +1,4 @@
 <?php
-
-
 class TemplateContentLoader2 extends MigrationTask {
     var $description = "Loading initial system templates";
 

@@ -70,7 +70,8 @@ if ($_POST && isset($_POST['userid'])) {
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
             $_POST['passwd'], $errors)) {
-        if (!is_null($user->backend2fa) && $user->backend2fa == 'email2fa')
+
+        if (!is_null($user->getBackend2fa()) && ($user->getBackend2fa() == 'Email2FA'))
             $dest = 'email2fa.php';
 
         $redirect($dest);
