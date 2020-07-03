@@ -24,7 +24,7 @@ require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 $content = Page::lookupByType('banner-staff');
-
+$thisstaff = StaffAuthenticationBackend::getUser();
 $dest = $_SESSION['_staff']['auth']['dest'];
 $msg = $_SESSION['_staff']['auth']['msg'];
 $msg = $msg ?: ($content ? $content->getLocalName() : __('Authentication Required'));
@@ -70,7 +70,7 @@ if ($_POST && isset($_POST['userid'])) {
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
             $_POST['passwd'], $errors)) {
-        $redirect($dest);
+        $redirect($user->isValid() ? $dest : 'login.php');
     }
 
     $msg = $errors['err'] ?: __('Invalid login');
@@ -78,6 +78,31 @@ if ($_POST && isset($_POST['userid'])) {
 
     if ($json) {
         $respond(401, ['message' => $msg, 'show_reset' => $show_reset]);
+    }
+    else {
+        // Rotate the CSRF token (original cannot be reused)
+        $ost->getCSRF()->rotate();
+    }
+}
+elseif ($_POST
+        && !strcmp($_POST['do'], '2fa')
+        && $thisstaff
+        && $thisstaff->is2FAPending()
+        && ($auth=$thisstaff->get2FABackend())) {
+
+    try {
+        $form = $auth->getInputForm($_POST);
+        if ($form->isValid() && $auth->validate($form, $thisstaff))
+            $redirect($dest);
+    } catch (ExpiredOTP $ex) {
+        // Expired or too many attempts
+        $thisstaff->logOut();
+        $redirect('login.php');
+    }
+
+    $msg = __('Invalid Code');
+    if ($json) {
+        $respond(401, ['message' => $msg]);
     }
     else {
         // Rotate the CSRF token (original cannot be reused)

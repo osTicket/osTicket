@@ -539,23 +539,31 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $agent = Staff::lookup($staff->getId());
         $type = array('type' => 'login');
         Signal::send('person.login', $agent, $type);
+
+        // Check if the agent has 2fa enabled
+        $auth2fa = null;
+        if (($_2fa = $staff->get2FABackend())
+                && ($token=$_2fa->send($staff))) {
+            $auth2fa = sprintf('%s:%s:%s',
+                    $_2fa->getId(), md5($token.$staff->getId()), time());
+        }
+
         // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
-
         // Now set session crap and lets roll baby!
         $authsession = &$_SESSION['_auth']['staff'];
-
         $authsession = array(); //clear.
         $authsession['id'] = $staff->getId();
         $authsession['key'] =  $authkey;
+        $authsession['2fa'] =  $auth2fa;
 
         $staff->setAuthKey($authkey);
         $staff->refreshSession(true); //set the hash.
-
         Signal::send('auth.login.succeeded', $staff);
 
         if ($bk->supportsInteractiveAuthentication())
             $staff->cancelResetTokens();
+
 
         // Update last-used language, login time, etc
         $staff->onLogin($bk);

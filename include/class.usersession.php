@@ -177,10 +177,26 @@ class StaffSession extends Staff {
         return $staff;
     }
 
+    function clear2FA() {
+        $_SESSION['_auth']['staff']['2fa'] = null;
+        return true;
+    }
+
+    // If 2fa is set then it means it's pending
+    function is2FAPending() {
+        if (!isset($_SESSION['_auth']['staff']['2fa']))
+            return false;
+
+        return true;
+    }
+
     function isValid(){
-        global $_SESSION, $cfg;
+        global $cfg;
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
+            return false;
+
+        if ($this->is2FAPending())
             return false;
 
         return $this->session->isvalidSession($this->token,$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
