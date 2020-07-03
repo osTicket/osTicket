@@ -72,6 +72,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             return $this->_config[$field];
     }
 
+    function getConfigObj() {
+        return new Config('staff.'.$this->getId());
+    }
+
     function getConfig() {
 
         if (!isset($this->_config) && $this->getId()) {
@@ -90,6 +94,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
 
         return $this->_config;
+    }
+
+    function updateConfig($vars) {
+        $config = $this->getConfigObj();
+        $config->updateAll($vars);
+        $this->_config = null;
     }
 
     function __toString() {
@@ -166,6 +176,21 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $bk = $this->backend;
 
         return StaffAuthenticationBackend::getBackend($bk);
+    }
+
+    function get2FABackendId() {
+        return $this->default_2fa;
+    }
+
+    function get2FABackend() {
+        return Staff2FABackend::getBackend($this->get2FABackendId());
+    }
+
+    // gets configured backends
+    function get2FAConfig($id) {
+        $config =  $this->getConfig();
+        return isset($config[$id]) ?
+            JsonDataParser::decode($config[$id]) : array();
     }
 
     function setAuthKey($key) {
@@ -776,6 +801,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $_config->updateAll(array(
                     'datetime_format' => $vars['datetime_format'],
                     'default_from_name' => $vars['default_from_name'],
+                    'default_2fa' => $vars['default_2fa'],
                     'thread_view_order' => $vars['thread_view_order'],
                     'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
                     'reply_redirect' => ($vars['reply_redirect'] == 'Queue') ? 'Queue' : 'Ticket',

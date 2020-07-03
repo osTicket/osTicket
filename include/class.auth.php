@@ -1,16 +1,22 @@
 <?php
 
+require_once(INCLUDE_DIR.'class.2fa.php');
+
 interface AuthenticatedUser {
     // Get basic information
     function getId();
     function getUsername();
     function getUserType();
 
+
     // Get password reset timestamp
     function getPasswdResetTimestamp();
 
     //Backend used to authenticate the user
     function getAuthBackend();
+
+    // Get 2FA Backend
+    function get2FABackend();
 
     //Authentication key
     function setAuthKey($key);
@@ -42,6 +48,9 @@ implements AuthenticatedUser {
 
     //Backend used to authenticate the user
     abstract function getAuthBackend();
+
+    // Get 2FA Backend
+    abstract function get2FABackend();
 
     //Authentication key
     function setAuthKey($key) {

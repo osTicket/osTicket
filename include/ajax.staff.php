@@ -232,4 +232,71 @@ class StaffAjaxAPI extends AjaxController {
             'code' => $code,
           ));
     }
+
+    function configure2FA($staffId, $id=0) {
+        global $thisstaff;
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if ($staffId != $thisstaff->getId())
+            Http::response(403, 'Access denied');
+        if ($id && !($auth= Staff2FABackend::lookup($id)))
+            Http::response(404, 'Unknown 2FA');
+
+        $staff = $thisstaff;
+        $info = array();
+        if ($auth) {
+            // Simple state machine to manage settings and verification
+            $state = @$_POST['state'] ?: 'validate';
+            switch ($state) {
+                case 'verify':
+                    try {
+                        $form = $auth->getInputForm($_POST);
+                        if ($_POST && $form
+                                && $form->isValid()
+                                && $auth->validate($form, $staff)) {
+                            // Mark the settings as verified
+                            if (($config = $staff->get2FAConfig($auth->getId()))) {
+                                $config['verified'] = time();
+                                $staff->updateConfig(array(
+                                            $auth->getId() => JsonDataEncoder::encode($config)));
+                            }
+                            // We're done here
+                            $auth = null;
+                            $info['notice'] = __('Setup completed successfully');
+                        } else {
+                            $info['error'] = __('Unable to verify the token - try again!');
+                        }
+                    } catch (ExpiredOTP $ex) {
+                        // giving up cleanly
+                        $info['error'] = $ex->getMessage();
+                        $auth = null;
+                    }
+                    break;
+                case 'validate':
+                default:
+                    $config = $staff->get2FAConfig($auth->getId());
+                    $vars = $_POST ?: $config['config'] ?: array('email' => $staff->getEmail());
+                    $form = $auth->getSetupForm($vars);
+                    if ($_POST && $form && $form->isValid()) {
+                        // Save the setting based on setup form
+                        $clean = $form->getClean();
+                        $config = ['config' => $clean, 'verified' => 0];
+                        $staff->updateConfig(array(
+                                    $auth->getId() => JsonDataEncoder::encode($config)));
+                        // Send verification token to the user
+                        if ($token=$auth->send($staff)) {
+                            // Transition to verify state
+                            $form =  $auth->getInputForm($vars);
+                            $state = 'verify';
+                            $info['notice'] = __('Token sent to you!');
+                        } else {
+                            // Generic error TODO: better wording
+                            $info['error'] = __('Error sending Token - doubdle check entry');
+                        }
+                    }
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/2fas.tmpl.php';
+    }
 }

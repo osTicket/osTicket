@@ -241,6 +241,11 @@ class EndUser extends BaseAuthenticatedUser {
         return UserAuthenticationBackend::getBackend($authkey);
     }
 
+    function get2FABackend() {
+        //TODO: support 2FA on client portal
+        return null;
+    }
+
     function getTicketStats() {
         if (!isset($this->_stats))
             $this->_stats = $this->getStats();
