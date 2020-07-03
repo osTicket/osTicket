@@ -465,6 +465,10 @@ class OsticketConfig extends Config {
         return $this->get('client_passwd_policy');
     }
 
+    function require2FAForAgents() {
+         return $this->get('require_agent_2fa');
+    }
+
     function isRichTextEnabled() {
         return $this->get('enable_richtext');
     }
@@ -1334,6 +1338,7 @@ class OsticketConfig extends Config {
             'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
+            'require_agent_2fa'=>$vars['require_agent_2fa'],
             'agent_name_format'=>$vars['agent_name_format'],
             'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
