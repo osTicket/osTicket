@@ -4140,25 +4140,7 @@ implements RestrictedAccess, Threadable, Searchable {
             // entries, disable and track the requested disabled fields.
             if ($vars['topicId']) {
                 if ($__topic=Topic::lookup($vars['topicId'])) {
-                    foreach ($__topic->getForms() as $index=>$topicForm) {
-                        $disabled = self::getDisabledFields($topicForm);
-                        // Special handling for the ticket form — disable fields
-                        // requested to be disabled as per the help topic.
-                        if ($topicForm->get('type') == 'T') {
-                            $formId = $topicForm->getId();
-                            self::setDisabledFields($disabled[$formId], $form);
-                            $form->sort = $index;
-                        }
-                        else {
-                            $topicForm = $topicForm->instanciate($index);
-                            $topicForm->setSource($vars);
-                            $topic_forms[] = $topicForm;
-                        }
-                        // Track fields currently disabled
-                        $topicForm->extra = JsonDataEncoder::encode(array(
-                            'disable' => call_user_func_array('array_merge', $disabled)
-                        ));
-                    }
+                    $topic_forms = $__topic->trackDisabledFields($form);
                 }
             }
 
@@ -4289,6 +4271,8 @@ implements RestrictedAccess, Threadable, Searchable {
             // This may return NULL, no big deal
             $topic = $cfg->getDefaultTopic();
         }
+        if ($topic)
+            $topic->trackDisabledFields($form);
 
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {
