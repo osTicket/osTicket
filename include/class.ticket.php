@@ -1704,7 +1704,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     && ($acct_manager = $org->getAccountManager())
                 ) {
                     if ($acct_manager instanceof Team)
-                        $recipients = array_merge($recipients, $acct_manager->getMembers());
+                        $recipients = array_merge($recipients, $acct_manager->getMembersForAlerts());
                     else
                         $recipients[] = $acct_manager;
                 }
@@ -1964,7 +1964,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $recipients[] = $assignee;
 
             if ($team = $this->getTeam())
-                $recipients = array_merge($recipients, $team->getMembers());
+                $recipients = array_merge($recipients, $team->getMembersForAlerts());
         }
 
         // Dept manager
@@ -2057,7 +2057,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($cfg->alertStaffONAssignment())
                 $recipients[] = $assignee;
         } elseif (($assignee instanceof Team) && $assignee->alertsEnabled()) {
-            if ($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembers()))
+            if ($cfg->alertTeamMembersONAssignment() && ($members=$assignee->getMembersForAlerts()))
                 $recipients = array_merge($recipients, $members);
             elseif ($cfg->alertTeamLeadONAssignment() && ($lead=$assignee->getTeamLead()))
                 $recipients[] = $lead;
@@ -2124,7 +2124,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 }
                 elseif ($this->getTeamId()
                     && ($team = $this->getTeam())
-                    && ($members = $team->getMembers())
+                    && ($members = $team->getMembersForAlerts())
                 ) {
                     $recipients=array_merge($recipients, $members);
                 }
@@ -2705,7 +2705,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     $recipients[] = $this->getStaff();
                 elseif ($this->getTeamId()
                     && ($team=$this->getTeam())
-                    && ($members=$team->getMembers())
+                    && ($members=$team->getMembersForAlerts())
                 ) {
                     $recipients = array_merge($recipients, $members);
                 }
@@ -3184,7 +3184,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 if ($staff = $ticket->getStaff())
                     $recipients[] = $staff;
                 elseif ($team = $ticket->getTeam())
-                    $recipients = array_merge($recipients, $team->getMembers());
+                    $recipients = array_merge($recipients, $team->getMembersForAlerts());
             }
 
             // Dept manager
@@ -3200,7 +3200,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     && ($org = $this->getOwner()->getOrganization())
                     && ($acct_manager = $org->getAccountManager())) {
                 if ($acct_manager instanceof Team)
-                    $recipients = array_merge($recipients, $acct_manager->getMembers());
+                    $recipients = array_merge($recipients, $acct_manager->getMembersForAlerts());
                 else
                     $recipients[] = $acct_manager;
             }

@@ -849,7 +849,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             if ($cfg->alertStaffONTaskAssignment())
                 $recipients[] = $assignee;
         } elseif (($assignee instanceof Team) && $assignee->alertsEnabled()) {
-            if ($cfg->alertTeamMembersONTaskAssignment() && ($members=$assignee->getMembers()))
+            if ($cfg->alertTeamMembersONTaskAssignment() && ($members=$assignee->getMembersForAlerts()))
                 $recipients = array_merge($recipients, $members);
             elseif ($cfg->alertTeamLeadONTaskAssignment() && ($lead=$assignee->getTeamLead()))
                 $recipients[] = $lead;
@@ -936,7 +936,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     $recipients[] = $this->getStaff();
                 elseif ($this->getTeamId()
                     && ($team=$this->getTeam())
-                    && ($members=$team->getMembers())
+                    && ($members=$team->getMembersForAlerts())
                 ) {
                     $recipients = array_merge($recipients, $members);
                 }
@@ -1209,7 +1209,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 $recipients[] = $assignee;
 
             if ($team = $this->getTeam())
-                $recipients = array_merge($recipients, $team->getMembers());
+                $recipients = array_merge($recipients, $team->getMembersForAlerts());
         }
 
         // Dept manager
