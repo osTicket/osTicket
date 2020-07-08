@@ -183,6 +183,18 @@ implements TemplateVariable, Searchable {
         return $this->_forms;
     }
 
+    function getDisabledFieldsIds() {
+        $disabled = array();
+        foreach ($this->forms->select_related('form') as $form) {
+            $extra = JsonDataParser::decode($form->extra);
+
+            if (!empty($extra['disable']))
+                $disabled[$form->form_id] = $extra['disable'];
+        }
+
+        return $disabled;
+    }
+
     function trackDisabledFields($form=null) {
         foreach ($this->getForms() as $index=>$topicForm) {
             $disabled = Ticket::getDisabledFields($topicForm);
