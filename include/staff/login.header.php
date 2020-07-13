@@ -14,7 +14,7 @@ header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.4.0.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.5.1.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             $("input:not(.dp):visible:enabled:first").focus();
