@@ -186,6 +186,23 @@ extends VerySimpleModel {
                 'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::SECOND($period)),
             ))->delete();
     }
+
+    function getConfigsByNamespace($namespace=false, $key, $value=false) {
+        $filter = array();
+
+         $filter['key'] = $key;
+
+         if ($namespace)
+            $filter['namespace'] = $namespace;
+
+         if ($value)
+            $filter['value'] = $value;
+
+         $token = ConfigItem::objects()
+            ->filter($filter);
+
+         return $namespace ? $token[0] : $token;
+    }
 }
 
 class OsticketConfig extends Config {

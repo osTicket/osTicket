@@ -193,6 +193,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             JsonDataParser::decode($config[$id]) : array();
     }
 
+    function is2FAConfigured($id) {
+        $config = $this->getConfig();
+
+        if (isset($config[$id])) {
+           $config = json_decode($config[$id], true);
+           return array_key_exists('verified', $config);
+        }
+
+        return false;
+    }
+
     function setAuthKey($key) {
         $this->authkey = $key;
     }
@@ -392,7 +403,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     function force2faConfig() {
         global $cfg;
 
-        return ($cfg->require2FAForAgents() && !$this->get2FABackend());
+        $id = $this->get2FABackendId();
+        $config = ConfigItem::getConfigsByNamespace('staff.'.$this->getId(), $id);
+
+        //2fa is required and
+        //1. agent doesn't have default_2fa or
+        //2. agent has default_2fa, but that default_2fa is not configured
+        return ($cfg->require2FAForAgents() && !$id || ($id && is_null($config)));
     }
 
     function getDepartments() {

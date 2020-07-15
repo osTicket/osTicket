@@ -139,8 +139,7 @@ if (($bks=Staff2FABackend::allRegistered())) {
               <?php
               }
              foreach ($bks as $bk) {
-                 $configured = (isset($_config[$bk->getId()]) &&
-                     $_config[$bk->getId()]['verified']);
+                 $configured = $staff->is2FAConfigured($bk->getId());
                  ?>
               <option id="<?php echo $bk->getId(); ?>"
                       value="<?php echo $bk->getId(); ?>" <?php

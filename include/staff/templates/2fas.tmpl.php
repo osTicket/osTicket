@@ -18,11 +18,8 @@ if ($info['error']) {
 <table class="table">
     <tbody>
       <?php
-      $config = $staff->getConfig();
       foreach (Staff2FABackend::allRegistered() ?: array() as $bk) {
-          $isVerified = (isset($config[$bk->getId()]) &&
-                  $config[$bk->getId()]['verified']);
-          if ($isVerified) {
+          if ($isVerified = $staff->is2FAConfigured($bk->getId())) {
           ?>
           <script type="text/javascript">
               isVerified = '<?php echo $isVerified;?>';
@@ -89,7 +86,6 @@ if ($auth && $form) {
 <script type="text/javascript">
 function enable2fa(isVerified, id) {
     document.getElementById(id).disabled=false;
-    document.getElementById(id).selected=true;
 }
 
 $(function() {

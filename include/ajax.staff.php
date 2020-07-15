@@ -305,4 +305,15 @@ class StaffAjaxAPI extends AjaxController {
 
         include STAFFINC_DIR . 'templates/2fas.tmpl.php';
     }
+
+    function reset2fA($staffId) {
+        $default_2fa = ConfigItem::getConfigsByNamespace('staff.'.$staffId, 'default_2fa');
+        $config = ConfigItem::getConfigsByNamespace('staff.'.$staffId, $default_2fa->value);
+
+        if ($default_2fa)
+            $default_2fa->delete();
+
+        if ($config)
+            $config->delete();
+    }
 }
