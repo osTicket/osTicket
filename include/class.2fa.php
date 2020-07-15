@@ -250,9 +250,8 @@ class Email2FABackend extends TwoFactorAuthenticationBackend {
         return true;
     }
 
-
     function send($user) {
-        global $cfg;
+        global $ost, $cfg;
 
         // Get backend configuration for this user
         if (!$cfg || !($info = $user->get2FAConfig($this->getId())))
@@ -262,19 +261,32 @@ class Email2FABackend extends TwoFactorAuthenticationBackend {
         if (!($email = $cfg->getAlertEmail() ?: $cfg->getDefaultEmail()))
             return false;
 
-        // get configuration 
-        $config = $info['config'];
         // Generate OTP
         $otp = Misc::randNumber(6);
         // Stash it in the session
         $this->store($otp);
 
-        // Send the OTP. Hard coded for now.
-        // TODO: User email template like pw-reset
-        $msg = sprintf('%s: %s',
-                'Your verification code',
-                $otp);
-        $email->sendAlert($config['email'], 'Verification Code', $msg);
+        $template = 'email2fa-staff';
+        $content = Page::lookupByType($template);
+
+        if (!$content)
+           return new BaseError(/* @trans */ 'Unable to retrieve two factor authentication email template');
+
+        $vars = array(
+           'url' => $ost->getConfig()->getBaseUrl(),
+           'otp' => $otp,
+           'staff' => $user,
+           'recipient' => $user,
+       );
+
+       $lang = $user->lang ?: $user->getExtraAttr('browser_lang');
+       $msg = $ost->replaceTemplateVariables(array(
+           'subj' => $content->getLocalName($lang),
+           'body' => $content->getLocalBody($lang),
+       ), $vars);
+
+        $email->send($user->getEmail(), Format::striptags($msg['subj']),
+           $msg['body']);
 
         // MD5 here is not meant to be secure here - just done to avoid plain leaks
         return md5($otp);

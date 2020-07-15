@@ -223,6 +223,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                     <?php $manage_content(__('Agent Welcome Email'), 'registration-staff'); ?>
                     <?php $manage_content(__('Sign-in Login Banner'), 'banner-staff'); ?>
                     <?php $manage_content(__('Password Reset Email'), 'pwreset-staff'); ?>
+                    <?php $manage_content(__('Two Factor Authentication Email'), 'email2fa-staff'); ?>
                 </tbody>
             </table>
         </div>
