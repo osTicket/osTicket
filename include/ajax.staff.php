@@ -278,11 +278,17 @@ class StaffAjaxAPI extends AjaxController {
                     $vars = $_POST ?: $config['config'] ?: array('email' => $staff->getEmail());
                     $form = $auth->getSetupForm($vars);
                     if ($_POST && $form && $form->isValid()) {
+                        if ($config['config'] && $config['config']['external2fa'])
+                            $external2fa = true;
+
                         // Save the setting based on setup form
                         $clean = $form->getClean();
-                        $config = ['config' => $clean, 'verified' => 0];
-                        $staff->updateConfig(array(
-                                    $auth->getId() => JsonDataEncoder::encode($config)));
+                        if (!$external2fa) {
+                            $config = ['config' => $clean, 'verified' => 0];
+                            $staff->updateConfig(array(
+                                        $auth->getId() => JsonDataEncoder::encode($config)));
+                        }
+
                         // Send verification token to the user
                         if ($token=$auth->send($staff)) {
                             // Transition to verify state
@@ -291,7 +297,7 @@ class StaffAjaxAPI extends AjaxController {
                             $info['notice'] = __('Token sent to you!');
                         } else {
                             // Generic error TODO: better wording
-                            $info['error'] = __('Error sending Token - doubdle check entry');
+                            $info['error'] = __('Error sending Token - double check entry');
                         }
                     }
             }

@@ -142,7 +142,8 @@ if (($bks=Staff2FABackend::allRegistered())) {
                  $configured = (isset($_config[$bk->getId()]) &&
                      $_config[$bk->getId()]['verified']);
                  ?>
-              <option value="<?php echo $bk->getId(); ?>" <?php
+              <option id="<?php echo $bk->getId(); ?>"
+                      value="<?php echo $bk->getId(); ?>" <?php
                 if ($current == $bk->getId() && $configured)
                   echo ' selected="selected" '; ?>
                 <?php

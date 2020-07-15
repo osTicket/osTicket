@@ -136,6 +136,10 @@ if($thisstaff->forcePasswdChange() && !$exempt) {
     $sysnotice = __('Password change required to continue');
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
     exit;
+} elseif ($thisstaff->force2faConfig() && !$exempt) {
+    $sysnotice = __('Two Factor Authentication configuration required to continue');
+    require('profile.php');
+    exit;
 }
 $ost->setWarning($sysnotice);
 $ost->setPageTitle(__('osTicket :: Staff Control Panel'));

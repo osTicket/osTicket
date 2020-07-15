@@ -389,6 +389,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->change_passwd;
     }
 
+    function force2faConfig() {
+        global $cfg;
+
+        return ($cfg->require2FAForAgents() && !$this->get2FABackend());
+    }
+
     function getDepartments() {
         // TODO: Cache this in the agent's session as it is unlikely to
         //       change while logged in

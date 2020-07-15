@@ -22,7 +22,14 @@ if ($info['error']) {
       foreach (Staff2FABackend::allRegistered() ?: array() as $bk) {
           $isVerified = (isset($config[$bk->getId()]) &&
                   $config[$bk->getId()]['verified']);
+          if ($isVerified) {
           ?>
+          <script type="text/javascript">
+              isVerified = '<?php echo $isVerified;?>';
+              id = '<?php echo $id;?>';
+              enable2fa(isVerified, id);
+          </script>
+          <?php } ?>
       <tr id="<?php echo $bk->getId(); ?>">
         <td nowrap width="10px">
           <i class="faded-more <?php echo sprintf('icon-check-%s',
@@ -30,7 +37,7 @@ if ($info['error']) {
           <span data-name="label"></span>
         </td>
         <td width="300px">
-            <a class="config2fa" 
+            <a class="config2fa"
                 href="<?php echo sprintf('#staff/%d/2fa/configure/%s',
                 $staff->getId(), urlencode($bk->getId())); ?>"> <?php echo $bk->getName(); ?>
               </a>
@@ -55,8 +62,8 @@ if ($auth && $form) {
  <div><?php echo Format::htmlchars($instruction); ?></div>
  <br>
 <form class="bk" method="post" action="<?php echo sprintf('#staff/%d/2fa/configure/%s',
-    $staff->getId(), $auth->getId()); ?>">    
-    <input type="hidden" name="state" value="<?php 
+    $staff->getId(), $auth->getId()); ?>">
+    <input type="hidden" name="state" value="<?php
         echo $state ?: 'validate'; ?>" />
     <?php
     echo csrf_token();
@@ -80,6 +87,11 @@ if ($auth && $form) {
 </div>
 <div class="clear"></div>
 <script type="text/javascript">
+function enable2fa(isVerified, id) {
+    document.getElementById(id).disabled=false;
+    document.getElementById(id).selected=true;
+}
+
 $(function() {
     $('a.config2fa').click( function(e) {
         e.preventDefault();
@@ -107,4 +119,3 @@ $(function() {
 
 });
 </script>
-
