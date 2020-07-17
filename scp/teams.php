@@ -2,7 +2,7 @@
 /*********************************************************************
     teams.php
 
-    Evertything about teams
+    Everything about teams
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket

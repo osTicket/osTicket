@@ -2,7 +2,7 @@
 /*********************************************************************
     class.format.php
 
-    Pagenation  support class
+    Pagination support class
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket

@@ -20,7 +20,7 @@ interface AuthenticatedUser {
     function logOut();
 
     // Signal method to allow performing extra things when a user is logged
-    // into the sysem
+    // into the system
     function onLogin($bk);
  */
 }
