@@ -1053,8 +1053,14 @@ implements RestrictedAccess, Threadable, Searchable {
     function getDynamicFieldById($fid) {
         foreach (DynamicFormEntry::forTicket($this->getId()) as $form) {
             foreach ($form->getFields() as $field)
-                if ($field->getId() == $fid)
+                if ($field->getId() == $fid) {
+                    // This is to prevent SimpleForm using index name as
+                    // field name when one is not set.
+                    if (!$field->get('name'))
+                        $field->set('name', "field_$fid");
+
                     return $field;
+                }
         }
     }
 
