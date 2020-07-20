@@ -659,7 +659,7 @@ class DynamicFormField extends VerySimpleModel {
         // See if field impl. need to save or override anything
         $config = $this->getImpl()->to_config($config);
         $this->set('configuration', JsonDataEncoder::encode($config));
-        $this->set('hint', Format::sanitize($vars['hint']));
+        $this->set('hint', Format::sanitize($vars['hint']) ?: NULL);
 
         return true;
     }
