@@ -20,7 +20,7 @@ if ($thisstaff && $thisstaff->is2FAPending())
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
     <div id="loading" style="display:none;" class="dialog">
         <h1><i class="icon-spinner icon-spin icon-large"></i>
-        <?php echo __('Loading');?></h1>
+        <?php echo __('Verifying');?></h1>
     </div>
     <form action="login.php" method="post" id="login" onsubmit="attemptLoginAjax(event)">
         <?php csrf_token();

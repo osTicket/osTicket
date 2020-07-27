@@ -307,13 +307,16 @@ class StaffAjaxAPI extends AjaxController {
     }
 
     function reset2fA($staffId) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+
         $default_2fa = ConfigItem::getConfigsByNamespace('staff.'.$staffId, 'default_2fa');
-        $config = ConfigItem::getConfigsByNamespace('staff.'.$staffId, $default_2fa->value);
 
         if ($default_2fa)
             $default_2fa->delete();
-
-        if ($config)
-            $config->delete();
     }
 }

@@ -19,15 +19,10 @@ if ($info['error']) {
     <tbody>
       <?php
       foreach (Staff2FABackend::allRegistered() ?: array() as $bk) {
-          if ($isVerified = $staff->is2FAConfigured($bk->getId())) {
-          ?>
-          <script type="text/javascript">
-              isVerified = '<?php echo $isVerified;?>';
-              id = '<?php echo $id;?>';
-              enable2fa(isVerified, id);
-          </script>
-          <?php } ?>
-      <tr id="<?php echo $bk->getId(); ?>">
+          $configuration = $staff->get2FAConfig($bk->getId());
+          $isVerified = $configuration['verified'];
+          $vclass = $isVerified ? 'verified' : 'unverified'; ?>
+      <tr id="<?php echo $bk->getId(); ?>" class="2fa-type <?php echo $vclass; ?>">
         <td nowrap width="10px">
           <i class="faded-more <?php echo sprintf('icon-check-%s',
           $isVerified ? 'sign' : 'empty'); ?>"></i>
@@ -84,11 +79,12 @@ if ($auth && $form) {
 </div>
 <div class="clear"></div>
 <script type="text/javascript">
-function enable2fa(isVerified, id) {
-    document.getElementById(id).disabled=false;
-}
-
 $(function() {
+    var ids = $('.verified').map(function() {
+        id2fa = $(this).attr('id');
+        document.getElementById(id2fa).disabled=false;
+    });
+
     $('a.config2fa').click( function(e) {
         e.preventDefault();
         if ($(this).attr('href').length > 1) {
