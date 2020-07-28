@@ -109,7 +109,7 @@ class TicketsAjaxAPI extends AjaxController {
             $visibility = $thisstaff->getTicketsVisibility();
 
         $hits = Ticket::objects()
-            ->values('user__default_email__address', 'number', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags', 'number')
             ->annotate(array(
                 'tickets' => new SqlCode('1'),
                 'tasks' => SqlAggregate::COUNT('tasks__id', true),
