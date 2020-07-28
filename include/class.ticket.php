@@ -2219,6 +2219,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 'class' => 'FormattedDate', 'desc' => __('Due Date'),
             ),
             'email' => __('Default email address of ticket owner'),
+            'id' => __('Ticket ID (internal ID)'),
             'name' => array(
                 'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
             ),
