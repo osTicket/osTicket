@@ -178,6 +178,7 @@ class Installer extends SetupWizard {
         list($sla_id) = Sla::objects()->order_by('id')->values_flat('id')->first();
         list($dept_id) = Dept::objects()->order_by('id')->values_flat('id')->first();
         list($role_id) = Role::objects()->order_by('id')->values_flat('id')->first();
+        list($schedule_id) = Schedule::objects()->order_by('id')->values_flat('id')->first();
 
         $sql='SELECT `tpl_id` FROM `'.TABLE_PREFIX.'email_template_group` ORDER BY `tpl_id` LIMIT 1';
         $template_id_1 = db_result(db_query($sql, false));
@@ -248,7 +249,9 @@ class Installer extends SetupWizard {
         $defaults = array(
             'default_email_id'=>$support_email_id,
             'alert_email_id'=>$alert_email_id,
-            'default_dept_id'=>$dept_id, 'default_sla_id'=>$sla_id,
+            'default_dept_id'=>$dept_id,
+            'default_sla_id'=>$sla_id,
+            'schedule_id'=>$schedule_id,
             'default_template_id'=>$template_id_1,
             'default_timezone' => $vars['timezone'] ?: date_default_timezone_get(),
             'admin_email'=>$vars['admin_email'],
