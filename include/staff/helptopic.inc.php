@@ -65,7 +65,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                   <option value="disabled"<?php echo ($info['status'] == __('Disabled'))?'selected="selected"':'';?>><?php echo __('Disabled'); ?></option>
                   <option value="archived"<?php echo ($info['status'] == __('Archived'))?'selected="selected"':'';?>><?php echo __('Archived'); ?></option>
                 </select>
-                &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
+                &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#htstatus"></i>
             </td>
         </tr>
         <tr>
