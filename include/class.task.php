@@ -1438,7 +1438,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     $_errors, $thisstaff, false);
         }
 
-        $this->lastupdate = SqlFunction::NOW();
+        $this->updated = SqlFunction::NOW();
 
         $this->save();
 
