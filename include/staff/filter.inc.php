@@ -307,6 +307,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <button id="new-action-btn" type="button" class="inline green button" onclick="javascript:
                     var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
                     dropdown.val('');
+                    if (selected.val() === '')
+                        return;
                     $('#dynamic-actions')
                       .append($('<tr></tr>')
                         .append($('<td></td>')
