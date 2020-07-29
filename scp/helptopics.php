@@ -61,7 +61,7 @@ if($_POST){
                         __('one help topic'));
             }
             if (!$errors) {
-                $count=count($_POST['ids']);
+                $count=$_POST['ids']?count($_POST['ids']):0;
 
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
