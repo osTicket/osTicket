@@ -178,7 +178,7 @@ if ($task->isOverdue())
                     <?php
                     foreach ($actions as $a => $action) { ?>
                     <li <?php if ($action['class']) echo sprintf("class='%s'", $action['class']); ?> >
-                        <a class="no-pjax task-action" <?php
+                        <a <?php echo sprintf('class="%s"', ($a == 'print') ? $action['class'] : 'no-pjax task-action'); ?><?php
                             if ($action['dialog'])
                                 echo sprintf("data-dialog-config='%s'", $action['dialog']);
                             if ($action['redirect'])
