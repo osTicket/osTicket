@@ -38,7 +38,7 @@ class StaffAjaxAPI extends AjaxController {
           try {
               // Validate password
               if (!$clean['welcome_email'])
-                  PasswordPolicy::checkPassword($clean['passwd1'], null);
+                  Staff::checkPassword($clean['passwd1'], null);
               if ($id == 0) {
                   // Stash in the session later when creating the user
                   $_SESSION['new-agent-passwd'] = $clean;
@@ -56,8 +56,8 @@ class StaffAjaxAPI extends AjaxController {
                   Http::response(201, 'Successfully updated');
           }
           catch (BadPassword $ex) {
-              $passwd1 = $form->getField('passwd1');
-              $passwd1->addError($ex->getMessage());
+              if ($passwd1 = $form->getField('passwd1'))
+                  $passwd1->addError($ex->getMessage());
           }
           catch (PasswordUpdateFailed $ex) {
               $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
@@ -108,8 +108,8 @@ class StaffAjaxAPI extends AjaxController {
                     }
                 }
                 catch (BadPassword $ex) {
-                    $passwd1 = $form->getField('passwd1');
-                    $passwd1->addError($ex->getMessage());
+                    if ($passwd1 = $form->getField('passwd1'))
+                        $passwd1->addError($ex->getMessage());
                 }
                 catch (PasswordUpdateFailed $ex) {
                     $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
