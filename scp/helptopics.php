@@ -159,7 +159,7 @@ if($_POST){
                         foreach ($topics as $t)
                             $t->delete();
 
-                        if($topics && $topics==$count)
+                        if($topics && $topics->count()==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
                         elseif($topics>0)
