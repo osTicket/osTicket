@@ -1365,7 +1365,7 @@ abstract class PasswordPolicy {
                         Q::not(array('session_id' => $user->session->session_id)));
                 break;
             case ($model instanceof User):
-                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
+                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:\{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
                 $criteria['user_id'] = 0;
                 $criteria['session_data__regex'] = $regexp;
 
