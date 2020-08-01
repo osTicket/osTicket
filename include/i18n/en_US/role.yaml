@@ -21,6 +21,7 @@
     ticket.edit,
     ticket.merge,
     ticket.link,
+    ticket.markanswered,
     ticket.assign,
     ticket.release,
     ticket.transfer,
