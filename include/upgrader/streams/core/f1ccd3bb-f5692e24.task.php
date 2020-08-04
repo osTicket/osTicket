@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('TICKET_EMAIL_INFO_TABLE')
+if (!defined('TICKET_EMAIL_INFO_TABLE'))
     define('TICKET_EMAIL_INFO_TABLE', TABLE_PREFIX.'ticket_email_info');
 
 /*
