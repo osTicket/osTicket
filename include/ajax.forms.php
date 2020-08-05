@@ -78,7 +78,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $preserve = $field->flags & $p_mask;
 
         // Set admin-configured flag states
-        $flags = array_reduce($_POST['flags'],
+        $flags = array_reduce($_POST['flags'] ?: array(),
             function($a, $b) { return $a | $b; }, 0);
         $field->flags = $flags | $preserve;
 
