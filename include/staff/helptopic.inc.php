@@ -388,7 +388,7 @@ foreach ($forms as $F) {
         <tr>
             <td><input type="checkbox" name="fields[]" value="<?php
                 echo $f->get('id'); ?>" <?php
-                if ($f->isEnabled()) echo 'checked="checked"'; ?>/></td>
+                if (!$f->_disabled) echo 'checked="checked"'; ?>/></td>
             <td><?php echo $f->get('label'); ?></td>
             <td><?php $t=FormField::getFieldType($f->get('type')); echo __($t[0]); ?></td>
             <td><?php echo $f->getVisibilityDescription(); ?></td>
