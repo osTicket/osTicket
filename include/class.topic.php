@@ -183,6 +183,38 @@ implements TemplateVariable, Searchable {
         return $this->_forms;
     }
 
+    function getDisabledFieldsIds() {
+        $disabled = array();
+        foreach ($this->forms->select_related('form') as $form) {
+            $extra = JsonDataParser::decode($form->extra);
+
+            if (!empty($extra['disable']))
+                $disabled[$form->form_id] = $extra['disable'];
+        }
+
+        return $disabled;
+    }
+
+    function trackDisabledFields($form=null) {
+        foreach ($this->getForms() as $index=>$topicForm) {
+            $disabled = Ticket::getDisabledFields($topicForm);
+            // Special handling for the ticket form — disable fields
+            // requested to be disabled as per the help topic.
+            if ($topicForm->get('type') == 'T') {
+                $formId = $topicForm->getId();
+                Ticket::setDisabledFields($disabled[$formId], $form);
+                $form->sort = $index;
+            }
+            else {
+                $topicForm = $topicForm->instanciate($index);
+                $topicForm->setSource($vars);
+                $topic_forms[] = $topicForm;
+            }
+        }
+
+        return $topic_forms;
+    }
+
     function autoRespond() {
         return !$this->noautoresp;
     }
