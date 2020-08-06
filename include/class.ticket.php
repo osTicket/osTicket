@@ -3823,6 +3823,13 @@ implements RestrictedAccess, Threadable, Searchable {
                            __($field->getLabel()));
                elseif (!$field->save(true))
                    $errors['field'] =  __('Unable to update field');
+
+               // Strip tags from TextareaFields to ensure event data is not
+               // truncated
+               if ($field instanceof TextareaField)
+                   foreach ($changes as $k=>$v)
+                       $changes[$k] = Format::truncate(Format::striptags($v), 200);
+
                $changes['fields'] = array($field->getId() => $changes);
            } else {
                $val =  $field->getClean();

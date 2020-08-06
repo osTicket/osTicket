@@ -672,26 +672,33 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     foreach ($displayed as $a) {
         $id =  $a->getLocal('id');
         $label = $a->getLocal('label');
-        $v = $a->display();
         $field = $a->getField();
+        $config = $field->getConfiguration();
+        $html = isset($config['html']) ? $config['html'] : false;
+        $v = $html ? Format::striptags($a->display()) : $a->display();
         $class = (Format::striptags($v)) ? '' : 'class="faded"';
-        $clean = (Format::striptags($v)) ? $v : '&mdash;' . __('Empty') .  '&mdash;';
+        $clean = (Format::striptags($v))
+                ? ($html ? Format::striptags($v) : $v)
+                : '&mdash;' . __('Empty') .  '&mdash;';
         $isFile = ($field instanceof FileUploadField);
+        $url = "#tickets/".$ticket->getId()."/field/".$id;
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
             <td id="<?php echo sprintf('inline-answer-%s', $field->getId()); ?>">
             <?php if ($role->hasPerm(Ticket::PERM_EDIT)
                     && $field->isEditableToStaff()) {
-                    $isEmpty = strpos($v, 'Empty');
+                    $isEmpty = strpos($v, 'Empty') || ($v == '');
                     if ($isFile && !$isEmpty) {
                         echo sprintf('<span id="field_%s" %s >%s</span><br>', $id,
                             $class,
                             $clean);
                     }
+                    $title = ($html && !$isEmpty) ? __('View Content') : __('Update');
+                    $href = $url.(($html && !$isEmpty) ? '/view' : '/edit');
                          ?>
-                  <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
-                      href="#tickets/<?php echo $ticket->getId(); ?>/field/<?php echo $id; ?>/edit">
+                  <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo $title; ?>"
+                      href="<?php echo $href; ?>">
                   <?php
                     if ($isFile && !$isEmpty) {
                       echo "<i class=\"icon-edit\"></i>";

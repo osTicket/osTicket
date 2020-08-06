@@ -679,9 +679,9 @@ class TicketsAjaxAPI extends AjaxController {
                         break;
                     case $field instanceof TextareaField:
                         $clean =  (string) $field->getClean();
-                        $clean = Format::striptags($clean) ? $clean : '&mdash;' . __('Empty') .  '&mdash;';
+                        $clean = Format::striptags($clean) ?: '&mdash;' . __('Empty') .  '&mdash;';
                         if (strlen($clean) > 200)
-                             $clean = Format::truncate($clean, 200);
+                             $clean = Format::truncate(Format::striptags($clean), 200);
                         break;
                     case $field instanceof BooleanField:
                         $clean = $field->toString($field->getClean());
@@ -725,6 +725,30 @@ class TicketsAjaxAPI extends AjaxController {
             'templates/topic.tmpl.php' : 'templates/field-edit.tmpl.php';
 
         include STAFFINC_DIR . $template;
+    }
+
+    function viewField($tid, $fid) {
+        global $cfg, $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+        elseif (!($field=$ticket->getField($fid)))
+            Http::response(404, __('No such field'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s %s'),
+                  $ticket->getNumber(),
+                  __('View'),
+                  $field->getLabel()
+                  ),
+              ':action' => sprintf('#tickets/%d/field/%s/edit',
+                  $ticket->getId(), $field->getId())
+              );
+
+        $form = $field->getEditForm();
+
+        include STAFFINC_DIR . 'templates/field-view.tmpl.php';
     }
 
     function assign($tid, $target=null) {
