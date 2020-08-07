@@ -15,7 +15,7 @@
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo sprintf(__(
 'Choose which Tickets to %s. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
-), ($title == 'merge' ? 'merge into this one' : 'link'));
+), ($title == 'merge' ? __('merge into this one') : __('link')));
 ?>
 <br/>
 <br/>
