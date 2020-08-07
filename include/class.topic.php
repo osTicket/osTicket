@@ -195,7 +195,8 @@ implements TemplateVariable, Searchable {
         return $disabled;
     }
 
-    function trackDisabledFields($form=null) {
+    function trackDisabledFields($form=null, $vars=null) {
+        $topic_forms = array();
         foreach ($this->getForms() as $index=>$topicForm) {
             $disabled = Ticket::getDisabledFields($topicForm);
             // Special handling for the ticket form — disable fields
