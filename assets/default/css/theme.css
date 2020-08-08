@@ -1,3 +1,9 @@
+
+@font-face {
+    font-family: avenir; 
+    src: url('../../font/Avenir.ttc'); 
+}
+
 html {
   font-size: 100%;
   overflow-y: scroll;
@@ -5,16 +11,18 @@ html {
   -ms-text-size-adjust: 100%;
 }
 body {
+	padding-top: 3rem;
+	font-family: avenir;
   margin: 0;
-  font-size: 14px;
-  line-height: 1.231;
+  font-size: 1rem;
+  line-height: 1rem;
   padding: 0;
 }
 body,
 input,
 select,
 textarea {
-  font-family: "Helvetica Neue", sans-serif;
+ /* font-family: "Helvetica Neue", sans-serif;*/
   color: #000;
 }
 b,
@@ -55,9 +63,12 @@ fieldset {
 label {
   cursor: pointer;
 }
+
 input,
 select,
 textarea {
+	height: auto;
+	width: 80%;
   font-size: 100%;
   margin: 0;
   vertical-align: baseline;
@@ -67,9 +78,9 @@ input {
   line-height: normal;
   *overflow: visible;
 }
-table input {
+/*table input {
   *overflow: auto;
-}
+}*/
 input[type="button"],
 input[type="reset"],
 input[type="submit"] {
@@ -80,16 +91,19 @@ input[type="checkbox"],
 input[type="radio"] {
   box-sizing: border-box;
 }
-
+@font-face {
+  font-family: avenir;
+  src: url(../../font/Avenir.ttc);
+}
 textarea {
   overflow: auto;
   vertical-align: top;
   resize: vertical;
 }
-table {
+/*table {
   border-collapse: collapse;
   border-spacing: 0;
-}
+}*/
 th,
 td {
   vertical-align: top;
@@ -124,13 +138,13 @@ a:hover, .link:hover {
 h1 {
   color: #00AEEF;
   font-weight: normal;
-  font-size: 20px;
+  font-size: 1.2rem;
 }
 h3 {
-  font-size: 16px;
+  font-size: 1rem;
 }
 h2, .subject {
-  font-size: 16px;
+  font-size: 1rem;
   color: black;
 }
 /* Helpers */
@@ -158,7 +172,7 @@ h2, .subject {
   border: 0;
   margin: 0;
   padding: 0;
-  font-size: 11px;
+  font-size: 0.8rem;
   list-style: none;
   display: inline;
 }
@@ -197,8 +211,8 @@ h2, .subject {
 #msg_notice {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
+  height: 2rem;
+  line-height: 1rem;
   margin-bottom: 10px;
   border: 1px solid #0a0;
   background: url('../images/icons/ok.png') 10px 50% no-repeat #e0ffe0;
@@ -206,8 +220,7 @@ h2, .subject {
 #msg_warning, .warning-banner {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
+  line-height: 1rem;
   margin-bottom: 10px;
   border: 1px solid #f26522;
   background: url('../images/icons/alert.png') 10px 50% no-repeat #ffffdd;
@@ -215,8 +228,8 @@ h2, .subject {
 #msg_error {
   margin: 0;
   padding: 5px 10px 5px 36px;
-  height: 16px;
-  line-height: 16px;
+  height: 2rem;
+  line-height: 1rem;
   margin-bottom: 10px;
   border: 1px solid #a00;
   background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0;
@@ -242,7 +255,7 @@ h2, .subject {
   background: #222;
   border: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 4px 16px 4px 16px;
   max-width: 220px;
   text-align: center;
@@ -258,7 +271,7 @@ h2, .subject {
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   position: relative;
   cursor: pointer;
-  font-family: helvetica, arial, sans-serif;
+ /* font-family: helvetica, arial, sans-serif;*/
 }
 .button:hover {
   background-color: #111;
@@ -291,7 +304,7 @@ body {
 }
 #container {
   background: #fff;
-  width: 840px;
+  max-width: 992px;
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
@@ -299,7 +312,7 @@ body {
 }
 #header {
   position: relative;
-  height: 71px;
+  height: 4.5rem;
   padding: 0 20px;
 }
 #logo {
@@ -322,6 +335,8 @@ body {
   margin: 0;
   padding: 10px 0 0;
 }
+
+/*
 #nav {
   margin: 0 20px;
   padding: 2px 10px;
@@ -386,6 +401,7 @@ body {
 #nav li a.tickets {
   background-image: url('../images/icons/tix.png');
 }
+*/
 #content {
   padding: 20px 0;
   margin: 0 20px;
@@ -395,7 +411,7 @@ body {
 }
 #footer {
   text-align: center;
-  font-size: 11px;
+  font-size: 0.8rem;
   color: #333;
 }
 #footer a {
@@ -407,7 +423,7 @@ body {
 #footer #poweredBy {
   display: block;
   width: 126px;
-  height: 23px;
+  height: 1.5rem;
   outline: none;
   text-indent: -9999px;
   margin: 0 auto;
@@ -442,7 +458,7 @@ body {
   padding: 5px;
 }
 #faq ol {
-  font-size: 15px;
+  font-size: 0.9rem;
   margin-left: 0;
   padding-left: 0;
   border-top: 1px solid #ddd;
@@ -489,7 +505,7 @@ body {
   color: #666;
 }
 #kb > li h4 a {
-  font-size: 14px;
+  font-size: 0.9rem;
 }
 #kb > li > i {
   display: block;
@@ -509,7 +525,7 @@ body {
 .category-name {
     display: inline-block;
     font-weight: 400;
-    font-size: 120%;
+    font-size: 1.2rem;
 }
 .featured-category i {
     color: rgba(0,174,239, 0.8);
@@ -525,17 +541,17 @@ body {
     margin-right: 34px;
 }
 .article-teaser {
-    font-size: 90%;
-    line-height: 1.5em;
-    height: 3em;
+    font-size: 0.9rem;
+    line-height: 1.5rem;
+    height: 3rem;
     overflow: hidden;
 }
 .article-title {
     font-weight: 500;
 }
 .faq-content .article-title {
-    font-size: 17pt;
-    margin-top: 15px;
+    font-size: 1.1rem;
+    margin-top: 1rem;
 }
 #kb-search {
   padding: 10px 0;
@@ -603,10 +619,11 @@ label.required, span.required {
 #clientLogin div input,
 #ticketForm div textarea,
 #clientLogin div textarea {
-  width: auto;
-  border: 1px solid #aaa;
+  width: 100%;
+  height: 3rem;
+/*  border: 1px solid #aaa;
   background: #fff;
-  display: block;
+ */ display: block;
 }
 #ticketForm div input[type=file],
 #clientLogin div input[type=file] {
@@ -626,6 +643,7 @@ label.required, span.required {
   position: relative;
   top: 6px;
 }
+/*
 #ticketForm > table {
     table-layout: fixed;
 }
@@ -634,7 +652,7 @@ label.required, span.required {
 }
 #ticketForm > table td + td {
     width: auto;
-}
+}*/
 #ticketForm td textarea,
 #clientLogin td textarea,
 #ticketForm div textarea,
@@ -673,6 +691,7 @@ label.required, span.required {
 #clientLogin div.error label {
   color: #a00;
 }
+/**
 #ticketTable th {
   padding-left: 3px;
   font-weight: normal;
@@ -683,6 +702,7 @@ label.required, span.required {
   font-weight: bold;
   text-align: left;
 }
+*/
 #clientLogin {
     display: block;
   margin-top: 20px;
@@ -690,7 +710,6 @@ label.required, span.required {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-  background: url('../images/lock.png?1319655200') 95% 50% no-repeat #f6f6f6;
 }
 .rtl #clientLogin {
     background-position: 5% 50%;
@@ -710,7 +729,7 @@ label.required, span.required {
   clear: both;
 }
 #clientLogin strong {
-  font-size: 11px;
+  font-size: 0.8rem;
   color: #d00;
   display: block;
 }
@@ -792,6 +811,7 @@ label.required, span.required {
   font-size: 1em;
   background-image: url('../images/icons/thread.gif?1319556657');
 }
+/*
 #ticketTable {
   border: 1px solid #aaa;
   border-left: none;
@@ -827,13 +847,14 @@ label.required, span.required {
 #ticketTable tr.alt td {
   background: #f9f9f9;
 }
+*/
 i.refresh {
   color: #0a0;
-  font-size: 80%;
+  font-size: 0.8rem;
   vertical-align: middle;
 }
 .states small {
-    font-size: 70%;
+    font-size: 0.7rem;
 }
 .active.state {
     font-weight: bold;
@@ -844,6 +865,7 @@ i.refresh {
     margin-bottom: 10px;
     margin-top: -15px;
 }
+/*
 .infoTable {
   background: #F4FAFF;
 }
@@ -851,6 +873,7 @@ i.refresh {
   text-align: left;
   padding: 3px 8px;
 }
+*/
 .action-button {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -862,7 +885,7 @@ i.refresh {
   display: inline-block;
   border: 1px solid #aaa;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 0.8rem;
   overflow: hidden;
   background-color: #dddddd;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100% #dddddd));
@@ -886,12 +909,14 @@ i.refresh {
   color: #777;
   text-decoration: none;
 }
+
+/*
 table.padded tr > td,
 table.padded tr > th {
   height: 20px;
   padding-bottom: 5px;
 }
-
+*/
 .external-auth + .external-auth {
     margin-top: 4px;
 }
@@ -916,7 +941,7 @@ a.external-sign-in {
     width: 100px;
     padding: 5px 10px;
     line-height:30px;
-    font-size: 11pt;
+    font-size: 0.8rem;
 }
 img.sign-in-image {
     border: none;
@@ -928,7 +953,6 @@ img.sign-in-image {
 .login-box {
     width:40%;
     display:table-cell;
-    box-shadow: 12px 0 15px -15px rgba(0,0,0,0.4);
     padding:15px;
 }
 .rtl .login-box {
@@ -1013,6 +1037,7 @@ img.sign-in-image {
     color: initial !important;
     text-decoration: none;
 }
+/*
 table.custom-data {
     margin-top: 10px;
 }
@@ -1029,7 +1054,7 @@ table.custom-data .headline {
     border-bottom: 2px solid rgba(0,0,0,0.15);
     font-weight: bold;
     background-color: white;
-}
+}*/
 #ticketInfo h1 {
     padding-bottom: 10px;
     margin-bottom: 5px;
@@ -1055,6 +1080,7 @@ table.custom-data .headline {
     height:auto;
     border-radius: 5px;
 }
+
 .thread-entry.response > .avatar {
     margin-left: initial;
     margin-right: -60px;
@@ -1167,13 +1193,13 @@ img.avatar {
   max-width: calc(100% - 70px);
 }
 .label {
-  font-size: 11px;
+  font-size: 0.8rem;
   padding: 1px 4px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
   font-weight: bold;
-  line-height: 14px;
+  line-height: 0.9rem;
   color: #ffffff;
   vertical-align: baseline;
   white-space: nowrap;
@@ -1282,3 +1308,28 @@ img.avatar {
     margin-bottom: 0.3em;
     font-size: 1.1em;
 }
+
+
+@media only screen and (min-width: 768px) {
+	
+	#ticketForm div input,
+#clientLogin div input,
+#ticketForm div textarea,
+#clientLogin div textarea {
+  width: 70%;
+  height: 1.5rem;
+  
+  }
+  .btn {
+    line-height: 0.5rem;
+  }
+  
+}
+
+@media only screen and (min-width: 992px) {
+  
+    .sidebar{        width: 30%; }
+    .main-content {        width: 70%;}
+    select{    width:60%; height: auto; } 
+} 
+
