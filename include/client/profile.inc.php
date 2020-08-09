@@ -1,11 +1,12 @@
-<h1><?php echo __('Manage Your Profile Information'); ?></h1>
-<p><?php echo __(
+<h1 style="padding-top: 2rem;"><?php echo __('Manage Your Profile Information'); ?></h1>
+<p style="padding-top: 1rem;"><?php echo __(
 'Use the forms below to update the information we have on file for your account'
 ); ?>
 </p>
 <form action="profile.php" method="post">
   <?php csrf_token(); ?>
-<table width="800" class="padded">
+  <div class="table-responsive">
+<table class="table" class="padded">
 <?php
 foreach ($user->getForms() as $f) {
     $f->render(['staff' => false]);
@@ -21,7 +22,7 @@ if ($acct = $thisclient->getAccount()) {
     </td>
 </tr>
     <tr>
-        <td width="180">
+        <td >
             <?php echo __('Time Zone');?>:
         </td>
         <td>
@@ -34,7 +35,7 @@ if ($acct = $thisclient->getAccount()) {
     </tr>
 <?php if ($cfg->getSecondaryLanguages()) { ?>
     <tr>
-        <td width="180">
+        <td >
             <?php echo __('Preferred Language'); ?>:
         </td>
         <td>
@@ -60,7 +61,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 </tr>
 <?php if (!isset($_SESSION['_client']['reset-token'])) { ?>
 <tr>
-    <td width="180">
+    <td >
         <?php echo __('Current Password'); ?>:
     </td>
     <td>
@@ -70,7 +71,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 </tr>
 <?php } ?>
 <tr>
-    <td width="180">
+    <td >
         <?php echo __('New Password'); ?>:
     </td>
     <td>
@@ -79,7 +80,7 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
     </td>
 </tr>
 <tr>
-    <td width="180">
+    <td>
         <?php echo __('Confirm New Password'); ?>:
     </td>
     <td>
@@ -90,11 +91,20 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
 <?php } ?>
 <?php } ?>
 </table>
+</div>
 <hr>
-<p style="text-align: center;">
-    <input type="submit" value="Update"/>
-    <input type="reset" value="Reset"/>
-    <input type="button" value="Cancel" onclick="javascript:
+
+<div class="p-3">
+		<div class="row align-items-center">
+		<div class="col-md align-self-center" style="padding-bottom: 1rem;">
+    		<input type="submit" class="btn btn-outline-primary" value="Update"/>
+   	 </div>
+   	 <div class="col-md align-self-center" style="padding-bottom: 1rem;">
+		    <input type="reset" class="btn btn-outline-secondary" value="Reset"/>
+		 </div>
+		 <div class="col-md align-self-center" style="padding-bottom: 1rem;">
+    		<input type="button" class="btn btn-outline-danger" value="Cancel" onclick="javascript:
         window.location.href='index.php';"/>
-</p>
+        </div>
+</div></div>
 </form>
