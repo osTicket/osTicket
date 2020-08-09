@@ -45,7 +45,7 @@ if (osTicket::is_ie())
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/jquery-ui-timepicker-addon.css" media="all">
 
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen"> 
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>assets/fontawesome/css/all.min.css">
+    <link type="text/css" rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
    <!-- <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css"> -->
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
@@ -129,7 +129,7 @@ if (osTicket::is_ie())
     <div id="container">         		
    	         		
 	<div id="header">
-	<nav class="navbar fixed-top navbar-expand-sm navbar-light bg-white rounded" >
+	<nav class="navbar navbar-expand-sm navbar-light bg-white rounded" >
  		<a class="navbar-brand " id="logo" href="<?php echo ROOT_PATH; ?>index.php"
             title="<?php echo __('Support Center'); ?>">
          	<span class="valign-helper"></span>
