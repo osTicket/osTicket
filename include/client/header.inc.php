@@ -45,12 +45,12 @@ if (osTicket::is_ie())
     <link rel="stylesheet" href="<?php echo ROOT_PATH ?>css/jquery-ui-timepicker-addon.css" media="all">
 
     <link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/redactor.css" media="screen"> 
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>assets/fontawesome/css/fa-mesys.css">
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>assets/fontawesome/css/all.min.css">
    <!-- <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css"> -->
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css">
     <!-- Favicons -->
-    <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/MESYS-ICON.svg" sizes="32x32 16x16" />
+    <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-32x32.png" sizes="32x32 16x16" />
      <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.4.0.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.12.1.custom.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-timepicker-addon.js"></script>
