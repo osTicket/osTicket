@@ -284,6 +284,7 @@ class RolePermission {
             /* @trans */ 'Organizations' => array(),
             /* @trans */ 'Knowledgebase' => array(),
             /* @trans */ 'Miscellaneous' => array(),
+			/* @trans */ 'Staff' => array(),
             );
 
     var $perms;
