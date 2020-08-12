@@ -721,10 +721,7 @@ class TicketsAjaxAPI extends AjaxController {
             $info['error'] = $errors['err'] ?: __('Unable to update field');
         }
 
-        $template = $field instanceof TopicField ?
-            'templates/topic.tmpl.php' : 'templates/field-edit.tmpl.php';
-
-        include STAFFINC_DIR . $template;
+        include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
     }
 
     function viewField($tid, $fid) {
