@@ -137,29 +137,48 @@ $tickets->values(
 );
 
 ?>
+
+
 <div class="search well">
 <div class="flush-left">
 <form action="tickets.php" method="get" id="ticketSearchForm">
     <input type="hidden" name="a"  value="search">
-    <input type="text" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
-    <input type="submit" value="<?php echo __('Search');?>">
-<div class="pull-right">
-    <?php echo __('Help Topic'); ?>:
-    <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
-        <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
-<?php
-foreach (Topic::getHelpTopics(true) as $id=>$name) {
-        $count = $thisclient->getNumTopicTickets($id, $org_tickets);
-        if ($count == 0)
-            continue;
-?>
-        <option value="<?php echo $id; ?>"i
+   <div class="row">
+   	<div class="col-md-9">
+			<div class="input-group mb-3">
+			  <div class="input-group-prepend">
+   			 <span class="input-group-text" id="basic-addon3">Num #</span>
+  				</div>   	   	
+    			<input type="text" class="form-control" name="keywords" size="30" value="<?php echo Format::htmlchars($settings['keywords']); ?>">
+			</div>		
+		</div>
+		<div class="col-md">    		
+    		<input type="submit" value="<?php echo __('Search');?>">
+    	</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-md-3">	
+	    <?php echo __('Help Topic'); ?>:
+	   </div>
+	   <div class="col-md">
+	   <select name="topic_id" class="nowarn" onchange="javascript: this.form.submit(); ">
+
+   	     <option value="">&mdash; <?php echo __('All Help Topics');?> &mdash;</option>
+		<?php
+				foreach (Topic::getHelpTopics(true) as $id=>$name) {
+      		  $count = $thisclient->getNumTopicTickets($id, $org_tickets);
+     			   if ($count == 0)
+     	       continue;
+		?>
+   	     <option value="<?php echo $id; ?>"i
             <?php if ($settings['topic_id'] == $id) echo 'selected="selected"'; ?>
             ><?php echo sprintf('%s (%d)', Format::htmlchars($name),
                 $thisclient->getNumTopicTickets($id)); ?></option>
-<?php } ?>
-    </select>
-</div>
+			<?php } ?>
+    			</select>
+    	</div>
+	</div>
 </form>
 </div>
 
@@ -168,55 +187,63 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
 <?php } ?>
 
 </div>
+	<h1 style="margin:10px 0">
+<div class="row">
 
-
-<h1 style="margin:10px 0">
+	<div class="col-md-6">
     <a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
         ><i class="refresh icon-refresh"></i>
     <?php echo __('Tickets'); ?>
     </a>
+    </div>
 
-<div class="pull-right states">
-    <small>
-<?php if ($openTickets) { ?>
-    <i class="icon-file-alt"></i>
-    <a class="state <?php if ($status == 'open') echo 'active'; ?>"
-        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-    <?php echo _P('ticket-status', 'Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
-    </a>
-    <?php if ($closedTickets) { ?>
-    &nbsp;
-    <span style="color:lightgray">|</span>
-    <?php }
-}
-if ($closedTickets) {?>
-    &nbsp;
-    <i class="icon-file-text"></i>
-    <a class="state <?php if ($status == 'closed') echo 'active'; ?>"
-        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
-    <?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' (%d)', $closedTickets); ?>
-    </a>
-<?php } ?>
-    </small>
+	<div class="col-md-6">
+    <small><div class="row">
+			<?php if ($openTickets) { ?>
+			<div class="col-md">			    		
+    		<i class="icon-file-alt"></i>
+    		<a class="state <?php if ($status == 'open') echo 'active'; ?>"
+        		href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
+    			<?php echo _P('ticket-status', 'Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
+    		</a>
+    		</div>
+    		
+    		<?php if ($closedTickets) { ?>
+    			
+    		<?php }
+			}
+			if ($closedTickets) {?>
+    		<div class="col-md">    		
+    		<i class="icon-file-text"></i>
+    		<a class="state <?php if ($status == 'closed') echo 'active'; ?>"
+      	  	href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'closed')); ?>">
+    			<?php echo __('Closed'); if ($closedTickets > 0) echo sprintf(' (%d)', $closedTickets); ?>
+    		</a>
+    		</div>
+			<?php } ?>
+    </div></small>
+	</div>
 </div>
-</h1>
-<table id="ticketTable" width="800" border="0" cellspacing="0" cellpadding="0">
+	</h1>
+
+<div class="table-responsive">
+<table class="table " id="ticketTable" border="0" cellspacing="0" cellpadding="0">
     <caption><?php echo $showing; ?></caption>
     <thead>
-        <tr>
-            <th nowrap>
+        <tr class="table-primary">
+            <th scope="col" nowrap>
                 <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
-            <th width="120">
+            <th scope="col" width="120">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
-            <th width="100">
+            <th scope="col" width="100">
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
-            <th width="320">
+            <th scope="col" width="320">
                 <a href="tickets.php?sort=subject&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
-            <th width="120">
+            <th scope="col" width="120">
                 <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
         </tr>
@@ -245,7 +272,7 @@ if ($closedTickets) {?>
             $thisclient->getId() != $T['user_id'] ? $isCollab = true : $isCollab = false;
             ?>
             <tr id="<?php echo $T['ticket_id']; ?>">
-                <td>
+                <td scope="row">
                 <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
@@ -269,6 +296,7 @@ if ($closedTickets) {?>
     ?>
     </tbody>
 </table>
+</div>
 <?php
 if ($total) {
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';

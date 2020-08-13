@@ -1,100 +1,172 @@
-<h1><?php echo __('Manage Your Profile Information'); ?></h1>
-<p><?php echo __(
-'Use the forms below to update the information we have on file for your account'
-); ?>
-</p>
-<form action="profile.php" method="post">
-  <?php csrf_token(); ?>
-<table width="800" class="padded">
 <?php
-foreach ($user->getForms() as $f) {
-    $f->render(['staff' => false]);
+if(!defined('OSTCLIENTINC')) die('Access Denied!');
+$info=array();
+if($thisclient && $thisclient->isValid()) {
+    $info=array('name'=>$thisclient->getName(),
+                'email'=>$thisclient->getEmail(),
+                'phone'=>$thisclient->getPhoneNumber());
 }
-if ($acct = $thisclient->getAccount()) {
-    $info=$acct->getInfo();
-    $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+
+$info=($_POST && $errors)?Format::htmlchars($_POST):$info;
+
+$form = null;
+if (!$info['topicId']) {
+    if (array_key_exists('topicId',$_GET) && preg_match('/^\d+$/',$_GET['topicId']) && Topic::lookup($_GET['topicId']))
+        $info['topicId'] = intval($_GET['topicId']);
+    else
+        $info['topicId'] = $cfg->getDefaultTopicId();
+}
+
+$forms = array();
+if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
+    foreach ($topic->getForms() as $F) {
+        if (!$F->hasAnyVisibleFields())
+            continue;
+        if ($_POST) {
+            $F = $F->instanciate();
+            $F->isValidForClient();
+        }
+        $forms[] = $F->getForm();
+    }
+}
+
 ?>
-<tr>
-    <td colspan="2">
-        <div><hr><h3><?php echo __('Preferences'); ?></h3>
+
+<div class="row align-items-center" style="padding-top: 2rem;">
+	<div class="col-md align-self-center">
+	<h1><?php echo __('Open a New Ticket');?></h1>
+	</div>
+</div>
+	
+<div class="row align-items-center" style="padding-top: 1rem;">
+	<div class="col-md align-self-center">		
+		<p><?php echo __('Please fill in the form below to open a new ticket.');?></p>
+	</div>
+</div>
+
+<form id="ticketForm" method="post" action="open.php" enctype="multipart/form-data">
+  <?php csrf_token(); ?>
+  <input type="hidden" name="a" value="open">
+  
+  <div class="table-responsive">
+  <table class="table" cellpadding="1" cellspacing="0" border="0">
+    <tbody>
+<?php
+        if (!$thisclient) {
+            $uform = UserForm::getUserForm()->getForm($_POST);
+            if ($_POST) $uform->isValid();
+            $uform->render(array('staff' => false, 'mode' => 'create'));
+        }
+        else { ?>
+				<div class="row align-items-center">        
+					<div class="col-md align-self-center">		
+        				<div class="row">
+        					<div class="col-md-6">
+		        				<?php echo __('Email'); ?>:
+		        			</div>
+							<div class="col-md-6">
+   		     				    <?php
+      		      			    echo $thisclient->getEmail(); ?>
+      	      		        </div>
+      	      	        </div>
+      	            </div>
+            	<div class="row align-items-center">	
+        			<div class="row">
+        				<div class="col-md-6">
+        					<?php echo __('Client'); ?>:
+        				</div>
+        				<div class="col-md-6">
+        					<?php
+		            	    echo Format::htmlchars($thisclient->getName()); ?>
+		                </div>
+		      	    </div>
+		         </div>
+
+        <?php } ?>
+    </tbody>
+    <tbody>
+    <tr><td colspan="2"><hr />
+        <div class="form-header" style="margin-bottom:0.5em">
+        <b><?php echo __('Help Topic'); ?></b>
         </div>
-    </td>
-</tr>
+    </td></tr>
     <tr>
-        <td width="180">
-            <?php echo __('Time Zone');?>:
-        </td>
-        <td>
-            <?php
-            $TZ_NAME = 'timezone';
-            $TZ_TIMEZONE = $info['timezone'];
-            include INCLUDE_DIR.'staff/templates/timezone.tmpl.php'; ?>
-            <div class="error"><?php echo $errors['timezone']; ?></div>
-        </td>
-    </tr>
-<?php if ($cfg->getSecondaryLanguages()) { ?>
-    <tr>
-        <td width="180">
-            <?php echo __('Preferred Language'); ?>:
-        </td>
-        <td>
-    <?php
-    $langs = Internationalization::getConfiguredSystemLanguages(); ?>
-            <select name="lang">
-                <option value="">&mdash; <?php echo __('Use Browser Preference'); ?> &mdash;</option>
-<?php foreach($langs as $l) {
-$selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
-                <option value="<?php echo $l['code']; ?>" <?php echo $selected;
-                    ?>><?php echo Internationalization::getLanguageDescription($l['code']); ?></option>
-<?php } ?>
+        <td colspan="2">
+            <select id="topicId" name="topicId" onchange="javascript:
+                    var data = $(':input[name]', '#dynamic-form').serialize();
+                    $.ajax(
+                      'ajax.php/form/help-topic/' + this.value,
+                      {
+                        data: data,
+                        dataType: 'json',
+                        success: function(json) {
+                          $('#dynamic-form').empty().append(json.html);
+                          $(document.head).append(json.media);
+                        }
+                      });">
+                <option value="" selected="selected">&mdash; <?php echo __('Select a Help Topic');?> &mdash;</option>
+                <?php
+                if($topics=Topic::getPublicHelpTopics()) {
+                    foreach($topics as $id =>$name) {
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                                $id, ($info['topicId']==$id)?'selected="selected"':'', $name);
+                    }
+                } else { ?>
+                    <option value="0" ><?php echo __('General Inquiry');?></option>
+                <?php
+                } ?>
             </select>
-            <span class="error">&nbsp;<?php echo $errors['lang']; ?></span>
+            <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
         </td>
     </tr>
-<?php }
-      if ($acct->isPasswdResetEnabled()) { ?>
-<tr>
-    <td colspan="2">
-        <div><hr><h3><?php echo __('Access Credentials'); ?></h3></div>
-    </td>
-</tr>
-<?php if (!isset($_SESSION['_client']['reset-token'])) { ?>
-<tr>
-    <td width="180">
-        <?php echo __('Current Password'); ?>:
-    </td>
-    <td>
-        <input type="password" size="18" name="cpasswd" value="<?php echo $info['cpasswd']; ?>">
-        &nbsp;<span class="error">&nbsp;<?php echo $errors['cpasswd']; ?></span>
-    </td>
-</tr>
-<?php } ?>
-<tr>
-    <td width="180">
-        <?php echo __('New Password'); ?>:
-    </td>
-    <td>
-        <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
-        &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd1']; ?></span>
-    </td>
-</tr>
-<tr>
-    <td width="180">
-        <?php echo __('Confirm New Password'); ?>:
-    </td>
-    <td>
-        <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">
-        &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
-    </td>
-</tr>
-<?php } ?>
-<?php } ?>
-</table>
-<hr>
-<p style="text-align: center;">
-    <input type="submit" value="Update"/>
-    <input type="reset" value="Reset"/>
-    <input type="button" value="Cancel" onclick="javascript:
-        window.location.href='index.php';"/>
-</p>
+    </tbody>
+    <tbody id="dynamic-form">
+        <?php
+        $options = array('mode' => 'create');
+        foreach ($forms as $form) {
+            include(CLIENTINC_DIR . 'templates/dynamic-form.tmpl.php');
+        } ?>
+    </tbody>
+    <tbody>
+    <?php
+    if($cfg && $cfg->isCaptchaEnabled() && (!$thisclient || !$thisclient->isValid())) {
+        if($_POST && $errors && !$errors['captcha'])
+            $errors['captcha']=__('Please re-enter the text again');
+        ?>
+    <tr class="captchaRow">
+        <td class="required"><?php echo __('CAPTCHA Text');?>:</td>
+        <td>
+            <span class="captcha"><img src="captcha.php" border="0" align="left"></span>
+            &nbsp;&nbsp;
+            <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
+            <em><?php echo __('Enter the text shown on the image.');?></em>
+            <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
+        </td>
+    </tr>
+    <?php
+    } ?>
+    <tr><td colspan=2>&nbsp;</td></tr>
+    </tbody>
+  </table>
+  </div>
+<hr/>
+
+  	<div class="row align-items-center"  >
+		<div class="col-sm align-self-center" style="padding-bottom: 1rem;">
+        <input class="btn btn-primary btn-md" type="submit" value="<?php echo __('Create Ticket');?>"> 
+    	</div>
+    	<div class="col-sm  align-self-center" style="padding-bottom: 1rem;">
+        <input class="btn btn-md btn-outline-primary" type="reset" name="reset" value="<?php echo __('Reset');?>">
+		</div>
+		<div class="col-sm  align-self-center" style="padding-bottom: 1rem;">        
+        <input class="btn btn-md btn-outline-danger" type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
+            $('.richtext').each(function() {
+                var redactor = $(this).data('redactor');
+                if (redactor && redactor.opts.draftDelete)
+                    redactor.plugin.draft.deleteDraft();
+            });
+            window.location.href='index.php';">
+		</div>
+	</div>	            
+
 </form>
