@@ -4140,7 +4140,7 @@ implements RestrictedAccess, Threadable, Searchable {
             // entries, disable and track the requested disabled fields.
             if ($vars['topicId']) {
                 if ($__topic=Topic::lookup($vars['topicId'])) {
-                    $topic_forms = $__topic->trackDisabledFields($form);
+                    $topic_forms = $__topic->trackDisabledFields($form, $vars);
                 }
             }
 
@@ -4272,7 +4272,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $topic = $cfg->getDefaultTopic();
         }
         if ($topic)
-            $topic->trackDisabledFields($form);
+            $topic->trackDisabledFields($form, $vars);
 
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {
