@@ -121,7 +121,6 @@ implements RestrictedAccess, Threadable, Searchable {
     const FLAG_SEPARATE_THREADS    = 0x0002;
     const FLAG_LINKED              = 0x0008;
     const FLAG_PARENT              = 0x0010;
-    const FLAG_SHOW_FIELDS         = 0x0020;
 
     static protected $perms = array(
             self::PERM_CREATE => array(
@@ -229,55 +228,6 @@ implements RestrictedAccess, Threadable, Searchable {
             }
         }
         return $this->_answers;
-    }
-
-    function getDisabledFields($topicForm) {
-        $formId = $topicForm->getId();
-        $disabled = array();
-        $fieldIds = array();
-        foreach ($topicForm->getFields() as $field) {
-            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
-                $fieldIds[] = $field->get('id');
-        }
-        $disabled[$formId] = $fieldIds;
-
-        return $disabled;
-    }
-
-    function setDisabledFields($disabled, $form) {
-        $disabled = is_array($disabled[0]) ? $disabled[0] : $disabled;
-
-        foreach ($form->getFields() as $field) {
-            if (false !== array_search($field->get('id'), $disabled))
-                $field->disable();
-        }
-
-        // Track fields currently disabled
-        $form->extra = JsonDataEncoder::encode(array(
-            'disable' => $disabled
-        ));
-
-        return $form;
-    }
-
-    function updateFormEntries($topic) {
-        $forms = DynamicFormEntry::forTicket($this->getId());
-
-        $disabled = array();
-        foreach ($topic->getForms() as $topicForm)
-            $disabled += self::getDisabledFields($topicForm);
-
-        foreach ($forms as $form) {
-            //set extra for form entries
-            $fieldIds = array();
-            foreach($disabled as $d => $fieldId) {
-                if ($form->form_id == $d)
-                    $fieldIds[] = $fieldId;
-            }
-
-            self::setDisabledFields($fieldIds, $form);
-            $form->save();
-        }
     }
 
     function getAnswer($field, $form=null) {
@@ -3712,14 +3662,10 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Validate dynamic meta-data
         $forms = DynamicFormEntry::forTicket($this->getId());
-
-        self::updateFormEntries($topic);
-
         foreach ($forms as $form) {
             // Don't validate deleted forms
             if (!in_array($form->getId(), $vars['forms']))
                 continue;
-
             $form->filterFields(function($f) { return !$f->isStorable(); });
             $form->setSource($_POST);
             if (!$form->isValid(function($f) {
@@ -3870,17 +3816,6 @@ implements RestrictedAccess, Threadable, Searchable {
            }
        }
 
-       if (get_class($field) == 'TopicField') {
-           $topic = $field->getClean();
-
-           self::updateFormEntries($topic);
-
-           if ($_POST['show-fields'])
-               $this->setFlag(Ticket::FLAG_SHOW_FIELDS, true);
-           else
-              $this->setFlag(Ticket::FLAG_SHOW_FIELDS, false);
-       }
-
        if ($errors)
            return false;
 
@@ -3888,8 +3823,7 @@ implements RestrictedAccess, Threadable, Searchable {
        $this->logEvent('edited', $changes);
 
        // Log comments (if any)
-       if (($form->getField('comments') && $comments = $form->getField('comments')->getClean()) ||
-       ($_POST['comments'] && $comments = $_POST['comments'])) {
+       if (($comments = $form->getField('comments')->getClean())) {
            $title = sprintf(__('%s updated'), __($field->getLabel()));
            $_errors = array();
            $this->postNote(
@@ -4140,7 +4074,32 @@ implements RestrictedAccess, Threadable, Searchable {
             // entries, disable and track the requested disabled fields.
             if ($vars['topicId']) {
                 if ($__topic=Topic::lookup($vars['topicId'])) {
-                    $topic_forms = $__topic->trackDisabledFields($form);
+                    foreach ($__topic->getForms() as $idx=>$__F) {
+                        $disabled = array();
+                        foreach ($__F->getFields() as $field) {
+                            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                                $disabled[] = $field->get('id');
+                        }
+                        // Special handling for the ticket form — disable fields
+                        // requested to be disabled as per the help topic.
+                        if ($__F->get('type') == 'T') {
+                            foreach ($form->getFields() as $field) {
+                                if (false !== array_search($field->get('id'), $disabled))
+                                    $field->disable();
+                            }
+                            $form->sort = $idx;
+                            $__F = $form;
+                        }
+                        else {
+                            $__F = $__F->instanciate($idx);
+                            $__F->setSource($vars);
+                            $topic_forms[] = $__F;
+                        }
+                        // Track fields currently disabled
+                        $__F->extra = JsonDataEncoder::encode(array(
+                            'disable' => $disabled
+                        ));
+                    }
                 }
             }
 
@@ -4271,8 +4230,6 @@ implements RestrictedAccess, Threadable, Searchable {
             // This may return NULL, no big deal
             $topic = $cfg->getDefaultTopic();
         }
-        if ($topic)
-            $topic->trackDisabledFields($form);
 
         // Intenal mapping magic...see if we need to override anything
         if (isset($topic)) {

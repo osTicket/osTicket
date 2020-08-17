@@ -225,19 +225,17 @@ class Form {
     function getMedia() {
         static $dedup = array();
 
-        if ($this->getFields()) {
-            foreach ($this->getFields() as $f) {
-                if (($M = $f->getMedia()) && is_array($M)) {
-                    foreach ($M as $type=>$files) {
-                        foreach ($files as $url) {
-                            $key = strtolower($type.$url);
-                            if (isset($dedup[$key]))
-                                continue;
+        foreach ($this->getFields() as $f) {
+            if (($M = $f->getMedia()) && is_array($M)) {
+                foreach ($M as $type=>$files) {
+                    foreach ($files as $url) {
+                        $key = strtolower($type.$url);
+                        if (isset($dedup[$key]))
+                            continue;
 
-                            self::emitMedia($url, $type);
+                        self::emitMedia($url, $type);
 
-                            $dedup[$key] = true;
-                        }
+                        $dedup[$key] = true;
                     }
                 }
             }
@@ -373,30 +371,11 @@ class CustomForm extends SimpleForm {
         $user = $options['user'] ?: $thisstaff ?: $thisclient;
         $isedit = ($options['mode'] == 'edit');
         $fields = array();
+        foreach (parent::getFields() as $field) {
+            if ($isedit && !$field->isEditable($user))
+                continue;
 
-        if ($options['entry'] && $answers = $options['entry']->getAnswers()->exclude(Q::any(array(
-            'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED)))) {
-
-            if ($options['ticket'] && ($ticket = $options['ticket']) &&
-                $ticket->hasFlag(Ticket::FLAG_SHOW_FIELDS) &&
-                $disabledByTopic = Ticket::getMissingRequiredFields($ticket, true)) {
-                    $answers->exclude(Q::any(array('field__id__in' => $disabledByTopic)));
-            }
-
-            foreach($answers as $a) {
-                $field = $a->getField();
-                if ($isedit && !$field->isEditable($user))
-                    continue;
-
-                $fields[] = $field;
-            }
-        } else {
-            foreach (parent::getFields() as $field) {
-                if ($isedit && !$field->isEditable($user))
-                    continue;
-
-                $fields[] = $field;
-            }
+            $fields[] = $field;
         }
 
         return $fields;
@@ -2777,12 +2756,6 @@ class TopicField extends ChoiceField {
         if ($this->getTopics() &&
                 isset($this->topics[$id]))
             return Topic::lookup($id);
-    }
-
-    function getEditForm($source=null) {
-        $fields = array('field' => $this);
-
-        return new SimpleForm($fields, $source);
     }
 
     function getWidget($widgetClass=false) {

@@ -1064,7 +1064,6 @@ class DynamicFormEntry extends VerySimpleModel {
     function getSource() {
         return $this->_source ?: (isset($this->id) ? false : $_POST);
     }
-
     function setSource($source) {
         $this->_source = $source;
         // Ensure the field is connected to this data source
@@ -1159,32 +1158,13 @@ class DynamicFormEntry extends VerySimpleModel {
         if (!isset($entries[$ticket_id]) || $force) {
             $stuff = DynamicFormEntry::objects()
                 ->filter(array('object_id'=>$ticket_id, 'object_type'=>'T'));
-
-            //check to see if forms have been excluded by help topic
-            if (($ticket_topic = Ticket::objects()
-              ->filter(array('ticket_id'=>$ticket_id,
-                'flags__hasbit' => Ticket::FLAG_SHOW_FIELDS))
-              ->values_flat('topic_id')->first()) &&
-            $topic = Topic::lookup($ticket_topic[0])) {
-                $topicForms = array();
-                foreach($topic->getForms() as $form)
-                    $topicForms[] = $form->getId();
-
-                $stuff = $stuff->filter(
-                    Q::all(array('form_id__in'=>$topicForms)));
-            }
-
             // If forced, don't cache the result
             if ($force)
                 return $stuff;
-
-            foreach($stuff as $entry)
-                $entries[$entry->getId()] = $entry;
+            $entries[$ticket_id] = &$stuff;
         }
-
-        return $entries;
+        return $entries[$ticket_id];
     }
-
     function setTicketId($ticket_id) {
         $this->object_type = 'T';
         $this->object_id = $ticket_id;
@@ -1206,7 +1186,6 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function render($options=array()) {
         $options += array('staff' => true);
-        $this->getForm()->options += $options;
         return $this->getForm()->render($options);
     }
 

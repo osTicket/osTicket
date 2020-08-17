@@ -103,19 +103,13 @@ if ($thisclient && $thisclient->isGuest()
 <!-- Custom Data -->
 <?php
 $sections = $forms = array();
-$disabled = $ticket->getTopic()->getDisabledFieldsIds();
 foreach (DynamicFormEntry::forTicket($ticket->getId()) as $i=>$form) {
-    $q = Q::any(array(
+    // Skip core fields shown earlier in the ticket view
+    $answers = $form->getAnswers()->exclude(Q::any(array(
         'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
         'field__name__in' => array('subject', 'priority'),
         Q::not(array('field__flags__hasbit' => DynamicFormField::FLAG_CLIENT_VIEW)),
-    ));
-    // Exclude Disabled Fields
-    if (!empty($disabled[$form->form_id]))
-        $q->add(array('field__id__in' => $disabled[$form->form_id]));
-
-    // Skip core fields shown earlier in the ticket view
-    $answers = $form->getAnswers()->exclude($q);
+    )));
     // Skip display of forms without any answers
     foreach ($answers as $j=>$a) {
         if ($v = $a->display())
