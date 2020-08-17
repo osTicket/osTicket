@@ -1871,6 +1871,16 @@ class ChoiceField extends FormField {
         return $this->toString($this->getChoice($value));
     }
 
+    function getChanges() {
+        $new = $this->to_database($this->getValue());
+        $old = $this->to_database($this->answer ? $this->answer->getValue()
+                : $this->get('default'));
+        // Compare old and new
+        return ($old == $new)
+            ? false
+            : array($old, $new);
+    }
+
     function whatChanged($before, $after) {
         $B = (array) $before;
         $A = (array) $after;
