@@ -21,6 +21,7 @@ class AddIndexMigration extends MigrationTask {
         'staff:isactive',
         'staff:onvacation',
         'task:flags',
+        'ticket:ticket_pid',
         'team_member:staff_id',
         'user:default_email_id',
         'user:name'
