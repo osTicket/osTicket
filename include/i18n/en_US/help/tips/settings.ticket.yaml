@@ -124,6 +124,15 @@ require_topic_to_close:
     content: >
         If Enabled, a Ticket must have a Help Topic in order to be Closed by an Agent
 
+allow_external_images:
+    title: Allow External Images
+    content: >
+        If Enabled, the system will allow external inline images that have a valid image
+        extension (.png, .jpg, .jpeg, .gif). If Disabled, the system will exclude
+        any external inline images. One caveat to note, is if the setting is Disabled we
+        will still store external inline images that have a valid image extension in case
+        the setting is re-enabled in the future.
+
 assigned_tickets:
     title: Assigned Tickets
     content: >
