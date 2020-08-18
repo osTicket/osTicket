@@ -234,6 +234,8 @@ extends VerySimpleModel {
     }
 
     function addRule($what, $how, $val,$extra=array()) {
+        if (isset($extra['notes']))
+            $extra['notes'] = Format::sanitize($extra['notes']);
         $rule = array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule = new FilterRule($rule);
         $this->rules->add($rule);
