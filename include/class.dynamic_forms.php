@@ -123,6 +123,7 @@ class DynamicForm extends VerySimpleModel {
             'title' => $this->getLocal('title'),
             'instructions' => Format::htmldecode($this->getLocal('instructions')),
             'id' => $this->getId(),
+            'type' => $this->type ?: null,
         ));
         return $form;
     }
@@ -1010,6 +1011,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 'title' => $this->getTitle(),
                 'instructions' => $this->getInstructions(),
                 'id' => $this->form_id,
+                'type' => $this->getDynamicForm()->type ?: null,
                 );
             $this->_form = new CustomForm($fields, $source, $options);
         }

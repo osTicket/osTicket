@@ -387,11 +387,20 @@ class DynamicFormsAjaxAPI extends AjaxController {
         );
     }
 
-    function attach() {
+    function attach($object=null) {
         global $thisstaff;
 
+        $filter = array('type__contains'=>'thread');
+        // Determine if for Ticket/Task/Custom
+        if ($object && is_string($object)) {
+            if ($object == 'ticket')
+                $filter['form_id'] = TicketForm::objects()->one()->id;
+            elseif ($object == 'task')
+                $filter['form_id'] = TaskForm::objects()->one()->id;
+        }
         $config = DynamicFormField::objects()
-            ->filter(array('type__contains'=>'thread'))
+            ->filter($filter)
+            ->order_by('id')
             ->first()->getConfiguration();
         $field = new FileUploadField();
         $field->_config = $config;
