@@ -382,6 +382,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         if (!$impl instanceof FileUploadField)
             Http::response(400, 'Upload to a non file-field');
 
+        header('Content-Type: application/json; charset=UTF-8');
         return JsonDataEncoder::encode(
             array('id'=>$impl->ajaxUpload())
         );
@@ -404,6 +405,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
             ->first()->getConfiguration();
         $field = new FileUploadField();
         $field->_config = $config;
+        header('Content-Type: application/json; charset=UTF-8');
         return JsonDataEncoder::encode(
             array('id'=>$field->ajaxUpload($thisstaff ? true : false))
         );

@@ -16,6 +16,7 @@ class DraftAjaxAPI extends AjaxController {
         if (!($draft = Draft::create($vars)) || !$draft->save())
             Http::response(500, 'Unable to create draft');
 
+        header('Content-Type: application/json; charset=UTF-8');
         echo JsonDataEncoder::encode(array(
             'draft_id' => $draft->getId(),
         ));
@@ -27,6 +28,7 @@ class DraftAjaxAPI extends AjaxController {
 
         $body = Format::viewableImages($draft->getBody());
 
+        header('Content-Type: application/json; charset=UTF-8');
         echo JsonDataEncoder::encode(array(
             'body' => $body,
             'draft_id' => $draft->getId(),
@@ -126,8 +128,9 @@ class DraftAjaxAPI extends AjaxController {
         if (!($f = AttachmentFile::lookup($id)))
             return Http::response(500, 'Unable to attach image');
 
+        header('Content-Type: application/json; charset=UTF-8');
         echo JsonDataEncoder::encode(array(
-            $f->getName() => array(
+            Format::sanitize($f->getName()) => array(
             'content_id' => 'cid:'.$f->getKey(),
             'id' => $f->getKey(),
             // Return draft_id to connect the auto draft creation
@@ -369,6 +372,7 @@ class DraftAjaxAPI extends AjaxController {
                 'title' => $f->getName(),
             );
         }
+        header('Content-Type: application/json; charset=UTF-8');
         echo JsonDataEncoder::encode($files);
     }
 
