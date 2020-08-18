@@ -32,7 +32,7 @@ if($email && $_REQUEST['a']!='add'){
         $info['smtp_auth'] = 1;
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <h2><?php echo $title; ?>
     <?php if (isset($info['email'])) { ?><small>
