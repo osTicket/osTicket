@@ -17,6 +17,7 @@ osTicket v1.14.3
 * Issue: Language Verification (a1e9342)
 
 ### Improvements
+* oops: Local Inline Images (f6cd8c4)
 * Issue: Ticket Edit Save (3281e74)
 * Revert Topic Saving Fixes (0ff87f3)
 * issue: NOTLS For IMAP/POP Without SSL (7506937)
