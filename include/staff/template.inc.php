@@ -17,7 +17,7 @@ if($template && $_REQUEST['a']!='add'){
     $info['lang_id'] = $cfg->getPrimaryLanguage();
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <form action="templates.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>

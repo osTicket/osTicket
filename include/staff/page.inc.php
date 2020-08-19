@@ -184,7 +184,7 @@ else
     <em><strong><?php echo __('Internal Notes'); ?></strong>:
       <?php echo __("Be liberal, they're internal"); ?></em>
     <textarea class="richtext no-bar" name="notes" cols="21"
-      rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+      rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
   </div>
 </div>
 

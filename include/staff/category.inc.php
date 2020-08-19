@@ -33,7 +33,7 @@ if($category && $_REQUEST['a']!='add'){
     $submit_text=__('Add');
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 ?>
 <form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">

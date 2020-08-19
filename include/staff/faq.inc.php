@@ -250,7 +250,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
     </div>
     <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
 </div>
 
 <p style="text-align:center;">
