@@ -455,14 +455,18 @@ class Format {
         // Allowed Inline External Image Extensions
         $allowed = array('gif', 'png', 'jpg', 'jpeg');
         $exclude = !$cfg->allowExternalImages();
+        $local = false;
 
         $input = preg_replace_callback('/<img ([^>]*)(src="([^"]+)")([^>]*)\/?>/',
-            function($match) use ($allowed, $exclude, $display) {
+            function($match) use ($local, $allowed, $exclude, $display) {
+                if (strpos($match[3], 'cid:') !== false)
+                    $local = true;
+
                 // Split the src URL and get the extension
                 $url = explode('.', explode('?', $match[3])[0]);
                 $ext = preg_split('/[^A-Za-z]/', end($url))[0];
 
-                if (($exclude && $display) || !in_array($ext, $allowed))
+                if (!$local && (($exclude && $display) || !in_array($ext, $allowed)))
                     return '';
                 else
                     return $match[0];
