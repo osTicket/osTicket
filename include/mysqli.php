@@ -162,22 +162,23 @@ function db_create_database($database, $charset='utf8',
         sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s',
             $database, $charset, $collate));
 }
-
 /**
  * Function: db_query
- * Execute sql query
+ * Execute SQL query
  *
  * Parameters:
- * $query - (string) SQL query (with parameters)
- * $logError - (mixed):
- *      - (bool) true or false if error should be logged and alert email sent
- *      - (callable) to receive error number and return true or false if
- *      error should be logged and alert email sent. The callable is only
- *      invoked if the query fails.
  *
- * Returns:
- * (mixed) MysqliResource if SELECT query succeeds, true if an INSERT,
- * UPDATE, or DELETE succeeds, false or null if the query fails.
+ * @param string $query
+ *     SQL query (with parameters)
+ * @param bool|callable $logError
+ *     - (bool) true or false if error should be logged and alert email sent
+ *     - (callable) to receive error number and return true or false if
+ *       error should be logged and alert email sent. The callable is only
+ *       invoked if the query fails.
+ *
+ * @return bool|mysqli_result
+ *   mysqli_result object if SELECT query succeeds, true if an INSERT,
+ *   UPDATE, or DELETE succeeds, false if the query fails.
  */
 function db_query($query, $logError=true, $buffered=true) {
     global $ost, $__db;
@@ -198,7 +199,7 @@ function db_query($query, $logError=true, $buffered=true) {
 
         $msg='['.$query.']'."\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
-        //echo $msg; #uncomment during debuging or dev.
+        //echo $msg; #uncomment during debugging or dev.
     }
 
     return $res;
