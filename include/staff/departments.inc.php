@@ -9,7 +9,8 @@ $sortOptions=array(
     'type' => 'ispublic',
     'members'=> 'members_count',
     'email'=> 'email__name',
-    'manager'=>'manager__lastname'
+    'manager'=>'manager__lastname',
+    'created'=> 'created',
     );
 
 $orderWays = array('DESC'=>'DESC', 'ASC'=>'ASC');
@@ -89,14 +90,13 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
-            <th width="28%"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
-            <th width="8%"><a <?php echo $status_sort; ?> href="departments.php?<?php echo $qstr;?>&sort=status"><?php echo __('Status');?></a></th>
-            <!-- <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th> -->
-            <th width="8%"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
-            <!-- <th width="8%"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=users"><?php echo __('Agents');?></a></th> -->
-            <th width="8%"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=members"><?php echo __('Agents');?></a></th>
-            <th width="30%"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
-            <th width="22%"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager"><?php echo __('Manager');?></a></th>
+            <th width="12%"><a <?php echo $name_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=name"><?php echo __('Name');?></a></th>
+            <th width="5%"><a <?php echo $status_sort; ?> href="departments.php?<?php echo $qstr;?>&sort=status"><?php echo __('Status');?></a></th>
+            <th width="5%"><a  <?php echo $type_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=type"><?php echo __('Type');?></a></th>
+            <th width="5%"><a  <?php echo $users_sort; ?>href="departments.php?<?php echo $qstr; ?>&sort=members"><?php echo __('Agents');?></a></th>
+            <th width="25%"><a  <?php echo $email_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
+            <th width="10%"><a  <?php echo $manager_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=manager"><?php echo __('Manager');?></a></th>
+            <th width="15%"><a  <?php echo $created_sort; ?> href="departments.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Created');?></a></th>
         </tr>
     </thead>
     <tbody>
@@ -162,13 +162,14 @@ $showing = $pageNav->showing().' '._N('department', 'departments', $count);
                     echo Format::htmlchars($email); ?></a></span></td>
                 <td><a href="staff.php?id=<?php echo $dept->manager_id; ?>"><?php
                     echo $dept->manager_id ? $dept->manager : ''; ?>&nbsp;</a></td>
+                <td><?php echo $dept->created; ?></td>
             </tr>
             <?php
             } //end of foreach.
         } ?>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="9">
             <?php
             if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;

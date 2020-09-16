@@ -197,7 +197,8 @@ class i18n_Compiler extends Module {
                 // Skip files in (other) branches
                 continue;
             }
-            $phar->addFromString($info['name'], $contents);
+            $lname = $branch ? explode('/', $info['name'], 2)[1] : $info['name'];
+            $phar->addFromString($lname, $contents);
         }
 
         // TODO: Add i18n extras (like fonts)
@@ -209,9 +210,9 @@ class i18n_Compiler extends Module {
             $langs[] = $short;
         }
         foreach ($langs as $l) {
-            if (file_exists(I18N_DIR . "vendor/redactor{$lang}.js")) {
+            if (file_exists(I18N_DIR . "vendor/redactor/{$lang}.js")) {
                 $phar->addFromString('js/redactor.js', file_get_contents(
-                    I18N_DIR . "support/redactor/{$lang}.js"));
+                    I18N_DIR . "vendor/redactor/{$lang}.js"));
                 break;
             }
         }

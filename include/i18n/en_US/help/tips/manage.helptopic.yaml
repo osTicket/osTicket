@@ -24,11 +24,19 @@ topic:
     content: >
         Unique Help Topic name.
 
-status:
+htstatus:
     title: Status
     content: >
         If disabled or archived, this <span class="doc-desc-title">Help Topic</span>
         will not be available.
+
+status:
+    title: Ticket Status
+    content: >
+        Select the Ticket Status assigned to new tickets related to this <span
+        class="doc-desc-title">Help Topic</span>.
+        <br><br>
+        Ticket Filters can override new Ticket Status.
 
 type:
     title: Type

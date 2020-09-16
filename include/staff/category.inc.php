@@ -33,7 +33,7 @@ if($category && $_REQUEST['a']!='add'){
     $submit_text=__('Add');
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 ?>
 <form action="categories.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
@@ -150,7 +150,7 @@ if (count($langs) > 1) { ?>
     </div>
     <textarea class="richtext" name="<?php echo $dname; ?>" cols="21" rows="12"
         style="width:100%;"><?php
-        echo $desc; ?></textarea>
+        echo Format::sanitize($desc); ?></textarea>
     </div>
 <?php } ?>
 </div>
@@ -160,7 +160,7 @@ if (count($langs) > 1) { ?>
     <b><?php echo __('Internal Notes');?></b>:
     <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
 </div>
 
 

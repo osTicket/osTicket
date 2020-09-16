@@ -361,7 +361,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     ))
                     ->values_flat('thread__entries__staff_id')
                     ->order_by('-thread__entries__id')
-                    ->limit(1)
+                    ->limit('1,1')
                 ))
                 ->first()
                 ?: false;
@@ -849,7 +849,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
             if ($cfg->alertStaffONTaskAssignment())
                 $recipients[] = $assignee;
         } elseif (($assignee instanceof Team) && $assignee->alertsEnabled()) {
-            if ($cfg->alertTeamMembersONTaskAssignment() && ($members=$assignee->getMembers()))
+            if ($cfg->alertTeamMembersONTaskAssignment() && ($members=$assignee->getMembersForAlerts()))
                 $recipients = array_merge($recipients, $members);
             elseif ($cfg->alertTeamLeadONTaskAssignment() && ($lead=$assignee->getTeamLead()))
                 $recipients[] = $lead;
@@ -936,7 +936,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     $recipients[] = $this->getStaff();
                 elseif ($this->getTeamId()
                     && ($team=$this->getTeam())
-                    && ($members=$team->getMembers())
+                    && ($members=$team->getMembersForAlerts())
                 ) {
                     $recipients = array_merge($recipients, $members);
                 }
@@ -1039,9 +1039,6 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         }
         */
 
-        $this->lastrespondent = $response->staff;
-        $this->save();
-
         // Send activity alert to agents
         $activity = $vars['activity'] ?: $response->getActivity();
         $this->onActivity( array(
@@ -1049,6 +1046,10 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     'threadentry' => $response,
                     'assignee' => $assignee,
                     ));
+
+        $this->lastrespondent = $response->staff;
+        $this->save();
+
         // Send alert to collaborators
         if ($alert && $vars['emailcollab']) {
             $signature = '';
@@ -1209,7 +1210,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 $recipients[] = $assignee;
 
             if ($team = $this->getTeam())
-                $recipients = array_merge($recipients, $team->getMembers());
+                $recipients = array_merge($recipients, $team->getMembersForAlerts());
         }
 
         // Dept manager
@@ -1438,7 +1439,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                     $_errors, $thisstaff, false);
         }
 
-        $this->lastupdate = SqlFunction::NOW();
+        $this->updated = SqlFunction::NOW();
 
         $this->save();
 

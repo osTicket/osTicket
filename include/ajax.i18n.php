@@ -49,6 +49,7 @@ class i18nAjaxAPI extends AjaxController {
         $json = JsonDataEncoder::encode($phrases) ?: '{}';
         //Http::cacheable(md5($json), $lm);
 
+        header('Content-Type: application/json; charset=UTF-8');
         return $json;
     }
 
@@ -124,6 +125,7 @@ class i18nAjaxAPI extends AjaxController {
         $json = JsonDataEncoder::encode($langs);
         Http::cacheable(md5($json), $cfg->lastModified());
 
+        header('Content-Type: application/json; charset=UTF-8');
         return $json;
     }
 
@@ -142,6 +144,7 @@ class i18nAjaxAPI extends AjaxController {
         $json = JsonDataEncoder::encode($langs);
         Http::cacheable(md5($json), $cfg->lastModified());
 
+        header('Content-Type: application/json; charset=UTF-8');
         return $json;
     }
 }

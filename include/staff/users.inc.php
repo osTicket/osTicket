@@ -301,10 +301,10 @@ $(function() {
             return;
           }
           if (!confirmed)
-              $.confirm(__('You sure?'), undefined, options).then(function(promise) {
-                if (promise === false)
+              $.confirm(__('You sure?'), undefined, options).then(function(data) {
+                if (data === false)
                   return false;
-                submit();
+                submit(data);
               });
           else
               submit();

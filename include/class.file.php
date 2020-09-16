@@ -633,6 +633,8 @@ class AttachmentFile extends VerySimpleModel {
 
         //Basic validation.
         foreach($attachments as $i => &$file) {
+            $file['name'] = Format::sanitize($file['name']);
+
             //skip no file upload "error" - why PHP calls it an error is beyond me.
             if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) {
                 unset($attachments[$i]);

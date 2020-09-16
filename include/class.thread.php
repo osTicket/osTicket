@@ -1667,6 +1667,9 @@ implements TemplateVariable {
         if ($time_invoice && is_object($time_invoice))
             $time_invoice = (int) $time_invoice;
 
+        // Ensure valid external images
+        $body = Format::stripExternalImages($body);
+
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
@@ -2914,7 +2917,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
         case 'email':
             return $this->body;
         case 'pdf':
-            return Format::clickableurls($this->body);
+            return Format::clickableurls(Format::stripExternalImages($this->body, true));
         default:
             return Format::display($this->body, true, !$this->options['balanced']);
         }

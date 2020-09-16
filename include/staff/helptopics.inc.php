@@ -80,12 +80,13 @@ $order_by = 'sort';
 </td></tr>
         <tr>
             <th width="4%" style="height:20px;">&nbsp;</th>
-            <th style="padding-left:4px;vertical-align:middle" width="36%"><?php echo __('Help Topic'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="26%"><?php echo __('Help Topic'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Status'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="8%"><?php echo __('Type'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="10%"><?php echo __('Priority'); ?></th>
             <th style="padding-left:4px;vertical-align:middle" width="14%"><?php echo __('Department'); ?></th>
-            <th style="padding-left:4px;vertical-align:middle" width="20%" nowrap><?php echo __('Last Updated'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="15%" nowrap><?php echo __('Last Updated'); ?></th>
+            <th style="padding-left:4px;vertical-align:middle" width="15%" nowrap><?php echo __('Created'); ?></th>
         </tr>
     </thead>
     <tbody class="<?php if ($cfg->getTopicSortMode() == 'm') echo 'sortable-rows'; ?>"
@@ -160,13 +161,14 @@ $order_by = 'sort';
                 <td><a href="departments.php?id=<?php echo $deptId;
                 ?>"><?php echo $dept; ?></a></td>
                 <td>&nbsp;<?php echo Format::datetime($topic->updated); ?></td>
+                <td>&nbsp;<?php echo Format::datetime($topic->created); ?></td>
             </tr>
             <?php
             } //end of foreach.
         }?>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8">
             <?php if ($count) { ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;

@@ -354,6 +354,8 @@ class Form {
 class SimpleForm extends Form {
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
+        if (isset($options['type']))
+            $this->type = $options['type'];
         $this->setFields($fields);
     }
 
@@ -1869,6 +1871,16 @@ class ChoiceField extends FormField {
     function asVar($value, $id=false) {
         $value = $this->to_php($value);
         return $this->toString($this->getChoice($value));
+    }
+
+    function getChanges() {
+        $new = $this->to_database($this->getValue());
+        $old = $this->to_database($this->answer ? $this->answer->getValue()
+                : $this->get('default'));
+        // Compare old and new
+        return ($old == $new)
+            ? false
+            : array($old, $new);
     }
 
     function whatChanged($before, $after) {
@@ -4975,6 +4987,17 @@ class FileUploadWidget extends Widget {
                 );
             }
         }
+         // Set default $field_id
+        $field_id = $this->field->get('id');
+        // Get Form Type
+        $type = $this->field->getForm()->type;
+        // Determine if for Ticket/Task/Custom
+        if ($type) {
+            if ($type == 'T')
+                $field_id = 'ticket/attach';
+            elseif ($type == 'A')
+                $field_id = 'task/attach';
+        }
 
         ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
@@ -4988,7 +5011,7 @@ class FileUploadWidget extends Widget {
         </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
-          url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
+          url: 'ajax.php/form/upload/<?php echo $field_id; ?>',
           link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
           fallback_id: 'file-<?php echo $id; ?>',
