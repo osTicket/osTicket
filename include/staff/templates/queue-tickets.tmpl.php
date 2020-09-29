@@ -248,6 +248,10 @@ foreach ($columns as $C) {
         $dir = $sort['col'] != $C->id ?: ($sort['dir'] ? 'desc' : 'asc');
         $args['dir'] = $sort['col'] != $C->id ?: (int) !$sort['dir'];
         $args['sort'] = $C->id;
+
+        //In order to translated to desire language
+        $heading = __($heading);
+
         $heading = sprintf('<a href="?%s" class="%s">%s</a>',
             Http::build_query($args), $dir, $heading);
     }
