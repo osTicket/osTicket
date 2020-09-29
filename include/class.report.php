@@ -43,8 +43,8 @@ class OverviewReport {
         $format =  $format ?: $this->format;
         if ($translate) {
             $format = str_replace(
-                    array('y', 'Y', 'm'),
-                    array('yy', 'yyyy', 'mm'),
+                    array('yyyy','y', 'Y', 'm'),
+                    array('yy','yy', 'yyyy', 'mm'),
                     $format);
         }
 
