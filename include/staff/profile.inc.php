@@ -139,10 +139,11 @@ if (($bks=Staff2FABackend::allRegistered())) {
               <?php
               }
              foreach ($bks as $bk) {
-                 $configured = (isset($_config[$bk->getId()]) &&
-                     $_config[$bk->getId()]['verified']);
+                 $configuration = $staff->get2FAConfig($bk->getId());
+                 $configured = $configuration['verified'];
                  ?>
-              <option value="<?php echo $bk->getId(); ?>" <?php
+              <option id="<?php echo $bk->getId(); ?>"
+                      value="<?php echo $bk->getId(); ?>" <?php
                 if ($current == $bk->getId() && $configured)
                   echo ' selected="selected" '; ?>
                 <?php

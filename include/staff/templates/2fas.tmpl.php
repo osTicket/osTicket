@@ -18,19 +18,18 @@ if ($info['error']) {
 <table class="table">
     <tbody>
       <?php
-      $config = $staff->getConfig();
       foreach (Staff2FABackend::allRegistered() ?: array() as $bk) {
-          $isVerified = (isset($config[$bk->getId()]) &&
-                  $config[$bk->getId()]['verified']);
-          ?>
-      <tr id="<?php echo $bk->getId(); ?>">
+          $configuration = $staff->get2FAConfig($bk->getId());
+          $isVerified = $configuration['verified'];
+          $vclass = $isVerified ? 'verified' : 'unverified'; ?>
+      <tr id="<?php echo $bk->getId(); ?>" class="2fa-type <?php echo $vclass; ?>">
         <td nowrap width="10px">
           <i class="faded-more <?php echo sprintf('icon-check-%s',
           $isVerified ? 'sign' : 'empty'); ?>"></i>
           <span data-name="label"></span>
         </td>
         <td width="300px">
-            <a class="config2fa" 
+            <a class="config2fa"
                 href="<?php echo sprintf('#staff/%d/2fa/configure/%s',
                 $staff->getId(), urlencode($bk->getId())); ?>"> <?php echo $bk->getName(); ?>
               </a>
@@ -55,8 +54,8 @@ if ($auth && $form) {
  <div><?php echo Format::htmlchars($instruction); ?></div>
  <br>
 <form class="bk" method="post" action="<?php echo sprintf('#staff/%d/2fa/configure/%s',
-    $staff->getId(), $auth->getId()); ?>">    
-    <input type="hidden" name="state" value="<?php 
+    $staff->getId(), $auth->getId()); ?>">
+    <input type="hidden" name="state" value="<?php
         echo $state ?: 'validate'; ?>" />
     <?php
     echo csrf_token();
@@ -81,6 +80,11 @@ if ($auth && $form) {
 <div class="clear"></div>
 <script type="text/javascript">
 $(function() {
+    var ids = $('.verified').map(function() {
+        id2fa = $(this).attr('id');
+        document.getElementById(id2fa).disabled=false;
+    });
+
     $('a.config2fa').click( function(e) {
         e.preventDefault();
         if ($(this).attr('href').length > 1) {
@@ -107,4 +111,3 @@ $(function() {
 
 });
 </script>
-

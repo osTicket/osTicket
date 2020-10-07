@@ -389,6 +389,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->change_passwd;
     }
 
+    function force2faConfig() {
+        global $cfg;
+
+        $id = $this->get2FABackendId();
+        $config = $this->get2FAConfig($id);
+
+        //2fa is required and
+        //1. agent doesn't have default_2fa or
+        //2. agent has default_2fa, but that default_2fa is not configured
+        return ($cfg->require2FAForAgents() && !$id || ($id && empty($config)));
+    }
+
     function getDepartments() {
         // TODO: Cache this in the agent's session as it is unlikely to
         //       change while logged in

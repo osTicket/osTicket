@@ -18,6 +18,10 @@ if ($thisstaff && $thisstaff->is2FAPending())
     </a></h1>
     <h3 id="login-message"><?php echo Format::htmlchars($msg); ?></h3>
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
+    <div id="loading" style="display:none;" class="dialog">
+        <h1><i class="icon-spinner icon-spin icon-large"></i>
+        <?php echo __('Verifying');?></h1>
+    </div>
     <form action="login.php" method="post" id="login" onsubmit="attemptLoginAjax(event)">
         <?php csrf_token();
         if ($thisstaff
@@ -87,6 +91,7 @@ if (count($ext_bks)) { ?>
     });
 
     function attemptLoginAjax(e) {
+        $('#loading').show();
         var objectifyForm = function(formArray) { //serialize data function
             var returnArray = {};
             for (var i = 0; i < formArray.length; i++) {
@@ -101,6 +106,7 @@ if (count($ext_bks)) { ?>
             var oldEffect = $.fn.effect;
             $.fn.effect = function (effectName) {
                 if (effectName === "shake") {
+                    $('#loading').hide();
                     var old = $.effects.createWrapper;
                     $.effects.createWrapper = function (element) {
                         var result;
