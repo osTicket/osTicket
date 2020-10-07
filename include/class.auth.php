@@ -120,7 +120,7 @@ class ClientCreateRequest {
     function attemptAutoRegister() {
         global $cfg;
 
-        if (!$cfg)
+        if (!$cfg || !$cfg->isClientRegistrationEnabled())
             return false;
 
         // Attempt to automatically register
