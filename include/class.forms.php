@@ -4987,6 +4987,25 @@ class FileUploadWidget extends Widget {
                 );
             }
         }
+
+        //see if the attachment is saved in the session for this specific field
+        if ($sessionAttachment = $_SESSION[':form-data'][$this->field->get('name')]) {
+            $F = AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($sessionAttachment)))
+                ->all();
+
+            foreach ($F as $f) {
+                $f->tmp_name = $sessionAttachment[$f->getId()];
+                $files[] = array(
+                    'id' => $f->getId(),
+                    'name' => $f->getName(),
+                    'type' => $f->getType(),
+                    'size' => $f->getSize(),
+                    'download_url' => $f->getDownloadUrl(),
+                );
+            }
+        }
+
          // Set default $field_id
         $field_id = $this->field->get('id');
         // Get Form Type
