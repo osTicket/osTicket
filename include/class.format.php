@@ -411,13 +411,29 @@ class Format {
 
     //Format text for display..
     function display($text, $inline_images=true, $balance=true) {
+        global $cfg;
+
+        // Exclude external images?
+        $exclude = !$cfg->allowExternalImages();
+        // Allowed image extensions
+        $allowed = array('gif', 'png', 'jpg', 'jpeg');
+
         // Make showing offsite images optional
         $text = preg_replace_callback('/<img ([^>]*)(src="http[^"]+")([^>]*)\/>/',
-            function($match) {
-                // Drop embedded classes -- they don't refer to ours
-                $match = preg_replace('/class="[^"]*"/', '', $match);
-                return sprintf('<span %s class="non-local-image" data-%s %s></span>',
-                    $match[1], $match[2], $match[3]);
+            function($match) use ($exclude, $allowed) {
+                $m = array();
+                // Split the src URL and get the extension
+                preg_match('/src="([^"]+)"/', $match[2], $m);
+                $url = explode('.', explode('?', $m[1])[0]);
+                $ext = preg_split('/[^A-Za-z]/', end($url))[0];
+
+                if (!$exclude && in_array($ext, $allowed)) {
+                    // Drop embedded classes -- they don't refer to ours
+                    $match = preg_replace('/class="[^"]*"/', '', $match);
+                    return sprintf('<span %s class="non-local-image" data-%s %s></span>',
+                        $match[1], $match[2], $match[3]);
+                } else
+                    return '';
             },
             $text);
 
@@ -431,6 +447,33 @@ class Format {
             return self::viewableImages($text);
 
         return $text;
+    }
+
+    function stripExternalImages($input, $display=false) {
+        global $cfg;
+
+        // Allowed Inline External Image Extensions
+        $allowed = array('gif', 'png', 'jpg', 'jpeg');
+        $exclude = !$cfg->allowExternalImages();
+        $local = false;
+
+        $input = preg_replace_callback('/<img ([^>]*)(src="([^"]+)")([^>]*)\/?>/',
+            function($match) use ($local, $allowed, $exclude, $display) {
+                if (strpos($match[3], 'cid:') !== false)
+                    $local = true;
+
+                // Split the src URL and get the extension
+                $url = explode('.', explode('?', $match[3])[0]);
+                $ext = preg_split('/[^A-Za-z]/', end($url))[0];
+
+                if (!$local && (($exclude && $display) || !in_array($ext, $allowed)))
+                    return '';
+                else
+                    return $match[0];
+            },
+            $input);
+
+        return $input;
     }
 
     function striptags($var, $decode=true) {

@@ -25,7 +25,10 @@ grace_period:
         Determine the number of hours after a ticket is created that it will
         be automatically marked as overdue.
         <br><br>
-        <em>Hours are counted from ticket create time.</em>
+        Hours are counted during the specified Schedule. The hierarchy is Department
+        Schedule, SLA Schedule, then System Default Schedule. If no Schedule is
+        configured, the Hours are counted 24/7 (even after business hours) until the
+        Ticket is Overdue.
 
 transient:
     title: Transient

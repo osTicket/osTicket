@@ -21,7 +21,7 @@ if($filter && $_REQUEST['a']!='add'){
     $info['rules'] = array();
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <form action="filters.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
     <?php csrf_token(); ?>
@@ -307,6 +307,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <button id="new-action-btn" type="button" class="inline green button" onclick="javascript:
                     var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
                     dropdown.val('');
+                    if (selected.val() === '')
+                        return;
                     $('#dynamic-actions')
                       .append($('<tr></tr>')
                         .append($('<td></td>')

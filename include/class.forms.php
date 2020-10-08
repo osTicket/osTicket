@@ -354,6 +354,8 @@ class Form {
 class SimpleForm extends Form {
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
+        if (isset($options['type']))
+            $this->type = $options['type'];
         $this->setFields($fields);
     }
 
@@ -1451,7 +1453,7 @@ class TextboxField extends FormField {
 
     function validateEntry($value) {
         //check to see if value is the string '0'
-        $value = ($value == '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
+        $value = ($value === '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
@@ -1870,6 +1872,16 @@ class ChoiceField extends FormField {
     function asVar($value, $id=false) {
         $value = $this->to_php($value);
         return $this->toString($this->getChoice($value));
+    }
+
+    function getChanges() {
+        $new = $this->to_database($this->getValue());
+        $old = $this->to_database($this->answer ? $this->answer->getValue()
+                : $this->get('default'));
+        // Compare old and new
+        return ($old == $new)
+            ? false
+            : array($old, $new);
     }
 
     function whatChanged($before, $after) {
@@ -3286,13 +3298,18 @@ class AssigneeField extends ChoiceField {
 
     function getWidget($widgetClass=false) {
         $widget = parent::getWidget($widgetClass);
-        if (is_object($widget->value))
-            $widget->value = $widget->value->getId();
+        $value = $widget->value;
+        if (is_object($value)) {
+            $id = $value->getId();
+            if ($value instanceof Staff)
+                $widget->value = 's'.$id;
+            elseif ($value instanceof Team)
+                $widget->value = 't'.$id;
+        }
         return $widget;
     }
 
     function getCriteria() {
-
         if (!isset($this->_criteria)) {
             $this->_criteria = array('available' => true);
             if (($c=parent::getCriteria()))
@@ -3311,7 +3328,12 @@ class AssigneeField extends ChoiceField {
     }
 
     function display($value) {
-        return $this->getAnswer() ? $this->getAnswer()->value : $value;
+        if ($this->getAnswer() && is_string($this->getAnswer()->value)) {
+            $v = JsonDataParser::parse($this->getAnswer()->value);
+            if (is_array($v))
+                $value = $v[key($v)];
+        }
+        return $value;
     }
 
     function getChoices($verbose=false) {
@@ -3348,27 +3370,54 @@ class AssigneeField extends ChoiceField {
         return $this->_choices;
     }
 
+    function getChoice($value) {
+        $choices = $this->getChoices();
+        $selection = array();
+        if ($value && is_object($value)) {
+            $keys = null;
+            if ($value instanceof Staff)
+                $keys = array('Agents', 's'.$value->getId());
+            elseif ($value instanceof Team)
+                $keys = array('Teams', 't'.$value->getId());
+            if ($keys && isset($choices[$keys[0]]))
+                $selection = $choices[$keys[0]][$keys[1]];
+
+            if (!empty($selection))
+                return $selection;
+        }
+
+        return parent::getChoice($value);
+    }
+
     function getValue() {
         if (($value = parent::getValue()) && ($id=$this->getClean())) {
             $name = (is_object($value[key($value)]) && get_class($value[key($value)]) == 'AgentsName') ?
                 $value[key($value)]->name : $value[key($value)];
-            return array($name, substr(key($value), 1));
+            $key = (($value[key($value)] instanceof AgentsName) ? 's' : 't').substr(key($value), 1);
+            return array(array($key => $name), substr(key($value), 1));
         } else
-            return array();
+            return null;
     }
-
 
     function parse($id) {
         return $this->to_php(null, $id);
     }
 
     function to_php($value, $id=false) {
+        if (is_string($value))
+            $value = JsonDataParser::parse($value);
+
         $type = '';
         if (is_array($id)) {
             reset($id);
             $id = key($id);
             $type = $id[0];
             $id = substr($id, 1);
+        }
+        if (is_array($value)) {
+            $type = key($value)[0];
+            if (!$id)
+                $id = key($value)[1];
         }
 
         switch ($type) {
@@ -3383,11 +3432,23 @@ class AssigneeField extends ChoiceField {
         }
     }
 
-
     function to_database($value) {
-        return (is_object($value))
-            ? array($value->getName(), $value->getId())
-            : $value;
+        if (is_object($value)) {
+            $id = $value->getId();
+            if ($value instanceof Staff) {
+                $key = 's'.$id;
+                $name = $value->getName()->name;
+            } elseif ($value instanceof Team) {
+                $key = 't'.$id;
+                $name = $value->getName();
+            }
+
+            return array(JsonDataEncoder::encode(array($key => $name)));
+        }
+        if (is_array($value)) {
+            return array(JsonDataEncoder::encode($value[0]));
+        }
+        return $value;
     }
 
     function toString($value) {
@@ -3396,6 +3457,38 @@ class AssigneeField extends ChoiceField {
 
     function searchable($value) {
         return null;
+    }
+
+    function getKeys($value) {
+        $value = $this->to_database($value);
+        if (is_array($value))
+            return $value[0];
+
+        return (string) $value;
+    }
+
+    function asVar($value, $id=false) {
+        $v = $this->to_php($value, $id);
+        return $v ? $v->getName() : null;
+    }
+
+    function getChanges() {
+        $new = $this->to_database($this->getValue());
+        $old = $this->to_database($this->answer ? $this->answer->getValue()
+                : $this->get('default'));
+        // Compare old and new
+        return ($old == $new)
+            ? false
+            : array($old[0], $new[0]);
+    }
+
+    function whatChanged($before, $after) {
+        if ($before)
+            $before = array($before->getName());
+        if ($after)
+            $after = array($after->getName());
+
+        return parent::whatChanged($before, $after);
     }
 
     function getConfigurationOptions() {
@@ -5014,6 +5107,36 @@ class FileUploadWidget extends Widget {
             }
         }
 
+        //see if the attachment is saved in the session for this specific field
+        if ($sessionAttachment = $_SESSION[':form-data'][$this->field->get('name')]) {
+            $F = AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($sessionAttachment)))
+                ->all();
+
+            foreach ($F as $f) {
+                $f->tmp_name = $sessionAttachment[$f->getId()];
+                $files[] = array(
+                    'id' => $f->getId(),
+                    'name' => $f->getName(),
+                    'type' => $f->getType(),
+                    'size' => $f->getSize(),
+                    'download_url' => $f->getDownloadUrl(),
+                );
+            }
+        }
+
+         // Set default $field_id
+        $field_id = $this->field->get('id');
+        // Get Form Type
+        $type = $this->field->getForm()->type;
+        // Determine if for Ticket/Task/Custom
+        if ($type) {
+            if ($type == 'T')
+                $field_id = 'ticket/attach';
+            elseif ($type == 'A')
+                $field_id = 'task/attach';
+        }
+
         ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
             <div class="dropzone"><i class="icon-upload"></i>
@@ -5026,7 +5149,7 @@ class FileUploadWidget extends Widget {
         </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
-          url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
+          url: 'ajax.php/form/upload/<?php echo $field_id; ?>',
           link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
           fallback_id: 'file-<?php echo $id; ?>',

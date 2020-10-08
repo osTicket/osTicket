@@ -78,7 +78,7 @@ class DynamicFormsAjaxAPI extends AjaxController {
         $preserve = $field->flags & $p_mask;
 
         // Set admin-configured flag states
-        $flags = array_reduce($_POST['flags'],
+        $flags = array_reduce($_POST['flags'] ?: array(),
             function($a, $b) { return $a | $b; }, 0);
         $field->flags = $flags | $preserve;
 
@@ -382,19 +382,30 @@ class DynamicFormsAjaxAPI extends AjaxController {
         if (!$impl instanceof FileUploadField)
             Http::response(400, 'Upload to a non file-field');
 
+        header('Content-Type: application/json; charset=UTF-8');
         return JsonDataEncoder::encode(
             array('id'=>$impl->ajaxUpload())
         );
     }
 
-    function attach() {
+    function attach($object=null) {
         global $thisstaff;
 
+        $filter = array('type__contains'=>'thread');
+        // Determine if for Ticket/Task/Custom
+        if ($object && is_string($object)) {
+            if ($object == 'ticket')
+                $filter['form_id'] = TicketForm::objects()->one()->id;
+            elseif ($object == 'task')
+                $filter['form_id'] = TaskForm::objects()->one()->id;
+        }
         $config = DynamicFormField::objects()
-            ->filter(array('type__contains'=>'thread'))
+            ->filter($filter)
+            ->order_by('id')
             ->first()->getConfiguration();
         $field = new FileUploadField();
         $field->_config = $config;
+        header('Content-Type: application/json; charset=UTF-8');
         return JsonDataEncoder::encode(
             array('id'=>$field->ajaxUpload($thisstaff ? true : false))
         );

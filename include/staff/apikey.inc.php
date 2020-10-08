@@ -15,7 +15,7 @@ if($api && $_REQUEST['a']!='add'){
     $info['isactive']=isset($info['isactive'])?$info['isactive']:1;
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <form action="apikeys.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>

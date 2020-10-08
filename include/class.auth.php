@@ -134,7 +134,7 @@ class ClientCreateRequest {
     function attemptAutoRegister() {
         global $cfg;
 
-        if (!$cfg)
+        if (!$cfg || !$cfg->isClientRegistrationEnabled())
             return false;
 
         // Attempt to automatically register
@@ -642,19 +642,27 @@ abstract class ExternalStaffAuthenticationBackend
     static $sign_in_image_url = false;
     static $service_name = "External";
 
-    function renderExternalLink() { ?>
-        <a class="external-sign-in" title="Sign in with <?php echo static::$service_name; ?>"
+    function getServiceName() {
+        return static::$service_name;
+    }
+
+    function renderExternalLink() {
+        $service = sprintf('%s %s',
+                __('Sign in with'),
+                $this->getServiceName());
+        ?>
+        <a class="external-sign-in" title="<?php echo $service; ?>"
                 href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
-            ?>" alt="Sign in with <?php echo static::$service_name; ?>"/>
+            ?>" alt="<?php echo $service; ?>"/>
 <?php } else { ?>
             <div class="external-auth-box">
             <span class="external-auth-icon">
                 <i class="icon-<?php echo static::$fa_icon; ?> icon-large icon-fixed-with"></i>
             </span>
             <span class="external-auth-name">
-                Sign in with <?php echo static::$service_name; ?>
+               <?php echo $service; ?>
             </span>
             </div>
 <?php } ?>
@@ -1462,7 +1470,7 @@ abstract class PasswordPolicy {
                         Q::not(array('session_id' => $user->session->session_id)));
                 break;
             case ($model instanceof User):
-                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
+                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:\{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
                 $criteria['user_id'] = 0;
                 $criteria['session_data__regex'] = $regexp;
 

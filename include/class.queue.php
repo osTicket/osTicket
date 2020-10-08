@@ -856,6 +856,9 @@ class CustomQueue extends VerySimpleModel {
         else
             $query->order_by('-created');
 
+        // Distinct ticket_id to avoid duplicate results
+        $query->distinct('ticket_id');
+
         // Render Util
         $render = function ($row) use($columns) {
             if (!$row) return false;

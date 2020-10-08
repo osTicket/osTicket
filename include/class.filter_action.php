@@ -525,12 +525,18 @@ class FA_SendEmail extends TriggerAction {
     function apply(&$ticket, array $info) {
         global $ost;
 
+        if (!$ticket['ticket'])
+            return false;
+
         $config = $this->getConfiguration();
-        $info = array('subject' => $config['subject'],
-            'message' => $config['message']);
-        $info = $ost->replaceTemplateVariables(
-            $info, array('ticket' => $ticket)
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $ticket['ticket'],
         );
+        $info = $ost->replaceTemplateVariables(array(
+            'subject' => $config['subject'],
+            'message' => $config['message'],
+        ), $vars);
 
         // Honor FROM address settings
         if (!$config['from'] || !($mailer = Email::lookup($config['from'])))
@@ -558,7 +564,6 @@ class FA_SendEmail extends TriggerAction {
             $I = $replacer->replaceVars($info);
             $mailer->send($recipient, $I['subject'], $I['message']);
         }
-
     }
 
     static function getVarScope() {

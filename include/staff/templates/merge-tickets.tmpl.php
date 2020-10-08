@@ -15,7 +15,7 @@
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/><?php echo sprintf(__(
 'Choose which Tickets to %s. The Ticket on top will be the Parent Ticket. Sort the order of the Tickets by clicking and dragging them.'
-), ($title == 'merge' ? 'merge into this one' : 'link'));
+), ($title == 'merge' ? __('merge into this one') : __('link')));
 ?>
 <br/>
 <br/>
@@ -100,7 +100,7 @@ foreach ($tickets as $t) {
         var select = $(this).parent().find('select'),
             $sel = select.find('option:selected'),
             id = $sel.val();
-            data = $sel.data();
+            data = select.select2('data');
             for(var key in data) {
                  ticket_id = data[key]['ticket_id'];
                  ticketLink = '<?php echo Ticket::getLink('');?>';

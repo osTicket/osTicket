@@ -90,17 +90,17 @@ if($ticket->isOverdue())
             </span>
             <div id="action-dropdown-print" class="action-dropdown anchor-right">
               <ul>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0&events=0"><i
-                 class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=0"><i
+                 <li title="PDF File"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=0&events=0"><i
+                 class="icon-file-text-alt"></i> <?php echo __('Ticket Thread'); ?></a>
+                 <li title="PDF File"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=0"><i
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=1"><i
-                 class="icon-list-alt"></i> <?php echo __('Thread + Internal Notes + Events'); ?></a>
+                 <li title="PDF File"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=1"><i
+                 class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes + Events'); ?></a>
                  <?php if (extension_loaded('zip')) { ?>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1"><i
-                 class="icon-download-alt"></i> <?php echo __('Export with Notes + Attachments'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1&tasks=1"><i
-                 class="icon-download"></i> <?php echo __('Export with Notes + Attachments + Tasks'); ?></a>
+                 <li title="ZIP Archive"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1"><i
+                 class="icon-folder-close-alt"></i> <?php echo __('Thread + Internal Notes + Attachments'); ?></a>
+                 <li title="ZIP Archive"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1&tasks=1"><i
+                 class="icon-folder-close-alt"></i> <?php echo __('Thread + Internal Notes + Attachments + Tasks'); ?></a>
                  <?php } ?>
               </ul>
             </div>
@@ -672,26 +672,33 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
     foreach ($displayed as $a) {
         $id =  $a->getLocal('id');
         $label = $a->getLocal('label');
-        $v = $a->display();
         $field = $a->getField();
+        $config = $field->getConfiguration();
+        $html = isset($config['html']) ? $config['html'] : false;
+        $v = $html ? Format::striptags($a->display()) : $a->display();
         $class = (Format::striptags($v)) ? '' : 'class="faded"';
-        $clean = (Format::striptags($v)) ? $v : '&mdash;' . __('Empty') .  '&mdash;';
+        $clean = (Format::striptags($v))
+                ? ($html ? Format::striptags($v) : $v)
+                : '&mdash;' . __('Empty') .  '&mdash;';
         $isFile = ($field instanceof FileUploadField);
+        $url = "#tickets/".$ticket->getId()."/field/".$id;
 ?>
         <tr>
             <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
             <td id="<?php echo sprintf('inline-answer-%s', $field->getId()); ?>">
             <?php if ($role->hasPerm(Ticket::PERM_EDIT)
                     && $field->isEditableToStaff()) {
-                    $isEmpty = strpos($v, 'Empty');
+                    $isEmpty = strpos($v, 'Empty') || ($v == '');
                     if ($isFile && !$isEmpty) {
                         echo sprintf('<span id="field_%s" %s >%s</span><br>', $id,
                             $class,
                             $clean);
                     }
+                    $title = ($html && !$isEmpty) ? __('View Content') : __('Update');
+                    $href = $url.(($html && !$isEmpty) ? '/view' : '/edit');
                          ?>
-                  <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
-                      href="#tickets/<?php echo $ticket->getId(); ?>/field/<?php echo $id; ?>/edit">
+                  <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo $title; ?>"
+                      href="<?php echo $href; ?>">
                   <?php
                     if ($isFile && !$isEmpty) {
                       echo "<i class=\"icon-edit\"></i>";

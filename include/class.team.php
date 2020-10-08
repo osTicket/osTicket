@@ -88,6 +88,17 @@ implements TemplateVariable {
         return $this->_members;
     }
 
+    function getMembersForAlerts() {
+        $alertmembers = array();
+        $members = $this->members->filter(array(
+            'flags__hasbit' => TeamMember::FLAG_ALERTS,
+        ));
+        foreach ($members as $m)
+            $alertmembers[] = $m->staff;
+
+        return $alertmembers;
+    }
+
     function hasMember($staff) {
         return $this->members
             ->filter(array('staff_id'=>$staff->getId()))
@@ -201,13 +212,14 @@ implements TemplateVariable {
                 $access[] = array($staff_id, @$vars['member_alerts'][$staff_id]);
             }
         }
-        $this->updateMembers($access, $errors);
 
         if ($errors)
             return false;
 
-        if ($this->save())
-            return $this->members->saveAll();
+        if ($this->save()) {
+            $this->updateMembers($access, $errors);
+            return true;
+        }
 
         if (isset($this->team_id)) {
             $errors['err']=sprintf(__('Unable to update %s.'), __('this team'))
@@ -354,7 +366,6 @@ implements TemplateVariable {
     static function __create($vars, &$errors) {
         return self::create($vars)->save();
     }
-
 }
 
 class TeamMember extends VerySimpleModel {

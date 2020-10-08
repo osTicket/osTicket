@@ -123,6 +123,7 @@ class DynamicForm extends VerySimpleModel {
             'title' => $this->getLocal('title'),
             'instructions' => Format::htmldecode($this->getLocal('instructions')),
             'id' => $this->getId(),
+            'type' => $this->type ?: null,
         ));
         return $form;
     }
@@ -659,7 +660,7 @@ class DynamicFormField extends VerySimpleModel {
         // See if field impl. need to save or override anything
         $config = $this->getImpl()->to_config($config);
         $this->set('configuration', JsonDataEncoder::encode($config));
-        $this->set('hint', Format::sanitize($vars['hint']));
+        $this->set('hint', Format::sanitize($vars['hint']) ?: NULL);
 
         return true;
     }
@@ -1010,6 +1011,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 'title' => $this->getTitle(),
                 'instructions' => $this->getInstructions(),
                 'id' => $this->form_id,
+                'type' => $this->getDynamicForm()->type ?: null,
                 );
             $this->_form = new CustomForm($fields, $source, $options);
         }
@@ -1282,7 +1284,18 @@ class DynamicFormEntry extends VerySimpleModel {
 
             try {
                 $field->setForm($this);
-                $val = $field->to_database($field->getClean());
+                //for form entry values of file upload fields, we want to save the value as
+                //json with the file id(s) and file name(s) of each file stored in the field
+                //so that they display correctly within tasks/tickets
+                if (get_class($field) == 'FileUploadField') {
+                    //use getChanges if getClean returns an empty array
+                    $fieldClean = $field->getClean() ?: $field->getChanges();
+                    if (is_array($fieldClean) && $fieldClean[0])
+                        $fieldClean = json_decode($fieldClean[0], true);
+                } else
+                    $fieldClean = $field->getClean();
+
+                $val = $field->to_database($fieldClean);
             }
             catch (FieldUnchanged $e) {
                 // Don't update the answer.

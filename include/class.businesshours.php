@@ -166,7 +166,7 @@ class BusinessHours {
                 if ($_seconds > $seconds) {
                     // TODO: Guard aganist backtracking to non working
                     // hours.
-                    $time = round(($_seconds-$seconds));
+                    $time = intval(round(($_seconds-$seconds)));
                     $interval = new DateInterval('PT'.$time.'S');
                     $date->sub($interval);
                     $this->timeline(sprintf('%s -> Backtrack %f Hours  %s (%s)',

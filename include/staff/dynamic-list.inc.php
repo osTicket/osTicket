@@ -16,7 +16,7 @@ if ($list) {
     $newcount=4;
 }
 
-$info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info);
+$info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info, true);
 
 ?>
 <form action="" method="post" class="save">

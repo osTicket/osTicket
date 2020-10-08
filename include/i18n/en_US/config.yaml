@@ -80,9 +80,11 @@ core:
     ticket_number_format: '######'
     ticket_sequence_id: 0
     queue_bucket_counts: 0
+    allow_external_images: 1
     task_number_format: '#'
     task_sequence_id: 2
     log_level: 2
     log_graceperiod: 12
     client_registration: 'public'
     default_ticket_queue: 1
+    embedded_domain_whitelist: 'youtube.com, dailymotion.com, vimeo.com, player.vimeo.com, web.microsoftstream.com'
