@@ -87,7 +87,7 @@ class OverviewReport {
             .' AND T.event_id IN ('.implode(",",$event_ids).') AND T.thread_type = "T"'
             .' ORDER BY 1');
         $events = array();
-        while ($row = db_fetch_row($res)) $events[] = $row[0];
+        while ($row = db_fetch_row($res)) $events[] = __($row[0]);
 
         # TODO: Handle user => db timezone offset
         # XXX: Implement annulled column from the %ticket_event table
@@ -123,8 +123,8 @@ class OverviewReport {
                 $times[] = $time = $row_time;
             }
             # Keep track of states for this timeframe
-            $slots[] = $row[0];
-            $plots[$row[0]][] = (int)$row[2];
+            $slots[] = __($row[0]);
+            $plots[__($row[0])][] = (int)$row[2];
         }
         foreach (array_diff($events, $slots) as $slot)
             $plots[$slot][] = 0;

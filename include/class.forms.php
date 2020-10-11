@@ -354,6 +354,8 @@ class Form {
 class SimpleForm extends Form {
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
+        if (isset($options['type']))
+            $this->type = $options['type'];
         $this->setFields($fields);
     }
 
@@ -1451,7 +1453,7 @@ class TextboxField extends FormField {
 
     function validateEntry($value) {
         //check to see if value is the string '0'
-        $value = ($value == '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
+        $value = ($value === '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
@@ -1869,6 +1871,16 @@ class ChoiceField extends FormField {
     function asVar($value, $id=false) {
         $value = $this->to_php($value);
         return $this->toString($this->getChoice($value));
+    }
+
+    function getChanges() {
+        $new = $this->to_database($this->getValue());
+        $old = $this->to_database($this->answer ? $this->answer->getValue()
+                : $this->get('default'));
+        // Compare old and new
+        return ($old == $new)
+            ? false
+            : array($old, $new);
     }
 
     function whatChanged($before, $after) {
@@ -4976,6 +4988,36 @@ class FileUploadWidget extends Widget {
             }
         }
 
+        //see if the attachment is saved in the session for this specific field
+        if ($sessionAttachment = $_SESSION[':form-data'][$this->field->get('name')]) {
+            $F = AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($sessionAttachment)))
+                ->all();
+
+            foreach ($F as $f) {
+                $f->tmp_name = $sessionAttachment[$f->getId()];
+                $files[] = array(
+                    'id' => $f->getId(),
+                    'name' => $f->getName(),
+                    'type' => $f->getType(),
+                    'size' => $f->getSize(),
+                    'download_url' => $f->getDownloadUrl(),
+                );
+            }
+        }
+
+         // Set default $field_id
+        $field_id = $this->field->get('id');
+        // Get Form Type
+        $type = $this->field->getForm()->type;
+        // Determine if for Ticket/Task/Custom
+        if ($type) {
+            if ($type == 'T')
+                $field_id = 'ticket/attach';
+            elseif ($type == 'A')
+                $field_id = 'task/attach';
+        }
+
         ?><div id="<?php echo $id;
             ?>" class="filedrop"><div class="files"></div>
             <div class="dropzone"><i class="icon-upload"></i>
@@ -4988,7 +5030,7 @@ class FileUploadWidget extends Widget {
         </div></div>
         <script type="text/javascript">
         $(function(){$('#<?php echo $id; ?> .dropzone').filedropbox({
-          url: 'ajax.php/form/upload/<?php echo $this->field->get('id') ?>',
+          url: 'ajax.php/form/upload/<?php echo $field_id; ?>',
           link: $('#<?php echo $id; ?>').find('a.manual'),
           paramname: 'upload[]',
           fallback_id: 'file-<?php echo $id; ?>',

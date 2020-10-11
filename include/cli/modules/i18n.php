@@ -197,7 +197,8 @@ class i18n_Compiler extends Module {
                 // Skip files in (other) branches
                 continue;
             }
-            $phar->addFromString($info['name'], $contents);
+            $lname = $branch ? explode('/', $info['name'], 2)[1] : $info['name'];
+            $phar->addFromString($lname, $contents);
         }
 
         // TODO: Add i18n extras (like fonts)

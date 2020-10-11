@@ -3167,7 +3167,6 @@ implements RestrictedAccess, Threadable, Searchable {
         $options = array('thread'=>$message);
         // If enabled...send alert to staff (New Message Alert)
         if ($cfg->alertONNewMessage()
-            && $dept->getNumMembersForAlerts()
             && ($email = $dept->getAlertEmail())
             && ($tpl = $dept->getTemplate())
             && ($msg = $tpl->getNewMessageAlertMsgTemplate())
@@ -3769,6 +3768,13 @@ implements RestrictedAccess, Threadable, Searchable {
                            __($field->getLabel()));
                elseif (!$field->save(true))
                    $errors['field'] =  __('Unable to update field');
+
+               // Strip tags from TextareaFields to ensure event data is not
+               // truncated
+               if ($field instanceof TextareaField)
+                   foreach ($changes as $k=>$v)
+                       $changes[$k] = Format::truncate(Format::striptags($v), 200);
+
                $changes['fields'] = array($field->getId() => $changes);
            } else {
                $val =  $field->getClean();
@@ -3902,7 +3908,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return db_fetch_array(db_query($sql));
     }
 
-    protected function filterTicketData($origin, $vars, $forms, $user=false) {
+    protected function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
         global $cfg;
 
         // Unset all the filter data field data in case things change
@@ -3960,7 +3966,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
             // Init ticket filters...
             $ticket_filter = new TicketFilter($origin, $vars);
-            $ticket_filter->apply($vars);
+            $ticket_filter->apply($vars, $postCreate);
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
@@ -4098,7 +4104,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
             try {
                 $vars = self::filterTicketData($origin, $vars,
-                    array_merge(array($form), $topic_forms), $user);
+                    array_merge(array($form), $topic_forms), $user, false);
             }
             catch (RejectedException $ex) {
                 return $reject_ticket(
@@ -4299,6 +4305,9 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
+        $vars['ticket'] = $ticket;
+        self::filterTicketData($origin, $vars,
+            array_merge(array($form), $topic_forms), $user, true);
 
         // Save the (common) dynamic form
         // Ensure we have a subject

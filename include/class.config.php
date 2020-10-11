@@ -230,6 +230,7 @@ class OsticketConfig extends Config {
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
         'force_https' => '',
+        'allow_external_images' => 1,
     );
 
     function __construct($section=null) {
@@ -1035,6 +1036,10 @@ class OsticketConfig extends Config {
         return $this->get('require_topic_to_close');
     }
 
+    function allowExternalImages() {
+        return ($this->get('allow_external_images'));
+    }
+
     function getDefaultTicketQueueId() {
         return $this->get('default_ticket_queue', 1);
     }
@@ -1417,6 +1422,7 @@ class OsticketConfig extends Config {
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
             'default_ticket_queue'=>$vars['default_ticket_queue'],
+            'allow_external_images'=>isset($vars['allow_external_images'])?1:0,
         ));
     }
 

@@ -75,7 +75,7 @@
     <hr class="faded"/>
 
     <div class="span4">
-        <div style="margin-bottom:5px"><strong>Editable</strong>
+        <div style="margin-bottom:5px"><strong><?php echo __('Editable'); ?></strong>
         <i class="help-tip icon-question-sign"
             data-content="<?php echo __('Fields marked editable allow agents and endusers to update the content of this field after the form entry has been created.'); ?>"
             data-title="<?php echo __('Editable'); ?>"></i>
