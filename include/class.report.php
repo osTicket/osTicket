@@ -77,7 +77,6 @@ class OverviewReport {
 
     function getPlotData() {
         list($start, $stop) = $this->getDateRange();
-        $states = array("created", "closed", "reopened", "assigned", "overdue", "transferred");
         $event_ids = Event::getIds();
 
         # Fetch all types of events over the timeframe
