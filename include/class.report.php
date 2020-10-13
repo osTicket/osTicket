@@ -212,15 +212,15 @@ class OverviewReport {
         case 'dept':
             $headers = array(__('Department'));
             $header = function($row) { return Dept::getLocalNameById($row['dept_id'], $row['dept__name']); };
-            $pk = 'dept__id';
+            $pk = 'dept_id';
             $stats = $stats
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                ->values('dept__id', 'dept__name', 'dept__flags')
-                ->distinct('dept__id');
+                ->values('dept_id', 'dept__name', 'dept__flags')
+                ->distinct('dept_id');
             $times = $times
                 ->filter(array('dept_id__in' => $thisstaff->getDepts()))
-                ->values('dept__id')
-                ->distinct('dept__id');
+                ->values('dept_id')
+                ->distinct('dept_id');
             break;
         case 'topic':
             $headers = array(__('Help Topic'));
