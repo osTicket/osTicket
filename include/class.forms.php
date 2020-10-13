@@ -4158,20 +4158,46 @@ class TextboxWidget extends Widget {
                 if (!isset($config[$k]) || !$config[$k])
                     $config[$k] = $v;
         }
-        if (isset($config['size']))
-            $size = "size=\"{$config['size']}\"";
-        if (isset($config['length']) && $config['length'])
-            $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['classes']))
-            $classes = 'class="'.$config['classes'].'"';
-        if (isset($config['autocomplete']))
-            $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+
+        // Input attributes
+        $attrs = array();
+        foreach ($config as $k => $v) {
+            switch ($k) {
+                case 'autocomplete':
+                    if (is_numeric($config['autocomplete']))
+                        $v = $config['autocomplete'] ? 'on' : 'off';
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'disabled';
+                    $attrs[$k] = '"disabled"';
+                    break;
+                case 'translatable':
+                    if ($v)
+                        $attrs['data-translate-tag'] =  '"'.$v.'"';
+                    break;
+                case 'size':
+                case 'maxlength':
+                    if ($v && is_numeric($v))
+                        $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'class':
+                case 'classes':
+                    $attrs['class'] = '"'.$v.'"';
+                    break;
+                case 'inputmode':
+                case 'pattern':
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+            }
+        }
+        // autofocus
+        $autofocus = '';
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
-        if (isset($config['disabled']))
-            $disabled = 'disabled="disabled"';
-        if (isset($config['translatable']) && $config['translatable'])
-            $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        // placeholder
+        $attrs['placeholder'] = $this->field->getLocal('placeholder',
+                $config['placeholder']);
+
         $type = static::$input_type;
         $types = array(
             'email' => 'email',
@@ -4179,14 +4205,11 @@ class TextboxWidget extends Widget {
         );
         if ($type == 'text' && isset($types[$config['validator']]))
             $type = $types[$config['validator']];
-        $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
-            $config['placeholder']));
         ?>
         <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
-            <?php echo implode(' ', array_filter(array(
-                $size, $maxlength, $classes, $autocomplete, $disabled,
-                $translatable, $placeholder, $autofocus))); ?>
+            <?php echo $autofocus .' '.Format::array_implode('=', ' ',
+                    array_filter($attrs)); ?>
             name="<?php echo $this->name; ?>"
             value="<?php echo Format::htmlchars($this->value); ?>"/>
         <?php
@@ -4237,27 +4260,41 @@ class PasswordWidget extends TextboxWidget {
 class TextareaWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        $class = $cols = $rows = $maxlength = "";
+        // process textarea attributes
         $attrs = array();
-        if (isset($config['rows']))
-            $rows = "rows=\"{$config['rows']}\"";
-        if (isset($config['cols']))
-            $cols = "cols=\"{$config['cols']}\"";
-        if (isset($config['length']) && $config['length'])
-            $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['html']) && $config['html']) {
-            $class = array('richtext', 'no-bar');
-            $class[] = @$config['size'] ?: 'small';
-            $class = sprintf('class="%s"', implode(' ', $class));
-            $this->value = Format::viewableImages($this->value);
+        foreach ($config as $k => $v) {
+            switch ($k) {
+                case 'rows':
+                case 'cols':
+                case 'length':
+                case 'maxlength':
+                    if ($v && is_numeric($v))
+                        $attrs[$k] = '"'.$v.'"';;
+                    break;
+                case 'context':
+                    $attrs['data-root-context'] =  '"'.$v.'"';
+                    break;
+                case 'class':
+                    // This might conflict with html attr below
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'html':
+                    if ($v) {
+                        $class = array('richtext', 'no-bar');
+                        $class[] = @$config['size'] ?: 'small';
+                        $attrs['class'] =  '"'.implode(' ', $class).'"';
+                        $this->value = Format::viewableImages($this->value);
+                    }
+                    break;
+            }
         }
-        if (isset($config['context']))
-            $attrs['data-root-context'] = '"'.$config['context'].'"';
+        // placeholder
+        $attrs['placeholder'] = $this->field->getLocal('placeholder',
+                $config['placeholder']);
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
-                .' '.Format::array_implode('=', ' ', $attrs)
-                .' placeholder="'.$this->field->getLocal('placeholder', $config['placeholder']).'"'; ?>
+        <textarea <?php echo Format::array_implode('=', ' ',
+                array_filter($attrs)); ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
                 echo Format::htmlchars($this->value);

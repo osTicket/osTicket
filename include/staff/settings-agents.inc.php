@@ -120,6 +120,19 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                         </td>
                     </tr>
                     <tr>
+                        <td><?php echo __('Multifactor Authentication'); ?>:</td>
+                        <td>
+                            <input type="checkbox" name="require_agent_2fa" <?php
+                            echo $config['require_agent_2fa'] ? 'checked="checked"' : ''; ?>>
+                            &nbsp;
+                            <?php
+                            echo __('Require agents to turn on 2FA');
+                            ?>
+                            &nbsp;<i class="help-tip icon-question-sign"
+                            href="#require_agent_2fa"></i>
+                        </td>
+                    </tr>
+                    <tr>
                         <td><?php echo __('Agent Excessive Logins'); ?>:</td>
                         <td>
                             <select name="staff_max_logins">
@@ -210,6 +223,7 @@ if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config
                     <?php $manage_content(__('Agent Welcome Email'), 'registration-staff'); ?>
                     <?php $manage_content(__('Sign-in Login Banner'), 'banner-staff'); ?>
                     <?php $manage_content(__('Password Reset Email'), 'pwreset-staff'); ?>
+                    <?php $manage_content(__('Two Factor Authentication Email'), 'email2fa-staff'); ?>
                 </tbody>
             </table>
         </div>
