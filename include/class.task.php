@@ -483,14 +483,21 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
+        global $thisstaff;
+
         $prompt = $assignee = '';
         // Possible assignees
         $assignees = array();
         switch (strtolower($options['target'])) {
             case 'agents':
                 $dept = $this->getDept();
-                foreach ($dept->getAssignees() as $member)
-                    $assignees['s'.$member->getId()] = $member;
+                if ($options['filterVisibility']) {
+                    foreach ($thisstaff->getDeptAgents(array('available' => true)) as $member)
+                        $assignees['s'.$member->getId()] = $member;
+                } else {
+                    foreach ($dept->getAssignees() as $member)
+                        $assignees['s'.$member->getId()] = $member;
+                }
 
                 if (!$source && $this->isOpen() && $this->staff)
                     $assignee = sprintf('s%d', $this->staff->getId());

@@ -985,6 +985,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
+        global $thisstaff;
+
         $prompt = $assignee = '';
         // Possible assignees
         $assignees = null;
@@ -992,7 +994,7 @@ implements RestrictedAccess, Threadable, Searchable {
         switch (strtolower($options['target'])) {
             case 'agents':
                 $assignees = array();
-                foreach ($dept->getAssignees() as $member)
+                foreach ($thisstaff->getDeptAgents(array('available' => true)) as $member)
                     $assignees['s'.$member->getId()] = $member;
 
                 if (!$source && $this->isOpen() && $this->staff)
@@ -2314,6 +2316,9 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'dept_id' => new DepartmentChoiceField(array(
                 'label' => __('Department'),
+            )),
+            'sla_id' => new SLAChoiceField(array(
+                'label' => __('SLA Plan'),
             )),
             'topic_id' => new HelpTopicChoiceField(array(
                 'label' => __('Help Topic'),

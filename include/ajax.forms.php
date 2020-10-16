@@ -34,7 +34,8 @@ class DynamicFormsAjaxAPI extends AjaxController {
             ob_start();
             $form->getForm($_SESSION[':form-data'])->render(array(
                 'staff' => !$client,
-                'mode' => 'create'));
+                'mode' => 'create',
+                'filterVisibility' => true));
             $html .= ob_get_clean();
             ob_start();
             print $form->getMedia();

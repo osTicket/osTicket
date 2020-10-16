@@ -55,6 +55,17 @@ class AddIndexMigration extends MigrationTask {
                 }
             }
         }
+
+        //add permissions to staff
+        foreach (Staff::objects() as $staff) {
+            $perms = array();
+            foreach ($staff->getPermissionInfo() as $value => $setting)
+                $perms[] = $value;
+
+            array_push($perms, 'visibility.departments', 'visibility.agents');
+            $staff->updatePerms($perms);
+            $staff->save();
+        }
     }
 }
 return 'AddIndexMigration';

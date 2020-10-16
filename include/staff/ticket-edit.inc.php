@@ -93,7 +93,7 @@ if ($_POST)
                 <select name="topicId">
                     <option value="" selected >&mdash; <?php echo __('Select Help Topic');?> &mdash;</option>
                     <?php
-                    if($topics=Topic::getHelpTopics()) {
+                    if ($topics=$thisstaff->getTopicNames()) {
                       if($ticket->topic_id && !array_key_exists($ticket->topic_id, $topics)) {
                         $topics[$ticket->topic_id] = $ticket->topic;
                         $errors['topicId'] = sprintf(__('%s selected must be active'), __('Help Topic'));
@@ -154,7 +154,7 @@ if ($_POST)
 <table class="form_table dynamic-forms" width="940" border="0" cellspacing="0" cellpadding="2">
         <?php if ($forms)
             foreach ($forms as $form) {
-                $form->render(array('staff'=>true,'mode'=>'edit','width'=>160,'entry'=>$form));
+                $form->render(array('staff'=>true,'mode'=>'edit','width'=>160,'entry'=>$form, 'filterVisibility' => true));
         } ?>
 </table>
 <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">

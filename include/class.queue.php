@@ -172,7 +172,7 @@ class CustomQueue extends VerySimpleModel {
      *      search beyond the current configuration of the search criteria
      * $searchables - search fields - default to current if not provided
      */
-    function getForm($source=null, $searchable=null) {
+    function getForm($source=null, $searchable=null, $filterVisibility=null) {
         $fields = array();
         if (!isset($searchable)) {
             $fields = array(
@@ -196,7 +196,7 @@ class CustomQueue extends VerySimpleModel {
         }
 
         foreach ($searchable ?: array() as $path => $field)
-            $fields = array_merge($fields, static::getSearchField($field, $path));
+            $fields = array_merge($fields, static::getSearchField($field, $path, array('filterVisibility' => $filterVisibility)));
 
         $form = new AdvancedSearchForm($fields, $source);
 
@@ -435,7 +435,7 @@ class CustomQueue extends VerySimpleModel {
      *      representing the configurable search
      * $name - <string> ORM path for the search
      */
-    static function getSearchField($F, $name) {
+    static function getSearchField($F, $name, $options=array()) {
         list($label, $field) = $F;
 
         $pieces = array();
@@ -460,7 +460,7 @@ class CustomQueue extends VerySimpleModel {
             )), VisibilityConstraint::HIDDEN),
         ));
         $offs = 0;
-        foreach ($field->getSearchMethodWidgets() as $m=>$w) {
+        foreach ($field->getSearchMethodWidgets($options) as $m=>$w) {
             if (!$w)
                 continue;
             list($class, $args) = $w;
@@ -598,6 +598,7 @@ class CustomQueue extends VerySimpleModel {
                 'status__id' =>__('Current Status'),
                 'lastupdate' =>     __('Last Updated'),
                 'est_duedate' =>    __('SLA Due Date'),
+                'sla_id' => __('SLA Plan'),
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
@@ -1943,7 +1944,7 @@ extends QueueColumnAnnotation {
 
 class DataSourceField
 extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         $config = $this->getConfiguration();
         $root = $config['root'];
         $fields = array();
@@ -2154,7 +2155,7 @@ extends ChoiceField {
             return new $choices(array('name' => $prop));
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (isset($this->property))
             return static::$properties[$this->property];
 

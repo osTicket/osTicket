@@ -54,6 +54,16 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     var $_config = null;
     var $_perm;
 
+    const PERM_STAFF = 'visibility.agents';
+
+    static protected $perms = array(
+        self::PERM_STAFF => array(
+            'title' => /* @trans */ 'Agent',
+            'desc'  => /* @trans */ 'Ability to see Agents in all Departments',
+            'primary' => true,
+        ),
+    );
+
     function __onload() {
     }
 
@@ -449,6 +459,53 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function getDepts() {
         return $this->getDepartments();
+    }
+
+    function getDepartmentNames($publiconly=false) {
+        $depts = Dept::getDepartments(array('publiconly' => $publiconly));
+
+        //filter out departments the agent does not have access to
+        if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
+            foreach ($depts as $id => $name) {
+                if (!in_array($id, $staffDepts))
+                    unset($depts[$id]);
+            }
+        }
+
+        return $depts;
+    }
+
+    function getTopicNames($publicOnly=false, $disabled=false) {
+        $allInfo = !$this->hasPerm(Dept::PERM_DEPT) ? true : false;
+        $topics = Topic::getHelpTopics($publicOnly, $disabled, true, array(), $allInfo);
+        $topicsClean = array();
+
+        if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
+            foreach ($topics as $id => $info) {
+                if ($info['pid']) {
+                    $childDeptId = $info['dept_id'];
+                    //show child if public, has access to topic dept_id, or no dept at all
+                    if ($info['public'] || !$childDeptId || ($childDeptId && in_array($childDeptId, $staffDepts)))
+                        $topicsClean[$id] = $info['topic'];
+                    $parent = Topic::lookup($info['pid']);
+                    if (!$parent->isPublic() && $parent->getDeptId() && !in_array($parent->getDeptId(), $staffDepts)) {
+                        //hide child if parent topic is private and no access to parent topic dept_id
+                        unset($topicsClean[$id]);
+                    }
+                } elseif ($info['public']) {
+                    //show all public topics
+                    $topicsClean[$id] = $info['topic'];
+                } else {
+                    //show private topics if access to topic dept_id or no dept at all
+                    if ($info['dept_id'] && in_array($info['dept_id'], $staffDepts) || !$info['dept_id'])
+                        $topicsClean[$id] = $info['topic'];
+                }
+            }
+
+            return $topicsClean;
+        }
+
+        return $topics;
     }
 
     function getManagedDepartments() {
@@ -932,6 +989,40 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return self::getStaffMembers(array('available'=>true));
     }
 
+    //returns agents in departments this agent has access to
+    function getDeptAgents($criteria=array()) {
+        $agents = static::objects()
+            ->distinct('staff_id')
+            ->select_related('dept')
+            ->select_related('dept_access');
+
+        if (!$this->hasPerm(Staff::PERM_STAFF)) {
+            $agents = Staff::objects()
+                ->distinct('staff_id')
+                ->filter(Q::any(array(
+                    'dept_access__dept_id__in' => $this->getDepts(),
+                    'dept_id__in' => $this->getDepts(),
+                )));
+        }
+
+        if (isset($criteria['available'])) {
+            $agents = $agents->filter(array(
+                'onvacation' => 0,
+                'isactive' => 1,
+            ));
+        }
+
+        if (isset($criteria['namesOnly'])) {
+            $clean = array();
+            foreach ($agents as $a) {
+                $clean[$a->getId()] = $a->getName();
+            }
+            return $clean;
+        }
+
+        return $agents;
+    }
+
     static function getsortby($path='', $format=null) {
         global $cfg;
 
@@ -1324,7 +1415,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         Export::agents($agents, $filename);
     }
 
+    static function getPermissions() {
+        return self::$perms;
+    }
+
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Staff::getPermissions());
 
 interface RestrictedAccess {
     function checkStaffPerm($staff);
@@ -1707,6 +1803,8 @@ extends AbstractForm {
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         );
         return $clean;
     }
