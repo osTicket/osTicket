@@ -632,6 +632,15 @@ implements TemplateVariable, Searchable {
         return $row ? $row[0] : 0;
     }
 
+    static function getEmailIdById($id) {
+        $row = static::objects()
+            ->filter(array('id' => $id))
+            ->values_flat('email_id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
+
     function getNameById($id) {
         $names = Dept::getDepartments();
         return $names[$id];
