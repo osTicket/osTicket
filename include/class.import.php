@@ -19,6 +19,13 @@ class ImportError extends Exception {}
 class ImportDataError extends ImportError {}
 
 class CsvImporter {
+    // Bytes sequence of common BOM
+    const BOMs = array(
+                 'UTF8' => "\xEF\xBB\xBF",
+                 'UTF16_BE' => "\xFE\xFF",
+                 'UTF16_LE' => "\xFF\xFE",
+                 'UTF32_BE' => "\x00\x00\xFE\xFF",
+                 'UTF32_LE' => "\xFF\xFE\x00\x00");
     var $stream;
 
     function __construct($stream) {
@@ -27,6 +34,9 @@ class CsvImporter {
             // Properly detect Macintosh style line endings
             ini_set('auto_detect_line_endings', true);
             $this->stream = fopen($stream['tmp_name'], 'r');
+            // Skip Byte Order Mark (BOM) if present
+            if (!self::isBOM(fgets($this->stream, 4)))
+                rewind($this->stream);
         }
         // Open file
         elseif (is_resource($stream)) {
@@ -115,6 +125,11 @@ class CsvImporter {
         // continuable such that the rows with errors can be handled and the
         // iterator can continue with the next row.
         return new CsvImportIterator($this->stream, $headers, $fields, $defaults);
+    }
+
+    // Check if a string matches a BOM
+    static function isBOM($str) {
+        return in_array($str, self::BOMs);
     }
 }
 
