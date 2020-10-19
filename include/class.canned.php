@@ -237,15 +237,12 @@ extends VerySimpleModel {
             ->values_flat('canned_id', 'title');
 
         if ($thisstaff) {
-            $departments = array();
-            //get responses for all depts
-            $departments[] = 0;
-            //get the responses for the agent's departments
-            $staffDepts = $thisstaff->getDepartmentNames(true);
-            foreach ($staffDepts as $k => $v)
-                $departments[] = $k;
+            $staffDepts = array();
 
-            $canned->filter(array('dept_id__in' => $departments));
+            $staffDepts = array_keys($thisstaff->getDepartmentNames(true));
+            $staffDepts[] = 0;
+
+            $canned->filter(array('dept_id__in' => $staffDepts));
         }
 
         if ($deptId) {

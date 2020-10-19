@@ -27,7 +27,7 @@ class AddIndexMigration extends MigrationTask {
         'user:name'
     );
 
-    function run($time) {
+    function run() {
         global $ost;
 
         foreach ($this->indexes as $index) {

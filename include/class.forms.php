@@ -3296,7 +3296,7 @@ class AssigneeField extends ChoiceField {
     var $_choices = null;
     var $_criteria = null;
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         $widget = parent::getWidget($widgetClass);
         $value = $widget->value;
         if (is_object($value)) {
