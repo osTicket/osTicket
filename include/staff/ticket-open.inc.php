@@ -80,9 +80,6 @@ if ($_POST)
                 <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
-        <tr>
-          <td>
-            <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
               <?php
               if ($user) { ?>
                   <tr><td><?php echo __('User'); ?>:</td><td>
@@ -186,9 +183,6 @@ if ($_POST)
           </td>
         </tr>
       <?php } ?>
-    </table>
-          </td>
-        </tr>
     </tbody>
     <tbody>
         <tr>
