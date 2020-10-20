@@ -1,5 +1,5 @@
 /**
- * @signature 8cd26958b50da5f037d722a172cb8e1f
+ * @signature ddbe2e76ec38a2e58bdbff9109c07930
  * @version v1.15
  * @title Add indexes accumulated over time
  *
@@ -43,5 +43,5 @@ EXECUTE stmt;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`
-    SET `value` = '8cd26958b50da5f037d722a172cb8e1f'
+    SET `value` = 'ddbe2e76ec38a2e58bdbff9109c07930'
     WHERE `key` = 'schema_signature' AND `namespace` = 'core';
