@@ -249,12 +249,16 @@ implements TemplateVariable {
 
         $entries = array();
         foreach ($slas as $row) {
-            $row[2] = $row[2] & self::FLAG_ACTIVE;
-            $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
-                        /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
-                        self::getLocalById($row[0], 'name', $row[1]),
-                        $row[3],
-                        $row[2] ? __('Active') : __('Disabled'));
+            if ($criteria['nameOnly'])
+                $entries[$row[0]] = __(self::getLocalById($row[0], 'name', $row[1]));
+            else {
+                $row[2] = $row[2] & self::FLAG_ACTIVE;
+                $entries[$row[0]] = sprintf(__('%s (%d hours - %s)'
+                            /* Tokens are <name> (<#> hours - <Active|Disabled>) */),
+                            self::getLocalById($row[0], 'name', $row[1]),
+                            $row[3],
+                            $row[2] ? __('Active') : __('Disabled'));
+            }
         }
 
         return $entries;

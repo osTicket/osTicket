@@ -1189,6 +1189,21 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
     }
 }
 
+class SLAChoiceField extends AdvancedSearchSelectionField {
+    static $_slas;
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false) {
+        if (!isset($this->_slas))
+            $this->_slas = SLA::getSLAs(array('nameOnly' => true));
+
+        return $this->_slas;
+    }
+}
+
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends AdvancedSearchSelectionField {
     static $_depts;
