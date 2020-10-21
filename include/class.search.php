@@ -1201,7 +1201,7 @@ class SLAChoiceField extends AdvancedSearchSelectionField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_slas))
             $this->_slas = SLA::getSLAs(array('nameOnly' => true));
 
