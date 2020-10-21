@@ -1973,7 +1973,7 @@ class TicketsAjaxAPI extends AjaxController {
             $id = $queue->getId();
             $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
             $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
-            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
+            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['csv-delimiter'];
             // Save fields selection if requested
             if ($queue->isSaved() && isset($_POST['save-changes']))
                $queue->updateExports(array_flip($_POST['fields']));
@@ -1993,7 +1993,7 @@ class TicketsAjaxAPI extends AjaxController {
             try {
                 $interval = 5;
                 $options = ['filename' => $filename,
-                    'interval' => $interval];
+                    'interval' => $interval, 'delimiter' => $_POST['csv-delimiter']];
                 // Create desired exporter
                 $exporter = new CsvExporter($options);
                 // Acknowledge the export
