@@ -598,6 +598,7 @@ class CustomQueue extends VerySimpleModel {
                 'status__id' =>__('Current Status'),
                 'lastupdate' =>     __('Last Updated'),
                 'est_duedate' =>    __('SLA Due Date'),
+                'sla_id' => __('SLA Plan'),
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),

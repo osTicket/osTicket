@@ -2315,6 +2315,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'dept_id' => new DepartmentChoiceField(array(
                 'label' => __('Department'),
             )),
+            'sla_id' => new SLAChoiceField(array(
+                'label' => __('SLA Plan'),
+            )),
             'topic_id' => new HelpTopicChoiceField(array(
                 'label' => __('Help Topic'),
             )),
