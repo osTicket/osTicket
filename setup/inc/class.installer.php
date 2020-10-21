@@ -206,6 +206,8 @@ class Installer extends SetupWizard {
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
             Email::PERM_BANLIST,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
         $staff->setPassword($vars['passwd']);
         if (!$staff->save()) {

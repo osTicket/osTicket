@@ -111,7 +111,7 @@ $(function() {
   $('#search-add-new-field').on('change', function() {
     var that=this;
     $.ajax({
-      url: 'ajax.php/tickets/search/field/'+$(this).val(),
+      url: 'ajax.php/tickets/search/field/'+$(this).val()+'/<?php echo $filterVisibility ? 'true' : 'false' ?>',
       type: 'get',
       dataType: 'json',
       success: function(json) {

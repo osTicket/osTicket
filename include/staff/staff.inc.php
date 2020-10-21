@@ -19,6 +19,8 @@ if ($_REQUEST['a']=='add'){
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
     }
     $title=__('Add New Agent');

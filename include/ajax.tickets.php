@@ -1086,13 +1086,7 @@ class TicketsAjaxAPI extends AjaxController {
 
                         $depts = $tickets->values_flat('dept_id');
                     }
-                    $members = Staff::objects()
-                        ->distinct('staff_id')
-                        ->filter(array(
-                                    'onvacation' => 0,
-                                    'isactive' => 1,
-                                    )
-                                );
+                    $members = $thisstaff->getDeptAgents(array('available' => true));
 
                     if ($depts) {
                         $all_agent_depts = Dept::objects()->filter(
