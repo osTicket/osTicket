@@ -13,7 +13,7 @@ else
 if (isset($cache['delimiter']))
     $delimiter = $cache['delimiter'];
 else
-    $delimiter = ''; //TODO: get user's preference (browswer settings)
+    $delimiter = Internationalization::getCSVDelimiter();
 
 $fields = $queue->getExportFields(false) ?: array();
 if (isset($cache['fields']) && $fields)
