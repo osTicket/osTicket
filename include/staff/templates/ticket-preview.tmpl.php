@@ -10,7 +10,7 @@ $role=$ticket->getRole($thisstaff);
 $error=$msg=$warn=null;
 $thread = $ticket->getThread();
 
-if($lock && $lock->getStaffId()==$thisstaff->getId())
+if($lock && $lock->getStaffId()!==$thisstaff->getId())
     $warn.='&nbsp;<span class="Icon lockedTicket">'
     .sprintf(__('Ticket is locked by %s'), $lock->getStaffName()).'</span>';
 elseif($ticket->isOverdue())
