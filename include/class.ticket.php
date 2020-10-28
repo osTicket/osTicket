@@ -2024,7 +2024,6 @@ implements RestrictedAccess, Threadable, Searchable {
             return false;
 
         $user_comments = (bool) $comments;
-        $comments = $comments ?: _S('Ticket Assignment');
         $assigner = $thisstaff ?: _S('SYSTEM (Auto Assignment)');
 
         //Log an internal note - no alerts on the internal note.

@@ -3374,7 +3374,7 @@ class AssigneeField extends ChoiceField {
         return $this->_choices;
     }
 
-    
+
     function getChoice($value) {
         $choices = $this->getChoices();
         $selection = array();
@@ -4273,8 +4273,8 @@ class TextboxWidget extends Widget {
         foreach ($config as $k => $v) {
             switch ($k) {
                 case 'autocomplete':
-                    if (is_numeric($config['autocomplete']))
-                        $v = $config['autocomplete'] ? 'on' : 'off';
+                    if (is_numeric($v))
+                        $v = $v ? 'on' : 'off';
                     $attrs[$k] = '"'.$v.'"';
                     break;
                 case 'disabled';

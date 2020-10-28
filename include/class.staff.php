@@ -1720,6 +1720,7 @@ extends AbstractForm {
                     'validator' => 'email',
                     'placeholder' => __('Email Address — e.g. me@mycompany.com'),
                     'length' => 128,
+                    'autocomplete' => 'email',
                   ),
             )),
             'dept_id' => new ChoiceField(array(
@@ -1755,6 +1756,7 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'placeholder' => __("Temporary Password"),
+                    'autocomplete' => 'new-password',
                 ),
                 'validator' => '',
                 'validators' => function($self, $v) {
@@ -1773,6 +1775,7 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'placeholder' => __("Confirm Password"),
+                    'autocomplete' => 'new-password',
                 ),
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false))
