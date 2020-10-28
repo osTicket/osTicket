@@ -4257,7 +4257,7 @@ class TextboxWidget extends Widget {
         if (isset($config['classes']))
             $classes = 'class="'.$config['classes'].'"';
         if (isset($config['autocomplete']))
-            $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+            $autocomplete = 'autocomplete="'.$config['autocomplete'].'"';
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
         if (isset($config['disabled']))
