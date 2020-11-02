@@ -239,7 +239,7 @@ extends VerySimpleModel {
         if ($thisstaff) {
             $staffDepts = array();
 
-            $staffDepts = array_keys($thisstaff->getDepartmentNames(true));
+            $staffDepts = $thisstaff->getDepts();
             $staffDepts[] = 0;
 
             $canned->filter(array('dept_id__in' => $staffDepts));
