@@ -1544,6 +1544,7 @@ extends AbstractForm {
                 'configuration' => array(
                     'autofocus' => true,
                 ),
+                'validator' => 'noop',
             )),
             'passwd1' => new PasswordField(array(
                 'label' => __('Enter a new password'),
