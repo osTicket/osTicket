@@ -603,7 +603,8 @@ class CsvExporter extends Exporter {
     }
 
     function getDelimiter() {
-        if (isset($this->options['delimiter']))
+        if (isset($this->options['delimiter'])
+                && $this->options['delimiter'])
             return $this->options['delimiter'];
         return Internationalization::getCSVDelimiter();
     }
