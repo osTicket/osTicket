@@ -3190,16 +3190,30 @@ class DepartmentField extends ChoiceField {
           }
         }
 
-        $active = $thisstaff->getDepartmentNames(true);
+        if ($thisstaff) {
+            $active = $thisstaff->getDepartmentNames(true);
 
-        $choices = array();
-        if ($options['filterVisibility'])
-            $depts = $thisstaff->getDepartmentNames();
-        else {
-            $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
-            return $depts;
+            $choices = array();
+            if ($options['filterVisibility'])
+                $depts = $thisstaff->getDepartmentNames();
+            else {
+                $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+                return $depts;
+            }
+        } else {
+            $active_depts = Dept::objects()
+              ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
+              ->values('id', 'name')
+              ->order_by('name');
+
+            $choices = array();
+            if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
+              //create array w/queryset
+              $active = array();
+              foreach ($active_depts as $dept)
+                $active[$dept['id']] = $dept['name'];
+            }
         }
-
 
          //add selected dept to list
          if($current_id)
