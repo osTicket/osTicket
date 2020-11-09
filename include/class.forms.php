@@ -1157,10 +1157,10 @@ class FormField {
         $default = $this->get('name') ?: $this->get('id');
         if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
             return substr(md5(
-                session_id() . '-form-field-id-' . $fid . $default), -14);
+                session_id() . "-form-field-id-$fid-$default-" . SECRET_SALT), -14);
         elseif (is_numeric($this->get('id')))
             return substr(md5(
-                session_id() . '-field-id-'.$this->get('id')), -16);
+                session_id() . '-field-id-'.$this->get('id') . '-' . SECRET_SALT), -16);
 
         return $default;
     }
