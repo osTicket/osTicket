@@ -489,6 +489,9 @@ class Email extends VerySimpleModel {
         if ($options['smtp'])
             $objects = $objects->filter(array('smtp_active'=>true));
 
+        if ($options['depts'])
+            $objects = $objects->filter(array('dept_id__in'=>$options['depts']));
+
         if (!$flat)
             return $objects;
 

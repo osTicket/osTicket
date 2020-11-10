@@ -836,9 +836,10 @@ if ($errors['err'] && isset($_POST['a'])) {
                                  $e->getId(),
                                  Format::htmlchars($e->getAddress()));
                      }
+                     $staffDepts = $thisstaff->getDepts();
                      // Optional SMTP addreses user can send email via
-                     if (($emails = Email::getAddresses(array('smtp' =>
-                                 true), false)) && count($emails)) {
+                     if (($emails = Email::getAddresses(array('smtp' => true,
+                                 'depts' => $staffDepts), false)) && count($emails)) {
                          echo '<option value=""
                              disabled="disabled">&nbsp;</option>';
                          $emailId = $_POST['from_email_id'] ?: 0;
