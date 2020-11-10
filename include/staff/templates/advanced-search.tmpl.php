@@ -118,6 +118,9 @@ if ($search->isSaved()) { ?>
     id="save"><i class="icon-caret-<?php echo $save ? 'down' : 'right';
     ?>"></i>&nbsp;<span><?php echo __('Save Search'); ?></span></a></div>
   <div id="save-changes" class="<?php echo $save ? '' : 'hidden'; ?>" style="padding:5px; border-top: 1px dotted #777;">
+      <?php if ($parent_id) { ?>
+        <input type="hidden" name="parent_id" value="<?php echo $parent_id; ?>">
+      <?php } ?>
       <div><input name="queue-name" type="text" size="40"
         value="<?php echo Format::htmlchars($search->isSaved() ? $search->getName() :
         $_POST['queue-name']); ?>"
