@@ -424,8 +424,9 @@ class Format {
                 $m = array();
                 // Split the src URL and get the extension
                 preg_match('/src="([^"]+)"/', $match[2], $m);
-                $url = explode('.', explode('?', $m[1])[0]);
-                $ext = preg_split('/[^A-Za-z]/', end($url))[0];
+                $part = parse_url($m[1], PHP_URL_PATH);
+                $path = explode('.', $part);
+                $ext = preg_split('/[^A-Za-z]/', end($path))[0];
 
                 if (!$exclude && in_array($ext, $allowed)) {
                     // Drop embedded classes -- they don't refer to ours
@@ -463,8 +464,9 @@ class Format {
                     $local = true;
 
                 // Split the src URL and get the extension
-                $url = explode('.', explode('?', $match[3])[0]);
-                $ext = preg_split('/[^A-Za-z]/', end($url))[0];
+                $part = parse_url($match[3], PHP_URL_PATH);
+                $path = explode('.', $part);
+                $ext = preg_split('/[^A-Za-z]/', end($path))[0];
 
                 if (!$local && (($exclude && $display) || !in_array($ext, $allowed)))
                     return '';
