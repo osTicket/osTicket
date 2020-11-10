@@ -1148,7 +1148,7 @@ class FormField {
      * Fetch a pseudo-random id for this form field. It is used when
      * rendering the widget in the @name attribute emitted in the resulting
      * HTML. The form element is based on the form id, field id and name,
-     * and the current user's session id. Therefor, the same form fields
+     * and the current user's session id. Therefore, the same form fields
      * will yield differing names for different users. This is used to ward
      * off bot attacks as it makes it very difficult to predict and
      * correlate the form names to the data they represent.
@@ -1157,12 +1157,29 @@ class FormField {
         $default = $this->get('name') ?: $this->get('id');
         if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
             return substr(md5(
-                session_id() . '-form-field-id-' . $fid . $default), -14);
+                session_id() . "-form-field-id-$fid-$default-" . SECRET_SALT), -14);
         elseif (is_numeric($this->get('id')))
             return substr(md5(
-                session_id() . '-field-id-'.$this->get('id')), -16);
+                session_id() . '-field-id-'.$this->get('id') . '-' . SECRET_SALT), -16);
 
         return $default;
+    }
+
+    function getFormNames() {
+
+        // All possible names - this is important for inline data injection
+        $names = array_filter([
+                'hash' => $this->getFormName(),
+                'name' => $this->get('name'),
+                'id' => $this->get('id')]);
+
+        // Return interface supported names
+        if ($_POST && defined('APICALL'))
+            return [$names['name']];
+        elseif ($_POST)
+            return [$names['hash']];
+
+        return $names;
     }
 
     function setForm($form) {
@@ -4199,13 +4216,10 @@ class Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        // Search for HTML form name first
-        if (isset($data[$this->name]))
-            return $data[$this->name];
-        elseif (isset($data[$this->field->get('name')]))
-            return $data[$this->field->get('name')];
-        elseif (isset($data[$this->field->get('id')]))
-            return $data[$this->field->get('id')];
+        foreach ($this->field->getFormNames() as $name)
+            if (isset($data[$name]))
+                return $data[$name];
+
         return null;
     }
 
@@ -4974,7 +4988,7 @@ class ThreadEntryWidget extends Widget {
 
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
-        <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
+        <textarea style="width:100%;" name="<?php echo $this->name; ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('placeholder')); ?>"
             class="<?php if ($config['html']) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
