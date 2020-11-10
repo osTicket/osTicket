@@ -2874,7 +2874,7 @@ class HtmlThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return Format::sanitize(parent::getClean());
+        return Format::sanitize(Format::editor_spacing(parent::getClean()));
     }
 
     function getSearchable() {

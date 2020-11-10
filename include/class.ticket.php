@@ -1332,6 +1332,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'ticket' => $this,
             'user' => $user,
             'recipient' => $user,
+            // Get ticket link, with authcode, directly to bypass collabs
+            // check
+            'recipient.ticket_link' => $user->getTicketLink(),
         );
 
         $lang = $user->getLanguage(UserAccount::LANG_MAILOUTS);
@@ -4577,8 +4580,9 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['note'] = ThreadEntryBody::clean($vars['note']);
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
-        $create_vars['files']
-            = $tform->getField('message')->getWidget()->getAttachments()->getFiles();
+        $mfield = $tform->getField('message');
+        $create_vars['message'] = $mfield->getClean();
+        $create_vars['files'] = $mfield->getWidget()->getAttachments()->getFiles();
 
         if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;

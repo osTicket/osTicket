@@ -32,8 +32,11 @@ if ($_POST) {
     $tform = TicketForm::objects()->one()->getForm($vars);
     $messageField = $tform->getField('message');
     $attachments = $messageField->getWidget()->getAttachments();
-    if (!$errors && $messageField->isAttachmentsEnabled())
-        $vars['files'] = $attachments->getFiles();
+    if (!$errors) {
+        $vars['message'] = $messageField->getClean();
+        if ($messageField->isAttachmentsEnabled())
+            $vars['files'] = $attachments->getFiles();
+    }
 
     // Drop the draft.. If there are validation errors, the content
     // submitted will be displayed back to the user

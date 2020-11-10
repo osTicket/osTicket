@@ -785,6 +785,8 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       this.selection.restore();
       this.isOpen = true;
       this.opts.zindex = 1051;
+      // fix bootstrap modal focus
+      if (window.jQuery) jQuery(document).off('focusin.modal');
     },
     close: function () {
       this.isOpen = false;
