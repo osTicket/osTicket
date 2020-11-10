@@ -1330,6 +1330,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'ticket' => $this,
             'user' => $user,
             'recipient' => $user,
+            // Get ticket link, with authcode, directly to bypass collabs
+            // check
+            'recipient.ticket_link' => $user->getTicketLink(),
         );
 
         $lang = $user->getLanguage(UserAccount::LANG_MAILOUTS);
