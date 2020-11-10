@@ -443,6 +443,16 @@ implements TemplateVariable, Searchable {
             $errors['number_format'] =
                 'Ticket number format requires at least one hash character (#)';
 
+        //Make sure at least 1 Topic is Public
+        $publicTopics = Topic::getHelpTopics(true);
+        if ((count($publicTopics) == 1) && array_key_exists($this->getId(), $publicTopics) && ($vars['ispublic'] == 0))
+            $errors['ispublic'] = __('At least one Topic must be Public');
+
+        //Make sure at least 1 Topic is Active
+        $activeTopics = Topic::getHelpTopics(false, false);
+        if ((count($activeTopics) == 1) && array_key_exists($this->getId(), $activeTopics) && ($vars['status'] != 'active'))
+            $errors['status'] = __('At least one Topic must be Active');
+
         if ($errors)
             return false;
 
