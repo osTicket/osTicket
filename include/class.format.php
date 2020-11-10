@@ -512,6 +512,11 @@ class Format {
             ), '', $text);
     }
 
+    // Insert </br> tag inside empty <p> tags to ensure proper editor spacing
+    function editor_spacing($text) {
+        return preg_replace('/<p><\/p>/', '<p><br></p>', $text);
+    }
+
     //make urls clickable. Mainly for display
     function clickableurls($text, $target='_blank') {
         global $ost;
