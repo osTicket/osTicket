@@ -137,6 +137,7 @@ img.avatar {
     </tr></table>
 </htmlpagefooter>
 
+<div>&nbsp;</div>
 <!-- Ticket metadata -->
 <h1>Ticket #<?php echo $ticket->getNumber(); ?></h1>
 <table class="meta-data" cellpadding="0" cellspacing="0">

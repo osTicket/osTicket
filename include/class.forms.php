@@ -1173,10 +1173,11 @@ class FormField {
                 'name' => $this->get('name'),
                 'id' => $this->get('id')]);
 
-        // Return interface supported names
-        if ($_POST && defined('APICALL'))
-            return [$names['name']];
-        elseif ($_POST)
+        // Force pseudo-random name for Dynamicforms on POST (Web Tickets)
+        if ($_POST
+                && !defined('APICALL')
+                && isset($this->ht['form'])
+                && ($this->ht['form'] instanceof DynamicForm))
             return [$names['hash']];
 
         return $names;

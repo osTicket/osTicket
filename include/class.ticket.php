@@ -3410,6 +3410,15 @@ implements RestrictedAccess, Threadable, Searchable {
                 && ($tpl = $dept->getTemplate())
                 && ($msg=$tpl->getReplyMsgTemplate())) {
 
+            // Add ticket link (possibly with authtoken) if the ticket owner
+            // is the only recipient on a ticket with collabs
+            if (count($recipients) == 1
+                    && $this->getNumCollaborators()
+                    && ($contact = $recipients->pop()->getContact())
+                    && ($contact instanceof TicketOwner))
+                $variables['recipient.ticket_link'] =
+                    $contact->getTicketLink();
+
             $msg = $this->replaceVars($msg->asArray(),
                 $variables + array('recipient' => $this->getOwner())
             );
