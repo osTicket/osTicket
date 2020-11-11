@@ -1174,7 +1174,7 @@ class FormField {
                 'id' => $this->get('id')]);
 
         // Force pseudo-random name for Dynamicforms on POST (Web Tickets)
-        if ($_POST
+        if (0 && $_POST
                 && !defined('APICALL')
                 && isset($this->ht['form'])
                 && ($this->ht['form'] instanceof DynamicForm))
