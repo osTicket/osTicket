@@ -247,8 +247,8 @@ DROP TABLE IF EXISTS `%TABLE_PREFIX%email`;
 CREATE TABLE `%TABLE_PREFIX%email` (
   `email_id` int(11) unsigned NOT NULL auto_increment,
   `noautoresp` tinyint(1) unsigned NOT NULL default '0',
-  `priority_id` tinyint(3) unsigned NOT NULL default '2',
-  `dept_id` tinyint(3) unsigned NOT NULL default '0',
+  `priority_id` int(11) unsigned NOT NULL default '2',
+  `dept_id` int(11) unsigned NOT NULL default '0',
   `topic_id` int(11) unsigned NOT NULL default '0',
   `email` varchar(255) NOT NULL default '',
   `name` varchar(255) NOT NULL default '',
