@@ -25,6 +25,56 @@
  * the codebase there exists a Signal::send() for the same named signal.
  */
 class Signal {
+    
+    /**
+     * Is called during creation of the template HTML header of the staff
+     * pages (include/staff/footer.inc.php) before the closing head tag.
+     * Use echo to append your own markup to the page.
+     * $object: null,
+     * $data: null
+     * @var string 
+     */
+    public static $SIGNAL_STAFF_HEADER = "tmpl.staff.header";
+    
+    /**
+     * Is called during creation of the template HTML footer of the staff
+     * pages (include/staff/header.inc.php) before the closing body tag.
+     * Use echo to append your own markup to the page.
+     * $object: null,
+     * $data: null
+     * @var string 
+     */
+    public static $SIGNAL_STAFF_FOOTER = "tmpl.staff.footer";
+    
+    /**
+     * Called whenever a thread-entry was converted to HTML before outputting
+     * in the template.
+     * Use this in order to enhance/filter the html shown in ticket threads
+     * $object: ThreadEntryBody (include/class.thread.php)
+     * $data: ["html" => html as string]
+     * @var string 
+     */
+    public static $SIGNAL_THREADENTRY_TOHTML = "threadentry.tohtml";
+    
+    /**
+     * Called when the status-template dialog (e.g. close) is rendered
+     * (include/staff/templates/task-status.tmpl.php)
+     * @var string
+     * $object: null
+     * $data: info array
+     */
+    public static $SIGNAL_TASK_STATUS = "tmpl.task-status";
+    
+    /**
+     * Called when the status-template dialog (e.g. close) is rendered
+     * (include/staff/templates/ticket-status.tmpl.php)
+     * @var string
+     * $object: null
+     * $data: info array
+     */
+    public static $SIGNAL_TICKET_STATUS = "tmpl.ticket-status";
+    
+    
     static private $subscribers = array();
 
     /**

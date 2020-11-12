@@ -59,6 +59,8 @@ if (osTicket::is_ie())
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
     ?>
+    
+    <?php Signal::send(Signal::$SIGNAL_STAFF_HEADER, $ost); ?>
 </head>
 <body>
 <div id="container">

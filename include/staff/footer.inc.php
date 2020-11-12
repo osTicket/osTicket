@@ -72,6 +72,9 @@ if ($thisstaff
     <script type="text/javascript" src="ajax.php/i18n/<?php
         echo $thisstaff->getLanguage(); ?>/js"></script>
 <?php } ?>
+        
+<?php Signal::send(Signal::$SIGNAL_STAFF_FOOTER, null); ?>
+        
 </body>
 </html>
 <?php } # endif X_PJAX ?>

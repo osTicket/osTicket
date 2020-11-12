@@ -103,6 +103,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
            <?php } ?>
         </table>
         <hr>
+        <?php Signal::send(Signal::$SIGNAL_TICKET_STATUS, null, $info); ?>
         <p class="full-width">
             <span class="buttons pull-left">
                 <input type="reset" value="<?php echo __('Reset'); ?>">
