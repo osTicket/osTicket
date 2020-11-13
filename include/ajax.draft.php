@@ -388,8 +388,15 @@ class DraftAjaxAPI extends AjaxController {
                 return $focus;
             }
         }
+
+        // Get ThreadEntry field name.
+        $tform = TicketForm::objects()->one()->getForm();
+        $tfield = $tform->getField('message')->getFormName();
+        // Get Task Description field name.
+        $aform = TaskForm::objects()->one()->getForm();
+        $afield = $aform->getField('description')->getFormName();
         $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue', 'description');
+             $tfield, 'issue', $afield);
         foreach ($field_list as $field) {
             if (isset($vars[$field])) {
                 return $vars[$field];
