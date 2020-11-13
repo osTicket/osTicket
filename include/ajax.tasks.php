@@ -110,6 +110,7 @@ class TasksAjaxAPI extends AjaxController {
                 $vars['default_formdata'] = $form->getClean();
                 $vars['internal_formdata'] = $iform->getClean();
                 $desc = $form->getField('description');
+                $vars['description'] = $desc->getClean();
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
