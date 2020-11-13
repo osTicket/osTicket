@@ -39,7 +39,6 @@ $tpl=$msgtemplates[$selected];
 <div class="pull-right">
     <span style="font-size:10pt"><?php echo __('Viewing'); ?>:</span>
     <select id="tpl_options" name="id" style="width:250px;">
-        <option value="">&mdash; <?php echo __('Select Setting Group'); ?> &mdash;</option>
         <?php
         $impl = $group->getTemplates();
         $current_group = false;
