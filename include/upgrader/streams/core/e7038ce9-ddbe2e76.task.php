@@ -27,7 +27,7 @@ class AddIndexMigration extends MigrationTask {
         'user:name'
     );
 
-    function run() {
+    function run($max_time) {
         global $ost;
 
         foreach ($this->indexes as $index) {
@@ -86,6 +86,32 @@ class AddIndexMigration extends MigrationTask {
                  .', notes='.db_input($page['notes'])
                  .', created=NOW(), updated=NOW(), isactive=1';
              db_query($sql);
+         }
+
+         // See if there are missing events that should be added to the database
+         $event_type = array('login', 'logout', 'message', 'note');
+         foreach($event_type as $eType) {
+             $sql = sprintf("SELECT * FROM `%s` WHERE name = '%s'",
+                     TABLE_PREFIX.'event', $eType);
+
+             $res=db_query($sql);
+             $count = db_num_rows($res);
+
+             if($count > 0) {
+                 $message = "Event '$eType' already exists.";
+                 $ost->logError('Upgrader: Add Events', $message, false);
+             } else {
+                 // Add event
+                 $sql = sprintf("INSERT INTO `%s` (`id`, `name`, `description`)
+                        VALUES
+                        ('','%s',NULL)",
+                         TABLE_PREFIX.'event', $eType);
+
+                 if(!($res=db_query($sql))) {
+                     $message = "Unable to add $eType event to `".TABLE_PREFIX.'event'."`.";
+                     $ost->logError('Upgrader: Add Events', $message, false);
+                 }
+             }
          }
     }
 }
