@@ -1,3 +1,25 @@
+osTicket v1.15
+==============
+### Enhancements
+* Change dept_id and priority_id fron tinyint to int (e54f6f3)
+* csrf: Add ability to rotate token (36e614c)
+* Feature: Agent/Department Visibility (5fbd762, e4346d2, 4ad7e95, 49b2f1b, 46033d1, 3a8ea4b, 6eae7e6, f306ce8, 6fdc111, 4489b2f, 7f0602a, 484023d, 3722fc5, 6425146, 9902ac2, 07b2373, ca81176, 4e86313)
+* db: Latest Indexes (da2fd37, 2731074, c359d12, ea09373, 4c9968b)
+* SLA Plan Search Field (0fd63b4)
+* 2FA Backends (5dd0a34, 4ef752c, cff12f7, ea86103, 4b6bc73, a1b7826, 3f08e62, 9d46c84, 8f4fe18)
+* Password Policy Revisited (e1aba7c, 744676b)
+
+### Improvements
+* Issue: Missing Events (38232f2)
+* Issue: 2FA Upgrade (0065c3b)
+* Ticket From Email (f02edd9)
+* Issue: User Custom Dept Field (52825f0)
+* Staff: Password Change (7527ea7)
+* oops: Indexes Patch Schema (709b55f)
+* CsvImporter: Skip Byte Order Mark (BOM) if present (bfd5da8)
+* Oops: Method Inheritance Compatibility (cb13b82)
+* issue: Form Instructions Translation (4f7d23c)
+
 osTicket v1.14.4
 ================
 ### Enhancements
