@@ -3176,9 +3176,12 @@ implements RestrictedAccess, Threadable, Searchable {
           //when user replies, this is where collabs notified
           $ticket->notifyCollaborators($message, array('signature' => ''));
         }
-
-        if (!($alerts && $autorespond))
-            return $message; //Our work is done...
+        if (!($alerts && $autorespond)) {
+            //Our work is done..., but don't forget our plugins
+            $type = array('type' => 'message', 'uid' => $vars['userId']);
+            Signal::send('object.created', $this, $type);
+            return $message; 
+        }
 
         $dept = $ticket->getDept();
         $variables = array(
