@@ -1,6 +1,6 @@
 <?php
 $title=($cfg && is_object($cfg) && $cfg->getTitle())
-    ? $cfg->getTitle() : 'osTicket :: '.__('Support Ticket System');
+    ? $cfg->getTitle() : 'Amerasortal :: '.__('Sort Tracking and Request System');
 $signin_url = ROOT_PATH . "login.php"
     . ($thisclient ? "?e=".urlencode($thisclient->getEmail()) : "");
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
@@ -29,7 +29,7 @@ if ($lang) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title><?php echo Format::htmlchars($title); ?></title>
     <meta name="description" content="customer support platform">
-    <meta name="keywords" content="osTicket, Customer support system, support ticket system">
+    <meta name="keywords" content="Amerasortal, Amerasorting, parts inspection and sorting, sort tracking system">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/osticket.css" media="screen">
     <link rel="stylesheet" href="<?php echo ASSETS_PATH; ?>css/theme.css" media="screen">
@@ -95,7 +95,7 @@ if ($lang) {
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
                 <a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a> |
-                <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a> -
+                <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Sorts <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a> -
                 <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a>
             <?php
             } elseif($nav) {
@@ -130,7 +130,7 @@ if (($all_langs = Internationalization::getConfiguredSystemLanguages())
             </p>
             </div>
             <a class="pull-left" id="logo" href="<?php echo ROOT_PATH; ?>index.php"
-            title="<?php echo __('Support Center'); ?>">
+            title="<?php echo __('Amerasortal Home'); ?>">
                 <span class="valign-helper"></span>
                 <img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
                 echo $ost->getConfig()->getTitle(); ?>">

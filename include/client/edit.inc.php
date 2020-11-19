@@ -5,7 +5,7 @@ if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAc
 ?>
 
 <h1>
-    <?php echo sprintf(__('Editing Ticket #%s'), $ticket->getNumber()); ?>
+    <?php echo sprintf(__('Editing Sorts #%s'), $ticket->getNumber()); ?>
 </h1>
 
 <form action="tickets.php" method="post">

@@ -17,11 +17,11 @@ if ($thisclient && $thisclient->isGuest()
 
 <div id="msg_info">
     <i class="icon-compass icon-2x pull-left"></i>
-    <strong><?php echo __('Looking for your other tickets?'); ?></strong><br />
+    <strong><?php echo __('Looking for your other sorts?'); ?></strong><br />
     <a href="<?php echo ROOT_PATH; ?>login.php?e=<?php
         echo urlencode($thisclient->getEmail());
     ?>" style="text-decoration:underline"><?php echo __('Sign In'); ?></a>
-    <?php echo sprintf(__('or %s register for an account %s for the best experience on our help desk.'),
+    <?php echo sprintf(__('or %s register for an account %s for the best experience on our portal.'),
         '<a href="account.php?do=create" style="text-decoration:underline">','</a>'); ?>
     </div>
 
@@ -60,7 +60,7 @@ if ($thisclient && $thisclient->isGuest()
                     </td></tr>
                 </thead>
                 <tr>
-                    <th width="100"><?php echo __('Ticket Status');?>:</th>
+                    <th width="100"><?php echo __('Sort Status');?>:</th>
                     <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                 </tr>
                 <tr>
@@ -182,7 +182,7 @@ echo $attrs; ?>><?php echo $draft ?: $info['message'];
 <?php
   if ($ticket->isClosed() && $ticket->isReopenable()) { ?>
     <div class="warning-banner">
-        <?php echo __('Ticket will be reopened on message post'); ?>
+        <?php echo __('Issue will be reopened on message post'); ?>
     </div>
 <?php } ?>
     <p style="text-align:center">
