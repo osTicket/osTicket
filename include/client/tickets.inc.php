@@ -67,7 +67,7 @@ if ($settings['status'])
         $status = 'open';
     case 'open':
     case 'closed':
-		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
+		$results_type = ($status == 'closed') ? __('Closed Sorts') : __('Open Sorts');
         $basic_filter->filter(array('status__state' => $status));
         break;
 }
@@ -173,7 +173,7 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
 <h1 style="margin:10px 0">
     <a href="<?php echo Format::htmlchars($_SERVER['REQUEST_URI']); ?>"
         ><i class="refresh icon-refresh"></i>
-    <?php echo __('Tickets'); ?>
+    <?php echo __('Sorts'); ?>
     </a>
 
 <div class="pull-right states">
@@ -205,7 +205,7 @@ if ($closedTickets) {?>
     <thead>
         <tr>
             <th nowrap>
-                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?>&nbsp;<i class="icon-sort"></i></a>
+                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Sort #"><?php echo __('Sort #');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
             <th width="120">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?>&nbsp;<i class="icon-sort"></i></a>
