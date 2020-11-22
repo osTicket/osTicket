@@ -53,7 +53,7 @@ $plots = $report->getPlotData();
 <div class="clear"></div>
 <div style="margin-bottom:20px; padding-top:5px;">
     <div class="pull-left flush-left">
-        <h2><?php echo __('Ticket Activity');
+        <h2><?php echo __('Sorting Activity');
             ?>&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
     </div>
 </div>
@@ -66,7 +66,7 @@ $plots = $report->getPlotData();
 
 <hr/>
 <h2><?php echo __('Statistics'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#statistics"></i></h2>
-<p><?php echo __('Statistics of tickets organized by department, help topic, and agent.');?></p>
+<p><?php echo __('Statistics of sorts organized by department, help topic, and agent.');?></p>
 <p><b><?php echo __('Range: '); ?></b>
   <?php
   $range = array();

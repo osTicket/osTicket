@@ -17,26 +17,26 @@ page_title:
     title: Alerts and Notices
     content: >
         Alerts and Notices are automated email notifications sent to Agents
-        when various ticket events are triggered.
+        when various sort events are triggered.
 
 ticket_alert:
-    title: New Ticket Alert
+    title: New Sort Alert
     content: >
         <p>
-        Alert sent out to Agents when a new ticket is created.
+        Alert sent out to Agents when a new sort is created.
         </p><p class="info-banner">
         <i class="icon-info-sign"></i>
-        This alert is not sent out if the ticket is auto-assigned via a Ticket Filter or Help Topic.
+        This alert is not sent out if the sort is auto-assigned via a Sort Filter or Help Topic.
         </p>
     links:
-      - title: Default New Ticket Alert Template
+      - title: Default New Sort Alert Template
         href: /scp/templates.php?default_for=ticket.alert
 
 message_alert:
     title: New Message Alert
     content: >
         Alert sent out to Agents when a new message from the User is
-        appended to an existing ticket.
+        appended to an existing sort.
     links:
       - title: Default New Message Alert Template
         href: /scp/templates.php?default_for=message.alert
@@ -45,34 +45,34 @@ internal_note_alert:
     title: New Internal Activity Alert
     content: >
         Alert sent out to Agents when internal activity such as an internal
-        note or an agent reply is appended to a ticket.
+        note or an agent reply is appended to a sort.
     links:
-      - title: Default Ticket Activity Template
+      - title: Default Sort Activity Template
         href: /scp/templates.php?default_for=note.alert
 
 assignment_alert:
-    title: Ticket Assignment Alert
+    title: Sort Assignment Alert
     content: >
-        Alert sent out to Agents on ticket assignment.
+        Alert sent out to Agents on sort assignment.
     links:
-      - title: Default Ticket Assignment Alert Template
+      - title: Default Sort Assignment Alert Template
         href: /scp/templates.php?default_for=assigned.alert
 
 transfer_alert:
-    title: Ticket Transfer Alert
+    title: Sort Transfer Alert
     content: >
-        Alert sent out to Agents on ticket transfer between Departments.
+        Alert sent out to Agents on sort transfer between Departments.
     links:
-      - title: Default Ticket Transfer Alert Template
+      - title: Default Sort Transfer Alert Template
         href: /scp/templates.php?default_for=transfer.alert
 
 overdue_alert:
-    title: Overdue Ticket Alert
+    title: Overdue Sort Alert
     content: >
-        Alert sent out to Agents when a ticket becomes overdue based on SLA
+        Alert sent out to Agents when a sort becomes overdue based on SLA
         or Due Date.
     links:
-      - title: Default Stale Ticket Alert Template
+      - title: Default Stale Sort Alert Template
         href: /scp/templates.php?default_for=ticket.overdue
 
       - title: Manage SLAs

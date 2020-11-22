@@ -23,23 +23,23 @@ class EmailTemplateGroup {
     var $_templates;
     static $all_groups = array(
         'sys' => /* @trans */ 'System Management Templates',
-        'a.ticket.user' => /* @trans */ 'Ticket End-User Email Templates',
-        'b.ticket.staff' => /* @trans */ 'Ticket Agent Email Templates',
+        'a.ticket.user' => /* @trans */ 'Sort End-User Email Templates',
+        'b.ticket.staff' => /* @trans */ 'Sort Agent Email Templates',
         'c.task' => /* @trans */ 'Task Email Templates',
     );
     static $all_names=array(
         'ticket.autoresp'=>array(
             'group'=>'a.ticket.user',
-            'name'=>/* @trans */ 'New Ticket Auto-response',
-            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.',
+            'name'=>/* @trans */ 'New Sort Auto-response',
+            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new sort.',
             'context' => array(
                 'ticket', 'signature', 'message', 'recipient'
             ),
         ),
         'ticket.autoreply'=>array(
             'group'=>'a.ticket.user',
-            'name'=>/* @trans */ 'New Ticket Auto-reply',
-            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.',
+            'name'=>/* @trans */ 'New Sort Auto-reply',
+            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new sort, based on filter matches. Overwrites "normal" auto-response.',
             'context' => array(
                 'ticket', 'signature', 'response', 'recipient',
             ),
@@ -47,15 +47,15 @@ class EmailTemplateGroup {
         'message.autoresp'=>array(
             'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Message Auto-response',
-            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.',
+            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing sort.',
             'context' => array(
                 'ticket', 'signature', 'recipient',
             ),
         ),
         'ticket.notice'=>array(
             'group'=>'a.ticket.user',
-            'name'=>/* @trans */ 'New Ticket Notice',
-            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).',
+            'name'=>/* @trans */ 'New Sort Notice',
+            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new sort created by an agent on their behalf (e.g phone calls).',
             'context' => array(
                 'ticket', 'signature', 'recipient', 'staff', 'message',
             ),
@@ -63,7 +63,7 @@ class EmailTemplateGroup {
         'ticket.overlimit'=>array(
             'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Overlimit Notice',
-            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
+            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open sors.',
             'context' => array(
                 'ticket', 'signature',
             ),
@@ -71,7 +71,7 @@ class EmailTemplateGroup {
         'ticket.reply'=>array(
             'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'Response/Reply Template',
-            'desc'=>/* @trans */ 'Template used on ticket response/reply',
+            'desc'=>/* @trans */ 'Template used on sort response/reply',
             'context' => array(
                 'ticket', 'signature', 'response', 'staff', 'poster', 'recipient',
             ),
@@ -79,15 +79,15 @@ class EmailTemplateGroup {
         'ticket.activity.notice'=>array(
             'group'=>'a.ticket.user',
             'name'=>/* @trans */ 'New Activity Notice',
-            'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)',
+            'desc'=>/* @trans */ 'Template used to notify collaborators on sort activity (e.g CC on reply)',
             'context' => array(
                 'ticket', 'signature', 'message', 'poster', 'recipient',
             ),
         ),
         'ticket.alert'=>array(
             'group'=>'b.ticket.staff',
-            'name'=>/* @trans */ 'New Ticket Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.',
+            'name'=>/* @trans */ 'New Sort Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new sort.',
             'context' => array(
                 'ticket', 'recipient', 'message',
             ),
@@ -95,7 +95,7 @@ class EmailTemplateGroup {
         'message.alert'=>array(
             'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'New Message Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing sort.',
             'context' => array(
                 'ticket', 'recipient', 'message', 'poster',
             ),
@@ -103,31 +103,31 @@ class EmailTemplateGroup {
         'note.alert'=>array(
             'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'Internal Activity Alert',
-            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.',
+            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a sort.',
             'context' => array(
                 'ticket', 'recipient', 'note', 'comments', 'activity',
             ),
         ),
         'assigned.alert'=>array(
             'group'=>'b.ticket.staff',
-            'name'=>/* @trans */ 'Ticket Assignment Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.',
+            'name'=>/* @trans */ 'Sort Assignment Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on sort assignment.',
             'context' => array(
                 'ticket', 'recipient', 'comments', 'assignee', 'assigner',
             ),
         ),
         'transfer.alert'=>array(
             'group'=>'b.ticket.staff',
-            'name'=>/* @trans */ 'Ticket Transfer Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.',
+            'name'=>/* @trans */ 'Sort Transfer Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on sort transfer.',
             'context' => array(
                 'ticket', 'recipient', 'comments', 'staff',
             ),
         ),
         'ticket.overdue'=>array(
             'group'=>'b.ticket.staff',
-            'name'=>/* @trans */ 'Overdue Ticket Alert',
-            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.',
+            'name'=>/* @trans */ 'Overdue Sort Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue sorts.',
             'context' => array(
                 'ticket', 'recipient', 'comments',
             ),
