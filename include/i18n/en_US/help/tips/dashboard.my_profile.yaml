@@ -60,15 +60,15 @@ default_paper_size:
     content: >
 
 show_assigned_tickets:
-    title: Show Assigned Tickets
+    title: Show Assigned Sorts
     content: >
         <p>
         Enabling this option will override the global setting to hide
-        assigned tickets from the open queues.
+        assigned sorts from the open queues.
         </p>
         <p class="info-banner">
         <i class="icon-info-sign"></i>
-        This setting is only available when assigned tickets are excluded
+        This setting is only available when assigned sorts are excluded
         globally.
         </p>
 
@@ -92,10 +92,10 @@ signature:
     title: Signature
     content: >
         Create an optional <span class="doc-desc-title">Signature</span>
-        that perhaps appears at the end of your Ticket Responses. Whether this
+        that perhaps appears at the end of your Sort Responses. Whether this
         <span class="doc-desc-title">Signature</span> appears, or not, depends
         on the <span class="doc-desc-title">Email Template</span> that will be
-        used in a Ticket Response.
+        used in a Sort Response.
     links:
       - title: Create Emails Templates in the Admin Panel
         href: /scp/templates.php

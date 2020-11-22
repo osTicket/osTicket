@@ -14,7 +14,7 @@
 #
 ---
 ticket_activity:
-    title: Ticket Activity
+    title: Sorting Activity
     content: >
         Select a date range to cause both the graph and the table (cf. <span
         class="doc-desc-title">Statistics</span>) below to focus on any

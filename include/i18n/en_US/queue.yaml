@@ -40,7 +40,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 10
       bits: 1
       sort: 2
@@ -87,7 +87,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 10
       bits: 1
       sort: 2
@@ -127,7 +127,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 10
       bits: 1
       sort: 2
@@ -167,7 +167,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 9
       bits: 1
       sort: 1
@@ -200,7 +200,7 @@
       heading: Assigned To
 
 - id: 5
-  title: My Tickets
+  title: My Sorts
   parent_id: 0
   flags: 0x03
   root: T
@@ -212,7 +212,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 10
       bits: 1
       sort: 2
@@ -258,7 +258,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 10
       bits: 1
       sort: 2
@@ -304,7 +304,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 10
       bits: 1
       sort: 2
@@ -351,7 +351,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
@@ -395,7 +395,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
@@ -439,7 +439,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
@@ -483,7 +483,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
@@ -527,7 +527,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
@@ -571,7 +571,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
@@ -615,7 +615,7 @@
       bits: 1
       sort: 1
       width: 100
-      heading: Ticket
+      heading: Sort
     - column_id: 7
       bits: 1
       sort: 2
