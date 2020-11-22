@@ -33,16 +33,16 @@ $canMarkAnswered = ($isManager || $role->hasPerm(Ticket::PERM_MARKANSWERED)); //
 //Useful warnings and errors the user might want to know!
 if ($ticket->isClosed() && !$ticket->isReopenable())
     $warn = sprintf(
-            __('Current ticket status (%s) does not allow the end user to reply.'),
+            __('Current sort status (%s) does not allow the end user to reply.'),
             $ticket->getStatus());
 elseif ($blockReply)
-    $warn = __('Child Tickets do not allow the end user or agent to reply.');
+    $warn = __('Child Sorts do not allow the end user or agent to reply.');
 elseif ($ticket->isAssigned()
         && (($staff && $staff->getId()!=$thisstaff->getId())
             || ($team && !$team->hasMember($thisstaff))
         ))
     $warn.= sprintf('&nbsp;&nbsp;<span class="Icon assignedTicket">%s</span>',
-            sprintf(__('Ticket is assigned to %s'),
+            sprintf(__('Sort is assigned to %s'),
                 implode('/', $ticket->getAssignees())
                 ));
 
@@ -50,7 +50,7 @@ if (!$errors['err']) {
 
     if ($lock && $lock->getStaffId()!=$thisstaff->getId())
         $errors['err'] = sprintf(__('%s is currently locked by %s'),
-                __('This ticket'),
+                __('This sort'),
                 $lock->getStaffName());
     elseif (($emailBanned=Banlist::isBanned($ticket->getEmail())))
         $errors['err'] = __('Email is in banlist! Must be removed before any reply/response');
@@ -397,7 +397,7 @@ if($ticket->isOverdue())
                         if ($user) { ?>
                             <a href="tickets.php?<?php echo Http::build_query(array(
                                 'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
-                            )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                            )); ?>" title="<?php echo __('Related Sorts'); ?>"
                             data-dropdown="#action-dropdown-stats">
                             (<b><?php echo $user->getNumTickets(); ?></b>)
                             </a>
@@ -406,14 +406,14 @@ if($ticket->isOverdue())
                                     <?php
                                     if(($open=$user->getNumOpenTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=open&uid=%s"><i class="icon-folder-open-alt icon-fixed-width"></i> %s</a></li>',
-                                                $user->getId(), sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open));
+                                                $user->getId(), sprintf(_N('%d Open Sort', '%d Open Sorts', $open), $open));
 
                                     if(($closed=$user->getNumClosedTickets()))
                                         echo sprintf('<li><a href="tickets.php?a=search&status=closed&uid=%d"><i
                                                 class="icon-folder-close-alt icon-fixed-width"></i> %s</a></li>',
-                                                $user->getId(), sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed));
+                                                $user->getId(), sprintf(_N('%d Closed Sort', '%d Closed Sorts', $closed), $closed));
                                     ?>
-                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
+                                    <li><a href="tickets.php?a=search&uid=<?php echo $ticket->getOwnerId(); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Sorts'); ?></a></li>
 <?php   if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="users.php?id=<?php echo
                                     $user->getId(); ?>"><i class="icon-user
@@ -453,7 +453,7 @@ if($ticket->isOverdue())
                     <?php echo Format::htmlchars($user->getOrganization()->getName()); ?>
                         <a href="tickets.php?<?php echo Http::build_query(array(
                             'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
-                        )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                        )); ?>" title="<?php echo __('Related Sorts'); ?>"
                         data-dropdown="#action-dropdown-org-stats">
                         (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
                         </a>
@@ -463,18 +463,18 @@ if($ticket->isOverdue())
                                     <li><a href="tickets.php?<?php echo Http::build_query(array(
                                         'a' => 'search', 'status' => 'open', 'orgid' => $user->getOrgId()
                                     )); ?>"><i class="icon-folder-open-alt icon-fixed-width"></i>
-                                    <?php echo sprintf(_N('%d Open Ticket', '%d Open Tickets', $open), $open); ?>
+                                    <?php echo sprintf(_N('%d Open Sort', '%d Open Sorts', $open), $open); ?>
                                     </a></li>
 <?php   }
         if ($closed = $user->getNumClosedOrganizationTickets()) { ?>
                                     <li><a href="tickets.php?<?php echo Http::build_query(array(
                                         'a' => 'search', 'status' => 'closed', 'orgid' => $user->getOrgId()
                                     )); ?>"><i class="icon-folder-close-alt icon-fixed-width"></i>
-                                    <?php echo sprintf(_N('%d Closed Ticket', '%d Closed Tickets', $closed), $closed); ?>
+                                    <?php echo sprintf(_N('%d Closed Sort', '%d Closed Sorts', $closed), $closed); ?>
                                     </a></li>
                                     <li><a href="tickets.php?<?php echo Http::build_query(array(
                                         'a' => 'search', 'orgid' => $user->getOrgId()
-                                    )); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Tickets'); ?></a></li>
+                                    )); ?>"><i class="icon-double-angle-right icon-fixed-width"></i> <?php echo __('All Sorts'); ?></a></li>
 <?php   }
         if ($thisstaff->hasPerm(User::PERM_DIRECTORY)) { ?>
                                     <li><a href="orgs.php?id=<?php echo $user->getOrgId(); ?>"><i
@@ -712,8 +712,8 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
                     $a = $field->getAnswer();
                     $hint = ($field->isRequiredForClose() && $a && !$a->getValue() && get_class($field) != 'BooleanField') ?
                         sprintf('<i class="icon-warning-sign help-tip warning field-label" data-title="%s" data-content="%s"
-                        /></i>', __('Required to close ticket'),
-                        __('Data is required in this field in order to close the related ticket')) : '';
+                        /></i>', __('Required to close Sort'),
+                        __('Data is required in this field in order to close the related sort')) : '';
                     echo $hint;
                   ?>
               </a>
@@ -972,7 +972,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                     $replyTypes = array(
                             'all'   =>  __('All Active Recipients'),
                             'user'  =>  sprintf('%s (%s)',
-                                __('Ticket Owner'),
+                                __('Sort Owner'),
                                 Format::htmlchars($ticket->getOwner()->getEmail())),
                             'none'  =>  sprintf('&mdash; %s  &mdash;',
                                 __('Do Not Email Reply'))
@@ -1084,7 +1084,7 @@ if ($errors['err'] && isset($_POST['a'])) {
             </tr>
             <tr>
                 <td width="120" style="vertical-align:top">
-                    <label><strong><?php echo __('Ticket Status');?>:</strong></label>
+                    <label><strong><?php echo __('Sort Status');?>:</strong></label>
                 </td>
                 <td>
                     <?php
@@ -1181,7 +1181,7 @@ if ($errors['err'] && isset($_POST['a'])) {
             <tr><td colspan="2">&nbsp;</td></tr>
             <tr>
                 <td width="120">
-                    <label><?php echo __('Ticket Status');?>:</label>
+                    <label><?php echo __('Sort Status');?>:</label>
                 </td>
                 <td>
                     <div class="faded"></div>
@@ -1220,7 +1220,7 @@ if ($errors['err'] && isset($_POST['a'])) {
  </div>
 </div>
 <div style="display:none;" class="dialog" id="print-options">
-    <h3><?php echo __('Ticket Print Options');?></h3>
+    <h3><?php echo __('Sort Print Options');?></h3>
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <form action="tickets.php?id=<?php echo $ticket->getId(); ?>"
@@ -1271,38 +1271,38 @@ if ($errors['err'] && isset($_POST['a'])) {
     <a class="close" href=""><i class="icon-remove-circle"></i></a>
     <hr/>
     <p class="confirm-action" style="display:none;" id="claim-confirm">
-        <?php echo sprintf(__('Are you sure you want to <b>claim</b> (self assign) %s?'), __('this ticket'));?>
+        <?php echo sprintf(__('Are you sure you want to <b>claim</b> (self assign) %s?'), __('this sort'));?>
     </p>
     <p class="confirm-action" style="display:none;" id="answered-confirm">
-        <?php echo __('Are you sure you want to flag the ticket as <b>answered</b>?');?>
+        <?php echo __('Are you sure you want to flag the sort as <b>answered</b>?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="unanswered-confirm">
-        <?php echo __('Are you sure you want to flag the ticket as <b>unanswered</b>?');?>
+        <?php echo __('Are you sure you want to flag the sort as <b>unanswered</b>?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="overdue-confirm">
-        <?php echo __('Are you sure you want to flag the ticket as <font color="red"><b>overdue</b></font>?');?>
+        <?php echo __('Are you sure you want to flag the sort as <font color="red"><b>overdue</b></font>?');?>
     </p>
     <p class="confirm-action" style="display:none;" id="banemail-confirm">
         <?php echo sprintf(__('Are you sure you want to <b>ban</b> %s?'), $ticket->getEmail());?> <br><br>
-        <?php echo __('New tickets from the email address will be automatically rejected.');?>
+        <?php echo __('New sorts from the email address will be automatically rejected.');?>
     </p>
     <p class="confirm-action" style="display:none;" id="unbanemail-confirm">
         <?php echo sprintf(__('Are you sure you want to <b>remove</b> %s from ban list?'), $ticket->getEmail()); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="release-confirm">
-        <?php echo sprintf(__('Are you sure you want to <b>unassign</b> ticket from <b>%s</b>?'), $ticket->getAssigned()); ?>
+        <?php echo sprintf(__('Are you sure you want to <b>unassign</b> sort from <b>%s</b>?'), $ticket->getAssigned()); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="changeuser-confirm">
         <span id="msg_warning" style="display:block;vertical-align:top">
-        <?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the ticket')),
+        <?php echo sprintf(Format::htmlchars(__('%s <%s> will longer have access to the sort')),
             '<b>'.Format::htmlchars($ticket->getName()).'</b>', Format::htmlchars($ticket->getEmail())); ?>
         </span>
-        <?php echo sprintf(__('Are you sure you want to <b>change</b> ticket owner to %s?'),
+        <?php echo sprintf(__('Are you sure you want to <b>change</b> sort owner to %s?'),
             '<b><span id="newuser">this guy</span></b>'); ?>
     </p>
     <p class="confirm-action" style="display:none;" id="delete-confirm">
         <font color="red"><strong><?php echo sprintf(
-            __('Are you sure you want to DELETE %s?'), __('this ticket'));?></strong></font>
+            __('Are you sure you want to DELETE %s?'), __('this sort'));?></strong></font>
         <br><br><?php echo __('Deleted data CANNOT be recovered, including any associated attachments.');?>
     </p>
     <div><?php echo __('Please confirm to continue.');?></div>

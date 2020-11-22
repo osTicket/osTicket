@@ -34,7 +34,7 @@ echo '<ul class="tabs" id="ticket-preview">';
 
 echo '
         <li class="active"><a id="preview_tab" href="#preview"
-            ><i class="icon-list-alt"></i>&nbsp;'.__('Ticket Summary').'</a></li>';
+            ><i class="icon-list-alt"></i>&nbsp;'.__('Sort Summary').'</a></li>';
 if ($thread && $thread->getNumCollaborators()) {
 echo sprintf('
         <li><a id="collab_tab" href="#collab"
@@ -61,7 +61,7 @@ if($ticket->isOpen()) {
 
 echo sprintf('
         <tr>
-            <th width="100">'.__('Ticket State').':</th>
+            <th width="100">'.__('Sort State').':</th>
             <td>%s</td>
         </tr>
         <tr>
@@ -173,7 +173,7 @@ echo '</div>'; // ticket preview content.
                         $collab->getEmail());
             }
         }  else {
-            echo __("Ticket doesn't have any collaborators.");
+            echo __("Sort doesn't have any collaborators.");
         }?>
     </table>
     <br>
@@ -213,7 +213,7 @@ if ($role->hasPerm(Ticket::PERM_TRANSFER))
 $options[]=array('action'=>__('Post Note'),'url'=>"tickets.php?id=$tid#note");
 
 if ($role->hasPerm(Ticket::PERM_EDIT))
-    $options[]=array('action'=>__('Edit Ticket'),'url'=>"tickets.php?id=$tid&a=edit");
+    $options[]=array('action'=>__('Edit Sort'),'url'=>"tickets.php?id=$tid&a=edit");
 
 if($options) {
     echo '<ul class="tip_menu">';

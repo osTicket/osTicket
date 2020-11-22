@@ -61,12 +61,12 @@ if ($_POST)
     <tbody>
         <tr>
             <th colspan="2">
-            <em><strong><?php echo __('Ticket Information'); ?></strong>: <?php echo __("Due date overrides SLA's grace period."); ?></em>
+            <em><strong><?php echo __('Sort Information'); ?></strong>: <?php echo __("Due date overrides SLA's grace period."); ?></em>
             </th>
         </tr>
         <tr>
             <td width="160" class="required">
-                <?php echo __('Ticket Source');?>:
+                <?php echo __('Sort Source');?>:
             </td>
             <td>
                 <select name="source">
@@ -109,8 +109,8 @@ if ($_POST)
                 <?php
                 if (!$info['topicId'] && $cfg->requireTopicToClose()) {
                 ?><i class="icon-warning-sign help-tip warning"
-                    data-title="<?php echo __('Required to close ticket'); ?>"
-                    data-content="<?php echo __('Data is required in this field in order to close the related ticket'); ?>"
+                    data-title="<?php echo __('Required to close sort'); ?>"
+                    data-content="<?php echo __('Data is required in this field in order to close the related sort'); ?>"
                 ></i><?php
                 } ?>
                 &nbsp;<font class="error"><b>*</b>&nbsp;<?php echo $errors['topicId']; ?></font>
@@ -161,7 +161,7 @@ if ($_POST)
     <tbody>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Internal Note');?></strong>: <?php echo __('Reason for editing the ticket (optional)');?> <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
+                <em><strong><?php echo __('Internal Note');?></strong>: <?php echo __('Reason for editing the sort (optional)');?> <font class="error">&nbsp;<?php echo $errors['note'];?></font></em>
             </th>
         </tr>
         <tr>

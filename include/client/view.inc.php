@@ -9,7 +9,7 @@ Signal::send('object.view', $ticket, $type);
 $dept = $ticket->getDept();
 
 if ($ticket->isClosed() && !$ticket->isReopenable())
-    $warn = sprintf(__('%s is marked as closed and cannot be reopened.'), __('This ticket'));
+    $warn = sprintf(__('%s is marked as closed and cannot be reopened.'), __('This sort'));
 
 //Making sure we don't leak out internal dept names
 if(!$dept || !$dept->isPublic())
@@ -59,7 +59,7 @@ if ($thisclient && $thisclient->isGuest()
             <table class="infoTable" cellspacing="1" cellpadding="3" width="100%" border="0">
                 <thead>
                     <tr><td class="headline" colspan="2">
-                        <?php echo __('Basic Ticket Information'); ?>
+                        <?php echo __('Basic Sort Information'); ?>
                     </td></tr>
                 </thead>
                 <tr>
@@ -149,7 +149,7 @@ echo $v;
                     'html-id' => 'ticketThread')
                 );
 if ($blockReply = $ticket->isChild() && $ticket->getMergeType() != 'visual')
-    $warn = sprintf(__('This Ticket is Merged into another Ticket. Please go to the %s%d%s to reply.'),
+    $warn = sprintf(__('This Sort is Merged into another Sort. Please go to the %s%d%s to reply.'),
         '<a href="tickets.php?id=', $ticket->getPid(), '" style="text-decoration:underline">Parent</a>');
   ?>
 

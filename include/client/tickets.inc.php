@@ -121,9 +121,9 @@ $pageNav->paginate($tickets);
 $showing =$total ? $pageNav->showing() : "";
 if(!$results_type)
 {
-	$results_type=ucfirst($status).' '.__('Tickets');
+	$results_type=ucfirst($status).' '.__('Sorts');
 }
-$showing.=($status)?(' '.$results_type):' '.__('All Tickets');
+$showing.=($status)?(' '.$results_type):' '.__('All Sorts');
 if($search)
     $showing=__('Search Results').": $showing";
 
@@ -246,7 +246,7 @@ if ($closedTickets) {?>
             ?>
             <tr id="<?php echo $T['ticket_id']; ?>">
                 <td>
-                <a class="Icon <?php echo strtolower($T['source']); ?>Ticket" title="<?php echo $T['user__default_email__address']; ?>"
+                <a class="Icon <?php echo strtolower($T['source']); ?>Sort" title="<?php echo $T['user__default_email__address']; ?>"
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td><?php echo Format::date($T['created']); ?></td>
