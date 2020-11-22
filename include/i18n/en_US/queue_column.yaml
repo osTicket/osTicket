@@ -30,7 +30,7 @@
 #   extra:      (future use and for plugins)
 ---
 - id: 1
-  name: "Ticket #"
+  name: "Sort #"
   primary: "number"
   filter: "link:ticketP"
   truncate: "wrap"

@@ -13,7 +13,7 @@ subject: |
     New Ticket Alert
 body: |
     <h2>Hi %{recipient.name},</h2>
-    New ticket #%{ticket.number} created
+    New sort request #%{ticket.number} created
     <br>
     <br>
     <table>
@@ -42,7 +42,7 @@ body: |
     <br>
     <hr>
     <div>To view or respond to the ticket, please <a
-    href="%{ticket.staff_link}">login</a> to the support ticket system</div>
+    href="%{ticket.staff_link}">login</a> to the portal/div>
     <em style="font-size: small">Your friendly Customer Support System</em>
     <br>
     <a href="https://osticket.com/"><img width="126" height="19"

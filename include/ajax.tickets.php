@@ -260,7 +260,7 @@ class TicketsAjaxAPI extends AjaxController {
 
 
         $info = array(
-            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
+            'title' => sprintf(__('Sort #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -289,7 +289,7 @@ class TicketsAjaxAPI extends AjaxController {
         $forms = $user->getForms();
 
         $info = array(
-            'title' => sprintf(__('Ticket #%s: %s'), $ticket->getNumber(),
+            'title' => sprintf(__('Sort #%s: %s'), $ticket->getNumber(),
                 Format::htmlchars($user->getName()))
             );
 
@@ -312,7 +312,7 @@ class TicketsAjaxAPI extends AjaxController {
         $user = User::lookup($ticket->getOwnerId());
 
         $info = array(
-                'title' => sprintf(__('Change user for ticket #%s'), $ticket->getNumber())
+                'title' => sprintf(__('Change user for sort #%s'), $ticket->getNumber())
                 );
 
         return self::_userlookup($user, null, $info);
@@ -520,7 +520,7 @@ class TicketsAjaxAPI extends AjaxController {
         $errors = array();
 
         $info = array(
-                ':title' => sprintf(__('Ticket #%s: %s'),
+                ':title' => sprintf(__('Sort #%s: %s'),
                     $ticket->getNumber(),
                     __('Transfer')),
                 ':action' => sprintf('#tickets/%d/transfer',
@@ -566,7 +566,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = array();
         $info = array(
-                ':title' => sprintf(__('Ticket #%s: %s'),
+                ':title' => sprintf(__('Sort #%s: %s'),
                     $ticket->getNumber(),
                     __('Refer')
                     ),
@@ -586,7 +586,7 @@ class TicketsAjaxAPI extends AjaxController {
                                 __('%s successfully'),
                                 sprintf(
                                     __('%s referred to %s'),
-                                    sprintf(__('Ticket #%s'),
+                                    sprintf(__('Sort #%s'),
                                          sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
                                              $ticket->getId(),
                                              $ticket->getNumber()))
@@ -643,7 +643,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = array();
         $info = array(
-                ':title' => sprintf(__('Ticket #%s: %s %s'),
+                ':title' => sprintf(__('Sort #%s: %s %s'),
                   $ticket->getNumber(),
                   __('Update'),
                   $field->getLabel()
@@ -734,7 +734,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = array();
         $info = array(
-                ':title' => sprintf(__('Ticket #%s: %s %s'),
+                ':title' => sprintf(__('Sort #%s: %s %s'),
                   $ticket->getNumber(),
                   __('View'),
                   $field->getLabel()
@@ -761,7 +761,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = array();
         $info = array(
-                ':title' => sprintf(__('Ticket #%s: %s'),
+                ':title' => sprintf(__('Sort #%s: %s'),
                     $ticket->getNumber(),
                     sprintf('%s %s',
                         $ticket->isAssigned() ?
@@ -825,7 +825,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $errors = array();
         $info = array(
-                ':title' => sprintf(__('Ticket #%s: %s'),
+                ':title' => sprintf(__('Sort #%s: %s'),
                     $ticket->getNumber(),
                     __('Claim')),
                 ':action' => sprintf('#tickets/%d/claim',
@@ -882,7 +882,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$ticket->isAssigned())
             $errors['err'] = __('Ticket is not assigned!');
 
-        $info = array(':title' => sprintf(__('Ticket #%s: %s'),
+        $info = array(':title' => sprintf(__('Sort #%s: %s'),
                     $ticket->getNumber(),
                     __('Release Confirmation')));
 
@@ -1309,7 +1309,7 @@ class TicketsAjaxAPI extends AjaxController {
         elseif (!$tid
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket #');
+            Http::response(404, 'Unknown sort #');
 
         $role = $ticket->getRole($thisstaff);
 
@@ -1354,7 +1354,7 @@ class TicketsAjaxAPI extends AjaxController {
         elseif (!$tid
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket #');
+            Http::response(404, 'Unknown sort #');
 
         $errors = $info = array();
         if (!$_POST['status_id']
@@ -1409,12 +1409,12 @@ class TicketsAjaxAPI extends AjaxController {
             if (!$failures) {
                 if ($state == 'deleted') {
                     $msg = sprintf('%s %s',
-                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                            sprintf(__('Sort #%s'), $ticket->getNumber()),
                             __('deleted sucessfully')
                             );
                 } elseif ($state != 'open') {
                      $msg = sprintf(__('%s status changed to %s'),
-                             sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                             sprintf(__('Sort #%s'), $ticket->getNumber()),
                              $status->getName());
                 } else {
                     $msg = sprintf(
@@ -1429,7 +1429,7 @@ class TicketsAjaxAPI extends AjaxController {
                                     $id,
                                     $num);
                 }
-                $info['warn'] = sprintf(__('Error updating ticket status for %s'),
+                $info['warn'] = sprintf(__('Error updating sort status for %s'),
                                  ($tickets) ? implode(', ', $tickets) : __('child tickets')
                                  );
             }
@@ -1437,7 +1437,7 @@ class TicketsAjaxAPI extends AjaxController {
 
             Http::response(201, 'Successfully processed');
         } elseif (!$errors['err']) {
-            $errors['err'] =  __('Error updating ticket status');
+            $errors['err'] =  __('Error updating sort status');
         }
 
         $state = $state ?: $ticket->getStatus()->getState();
@@ -1488,7 +1488,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$thisstaff || !$thisstaff->canManageTickets())
             $errors['err'] = sprintf('%s %s',
                     sprintf(__('You do not have permission %s'),
-                        __('to mass manage tickets')),
+                        __('to mass manage sorts')),
                     __('Contact admin for such access'));
         elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
             $errors['err']=sprintf(__('You must select at least %s.'),
@@ -1503,17 +1503,17 @@ class TicketsAjaxAPI extends AjaxController {
                     if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false)
                             && !$thisstaff->hasPerm(Ticket::PERM_CREATE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to reopen tickets'));
+                                __('to reopen sorts'));
                     break;
                 case 'closed':
                     if (!$thisstaff->hasPerm(Ticket::PERM_CLOSE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to resolve/close tickets'));
+                                __('to resolve/close sorts'));
                     break;
                 case 'deleted':
                     if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to archive/delete tickets'));
+                                __('to archive/delete sorts'));
                     break;
                 default:
                     $errors['err'] = sprintf('%s %s',
@@ -1537,7 +1537,7 @@ class TicketsAjaxAPI extends AjaxController {
             if (!$i) {
                 $errors['err'] = $errors['err']
                     ?: sprintf(__('Unable to change status for %s'),
-                        _N('selected ticket', 'selected tickets', $count));
+                        _N('selected sort', 'selected sorts', $count));
             }
             else {
                 // Assume success
@@ -1545,14 +1545,14 @@ class TicketsAjaxAPI extends AjaxController {
 
                     if (!strcasecmp($status->getState(), 'deleted')) {
                         $msg = sprintf(__( 'Successfully deleted %s.'),
-                                _N('selected ticket', 'selected tickets',
+                                _N('selected sort', 'selected sorts',
                                     $count));
                     } else {
                        $msg = sprintf(
                             __(
                                 /* 1$ will be 'selected ticket(s)', 2$ is the new status */
                                 'Successfully changed status of %1$s to %2$s'),
-                            _N('selected ticket', 'selected tickets',
+                            _N('selected sort', 'selected sorts',
                                 $count),
                             $status->getName());
                     }
@@ -1562,14 +1562,14 @@ class TicketsAjaxAPI extends AjaxController {
 
                     if (!strcasecmp($status->getState(), 'deleted')) {
                         $warn = sprintf(__('Successfully deleted %s.'),
-                                sprintf(__('%1$d of %2$d selected tickets'),
+                                sprintf(__('%1$d of %2$d selected sorts'),
                                     $i, $count)
                                 );
                     } else {
 
                         $warn = sprintf(
                                 __('%1$d of %2$d %3$s status changed to %4$s'),$i, $count,
-                                _N('selected ticket', 'selected tickets',
+                                _N('selected sort', 'selected sorts',
                                     $count),
                                 $status->getName());
                     }
@@ -1589,7 +1589,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         // Standard validation
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MARKANSWERED) && !$thisstaff->isManager())
             Http::response(403, __('Permission denied'));
@@ -1605,16 +1605,16 @@ class TicketsAjaxAPI extends AjaxController {
             switch($action) {
                 case 'answered':
                     if($ticket->isAnswered())
-                        $errors['err'] = __('Ticket is already marked as answered');
+                        $errors['err'] = __('Sort is already marked as answered');
                     elseif (!$ticket->markAnswered())
-                        $errors['err'] = __('Cannot mark ticket as answered');
+                        $errors['err'] = __('Cannot mark sort as answered');
                     break;
 
                 case 'unanswered':
                     if(!$ticket->isAnswered())
-                        $errors['err'] = __('Ticket is already marked as unanswered');
+                        $errors['err'] = __('Sort is already marked as unanswered');
                     elseif (!$ticket->markUnAnswered())
-                        $errors['err'] - __('Cannot mark ticket as unanswered');
+                        $errors['err'] - __('Cannot mark sort as unanswered');
                     break;
 
                 default:
@@ -1623,13 +1623,13 @@ class TicketsAjaxAPI extends AjaxController {
 
             // Retrun errors to form (if any)
             if($errors) {
-                $info['error'] = $errors['err'] ?: sprintf(__('Unable to mark ticket as %s'), $action);
+                $info['error'] = $errors['err'] ?: sprintf(__('Unable to mark sort as %s'), $action);
                 $form->addErrors($errors);
             } else {
                 // Add comment (if provided)
                 $comments = $form->getComments();
                 if ($comments) {
-                    $title = __(sprintf('Ticket Marked %s', ucfirst($action)));
+                    $title = __(sprintf('Sort Marked %s', ucfirst($action)));
                     $_errors = array();
 
                     $ticket->postNote(
@@ -1638,9 +1638,9 @@ class TicketsAjaxAPI extends AjaxController {
                 }
 
                 // Add success messages and log activity
-                $_SESSION['::sysmsgs']['msg'] = sprintf(__('Ticket marked as %s successfully'), $action);
-                $msg = sprintf(__('Ticket flagged as %s by %s'), $action, $thisstaff->getName());
-                $ticket->logActivity(sprintf(__('Ticket Marked %s'), ucfirst($action)), $msg);
+                $_SESSION['::sysmsgs']['msg'] = sprintf(__('Sort marked as %s successfully'), $action);
+                $msg = sprintf(__('Sort flagged as %s by %s'), $action, $thisstaff->getName());
+                $ticket->logActivity(sprintf(__('Sort Marked %s'), ucfirst($action)), $msg);
                 Http::response(201, $ticket->getId());
             }
         }
@@ -1651,9 +1651,9 @@ class TicketsAjaxAPI extends AjaxController {
     function triggerThreadAction($ticket_id, $thread_id, $action) {
         $thread = ThreadEntry::lookup($thread_id);
         if (!$thread)
-            Http::response(404, 'No such ticket thread entry');
+            Http::response(404, 'No such sort thread entry');
         if ($thread->getThread()->getObjectId() != $ticket_id)
-            Http::response(404, 'No such ticket thread entry');
+            Http::response(404, 'No such sort thread entry');
 
         $valid = false;
         foreach ($thread->getActions() as $group=>$list) {
@@ -1683,16 +1683,16 @@ class TicketsAjaxAPI extends AjaxController {
 
             $info['warn'] = sprintf(__(
                         'Are you sure you want to DELETE %s?'),
-                    _N('selected ticket', 'selected tickets', $count)
+                    _N('selected sort', 'selected sorts', $count)
                     );
 
             $info['extra'] = sprintf('<strong>%s</strong>', __(
-                        'Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        'Deleted sorts CANNOT be recovered, including any associated attachments.')
                     );
 
             $info['placeholder'] = sprintf(__(
                         'Optional reason for deleting %s'),
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
         }
 
         $info['status_id'] = $info['status_id'] ?: $_REQUEST['status_id'];
@@ -1708,7 +1708,7 @@ class TicketsAjaxAPI extends AjaxController {
         $info['action'] = sprintf('#tickets/%d/status', $ticket->getId());
         $info['title'] = sprintf(__(
                     /* 1$ will be a verb, like 'open', 2$ will be the ticket number */
-                    '%1$s Ticket #%2$s'),
+                    '%1$s Sort #%2$s'),
                 $verb ?: $state,
                 $ticket->getNumber()
                 );
@@ -1718,13 +1718,13 @@ class TicketsAjaxAPI extends AjaxController {
 
             $info['placeholder'] = sprintf(__(
                         'Optional reason for deleting %s'),
-                    __('this ticket'));
+                    __('this sort'));
             $info[ 'warn'] = sprintf(__(
                         'Are you sure you want to DELETE %s?'),
-                        __('this ticket'));
+                        __('this sort'));
             //TODO: remove message below once we ship data retention plug
             $info[ 'extra'] = sprintf('<strong>%s</strong>',
-                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        __('Deleted sorts CANNOT be recovered, including any associated attachments.')
                         );
         }
 
@@ -1753,7 +1753,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket');
+            Http::response(404, 'Unknown sort');
 
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
     }
@@ -1763,7 +1763,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket');
+            Http::response(404, 'Unknown sort');
 
          include STAFFINC_DIR . 'ticket-relations.inc.php';
     }
@@ -1772,7 +1772,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, 'Unknown ticket');
+            Http::response(404, 'Unknown sort');
 
         if (!$ticket->checkStaffPerm($thisstaff, Task::PERM_CREATE))
             Http::response(403, 'Permission denied');
@@ -1847,7 +1847,7 @@ class TicketsAjaxAPI extends AjaxController {
 
                     $note = array(
                             'title' => __('Task Created From Thread Entry'),
-                            'note' => sprintf(__('This Task was created from Ticket %1$s'), $ticketLink),
+                            'note' => sprintf(__('This Task was created from Sort %1$s'), $ticketLink),
                     );
 
                     $task->postNote($note, $errors, $thisstaff);
@@ -1862,7 +1862,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $info['action'] = sprintf('#tickets/%d/add-task', $ticket->getId());
         $info['title'] = sprintf(
-                __( 'Ticket #%1$s: %2$s'),
+                __( 'Sort #%1$s: %2$s'),
                 $ticket->getNumber(),
                 __('Add New Task')
                 );
@@ -1875,12 +1875,12 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket');
+            Http::response(404, 'Unknown sort');
 
         // Lookup task and check access
         if (!($task=Task::lookup($id))
                 || !$task->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown task');
+            Http::response(404, 'Unknown sork');
 
         $info = $errors = array();
         $note_attachments_form = new SimpleForm(array(
@@ -1979,7 +1979,7 @@ class TicketsAjaxAPI extends AjaxController {
                 if (strcasecmp($parts['extension'], 'csv'))
                       $filename ="$filename.csv";
             } else {
-                $filename = sprintf('%s Tickets-%s.csv',
+                $filename = sprintf('%s Sorts-%s.csv',
                         $queue->getName(),
                         strftime('%Y%m%d'));
             }

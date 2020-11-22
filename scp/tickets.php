@@ -213,7 +213,7 @@ if($_POST && !$errors):
             if (!$errors && ($response=$ticket->postReply($vars, $errors,
                             $alert))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
-                        sprintf(__('Ticket #%s'),
+                        sprintf(__('Sort #%s'),
                             sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber()))
                         );
@@ -254,7 +254,7 @@ if($_POST && !$errors):
                 }
                 // Use locks to avoid double replies
                 elseif ($lock->getStaffId()!=$thisstaff->getId()) {
-                    $errors['err'] = __('Action Denied. Ticket is locked by someone else!');
+                    $errors['err'] = __('Action Denied. Sort is locked by someone else!');
                 }
                 elseif ($lock->getCode() != $_POST['lockCode']) {
                     $errors['err'] = sprintf('%s %s', __('Your lock has expired.'), __('Please try again!'));
@@ -265,7 +265,7 @@ if($_POST && !$errors):
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 
                 $msg = sprintf(__('%s: %s posted successfully'),
-                        sprintf(__('Ticket #%s'),
+                        sprintf(__('Sort #%s'),
                             sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
                                 $ticket->getId(), $ticket->getNumber())),
                         __('Internal note')
@@ -301,9 +301,9 @@ if($_POST && !$errors):
         case 'edit':
         case 'update':
             if(!$ticket || !$role->hasPerm(Ticket::PERM_EDIT))
-                $errors['err']=__('Permission Denied. You are not allowed to edit tickets');
+                $errors['err']=__('Permission Denied. You are not allowed to edit sorts');
             elseif($ticket->update($_POST,$errors)) {
-                $msg=__('Ticket updated successfully');
+                $msg=__('Sort updated successfully');
                 $redirect = 'tickets.php?id='.$ticket->getId();
                 $_REQUEST['a'] = null; //Clear edit action - going back to view.
                 //Check to make sure the staff STILL has access post-update (e.g dept change).
@@ -320,25 +320,25 @@ if($_POST && !$errors):
             switch(strtolower($_POST['do'])):
                 case 'claim':
                     if(!$role->hasPerm(Ticket::PERM_EDIT)) {
-                        $errors['err'] = __('Permission Denied. You are not allowed to assign/claim tickets.');
+                        $errors['err'] = __('Permission Denied. You are not allowed to assign/claim sorts.');
                     } elseif(!$ticket->isOpen()) {
-                        $errors['err'] = __('Only open tickets can be assigned');
+                        $errors['err'] = __('Only open sorts can be assigned');
                     } elseif($ticket->isAssigned()) {
-                        $errors['err'] = sprintf(__('Ticket is already assigned to %s'),$ticket->getAssigned());
+                        $errors['err'] = sprintf(__('Sort is already assigned to %s'),$ticket->getAssigned());
                     } elseif ($ticket->claim()) {
-                        $msg = __('Ticket is now assigned to you!');
+                        $msg = __('Sort is now assigned to you!');
                     } else {
-                        $errors['err'] = sprintf('%s %s', __('Problems assigning the ticket.'), __('Please try again!'));
+                        $errors['err'] = sprintf('%s %s', __('Problems assigning the sort.'), __('Please try again!'));
                     }
                     break;
                 case 'overdue':
                     if(!$dept || !$isManager) {
-                        $errors['err']=__('Permission Denied. You are not allowed to flag tickets overdue');
+                        $errors['err']=__('Permission Denied. You are not allowed to flag sorts overdue');
                     } elseif($ticket->markOverdue()) {
-                        $msg=sprintf(__('Ticket flagged as overdue by %s'),$thisstaff->getName());
-                        $ticket->logActivity(__('Ticket Marked Overdue'),$msg);
+                        $msg=sprintf(__('Sort flagged as overdue by %s'),$thisstaff->getName());
+                        $ticket->logActivity(__('Sort Marked Overdue'),$msg);
                     } else {
-                        $errors['err']=sprintf('%s %s', __('Problems marking the the ticket overdue.'), __('Please try again!'));
+                        $errors['err']=sprintf('%s %s', __('Problems marking the the sort overdue.'), __('Please try again!'));
                     }
                     break;
                 case 'banemail':
@@ -369,10 +369,10 @@ if($_POST && !$errors):
                     } elseif (!$_POST['user_id'] || !($user=User::lookup($_POST['user_id']))) {
                         $errors['err'] = __('Unknown user selected');
                     } elseif ($ticket->changeOwner($user)) {
-                        $msg = sprintf(__('Ticket ownership changed to %s'),
+                        $msg = sprintf(__('Sort ownership changed to %s'),
                             Format::htmlchars($user->getName()));
                     } else {
-                        $errors['err'] = sprintf('%s %s', __('Unable to change ticket ownership.'), __('Please try again!'));
+                        $errors['err'] = sprintf('%s %s', __('Unable to change sort ownership.'), __('Please try again!'));
                     }
                     break;
                 case 'addcc':
@@ -406,7 +406,7 @@ if($_POST && !$errors):
                         !$thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
                      $errors['err'] = sprintf('%s %s',
                              sprintf(__('You do not have permission %s'),
-                                 __('to create tickets')),
+                                 __('to create sorts')),
                              __('Contact admin for such access'));
                 } else {
                     $vars = $_POST;
@@ -417,7 +417,7 @@ if($_POST && !$errors):
                     $vars['files'] = $response_form->getField('attachments')->getFiles();
 
                     if(($ticket=Ticket::open($vars, $errors))) {
-                        $msg=__('Ticket created successfully');
+                        $msg=__('Sort created successfully');
                         $redirect = 'tickets.php?id='.$ticket->getId();
                         $_REQUEST['a']=null;
                         if (!$ticket->checkStaffPerm($thisstaff) || $ticket->isClosed())
@@ -433,7 +433,7 @@ if($_POST && !$errors):
                             $_GET['tid'] = $_SESSION[':form-data']['ticketId'] ?: $_SESSION[':form-data']['taskId'];
 
                         $errors['err']=sprintf('%s %s',
-                            __('Unable to create the ticket.'),
+                            __('Unable to create the sort.'),
                             __('Correct any errors below and try again.'));
                     }
                 }

@@ -22,6 +22,6 @@
     Hi %{ticket.name.first},
     <br>
     <br>
-    Your ticket #%{ticket.number} created on %{ticket.create_date} is in
+    Your sort #%{ticket.number} created on %{ticket.create_date} is in
     %{ticket.dept.name} department.
   notes: |

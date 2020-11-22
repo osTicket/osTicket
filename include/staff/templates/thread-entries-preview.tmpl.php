@@ -17,7 +17,7 @@ foreach ($entries as $entry) {
                 <div class="thread-name">
                     <span><?php echo $name; ?></span>&nbsp;<span><?php echo Format::datetime($entry->created) ?></span>
                     <?php if ($entry->number) { ?>
-                        &nbsp;<span data-toggle="tooltip" title="<?php echo sprintf(__('Ticket #%s'), $entry->number); ?>" class="label label-bare">
+                        &nbsp;<span data-toggle="tooltip" title="<?php echo sprintf(__('Sort #%s'), $entry->number); ?>" class="label label-bare">
                         <i class="icon-code-fork"></i></span>
                     <?php   } ?>
                 </div>

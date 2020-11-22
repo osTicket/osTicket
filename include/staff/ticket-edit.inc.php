@@ -17,7 +17,7 @@ if ($_POST)
     <input type="hidden" name="id" value="<?php echo $ticket->getId(); ?>">
     <div style="margin-bottom:20px; padding-top:5px;">
         <div class="pull-left flush-left">
-            <h2><?php echo sprintf(__('Update Ticket #%s'),$ticket->getNumber());?></h2>
+            <h2><?php echo sprintf(__('Update Sort #%s'),$ticket->getNumber());?></h2>
         </div>
     </div>
     <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">

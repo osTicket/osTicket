@@ -115,7 +115,7 @@ div.hr {
 <htmlpagefooter name="def" style="display:none">
     <div class="hr">&nbsp;</div>
     <table width="100%"><tr><td class="flush-left">
-        Ticket #<?php echo $ticket->getNumber(); ?> printed by
+        Sort #<?php echo $ticket->getNumber(); ?> printed by
         <?php echo $thisclient->getName()->getFirst(); ?> on
         <?php echo Format::daydatetime(Misc::gmtime()); ?>
     </td>
@@ -126,7 +126,7 @@ div.hr {
 </htmlpagefooter>
 
 <!-- Ticket metadata -->
-<h1>Ticket #<?php echo $ticket->getNumber(); ?></h1>
+<h1>Sort #<?php echo $ticket->getNumber(); ?></h1>
 <table class="meta-data" cellpadding="0" cellspacing="0">
 <tbody>
 <tr>

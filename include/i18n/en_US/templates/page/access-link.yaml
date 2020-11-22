@@ -13,7 +13,7 @@ name: "Ticket [#%{ticket.number}] Access Link"
 body: >
     <h3><strong>Hi %{recipient.name.first},</strong></h3>
     <div>
-    An access link request for ticket #%{ticket.number} has been submitted
+    An access link request for sort #%{ticket.number} has been submitted
     on your behalf for the helpdesk at %{url}.<br />
     <br />
     Follow the link below to check the status of the ticket

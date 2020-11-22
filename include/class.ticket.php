@@ -127,62 +127,62 @@ implements RestrictedAccess, Threadable, Searchable {
                 'title' =>
                 /* @trans */ 'Create',
                 'desc'  =>
-                /* @trans */ 'Ability to open tickets on behalf of users'),
+                /* @trans */ 'Ability to open sorts on behalf of users'),
             self::PERM_EDIT => array(
                 'title' =>
                 /* @trans */ 'Edit',
                 'desc'  =>
-                /* @trans */ 'Ability to edit tickets'),
+                /* @trans */ 'Ability to edit sorts'),
             self::PERM_ASSIGN => array(
                 'title' =>
                 /* @trans */ 'Assign',
                 'desc'  =>
-                /* @trans */ 'Ability to assign tickets to agents or teams'),
+                /* @trans */ 'Ability to assign sorts to agents or teams'),
             self::PERM_RELEASE => array(
                 'title' =>
                 /* @trans */ 'Release',
                 'desc'  =>
-                /* @trans */ 'Ability to release ticket assignment'),
+                /* @trans */ 'Ability to release sort assignment'),
             self::PERM_TRANSFER => array(
                 'title' =>
                 /* @trans */ 'Transfer',
                 'desc'  =>
-                /* @trans */ 'Ability to transfer tickets between departments'),
+                /* @trans */ 'Ability to transfer sorts between departments'),
             self::PERM_REFER => array(
                 'title' =>
                 /* @trans */ 'Refer',
                 'desc'  =>
-                /* @trans */ 'Ability to manage ticket referrals'),
+                /* @trans */ 'Ability to manage sort referrals'),
             self::PERM_MERGE => array(
                 'title' =>
                 /* @trans */ 'Merge',
                 'desc'  =>
-                /* @trans */ 'Ability to merge tickets'),
+                /* @trans */ 'Ability to merge sorts'),
             self::PERM_LINK => array(
                 'title' =>
                 /* @trans */ 'Link',
                 'desc'  =>
-                /* @trans */ 'Ability to link tickets'),
+                /* @trans */ 'Ability to link sorts'),
             self::PERM_REPLY => array(
                 'title' =>
                 /* @trans */ 'Post Reply',
                 'desc'  =>
-                /* @trans */ 'Ability to post a ticket reply'),
+                /* @trans */ 'Ability to post a sort reply'),
             self::PERM_MARKANSWERED => array(
                 'title' =>
                 /* @trans */ 'Mark as Answered',
                 'desc'  =>
-                /* @trans */ 'Ability to mark a ticket as Answered/Unanswered'),
+                /* @trans */ 'Ability to mark a sort as Answered/Unanswered'),
             self::PERM_CLOSE => array(
                 'title' =>
                 /* @trans */ 'Close',
                 'desc'  =>
-                /* @trans */ 'Ability to close tickets'),
+                /* @trans */ 'Ability to close sorts'),
             self::PERM_DELETE => array(
                 'title' =>
                 /* @trans */ 'Delete',
                 'desc'  =>
-                /* @trans */ 'Ability to delete tickets'),
+                /* @trans */ 'Ability to delete sorts'),
             );
 
     // Ticket Sources
@@ -326,15 +326,15 @@ implements RestrictedAccess, Threadable, Searchable {
         if (self::getMissingRequiredFields($this)) {
             $warning = sprintf(
                     __( '%1$s is missing data on %2$s one or more required fields %3$s and cannot be closed'),
-                    __('This ticket'),
+                    __('This sort'),
                     '', '');
         } elseif (($num=$this->getNumOpenTasks())) {
             $warning = sprintf(__('%1$s has %2$d open tasks and cannot be closed'),
-                    __('This ticket'), $num);
+                    __('This sort'), $num);
         } elseif ($cfg->requireTopicToClose() && !$this->getTopicId()) {
             $warning = sprintf(
                     __( '%1$s is missing a %2$s and cannot be closed'),
-                    __('This ticket'), __('Help Topic'), '');
+                    __('This sort'), __('Help Topic'), '');
         }
 
         return $warning ?: true;
@@ -1124,7 +1124,7 @@ implements RestrictedAccess, Threadable, Searchable {
             return ChoiceField::init(array(
                         'id' => $fid,
                         'name' => 'source',
-                        'label' => __('Ticket Source'),
+                        'label' => __('Sort Source'),
                         'default' => $this->source,
                         'choices' => Ticket::getSources()
                         ));
@@ -1220,7 +1220,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function addCollaborator($user, $vars, &$errors, $event=true) {
 
         if ($user && $user->getId() == $this->getOwnerId())
-            $errors['err'] = __('Ticket Owner cannot be a Collaborator');
+            $errors['err'] = __('Sort Owner cannot be a Collaborator');
 
         if ($user && !$errors
                 && ($c = $this->getThread()->addCollaborator($user, $vars,
@@ -1499,7 +1499,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 // Check if ticket is closeable
                 $closeable = $force_close ? true : $this->isCloseable();
                 if ($closeable !== true)
-                    $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This ticket'));
+                    $errors['err'] = $closeable ?: sprintf(__('%s cannot be closed'), __('This sort'));
 
                 if ($errors)
                     return false;
@@ -1745,9 +1745,9 @@ implements RestrictedAccess, Threadable, Searchable {
         global $ost, $cfg;
 
         //Log the limit notice as a warning for admin.
-        $msg=sprintf(_S('Maximum open tickets (%1$d) reached for %2$s'),
+        $msg=sprintf(_S('Maximum open sorts (%1$d) reached for %2$s'),
             $cfg->getMaxOpenTickets(), $this->getEmail());
-        $ost->logWarning(sprintf(_S('Maximum Open Tickets Limit (%s)'),$this->getEmail()),
+        $ost->logWarning(sprintf(_S('Maximum Open Sorts Limit (%s)'),$this->getEmail()),
             $msg);
 
         if (!$sendNotice || !$cfg->sendOverLimitNotice())
@@ -1770,8 +1770,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $user = $this->getOwner();
 
         // Alert admin...this might be spammy (no option to disable)...but it is helpful..I think.
-        $alert=sprintf(__('Maximum open tickets reached for %s.'), $this->getEmail())."\n"
-              .sprintf(__('Open tickets: %d'), $user->getNumOpenTickets())."\n"
+        $alert=sprintf(__('Maximum open sorts reached for %s.'), $this->getEmail())."\n"
+              .sprintf(__('Open sorts: %d'), $user->getNumOpenTickets())."\n"
               .sprintf(__('Max allowed: %d'), $cfg->getMaxOpenTickets())
               ."\n\n".__("Notice sent to the user.");
 
@@ -2035,10 +2035,10 @@ implements RestrictedAccess, Threadable, Searchable {
                     && $thisstaff
                     // self assignment
                     && $assignee->getId() == $thisstaff->getId())
-                $title = sprintf(_S('Ticket claimed by %s'),
+                $title = sprintf(_S('Sort claimed by %s'),
                     $thisstaff->getName());
             else
-                $title = sprintf(_S('Ticket Assigned to %s'),
+                $title = sprintf(_S('Sort Assigned to %s'),
                         $assignee->getName());
 
             $note = $this->logNote($title, $comments, $assigner, false);
@@ -2225,7 +2225,7 @@ implements RestrictedAccess, Threadable, Searchable {
             'email' => __('Default email address of ticket owner'),
             'id' => __('Ticket ID (internal ID)'),
             'name' => array(
-                'class' => 'PersonsName', 'desc' => __('Name of ticket owner'),
+                'class' => 'PersonsName', 'desc' => __('Name of sort owner'),
             ),
             'number' => __('Ticket Number'),
             'phone' => __('Phone number of ticket owner'),
@@ -2247,7 +2247,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 'class' => 'Team', 'desc' => __('Assigned/closing team'),
             ),
             'thread' => array(
-                'class' => 'TicketThread', 'desc' => __('Ticket Thread'),
+                'class' => 'TicketThread', 'desc' => __('Sort Thread'),
             ),
             'topic' => array(
                 'class' => 'Topic', 'desc' => __('Help Topic'),
@@ -2257,7 +2257,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 'class' => 'FormattedDate', 'desc' => __('Time of last update'),
             ),
             'user' => array(
-                'class' => 'User', 'desc' => __('Ticket Owner'),
+                'class' => 'User', 'desc' => __('Sort Owner'),
             ),
         );
 
@@ -2446,8 +2446,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $this->setSort(1);
         $this->setFlag(Ticket::FLAG_LINKED, false);
         $this->save();
-        $this->logEvent('unlinked', array('ticket' => sprintf('Ticket #%s', $parent->getNumber()), 'id' => $parent->getId()));
-        $parent->logEvent('unlinked', array('ticket' => sprintf('Ticket #%s', $this->getNumber()), 'id' => $this->getId()));
+        $this->logEvent('unlinked', array('ticket' => sprintf('Sort #%s', $parent->getNumber()), 'id' => $parent->getId()));
+        $parent->logEvent('unlinked', array('ticket' => sprintf('Sort #%s', $this->getNumber()), 'id' => $this->getId()));
     }
 
     function unlink() {
@@ -2511,8 +2511,8 @@ implements RestrictedAccess, Threadable, Searchable {
                     if ($parent && $parent->getId() != $ticket->getId()) {
                         if (($changeParent) || ($parent->isParent() && $ticket->getMergeType() == 'visual' && !$ticket->isChild()) || //adding to link/merge
                            (!$parent->isParent() && !$ticket->isChild())) { //creating fresh link/merge
-                               $parent->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
-                               $ticket->logEvent($eventName, array('ticket' => sprintf('Ticket #%s', $parent->getNumber()),  'id' => $parent->getId()));
+                               $parent->logEvent($eventName, array('ticket' => sprintf('Sort #%s', $ticket->getNumber()),  'id' => $ticket->getId()));
+                               $ticket->logEvent($eventName, array('ticket' => sprintf('Sort #%s', $parent->getNumber()),  'id' => $parent->getId()));
                                if ($ticket->getPid() != $parent->getId())
                                    $ticket->setPid($parent->getId());
                                $parent->setMergeType($tickets['combine'], true);
@@ -3561,7 +3561,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
 
         $pdf = new Ticket2PDF($this, $psize, $notes, $events);
-        $name = 'Ticket-'.$this->getNumber().'.pdf';
+        $name = 'Sort-'.$this->getNumber().'.pdf';
         Http::download($name, 'application/pdf', $pdf->output($name, 'S'));
         //Remember what the user selected - for autoselect on the next print.
         $_SESSION['PAPER_SIZE'] = $psize;
@@ -3620,7 +3620,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $this->cdata->delete();
 
         // Log delete
-        $log = sprintf(__('Ticket #%1$s deleted by %2$s'),
+        $log = sprintf(__('Sort #%1$s deleted by %2$s'),
             $this->getNumber(),
             $thisstaff ? $thisstaff->getName() : __('SYSTEM')
         );
@@ -3628,7 +3628,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $log .= sprintf('<hr>%s', $comments);
 
         $ost->logDebug(
-            sprintf( __('Ticket #%s deleted'), $this->getNumber()),
+            sprintf( __('Sort #%s deleted'), $this->getNumber()),
             $log
         );
         return true;

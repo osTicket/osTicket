@@ -127,7 +127,7 @@ if ($task->isOverdue())
                     <a class="preview"
                       href="tickets.php?id=<?php echo $object->getId(); ?>"
                       data-preview="#tickets/<?php echo $object->getId(); ?>/preview"
-                      ><?php echo sprintf(__('Ticket #%s'), $object->getNumber()); ?></a>
+                      ><?php echo sprintf(__('Sort #%s'), $object->getNumber()); ?></a>
                 <?php } ?>
                 </h2>
             <?php
