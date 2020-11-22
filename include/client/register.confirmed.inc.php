@@ -11,7 +11,7 @@ echo Format::display($body); ?>
 <strong><?php echo __('Thanks for registering for an account.'); ?></strong>
 </p>
 <p><?php echo __(
-"You've confirmed your email address and successfully activated your account.  You may proceed to check on previously opened tickets or open a new ticket."
+"You've confirmed your email address and successfully activated your account.  You may proceed to check on previously requested sorts or request a new one."
 ); ?>
 </p>
 <p><em><?php echo __('Your friendly support center'); ?></em></p>

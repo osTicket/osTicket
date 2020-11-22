@@ -328,7 +328,7 @@ class UserNav {
 
             $navs = array();
             $user = $this->user;
-            $navs['home']=array('desc'=>__('Support Center Home'),'href'=>'index.php','title'=>'');
+            $navs['home']=array('desc'=>__('AmeraSortal Home'),'href'=>'index.php','title'=>'');
             if($cfg && $cfg->isKnowledgebaseEnabled())
                 $navs['kb']=array('desc'=>__('Knowledgebase'),'href'=>'kb/index.php','title'=>'');
 
@@ -338,19 +338,19 @@ class UserNav {
             // possible for web clients.
             if ($cfg->getClientRegistrationMode() != 'disabled'
                     || !$cfg->isClientLoginRequired())
-                $navs['new']=array('desc'=>__('Open a New Ticket'),'href'=>'open.php','title'=>'');
+                $navs['new']=array('desc'=>__('Request a New Sort'),'href'=>'open.php','title'=>'');
             if($user && $user->isValid()) {
                 if(!$user->isGuest()) {
-                    $navs['tickets']=array('desc'=>sprintf(__('Tickets (%d)'),$user->getNumTickets($user->canSeeOrgTickets())),
+                    $navs['tickets']=array('desc'=>sprintf(__('Sorts (%d)'),$user->getNumTickets($user->canSeeOrgTickets())),
                                            'href'=>'tickets.php',
-                                            'title'=>__('Show all tickets'));
+                                            'title'=>__('Show all sorts'));
                 } else {
-                    $navs['tickets']=array('desc'=>__('View Ticket Thread'),
+                    $navs['tickets']=array('desc'=>__('View Sort Thread'),
                                            'href'=>sprintf('tickets.php?id=%d',$user->getTicketId()),
-                                           'title'=>__('View ticket status'));
+                                           'title'=>__('View Sort status'));
                 }
             } else {
-                $navs['status']=array('desc'=>__('Check Ticket Status'),'href'=>'view.php','title'=>'');
+                $navs['status']=array('desc'=>__('Check Sort Status'),'href'=>'view.php','title'=>'');
             }
             $this->navs=$navs;
         }

@@ -76,7 +76,7 @@ if ($_POST && isset($_POST['luser'])) {
 }
 elseif ($_POST && isset($_POST['lticket'])) {
     if (!Validator::is_email($_POST['lemail']))
-        $errors['err'] = __('Valid email address and ticket number required');
+        $errors['err'] = __('Valid email address and sort number required');
     elseif (($user = UserAuthenticationBackend::process($_POST['lemail'],
             $_POST['lticket'], $errors))) {
 
@@ -97,11 +97,11 @@ elseif ($_POST && isset($_POST['lticket'])) {
             $_POST = null;
         } else {
             $errors['err'] = sprintf('%s - %s',
-                __('Invalid email or ticket number'),
+                __('Invalid email or sort number'),
                 __('Please try again!'));
         }
     } elseif(!$errors['err']) {
-        $errors['err'] = sprintf('%s - %s', __('Invalid email or ticket number'), __('Please try again!'));
+        $errors['err'] = sprintf('%s - %s', __('Invalid email or sort number'), __('Please try again!'));
     }
 }
 elseif (isset($_GET['do'])) {
@@ -132,7 +132,7 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
             $inc = 'register.inc.php';
         }
         else {
-            $errors['err'] = __('Access Denied. Contact your help desk administrator to have an account registered for you');
+            $errors['err'] = __('Access Denied. Contact the Amearsorting administrator to have an account registered for you');
             // fall through to show login page again
         }
     }

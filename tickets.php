@@ -25,9 +25,9 @@ require_once(INCLUDE_DIR.'class.json.php');
 $ticket=null;
 if($_REQUEST['id']) {
     if (!($ticket = Ticket::lookup($_REQUEST['id']))) {
-        $errors['err']=__('Unknown or invalid ticket ID.');
+        $errors['err']=__('Unknown or invalid sort ID.');
     } elseif(!$ticket->checkUserAccess($thisclient)) {
-        $errors['err']=__('Unknown or invalid ticket ID.'); //Using generic message on purpose!
+        $errors['err']=__('Unknown or invalid sort ID.'); //Using generic message on purpose!
         $ticket=null;
     }
 }
@@ -46,7 +46,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
     case 'edit':
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
                 || $thisclient->getId() != $ticket->getUserId())
-            $errors['err']=__('Access Denied. Possibly invalid ticket ID');
+            $errors['err']=__('Access Denied. Possibly invalid sort ID');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
             $changes = array();
@@ -74,7 +74,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
         break;
     case 'reply':
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
-            $errors['err']=__('Access Denied. Possibly invalid ticket ID');
+            $errors['err']=__('Access Denied. Possibly invalid sort ID');
 
         $_POST['message'] = ThreadEntryBody::clean($_POST['message']);
         if (!$_POST['message'])
