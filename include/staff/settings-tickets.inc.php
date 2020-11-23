@@ -23,14 +23,14 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
     <thead>
         <tr>
             <th colspan="2">
-                <em><?php echo __('System-wide default ticket settings and options.'); ?></em>
+                <em><?php echo __('System-wide default sort settings and options.'); ?></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td>
-                <?php echo __('Default Ticket Number Format'); ?>:
+                <?php echo __('Default Sort Number Format'); ?>:
             </td>
             <td>
                 <input type="text" name="ticket_number_format" value="<?php
@@ -46,7 +46,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <div class="error"><?php echo $errors['ticket_number_format']; ?></div>
             </td>
         </tr>
-        <tr><td width="220"><?php echo __('Default Ticket Number Sequence'); ?>:</td>
+        <tr><td width="220"><?php echo __('Default Sort Number Sequence'); ?>:</td>
 <?php $selected = 'selected="selected"'; ?>
             <td>
                 <select name="ticket_sequence_id">
@@ -65,7 +65,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <i class="help-tip icon-question-sign" href="#sequence_id"></i>
             </td>
         </tr>
-        <tr><td width="220"><?php echo __('Top-Level Ticket Counts'); ?>:</td>
+        <tr><td width="220"><?php echo __('Top-Level Sort Counts'); ?>:</td>
             <td>
                 <input type="checkbox" name="queue_bucket_counts" <?php echo $config['queue_bucket_counts']?'checked="checked"':''; ?>>
                 <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#queue_bucket_counts"></i>
@@ -172,7 +172,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         </tr>
         <tr>
             <td>
-                <?php echo __('Default Ticket Queue'); ?>:
+                <?php echo __('Default Sort Queue'); ?>:
             </td>
             <td>
                 <select name="default_ticket_queue">
@@ -188,7 +188,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
+            <td><?php echo __('Maximum <b>Open</b> Sorts');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
                 <?php echo __('per end user'); ?>
@@ -200,13 +200,13 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td><?php echo __('Human Verification');?>:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                <?php echo __('Enable CAPTCHA on new web tickets.');?>
+                <?php echo __('Enable CAPTCHA on new web requests.');?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>
                 &nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Collaborator Tickets Visibility'); ?>:</td>
+            <td><?php echo __('Collaborator Sorts Visibility'); ?>:</td>
             <td>
                 <input type="checkbox" name="collaborator_ticket_visibility" <?php echo $config['collaborator_ticket_visibility']?'checked="checked"':''; ?>>
                 <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#collaborator_ticket_visibility"></i>
@@ -247,7 +247,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </th>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
+            <td width="180"><?php echo __('Sort Attachment Settings');?>:</td>
             <td>
 <?php
                 $tform = TicketForm::objects()->one()->getForm();
