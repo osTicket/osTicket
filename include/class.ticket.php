@@ -2661,6 +2661,9 @@ implements RestrictedAccess, Threadable, Searchable {
         if ($errors || !$this->save(true))
             return false;
 
+        $vars = ['form' => $form];
+        Signal::send('ticket.transfer.after', $this, $vars);
+
         // Reopen ticket if closed
         if ($this->isClosed())
             $this->reopen();
