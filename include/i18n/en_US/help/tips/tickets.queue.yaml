@@ -22,15 +22,15 @@ advanced:
     content: >
         Narrow down your search parameters. Once you have selected your advanced
         search criteria and run the search, you can <span class="doc-desc-title">Export
-        </span> the data at the bottom of the tickets page.
+        </span> the data at the bottom of the Sorts page.
 
 open_tickets_table:
-    title: Open Tickets Table
+    title: Open Sorts Table
     content: >
-        All tickets currently opened and requiring attention
+        All sorts currently opened and requiring attention
 
 ticket:
-    title: Ticket
+    title: Sort
     content: >
 
 date:
@@ -68,9 +68,9 @@ advanced_search_dialog:
 adv_keyword:
     title: Keyword Search
     content: >
-        Find hits based on the subject and message bodies of the ticket
+        Find hits based on the subject and message bodies of the sort
         thread as well as all textual content associated with custom fields
-        for the users and the tickets.
+        for the users and the sorts.
 
 adv_date_range:
     title: Search by Date Range
@@ -81,20 +81,20 @@ merge_types:
     title: Merge Types
     content: >
         <b>Combine Threads:</b>
-          Threads from all Tickets will be displayed chronologically.</br>
+          Threads from all Sorts will be displayed chronologically.</br>
         <b>Separate Threads:</b>
-          Threads from Tickets will be displayed one Ticket at a time.
+          Threads from Sorts will be displayed one Sort at a time.
 
 child_status:
-    title: Child Ticket Status
+    title: Child Sort Status
     content: >
-        All Child Tickets will be set to a closed status since thread entries will all be moved to the Parent Ticket.
+        All Child Sorts will be set to a closed status since thread entries will all be moved to the Parent Sort.
 
 parent_status:
-    title: Parent Ticket Status
+    title: Parent Sort Status
     content: >
-        If you choose to set a Parent Status, the Parent Ticket will be changed to the status you select.
-        The Ticket on top of the list will be the Parent Ticket.
+        If you choose to set a Parent Status, the Parent Sort will be changed to the status you select.
+        The Sort on top of the list will be the Parent Sort.
 
 reply_types:
     title: Reply Types
@@ -104,4 +104,4 @@ reply_types:
         <b>Reply to User:</b>
           This reply is sent to the User only, no Collaborators.</br>
         <b>Do Not Email Reply:</b>
-          No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Ticket.
+          No email alerts are sent out, however, the Agent response is visible to <b>ALL</b> Users upon viewing the Sort.

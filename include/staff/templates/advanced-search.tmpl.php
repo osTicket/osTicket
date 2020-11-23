@@ -16,7 +16,7 @@ foreach (CustomQueue::queues() as  $q)
 asort($queues);
 $queues = array(0 => ('—'.__("My Searches").'—')) + $queues;
 $queue = $search;
-$qname = $search->getName() ?:  __('Advanced Ticket Search');
+$qname = $search->getName() ?:  __('Advanced Sort Search');
 ?>
 <div id="advanced-search" class="advanced-search">
 <h3 class="drag-handle"><?php echo Format::htmlchars($qname); ?></h3>
