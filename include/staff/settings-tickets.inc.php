@@ -243,7 +243,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
         </tr>
         <tr>
             <th colspan="2">
-                <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
+                <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web requests.');?></em>
             </th>
         </tr>
         <tr>
