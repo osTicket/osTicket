@@ -241,7 +241,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if(!$thisstaff || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         include STAFFINC_DIR . 'templates/ticket-preview.tmpl.php';
     }
@@ -252,7 +252,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, 'No such sort');
 
 
         if(!($user = User::lookup($ticket->getOwnerId())))
@@ -280,7 +280,7 @@ class TicketsAjaxAPI extends AjaxController {
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff)
                 || !($user = User::lookup($ticket->getOwnerId())))
-            Http::response(404, 'No such ticket/user');
+            Http::response(404, 'No such sort/user');
 
         $errors = array();
         if($user->updateInfo($_POST, $errors, true))
@@ -306,7 +306,7 @@ class TicketsAjaxAPI extends AjaxController {
         if(!$thisstaff
                 || !($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, 'No such sort');
 
 
         $user = User::lookup($ticket->getOwnerId());
@@ -335,7 +335,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required");
         elseif (!($ticket = Ticket::lookup($ticket_id)))
-            Http::response(404, "No such ticket");
+            Http::response(404, "No such sort");
         elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
             Http::response(403, "Access Denied");
 
@@ -350,7 +350,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required");
         elseif (!($ticket = Ticket::lookup($ticket_id)))
-            Http::response(404, "No such ticket");
+            Http::response(404, "No such sort");
         elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
             Http::response(403, "Access Denied");
         elseif (!isset($_POST['forms']))
@@ -392,7 +392,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!$thisstaff)
             Http::response(403, "Login required");
         elseif (!($ticket = Ticket::lookup($ticket_id)))
-            Http::response(404, "No such ticket");
+            Http::response(404, "No such sort");
         elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
             Http::response(403, "Access Denied");
 
@@ -431,7 +431,7 @@ class TicketsAjaxAPI extends AjaxController {
             if ($parent = Ticket::merge($_POST))
                 Http::response(201, 'Successfully managed');
             else
-                Http::response(404, 'Unable to manage ticket');
+                Http::response(404, 'Unable to manage sort');
         }
 
         $parentModel = Ticket::objects()
@@ -459,7 +459,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket=Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'No such ticket');
+            Http::response(404, 'No such sort');
 
         ob_start();
         include STAFFINC_DIR . 'templates/merge-preview.tmpl.php';
@@ -474,12 +474,12 @@ class TicketsAjaxAPI extends AjaxController {
 
         if (!($ticket = Ticket::lookup($tid))
                 || !$ticket->checkStaffPerm($thisstaff))
-            Http::response(404, 'Unknown ticket ID');
+            Http::response(404, 'Unknown sort ID');
 
 
         if ($cid && !is_numeric($cid)) {
             if (!($response=$ticket->getThread()->getVar($cid)))
-                Http::response(422, 'Unknown ticket variable');
+                Http::response(422, 'Unknown sort variable');
 
             // Ticket thread variables are assumed to be quotes
             $response = "<br/><blockquote>{$response->asVar()}</blockquote><br/>";
@@ -512,7 +512,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_TRANSFER))
             Http::response(403, __('Permission denied'));
@@ -534,14 +534,14 @@ class TicketsAjaxAPI extends AjaxController {
                         __('%s successfully'),
                         sprintf(
                             __('%s transferred to %s department'),
-                            __('Ticket'),
+                            __('Sort'),
                             $ticket->getDept()
                             )
                         );
                 Http::response(201, $ticket->getId());
             }
             $form->addErrors($errors);
-            $info['error'] = $errors['err'] ?: __('Unable to transfer ticket');
+            $info['error'] = $errors['err'] ?: __('Unable to transfer sort');
         }
 
         $info['dept_id'] = $info['dept_id'] ?: $ticket->getDeptId();
@@ -557,7 +557,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
                 || !($form = $ticket->getReferralForm($_POST,
@@ -597,7 +597,7 @@ class TicketsAjaxAPI extends AjaxController {
                     }
 
                     $form->addErrors($errors);
-                    $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
+                    $info['error'] = $errors['err'] ?: __('Unable to refer sort');
                     break;
                 case 'manage':
                     $remove = array();
@@ -635,7 +635,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $cfg, $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
         elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
             Http::response(403, __('Permission denied'));
         elseif (!($field=$ticket->getField($fid)))
@@ -728,7 +728,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $cfg, $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
         elseif (!($field=$ticket->getField($fid)))
             Http::response(404, __('No such field'));
 
@@ -752,7 +752,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
                 || !($form = $ticket->getAssignmentForm($_POST,
@@ -781,7 +781,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $assigned = $ticket->getAssigned();
 
             $info['notice'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
-                    __('This ticket'),
+                    __('This sort'),
                     Format::htmlchars($assigned)
                     );
         }
@@ -792,7 +792,7 @@ class TicketsAjaxAPI extends AjaxController {
                         __('%s successfully'),
                         sprintf(
                             __('%s assigned to %s'),
-                            __('Ticket'),
+                            __('Sort'),
                             $form->getAssignee())
                         );
 
@@ -803,7 +803,7 @@ class TicketsAjaxAPI extends AjaxController {
             }
 
             $form->addErrors($errors);
-            $info['error'] = $errors['err'] ?: __('Unable to assign ticket');
+            $info['error'] = $errors['err'] ?: __('Unable to assign sort');
         }
 
         include STAFFINC_DIR . 'templates/assign.tmpl.php';
@@ -814,7 +814,7 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         // Check for premissions and such
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
@@ -840,11 +840,11 @@ class TicketsAjaxAPI extends AjaxController {
                 $assigned = $ticket->getAssigned();
 
             $info['error'] = sprintf(__('%s is currently assigned to <b>%s</b>'),
-                    __('This ticket'),
+                    __('This sort'),
                     $assigned);
         } else {
             $info['warn'] = sprintf(__('Are you sure you want to CLAIM %s?'),
-                    __('this ticket'));
+                    __('this sort'));
         }
 
         if ($_POST && $form->isValid()) {
@@ -853,14 +853,14 @@ class TicketsAjaxAPI extends AjaxController {
                         __('%s successfully'),
                         sprintf(
                             __('%s assigned to %s'),
-                            __('Ticket'),
+                            __('Sort'),
                             __('you'))
                         );
                 Http::response(201, $ticket->getId());
             }
 
             $form->addErrors($errors);
-            $info['error'] = $errors['err'] ?: __('Unable to claim ticket');
+            $info['error'] = $errors['err'] ?: __('Unable to claim sort');
         }
 
         $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
@@ -873,14 +873,14 @@ class TicketsAjaxAPI extends AjaxController {
         global $thisstaff;
 
         if (!($ticket=Ticket::lookup($tid)))
-            Http::response(404, __('No such ticket'));
+            Http::response(404, __('No such sort'));
 
         if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_RELEASE) && !$thisstaff->isManager())
             Http::response(403, __('Permission denied'));
 
         $errors = array();
         if (!$ticket->isAssigned())
-            $errors['err'] = __('Ticket is not assigned!');
+            $errors['err'] = __('Sort is not assigned!');
 
         $info = array(':title' => sprintf(__('Sort #%s: %s'),
                     $ticket->getNumber(),
@@ -911,7 +911,7 @@ class TicketsAjaxAPI extends AjaxController {
                         $_errors, $thisstaff, false);
                 }
 
-                $_SESSION['::sysmsgs']['msg'] = __('Ticket assignment released successfully');
+                $_SESSION['::sysmsgs']['msg'] = __('Sort assignment released successfully');
                 Http::response(201, $ticket->getId());
             }
 
@@ -919,11 +919,11 @@ class TicketsAjaxAPI extends AjaxController {
                 $errors['err'] = __('Please check an assignee to release assignment');
 
             $form->addErrors($errors);
-            $info['error'] = $errors['err'] ?: __('Unable to release ticket assignment');
+            $info['error'] = $errors['err'] ?: __('Unable to release sort assignment');
         }
 
         if($errors && $errors['err'])
-            $info['error'] = $errors['err'] ?: __('Unable to release ticket');
+            $info['error'] = $errors['err'] ?: __('Unable to release sort');
 
         include STAFFINC_DIR . 'templates/release.tmpl.php';
     }
@@ -972,7 +972,7 @@ class TicketsAjaxAPI extends AjaxController {
             if (!$_POST['tids'] || !($count=count($_POST['tids'])))
                 $errors['err'] = sprintf(
                         __('You must select at least %s.'),
-                        __('one ticket'));
+                        __('one sort'));
         } else {
             $count  =  $_REQUEST['count'];
         }
@@ -1007,21 +1007,21 @@ class TicketsAjaxAPI extends AjaxController {
 
                 if ($mergeType != 'visual' && $title == 'link')
                     $info['error'] = sprintf(
-                            __('One or more Tickets selected is part of a merge. Merged Tickets cannot be %s.'),
+                            __('One or more Sorts selected is part of a merge. Merged Sorts cannot be %s.'),
                             __($eventName)
                             );
 
                 if ($parent && ($isParent && $mergeType != 'visual') && $parent[0] != $ticket_id)
                     $info['error'] = sprintf(
-                            __('More than one Parent Ticket selected. %1$s cannot be %2$s.'),
-                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __('More than one Parent Sort selected. %1$s cannot be %2$s.'),
+                            _N('The selected Sort', 'The selected Sorts', $count),
                             __($eventName)
                             );
 
                 if ($ticket_pid && $mergeType != 'visual' && $title == 'merge')
                     $info['error'] = sprintf(
-                            __('One or more Tickets selected is a merged child. %1$s cannot be %2$s.'),
-                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __('One or more Sorts selected is a merged child. %1$s cannot be %2$s.'),
+                            _N('The selected Sort', 'The selected Sorts', $count),
                             __($eventName)
                             );
             }
@@ -1055,7 +1055,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $info['error'] = sprintf(
                         __('You do not have permission to %1$s %2$s'),
                         __($title),
-                        _N('the selected Ticket', 'the selected Tickets', $count));
+                        _N('the selected Sort', 'the selected Sorts', $count));
                 $info = array_merge($info, Format::htmlchars($_POST));
             } else
                 $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
@@ -1066,7 +1066,7 @@ class TicketsAjaxAPI extends AjaxController {
             $inc = 'assign.tmpl.php';
             $info[':action'] = "#tickets/mass/assign/$w";
             $info[':title'] = sprintf('Assign %s',
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
 
             $form = AssignmentForm::instantiate($_POST);
 
@@ -1141,10 +1141,10 @@ class TicketsAjaxAPI extends AjaxController {
                 case 'me':
                     $info[':action'] = '#tickets/mass/claim';
                     $info[':title'] = sprintf('Claim %s',
-                            _N('selected ticket', 'selected tickets', $count));
+                            _N('selected sort', 'selected sorts', $count));
                     $info['warn'] = sprintf(
                             __('Are you sure you want to CLAIM %s?'),
-                            _N('selected ticket', 'selected tickets', $count));
+                            _N('selected sort', 'selected sorts', $count));
                     $verb = sprintf('%s, %s', __('Yes'), __('Claim'));
                     $id = sprintf('s%s', $thisstaff->getId());
                     $assignees = array($id => $thisstaff->getName());
@@ -1178,7 +1178,7 @@ class TicketsAjaxAPI extends AjaxController {
                     $info['error'] = sprintf(
                             __('Unable to %1$s %2$s'),
                             __('assign'),
-                            _N('selected ticket', 'selected tickets', $count));
+                            _N('selected sort', 'selected sorts', $count));
                 }
             }
             break;
@@ -1186,7 +1186,7 @@ class TicketsAjaxAPI extends AjaxController {
             $inc = 'transfer.tmpl.php';
             $info[':action'] = '#tickets/mass/transfer';
             $info[':title'] = sprintf('Transfer %s',
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
             $form = TransferForm::instantiate($_POST);
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
@@ -1204,7 +1204,7 @@ class TicketsAjaxAPI extends AjaxController {
                     $info['error'] = sprintf(
                             __('Unable to %1$s %2$s'),
                             __('transfer'),
-                            _N('selected ticket', 'selected tickets', $count));
+                            _N('selected sort', 'selected sorts', $count));
                 }
             }
             break;
@@ -1212,23 +1212,23 @@ class TicketsAjaxAPI extends AjaxController {
             $inc = 'delete.tmpl.php';
             $info[':action'] = '#tickets/mass/delete';
             $info[':title'] = sprintf('Delete %s',
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
 
             $info[':placeholder'] = sprintf(__(
                         'Optional reason for deleting %s'),
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
             $info['warn'] = sprintf(__(
                         'Are you sure you want to DELETE %s?'),
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
             $info[':extra'] = sprintf('<strong>%s</strong>',
-                        __('Deleted tickets CANNOT be recovered, including any associated attachments.')
+                        __('Deleted sorts CANNOT be recovered, including any associated attachments.')
                         );
 
             // Generic permission check.
             if (!$thisstaff->hasPerm(Ticket::PERM_DELETE, false))
                 $errors['err'] = sprintf(
                         __('You do not have permission %s'),
-                        __('to delete tickets'));
+                        __('to delete sorts'));
 
             if ($_POST && !$errors) {
                 foreach ($_POST['tids'] as $tid) {
@@ -1243,7 +1243,7 @@ class TicketsAjaxAPI extends AjaxController {
                     $info['error'] = sprintf(
                             __('Unable to %1$s %2$s'),
                             __('delete'),
-                            _N('selected ticket', 'selected tickets', $count));
+                            _N('selected sort', 'selected sorts', $count));
                 }
             }
             break;
@@ -1259,7 +1259,7 @@ class TicketsAjaxAPI extends AjaxController {
                         $actions[$action]['verbed'],
                         sprintf('%1$d %2$s',
                             $count,
-                            _N('selected ticket', 'selected tickets', $count))
+                            _N('selected sort', 'selected sorts', $count))
                         );
                 $_SESSION['::sysmsgs']['msg'] = $msg;
             } else {
@@ -1267,7 +1267,7 @@ class TicketsAjaxAPI extends AjaxController {
                         __('%1$d of %2$d %3$s %4$s'
                         /* Tokens are <x> of <y> <selected ticket(s)> <actioned> */),
                         $i, $count,
-                        _N('selected ticket', 'selected tickets',
+                        _N('selected sort', 'selected sorts',
                             $count),
                         $actions[$action]['verbed']);
                 $_SESSION['::sysmsgs']['warn'] = $warn;
@@ -1277,7 +1277,7 @@ class TicketsAjaxAPI extends AjaxController {
             $info['error'] = $errors['err'] ?: sprintf(
                     __('Unable to %1$s %2$s'),
                     __('process'),
-                    _N('selected ticket', 'selected tickets', $count));
+                    _N('selected sort', 'selected sorts', $count));
         }
 
         if ($_POST)
@@ -1362,7 +1362,7 @@ class TicketsAjaxAPI extends AjaxController {
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
         elseif ($status->getId() == $ticket->getStatusId())
-            $errors['err'] = sprintf(__('Ticket already set to %s status'),
+            $errors['err'] = sprintf(__('Sort already set to %s status'),
                     __($status->getName()));
         elseif (($role = $ticket->getRole($thisstaff))) {
             // Make sure the agent has permission to set the status
@@ -1371,17 +1371,17 @@ class TicketsAjaxAPI extends AjaxController {
                     if (!$role->hasPerm(Ticket::PERM_CLOSE)
                             && !$role->hasPerm(Ticket::PERM_CREATE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to reopen tickets'));
+                                __('to reopen sorts'));
                     break;
                 case 'closed':
                     if (!$role->hasPerm(Ticket::PERM_CLOSE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to resolve/close tickets'));
+                                __('to resolve/close sorts'));
                     break;
                 case 'deleted':
                     if (!$role->hasPerm(Ticket::PERM_DELETE))
                         $errors['err'] = sprintf(__('You do not have permission %s'),
-                                __('to archive/delete tickets'));
+                                __('to archive/delete sorts'));
                     break;
                 default:
                     $errors['err'] = sprintf('%s %s',
@@ -1419,7 +1419,7 @@ class TicketsAjaxAPI extends AjaxController {
                 } else {
                     $msg = sprintf(
                             __('%s status changed to %s'),
-                            __('Ticket'),
+                            __('Sort'),
                             $status->getName());
                 }
             } else {
@@ -1430,7 +1430,7 @@ class TicketsAjaxAPI extends AjaxController {
                                     $num);
                 }
                 $info['warn'] = sprintf(__('Error updating sort status for %s'),
-                                 ($tickets) ? implode(', ', $tickets) : __('child tickets')
+                                 ($tickets) ? implode(', ', $tickets) : __('child sorts')
                                  );
             }
             $_SESSION['::sysmsgs']['msg'] = $msg;
@@ -1492,7 +1492,7 @@ class TicketsAjaxAPI extends AjaxController {
                     __('Contact admin for such access'));
         elseif (!$_REQUEST['tids'] || !count($_REQUEST['tids']))
             $errors['err']=sprintf(__('You must select at least %s.'),
-                    __('one ticket'));
+                    __('one sort'));
         elseif (!($status= TicketStatus::lookup($_REQUEST['status_id'])))
             $errors['status_id'] = sprintf('%s %s',
                     __('Unknown or invalid'), __('status'));
@@ -1676,7 +1676,7 @@ class TicketsAjaxAPI extends AjaxController {
 
         $info['title'] = sprintf(__('Change Status &mdash; %1$d %2$s selected'),
                  $count,
-                 _N('ticket', 'tickets', $count)
+                 _N('sort', 'sorts', $count)
                  );
 
         if (!strcasecmp($state, 'deleted')) {
