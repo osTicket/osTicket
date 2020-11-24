@@ -57,7 +57,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <select name="dept_id">
                     <option value="0">&mdash; <?php echo __('All Departments');?> &mdash;</option>
                     <?php
-                    if (($depts=Dept::getDepartments(array('publiconly' => true)))) {
+                    if (($depts=$thisstaff->getDepartmentNames())) {
                         foreach($depts as $id => $name) {
                             $selected=($info['dept_id'] && $id==$info['dept_id'])?'selected="selected"':'';
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);

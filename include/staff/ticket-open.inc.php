@@ -228,7 +228,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
+                    if ($topics=$thisstaff->getTopicNames(false, false)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>
@@ -257,7 +257,7 @@ if ($_POST)
                 <select name="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
-                    if($depts=Dept::getPublicDepartments()) {
+                    if($depts=$thisstaff->getDepartmentNames(true)) {
                         foreach($depts as $id =>$name) {
                             if (!($role = $thisstaff->getRole($id))
                                 || !$role->hasPerm(Ticket::PERM_CREATE)
@@ -318,7 +318,7 @@ if ($_POST)
                 <select id="assignId" name="assignId">
                     <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                     <?php
-                    if(($users=Staff::getAvailableStaffMembers())) {
+                    if(($users=$assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true)))) {
                         echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
                         foreach($users as $id => $name) {
                             $k="s$id";

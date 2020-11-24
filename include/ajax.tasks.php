@@ -668,7 +668,7 @@ class TasksAjaxAPI extends AjaxController {
 
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
                 || !($form=$task->getAssignmentForm($_POST, array(
-                            'target' => $target))))
+                            'target' => $target, 'filterVisibility' => true))))
             Http::response(403, __('Permission denied'));
 
         $errors = array();

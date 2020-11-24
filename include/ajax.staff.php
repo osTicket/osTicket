@@ -38,7 +38,7 @@ class StaffAjaxAPI extends AjaxController {
           try {
               // Validate password
               if (!$clean['welcome_email'])
-                  PasswordPolicy::checkPassword($clean['passwd1'], null);
+                  Staff::checkPassword($clean['passwd1'], null);
               if ($id == 0) {
                   // Stash in the session later when creating the user
                   $_SESSION['new-agent-passwd'] = $clean;
@@ -56,8 +56,8 @@ class StaffAjaxAPI extends AjaxController {
                   Http::response(201, 'Successfully updated');
           }
           catch (BadPassword $ex) {
-              $passwd1 = $form->getField('passwd1');
-              $passwd1->addError($ex->getMessage());
+              if ($passwd1 = $form->getField('passwd1'))
+                  $passwd1->addError($ex->getMessage());
           }
           catch (PasswordUpdateFailed $ex) {
               $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
@@ -108,8 +108,8 @@ class StaffAjaxAPI extends AjaxController {
                     }
                 }
                 catch (BadPassword $ex) {
-                    $passwd1 = $form->getField('passwd1');
-                    $passwd1->addError($ex->getMessage());
+                    if ($passwd1 = $form->getField('passwd1'))
+                        $passwd1->addError($ex->getMessage());
                 }
                 catch (PasswordUpdateFailed $ex) {
                     $errors['err'] = __('Password update failed:').' '.$ex->getMessage();
@@ -231,5 +231,92 @@ class StaffAjaxAPI extends AjaxController {
             // XXX: This is very inflexible
             'code' => $code,
           ));
+    }
+
+    function configure2FA($staffId, $id=0) {
+        global $thisstaff;
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if ($staffId != $thisstaff->getId())
+            Http::response(403, 'Access denied');
+        if ($id && !($auth= Staff2FABackend::lookup($id)))
+            Http::response(404, 'Unknown 2FA');
+
+        $staff = $thisstaff;
+        $info = array();
+        if ($auth) {
+            // Simple state machine to manage settings and verification
+            $state = @$_POST['state'] ?: 'validate';
+            switch ($state) {
+                case 'verify':
+                    try {
+                        $form = $auth->getInputForm($_POST);
+                        if ($_POST && $form
+                                && $form->isValid()
+                                && $auth->validate($form, $staff)) {
+                            // Mark the settings as verified
+                            if (($config = $staff->get2FAConfig($auth->getId()))) {
+                                $config['verified'] = time();
+                                $staff->updateConfig(array(
+                                            $auth->getId() => JsonDataEncoder::encode($config)));
+                            }
+                            // We're done here
+                            $auth = null;
+                            $info['notice'] = __('Setup completed successfully');
+                        } else {
+                            $info['error'] = __('Unable to verify the token - try again!');
+                        }
+                    } catch (ExpiredOTP $ex) {
+                        // giving up cleanly
+                        $info['error'] = $ex->getMessage();
+                        $auth = null;
+                    }
+                    break;
+                case 'validate':
+                default:
+                    $config = $staff->get2FAConfig($auth->getId());
+                    $vars = $_POST ?: $config['config'] ?: array('email' => $staff->getEmail());
+                    $form = $auth->getSetupForm($vars);
+                    if ($_POST && $form && $form->isValid()) {
+                        if ($config['config'] && $config['config']['external2fa'])
+                            $external2fa = true;
+
+                        // Save the setting based on setup form
+                        $clean = $form->getClean();
+                        if (!$external2fa) {
+                            $config = ['config' => $clean, 'verified' => 0];
+                            $staff->updateConfig(array(
+                                        $auth->getId() => JsonDataEncoder::encode($config)));
+                        }
+
+                        // Send verification token to the user
+                        if ($token=$auth->send($staff)) {
+                            // Transition to verify state
+                            $form =  $auth->getInputForm($vars);
+                            $state = 'verify';
+                            $info['notice'] = __('Token sent to you!');
+                        } else {
+                            // Generic error TODO: better wording
+                            $info['error'] = __('Error sending Token - double check entry');
+                        }
+                    }
+            }
+        }
+
+        include STAFFINC_DIR . 'templates/2fas.tmpl.php';
+    }
+
+    function reset2fA($staffId) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->isAdmin())
+            Http::response(403, 'Access denied');
+
+        $default_2fa = ConfigItem::getConfigsByNamespace('staff.'.$staffId, 'default_2fa');
+
+        if ($default_2fa)
+            $default_2fa->delete();
     }
 }

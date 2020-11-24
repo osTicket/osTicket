@@ -21,6 +21,13 @@ client_name_format:
         will use it for names if no other format is specified.
 
 # Authentication settings
+client_password_policy:
+    title: Password Management Policy
+    content: >
+        Chose a <span class="doc-desc-title">Password Policy</span> for <span class="doc-desc-title">Users</span>.
+        <br><br>
+        Additional policies can be added by installing <span class="doc-desc-title">Password Policy</span> plugins.
+
 client_session_timeout:
     title: User Session Timeout
     content: >

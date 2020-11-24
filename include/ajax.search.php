@@ -55,7 +55,7 @@ class SearchAjaxAPI extends AjaxController {
         $this->_tryAgain($search);
     }
 
-    function addField($name) {
+    function addField($name, $filterVisibility=null) {
         global $thisstaff;
 
         if (!$thisstaff)
@@ -68,7 +68,9 @@ class SearchAjaxAPI extends AjaxController {
         if (!($F = $searchable[$name]))
             Http::response(404, 'No such field: ', print_r($name, true));
 
-        $fields = SavedSearch::getSearchField($F, $name);
+        $filterVisibility = ($filterVisibility == 'true') ? true : false;
+        $options = array('filterVisibility' => $filterVisibility);
+        $fields = SavedSearch::getSearchField($F, $name, $options);
         $form = new AdvancedSearchForm($fields);
         // Check the box to search the field by default
         if ($F = $form->getField("{$name}+search"))
@@ -151,8 +153,10 @@ class SearchAjaxAPI extends AjaxController {
     }
 
     function _tryAgain($search, $form=null, $errors=array(), $info=array()) {
-        if (!$form)
-            $form = $search->getForm();
+        if (!$form) {
+            $filterVisibility = true;
+            $form = $search->getForm(null, null, $filterVisibility);
+        }
         include STAFFINC_DIR . 'templates/advanced-search.tmpl.php';
     }
 

@@ -745,14 +745,14 @@ class SavedQueue extends CustomQueue {
      * configuring this search in the user interface.
      *
      */
-    function getForm($source=null, $searchable=array()) {
+    function getForm($source=null, $searchable=array(), $filterVisibility=NULL) {
         $searchable = null;
         if ($this->isAQueue())
             // Only allow supplemental matches.
             $searchable = array_intersect_key($this->getCurrentSearchFields($source),
                     $this->getSupplementalMatches());
 
-        return parent::getForm($source, $searchable);
+        return parent::getForm($source, $searchable, $filterVisibility);
     }
 
    /**
@@ -1181,11 +1181,31 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
         return true;
     }
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_topics))
-            $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+        if (!isset($this->_topics)) {
+            if ($options['filterVisibility'])
+                $this->_topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
+            else
+                $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        }
 
         return $this->_topics;
+    }
+}
+
+class SLAChoiceField extends AdvancedSearchSelectionField {
+    static $_slas;
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        if (!isset($this->_slas))
+            $this->_slas = SLA::getSLAs(array('nameOnly' => true));
+
+        return $this->_slas;
     }
 }
 
@@ -1194,10 +1214,15 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
     static $_depts;
     var $_choices;
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_depts))
-            $this->_depts = Dept::getDepartments();
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
 
+        if (!isset($this->_depts)) {
+            if ($options['filterVisibility'])
+                $this->_depts = $thisstaff->getDepartmentNames();
+            else
+                $this->_depts = Dept::getDepartments();
+        }
         return $this->_depts;
     }
 
@@ -1239,7 +1264,7 @@ class AssigneeChoiceField extends ChoiceField {
     protected $_items;
 
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
 
         if (!isset($this->_items)) {
@@ -1247,7 +1272,12 @@ class AssigneeChoiceField extends ChoiceField {
                 'M' => __('Me'),
                 'T' => __('One of my teams'),
             );
-            foreach (Staff::getStaffMembers() as $id=>$name) {
+            if ($options['filterVisibility'])
+                $assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+            else
+                $assignees = Staff::getStaffMembers();
+
+            foreach ($assignees as $id=>$name) {
                 // Don't include $thisstaff (since that's 'Me')
                 if ($thisstaff && $thisstaff->getId() == $id)
                     continue;
@@ -1277,16 +1307,16 @@ class AssigneeChoiceField extends ChoiceField {
         );
     }
 
-    function getSearchMethodWidgets() {
+    function getSearchMethodWidgets($options=array()) {
         return array(
             'assigned' => null,
             '!assigned' => null,
             'includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
             '!includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
         );
@@ -1384,7 +1414,7 @@ class AssigneeChoiceField extends ChoiceField {
 
 class AssignedField extends AssigneeChoiceField {
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'assigned' =>   __('Assigned'),
             '!assigned' =>  __('Unassigned'),
@@ -1527,10 +1557,25 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 
     static $_agents;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+
         if (!isset($this->_agents)) {
-            $this->_agents = array('M' => __('Me')) +
-                Staff::getStaffMembers();
+          //determine if we should filter results based on panel being visited
+          if ($options['filterVisibility']) {
+              $this->_agents = array('M' => __('Me'));
+              $agents = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+              foreach (Staff::getStaffMembers() as $id => $name) {
+                if (!$agents || array_key_exists($id, $agents)) {
+                    // Don't include $thisstaff (since that's 'Me')
+                    if ($thisstaff && $thisstaff->getId() == $id)
+                        continue;
+
+                    $this->_agents[$id] = $name;
+                }
+              }
+          } else
+              $this->_agents = array('M' => __('Me')) +  Staff::getStaffMembers();
         }
         return $this->_agents;
     }
@@ -1574,12 +1619,17 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 class DepartmentManagerSelectionField extends AgentSelectionField {
     static $_members;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+
         if (!isset($this->_members)) {
             $managers = array();
-            $staff = Staff::objects()->filter(array('dept__manager_id__gt' => 0));
-            foreach ($staff as $s) {
-                $managers['s'.$s->getId()] = $s->getName()->name;
+            $mgr = Dept::objects()->filter(array('manager_id__gt' => 0))->values_flat('manager_id');
+            $staff = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+            foreach ($mgr as $mid) {
+                $mid = $mid[0];
+                if (array_key_exists($mid, $staff))
+                    $managers['s'.$mid] = $staff[$mid]->getName()->name;
             }
             $this->_members = $managers;
         }
@@ -1595,7 +1645,7 @@ class DepartmentManagerSelectionField extends AgentSelectionField {
 class TeamSelectionField extends AdvancedSearchSelectionField {
     static $_teams;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_teams) && $teams = Team::getTeams())
             $this->_teams = array('T' => __('One of my teams')) +
                 $teams;
@@ -1641,7 +1691,7 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
 }
 
 class TicketStateChoiceField extends AdvancedSearchSelectionField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'open' => __('Open'),
             'closed' => __('Closed'),
@@ -1663,7 +1713,7 @@ class TicketStateChoiceField extends AdvancedSearchSelectionField {
 }
 
 class TicketFlagChoiceField extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'isanswered' =>   __('Answered'),
             'isoverdue' =>    __('Overdue'),
@@ -1691,7 +1741,7 @@ class TicketFlagChoiceField extends ChoiceField {
 }
 
 class TicketSourceChoiceField extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return Ticket::getSources();
     }
 

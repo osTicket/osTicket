@@ -985,6 +985,8 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
+        global $thisstaff;
+
         $prompt = $assignee = '';
         // Possible assignees
         $assignees = null;
@@ -992,7 +994,7 @@ implements RestrictedAccess, Threadable, Searchable {
         switch (strtolower($options['target'])) {
             case 'agents':
                 $assignees = array();
-                foreach ($dept->getAssignees() as $member)
+                foreach ($thisstaff->getDeptAgents(array('available' => true)) as $member)
                     $assignees['s'.$member->getId()] = $member;
 
                 if (!$source && $this->isOpen() && $this->staff)
@@ -2317,6 +2319,9 @@ implements RestrictedAccess, Threadable, Searchable {
             'dept_id' => new DepartmentChoiceField(array(
                 'label' => __('Department'),
             )),
+            'sla_id' => new SLAChoiceField(array(
+                'label' => __('SLA Plan'),
+            )),
             'topic_id' => new HelpTopicChoiceField(array(
                 'label' => __('Help Topic'),
             )),
@@ -2985,12 +2990,27 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function systemReferral($emails) {
+        global $cfg;
 
-        if (!$this->getThread())
+        if (!$thread = $this->getThread())
             return;
 
+        $eventEmails = array();
+        $events = ThreadEvent::objects()
+            ->filter(array('thread_id' => $thread->getId(),
+                           'event__name' => 'transferred'));
+        if ($events) {
+            foreach ($events as $e) {
+                $emailId = Dept::getEmailIdById($e->dept_id) ?: $cfg->getDefaultEmailId();
+                if (!in_array($emailId, $eventEmails))
+                    $eventEmails[] = $emailId;
+            }
+        }
+
         foreach ($emails as $id) {
+            $refer = $eventEmails ? !in_array($id, $eventEmails) : true;
             if ($id != $this->email_id
+                    && $refer
                     && ($email=Email::lookup($id))
                     && $this->getDeptId() != $email->getDeptId()
                     && ($dept=Dept::lookup($email->getDeptId()))
