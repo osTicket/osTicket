@@ -953,7 +953,7 @@ class TicketZipExporter {
             }
 
             $zip->close();
-            Http::download("ticket-{$this->ticket->getNumber()}.zip", "application/zip",
+            Http::download("sort-{$this->ticket->getNumber()}.zip", "application/zip",
                 null, 'attachment');
             $fp = fopen($zipfile, 'r');
             fpassthru($fp);

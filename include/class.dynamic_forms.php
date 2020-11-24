@@ -41,7 +41,7 @@ class DynamicForm extends VerySimpleModel {
 
     // Registered form types
     static $types = array(
-        'T' => 'Ticket Information',
+        'T' => 'Sort Information',
         'U' => 'User Information',
         'O' => 'Organization Information',
     );

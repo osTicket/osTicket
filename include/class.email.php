@@ -42,7 +42,7 @@ class Email extends VerySimpleModel {
                 'title' =>
                 /* @trans */ 'Banlist',
                 'desc'  =>
-                /* @trans */ 'Ability to add/remove emails from banlist via ticket interface',
+                /* @trans */ 'Ability to add/remove emails from banlist via sort interface',
                 'primary' => true,
             ));
 

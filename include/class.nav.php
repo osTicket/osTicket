@@ -250,7 +250,7 @@ class AdminNav extends StaffNav{
                 case 'manage':
                     $subnav[]=array('desc'=>__('Help Topics'),'href'=>'helptopics.php','iconclass'=>'helpTopics');
                     $subnav[]=array('desc'=>__('Filters'),'href'=>'filters.php',
-                                        'title'=>__('Ticket Filters'),'iconclass'=>'ticketFilters');
+                                        'title'=>__('Sort Filters'),'iconclass'=>'ticketFilters');
                     $subnav[]=array('desc'=>__('SLA'),'href'=>'slas.php','iconclass'=>'sla');
                     $subnav[]=array('desc'=>__('Schedules'),'href'=>'schedules.php','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('API'),'href'=>'apikeys.php','iconclass'=>'api');
