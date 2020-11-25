@@ -1073,7 +1073,7 @@
     .redactor-styles[dir="rtl"] ol ol,
     .redactor-styles[dir="rtl"] ul ol,
     .redactor-styles[dir="rtl"] ol ul {
-      margin: 0 1.5em 0 0; }
+      margin-left: 1.5em; }
     .redactor-styles[dir="rtl"] figcaption {
       text-align: right; }
   .redactor-styles ul[dir="rtl"],
@@ -1082,7 +1082,7 @@
   .redactor-styles ol[dir="rtl"],
   .redactor-styles ol[dir="rtl"] ul,
   .redactor-styles ol[dir="rtl"] ol {
-    margin: 0 1.5em 0 0; }
+    margin-right: 1.5em; }
   .redactor-styles ul[dir="rtl"] li,
   .redactor-styles ol[dir="rtl"] li {
     text-align: right; }
