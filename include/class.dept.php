@@ -541,10 +541,11 @@ implements TemplateVariable, Searchable {
             // Clear any settings using dept to default back to system default
             Topic::objects()
                 ->filter(array('dept_id' => $id))
-                ->delete();
+                ->update(array('dept_id' => 0));
+
             Email::objects()
                 ->filter(array('dept_id' => $id))
-                ->delete();
+                ->update(array('dept_id' => 0));
 
             // Delete extended access entries
             StaffDeptAccess::objects()
