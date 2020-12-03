@@ -4333,8 +4333,8 @@ class TextboxWidget extends Widget {
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
         // placeholder
-        $attrs['placeholder'] = $this->field->getLocal('placeholder',
-                $config['placeholder']);
+        $attrs['placeholder'] = '"' . $this->field->getLocal('placeholder',
+                $config['placeholder']) . '"';
 
         $type = static::$input_type;
         $types = array(
