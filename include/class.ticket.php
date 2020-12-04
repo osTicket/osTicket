@@ -3394,7 +3394,7 @@ implements RestrictedAccess, Threadable, Searchable {
             // is the only recipient on a ticket with collabs
             if (count($recipients) == 1
                     && $this->getNumCollaborators()
-                    && ($contact = $recipients->pop()->getContact())
+                    && ($contact = $recipients->offsetGet(0)->getContact())
                     && ($contact instanceof TicketOwner))
                 $variables['recipient.ticket_link'] =
                     $contact->getTicketLink();
