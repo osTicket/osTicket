@@ -3115,7 +3115,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 if (($cuser=User::fromVars($recipient))) {
                   if (!$existing = Collaborator::getIdByUserId($cuser->getId(), $ticket->getThreadId())) {
-                    if ($c=$ticket->addCollaborator($cuser, $info, $errors, false)) {
+                    $_errors = array();
+                    if ($c=$ticket->addCollaborator($cuser, $info, $_errors, false)) {
                       $c->setCc($c->active);
 
                       // FIXME: This feels very unwise — should be a
