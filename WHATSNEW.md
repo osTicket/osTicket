@@ -1,3 +1,9 @@
+osTicket v1.15.1
+================
+### Improvements
+* readme: Update PHP Version (a4c85d7)
+* placeholder: Quote and encode html chars (0056d14)
+
 osTicket v1.14.5
 ================
 ### Enhancements
