@@ -4333,9 +4333,9 @@ class TextboxWidget extends Widget {
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
         // placeholder
-        $attrs['placeholder'] = $this->field->getLocal('placeholder',
-                $config['placeholder']);
-
+        $attrs['placeholder'] = sprintf('"%s"',
+                Format::htmlchars($this->field->getLocal('placeholder',
+                    $config['placeholder'])));
         $type = static::$input_type;
         $types = array(
             'email' => 'email',
@@ -4427,8 +4427,9 @@ class TextareaWidget extends Widget {
             }
         }
         // placeholder
-        $attrs['placeholder'] = $this->field->getLocal('placeholder',
-                $config['placeholder']);
+        $attrs['placeholder'] = sprintf('"%s"',
+                Format::htmlchars($this->field->getLocal('placeholder',
+                $config['placeholder'])));
         ?>
         <span style="display:inline-block;width:100%">
         <textarea <?php echo Format::array_implode('=', ' ',
@@ -4549,7 +4550,7 @@ class ChoicesWidget extends Widget {
               foreach ($config['data'] as $D=>$V)
                 echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
             ?>
-            data-placeholder="<?php echo $prompt; ?>"
+            data-placeholder="<?php echo Format::htmlchars($prompt); ?>"
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
             <?php if ($showdefault || (!$have_def && !$config['multiselect'])) { ?>
