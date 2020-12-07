@@ -449,8 +449,15 @@ implements RestrictedAccess, Threadable, Searchable {
             return true;
         }
         // 3) If the ticket is a child of a merge
-        if ($this->isParent() && $this->getMergeType() != 'visual')
-            return true;
+        if ($this->isParent() && $this->getMergeType() != 'visual') {
+            $children = Ticket::objects()
+                    ->filter(array('ticket_pid'=>$this->getId()))
+                    ->order_by('sort');
+
+            foreach ($children as $child)
+                if ($child->checkUserAccess($user))
+                    return true;
+        }
 
         return false;
     }
