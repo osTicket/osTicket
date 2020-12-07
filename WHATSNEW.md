@@ -1,3 +1,20 @@
+osTicket v1.14.5
+================
+### Enhancements
+* typo: Change User Confirmation Popup (79e6513)
+* redactor: Upgrade to version 3.4.6 (5c77b0d)
+
+### Improvements
+* issue: MailFetch Inline Disposition (fbf0c7d)
+* issue: Editor Spacing (a6cbc5c)
+* Issue: Collaborator Adding New Collabs (a4ab6b6)
+* mail: Reply to Ticket Owner Only (a4bb20a)
+* dept: Dept Deletion Bug (7cba73d)
+* issue: Task From Ticket (4b48456)
+
+### Security
+* security: Parent Ticket Access (Client) (5972fe8)
+
 osTicket v1.14.4
 ================
 ### Enhancements
