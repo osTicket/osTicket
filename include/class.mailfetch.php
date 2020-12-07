@@ -452,10 +452,11 @@ class MailFetcher {
                     || !$this->findFilename($struct->dparameters))) {
 
             $partNumber=$partNumber?$partNumber:1;
-	    $text=imap_fetchbody($this->mbox, $mid, $partNumber);
-            if((!$text) && $partNumber==1 && $struct->disposition=="inline")
+            if(!($text=imap_fetchbody($this->mbox, $mid, $partNumber))
+                    && $partNumber == 1
+                    && $struct->disposition == 'inline')
                 $text=imap_body($this->mbox, $mid);
-            if(($text)) {
+            if ($text) {
                 if($struct->encoding==3 or $struct->encoding==4) //base64 and qp decode.
                     $text=$this->decode($text, $struct->encoding);
 
