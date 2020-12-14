@@ -1012,6 +1012,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             ));
         }
 
+        $agents = self::nsort($agents);
+
         if (isset($criteria['namesOnly'])) {
             $clean = array();
             foreach ($agents as $a) {
