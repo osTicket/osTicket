@@ -3770,3 +3770,36 @@ img.avatar + img.avatar {
     height: auto;
     max-height: 400px !important;
 }
+/* Fixes for 100% width style */
+#container {
+    width: auto !important;
+}
+
+#customQ_nav {	
+    width: auto;
+}
+
+table.list {
+    width: auto !important;
+}
+
+.bar .content {	
+    width: auto !important;
+}
+
+#ticket_tabs_container, .tixTitle, .ticket_info, #ticket_tabs {
+    margin: auto;
+    width: 70%;
+}
+
+.redactor-styles {
+    margin: 0 !important;
+}
+
+.thread-entry.note .header {
+    background: #ffdde1 !important;
+}
+
+.thread-entry.avatar.note .header:after {
+    border-right: 7px solid #ffdde1 !important;
+}
