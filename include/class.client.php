@@ -259,20 +259,24 @@ class EndUser extends BaseAuthenticatedUser {
         return $this->_stats;
     }
 
-    function getNumTickets($forMyOrg=false, $state=false) {
+    function getNumTickets($forMyOrg=false, $state=false, $answered=null) {
         $stats = $this->getTicketStats();
         $count = 0;
         $section = $forMyOrg ? 'myorg' : 'mine';
         foreach ($stats[$section] as $row) {
+            $isanswered = ($row['isanswered'] == 1);
             if ($state && $row['status__state'] != $state)
                 continue;
+            if ($state && $state == 'open' && isset($answered))
+                if ($answered == $isanswered)
+                    continue;
             $count += $row['count'];
         }
         return $count;
     }
 
-    function getNumOpenTickets($forMyOrg=false) {
-        return $this->getNumTickets($forMyOrg, 'open') ?: 0;
+    function getNumOpenTickets($forMyOrg=false, $answered=null) {
+        return $this->getNumTickets($forMyOrg, 'open', $answered) ?: 0;
     }
 
     function getNumClosedTickets($forMyOrg=false) {
@@ -291,15 +295,19 @@ class EndUser extends BaseAuthenticatedUser {
         return $this->topic_stats[$topic_id];
     }
 
-    function getNumTopicTicketsInState($topic_id, $state=false, $forMyOrg=false) {
+    function getNumTopicTicketsInState($topic_id, $state=false, $forMyOrg=false, $answered=null) {
         $stats = $this->getTicketStats();
         $count = 0;
         $section = $forMyOrg ? 'myorg' : 'mine';
         foreach ($stats[$section] as $row) {
+            $isanswered = ($row['isanswered'] == 1);
             if ($topic_id != $row['topic_id'])
                 continue;
             if ($state && $state != $row['status__state'])
                 continue;
+            if ($state && $state == 'open' && isset($answered))
+                if ($answered == $isanswered)
+                    continue;
             $count += $row['count'];
         }
         return $count;
@@ -339,8 +347,8 @@ class EndUser extends BaseAuthenticatedUser {
         global $cfg;
         $basic = Ticket::objects()
             ->annotate(array('count' => SqlAggregate::COUNT('ticket_id')))
-            ->values('status__state', 'topic_id')
-            ->distinct('status_id', 'topic_id');
+            ->values('status__state', 'topic_id', 'isanswered')
+            ->distinct('status_id', 'topic_id', 'isanswered');
 
         // Share tickets among the organization for owners only
         $mine = clone $basic;
