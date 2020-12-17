@@ -38,6 +38,9 @@ class osTicketSession {
 
         // Set session cleanup time to match TTL
         ini_set('session.gc_maxlifetime', $ttl);
+        
+        // Set session to HttpOnly to prevent cookie hijacking attacks
+        ini_set('session.cookie_httponly', 'true');
 
         if (OsticketConfig::getDBVersion())
             return session_start();
