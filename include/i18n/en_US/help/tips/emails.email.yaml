@@ -47,6 +47,16 @@ auto_response:
         You may disable the Auto-Response sent to the User when a new ticket
         is created via this Email Address.
 
+userid:
+    title: Username
+    content: >
+        The Username is utilized in the email authentication process. We accept
+        single address strings, shared mailbox strings, servername + username
+        strings, and a combination of all.
+    links:
+      - title: More Information
+        href: https://docs.osticket.com/en/latest/Admin/Emails/Emails.html
+
 username:
     title: Username
     content: >
@@ -79,11 +89,26 @@ host_and_port:
         may be available in the documentation for your hosting account or
         from your email administrator.
 
+mail_folder:
+    title: Mail Folder
+    content: >
+        Enter the <span class="doc-desc-title">Folder</span> name that you
+        wish to fetch mail from. If left emtpy the system will fetch from the
+        INBOX.
+
 protocol:
     title: Mail Box Protocol
     content: >
         Select the mail box protocol supported by your remote mail server.
         IMAP is recommended and SSL is encouraged if at all possible.
+
+smtp_auth_creds:
+    title: Use Separate Authentication
+    content: >
+        If this setting is Disabled the system will use the same Authentication
+        Credentials as entered above. If you require separate credentials for
+        Fetching and SMTP, you can Enable this setting and enter your SMTP
+        Authentication Credentails.
 
 fetch_frequency:
     title: Fetch Frequency

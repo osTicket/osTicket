@@ -121,6 +121,50 @@ if ($avatar->isChangeable()) { ?>
             <div class="error"><?php echo $errors['username']; ?></div>
           </td>
         </tr>
+
+<?php
+if (($bks=Staff2FABackend::allRegistered())) {
+    $current = $staff->get2FABackendId();
+    $required2fa = $cfg->require2FAForAgents();
+    $_config = $staff->getConfig();
+?>
+        <tr>
+          <td <?php if ($required2fa) echo 'class="required"'; ?>><?php echo __('Default 2FA'); ?>:</td>
+          <td>
+            <select name="default_2fa" id="default2fa-selection"
+              style="width:300px">
+              <?php
+              if (!$required2fa) { ?>
+              <option value="">&mdash; <?php echo __('Disable'); ?> &mdash;</option>
+              <?php
+              }
+             foreach ($bks as $bk) {
+                 $configuration = $staff->get2FAConfig($bk->getId());
+                 $configured = $configuration['verified'];
+                 ?>
+              <option id="<?php echo $bk->getId(); ?>"
+                      value="<?php echo $bk->getId(); ?>" <?php
+                if ($current == $bk->getId() && $configured)
+                  echo ' selected="selected" '; ?>
+                <?php
+                if (!$configured)
+                   echo ' disabled="disabled" '; ?>
+                 ><?php
+                echo $bk->getName(); ?></option>
+             <?php } ?>
+            </select>
+            &nbsp;
+            <button type="button" id="config2fa-button" class="action-button" onclick="javascript:
+            $.dialog('ajax.php/staff/'+<?php echo $staff->getId();
+                    ?>+'/2fa/configure', 201);">
+              <i class="icon-gear"></i> <?php echo __('Configure Options'); ?>
+            </button>
+            <i class="offset help-tip icon-question-sign" href="#config2fa"></i>
+            <div class="error"><?php echo $errors['default_2fa']; ?></div>
+          </td>
+        </tr>
+<?php
+} ?>
       </tbody>
       <!-- ================================================ -->
       <tbody>
@@ -315,6 +359,41 @@ if ($avatar->isChangeable()) { ?>
                   ?>
                 </select>
                 <div class="error"><?php echo $errors['reply_redirect']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Image Attachment View'); ?>:
+                <div class="faded"><?php echo __('Open image attachments in new tab or directly download. (CTRL + Right Click)');?></div>
+            </td>
+            <td>
+                <select name="img_att_view">
+                  <?php
+                  $options=array('download'=>__('Download'),'inline'=>__('Inline'));
+                  foreach($options as $key=>$opt) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $key,($staff->img_att_view==$key)?'selected="selected"':'',$opt);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['img_att_view']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Editor Spacing'); ?>:
+                <div class="faded"><?php echo __('Set the editor spacing to Single or Double when pressing Enter.');?></div>
+            </td>
+            <td>
+                <select name="editor_spacing">
+                  <?php
+                  $options=array('double'=>__('Double'),'single'=>__('Single'));
+                  $spacing = $staff->editor_spacing;
+                  foreach($options as $key=>$opt) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $key,($spacing==$key)?'selected="selected"':'',$opt);
+                  }
+                  ?>
+                </select>
+                <div class="error"><?php echo $errors['editor_spacing']; ?></div>
             </td>
         </tr>
       </tbody>

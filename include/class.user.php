@@ -213,6 +213,7 @@ implements TemplateVariable, Searchable {
     var $_email;
     var $_entries;
     var $_forms;
+    var $_queue;
 
 
 
@@ -250,6 +251,8 @@ implements TemplateVariable, Searchable {
             catch (OrmException $e) {
                 return null;
             }
+            $type = array('type' => 'created');
+            Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
         }
         elseif ($update) {
@@ -288,7 +291,7 @@ implements TemplateVariable, Searchable {
 
         if (!isset($this->_email))
             $this->_email = new EmailAddress(sprintf('"%s" <%s>',
-                    $this->getName(),
+                    addcslashes($this->getName(), '"'),
                     $this->default_email->address));
 
         return $this->_email;
@@ -525,12 +528,13 @@ implements TemplateVariable, Searchable {
     }
 
     function importFromPost($stream, $extra=array()) {
+        if (!is_array($stream))
+            $stream = sprintf('name, email%s %s',PHP_EOL, $stream);
+
         return User::importCsv($stream, $extra);
     }
 
     function updateInfo($vars, &$errors, $staff=false) {
-
-
         $isEditable = function ($f) use($staff) {
             return ($staff ? $f->isEditableToStaff() :
                     $f->isEditableToUsers());
@@ -563,18 +567,35 @@ implements TemplateVariable, Searchable {
 
         // Save the entries
         foreach ($forms as $entry) {
+            $fields = $entry->getFields();
+            foreach ($fields as $field) {
+                $changes = $field->getChanges();
+                if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                    $type = array('type' => 'edited', 'key' => $field->getLabel());
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
+
             if ($entry->getDynamicForm()->get('type') == 'U') {
                 //  Name field
                 if (($name = $entry->getField('name')) && $isEditable($name) ) {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
+                    if ($this->name != $name) {
+                        $type = array('type' => 'edited', 'key' => 'Name');
+                        Signal::send('object.edited', $this, $type);
+                    }
                     $this->name = $name;
                 }
 
                 // Email address field
                 if (($email = $entry->getField('email'))
                         && $isEditable($email)) {
+                    if ($this->default_email->address != $email->getClean()) {
+                        $type = array('type' => 'edited', 'key' => 'Email');
+                        Signal::send('object.edited', $this, $type);
+                    }
                     $this->default_email->address = $email->getClean();
                     $this->default_email->save();
                 }
@@ -621,7 +642,6 @@ implements TemplateVariable, Searchable {
     }
 
     function delete() {
-
         // Refuse to delete a user with tickets
         if ($this->tickets->count())
             return false;
@@ -637,6 +657,9 @@ implements TemplateVariable, Searchable {
         foreach ($this->getDynamicData() as $entry) {
             $entry->delete();
         }
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         // Delete user
         return parent::delete();
@@ -670,6 +693,31 @@ implements TemplateVariable, Searchable {
             return false;
 
         return ROOT_PATH . sprintf('scp/users.php?id=%s', $id);
+    }
+
+    function getTicketsQueue($collabs=true) {
+        global $thisstaff;
+
+        if (!$this->_queue) {
+            $email = $this->getDefaultEmailAddress();
+            $filter = [
+                ['user__id', 'equal', $this->getId()],
+            ];
+            if ($collabs)
+                $filter = [
+                    ['user__emails__address', 'equal', $email],
+                    ['thread__collaborators__user__emails__address', 'equal',  $email],
+                ];
+            $this->_queue = new AdhocSearch(array(
+                'id' => 'adhoc,uid'.$this->getId(),
+                'root' => 'T',
+                'staff_id' => $thisstaff->getId(),
+                'title' => $this->getName()
+            ));
+            $this->_queue->config = $filter;
+        }
+
+        return $this->_queue;
     }
 }
 
@@ -1020,6 +1068,12 @@ class UserAccount extends VerySimpleModel {
         return $this->_status;
     }
 
+    function statusChanged($flag, $var) {
+        if (($this->hasStatus($flag) && !$var) ||
+            (!$this->hasStatus($flag) && $var))
+                return true;
+    }
+
     protected function hasStatus($flag) {
         return $this->getStatus()->check($flag);
     }
@@ -1082,6 +1136,10 @@ class UserAccount extends VerySimpleModel {
 
     function getUser() {
         return $this->user;
+    }
+
+    function getUserName() {
+        return $this->getUser()->getName();
     }
 
     function getExtraAttr($attr=false, $default=null) {
@@ -1206,7 +1264,6 @@ class UserAccount extends VerySimpleModel {
      * options are set to Public
      */
     function update($vars, &$errors) {
-
         // TODO: Make sure the username is unique
 
         // Timezone selection is not required. System default is a valid
@@ -1216,10 +1273,13 @@ class UserAccount extends VerySimpleModel {
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = __('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = __('Must be at least 6 characters');
-            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = __('Passwords do not match');
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         // Make sure the username is not an email.
@@ -1229,12 +1289,28 @@ class UserAccount extends VerySimpleModel {
 
         if ($errors) return false;
 
+        //flags
+        $pwreset = $this->statusChanged(UserAccountStatus::REQUIRE_PASSWD_RESET, $vars['pwreset-flag']);
+        $locked = $this->statusChanged(UserAccountStatus::LOCKED, $vars['locked-flag']);
+        $forbidPwChange = $this->statusChanged(UserAccountStatus::FORBID_PASSWD_RESET, $vars['forbid-pwchange-flag']);
+
+        $info = $this->getInfo();
+        foreach ($vars as $key => $value) {
+            if (($key != 'id' && $info[$key] && $info[$key] != $value) || ($pwreset && $key == 'pwreset-flag' ||
+                    $locked && $key == 'locked-flag' || $forbidPwChange && $key == 'forbid-pwchange-flag')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->set('timezone', $vars['timezone']);
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
             $this->setPassword($vars['passwd1']);
             $this->setStatus(UserAccountStatus::CONFIRMED);
+            $type = array('type' => 'edited', 'key' => 'password');
+            Signal::send('object.edited', $this, $type);
         }
 
         // Set flags
@@ -1245,8 +1321,14 @@ class UserAccount extends VerySimpleModel {
         ) as $ck=>$flag) {
             if ($vars[$ck])
                 $this->setStatus($flag);
-            else
+            else {
+                if (($pwreset && $ck == 'pwreset-flag') || ($locked && $ck == 'locked-flag') ||
+                    ($forbidPwChange && $ck == 'forbid-pwchange-flag')) {
+                        $type = array('type' => 'edited', 'key' => $ck);
+                        Signal::send('object.edited', $this, $type);
+                }
                 $this->clearStatus($flag);
+            }
         }
 
         return $this->save(true);
@@ -1280,10 +1362,15 @@ class UserAccount extends VerySimpleModel {
                 && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = 'Temporary password required';
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2'] = 'Passwords do not match';
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         if ($errors) return false;
@@ -1316,6 +1403,10 @@ class UserAccount extends VerySimpleModel {
             $account->sendConfirmEmail();
 
         return $account;
+    }
+
+    static function checkPassword($new, $current=null) {
+        osTicketClientAuthentication::checkPassword($new, $current);
     }
 
 }

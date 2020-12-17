@@ -37,10 +37,10 @@ if($_REQUEST['id'] || $_REQUEST['number']) {
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(array('number' => $_REQUEST['number']))))
          $errors['err']=sprintf(__('%s: Unknown or invalid number.'), __('ticket'));
-    elseif(!$ticket->checkStaffPerm($thisstaff)) {
-        $errors['err']=__('Access denied. Contact admin if you believe this is in error');
-        $ticket=null; //Clear ticket obj.
-    }
+     elseif(!$ticket->checkStaffPerm($thisstaff)) {
+         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
+         $ticket=null; //Clear ticket obj.
+     }
 }
 
 if (!$ticket) {
@@ -87,7 +87,8 @@ if (!$ticket) {
         $wc = mb_str_wc($_GET['query']);
         if ($wc < 4) {
             $key = substr(md5($_GET['query']), -10);
-            if ($_GET['search-type'] == 'typeahead') {
+            $isEmail = Validator::is_email($_GET['query']);
+            if ($_GET['search-type'] == 'typeahead' || $isEmail) {
                 // Use a faster index
                 $criteria = ['user__emails__address', 'equal', $_GET['query']];
             } else {
@@ -190,6 +191,25 @@ if($_POST && !$errors):
             }
 
             $alert =  strcasecmp('none', $_POST['reply-to']);
+            if (!$errors) {
+                // Add new collaborators (if any)
+                $_errors = array();
+                if (isset($vars['ccs']) && count($vars['ccs']))
+                    $ticket->addCollaborators($vars['ccs'], array(), $_errors);
+                // set status of collaborators
+                if ($collabs = $ticket->getCollaborators()) {
+                    foreach ($collabs as $collaborator) {
+                        $cid = $collaborator->getUserId();
+                        // Enable collaborators if they were reselected
+                        if (!$collaborator->isActive() && ($vars['ccs'] && in_array($cid, $vars['ccs'])))
+                            $collaborator->setFlag(Collaborator::FLAG_ACTIVE, true);
+                        // Disable collaborators if they were unchecked
+                        elseif ($collaborator->isActive() && (!$vars['ccs'] || !in_array($cid, $vars['ccs'])))
+                            $collaborator->setFlag(Collaborator::FLAG_ACTIVE, false);
+                        $collaborator->save();
+                    }
+                }
+            }
             if (!$errors && ($response=$ticket->postReply($vars, $errors,
                             $alert))) {
                 $msg = sprintf(__('%s: Reply posted successfully'),
@@ -398,6 +418,7 @@ if($_POST && !$errors):
 
                     if(($ticket=Ticket::open($vars, $errors))) {
                         $msg=__('Ticket created successfully');
+                        $redirect = 'tickets.php?id='.$ticket->getId();
                         $_REQUEST['a']=null;
                         if (!$ticket->checkStaffPerm($thisstaff) || $ticket->isClosed())
                             $ticket=null;
@@ -495,19 +516,32 @@ if($ticket) {
             $f->filterFields(function($f) { return !$f->isStorable(); });
             $f->addMissingFields();
         }
-    } elseif($_REQUEST['a'] == 'print' && !$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes']))
-        $errors['err'] = __('Unable to export the ticket to PDF for print.')
+    } elseif($_REQUEST['a'] == 'print') {
+        if (!extension_loaded('mbstring'))
+            $errors['err'] = sprintf('%s %s',
+                'mbstring',
+                __('extension required to print ticket to PDF'));
+        elseif (!$ticket->pdfExport($_REQUEST['psize'], $_REQUEST['notes'], $_REQUEST['events']))
+            $errors['err'] = __('Unable to export the ticket to PDF for print.')
+                .' '.__('Internal error occurred');
+    } elseif ($_GET['a'] == 'zip' && !$ticket->zipExport($_REQUEST['notes'], $_REQUEST['tasks'])) {
+        $errors['err'] = __('Unable to export the ticket to ZIP.')
             .' '.__('Internal error occurred');
+    } elseif (PluginManager::auditPlugin() && $_REQUEST['a'] == 'export' && strtolower($_REQUEST['t']) == 'audits') {
+      require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
+      $show = AuditEntry::$show_view_audits;
+      $filename = sprintf('%s-audits-%s.csv',
+              $ticket->getNumber(), strftime('%Y%m%d'));
+      $tableInfo = AuditEntry::getTableInfo($ticket, true);
+      if (!Export::audits('ticket', $filename, $tableInfo, $ticket, 'csv', $show))
+          $errors['err'] = __('Unable to dump query results.')
+              .' '.__('Internal error occurred');
+    }
 } else {
     $inc = 'templates/queue-tickets.tmpl.php';
     if ($_REQUEST['a']=='open' &&
-            $thisstaff->hasPerm(Ticket::PERM_CREATE, false))
+            $thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
         $inc = 'ticket-open.inc.php';
-    elseif ($_REQUEST['a'] == 'export' && $queue) {
-        // XXX: Check staff access?
-        if (!$queue->export())
-            $errors['err'] = __('Unable to export results.')
-                .' '.__('Internal error occurred');
     } elseif ($queue) {
         // XXX: Check staff access?
         $quick_filter = @$_REQUEST['filter'];

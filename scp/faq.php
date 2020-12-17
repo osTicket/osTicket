@@ -80,6 +80,8 @@ if ($_POST) {
             $faq = FAQ::create();
             if($faq->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($faq->getQuestion()));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $faq, $type);
                 // Delete draft for this new faq
                 Draft::deleteForNamespace('faq', $thisstaff->getId());
             } elseif(!$errors['err'])
@@ -100,6 +102,8 @@ if ($_POST) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this FAQ article')),
                     __('Correct any errors below and try again.'));
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $faq, $type);
             break;
         case 'manage-faq':
             if(!$faq) {

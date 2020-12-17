@@ -53,7 +53,7 @@ $manage = (!$target);
         <tbody>
             <tr><td colspan=2>
              <?php
-             $options = array('template' => 'simple', 'form_id' => 'refer');
+             $options = array('template' => 'simple', 'form_id' => 'refer', 'filterVisibility' => true);
              $form->render($options);
              ?>
             </td> </tr>

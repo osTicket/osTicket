@@ -116,7 +116,14 @@ class Config {
             return $this->create($key, $value);
 
         $item = $this->config[$key];
+        $before = $item->value;
         $item->value = $value;
+
+        if ($before != $item->value) {
+            $type = array('type' => 'edited', 'key' => $item->ht['key']);
+            Signal::send('object.edited', $item, $type);
+        }
+
         return $item->save();
     }
 
@@ -179,6 +186,23 @@ extends VerySimpleModel {
                 'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::SECOND($period)),
             ))->delete();
     }
+
+    function getConfigsByNamespace($namespace=false, $key, $value=false) {
+        $filter = array();
+
+         $filter['key'] = $key;
+
+         if ($namespace)
+            $filter['namespace'] = $namespace;
+
+         if ($value)
+            $filter['value'] = $value;
+
+         $token = ConfigItem::objects()
+            ->filter($filter);
+
+         return $namespace ? $token[0] : $token;
+    }
 }
 
 class OsticketConfig extends Config {
@@ -187,6 +211,7 @@ class OsticketConfig extends Config {
 
     var $defaultDept;   //Default Department
     var $defaultSLA;   //Default SLA
+    var $defaultSchedule; // Default Schedule
     var $defaultEmail;  //Default Email
     var $alertEmail;  //Alert Email
     var $defaultSMTPEmail; //Default  SMTP Email
@@ -200,7 +225,9 @@ class OsticketConfig extends Config {
         'agent_name_format' =>  'full', # First Last
         'client_name_format' => 'original', # As entered
         'auto_claim_tickets'=>  true,
+        'auto_refer_closed' => true,
         'collaborator_ticket_visibility' =>  true,
+        'disable_agent_collabs' => false,
         'require_topic_to_close' =>  false,
         'system_language' =>    'en_US',
         'default_storage_bk' => 'D',
@@ -219,6 +246,8 @@ class OsticketConfig extends Config {
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
+        'force_https' => '',
+        'allow_external_images' => 1,
     );
 
     function __construct($section=null) {
@@ -334,14 +363,38 @@ class OsticketConfig extends Config {
     }
 
     /* Date & Time Formats */
-    function getTimeFormat() {
+    function getTimeFormat($propogate=false) {
+        global $cfg;
+
         if ($this->get('date_formats') == 'custom')
             return $this->get('time_format');
+
+        if ($propogate) {
+            $format = 'h:i a'; // Default
+            if (class_exists('IntlDateFormatter')) {
+                $formatter = new IntlDateFormatter(
+                    Internationalization::getCurrentLocale(),
+                    IntlDateFormatter::NONE,
+                    IntlDateFormatter::SHORT,
+                    $this->getTimezone(),
+                    IntlDateFormatter::GREGORIAN
+                );
+                $format = $formatter->getPattern();
+            }
+            // Check if we're forcing 24 hrs format
+            if ($cfg && $cfg->isForce24HourTime() && $format)
+                $format = trim(str_replace(array('a', 'h'), array('', 'H'),
+                            $format));
+            return $format;
+        }
+
         return '';
     }
+
     function isForce24HourTime() {
         return $this->get('date_formats') == '24';
     }
+
     /**
      * getDateFormat
      *
@@ -368,10 +421,8 @@ class OsticketConfig extends Config {
                 );
                 return $formatter->getPattern();
             }
-            else {
-                // Use a standard
-                return 'y-M-d';
-            }
+            // Use a standard
+            return 'y-M-d';
         }
         return '';
     }
@@ -379,6 +430,11 @@ class OsticketConfig extends Config {
     function getDateTimeFormat() {
         if ($this->get('date_formats') == 'custom')
             return $this->get('datetime_format');
+
+        if (class_exists('IntlDateFormatter'))
+            return sprintf('%s %s', $this->getDateFormat(true),
+                    $this->getTimeFormat(true));
+
         return '';
     }
 
@@ -412,8 +468,23 @@ class OsticketConfig extends Config {
         return $this->get('overdue_grace_period');
     }
 
+    // This is here for legacy reasons - default osTicket Password Policy
+    // uses it, if previously set.
     function getPasswdResetPeriod() {
         return $this->get('passwd_reset_period');
+    }
+
+
+    function getStaffPasswordPolicy() {
+        return $this->get('agent_passwd_policy');
+    }
+
+    function getClientPasswordPolicy() {
+        return $this->get('client_passwd_policy');
+    }
+
+    function require2FAForAgents() {
+         return $this->get('require_agent_2fa');
     }
 
     function isRichTextEnabled() {
@@ -422,6 +493,12 @@ class OsticketConfig extends Config {
 
     function getAllowIframes() {
         return str_replace(array(', ', ','), array(' ', ' '), $this->get('allow_iframes')) ?: "'self'";
+    }
+
+    function getIframeWhitelist() {
+        $whitelist = array_filter(explode(',', str_replace(' ', '', $this->get('embedded_domain_whitelist'))));
+
+        return !empty($whitelist) ? $whitelist : null;
     }
 
     function getACL() {
@@ -557,6 +634,18 @@ class OsticketConfig extends Config {
         return $this->defaultSLA;
     }
 
+    function getDefaultScheduleId() {
+        return $this->get('schedule_id');
+    }
+
+    function getDefaultSchedule() {
+        if (!isset($this->defaultSchedule) && $this->getDefaultScheduleId())
+            $this->defaultSchedule = BusinessHoursSchedule::lookup(
+                    $this->getDefaultScheduleId());
+
+        return $this->defaultSchedule;
+    }
+
     function getAlertEmailId() {
         return $this->get('alert_email_id');
     }
@@ -599,6 +688,10 @@ class OsticketConfig extends Config {
 
     function getTopicSortMode() {
         return $this->get('help_topic_sort_mode');
+    }
+
+    function forceHttps() {
+        return $this->get('force_https') == 'on';
     }
 
     function setTopicSortMode($mode) {
@@ -729,6 +822,13 @@ class OsticketConfig extends Config {
 
     function getClientRegistrationMode() {
         return $this->get('client_registration');
+    }
+
+    function isClientRegistrationMode($modes) {
+        if (!is_array($modes))
+            $modes = array($modes);
+
+        return in_array($this->getClientRegistrationMode(), $modes);
     }
 
     function isClientEmailVerificationRequired() {
@@ -952,12 +1052,24 @@ class OsticketConfig extends Config {
         return $this->get('auto_claim_tickets');
     }
 
+    function autoReferTicketsOnClose() {
+         return $this->get('auto_refer_closed');
+    }
+
     function collaboratorTicketsVisibility() {
         return $this->get('collaborator_ticket_visibility');
     }
 
+    function disableAgentCollaborators() {
+        return $this->get('disable_agent_collabs');
+    }
+
     function requireTopicToClose() {
         return $this->get('require_topic_to_close');
+    }
+
+    function allowExternalImages() {
+        return ($this->get('allow_external_images'));
     }
 
     function getDefaultTicketQueueId() {
@@ -1144,7 +1256,8 @@ class OsticketConfig extends Config {
         $f['helpdesk_title']=array('type'=>'string',   'required'=>1, 'error'=>__('Helpdesk title is required'));
         $f['default_dept_id']=array('type'=>'int',   'required'=>1, 'error'=>__('Default Department is required'));
         $f['autolock_minutes']=array('type'=>'int',   'required'=>1, 'error'=>__('Enter lock time in minutes'));
-        $f['allow_iframes']=array('type'=>'cs-domain',   'required'=>0, 'error'=>__('Enter comma separated list of domains'));
+        $f['allow_iframes']=array('type'=>'cs-url',   'required'=>0, 'error'=>__('Enter comma separated list of urls'));
+        $f['embedded_domain_whitelist']=array('type'=>'cs-domain',   'required'=>0, 'error'=>__('Enter comma separated list of domains'));
         $f['acl']=array('type'=>'ipaddr',   'required'=>0, 'error'=>__('Enter comma separated list of IP addresses'));
         //Date & Time Options
         $f['time_format']=array('type'=>'string',   'required'=>1, 'error'=>__('Time format is required'));
@@ -1161,7 +1274,7 @@ class OsticketConfig extends Config {
             // Check if Admin's IP is in the list, if not, return error
             // to avoid locking self out
             if (!in_array($vars['acl_backend'], array(0,2))) {
-                $acl = explode(',', str_replace(' ', '', $acl));
+                $acl = explode(',', str_replace(' ', '', $vars['acl']));
                 if (!in_array(osTicket::get_client_ip(), $acl))
                     $errors['acl'] = __('Cowardly refusing to lock out active administrator');
             }
@@ -1199,6 +1312,7 @@ class OsticketConfig extends Config {
             'helpdesk_title'=>$vars['helpdesk_title'],
             'helpdesk_url'=>$vars['helpdesk_url'],
             'default_dept_id'=>$vars['default_dept_id'],
+            'force_https'=>$vars['force_https'] ? 'on' : '',
             'max_page_size'=>$vars['max_page_size'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
@@ -1208,6 +1322,7 @@ class OsticketConfig extends Config {
             'daydatetime_format'=>$vars['daydatetime_format'],
             'date_formats'=>$vars['date_formats'],
             'default_timezone'=>$vars['default_timezone'],
+            'schedule_id' => $vars['schedule_id'],
             'default_locale'=>$vars['default_locale'],
             'system_language'=>$vars['system_language'],
             'secondary_langs'=>$secondary_langs,
@@ -1217,6 +1332,7 @@ class OsticketConfig extends Config {
             'enable_richtext' => isset($vars['enable_richtext']) ? 1 : 0,
             'files_req_auth' => isset($vars['files_req_auth']) ? 1 : 0,
             'allow_iframes' => Format::sanitize($vars['allow_iframes']),
+            'embedded_domain_whitelist' => Format::sanitize($vars['embedded_domain_whitelist']),
             'acl' => Format::sanitize($vars['acl']),
             'acl_backend' => Format::sanitize((int) $vars['acl_backend']) ?: 0,
         ));
@@ -1237,16 +1353,18 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
-            'passwd_reset_period'=>$vars['passwd_reset_period'],
+            'agent_passwd_policy'=>$vars['agent_passwd_policy'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
             'staff_session_timeout'=>$vars['staff_session_timeout'],
             'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
+            'require_agent_2fa'=>$vars['require_agent_2fa'],
             'agent_name_format'=>$vars['agent_name_format'],
             'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
+            'disable_agent_collabs'=>isset($vars['disable_agent_collabs'])?1:0,
         ));
     }
 
@@ -1263,6 +1381,7 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
+            'client_passwd_policy'=>$vars['client_passwd_policy'],
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],
@@ -1330,12 +1449,14 @@ class OsticketConfig extends Config {
             'max_open_tickets'=>$vars['max_open_tickets'],
             'enable_captcha'=>isset($vars['enable_captcha'])?1:0,
             'auto_claim_tickets'=>isset($vars['auto_claim_tickets'])?1:0,
+            'auto_refer_closed' => isset($vars['auto_refer_closed']) ? 1 : 0,
             'collaborator_ticket_visibility'=>isset($vars['collaborator_ticket_visibility'])?1:0,
             'require_topic_to_close'=>isset($vars['require_topic_to_close'])?1:0,
             'show_related_tickets'=>isset($vars['show_related_tickets'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'ticket_lock' => $vars['ticket_lock'],
             'default_ticket_queue'=>$vars['default_ticket_queue'],
+            'allow_external_images'=>isset($vars['allow_external_images'])?1:0,
         ));
     }
 
@@ -1566,11 +1687,6 @@ class OsticketConfig extends Config {
 
 
     function updateKBSettings($vars, &$errors) {
-
-        if ($vars['restrict_kb'] && !$this->isClientRegistrationEnabled())
-            $errors['restrict_kb'] =
-                __('The knowledge base cannot be restricted unless client registration is enabled');
-
         if ($errors) return false;
 
         return $this->updateAll(array(

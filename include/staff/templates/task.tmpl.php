@@ -26,11 +26,11 @@ if ($info['error']) {
     <?php
         $form = $form ?: TaskForm::getInstance();
         echo $form->getForm($vars)->asTable(' ',
-                array('draft-namespace' => $namespace)
+                array('draft-namespace' => $namespace, 'filterVisibility' => true)
                 );
 
         $iform = $iform ?: TaskForm::getInternalForm();
-        echo $iform->asTable(__("Task Visibility & Assignment"));
+        echo $iform->asTable(__("Task Visibility & Assignment"), array('filterVisibility' => true));
 ?>
     <hr>
     <p class="full-width">

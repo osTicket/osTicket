@@ -59,6 +59,7 @@ class osTicket {
         if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
             $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
+        $this->config = new OsticketConfig();
 
         $this->csrf = new CSRF('__CSRFToken__');
 
@@ -84,9 +85,6 @@ class osTicket {
     }
 
     function getConfig() {
-        if (!isset($this->config))
-            $this->config = new OsticketConfig();
-
         return $this->config;
     }
 
@@ -114,16 +112,16 @@ class osTicket {
         return ($token && $this->getCSRF()->validateToken($token));
     }
 
-    function checkCSRFToken($name=false) {
+    function checkCSRFToken($name=false, $rotate=false) {
         $name = $name ?: $this->getCSRF()->getTokenName();
-        if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
+        $token = $_POST[$name] ?: $_SERVER['HTTP_X_CSRFTOKEN'];
+        if ($token && $this->validateCSRFToken($token)) {
+            if ($rotate) $this->getCSRF()->rotate();
             return true;
-
-        if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
-            return true;
+        }
 
         $msg=sprintf(__('Invalid CSRF token [%1$s] on %2$s'),
-                (Format::htmlchars($_POST[$name]).''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
+                Format::htmlchars($token), THISPAGE);
         $this->logWarning(__('Invalid CSRF Token').' '.$name, $msg, false);
 
         return false;
@@ -611,6 +609,17 @@ class osTicket {
         // Check if SSL was terminated by a loadbalancer
         return (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
                 && !strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https'));
+    }
+
+    /**
+     * Returns TRUE if the current browser is IE and FALSE otherwise
+     */
+    function is_ie() {
+        if (preg_match('/MSIE|Internet Explorer|Trident\/[\d]{1}\.[\d]{1,2}/',
+                $_SERVER['HTTP_USER_AGENT']))
+            return true;
+
+        return false;
     }
 
     /* returns true if script is being executed via commandline */

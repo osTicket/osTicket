@@ -29,8 +29,7 @@ if ($queue->parent) { ?>
     </tr>
   </tbody>
 <?php }
-$hidden_cols = $queue->inheritColumns() || ($queue->useStandardColumns() &&
-        $queue->parent_id);
+$hidden_cols = $queue->inheritColumns() || $queue->useStandardColumns();
 ?>
   <tbody class="if-not-inherited <?php if ($hidden_cols) echo 'hidden'; ?>">
     <tr class="header">

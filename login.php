@@ -48,7 +48,7 @@ if ($_POST) {
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
         $errors['err'] = __('Valid username or email address is required');
-    elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
+    elseif (($user = UserAuthenticationBackend::process(trim($_POST['luser']),
             $_POST['lpasswd'], $errors))) {
         if ($user instanceof ClientCreateRequest) {
             if ($cfg && $cfg->isClientRegistrationEnabled()) {
@@ -108,8 +108,12 @@ elseif (isset($_GET['do'])) {
     switch($_GET['do']) {
     case 'ext':
         // Lookup external backend
-        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk']))
-            $bk->triggerAuth();
+        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk'])) {
+            $result = $bk->triggerAuth();
+            if ($result instanceof AccessDenied) {
+                $errors['err'] = $result->getMessage();
+            }
+        }
     }
 }
 elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {

@@ -54,6 +54,17 @@ sla:
       - title: Manage SLA Plans
         href: /scp/slas.php
 
+schedule:
+    title: Schedule
+    content: >
+        Schedule used by SLA when rendering tickets, routed to this Department,
+        Overdue.
+        <br><br>
+        This setting takes precedence over System and SLA schedule settings.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
+
 manager:
     title: Department Manager
     content: >
@@ -88,6 +99,14 @@ disable_auto_claim:
         this department.
         <br><br>
         Agents can still manually claim unassigned tickets
+
+disable_reopen_auto_assign:
+    title: Disable Auto Assign on Reopen
+    content: >
+        Check this to <strong>disable</strong> auto-assignment of reopened tickets for
+        this department.
+        <br><br>
+        Otherwise, the Ticket will be auto assigned to the last responding Agent
 
 auto_response_settings:
     title: Autoresponder Settings

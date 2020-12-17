@@ -67,7 +67,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                       if(!array_key_exists($info['pid'], $depts) && $info['pid'])
                       {
                         $depts[$info['pid']] = $current_name;
-                        $warn = sprintf(__('%s selected must be active'), __('Parent Department'));
+                        $errors['pid'] = sprintf(__('%s selected must be active'), __('Parent Department'));
                       }
                     foreach ($depts as $id=>$name) {
                         $selected=($info['pid'] && $id==$info['pid'])?'selected="selected"':'';
@@ -76,10 +76,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                   }
                   ?>
               </select>
-              <?php
-              if($warn) { ?>
-                  &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
-              <?php } ?>
+              &nbsp;<span class="error">*&nbsp;<?php echo $errors['pid']; ?></span>
             </td>
         </tr>
         <tr>
@@ -143,6 +140,26 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
         </tr>
         <tr>
             <td width="180">
+                <?php echo __('Schedule');?>:
+            </td>
+            <td>
+                <select name="schedule_id">
+                    <option value="0" selected="selected" >&mdash; <?php
+                    echo __("SLA's Default");?> &mdash;</option>
+                    <?php
+                    if ($schedules=BusinessHoursSchedule::getSchedules()) {
+                        foreach ($schedules as $s) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $s->getId(), ($info['schedule_id']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['schedule_id']; ?></span>&nbsp;<i class="help-tip icon-question-sign" href="#schedule"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180">
                 <?php echo __('Manager'); ?>:
             </td>
             <td>
@@ -189,6 +206,21 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 </label>
                 <i class="help-tip icon-question-sign"
                 href="#disable_auto_claim"></i>
+            </td>
+        </tr>
+
+        <tr>
+            <td><?php echo __('Reopen Auto Assignment'); ?>:</td>
+            <td>
+                <label>
+                <input type="checkbox" name="disable_reopen_auto_assign" <?php echo
+                 $info['disable_reopen_auto_assign'] ? 'checked="checked"' : ''; ?>>
+                <?php echo sprintf('<strong>%s</strong> %s',
+                        __('Disable'),
+                        __('auto assign on reopen')); ?>
+                </label>
+                <i class="help-tip icon-question-sign"
+                href="#disable_reopen_auto_assign"></i>
             </td>
         </tr>
 
@@ -312,6 +344,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <select name="group_membership">
 <?php foreach (array(
     Dept::ALERTS_DISABLED =>        __("No one (disable Alerts and Notices)"),
+    Dept::ALERTS_ADMIN_ONLY =>       __("Admin Email Only"),
     Dept::ALERTS_DEPT_ONLY =>       __("Department members only"),
     Dept::ALERTS_DEPT_AND_EXTENDED => __("Department and extended access members"),
 ) as $mode=>$desc) { ?>

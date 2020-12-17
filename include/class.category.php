@@ -215,6 +215,9 @@ class Category extends VerySimpleModel {
         catch (OrmException $e) {
             return false;
         }
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return true;
     }
 

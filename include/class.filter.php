@@ -34,6 +34,7 @@ extends VerySimpleModel {
 
     const FLAG_INACTIVE_HT = 0x0001;
     const FLAG_INACTIVE_DEPT  = 0x0002;
+    const FLAG_DELETED_OBJECT  = 0x0004;
 
     static $match_types = array(
         /* @trans */ 'User Information' => array(
@@ -164,6 +165,58 @@ extends VerySimpleModel {
         return ($this->use_replyto_email);
     }
 
+    function disableFilters($object) {
+        switch (get_class($object)) {
+            case 'Topic':
+                $object_id = 'topic_id';
+                $FAClass = 'FA_AssignTopic';
+                break;
+            case 'Dept':
+                $object_id = 'dept_id';
+                $FAClass = 'FA_RouteDepartment';
+                break;
+            case 'Staff':
+                $object_id = 'staff_id';
+                $FAClass = 'FA_AssignAgent';
+                break;
+            case 'Team':
+                $object_id = 'team_id';
+                $FAClass = 'FA_AssignTeam';
+                break;
+            case 'SLA':
+                $object_id = 'sla_id';
+                $FAClass = 'FA_AssignSLA';
+                break;
+            case 'TicketStatus':
+                $object_id = 'status_id';
+                $FAClass = 'FA_SetStatus';
+                break;
+            case 'Email':
+                $object_id = 'from';
+                $FAClass = 'FA_SendEmail';
+                break;
+            case 'Canned':
+                $object_id = 'canned_id';
+                $FAClass = 'FA_AutoCannedResponse';
+            default:
+                return false;
+        }
+        $id = $object->getId();
+        $actions = FilterAction::objects()
+            ->filter(array('type' => $FAClass::$type,
+                           'configuration__like' => sprintf('%%"%s":%s}', $object_id, $id)));
+        foreach($actions as $fa) {
+            // Put a flag on the filter
+            $fa->setFilterFlags(false, 'Filter::FLAG_DELETED_OBJECT', true);
+            $fa->save();
+
+            // Disable the filter
+            $filter = Filter::lookup($fa->filter_id);
+            $filter->isactive = 0;
+            $filter->save();
+        }
+    }
+
     function disableAlerts() {
         return ($this->disable_autoresponder);
     }
@@ -181,6 +234,8 @@ extends VerySimpleModel {
     }
 
     function addRule($what, $how, $val,$extra=array()) {
+        if (isset($extra['notes']))
+            $extra['notes'] = Format::sanitize($extra['notes']);
         $rule = array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule = new FilterRule($rule);
         $this->rules->add($rule);
@@ -278,8 +333,14 @@ extends VerySimpleModel {
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
-    function apply(&$ticket, $vars) {
+    function apply(&$ticket, $vars, $postCreate=false) {
         foreach ($this->getActions() as $a) {
+            //control when certain actions should be applied
+            //if action is send email and postCreate == false, skip
+            //if action is not send email and postCreate == true, skip
+            if ((($a->type == 'email') ? !$postCreate : $postCreate))
+                continue;
+
             $a->setFilter($this);
             $a->apply($ticket, $vars);
         }
@@ -330,6 +391,8 @@ extends VerySimpleModel {
         //validate filter actions before moving on
         if (!self::validate_actions($vars, $errors))
             return false;
+
+        $vars['flags'] = $this->flags;
 
         if(!$vars['execorder'])
             $errors['execorder'] = __('Order required');
@@ -400,6 +463,8 @@ extends VerySimpleModel {
     function delete() {
         try {
             parent::delete();
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
             $this->rules->expunge();
             $this->actions->expunge();
         }
@@ -513,7 +578,7 @@ extends VerySimpleModel {
 
         if (!is_array(@$vars['actions']))
             return;
-      foreach ($vars['actions'] as $sort=>$v) {
+        foreach ($vars['actions'] as $sort=>$v) {
           if (is_array($v)) {
               $info = $v['type'];
               $sort = $v['sort'] ?: $sort;
@@ -523,18 +588,38 @@ extends VerySimpleModel {
               'type'=>$info,
               'sort' => (int) $sort,
           ));
-          $errors = array();
-          $action->setConfiguration($errors, $vars);
+          $err = array();
+          $action->setConfiguration($err, $vars);
           $config = json_decode($action->ht['configuration'], true);
           if (is_numeric($action->ht['type'])) {
               foreach ($config as $key => $value) {
-                  if ($key == 'topic_id') {
-                      $action->ht['type'] = 'topic';
-                      $config['topic_id'] = $value;
-                  }
-                  if ($key == 'dept_id') {
-                      $action->ht['type'] = 'dept';
-                      $config['dept_id'] = $value;
+                  switch ($key) {
+                      case 'topic_id':
+                          $action->ht['type'] = 'topic';
+                          $config['topic_id'] = $value;
+                          break;
+                      case 'dept_id':
+                          $action->ht['type'] = 'dept';
+                          $config['dept_id'] = $value;
+                          break;
+                      case 'sla_id':
+                          $action->ht['type'] = __('SLA');
+                          break;
+                      case 'team_id':
+                          $action->ht['type'] = __('Team');
+                          break;
+                      case 'staff_id':
+                          $action->ht['type'] = __('Agent');
+                          break;
+                      case 'status_id':
+                          $action->ht['type'] = __('Ticket Status');
+                          break;
+                      case 'canned_id':
+                          $action->ht['type'] = __('Canned Response');
+                          break;
+                      default:
+                          $action->ht['type'] = __('All Actions');
+                          break;
                   }
               }
           }
@@ -556,12 +641,23 @@ extends VerySimpleModel {
                   break;
                 default:
                   foreach ($config as $key => $value) {
-                    if (!$value) {
-                      $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), ucfirst($action->ht['type']));
+                    if (!$value || is_null($value)) {
+                        $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), $action->ht['type']);
+                        return 1;
                     }
                   }
                   break;
               }
+          }
+      }
+      if (count($errors) == 0) {
+          $fa = FilterAction::lookup($info);
+          if ($fa) {
+              $filter = Filter::lookup($fa->getFilterId());
+              //Clear flags that may have been set on a successful save
+              $filter->setFlag(constant('Filter::FLAG_DELETED_OBJECT'), false);
+              $filter->setFlag(constant('Filter::FLAG_INACTIVE_DEPT'), false);
+              $filter->setFlag(constant('Filter::FLAG_INACTIVE_HT'), false);
           }
       }
       return count($errors) == 0;
@@ -605,6 +701,7 @@ extends VerySimpleModel {
         }
     }
 }
+Signal::connect('object.deleted', array('Filter', 'disableFilters'));
 
 class FilterRule
 extends VerySimpleModel {
@@ -759,9 +856,9 @@ class TicketFilter {
      * should be rejected, the first filter that matches and has reject
      * ticket set is returned.
      */
-    function apply(&$ticket) {
+    function apply(&$ticket, $postCreate=false) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            $filter->apply($ticket, $this->vars);
+            $filter->apply($ticket, $this->vars, $postCreate);
             if ($filter->stopOnMatch()) break;
         }
     }
@@ -800,7 +897,7 @@ class TicketFilter {
             'Precedence'        => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'X-Precedence'      => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'X-Autoreply'       => 'YES',
-            'X-Auto-Response-Suppress' => array('ALL', 'DR', 'RN', 'NRN', 'OOF', 'AutoReply'),
+            'X-Auto-Response-Suppress' => array('AutoReply'),
             'X-Autoresponse'    => '*',
             'X-AutoReply-From'  => '*',
             'X-Autorespond'     => '*',

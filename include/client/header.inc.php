@@ -23,6 +23,10 @@ if ($lang
 if ($lang) {
     echo ' lang="' . $lang . '"';
 }
+
+// Dropped IE Support Warning
+if (osTicket::is_ie())
+    $ost->setWarning(__('osTicket no longer supports Internet Explorer.'));
 ?>>
 <head>
     <meta charset="utf-8">
@@ -48,7 +52,7 @@ if ($lang) {
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="<?php echo ROOT_PATH ?>images/oscar-favicon-16x16.png" sizes="16x16" />
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.4.0.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-3.5.1.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.12.1.custom.min.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-timepicker-addon.js"></script>
     <script src="<?php echo ROOT_PATH; ?>js/osticket.js"></script>
@@ -58,7 +62,6 @@ if ($lang) {
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-plugins.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/redactor-osticket.js"></script>
     <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/select2.min.js"></script>
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/fabric.min.js"></script>
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
@@ -86,6 +89,14 @@ if ($lang) {
 </head>
 <body>
     <div id="container">
+        <?php
+        if($ost->getError())
+            echo sprintf('<div class="error_bar">%s</div>', $ost->getError());
+        elseif($ost->getWarning())
+            echo sprintf('<div class="warning_bar">%s</div>', $ost->getWarning());
+        elseif($ost->getNotice())
+            echo sprintf('<div class="notice_bar">%s</div>', $ost->getNotice());
+        ?>
         <div id="header">
             <div class="pull-right flush-right">
             <p>

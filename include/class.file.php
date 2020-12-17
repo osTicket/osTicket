@@ -75,12 +75,12 @@ class AttachmentFile extends VerySimpleModel {
         return $this->type;
     }
 
-    function getBackend() {
-        return $this->bk;
+    function getMimeType() {
+        return $this->getType();
     }
 
-    function getMime() {
-        return $this->getType();
+    function getBackend() {
+        return $this->bk;
     }
 
     function getSize() {
@@ -261,7 +261,10 @@ class AttachmentFile extends VerySimpleModel {
     }
 
     function download($name=false, $disposition=false, $expires=false) {
-        $disposition = ($disposition && strcasecmp($disposition, 'inline') == 0
+        $thisstaff = StaffAuthenticationBackend::getUser();
+        $inline = ($thisstaff ? ($thisstaff->getImageAttachmentView() === 'inline') : false);
+        $disposition = ((($disposition && strcasecmp($disposition, 'inline') == 0)
+              || $inline)
               && strpos($this->getType(), 'image/') !== false)
             ? 'inline' : 'attachment';
         $bk = $this->open();
@@ -385,12 +388,15 @@ class AttachmentFile extends VerySimpleModel {
                 $file['data'] = base64_decode($file['data']);
             }
         }
-        if (isset($file['data'])) {
+
+        if (!isset($file['data']) && isset($file['data_cbk'])
+                && is_callable($file['data_cbk'])) {
             // Allow a callback function to delay or avoid reading or
             // fetching ihe file contents
-            if (is_callable($file['data']))
-                $file['data'] = $file['data']();
+            $file['data'] = $file['data_cbk']();
+        }
 
+        if (isset($file['data'])) {
             list($key, $file['signature'])
                 = self::_getKeyAndHash($file['data']);
             if (!$file['key'])
@@ -627,6 +633,8 @@ class AttachmentFile extends VerySimpleModel {
 
         //Basic validation.
         foreach($attachments as $i => &$file) {
+            $file['name'] = Format::sanitize($file['name']);
+
             //skip no file upload "error" - why PHP calls it an error is beyond me.
             if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) {
                 unset($attachments[$i]);
@@ -993,4 +1001,56 @@ class OneSixAttachments extends FileStorageBackend {
     }
 }
 FileStorageBackend::register('6', 'OneSixAttachments');
+
+// FileObject - wrapper for SplFileObject class
+class FileObject extends SplFileObject {
+
+    protected $_filename;
+
+    function __construct($file, $mode='r') {
+        parent::__construct($file, $mode);
+    }
+
+    /* This allows us to set REAL file name as opposed to basename of the
+     * FS file in question
+     */
+    function setFilename($filename) {
+        $this->_filename = $filename;
+    }
+
+    function getFilename() {
+        return $this->_filename ?: parent::getFilename();
+    }
+
+    /*
+     * Set mime type - well formated mime is expected.
+     */
+    function setMimeType($type) {
+        $this->_mimetype = $type;
+    }
+
+    function getMimeType() {
+        if (!isset($this->_mimetype)) {
+            // Try to to auto-detect mime type
+            $finfo = new finfo(FILEINFO_MIME);
+            $this->_mimetype = $finfo->buffer($this->getContents(),
+                    FILEINFO_MIME_TYPE);
+        }
+
+        return $this->_mimetype;
+    }
+
+    function getContents() {
+        $this->fseek(0);
+        return $this->fread($this->getSize());
+    }
+
+    /*
+     * XXX: Needed for mailer attachments interface
+     */
+    function getData() {
+        return $this->getContents();
+    }
+}
+
 ?>

@@ -29,6 +29,9 @@ class MailFetcher {
     var $mbox;
     var $srvstr;
 
+    var $authuser;
+    var $username;
+
     var $charset = 'UTF-8';
 
     var $tnef = false;
@@ -48,7 +51,24 @@ class MailFetcher {
 
         $this->charset = $charset;
 
-        if($this->ht) {
+        if ($this->ht) {
+            // Support Exchange shared mailbox auth
+            // (eg. user@domain.com\shared@domain.com)
+            $usernames = explode('\\', $this->ht['username']);
+            $count = count($usernames);
+            if ($count == 3) {
+                $this->authuser = $usernames[0].'\\'.$usernames[1];
+                $this->username = $usernames[2];
+            } elseif ($count == 2) {
+                if (strpos($usernames[0], '@') !== false) {
+                    $this->authuser = $usernames[0];
+                    $this->username = $usernames[1];
+                } else
+                    $this->username = $usernames[0].'\\'.$usernames[1];
+            } else {
+                $this->username = $this->ht['username'];
+            }
+
             if(!strcasecmp($this->ht['protocol'],'pop')) //force pop3
                 $this->ht['protocol'] = 'pop3';
             else
@@ -63,8 +83,13 @@ class MailFetcher {
             if(!strcasecmp($this->getEncryption(), 'SSL'))
                 $this->srvstr.='/ssl';
 
-            $this->srvstr.='/novalidate-cert}';
+            if ($this->authuser)
+                $this->srvstr .= sprintf('/authuser=%s', $this->authuser);
 
+            if (strcasecmp($this->getEncryption(), 'SSL'))
+                $this->srvstr.='/notls}';
+            else
+                $this->srvstr.='/novalidate-cert}';
         }
 
         //Set timeouts
@@ -93,7 +118,7 @@ class MailFetcher {
     }
 
     function getUsername() {
-        return $this->ht['username'];
+        return $this->username;
     }
 
     function getPassword() {
@@ -110,6 +135,10 @@ class MailFetcher {
         return $this->ht['max_fetch'];
     }
 
+    function getMailFolder() {
+        return $this->mailbox_encode($this->ht['folder'] ?: 'INBOX');
+    }
+
     function getArchiveFolder() {
         return $this->mailbox_encode($this->ht['archive_folder']);
     }
@@ -117,7 +146,7 @@ class MailFetcher {
     /* Core */
 
     function connect() {
-        return ($this->mbox && $this->ping())?$this->mbox:$this->open();
+        return ($this->mbox && $this->ping())?$this->mbox:$this->open($this->getMailFolder());
     }
 
     function ping() {
@@ -704,7 +733,8 @@ class MailFetcher {
         }
 
         // Process overloaded attachments
-        if (($struct = imap_fetchstructure($this->mbox, $mid))
+        $attachments = array();
+        if (($struct = @imap_fetchstructure($this->mbox, $mid))
                 && ($attachments = $this->getAttachments($struct))) {
             foreach ($attachments as $i=>$info) {
                 switch (strtolower($info['type'])) {
@@ -815,7 +845,7 @@ class MailFetcher {
                 else {
                     // only fetch the body if necessary
                     $self = $this;
-                    $file['data'] = function() use ($self, $mid, $a) {
+                    $file['data_cbk'] = function() use ($self, $mid, $a) {
                         return $self->decode(imap_fetchbody($self->mbox,
                             $mid, $a['index']), $a['encoding']);
                     };
@@ -829,7 +859,9 @@ class MailFetcher {
                         $file['id'] = $f->getId();
                 }
                 catch (FileUploadError $ex) {
-                    $file['error'] = $file['name'] . ': ' . $ex->getMessage();
+                    $name = $file['name'];
+                    $file = array();
+                    $file['error'] = Format::htmlchars($name) . ': ' . $ex->getMessage();
                 }
 
                 $vars['attachments'][] = $file;

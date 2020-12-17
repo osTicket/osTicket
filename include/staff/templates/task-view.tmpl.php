@@ -13,6 +13,7 @@ $thread = $task->getThread();
 $iscloseable = $task->isCloseable();
 $canClose = ($role->hasPerm(TaskModel::PERM_CLOSE) && $iscloseable === true);
 $actions = array();
+$object = $task->ticket;
 
 if ($task->isOpen() && $role->hasPerm(Task::PERM_ASSIGN)) {
 
@@ -85,6 +86,8 @@ if ($role->hasPerm(Task::PERM_DELETE)) {
 }
 
 $info=($_POST && $errors)?Format::input($_POST):array();
+$type = array('type' => 'viewed');
+Signal::send('object.view', $task, $type);
 
 if ($task->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
@@ -119,9 +122,17 @@ if ($task->isOverdue())
                     href="tasks.php?id=<?php echo $task->getId(); ?>"><i
                     class="icon-refresh"></i>&nbsp;<?php
                     echo sprintf(__('Task #%s'), $task->getNumber()); ?></a>
+                <?php if ($object) { ?>
+                    &nbsp;/&nbsp;
+                    <a class="preview"
+                      href="tickets.php?id=<?php echo $object->getId(); ?>"
+                      data-preview="#tickets/<?php echo $object->getId(); ?>/preview"
+                      ><?php echo sprintf(__('Ticket #%s'), $object->getNumber()); ?></a>
+                <?php } ?>
                 </h2>
             <?php
-            } ?>
+            }
+            ?>
         </div>
         <div class="flush-right">
             <?php
@@ -167,7 +178,7 @@ if ($task->isOverdue())
                     <?php
                     foreach ($actions as $a => $action) { ?>
                     <li <?php if ($action['class']) echo sprintf("class='%s'", $action['class']); ?> >
-                        <a class="no-pjax task-action" <?php
+                        <a <?php echo sprintf('class="%s"', ($a == 'print') ? $action['class'] : 'no-pjax task-action'); ?><?php
                             if ($action['dialog'])
                                 echo sprintf("data-dialog-config='%s'", $action['dialog']);
                             if ($action['redirect'])
@@ -188,7 +199,7 @@ if ($task->isOverdue())
                 </ul>
             </div>
             <?php
-           } else { ?>
+        } else { ?>
                 <span
                     class="action-button"
                     data-dropdown="#action-dropdown-tasks-status">
@@ -275,6 +286,7 @@ if ($task->isOverdue())
                         if ($action['redirect'])
                             echo sprintf("data-redirect='%s'", $action['redirect']);
                         ?>
+                        id="<?php echo $id ?>"
                         href="<?php echo $action['href']; ?>"
                         data-placement="bottom"
                         data-toggle="tooltip"
@@ -307,9 +319,20 @@ if (!$ticket) { ?>
                 <table border="0" cellspacing="" cellpadding="4" width="100%">
                     <tr>
                         <th width="100"><?php echo __('Status');?>:</th>
-                        <td><?php echo $task->getStatus(); ?></td>
+                        <?php
+                             if ($role->hasPerm(Task::PERM_CLOSE)) {
+                                 $state = $task->isClosed() ? 'reopen' : 'close'; ?>
+                            <td>
+                                <a class="task-action"
+                                    href=<?php echo sprintf('#tasks/%s/%s', $task->getId(), $state); ?>
+                                    data-placement="bottom"
+                                    data-toggle="tooltip"
+                                    title="<?php echo __('Change Status'); ?>"><?php echo $task->getStatus(); ?></a>
+                            </td>
+                          <?php } else { ?>
+                              <td><?php echo $task->getStatus(); ?></td>
+                          <?php } ?>
                     </tr>
-
                     <tr>
                         <th><?php echo __('Created');?>:</th>
                         <td><?php echo Format::datetime($task->getCreateDate()); ?></td>
@@ -318,9 +341,15 @@ if (!$ticket) { ?>
                     if($task->isOpen()){ ?>
                     <tr>
                         <th><?php echo __('Due Date');?>:</th>
-                        <td><?php echo $task->duedate ?
-                        Format::datetime($task->duedate) : '<span
-                        class="faded">&mdash; '.__('None').' &mdash;</span>'; ?></td>
+                        <td>
+                            <a class="inline-edit" data-placement="bottom"
+                                href="#tasks/<?php echo $task->getId();
+                                 ?>/field/duedate/edit">
+                                 <span id="field_duedate"><?php echo $task->duedate ?
+                                    (Format::datetime($task->duedate)) :
+                                    '&mdash;' . __('None') .  '&mdash;' ; ?></span>
+                            </a>
+                        </td>
                     </tr>
                     <?php
                     }else { ?>
@@ -338,20 +367,44 @@ if (!$ticket) { ?>
 
                     <tr>
                         <th><?php echo __('Department');?>:</th>
-                        <td><?php echo Format::htmlchars($task->dept->getName()); ?></td>
+                        <td>
+                            <a class="task-action" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
+                              data-redirect="tasks.php?id=<?php echo $task->getId(); ?>"
+                              href="#tasks/<?php echo $task->getId(); ?>/transfer"
+                              onclick="javascript:
+                                  saveDraft();"
+                              ><?php echo Format::htmlchars($task->dept->getName()); ?>
+                        </td>
                     </tr>
                     <?php
                     if ($task->isOpen()) { ?>
                     <tr>
                         <th width="100"><?php echo __('Assigned To');?>:</th>
+                        <?php
+                        if ($role->hasPerm(Task::PERM_ASSIGN)) {?>
                         <td>
-                            <?php
-                            if ($assigned=$task->getAssigned())
-                                echo Format::htmlchars($assigned);
-                            else
-                                echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
-                            ?>
+                            <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
+                                href="#tasks/<?php echo $task->getId(); ?>/assign">
+                                <span id="field_assign">
+                                    <?php if($task->isAssigned())
+                                            echo Format::htmlchars(implode('/', $task->getAssignees()));
+                                          else
+                                            echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
+                            ?></span>
+                            </a>
                         </td>
+                        <?php
+                        } else { ?>
+                        <td>
+                          <?php
+                          if($task->isAssigned())
+                              echo Format::htmlchars(implode('/', $task->getAssignees()));
+                          else
+                              echo '<span class="faded">&mdash; '.__('Unassigned').' &mdash;</span>';
+                          ?>
+                        </td>
+                        <?php
+                        } ?>
                     </tr>
                     <?php
                     } else { ?>
@@ -378,7 +431,7 @@ if (!$ticket) { ?>
                                         $task->getThread()->getNumCollaborators());
 
                             echo sprintf('<span><a class="collaborators preview"
-                                    href="#thread/%d/collaborators"><span
+                                    href="#thread/%d/collaborators/1"><span
                                     id="t%d-collaborators">%s</span></a></span>',
                                     $task->getThreadId(),
                                     $task->getThreadId(),
@@ -391,30 +444,68 @@ if (!$ticket) { ?>
         </tr>
     </table>
     <br>
-    <br>
-    <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <?php
     $idx = 0;
     foreach (DynamicFormEntry::forObject($task->getId(),
                 ObjectModel::OBJECT_TYPE_TASK) as $form) {
+        $form->addMissingFields();
         $answers = $form->getAnswers()->exclude(Q::any(array(
             'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,
             'field__name__in' => array('title')
         )));
-        if (!$answers || count($answers) == 0)
+        $displayed = array();
+        foreach($answers as $a) {
+            if (!$a->getField()->isVisibleToStaff())
+                continue;
+            $displayed[] = $a;
+        }
+        if (count($displayed) == 0)
             continue;
-
         ?>
+        <br>
+        <table class="ticket_info custom-data" cellspacing="0" cellpadding="0" width="940" border="0">
+        <thead>
+            <th colspan="2"><?php echo Format::htmlchars($form->getTitle()); ?></th>
+        </thead>
+        <tbody>
             <tr>
             <td colspan="2">
                 <table cellspacing="0" cellpadding="4" width="100%" border="0">
-                <?php foreach($answers as $a) {
-                    if (!($v = $a->display())) continue; ?>
+                <?php foreach($displayed as $a) {
+                    $field = $a->getField();
+                    $id =  $a->getLocal('id');
+                    $label = $a->getLocal('label');
+                    $v = $a->display();
+                    $class = (Format::striptags($v)) ? '' : 'class="faded"';
+                    $clean = (Format::striptags($v)) ? $v : '&mdash;' . __('Empty') .  '&mdash;';
+                    $field = $a->getField();
+                    $isFile = ($field instanceof FileUploadField);
+                    ?>
                     <tr>
-                        <th width="100"><?php
-                            echo $a->getField()->get('label');
-                        ?>:</th>
-                        <td><?php
+                        <td width="200"><?php echo Format::htmlchars($label); ?>:</td>
+                        <td>
+                        <?php if ($role->hasPerm(Task::PERM_EDIT)
+                                && $field->isEditableToStaff()) {
+                                $isEmpty = strpos($v, 'Empty');
+                                if ($isFile && !$isEmpty) {
+                                    echo sprintf('<span id="field_%s" %s >%s</span><br>', $id,
+                                        $class,
+                                        $clean);
+                                }
+                                     ?>
+                              <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
+                                  href="#tasks/<?php echo $task->getId(); ?>/field/<?php echo $id; ?>/edit">
+                              <?php
+                                if ($isFile && !$isEmpty) {
+                                  echo "<i class=\"icon-edit\"></i>";
+                                } elseif (strlen($v) > 200) {
+                                  $clean = Format::truncate($v, 200);
+                                  echo sprintf('<span id="field_%s" %s >%s</span>', $id, $class, $clean);
+                                  echo "<br><i class=\"icon-edit\"></i>";
+                                } else
+                                    echo sprintf('<span id="field_%s" %s >%s</span>', $id, $class, $clean); ?>
+                              </a>
+                            <?php } else
                             echo $v;
                         ?></td>
                     </tr>
@@ -423,10 +514,11 @@ if (!$ticket) { ?>
                 </table>
             </td>
             </tr>
+           </tbody>
+         </table>
         <?php
         $idx++;
     } ?>
-    </table>
 <?php
 } ?>
 <div class="clear"></div>
@@ -492,7 +584,7 @@ else
                                 $thread->getNumCollaborators());
 
                     echo sprintf('<span><a class="collaborators preview"
-                            href="#thread/%d/collaborators"> %s &nbsp;<span id="t%d-recipients">%s</span></a></span>',
+                            href="#thread/%d/collaborators/1"> %s &nbsp;<span id="t%d-recipients">%s</span></a></span>',
                             $thread->getId(),
                             __('Collaborators'),
                             $thread->getId(),
@@ -513,7 +605,7 @@ else
                         placeholder="<?php echo __( 'Start writing your update here.'); ?>"
                         rows="9" wrap="soft"
                         class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
-                            ?> draft draft-delete" <?php
+                            ?> draft draft-delete fullscreen" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('task.response', $task->getId(), $info['task.response']);
     echo $attrs; ?>><?php echo $draft ?: $info['task.response'];
                     ?></textarea>
@@ -574,7 +666,7 @@ else
                         placeholder="<?php echo __('Internal Note details'); ?>"
                         rows="9" wrap="soft" data-draft-namespace="task.note"
                         data-draft-object-id="<?php echo $task->getId(); ?>"
-                        class="richtext ifhtml draft draft-delete"><?php
+                        class="richtext ifhtml draft draft-delete fullscreen"><?php
                         echo $info['note'];
                         ?></textarea>
                     <div class="attachments">
@@ -670,6 +762,7 @@ $(function() {
         })
         .fail(function() { });
      });
+
     <?php
     if ($ticket) { ?>
     $('#ticket-tasks-count').html(<?php echo $ticket->getNumTasks(); ?>);

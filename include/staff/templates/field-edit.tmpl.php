@@ -1,7 +1,7 @@
 <?php
 global $cfg;
 
-$options = array('template' => 'simple', 'form_id' => $form->getId());
+$options = array('template' => 'simple', 'form_id' => $form->getId(), 'filterVisibility' => true);
 
 ?>
 <h3 class="drag-handle"><?php echo $info[':title']; ?></h3>

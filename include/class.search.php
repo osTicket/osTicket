@@ -384,7 +384,7 @@ class MysqlSearchBackend extends SearchBackend {
             $criteria->extra(array(
                 'tables' => array(
                     str_replace(array(':', '{}'), array(TABLE_PREFIX, $search),
-                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, Z1.relevance FROM (SELECT Z1.`object_id`, Z1.`object_type`, {} AS `relevance` FROM `:_search` Z1 WHERE {} ORDER BY relevance DESC) Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND Z3.`object_type` = 'T') LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN `:ticket` Z8 ON (Z8.`user_id` = Z6.`id`)) Z1"),
+                    "(SELECT COALESCE(Z3.`object_id`, Z5.`ticket_id`, Z8.`ticket_id`) as `ticket_id`, Z1.relevance FROM (SELECT Z1.`object_id`, Z1.`object_type`, {} AS `relevance` FROM `:_search` Z1 WHERE {} ORDER BY relevance DESC) Z1 LEFT JOIN `:thread_entry` Z2 ON (Z1.`object_type` = 'H' AND Z1.`object_id` = Z2.`id`) LEFT JOIN `:thread` Z3 ON (Z2.`thread_id` = Z3.`id` AND (Z3.`object_type` = 'T' OR Z3.`object_type` = 'C')) LEFT JOIN `:ticket` Z5 ON (Z1.`object_type` = 'T' AND Z1.`object_id` = Z5.`ticket_id`) LEFT JOIN `:user` Z6 ON (Z6.`id` = Z1.`object_id` and Z1.`object_type` = 'U') LEFT JOIN `:organization` Z7 ON (Z7.`id` = Z1.`object_id` AND Z7.`id` = Z6.`org_id` AND Z1.`object_type` = 'O') LEFT JOIN `:ticket` Z8 ON (Z8.`user_id` = Z6.`id`)) Z1"),
                 ),
             ));
             $criteria->extra(array('order_by' => array(array(new SqlCode('Z1.relevance', 'DESC')))));
@@ -655,7 +655,7 @@ class SavedQueue extends CustomQueue {
     private $_columns;
     private $_settings;
     private $_form;
-
+    private $_sorts;
 
 
     function __onload() {
@@ -700,9 +700,44 @@ class SavedQueue extends CustomQueue {
         return $this->_columns;
     }
 
-    static function getHierarchicalQueues(Staff $staff, $pid=0,
-            $primary=true) {
+    static function getHierarchicalQueues(Staff $staff, $pid = 0, $primary = true) {
         return CustomQueue::getHierarchicalQueues($staff, 0, false);
+    }
+
+
+    /*
+     * Determine if sort is inherited
+     */
+    function isDefaultSortInherited() {
+        if ($this->parent
+                && $this->getSettings()
+                && @$this->_settings['inherit-sort'])
+            return true;
+
+        return parent::isDefaultSortInherited();
+    }
+
+    function getSortOptions() {
+
+        if (!isset($this->_sorts)) {
+            // See if the queue has sort options
+            if (($sorts=parent::getSortOptions()) && $sorts->count())
+                $this->_sorts = $sorts;
+            // otherwise return all sorts
+            else
+                 $this->_sorts = QueueSort::objects();
+        }
+
+        return $this->_sorts;
+    }
+
+    function getDefaultSort() {
+        if ($this->getSettings()
+                && $this->_settings['sort_id']
+                && ($sort = QueueSort::lookup($this->_settings['sort_id'])))
+            return $sort;
+
+        return parent::getDefaultSort();
     }
 
     /**
@@ -710,14 +745,14 @@ class SavedQueue extends CustomQueue {
      * configuring this search in the user interface.
      *
      */
-    function getForm($source=null, $searchable=array()) {
+    function getForm($source=null, $searchable=array(), $filterVisibility=NULL) {
         $searchable = null;
         if ($this->isAQueue())
             // Only allow supplemental matches.
             $searchable = array_intersect_key($this->getCurrentSearchFields($source),
                     $this->getSupplementalMatches());
 
-        return parent::getForm($source, $searchable);
+        return parent::getForm($source, $searchable, $filterVisibility);
     }
 
    /**
@@ -788,6 +823,13 @@ class SavedQueue extends CustomQueue {
         return parent::useStandardColumns();
     }
 
+    function inheritColumns() {
+        if ($this->getSettings() && isset($this->_settings['inherit-columns']))
+            return $this->_settings['inherit-columns'];
+
+        return parent::inheritColumns();
+    }
+
     function getStandardColumns() {
         return parent::getColumns(is_null($this->parent));
     }
@@ -842,8 +884,13 @@ class SavedQueue extends CustomQueue {
             }
         }
 
-        if (!$errors && $this->_config->update($vars, $errors))
+        if (!$errors && $this->_config->update($vars, $errors)) {
+            // reset settings
             $this->_settings = $this->_criteria = null;
+            // Reset chached queue options
+            unset($_SESSION['sort'][$this->getId()]);
+
+        }
 
         return (!$errors);
     }
@@ -904,21 +951,43 @@ class SavedQueue extends CustomQueue {
         // Aggregate constraints
         foreach ($queues as $queue) {
             $Q = $queue->getBasicQuery();
-            $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
-            $query->aggregate(array(
-                "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
-            ));
+
+            // only get counts for regular tickets (not children tickets) unless
+            // queue is a saved search
+            if ($queue->isAQueue() || $queue->isASubQueue()) {
+                $reg = Q::any(array('thread__object_type' => 'T'));
+                $Q->constraints[] = $reg;
+            }
+
+            if ($Q->constraints) {
+                $empty = false;
+                if (count($Q->constraints) > 1) {
+                    foreach ($Q->constraints as $value) {
+                        if (!$value->constraints)
+                            $empty = true;
+                    }
+                }
+            }
 
             // Add extra tables joins  (if any)
             if ($Q->extra && isset($Q->extra['tables'])) {
-               $counts['q'.$queue->getId()] = 500;
+               // skip counting keyword searches. Display them as '-'
+               $counts['q'.$queue->getId()] = '-';
                continue;
-                $contraints = array();
-                if ($Q->constraints)
-                     $constraints = new Q($Q->constraints);
-                foreach ($Q->extra['tables'] as $T)
-                    $query->addExtraJoin(array($T, $constraints, ''));
+               $contraints = array();
+               if ($Q->constraints)
+                    $constraints = new Q($Q->constraints);
+               foreach ($Q->extra['tables'] as $T)
+                   $query->addExtraJoin(array($T, $constraints, ''));
             }
+
+            if ($Q->constraints && !$empty) {
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
+                $query->aggregate(array(
+                    "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
+                ));
+            } else //display skipped counts as '-'
+                $counts['q'.$queue->getId()] = '-';
         }
 
         try {
@@ -1112,11 +1181,31 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
         return true;
     }
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_topics))
-            $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+        if (!isset($this->_topics)) {
+            if ($options['filterVisibility'])
+                $this->_topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
+            else
+                $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        }
 
         return $this->_topics;
+    }
+}
+
+class SLAChoiceField extends AdvancedSearchSelectionField {
+    static $_slas;
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        if (!isset($this->_slas))
+            $this->_slas = SLA::getSLAs(array('nameOnly' => true));
+
+        return $this->_slas;
     }
 }
 
@@ -1125,10 +1214,15 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
     static $_depts;
     var $_choices;
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_depts))
-            $this->_depts = Dept::getDepartments();
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
 
+        if (!isset($this->_depts)) {
+            if ($options['filterVisibility'])
+                $this->_depts = $thisstaff->getDepartmentNames();
+            else
+                $this->_depts = Dept::getDepartments();
+        }
         return $this->_depts;
     }
 
@@ -1170,7 +1264,7 @@ class AssigneeChoiceField extends ChoiceField {
     protected $_items;
 
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
 
         if (!isset($this->_items)) {
@@ -1178,7 +1272,12 @@ class AssigneeChoiceField extends ChoiceField {
                 'M' => __('Me'),
                 'T' => __('One of my teams'),
             );
-            foreach (Staff::getStaffMembers() as $id=>$name) {
+            if ($options['filterVisibility'])
+                $assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+            else
+                $assignees = Staff::getStaffMembers();
+
+            foreach ($assignees as $id=>$name) {
                 // Don't include $thisstaff (since that's 'Me')
                 if ($thisstaff && $thisstaff->getId() == $id)
                     continue;
@@ -1208,16 +1307,16 @@ class AssigneeChoiceField extends ChoiceField {
         );
     }
 
-    function getSearchMethodWidgets() {
+    function getSearchMethodWidgets($options=array()) {
         return array(
             'assigned' => null,
             '!assigned' => null,
             'includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
             '!includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
         );
@@ -1238,6 +1337,7 @@ class AssigneeChoiceField extends ChoiceField {
             $Q->negate();
         case 'includes':
             $teams = $agents = array();
+            $matches = count($value);
             foreach ($value as $id => $ST) {
                 switch ($id[0]) {
                 case 'M':
@@ -1247,7 +1347,10 @@ class AssigneeChoiceField extends ChoiceField {
                     $agents[] = (int) substr($id, 1);
                     break;
                 case 'T':
-                    $teams = array_merge($thisstaff->getTeams());
+                    if ($thisstaff && ($staffTeams = $thisstaff->getTeams()))
+                         $teams = array_merge($staffTeams);
+                    elseif ($matches == 1)
+                        return Q::any(['team_id' => null]);
                     break;
                 case 't':
                     $teams[] = (int) substr($id, 1);
@@ -1311,7 +1414,7 @@ class AssigneeChoiceField extends ChoiceField {
 
 class AssignedField extends AssigneeChoiceField {
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'assigned' =>   __('Assigned'),
             '!assigned' =>  __('Unassigned'),
@@ -1331,6 +1434,99 @@ class AssignedField extends AssigneeChoiceField {
 
     function from_query($row, $name=false) {
         return ($row['staff_id'] || $row['staff_id'])
+            ? __('Yes') : __('No');
+    }
+
+}
+
+class MergedField extends FormField {
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('checked'),
+            'nset' =>    __('unchecked'),
+        );
+    }
+
+    function addToQuery($query, $name=false) {
+        $query->annotate(array(
+                'merged' => new SqlExpr(new Q(array(
+                    Q::any(array(
+                        'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
+                        'flags__hasbit' => Ticket::FLAG_COMBINE_THREADS,
+                )))
+            ))));
+
+        return $query->values('merged');
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case 'set':
+            $visibility = Q::any(array(
+                'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
+            ));
+            $visibility->add(Q::any(array(
+                'flags__hasbit' => Ticket::FLAG_COMBINE_THREADS
+            )));
+            $visibility->ored = true;
+            return $visibility;
+        case 'nset':
+            $visibility = Q::all(array());
+            $visibility->add(Q::not(array(
+                'flags__hasbit' => Ticket::FLAG_SEPARATE_THREADS,
+            )));
+            $visibility->add(Q::not(array(
+                'flags__hasbit' => (Ticket::FLAG_COMBINE_THREADS)
+            )));
+            return $visibility;
+            break;
+        }
+    }
+
+    function from_query($row, $name=false) {
+        $flags = $row['flags'];
+        $combine = ($flags & Ticket::FLAG_COMBINE_THREADS) != 0;
+        $separate = ($flags & Ticket::FLAG_SEPARATE_THREADS) != 0;
+        return ($combine || $separate)
+            ? __('Yes') : __('No');
+    }
+}
+
+class LinkedField extends FormField {
+    function getSearchMethods() {
+        return array(
+            'set' =>        __('checked'),
+            'nset' =>    __('unchecked'),
+        );
+    }
+
+    function addToQuery($query, $name=false) {
+        return $query->values('ticket_pid', 'flags');
+    }
+
+    function getSearchQ($method, $value, $name=false) {
+        global $thisstaff;
+
+        $Q = new Q();
+        switch ($method) {
+        case 'set':
+            return Q::any(array(
+                'flags__hasbit' => Ticket::FLAG_LINKED,
+            ));
+        case 'nset':
+            return Q::not(array(
+                'flags__hasbit' => Ticket::FLAG_LINKED,));
+            break;
+        }
+    }
+
+    function from_query($row, $name=false) {
+        $flags = $row['flags'];
+        $linked = ($flags & Ticket::FLAG_LINKED) != 0;
+        return ($linked)
             ? __('Yes') : __('No');
     }
 
@@ -1361,10 +1557,25 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 
     static $_agents;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+
         if (!isset($this->_agents)) {
-            $this->_agents = array('M' => __('Me')) +
-                Staff::getStaffMembers();
+          //determine if we should filter results based on panel being visited
+          if ($options['filterVisibility']) {
+              $this->_agents = array('M' => __('Me'));
+              $agents = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+              foreach (Staff::getStaffMembers() as $id => $name) {
+                if (!$agents || array_key_exists($id, $agents)) {
+                    // Don't include $thisstaff (since that's 'Me')
+                    if ($thisstaff && $thisstaff->getId() == $id)
+                        continue;
+
+                    $this->_agents[$id] = $name;
+                }
+              }
+          } else
+              $this->_agents = array('M' => __('Me')) +  Staff::getStaffMembers();
         }
         return $this->_agents;
     }
@@ -1408,12 +1619,17 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 class DepartmentManagerSelectionField extends AgentSelectionField {
     static $_members;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+
         if (!isset($this->_members)) {
             $managers = array();
-            $staff = Staff::objects()->filter(array('dept__manager_id__gt' => 0));
-            foreach ($staff as $s) {
-                $managers['s'.$s->getId()] = $s->getName()->name;
+            $mgr = Dept::objects()->filter(array('manager_id__gt' => 0))->values_flat('manager_id');
+            $staff = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+            foreach ($mgr as $mid) {
+                $mid = $mid[0];
+                if (array_key_exists($mid, $staff))
+                    $managers['s'.$mid] = $staff[$mid]->getName()->name;
             }
             $this->_members = $managers;
         }
@@ -1429,7 +1645,7 @@ class DepartmentManagerSelectionField extends AgentSelectionField {
 class TeamSelectionField extends AdvancedSearchSelectionField {
     static $_teams;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_teams) && $teams = Team::getTeams())
             $this->_teams = array('T' => __('One of my teams')) +
                 $teams;
@@ -1441,12 +1657,13 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
         global $thisstaff;
 
         // Unpack my teams
-        if (isset($value['T']) && $thisstaff
-                && ($teams = $thisstaff->getTeams())) {
+        if (isset($value['T'])) {
+             if (!$thisstaff || !($teams = $thisstaff->getTeams()))
+                return Q::any(['team_id' => null]);
+
             unset($value['T']);
             $value = $value + array_flip($teams);
         }
-
         return parent::getSearchQ($method, $value, $name);
     }
 
@@ -1474,7 +1691,7 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
 }
 
 class TicketStateChoiceField extends AdvancedSearchSelectionField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'open' => __('Open'),
             'closed' => __('Closed'),
@@ -1496,7 +1713,7 @@ class TicketStateChoiceField extends AdvancedSearchSelectionField {
 }
 
 class TicketFlagChoiceField extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'isanswered' =>   __('Answered'),
             'isoverdue' =>    __('Overdue'),
@@ -1524,7 +1741,7 @@ class TicketFlagChoiceField extends ChoiceField {
 }
 
 class TicketSourceChoiceField extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return Ticket::getSources();
     }
 
@@ -1589,7 +1806,18 @@ class TicketStatusChoiceField extends SelectionField {
     }
 }
 
-class TicketThreadCountField extends NumericField {
+/*
+ * Implemented by annotated fields
+ *
+ */
+
+interface AnnotatedField {
+     // Add the annotation to a QuerySet
+    function annotate($query, $name);
+}
+
+class TicketThreadCountField extends NumericField
+implements AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return TicketThreadCount::addToQuery($query, $name);
@@ -1598,9 +1826,14 @@ class TicketThreadCountField extends NumericField {
     function from_query($row, $name=false) {
          return TicketThreadCount::from_query($row, $name);
     }
+
+    function annotate($query, $name) {
+        return TicketThreadCount::annotate($query, $name);
+    }
 }
 
-class TicketReopenCountField extends NumericField {
+class TicketReopenCountField extends NumericField
+implements AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return TicketReopenCount::addToQuery($query, $name);
@@ -1609,9 +1842,14 @@ class TicketReopenCountField extends NumericField {
     function from_query($row, $name=false) {
          return TicketReopenCount::from_query($row, $name);
     }
+
+    function annotate($query, $name) {
+        return TicketReopenCount::annotate($query, $name);
+    }
 }
 
-class ThreadAttachmentCountField extends NumericField {
+class ThreadAttachmentCountField extends NumericField
+implements AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return ThreadAttachmentCount::addToQuery($query, $name);
@@ -1620,9 +1858,14 @@ class ThreadAttachmentCountField extends NumericField {
     function from_query($row, $name=false) {
          return ThreadAttachmentCount::from_query($row, $name);
     }
+
+    function annotate($query, $name) {
+        return ThreadAttachmentCount::annotate($query, $name);
+    }
 }
 
-class ThreadCollaboratorCountField extends NumericField {
+class ThreadCollaboratorCountField extends NumericField
+implements  AnnotatedField {
 
     function addToQuery($query, $name=false) {
         return ThreadCollaboratorCount::addToQuery($query, $name);
@@ -1630,6 +1873,26 @@ class ThreadCollaboratorCountField extends NumericField {
 
     function from_query($row, $name=false) {
          return ThreadCollaboratorCount::from_query($row, $name);
+    }
+
+    function annotate($query, $name) {
+        return ThreadCollaboratorCount::annotate($query, $name);
+    }
+}
+
+class TicketTasksCountField extends NumericField
+implements  AnnotatedField {
+
+    function addToQuery($query, $name=false) {
+        return TicketTasksCount::addToQuery($query, $name);
+    }
+
+    function from_query($row, $name=false) {
+         return TicketTasksCount::from_query($row, $name);
+    }
+
+    function annotate($query, $name) {
+        return TicketTasksCount::annotate($query, $name);
     }
 }
 

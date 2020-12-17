@@ -38,6 +38,8 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                 if(($_dept->update($_POST,$errors))){
                     $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['name']));
                     $_REQUEST['a']=null;
+                    $type = array('type' => 'created');
+                    Signal::send('object.created', $_dept, $type);
                 }elseif(!$errors['err']){
                     $errors['err']=sprintf('%s %s',
                         sprintf(__('Unable to add %s.'), __('this department')),
@@ -100,9 +102,12 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, true);
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
-                              FilterAction::setFilterFlag($filter_actions, 'dept', false);
-                              if($d->save())
-                                $num++;
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', false);
+                              if($d->save()) {
+                                  $type = array('type' => 'edited', 'status' => 'Active');
+                                  Signal::send('object.edited', $d, $type);
+                                  $num++;
+                              }
                             }
 
                             if ($num > 0) {
@@ -127,8 +132,10 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $d->setFlag(Dept::FLAG_ARCHIVED, false);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
-                              FilterAction::setFilterFlag($filter_actions, 'dept', true);
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
                               if($d->save()) {
+                                $type = array('type' => 'edited', 'status' => 'Disabled');
+                                Signal::send('object.edited', $d, $type);
                                 $num++;
                               }
                             }
@@ -154,8 +161,10 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                               $d->setFlag(Dept::FLAG_ARCHIVED, true);
                               $d->setFlag(Dept::FLAG_ACTIVE, false);
                               $filter_actions = FilterAction::objects()->filter(array('type' => 'dept', 'configuration' => '{"dept_id":'. $d->getId().'}'));
-                              FilterAction::setFilterFlag($filter_actions, 'dept', true);
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
                               if($d->save()) {
+                                $type = array('type' => 'edited', 'status' => 'Archived');
+                                Signal::send('object.edited', $d, $type);
                                 $num++;
                                 //set dept_id to default for topics/emails using archived dept
                                 Dept::clearInactiveDept($d->getId());
@@ -183,8 +192,11 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                             else {
                                 $i=0;
                                 foreach($_POST['ids'] as $k=>$v) {
-                                    if($v!=$cfg->getDefaultDeptId() && ($d=Dept::lookup($v)) && $d->delete())
-                                        $i++;
+                                    if($v!=$cfg->getDefaultDeptId() && ($d=Dept::lookup($v))) {
+                                      $d->delete();
+                                      $i++;
+                                    }
+
                                 }
                                 if($i && $i==$count)
                                     $msg = sprintf(__('Successfully deleted %s.'),

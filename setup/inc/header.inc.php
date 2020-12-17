@@ -9,6 +9,10 @@ if (($lang = Internationalization::getCurrentLanguage())
         && ($info = Internationalization::getLanguageInfo($lang))
         && (@$info['direction'] == 'rtl'))
     echo 'dir="rtl" class="rtl"';
+
+// Dropped IE Support Warning
+if (osTicket::is_ie())
+    $warning = __('osTicket no longer supports Internet Explorer.');
 ?>>
 <head>
     <title><?php echo $wizard['title']; ?></title>
@@ -18,6 +22,7 @@ if (($lang = Internationalization::getCurrentLanguage())
 </head>
 <body>
     <div id="wizard">
+        <?php if ($warning) echo sprintf('<div class="warning_bar">%s</div>', $warning); ?>
         <div id="header">
             <img id="logo" src="./images/<?php echo $wizard['logo'] ?: 'logo.png'; ?>" alt="osTicket">
             <div class="info"><?php echo $wizard['tagline']; ?></div>
@@ -28,7 +33,7 @@ if (($lang = Internationalization::getCurrentLanguage())
                    foreach($wizard['menu'] as $k=>$v)
                     echo sprintf('<a target="_blank" href="%s">%s</a> &mdash; ',$v,$k);
                    ?>
-                    <a target="_blank" href="http://osticket.com/contact-us"><?php echo __('Contact Us');?></a>
+                    <a target="_blank" href="https://osticket.com/contact-us"><?php echo __('Contact Us');?></a>
                 </li>
             </ul>
             <div class="flags">

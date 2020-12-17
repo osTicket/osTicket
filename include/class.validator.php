@@ -127,6 +127,14 @@ class Validator {
                 if($values=explode(',', $this->input[$k]))
                     foreach($values as $v)
                         if(!preg_match_all(
+                                '/^([a-z0-9|-]+\.)*[a-z0-9|-]+\.[a-z]+$/',
+                                ltrim($v)))
+                            $this->errors[$k]=$field['error'];
+                break;
+            case 'cs-url': // Comma separated list of urls
+                if($values=explode(',', $this->input[$k]))
+                    foreach($values as $v)
+                        if(!preg_match_all(
                                 '/^(https?:\/\/)?((\*\.|\w+\.)?[\w-]+(\.[a-zA-Z]+)?(:([0-9]+|\*))?)+$/',
                                 ltrim($v)))
                             $this->errors[$k]=$field['error'];
@@ -176,19 +184,25 @@ class Validator {
         // MX if no MX records exist for the domain. Also, include a
         // full-stop trailing char so that the default domain of the server
         // is not added automatically
-        if ($verify and !count(dns_get_record($m->host.'.', DNS_MX)))
-            return 0 < count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
+        if ($verify and !dns_get_record($m->host.'.', DNS_MX))
+            return 0 < @count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
 
         return true;
     }
 
-    static function is_valid_email($email) {
+    static function is_numeric($number, &$error='') {
+        if (!is_numeric($number))
+            $error = __('Enter a Number');
+        return $error == '';
+    }
+
+    static function is_valid_email($email, &$error='') {
         global $cfg;
         // Default to FALSE for installation
         return self::is_email($email, false, $cfg && $cfg->verifyEmailAddrs());
     }
 
-    static function is_phone($phone) {
+    static function is_phone($phone, &$error='') {
         /* We're not really validating the phone number but just making sure it doesn't contain illegal chars and of acceptable len */
         $stripped=preg_replace("(\(|\)|\-|\.|\+|[  ]+)","",$phone);
         return (!is_numeric($stripped) || ((strlen($stripped)<7) || (strlen($stripped)>16)))?false:true;
@@ -199,7 +213,7 @@ class Validator {
         return ($url && ($info=parse_url($url)) && $info['host']);
     }
 
-    static function is_ip($ip) {
+    static function is_ip($ip, &$error='') {
         return filter_var(trim($ip), FILTER_VALIDATE_IP) !== false;
     }
 
@@ -214,6 +228,15 @@ class Validator {
     static function is_formula($text, &$error='') {
         if (!preg_match('/^[^=\+@-].*$/s', $text))
             $error = __('Content cannot start with the following characters: = - + @');
+        return $error == '';
+    }
+
+    static function check_passwd($passwd, &$error='') {
+        try {
+            PasswordPolicy::checkPassword($passwd, null);
+        } catch (BadPassword $ex) {
+            $error = $ex->getMessage();
+        }
         return $error == '';
     }
 

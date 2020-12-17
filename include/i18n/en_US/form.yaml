@@ -42,7 +42,7 @@
       name: email # notrans
       label: Email Address
       sort: 1
-      flags: 0x777A3
+      flags: 0x777B3
       configuration:
         size: 40
         length: 64
@@ -51,7 +51,7 @@
       name: name # notrans
       label: Full Name
       sort: 2
-      flags: 0x777A3
+      flags: 0x777B3
       configuration:
         size: 40
         length: 64
@@ -83,7 +83,7 @@
       name: subject # notrans
       label: Issue Summary
       sort: 1
-      flags: 0x77721
+      flags: 0x77731
       configuration:
         size: 40
         length: 50
@@ -109,7 +109,7 @@
       name: name # notrans
       label: Company Name
       sort: 1
-      flags: 0x471A1
+      flags: 0x471B1
       configuration:
         size: 40
         length: 64
@@ -117,7 +117,7 @@
       name: website # notrans
       label: Website
       sort: 2
-      flags: 0x3101
+      flags: 0x43111
       configuration:
         size: 40
         length: 64
@@ -125,7 +125,7 @@
       name: phone # notrans
       label: Phone Number
       sort: 3
-      flags: 0x3101
+      flags: 0x43111
       configuration:
         ext: false
     - type: memo # notrans
@@ -147,7 +147,7 @@
       name: name # notrans
       label: Name
       sort: 1
-      flags: 0x777A3
+      flags: 0x777B3
       configuration:
         size: 40
         length: 64
@@ -191,7 +191,7 @@
   fields:
     - type: text # notrans
       name: title # notrans
-      flags: 0x470A1
+      flags: 0x770B1
       sort: 1
       label: Title
       configuration:
@@ -199,7 +199,7 @@
         length: 50
     - type: thread # notrans
       name: description # notrans
-      flags: 0x450F3
+      flags: 0x650F3
       sort: 2
       label: Description
       hint: Details on the reason(s) for creating the task.

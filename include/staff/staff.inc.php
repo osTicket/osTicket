@@ -19,6 +19,8 @@ if ($_REQUEST['a']=='add'){
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
     }
     $title=__('Add New Agent');
@@ -33,6 +35,8 @@ else {
     $info['id'] = $staff->getId();
     $qs += array('id' => $staff->getId());
 }
+
+$extras = new ArrayObject();
 ?>
 
 <form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" autocomplete="off">
@@ -52,6 +56,7 @@ else {
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
     <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
+    <?php Signal::send('agenttab.audit', $staff, $extras); ?>
   </ul>
 
   <div class="tab_content" id="account">
@@ -156,6 +161,35 @@ if (count($bks) > 1) {
                 echo $ab->getName(); ?></option>
 <?php } ?>
             </select>
+          </td>
+        </tr>
+<?php
+} ?>
+<?php
+if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend()) {
+    $_config = $staff->getConfig();
+?>
+        <tr>
+          <td><?php echo __('Default 2FA'); ?>:</td>
+          <td>
+              <input type="text" size="40" style="width:300px"
+                name="default_2fa" disabled value="<?php echo $current->getName(); ?>" />
+            &nbsp;
+            <button type="button" id="reset-2fa" class="action-button" onclick="javascript:
+                if (confirm('<?php echo __('You sure?'); ?>')) {
+                    $.ajax({
+                        url: 'ajax.php/staff/'+<?php echo $staff->getId(); ?>+'/reset-2fa',
+                        type: 'POST',
+                        data: {'staffId':<?php echo $staff->getId(); ?>},
+                        success: function(data) {
+                            location.reload();
+                        }
+                    });
+                }
+                return false;">
+              <i class="icon-gear"></i> <?php echo __('Reset 2FA'); ?>
+            </button>
+            <i class="offset help-tip icon-question-sign" href="#reset2fa"></i>
           </td>
         </tr>
 <?php
@@ -441,6 +475,9 @@ foreach ($staff->teams as $TM) {
       </tbody>
     </table>
   </div>
+
+  <!-- ============== Audits =================== -->
+<?php Signal::send('agent.audit', $staff, $extras); ?>
 
   <p style="text-align:center;">
       <input type="submit" name="submit" value="<?php echo $submit_text; ?>">

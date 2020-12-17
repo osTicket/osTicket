@@ -1,6 +1,7 @@
 <?php
 $account = $user->getAccount();
 $access = (isset($info['_target']) && $info['_target'] == 'access');
+$org = $user->getOrganization();
 
 if (!$info['title'])
     $info['title'] = Format::htmlchars($user->getName());
@@ -52,10 +53,7 @@ if ($info['error']) {
                 <td width="180">
                     <?php echo __('Organization'); ?>:
                 </td>
-                <td>
-                    <input type="text" size="35" name="org" value="<?php echo $info['org']; ?>">
-                    &nbsp;<span class="error">&nbsp;<?php echo $errors['org']; ?></span>
-                </td>
+                <td><?php echo $org ? Format::htmlchars($org->getName()) : ''; ?></td>
             </tr>
         </tbody>
         <tbody>

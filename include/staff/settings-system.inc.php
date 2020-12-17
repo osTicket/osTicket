@@ -62,6 +62,16 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Force HTTPS'); ?>:</td>
+            <td>
+                <input type="checkbox" name="force_https" <?php
+                echo $config['force_https'] ? 'checked="checked"' : ''; ?>>
+                <?php echo __('Force all requests through HTTPS.'); ?>
+                <font class="error"><?php echo $errors['force_https']; ?></font>
+                <i class="help-tip icon-question-sign" href="#force_https"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Collision Avoidance Duration'); ?>:</td>
             <td>
                 <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
@@ -132,10 +142,26 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Allow iFrames'); ?>:</td>
-            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>">
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+            <td><?php echo __('Allow System iFrame'); ?>:</td>
+            <td><input type="text" size="40" name="allow_iframes" value="<?php echo $config['allow_iframes']; ?>"
+                    placeholder="eg. https://domain.tld, *.domain.tld">
                 <i class="help-tip icon-question-sign" href="#allow_iframes"></i>
+            <?php if ($errors['allow_iframes']) { ?>
+                <br>
+                <font class="error">&nbsp;<?php echo $errors['allow_iframes']; ?></font>
+            <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Embedded Domain Whitelist'); ?>:</td>
+            <td><input type="text" size="40" name="embedded_domain_whitelist"
+                    value="<?php echo $config['embedded_domain_whitelist']; ?>"
+                    placeholder="eg. domain.tld, sub.domain.tld">
+                <i class="help-tip icon-question-sign" href="#embedded_domain_whitelist"></i>
+            <?php if ($errors['embedded_domain_whitelist']) { ?>
+                <br>
+                <font class="error">&nbsp;<?php echo $errors['embedded_domain_whitelist']; ?></font>
+            <?php } ?>
             </td>
         </tr>
         <tr>
@@ -255,6 +281,28 @@ $gmtime = Misc::gmtime();
         </tr>
     </tbody>
     <tbody>
+        <tr>
+            <td width="220">
+                <?php echo sprintf('%s %s', __('Default'), __('Schedule'));?>:
+            </td>
+            <td>
+                <select name="schedule_id">
+                    <option value="0" selected="selected" >&mdash; <?php
+                    echo __('None');?> &mdash;</option>
+                    <?php
+                    if ($schedules=BusinessHoursSchedule::getSchedules()) {
+                        foreach ($schedules as $s) {
+                            echo sprintf('<option value="%d" %s>%s</option>',
+                                    $s->getId(), ($config['schedule_id']==$s->getId()) ? 'selected="selected"' : '', $s->getName());
+                        }
+                    }
+                    ?>
+                </select>
+                &nbsp;<span class="error"><?php echo $errors['schedule_id'];
+                ?></span>&nbsp;<i class="help-tip icon-question-sign"
+                href="#default_schedule"></i>
+            </td>
+        </tr>
         <tr>
             <th colspan="2">
                 <em><b><?php echo __('System Languages'); ?></b>&nbsp;

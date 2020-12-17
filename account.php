@@ -34,7 +34,7 @@ elseif ($thisclient) {
                 $user_form = $f;
                 $user_form->getField('email')->configure('disabled', true);
             }
-        }    
+        }
     }
     // Existing client (with an account) updating profile
     else {
@@ -66,7 +66,16 @@ elseif ($_POST) {
         $errors['passwd1'] = __('New password is required');
     elseif (!$_POST['backend'] && $_POST['passwd2'] != $_POST['passwd1'])
         $errors['passwd1'] = __('Passwords do not match');
+    else {
+        try {
+            UserAccount::checkPassword($_POST['passwd1']);
+        } catch (BadPassword $ex) {
+             $errors['passwd1'] = $ex->getMessage();
+        }
+    }
 
+    if ($errors)
+        $errors['err'] = $errors['err'] ?: __('Unable to register account. See messages below');
     // XXX: The email will always be in use already if a guest is logged in
     // and is registering for an account. Instead,
     elseif (($addr = $user_form->getField('email')->getClean())
@@ -125,4 +134,3 @@ elseif ($_POST) {
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
 include(CLIENTINC_DIR.'footer.inc.php');
-

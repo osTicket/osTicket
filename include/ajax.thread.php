@@ -56,7 +56,7 @@ class ThreadAjaxAPI extends AjaxController {
     }
 
 
-    function addRemoteCollaborator($tid, $bk, $id) {
+    function addRemoteCollaborator($tid, $type, $bk, $id) {
         global $thisstaff;
 
         if (!($thread=Thread::lookup($tid))
@@ -74,7 +74,7 @@ class ThreadAjaxAPI extends AjaxController {
         if (!$user_info)
             $info['error'] = __('Unable to find user in directory');
 
-        return self::_addcollaborator($thread, null, $form, 'addcc', $info);
+        return self::_addcollaborator($thread, null, $form, $type, $info);
     }
 
     //Collaborators utils
@@ -83,6 +83,7 @@ class ThreadAjaxAPI extends AjaxController {
 
         if (!($thread=Thread::lookup($tid))
                 || !($object=$thread->getObject())
+                || !is_subclass_of($object, 'Threadable')
                 || !$object->checkStaffPerm($thisstaff))
             Http::response(404, __('No such thread'));
 
@@ -100,20 +101,14 @@ class ThreadAjaxAPI extends AjaxController {
             $user = User::fromForm($form);
         }
 
-        $errors = $info = array();
-        if ($user) {
-            // FIXME: Refuse to add ticket owner??
-            if (($c=$thread->addCollaborator($user,
-                            array(), $errors))) {
-                $info = array('msg' => sprintf(__('%s added as a collaborator'),
-                            Format::htmlchars($c->getName())));
-                $c->setCc();
-                $c->save();
-                return self::_collaborators($thread, $info);
-            }
+        $errors = $info = $vars = array();
+        if ($user && ($c=$object->addCollaborator($user, $vars, $errors))) {
+            $info = array('msg' => sprintf(__('%s added as a collaborator'),
+                        Format::htmlchars($c->getName())));
+            return self::_collaborators($thread, $info);
         }
 
-        if($errors && $errors['err']) {
+        if ($errors && $errors['err']) {
             $info +=array('error' => $errors['err']);
         } else {
             $info +=array('error' =>__('Unable to add collaborator.').' '.__('Internal error occurred'));
@@ -178,7 +173,7 @@ class ThreadAjaxAPI extends AjaxController {
         return self::_addcollaborator($thread);
     }
 
-    function previewCollaborators($tid) {
+    function previewCollaborators($tid, $manage=true) {
         global $thisstaff;
 
         if (!($thread=Thread::lookup($tid))

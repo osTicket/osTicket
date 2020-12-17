@@ -197,7 +197,8 @@ class i18n_Compiler extends Module {
                 // Skip files in (other) branches
                 continue;
             }
-            $phar->addFromString($info['name'], $contents);
+            $lname = $branch ? explode('/', $info['name'], 2)[1] : $info['name'];
+            $phar->addFromString($lname, $contents);
         }
 
         // TODO: Add i18n extras (like fonts)
@@ -209,16 +210,14 @@ class i18n_Compiler extends Module {
             $langs[] = $short;
         }
         foreach ($langs as $l) {
-            list($code, $js) = $this->_http_get(
-                sprintf('https://imperavi.com/download/redactor/langs/%s/',
-                    strtolower($l)));
-            if ($code == 200 && strlen($js) > 100) {
-                $phar->addFromString('js/redactor.js', $js);
+            if (file_exists(I18N_DIR . "vendor/redactor/{$lang}.js")) {
+                $phar->addFromString('js/redactor.js', file_get_contents(
+                    I18N_DIR . "vendor/redactor/{$lang}.js"));
                 break;
             }
         }
         if ($code != 200)
-            $this->stderr->write($lang . ": Unable to fetch Redactor language file\n");
+            $this->stderr->write($lang . ": Cannot find Redactor language file\n");
 
         // JQuery UI Datepicker
         // https://github.com/jquery/jquery-ui/tree/master/ui/i18n

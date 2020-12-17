@@ -211,6 +211,20 @@ class PluginManager {
         return static::$plugin_list;
     }
 
+    static function getPluginByName($name, $active=false) {
+        $sql = sprintf('SELECT * FROM %s WHERE name="%s"', PLUGIN_TABLE, $name);
+        if ($active)
+            $sql = sprintf('%s AND isactive = true', $sql);
+        if (!($res = db_query($sql)))
+            return false;
+        $ht = db_fetch_array($res);
+        return $ht['name'];
+    }
+
+    static function auditPlugin() {
+        return self::getPluginByName('Help Desk Audit', true);
+    }
+
     static function allActive() {
         $plugins = array();
         foreach (static::allInstalled() as $p)
@@ -334,6 +348,8 @@ class PluginManager {
             .', install_path='.db_input($path)
             .', name='.db_input($info['name'])
             .', isphar='.db_input($is_phar);
+        if ($info['version'])
+            $sql.=', version='.db_input($info['version']);
         if (!db_query($sql) || !db_affected_rows())
             return false;
         static::clearCache();
@@ -388,6 +404,7 @@ abstract class Plugin {
     function getName() { return $this->__($this->info['name']); }
     function isActive() { return $this->ht['isactive']; }
     function isPhar() { return $this->ht['isphar']; }
+    function getVersion() { return $this->ht['version'] ?: $this->info['version']; }
     function getInstallDate() { return $this->ht['installed']; }
     function getInstallPath() { return $this->ht['install_path']; }
 
@@ -534,7 +551,7 @@ abstract class Plugin {
     static function isVerified($phar) {
         static $pubkey = null;
 
-        if (!class_exists('Phar'))
+        if (!class_exists('Phar') || !extension_loaded('openssl'))
             return self::VERIFY_EXT_MISSING;
         elseif (!file_exists(INCLUDE_DIR . '/plugins/updates.pem'))
             return self::VERIFY_NO_KEY;
@@ -551,9 +568,7 @@ abstract class Plugin {
         $sig = $P->getSignature();
         $info = array();
         $ignored = null;
-        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain.'.',
-            DNS_TXT, $ignored, $ignored, true)
-        ) {
+        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain.'.', DNS_TXT)) {
             foreach ($r as $rec) {
                 foreach (explode(';', $rec['txt']) as $kv) {
                     list($k, $v) = explode('=', trim($kv));

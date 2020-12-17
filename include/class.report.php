@@ -84,20 +84,18 @@ class OverviewReport {
         $res = db_query('SELECT DISTINCT(E.name) FROM '.THREAD_EVENT_TABLE
             .' T JOIN '.EVENT_TABLE . ' E ON E.id = T.event_id'
             .' WHERE timestamp BETWEEN '.$start.' AND '.$stop
-            .' AND T.event_id IN ('.implode(",",$event_ids).')'
+            .' AND T.event_id IN ('.implode(",",$event_ids).') AND T.thread_type = "T"'
             .' ORDER BY 1');
         $events = array();
-        while ($row = db_fetch_row($res)) $events[] = $row[0];
+        while ($row = db_fetch_row($res)) $events[] = __($row[0]);
 
         # TODO: Handle user => db timezone offset
         # XXX: Implement annulled column from the %ticket_event table
         $res = db_query('SELECT H.name, DATE_FORMAT(timestamp, \'%Y-%m-%d\'), '
-                .'COUNT(DISTINCT T.id)'
+                .'COUNT(DISTINCT E.id)'
             .' FROM '.THREAD_EVENT_TABLE. ' E '
             . ' LEFT JOIN '.EVENT_TABLE. ' H
                 ON (E.event_id = H.id)'
-            .' JOIN '.THREAD_TABLE. ' T
-                ON (T.id = E.thread_id AND T.object_type = "T") '
             .' WHERE E.timestamp BETWEEN '.$start.' AND '.$stop
             .' AND NOT annulled'
             .' AND E.event_id IN ('.implode(",",$event_ids).')'
@@ -125,8 +123,8 @@ class OverviewReport {
                 $times[] = $time = $row_time;
             }
             # Keep track of states for this timeframe
-            $slots[] = $row[0];
-            $plots[$row[0]][] = (int)$row[2];
+            $slots[] = __($row[0]);
+            $plots[__($row[0])][] = (int)$row[2];
         }
         foreach (array_diff($events, $slots) as $slot)
             $plots[$slot][] = 0;
@@ -148,6 +146,8 @@ class OverviewReport {
         $event = function ($name) use ($event_ids) {
             return $event_ids[$name];
         };
+        $dash_headers = array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
+                              __('Deleted'),__('Service Time'),__('Response Time'));
 
         list($start, $stop) = $this->getDateRange();
         $times = ThreadEvent::objects()
@@ -179,7 +179,7 @@ class OverviewReport {
                 ->filter(array(
                         'annulled' => 0,
                         'timestamp__range' => array($start, $stop, true),
-                        'thread__object_type' => 'T',
+                        'thread_type' => 'T',
                    ))
                 ->aggregate(array(
                     'Opened' => SqlAggregate::COUNT(
@@ -226,7 +226,10 @@ class OverviewReport {
             $headers = array(__('Help Topic'));
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
-            $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+            $topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
+            if (empty($topics))
+                return array("columns" => array_merge($headers, $dash_headers),
+                      "data" => array());
             $stats = $stats
                 ->values('topic_id', 'topic__topic', 'topic__flags')
                 ->filter(array('dept_id__in' => $thisstaff->getDepts(), 'topic_id__gt' => 0, 'topic_id__in' => array_keys($topics)))
@@ -291,9 +294,7 @@ class OverviewReport {
                 number_format($T['ServiceTime'], 1),
                 number_format($T['ResponseTime'], 1));
         }
-        return array("columns" => array_merge($headers,
-                        array(__('Opened'),__('Assigned'),__('Overdue'),__('Closed'),__('Reopened'),
-                              __('Deleted'),__('Service Time'),__('Response Time'))),
+        return array("columns" => array_merge($headers, $dash_headers),
                      "data" => $rows);
     }
 }

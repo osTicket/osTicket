@@ -80,14 +80,12 @@ if ($_POST)
                 <div class="error"><?php echo $errors['user']; ?></div>
             </th>
         </tr>
-        <tr>
-          <td>
-            <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
               <?php
               if ($user) { ?>
                   <tr><td><?php echo __('User'); ?>:</td><td>
                     <div id="user-info">
                       <input type="hidden" name="uid" id="uid" value="<?php echo $user->getId(); ?>" />
+                      <?php if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
                       <a href="#" onclick="javascript:
                       $.userLookup('ajax.php/users/<?php echo $user->getId(); ?>/edit',
                       function (user) {
@@ -95,7 +93,11 @@ if ($_POST)
                         $('#user-email').text(user.email);
                       });
                       return false;
-                      "><i class="icon-user"></i>
+                      ">
+                      <?php } else { ?>
+                      <a href="#">
+                      <?php } ?>
+                      <i class="icon-user"></i>
                       <span id="user-name"><?php echo Format::htmlchars($user->getName()); ?></span>
                       &lt;<span id="user-email"><?php echo $user->getEmail(); ?></span>&gt;
                     </a>
@@ -181,9 +183,6 @@ if ($_POST)
           </td>
         </tr>
       <?php } ?>
-    </table>
-          </td>
-        </tr>
     </tbody>
     <tbody>
         <tr>
@@ -229,7 +228,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=Topic::getHelpTopics(false, false, true)) {
+                    if ($topics=$thisstaff->getTopicNames(false, false)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>
@@ -258,7 +257,7 @@ if ($_POST)
                 <select name="deptId">
                     <option value="" selected >&mdash; <?php echo __('Select Department'); ?>&mdash;</option>
                     <?php
-                    if($depts=Dept::getPublicDepartments()) {
+                    if($depts=$thisstaff->getDepartmentNames(true)) {
                         foreach($depts as $id =>$name) {
                             if (!($role = $thisstaff->getRole($id))
                                 || !$role->hasPerm(Ticket::PERM_CREATE)
@@ -319,7 +318,7 @@ if ($_POST)
                 <select id="assignId" name="assignId">
                     <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                     <?php
-                    if(($users=Staff::getAvailableStaffMembers())) {
+                    if(($users=$assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true)))) {
                         echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
                         foreach($users as $id => $name) {
                             $k="s$id";
@@ -394,7 +393,7 @@ if ($_POST)
                     name="response" id="response" cols="21" rows="8"
                     style="width:80%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.response', false, $info['response']);
-    echo $attrs; ?>><?php echo $_POST ? $info['response'] : $draft;
+    echo $attrs; ?>><?php echo ThreadEntryBody::clean($_POST ? $info['response'] : $draft);
                 ?></textarea>
                     <div class="attachments">
 <?php
@@ -463,7 +462,7 @@ print $response_form->getField('attachments')->render();
                     placeholder="<?php echo __('Optional internal note (recommended on assignment)'); ?>"
                     name="note" cols="21" rows="6" style="width:80%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.staff.note', false, $info['note']);
-    echo $attrs; ?>><?php echo $_POST ? $info['note'] : $draft;
+    echo $attrs; ?>><?php echo ThreadEntryBody::clean($_POST ? $info['note'] : $draft);
                 ?></textarea>
             </td>
         </tr>
@@ -474,7 +473,7 @@ print $response_form->getField('attachments')->render();
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
         $(this.form).find('textarea.richtext')
-          .redactor('draft.deleteDraft');
+          .redactor('plugin.draft.deleteDraft');
         window.location.href='tickets.php'; " />
 </p>
 </form>

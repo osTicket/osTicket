@@ -228,7 +228,7 @@ extends SessionBackend {
     }
 
     function destroy($id){
-        return SessionData::objects()->filter(['session_id' => $id])->delete();
+        return SessionData::objects()->filter(['session_id' => $id])->delete() ? true : false;
     }
 
     function cleanup() {
@@ -303,7 +303,7 @@ extends SessionBackend {
 
     function update($id, $data) {
         if (defined('DISABLE_SESSION') && $this->isnew)
-            return;
+            return true;
 
         $key = $this->getKey($id);
         foreach ($this->servers as $S) {

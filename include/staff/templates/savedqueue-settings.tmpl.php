@@ -21,13 +21,16 @@
         <select name="filter">
           <option value="" <?php if ($queue->filter == "")
               echo 'selected="selected"'; ?>>— <?php echo __('None'); ?> —</option>
+          <?php
+          if ($queue->parent) { ?>
           <option value="::" <?php if ($queue->filter == "::")
               echo 'selected="selected"'; ?>>— <?php echo __('Inherit from parent');
-            if ($queue->parent
-                && ($qf = $queue->parent->getQuickFilterField()))
+            if (($qf = $queue->parent->getQuickFilterField()))
                 echo sprintf(' (%s)', $qf->getLabel()); ?> —</option>
-<?php foreach ($queue->getSupportedFilters() as $path => $f) {
-        list($label, $field) = $f;
+<?php
+          }
+         foreach ($queue->getSupportedFilters() as $path => $f) {
+            list($label, $field) = $f;
 ?>
           <option value="<?php echo $path; ?>"
             <?php if ($path == $queue->filter) echo 'selected="selected"'; ?>
@@ -43,14 +46,16 @@
     <div>
         <select name="sort_id">
          <option value="" <?php if ($queue->sort_id == 0)
-            echo 'selected="selected"'; ?>>— <?php echo __('None'); ?> —</option>
-          <option value="::" <?php if ($queue->isDefaultSortInherited() &&
-                  $queue->parent)
-              echo 'selected="selected"'; ?>>— <?php echo __('Inherit from parent');
-            if ($queue->parent
-                && ($sort = $queue->parent->getDefaultSort()))
-                echo sprintf(' (%s)', $sort->getName()); ?> —</option>
-<?php foreach ($queue->getSortOptions() as $sort) { ?>
+            echo 'selected="selected"'; ?>>— <?php echo __('System Default'); ?> —</option>
+         <?php
+         if ($queue->parent) { ?>
+          <option value="::" <?php echo $queue->isDefaultSortInherited() ?
+              'selected="selected"' : ''; ?>>— <?php echo __('Inherit from parent');
+            if ($sort = $queue->parent->getDefaultSort())
+                echo sprintf(' (%s)', Format::htmlchars($sort->getName())); ?> —</option>
+        <?php
+         }
+        foreach ($queue->getSortOptions() as $sort) { ?>
           <option value="<?php echo $sort->id; ?>"
             <?php if ($sort->id == $queue->sort_id) echo 'selected="selected"'; ?>
             ><?php echo Format::htmlchars($sort->getName()); ?></option>

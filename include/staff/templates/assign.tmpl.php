@@ -44,7 +44,7 @@ $action = $info[':action'] ?: ('#');
         <tbody>
             <tr><td colspan=2>
              <?php
-             $options = array('template' => 'simple', 'form_id' => 'assign');
+             $options = array('template' => 'simple', 'form_id' => 'assign', 'filterVisibility' => true);
              $form->render($options);
              ?>
             </td> </tr>

@@ -93,8 +93,8 @@ class Installer extends SetupWizard {
         if(!$this->errors) {
             if(!db_connect($vars['dbhost'],$vars['dbuser'],$vars['dbpass']))
                 $this->errors['db']=sprintf(__('Unable to connect to MySQL server: %s'), db_connect_error());
-            elseif(explode('.', db_version()) < explode('.', $this->getMySQLVersion()))
-                $this->errors['db']=sprintf(__('osTicket requires MySQL %s or later!'),$this->getMySQLVersion());
+            elseif(explode('.', db_version()) < explode('.', SetupWizard::getMySQLVersion()))
+                $this->errors['db']=sprintf(__('osTicket requires MySQL %s or later!'),SetupWizard::getMySQLVersion());
             elseif(!db_select_database($vars['dbname']) && !db_create_database($vars['dbname'])) {
                 $this->errors['dbname']=__("Database doesn't exist");
                 $this->errors['db']=__('Unable to create the database.');
@@ -178,6 +178,7 @@ class Installer extends SetupWizard {
         list($sla_id) = Sla::objects()->order_by('id')->values_flat('id')->first();
         list($dept_id) = Dept::objects()->order_by('id')->values_flat('id')->first();
         list($role_id) = Role::objects()->order_by('id')->values_flat('id')->first();
+        list($schedule_id) = Schedule::objects()->order_by('id')->values_flat('id')->first();
 
         $sql='SELECT `tpl_id` FROM `'.TABLE_PREFIX.'email_template_group` ORDER BY `tpl_id` LIMIT 1';
         $template_id_1 = db_result(db_query($sql, false));
@@ -205,6 +206,8 @@ class Installer extends SetupWizard {
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
             Email::PERM_BANLIST,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
         $staff->setPassword($vars['passwd']);
         if (!$staff->save()) {
@@ -248,7 +251,9 @@ class Installer extends SetupWizard {
         $defaults = array(
             'default_email_id'=>$support_email_id,
             'alert_email_id'=>$alert_email_id,
-            'default_dept_id'=>$dept_id, 'default_sla_id'=>$sla_id,
+            'default_dept_id'=>$dept_id,
+            'default_sla_id'=>$sla_id,
+            'schedule_id'=>$schedule_id,
             'default_template_id'=>$template_id_1,
             'default_timezone' => $vars['timezone'] ?: date_default_timezone_get(),
             'admin_email'=>$vars['admin_email'],

@@ -13,6 +13,8 @@ AttachmentFile::objects()->filter(array(
 
 $entries = $thread->getEntries();
 $entries->filter(array('type__in' => array_keys($entryTypes)))->order_by("{$order}id");
+// Respect the masking broh
+$agentmasking = $cfg->hideStaffName();
 ?>
 <style type="text/css">
     div {font-family: sans-serif;}
@@ -29,7 +31,11 @@ $entries->filter(array('type__in' => array_keys($entryTypes)))->order_by("{$orde
             <?php
             foreach ($entries as $entry) {
                 $user = $entry->getUser() ?: $entry->getStaff();
-                $name = $user ? $user->getName() : $entry->poster;
+                // Check if Identity Masking is enabled
+                if ($entry->staff_id && $agentmasking)
+                    $name = __('Staff');
+                else
+                    $name = $user ? $user->getName() : $entry->poster;
                 $color = $entryTypes[$entry->type]['color'];
                 ?>
                 <tr>
@@ -83,6 +89,7 @@ $entries->filter(array('type__in' => array_keys($entryTypes)))->order_by("{$orde
                         </div>
                     </td>
                 </tr>
+                <tr><td>&nbsp;</td></tr>
             <?php
             } ?>
         </tbody>

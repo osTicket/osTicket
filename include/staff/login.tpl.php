@@ -1,6 +1,11 @@
 <?php
 include_once(INCLUDE_DIR.'staff/login.header.php');
 $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
+
+
+if ($thisstaff && $thisstaff->is2FAPending())
+    $msg = "2FA Pending";
+
 ?>
 <div id="brickwall"></div>
 <div id="loginBox">
@@ -13,22 +18,44 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
     </a></h1>
     <h3 id="login-message"><?php echo Format::htmlchars($msg); ?></h3>
     <div class="banner"><small><?php echo ($content) ? Format::display($content->getLocalBody()) : ''; ?></small></div>
+    <div id="loading" style="display:none;" class="dialog">
+        <h1><i class="icon-spinner icon-spin icon-large"></i>
+        <?php echo __('Verifying');?></h1>
+    </div>
     <form action="login.php" method="post" id="login" onsubmit="attemptLoginAjax(event)">
-        <?php csrf_token(); ?>
-        <input type="hidden" name="do" value="scplogin">
-        <fieldset>
-        <input type="text" name="userid" id="name" value="<?php
-            echo $info['userid']; ?>" placeholder="<?php echo __('Email or Username'); ?>"
-            autofocus autocorrect="off" autocapitalize="off">
-        <input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
-            <h3 style="display:inline"><a id="reset-link" class="<?php
-                if (!$show_reset || !$cfg->allowPasswordReset()) echo 'hidden';
-                ?>" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
-            <button class="submit button pull-right" type="submit"
+        <?php csrf_token();
+        if ($thisstaff
+                &&  $thisstaff->is2FAPending()
+                && ($bk=$thisstaff->get2FABackend())
+                && ($form=$bk->getInputForm($_POST))) {
+            // Render 2FA input form
+            include STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
+            ?>
+            <fieldset style="padding-top:10px;">
+            <input type="hidden" name="do" value="2fa">
+            <button class="submit button pull-center" type="submit"
                 name="submit"><i class="icon-signin"></i>
-                <?php echo __('Log In'); ?>
+                <?php echo __('Verify'); ?>
             </button>
-        </fieldset>
+             </fieldset>
+        <?php
+        } else { ?>
+            <input type="hidden" name="do" value="scplogin">
+            <fieldset>
+            <input type="text" name="userid" id="name" value="<?php
+                echo $info['userid']; ?>" placeholder="<?php echo __('Email or Username'); ?>"
+                autofocus autocorrect="off" autocapitalize="off">
+            <input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
+                <h3 style="display:inline"><a id="reset-link" class="<?php
+                    if (!$show_reset || !$cfg->allowPasswordReset()) echo 'hidden';
+                    ?>" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
+                <button class="submit button pull-right" type="submit"
+                    name="submit"><i class="icon-signin"></i>
+                    <?php echo __('Log In'); ?>
+                </button>
+            </fieldset>
+        <?php
+        } ?>
     </form>
 <?php
 $ext_bks = array();
@@ -64,6 +91,7 @@ if (count($ext_bks)) { ?>
     });
 
     function attemptLoginAjax(e) {
+        $('#loading').show();
         var objectifyForm = function(formArray) { //serialize data function
             var returnArray = {};
             for (var i = 0; i < formArray.length; i++) {
@@ -78,6 +106,7 @@ if (count($ext_bks)) { ?>
             var oldEffect = $.fn.effect;
             $.fn.effect = function (effectName) {
                 if (effectName === "shake") {
+                    $('#loading').hide();
                     var old = $.effects.createWrapper;
                     $.effects.createWrapper = function (element) {
                         var result;
@@ -101,12 +130,14 @@ if (count($ext_bks)) { ?>
         var form = $(e.target),
             data = objectifyForm(form.serializeArray())
         data.ajax = 1;
+        $('button[type=submit]', form).attr('disabled', 'disabled');
         $.ajax({
             url: form.attr('action'),
             method: 'POST',
             data: data,
             cache: false,
             success: function(json) {
+                 $('button[type=submit]', form).removeAttr('disabled');
                 if (!typeof(json) === 'object' || !json.status)
                     return;
                 switch (json.status) {

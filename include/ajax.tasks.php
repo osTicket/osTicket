@@ -110,10 +110,11 @@ class TasksAjaxAPI extends AjaxController {
                 $vars['default_formdata'] = $form->getClean();
                 $vars['internal_formdata'] = $iform->getClean();
                 $desc = $form->getField('description');
+                $vars['description'] = $desc->getClean();
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
-                    $vars['files'] = $attachments->getFiles();
+                            $vars['files'] = $attachments->getFiles();
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
@@ -211,6 +212,82 @@ class TasksAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/task-edit.tmpl.php';
     }
 
+    function editField($tid, $fid) {
+        global $thisstaff;
+
+        if (!($task=Task::lookup($tid)))
+            Http::response(404, __('No such task'));
+        elseif (!$task->checkStaffPerm($thisstaff, Task::PERM_EDIT))
+            Http::response(403, __('Permission denied'));
+        elseif (!($field=$task->getField($fid)))
+            Http::response(404, __('No such field'));
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Task #%s: %s %s'),
+                  $task->getNumber(),
+                  __('Update'),
+                  $field->getLabel()
+                  ),
+              ':action' => sprintf('#tasks/%d/field/%s/edit',
+                  $task->getId(), $field->getId())
+              );
+
+        $form = $field->getEditForm($_POST);
+        if ($_POST && $form->isValid()) {
+
+            if ($task->updateField($form, $errors)) {
+                $msg = sprintf(
+                      __('%s successfully'),
+                      sprintf(
+                          __('%s updated'),
+                          __($field->getLabel())
+                          )
+                      );
+
+                switch (true) {
+                    case $field instanceof DateTime:
+                    case $field instanceof DatetimeField:
+                        $clean = Format::datetime((string) $field->getClean());
+                        break;
+                    case $field instanceof FileUploadField:
+                        $field->save();
+                        $answer =  $field->getAnswer();
+                        $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
+                        break;
+                    case $field instanceof DepartmentField:
+                        $clean = (string) Dept::lookup($field->getClean());
+                        break;
+                    case $field instanceof TextareaField:
+                        $clean =  (string) $field->getClean();
+                        $clean = Format::striptags($clean) ? $clean : '&mdash;' . __('Empty') .  '&mdash;';
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
+                        break;
+                    case $field instanceof BooleanField:
+                        $clean = $field->getClean();
+                        $clean = $field->toString($clean);
+                        break;
+                    default:
+                        $clean =  $field->getClean();
+                        $clean = is_array($clean) ? implode($clean, ',') :
+                            (string) $clean;
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate($clean, 200);
+                }
+
+                $clean = is_array($clean) ? $clean[0] : $clean;
+                Http::response(201, $this->json_encode(['value' =>
+                            $clean ?: '&mdash;' . __('Empty') .  '&mdash;',
+                            'id' => $fid, 'msg' => $msg]));
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to update field');
+        }
+
+        include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
+    }
+
     function massProcess($action, $w=null)  {
         global $thisstaff, $cfg;
 
@@ -228,7 +305,7 @@ class TasksAjaxAPI extends AjaxController {
                     'verbed' => __('deleted'),
                     ),
                 'reopen' => array(
-                    'verbed' => __('reopen'),
+                    'verbed' => __('reopened'),
                     ),
                 'close' => array(
                     'verbed' => __('closed'),
@@ -402,7 +479,7 @@ class TasksAjaxAPI extends AjaxController {
             $inc = 'task-status.tmpl.php';
             $info[':action'] = "#tasks/mass/$action";
             $info['status'] = $info['status'] ?: 'closed';
-            $perm = $action = '';
+            $perm = '';
             switch ($info['status']) {
             case 'open':
                 // If an agent can create a task then they're allowed to
@@ -591,7 +668,7 @@ class TasksAjaxAPI extends AjaxController {
 
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
                 || !($form=$task->getAssignmentForm($_POST, array(
-                            'target' => $target))))
+                            'target' => $target, 'filterVisibility' => true))))
             Http::response(403, __('Permission denied'));
 
         $errors = array();
@@ -618,7 +695,11 @@ class TasksAjaxAPI extends AjaxController {
                             __('Task'),
                             $form->getAssignee())
                         );
-                Http::response(201, $task->getId());
+
+                $assignee =  $task->isAssigned() ? Format::htmlchars(implode('/', $task->getAssignees())) :
+                                            '<span class="faded">&mdash; '.__('Unassigned').' &mdash;';
+                Http::response(201, $this->json_encode(['value' =>
+                    $assignee, 'id' => 'assign', 'msg' => $_SESSION['::sysmsgs']['msg']]));
             }
 
             $form->addErrors($errors);

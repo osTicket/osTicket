@@ -28,6 +28,11 @@ class FilterAction extends VerySimpleModel {
     function setFilter($filter) {
         $this->_filter = $filter;
     }
+
+    function getFilterId() {
+        return $this->filter_id;
+    }
+
     function getFilter() {
         return $this->_filter;
     }
@@ -84,14 +89,19 @@ class FilterAction extends VerySimpleModel {
         return $this->_impl;
     }
 
-    function setFilterFlag($actions, $flag, $bool) {
-        foreach ($actions as $action) {
-          $filter = Filter::lookup($action->filter_id);
-          if ($filter && ($flag == 'dept') && ($filter->hasFlag(Filter::FLAG_INACTIVE_DEPT) != $bool))
-            $filter->setFlag(Filter::FLAG_INACTIVE_DEPT, $bool);
-          if ($filter && ($flag == 'topic') && ($filter->hasFlag(Filter::FLAG_INACTIVE_HT) != $bool))
-            $filter->setFlag(Filter::FLAG_INACTIVE_HT, $bool);
-        }
+    function setFilterFlags($actions=false, $flag, $bool) {
+        $flag = constant($flag);
+        if ($actions) {
+            foreach ($actions as $action)
+                $action->setFilterFlag($flag, $bool);
+        } else
+            $this->setFilterFlag($flag, $bool);
+    }
+
+    function setFilterFlag($flag, $bool) {
+        $filter = Filter::lookup($this->filter_id);
+        if ($filter && ($filter->hasFlag($flag) != $bool))
+          $filter->setFlag($flag, $bool);
     }
 
     function apply(&$ticket, array $info) {
@@ -305,7 +315,7 @@ class FA_RouteDepartment extends TriggerAction {
         if ($config['dept_id']) {
           $dept = Dept::lookup($config['dept_id']);
 
-          if ($dept->isActive())
+          if ($dept && $dept->isActive())
             $ticket['deptId'] = $config['dept_id'];
         }
     }
@@ -450,8 +460,7 @@ class FA_AssignTopic extends TriggerAction {
         $config = $this->getConfiguration();
         if ($config['topic_id']) {
           $topic = Topic::lookup($config['topic_id']);
-
-          if ($topic->isActive())
+          if ($topic && $topic->isActive())
             $ticket['topicId'] = $config['topic_id'];
         }
     }
@@ -516,12 +525,18 @@ class FA_SendEmail extends TriggerAction {
     function apply(&$ticket, array $info) {
         global $ost;
 
+        if (!$ticket['ticket'])
+            return false;
+
         $config = $this->getConfiguration();
-        $info = array('subject' => $config['subject'],
-            'message' => $config['message']);
-        $info = $ost->replaceTemplateVariables(
-            $info, array('ticket' => $ticket)
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $ticket['ticket'],
         );
+        $info = $ost->replaceTemplateVariables(array(
+            'subject' => $config['subject'],
+            'message' => $config['message'],
+        ), $vars);
 
         // Honor FROM address settings
         if (!$config['from'] || !($mailer = Email::lookup($config['from'])))
@@ -549,7 +564,6 @@ class FA_SendEmail extends TriggerAction {
             $I = $replacer->replaceVars($info);
             $mailer->send($recipient, $I['subject'], $I['message']);
         }
-
     }
 
     static function getVarScope() {

@@ -70,6 +70,8 @@ class Internationalization {
             'queue_column.yaml' =>  'QueueColumn::__create',
             'queue_sort.yaml' =>    'QueueSort::__create',
             'queue.yaml' =>         'CustomQueue::__create',
+            // Schedule
+            'schedule.yaml' =>      'Schedule::__create',
         );
 
         $errors = array();
@@ -124,7 +126,7 @@ class Internationalization {
                 'registration-staff', 'pwreset-staff', 'banner-staff',
                 'registration-client', 'pwreset-client', 'banner-client',
                 'registration-confirm', 'registration-thanks',
-                'access-link') as $type) {
+                'access-link', 'email2fa-staff') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;

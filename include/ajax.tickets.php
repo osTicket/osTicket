@@ -35,12 +35,16 @@ class TicketsAjaxAPI extends AjaxController {
         $visibility = $thisstaff->getTicketsVisibility();
         $hits = Ticket::objects()
             ->filter($visibility)
-            ->values('user__default_email__address')
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
             ->annotate(array(
                 'number' => new SqlCode('null'),
                 'tickets' => SqlAggregate::COUNT('ticket_id', true),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
             ))
             ->order_by(SqlAggregate::SUM(new SqlCode('Z1.relevance')), QuerySet::DESC)
+            ->distinct('user__default_email__address')
             ->limit($limit);
 
         $q = $_REQUEST['q'];
@@ -52,16 +56,7 @@ class TicketsAjaxAPI extends AjaxController {
         $hits = $ost->searcher->find($q, $hits, false);
 
         if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
-            $hits = Ticket::objects()
-                ->values('user__default_email__address', 'number')
-                ->annotate(array(
-                    'tickets' => new SqlCode('1'),
-                ))
-                ->filter($visibility)
-                ->filter(array('number__startswith' => $q))
-                ->order_by('number')
-                ->limit($limit)
-                ->union($hits);
+            $hits = $this->lookupByNumber($limit, $visibility, $hits);
         }
         elseif (!count($hits) && preg_match('`\w$`u', $q)) {
             // Do wild-card fulltext search
@@ -69,18 +64,80 @@ class TicketsAjaxAPI extends AjaxController {
             return $this->lookup();
         }
 
+        // TODO: Why not aggregate based on relationship?
         foreach ($hits as $T) {
             $email = $T['user__default_email__address'];
             $count = $T['tickets'];
             if ($T['number']) {
                 $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
+                    'ticket_id'=>$T['ticket_id'],
                     'info'=>"{$T['number']} — {$email}",
+                    'subject'=>$T['cdata__subject'],
+                    'user'=>$T['user__name'],
+                    'tasks'=>$T['tasks'],
+                    'thread_id'=>$T['thread__id'],
+                    'collaborators'=>$T['collaborators'],
+                    'entries'=>$T['entries'],
+                    'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
+                    'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
                     'matches'=>$_REQUEST['q']);
             }
             else {
                 $tickets[$email] = array('email'=>$email, 'value'=>$email,
                     'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
             }
+        }
+        $tickets = array_values($tickets);
+
+        return $this->json_encode($tickets);
+    }
+
+    function lookupByNumber($limit=false, $visibility=false, $matches=false) {
+        global $thisstaff;
+
+        if (!$limit)
+            $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+
+        $tickets=array();
+        // Bail out of query is empty
+        if (!$_REQUEST['q'])
+            return $this->json_encode($tickets);
+
+        $q = trim($_REQUEST['q']);
+
+        if (!$visibility)
+            $visibility = $thisstaff->getTicketsVisibility();
+
+        $hits = Ticket::objects()
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags', 'number')
+            ->annotate(array(
+                'tickets' => new SqlCode('1'),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
+            ))
+            ->filter($visibility)
+            ->filter(array('number__startswith' => $q))
+            ->order_by('number')
+            ->limit($limit);
+
+        if ($matches && is_a($matches, 'QuerySet'))
+            return $hits->union($matches);
+
+        foreach ($hits as $T) {
+            $email = $T['user__default_email__address'];
+            $tickets[$T['number']] = array('id'=>$T['number'], 'value'=>$T['number'],
+                'ticket_id'=>$T['ticket_id'],
+                'info'=>"{$T['number']} — {$email}",
+                'subject'=>$T['cdata__subject'],
+                'user'=>$T['user__name'],
+                'tasks'=>$T['tasks'],
+                'thread_id'=>$T['thread__id'],
+                'collaborators'=>$T['collaborators'],
+                'entries'=>$T['entries'],
+                'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
+                'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
+                'matches'=>$_REQUEST['q']);
         }
         $tickets = array_values($tickets);
 
@@ -329,6 +386,89 @@ class TicketsAjaxAPI extends AjaxController {
         Http::response(201, 'Successfully managed');
     }
 
+    function mergeTickets($ticket_id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, "Login required");
+        elseif (!($ticket = Ticket::lookup($ticket_id)))
+            Http::response(404, "No such ticket");
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+            Http::response(403, "Access Denied");
+
+        //retrieve the parent and child tickets
+        $parent = Ticket::objects()
+            ->filter(array('ticket_id'=>$ticket_id))
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id', true),));
+        $tickets =  Ticket::getChildTickets($ticket_id);
+        $tickets = $parent->union($tickets);
+
+        //fix sort of tickets
+        $sql = sprintf('SELECT * FROM (%s) a ORDER BY sort', $tickets->getQuery());
+        $res = db_query($sql);
+        $tickets = db_assoc_array($res);
+        $info = array('action' => '#tickets/'.$ticket->getId().'/merge');
+
+        return self::_updateMerge($ticket, $tickets, $info);
+    }
+
+    function updateMerge($ticket_id) {
+        global $thisstaff;
+
+        $info = array();
+        $errors = array();
+
+        if ($_POST['dtids']) {
+            foreach($_POST['dtids'] as $key => $value) {
+                if (is_numeric($key) && $ticket = Ticket::lookup($value))
+                    $ticket->unlink();
+            }
+            Http::response(201, 'Successfully managed');
+        } elseif ($_POST['tids']) {
+            if ($parent = Ticket::merge($_POST))
+                Http::response(201, 'Successfully managed');
+            else
+                Http::response(404, 'Unable to manage ticket');
+        }
+
+        $parentModel = Ticket::objects()
+            ->filter(array('ticket_id'=>$ticket_id))
+            ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id', 'user_id', 'cdata__subject', 'user__name', 'flags')
+            ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                             'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                             'entries' => SqlAggregate::COUNT('thread__entries__id', true),));
+
+        if ($parent->getMergeType() == 'visual') {
+            $tickets = Ticket::getChildTickets($ticket_id);
+            $tickets = $parentModel->union($tickets);
+        } else
+            $tickets = $parentModel;
+
+        return self::_updateMerge($parent, $tickets, $info);
+    }
+
+    private function _updateMerge($ticket, $tickets, $info) {
+        include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
+    }
+
+    function previewMerge($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'No such ticket');
+
+        ob_start();
+        include STAFFINC_DIR . 'templates/merge-preview.tmpl.php';
+        $resp = ob_get_contents();
+        ob_end_clean();
+
+        return $resp;
+    }
+
     function cannedResponse($tid, $cid, $format='text') {
         global $thisstaff, $cfg;
 
@@ -400,7 +540,6 @@ class TicketsAjaxAPI extends AjaxController {
                         );
                 Http::response(201, $ticket->getId());
             }
-
             $form->addErrors($errors);
             $info['error'] = $errors['err'] ?: __('Unable to transfer ticket');
         }
@@ -410,105 +549,101 @@ class TicketsAjaxAPI extends AjaxController {
         include STAFFINC_DIR . 'templates/transfer.tmpl.php';
     }
 
-
-  function referrals($tid) {
-
+    function referrals($tid) {
       return $this->refer($tid);
-
-  }
-
-function refer($tid, $target=null) {
-    global $thisstaff;
-
-    if (!($ticket=Ticket::lookup($tid)))
-        Http::response(404, __('No such ticket'));
-
-    if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
-            || !($form = $ticket->getReferralForm($_POST,
-                    array('target' => $target))))
-        Http::response(403, __('Permission denied'));
-
-    $errors = array();
-    $info = array(
-            ':title' => sprintf(__('Ticket #%s: %s'),
-                $ticket->getNumber(),
-                __('Refer')
-                ),
-            ':action' => sprintf('#tickets/%d/refer%s',
-                $ticket->getId(),
-                ($target  ? "/$target": '')),
-            );
-
-    if ($_POST) {
-
-        switch ($_POST['do']) {
-        case 'refer':
-            if ($form->isValid() && $ticket->refer($form, $errors)) {
-                $clean = $form->getClean();
-                if ($clean['comments'])
-                    $ticket->logNote('Referral', $clean['comments'], $thisstaff);
-                $_SESSION['::sysmsgs']['msg'] = sprintf(
-                        __('%s successfully'),
-                        sprintf(
-                            __('%s referred to %s'),
-                            sprintf(__('Ticket #%s'),
-                                 sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
-                                     $ticket->getId(),
-                                     $ticket->getNumber()))
-                            ,
-                            $form->getReferee())
-                        );
-                Http::response(201, $ticket->getId());
-            }
-
-            $form->addErrors($errors);
-            $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
-            break;
-        case 'manage':
-            $remove = array();
-            if (is_array($_POST['referrals'])) {
-                $remove = array();
-                foreach ($_POST['referrals'] as $k => $v)
-                    if ($v[0] == '-')
-                        $remove[] = substr($v, 1);
-                if (count($remove)) {
-                    $num = $ticket->thread->referrals
-                        ->filter(array('id__in' => $remove))
-                        ->delete();
-                    if ($num) {
-                        $info['msg'] = sprintf(
-                                __('%s successfully'),
-                                sprintf(__('Removed %d referrals'),
-                                    $num
-                                    )
-                                );
-                    }
-                    //TODO: log removal
-                }
-            }
-            break;
-        default:
-             $errors['err'] = __('Unknown Action');
-        }
     }
 
-    $thread = $ticket->getThread();
-    include STAFFINC_DIR . 'templates/refer.tmpl.php';
-}
-  function editField($tid, $fid) {
-      global $thisstaff;
+    function refer($tid, $target=null) {
+        global $thisstaff;
 
-      if (!($ticket=Ticket::lookup($tid)))
-          Http::response(404, __('No such ticket'));
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
 
-      if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
-          Http::response(403, __('Permission denied'));
-      elseif (!($field=$ticket->getField($fid)))
-          Http::response(404, __('No such field'));
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+                || !($form = $ticket->getReferralForm($_POST,
+                        array('target' => $target))))
+            Http::response(403, __('Permission denied'));
 
-      $errors = array();
-      $info = array(
-              ':title' => sprintf(__('Ticket #%s: %s %s'),
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s'),
+                    $ticket->getNumber(),
+                    __('Refer')
+                    ),
+                ':action' => sprintf('#tickets/%d/refer%s',
+                    $ticket->getId(),
+                    ($target  ? "/$target": '')),
+                );
+
+        if ($_POST) {
+            switch ($_POST['do']) {
+                case 'refer':
+                    if ($form->isValid() && $ticket->refer($form, $errors)) {
+                        $clean = $form->getClean();
+                        if ($clean['comments'])
+                            $ticket->logNote('Referral', $clean['comments'], $thisstaff);
+                        $_SESSION['::sysmsgs']['msg'] = sprintf(
+                                __('%s successfully'),
+                                sprintf(
+                                    __('%s referred to %s'),
+                                    sprintf(__('Ticket #%s'),
+                                         sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                             $ticket->getId(),
+                                             $ticket->getNumber()))
+                                    ,
+                                    $form->getReferee())
+                                );
+                        Http::response(201, $ticket->getId());
+                    }
+
+                    $form->addErrors($errors);
+                    $info['error'] = $errors['err'] ?: __('Unable to refer ticket');
+                    break;
+                case 'manage':
+                    $remove = array();
+                    if (is_array($_POST['referrals'])) {
+                        $remove = array();
+                        foreach ($_POST['referrals'] as $k => $v)
+                            if ($v[0] == '-')
+                                $remove[] = substr($v, 1);
+                        if (count($remove)) {
+                            $num = $ticket->getThread()->referrals
+                                ->filter(array('id__in' => $remove))
+                                ->delete();
+                            if ($num) {
+                                $info['msg'] = sprintf(
+                                        __('%s successfully'),
+                                        sprintf(__('Removed %d referrals'),
+                                            $num
+                                            )
+                                        );
+                            }
+                            //TODO: log removal
+                        }
+                    }
+                    break;
+                default:
+                     $errors['err'] = __('Unknown Action');
+            }
+        }
+
+        $thread = $ticket->getThread();
+        include STAFFINC_DIR . 'templates/refer.tmpl.php';
+    }
+
+    function editField($tid, $fid) {
+        global $cfg, $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+        elseif (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT))
+            Http::response(403, __('Permission denied'));
+        elseif (!($field=$ticket->getField($fid)))
+            Http::response(404, __('No such field'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s %s'),
                   $ticket->getNumber(),
                   __('Update'),
                   $field->getLabel()
@@ -517,10 +652,11 @@ function refer($tid, $target=null) {
                   $ticket->getId(), $field->getId())
               );
 
-      $form = $field->getEditForm($_POST);
-      if ($_POST && $form->isValid()) {
+        $form = $field->getEditForm($_POST);
+        if ($_POST && $form->isValid()) {
+
             if ($ticket->updateField($form, $errors)) {
-              $_SESSION['::sysmsgs']['msg'] = sprintf(
+                $msg = sprintf(
                       __('%s successfully'),
                       sprintf(
                           __('%s updated'),
@@ -528,16 +664,89 @@ function refer($tid, $target=null) {
                           )
                       );
 
-              if ($field instanceof FileUploadField)
-                  $field->save();
-              Http::response(201, $field->getClean());
-          }
-          $form->addErrors($errors);
-          $info['error'] = $errors['err'] ?: __('Unable to update field');
-      }
+                switch (true) {
+                    case $field instanceof DateTime:
+                    case $field instanceof DatetimeField:
+                        $clean = Format::datetime((string) $field->getClean());
+                        break;
+                    case $field instanceof FileUploadField:
+                        $field->save();
+                        $answer =  $field->getAnswer();
+                        $clean = $answer->display() ?: '&mdash;' . __('Empty') .  '&mdash;';
+                        break;
+                    case $field instanceof DepartmentField:
+                        $clean = (string) Dept::lookup($field->getClean());
+                        break;
+                    case $field instanceof TextareaField:
+                        $clean =  (string) $field->getClean();
+                        $clean = Format::striptags($clean) ?: '&mdash;' . __('Empty') .  '&mdash;';
+                        if (strlen($clean) > 200)
+                             $clean = Format::truncate(Format::striptags($clean), 200);
+                        break;
+                    case $field instanceof BooleanField:
+                        $clean = $field->toString($field->getClean());
+                        break;
+                    default:
+                        $clean =  $field->getClean();
+                        $clean = is_array($clean) ? implode($clean, ',') :
+                            (string) $clean;
+                }
 
-      include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
-  }
+                // Set basic response data
+                $response = array(
+                    'value' => $clean ?: '&mdash;' . __('Empty') .  '&mdash;',
+                    'id' => $fid, 'msg' => $msg
+                );
+
+                // If we require HT to close, the ticket is open, the staff has permission
+                // to close, and we set a HT - ensure we provide all available statuses
+                if ($cfg->requireTopicToClose() && $ticket->isOpen()
+                        && $ticket->checkStaffPerm($thisstaff, Ticket::PERM_CLOSE)
+                        && ($field instanceof TopicField) && $clean) {
+                    $statuses = array();
+                    foreach (TicketStatusList::getStatuses(
+                            array('states' => array('closed'))) as $s) {
+                        if (!$s->isEnabled()) continue;
+                        $statuses[$s->getId()] = $s->getName();
+                    }
+                    if (!is_null($statuses))
+                        $response['statuses'] = $statuses;
+                }
+
+                $clean = is_array($clean) ? $clean[0] : $clean;
+                Http::response(201, $this->json_encode($response));
+            }
+
+            $form->addErrors($errors);
+            $info['error'] = $errors['err'] ?: __('Unable to update field');
+        }
+
+        include STAFFINC_DIR . 'templates/field-edit.tmpl.php';
+    }
+
+    function viewField($tid, $fid) {
+        global $cfg, $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid)))
+            Http::response(404, __('No such ticket'));
+        elseif (!($field=$ticket->getField($fid)))
+            Http::response(404, __('No such field'));
+
+        $errors = array();
+        $info = array(
+                ':title' => sprintf(__('Ticket #%s: %s %s'),
+                  $ticket->getNumber(),
+                  __('View'),
+                  $field->getLabel()
+                  ),
+              ':action' => sprintf('#tickets/%d/field/%s/edit',
+                  $ticket->getId(), $field->getId())
+              );
+
+        $form = $field->getEditForm();
+
+        include STAFFINC_DIR . 'templates/field-view.tmpl.php';
+    }
 
     function assign($tid, $target=null) {
         global $thisstaff;
@@ -579,14 +788,18 @@ function refer($tid, $target=null) {
 
         if ($_POST && $form->isValid()) {
             if ($ticket->assign($form, $errors)) {
-                $_SESSION['::sysmsgs']['msg'] = sprintf(
+                $msg = sprintf(
                         __('%s successfully'),
                         sprintf(
                             __('%s assigned to %s'),
                             __('Ticket'),
                             $form->getAssignee())
                         );
-                Http::response(201, $ticket->getId());
+
+                $assignee =  $ticket->isAssigned() ? Format::htmlchars(implode('/', $ticket->getAssignees())) :
+                                            '<span class="faded">&mdash; '.__('Unassigned').' &mdash;';
+                Http::response(201, $this->json_encode(['value' =>
+                    $assignee, 'id' => 'assign', 'msg' => $msg]));
             }
 
             $form->addErrors($errors);
@@ -728,6 +941,12 @@ function refer($tid, $target=null) {
                 'refer' => array(
                     'verbed' => __('referred'),
                     ),
+                'merge' => array(
+                    'verbed' => __('merged'),
+                    ),
+                'link' => array(
+                    'verbed' => __('linked'),
+                    ),
                 'claim' => array(
                     'verbed' => __('assigned'),
                     ),
@@ -758,6 +977,89 @@ function refer($tid, $target=null) {
             $count  =  $_REQUEST['count'];
         }
         switch ($action) {
+        case 'merge':
+        case 'link':
+            $inc = 'merge-tickets.tmpl.php';
+            $ticketIds = $_GET ? explode(',', $_GET['tids']) : explode(',', $_POST['tids']);
+            $tickets = array();
+            $title = strpos($_SERVER['PATH_INFO'], 'link') !== false ? 'link' : 'merge';
+            $eventName = ($title && $title == 'link') ? 'linked' : 'merged';
+            $permission = ($title && $title == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
+            $hasPermission = array();
+            $parent = false;
+
+            $tickets = Ticket::objects()
+                ->filter(array('ticket_id__in'=>$ticketIds))
+                ->values_flat('ticket_id', 'flags', 'dept_id', 'ticket_pid');
+            foreach ($tickets as $ticket) {
+                list($ticket_id, $flags, $dept_id, $ticket_pid) = $ticket;
+                $mergeType = Ticket::getMergeTypeByFlag($flags);
+                $isParent = Ticket::isParent($flags);
+                $role = $thisstaff->getRole($dept_id);
+                $hasPermission[] = $role->hasPerm($permission);
+
+                if (!$ticket)
+                    continue;
+                elseif (!$parent && $isParent && $mergeType != 'visual') {
+                    $parent = $ticket;
+                    $parentMergeType = $mergeType;
+                }
+
+                if ($mergeType != 'visual' && $title == 'link')
+                    $info['error'] = sprintf(
+                            __('One or more Tickets selected is part of a merge. Merged Tickets cannot be %s.'),
+                            __($eventName)
+                            );
+
+                if ($parent && ($isParent && $mergeType != 'visual') && $parent[0] != $ticket_id)
+                    $info['error'] = sprintf(
+                            __('More than one Parent Ticket selected. %1$s cannot be %2$s.'),
+                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __($eventName)
+                            );
+
+                if ($ticket_pid && $mergeType != 'visual' && $title == 'merge')
+                    $info['error'] = sprintf(
+                            __('One or more Tickets selected is a merged child. %1$s cannot be %2$s.'),
+                            _N('The selected Ticket', 'The selected Tickets', $count),
+                            __($eventName)
+                            );
+            }
+            //move parent ticket to top of list
+            if (count($ticketIds) > 1) {
+                $ticketIdsSorted = $ticketIds;
+                if ($parent && $parentMergeType != 'visual') {
+                    foreach ($ticketIdsSorted as $key => $value) {
+                        if ($value == $parent[0]) {
+                            unset($ticketIdsSorted[$key]);
+                            array_unshift($ticketIdsSorted, $value);
+                            array_unshift($ticketIdsSorted, new SqlField('ticket_id'));
+                        }
+                    }
+                }
+
+                $expr = call_user_func_array(array('SqlFunction', 'FIELD'), $ticketIdsSorted);
+            }
+            $tickets = Ticket::objects()
+                 ->filter(array('ticket_id__in'=>$ticketIds))
+                 ->values_flat('ticket_id', 'number', 'ticket_pid', 'sort', 'thread__id',
+                               'user_id', 'cdata__subject', 'user__name', 'flags')
+                 ->annotate(array('tasks' => SqlAggregate::COUNT('tasks__id', true),
+                                  'collaborators' => SqlAggregate::COUNT('thread__collaborators__id'),
+                                  'entries' => SqlAggregate::COUNT('thread__entries__id'),))
+                 ->order_by($expr ?: 'sort');
+            $ticket = Ticket::lookup($parent[0] ?: $ticket[0]);
+
+            // Generic permission check.
+            if (in_array(false, $hasPermission) && !$ticket->getThread()->isReferred()) {
+                $info['error'] = sprintf(
+                        __('You do not have permission to %1$s %2$s'),
+                        __($title),
+                        _N('the selected Ticket', 'the selected Tickets', $count));
+                $info = array_merge($info, Format::htmlchars($_POST));
+            } else
+                $info['action'] = sprintf('#tickets/%s/merge', $ticket->getId());
+            break;
         case 'claim':
             $w = 'me';
         case 'assign':
@@ -784,13 +1086,7 @@ function refer($tid, $target=null) {
 
                         $depts = $tickets->values_flat('dept_id');
                     }
-                    $members = Staff::objects()
-                        ->distinct('staff_id')
-                        ->filter(array(
-                                    'onvacation' => 0,
-                                    'isactive' => 1,
-                                    )
-                                );
+                    $members = $thisstaff->getDeptAgents(array('available' => true));
 
                     if ($depts) {
                         $all_agent_depts = Dept::objects()->filter(
@@ -1098,23 +1394,45 @@ function refer($tid, $target=null) {
         $state = strtolower($status->getState());
 
         if (!$errors && $ticket->setStatus($status, $_REQUEST['comments'], $errors)) {
+            $failures = array();
+            // Set children statuses (if applicable)
+            if ($_REQUEST['children']) {
+                $children = $ticket->getChildren();
 
-            if ($state == 'deleted') {
-                $msg = sprintf('%s %s',
-                        sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                        __('deleted sucessfully')
-                        );
-            } elseif ($state != 'open') {
-                 $msg = sprintf(__('%s status changed to %s'),
-                         sprintf(__('Ticket #%s'), $ticket->getNumber()),
-                         $status->getName());
-            } else {
-                $msg = sprintf(
-                        __('%s status changed to %s'),
-                        __('Ticket'),
-                        $status->getName());
+                foreach ($children as $cid) {
+                    $child = Ticket::lookup($cid[0]);
+                    if (!$child->setStatus($status, '', $errors))
+                        $failures[$cid[0]] = $child->getNumber();
+                }
             }
 
+            if (!$failures) {
+                if ($state == 'deleted') {
+                    $msg = sprintf('%s %s',
+                            sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                            __('deleted sucessfully')
+                            );
+                } elseif ($state != 'open') {
+                     $msg = sprintf(__('%s status changed to %s'),
+                             sprintf(__('Ticket #%s'), $ticket->getNumber()),
+                             $status->getName());
+                } else {
+                    $msg = sprintf(
+                            __('%s status changed to %s'),
+                            __('Ticket'),
+                            $status->getName());
+                }
+            } else {
+                $tickets = array();
+                foreach ($failures as $id=>$num) {
+                    $tickets[] = sprintf('<a href="tickets.php?id=%d"><b>#%s</b></a>',
+                                    $id,
+                                    $num);
+                }
+                $info['warn'] = sprintf(__('Error updating ticket status for %s'),
+                                 ($tickets) ? implode(', ', $tickets) : __('child tickets')
+                                 );
+            }
             $_SESSION['::sysmsgs']['msg'] = $msg;
 
             Http::response(201, 'Successfully processed');
@@ -1273,7 +1591,7 @@ function refer($tid, $target=null) {
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
 
-        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_REPLY) && !$thisstaff->isManager())
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MARKANSWERED) && !$thisstaff->isManager())
             Http::response(403, __('Permission denied'));
 
         $errors = array();
@@ -1413,6 +1731,9 @@ function refer($tid, $target=null) {
         $info['status_id'] = $info['status_id'] ?: $ticket->getStatusId();
         $info['comments'] = Format::htmlchars($_REQUEST['comments']);
 
+        // Has Children?
+        $info['children'] = count($ticket->getChildren());
+
         return self::_changeStatus($state, $info, $errors);
     }
 
@@ -1435,6 +1756,16 @@ function refer($tid, $target=null) {
             Http::response(404, 'Unknown ticket');
 
          include STAFFINC_DIR . 'ticket-tasks.inc.php';
+    }
+
+    function relations($tid) {
+        global $thisstaff;
+
+        if (!($ticket=Ticket::lookup($tid))
+                || !$ticket->checkStaffPerm($thisstaff))
+            Http::response(404, 'Unknown ticket');
+
+         include STAFFINC_DIR . 'ticket-relations.inc.php';
     }
 
     function addTask($tid, $vars=array()) {
@@ -1479,6 +1810,7 @@ function refer($tid, $target=null) {
                 $vars['default_formdata'] = $form->getClean();
                 $vars['internal_formdata'] = $iform->getClean();
                 $desc = $form->getField('description');
+                $vars['description'] = $desc->getClean();
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
@@ -1592,7 +1924,7 @@ function refer($tid, $target=null) {
                     // Clear attachment list
                     $reply_attachments_form->setSource(array());
                     $reply_attachments_form->getField('attachments')->reset();
-                    Draft::deleteForNamespace('task.reply.'.$task->getId(),
+                    Draft::deleteForNamespace('task.response.'.$task->getId(),
                             $thisstaff->getId());
                 } else {
                     if (!$errors['err'])
@@ -1616,22 +1948,63 @@ function refer($tid, $target=null) {
         else
             $queue = AdhocSearch::load($id);
 
+       if (!$queue)
+           Http::response(404, 'Unknown Queue');
+
+        return $this->queueExport($queue);
+    }
+
+    function queueExport(CustomQueue $queue) {
+        global $thisstaff;
+
         if (!$thisstaff)
             Http::response(403, 'Agent login is required');
         elseif (!$queue || !$queue->checkAccess($thisstaff))
             Http::response(404, 'No such saved queue');
 
+        $errors = array();
         if ($_POST && is_array($_POST['fields'])) {
             // Cache export preferences
             $id = $queue->getId();
             $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
             $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
-            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
-
+            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['csv-delimiter'];
+            // Save fields selection if requested
             if ($queue->isSaved() && isset($_POST['save-changes']))
                $queue->updateExports(array_flip($_POST['fields']));
 
-            Http::response(201, 'Export Ready');
+            // Filename of the report
+            if (isset($_POST['filename'])
+                    && ($parts = pathinfo($_POST['filename']))) {
+                $filename = $_POST['filename'];
+                if (strcasecmp($parts['extension'], 'csv'))
+                      $filename ="$filename.csv";
+            } else {
+                $filename = sprintf('%s Tickets-%s.csv',
+                        $queue->getName(),
+                        strftime('%Y%m%d'));
+            }
+
+            try {
+                $interval = 5;
+                $options = ['filename' => $filename,
+                    'interval' => $interval, 'delimiter' => $_POST['csv-delimiter']];
+                // Create desired exporter
+                $exporter = new CsvExporter($options);
+                // Acknowledge the export
+                $exporter->ack();
+                // Phew... now we're free to do the export
+                // Ask the queue to export to the exporter
+                $queue->export($exporter);
+                $exporter->finalize();
+                // Email the export if it exists
+                $exporter->email($thisstaff);
+                // Delete the file.
+                @$exporter->delete();
+                exit;
+            } catch (Exception $ex) {
+                $errors['err'] = __('Unable to prepare the export');
+            }
         }
 
         include STAFFINC_DIR . 'templates/queue-export.tmpl.php';

@@ -386,7 +386,7 @@ class Mail_Parse {
     }
 
     function getAttachments($part=null){
-        $files=array();
+        $files = $matches = array();
 
         /* Consider this part as an attachment if
          *   * It has a Content-Disposition header
@@ -417,18 +417,36 @@ class Mail_Parse {
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
-
+            elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches))
+                $filename = Format::mimedecode($matches[1], $this->charset);
             // Some mail clients / servers (like Lotus Notes / Domino) will
             // send images without a filename. For such a case, generate a
             // random filename for the image
             elseif (isset($part->headers['content-id'])
                     && $part->headers['content-id']
-                    && 0 === strcasecmp($part->ctype_primary, 'image'))
+                    && 0 === strcasecmp($part->ctype_primary, 'image')) {
                 $filename = 'image-'.Misc::randCode(4).'.'
                     .strtolower($part->ctype_secondary);
-            else
+            // Attachment of type message/rfc822 without name!!!
+            } elseif (strcasecmp($part->ctype_primary, 'message') === 0) {
+                $struct = $part->parts[0];
+                if ($struct && isset($struct->headers['subject']))
+                    $filename = Format::mimedecode($struct->headers['subject'],
+                                $this->charset);
+                else
+                    $filename = 'email-message-'.Misc::randCode(4);
+
+                $filename .='.eml';
+            } elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches)) {
+                $filename = Format::mimedecode($matches[1], $this->charset);
+            } else {
                 // Not an attachment?
                 return false;
+            }
 
             $file=array(
                     'name'  => $filename,

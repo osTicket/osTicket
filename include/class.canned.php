@@ -203,6 +203,9 @@ extends VerySimpleModel {
         if (!parent::delete())
             return false;
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         $this->attachments->deleteAll();
 
         return true;
@@ -226,10 +229,21 @@ extends VerySimpleModel {
     }
 
     static function getCannedResponses($deptId=0, $explicit=false) {
+        global $thisstaff;
+
         $canned = static::objects()
             ->filter(array('isenabled' => true))
             ->order_by('title')
             ->values_flat('canned_id', 'title');
+
+        if ($thisstaff) {
+            $staffDepts = array();
+
+            $staffDepts = $thisstaff->getDepts();
+            $staffDepts[] = 0;
+
+            $canned->filter(array('dept_id__in' => $staffDepts));
+        }
 
         if ($deptId) {
             $depts = array($deptId);

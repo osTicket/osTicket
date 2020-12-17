@@ -206,13 +206,6 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
-            <td><?php echo __('Claim on Response'); ?>:</td>
-            <td>
-                <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
-            </td>
-        </tr>
-        <tr>
             <td><?php echo __('Collaborator Tickets Visibility'); ?>:</td>
             <td>
                 <input type="checkbox" name="collaborator_ticket_visibility" <?php echo $config['collaborator_ticket_visibility']?'checked="checked"':''; ?>>
@@ -220,10 +213,32 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             </td>
         </tr>
         <tr>
+            <td><?php echo __('Claim on Response'); ?>:</td>
+            <td>
+                <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Auto-refer on Close'); ?>:</td>
+            <td>
+                <input type="checkbox" name="auto_refer_closed" <?php echo $config['auto_refer_closed']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip
+                icon-question-sign" href="#auto_refer"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Require Help Topic to Close'); ?>:</td>
             <td>
                 <input type="checkbox" name="require_topic_to_close" <?php echo $config['require_topic_to_close']?'checked="checked"':''; ?>>
                 <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#require_topic_to_close"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Allow External Images'); ?>:</td>
+            <td>
+                <input type="checkbox" name="allow_external_images" <?php echo $config['allow_external_images']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#allow_external_images"></i>
             </td>
         </tr>
         <tr>

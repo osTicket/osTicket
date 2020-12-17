@@ -37,6 +37,8 @@ implements EmailContact, ITicketUser {
     const FLAG_ACTIVE = 0x0001;
     const FLAG_CC = 0x0002;
 
+    var $active;
+
     function __toString() {
         return Format::htmlchars($this->toString());
     }
@@ -61,7 +63,7 @@ implements EmailContact, ITicketUser {
     }
 
     function getTicketId() {
-        if ($this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
+        if ($this->thread && $this->thread->object_type == ObjectModel::OBJECT_TYPE_TICKET)
             return $this->thread->object_id;
     }
 
@@ -144,8 +146,8 @@ implements EmailContact, ITicketUser {
             $this->flags &= ~$flag;
     }
 
-    public function setCc() {
-      $this->setFlag(Collaborator::FLAG_ACTIVE, true);
+    public function setCc($active=true) {
+      $this->setFlag(Collaborator::FLAG_ACTIVE, $active);
       $this->setFlag(Collaborator::FLAG_CC, true);
       $this->save();
     }

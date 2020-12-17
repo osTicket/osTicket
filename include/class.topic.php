@@ -131,7 +131,7 @@ implements TemplateVariable, Searchable {
 
     static function getTopicName($id) {
         $names = static::getHelpTopics(false, true);
-        return $names[$id];
+        return is_numeric($id) && isset($names[$id]) ? $names[$id] : '';
     }
 
     function getDeptId() {
@@ -276,6 +276,9 @@ implements TemplateVariable, Searchable {
                 'topic_id' => $this->getId()
             ))->delete();
             db_query('UPDATE '.TICKET_TABLE.' SET topic_id=0 WHERE topic_id='.db_input($this->getId()));
+
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
         }
 
         return true;
@@ -316,25 +319,25 @@ implements TemplateVariable, Searchable {
             $this->flags &= ~$flag;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array()) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array(), $allData=false) {
       global $cfg;
       static $topics, $names = array();
 
       // If localization is specifically requested, then rebuild the list.
       if (!$names || $localize) {
           $objects = self::objects()->values_flat(
-              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic'
+              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic', 'dept_id'
           )
           ->order_by('sort');
 
           // Fetch information for all topics, in declared sort order
           $topics = array();
           foreach ($objects as $T) {
-              list($id, $pid, $pub, $flags, $topic) = $T;
+              list($id, $pid, $pub, $flags, $topic, $deptId) = $T;
 
               $display = ($flags & self::FLAG_ACTIVE);
               $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
-                  'disabled'=>!$display, 'topic'=>$topic);
+                  'disabled'=>!$display, 'topic'=>$topic, 'dept_id'=>$deptId);
           }
 
           $localize_this = function($id, $default) use ($localize) {
@@ -368,6 +371,7 @@ implements TemplateVariable, Searchable {
 
       // Apply requested filters
       $requested_names = array();
+      $topicsClean = array();
       foreach ($names as $id=>$n) {
           $info = $topics[$id];
           if ($publicOnly && !$info['public'])
@@ -378,7 +382,11 @@ implements TemplateVariable, Searchable {
           if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
               $n .= " - ".__("(disabled)");
           $requested_names[$id] = $n;
+          $topicsClean[$id] = $info;
       }
+
+      if ($allData)
+        return $topicsClean;
 
       // If localization requested and the current locale is not the
       // primary, the list may need to be sorted. Caching is ok here,
@@ -440,8 +448,29 @@ implements TemplateVariable, Searchable {
             $errors['number_format'] =
                 'Ticket number format requires at least one hash character (#)';
 
+        if ($cfg) {
+            //Make sure at least 1 Topic is Public
+            $publicTopics = Topic::getHelpTopics(true);
+            if ((count($publicTopics) == 1) && array_key_exists($this->getId(), $publicTopics) && ($vars['ispublic'] == 0))
+                $errors['ispublic'] = __('At least one Topic must be Public');
+
+            //Make sure at least 1 Topic is Active
+            $activeTopics = Topic::getHelpTopics(false, false);
+            if ((count($activeTopics) == 1) && array_key_exists($this->getId(), $activeTopics) && ($vars['status'] != 'active'))
+                $errors['status'] = __('At least one Topic must be Active');
+        }
+
         if ($errors)
             return false;
+
+        $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
+
+        foreach ($vars as $key => $value) {
+            if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value && $this->topic) {
+                $type = array('type' => 'edited', 'status' => ucfirst($value));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $this->topic = $vars['topic'];
         $this->topic_pid = $vars['topic_pid'] ?: 0;
@@ -453,16 +482,16 @@ implements TemplateVariable, Searchable {
         $this->isactive = $vars['isactive'];
         $this->ispublic = $vars['ispublic'];
         $this->sequence_id = $vars['custom-numbers'] ? $vars['sequence_id'] : 0;
-        $this->number_format = $vars['custom-numbers'] ? $vars['number_format'] : '';
-        $this->flags = $vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : $this->flags;
-        $this->noautoresp = !!$vars['noautoresp'];
+        $this->number_format = $vars['number_format'];
+        $this->setFlag(self::FLAG_CUSTOM_NUMBERS, ($vars['custom-numbers']));
+        $this->noautoresp = $vars['noautoresp'];
         $this->notes = Format::sanitize($vars['notes']);
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));
         if ($filter_actions && $vars['status'] == 'active')
-          FilterAction::setFilterFlag($filter_actions, 'topic', false);
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', false);
         else
-          FilterAction::setFilterFlag($filter_actions, 'topic', true);
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
 
         switch ($vars['status']) {
           case 'active':

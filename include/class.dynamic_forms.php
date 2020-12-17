@@ -121,8 +121,9 @@ class DynamicForm extends VerySimpleModel {
         $fields = $this->getFields();
         $form = new SimpleForm($fields, $source, array(
             'title' => $this->getLocal('title'),
-            'instructions' => $this->getLocal('instructions'),
+            'instructions' => Format::htmldecode($this->getLocal('instructions')),
             'id' => $this->getId(),
+            'type' => $this->type ?: null,
         ));
         return $form;
     }
@@ -197,6 +198,8 @@ class DynamicForm extends VerySimpleModel {
 
         // Soft Delete: Mark the form as deleted.
         $this->setFlag(self::FLAG_DELETED);
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
         return $this->save();
     }
 
@@ -657,7 +660,7 @@ class DynamicFormField extends VerySimpleModel {
         // See if field impl. need to save or override anything
         $config = $this->getImpl()->to_config($config);
         $this->set('configuration', JsonDataEncoder::encode($config));
-        $this->set('hint', Format::sanitize($vars['hint']));
+        $this->set('hint', Format::sanitize($vars['hint']) ?: NULL);
 
         return true;
     }
@@ -1008,6 +1011,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 'title' => $this->getTitle(),
                 'instructions' => $this->getInstructions(),
                 'id' => $this->form_id,
+                'type' => $this->getDynamicForm()->type ?: null,
                 );
             $this->_form = new CustomForm($fields, $source, $options);
         }
@@ -1280,7 +1284,18 @@ class DynamicFormEntry extends VerySimpleModel {
 
             try {
                 $field->setForm($this);
-                $val = $field->to_database($field->getClean());
+                //for form entry values of file upload fields, we want to save the value as
+                //json with the file id(s) and file name(s) of each file stored in the field
+                //so that they display correctly within tasks/tickets
+                if (get_class($field) == 'FileUploadField') {
+                    //use getChanges if getClean returns an empty array
+                    $fieldClean = $field->getClean() ?: $field->getChanges();
+                    if (is_array($fieldClean) && $fieldClean[0])
+                        $fieldClean = json_decode($fieldClean[0], true);
+                } else
+                    $fieldClean = $field->getClean();
+
+                $val = $field->to_database($fieldClean);
             }
             catch (FieldUnchanged $e) {
                 // Don't update the answer.
@@ -1472,7 +1487,7 @@ class SelectionField extends FormField {
         return $this->_list;
     }
 
-    function getWidget($widgetClass=false) {
+    function getWidget($widgetClass=false, $options=array()) {
         $config = $this->getConfiguration();
         if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
@@ -1729,7 +1744,7 @@ class SelectionField extends FormField {
         return $config;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!$this->_choices || $verbose) {
             $choices = array();
             foreach ($this->getList()->getItems() as $i)
@@ -1910,7 +1925,7 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         return array($this->getValue() => $this->getEnteredValue());
     }
 
-    function getValue() {
+    function getValue($options=array()) {
         $data = $this->field->getSource();
         $name = $this->field->get('name');
         if (isset($data["{$this->name}_id"]) && is_numeric($data["{$this->name}_id"])) {

@@ -40,6 +40,8 @@ if($_POST){
                 $id = $box->getId();
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
+                $type = array('type' => 'created');
+                Signal::send('object.created', $box, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this email')),
