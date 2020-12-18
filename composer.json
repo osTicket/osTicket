@@ -1,0 +1,6 @@
+{
+    "require-dev": {
+        "pestphp/pest": "^0.3.16",
+        "phpunit/phpunit": "^9.5"
+    }
+}

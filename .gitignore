@@ -18,3 +18,4 @@ stage
 include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
+/vendor/
