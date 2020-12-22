@@ -4222,6 +4222,9 @@ implements RestrictedAccess, Threadable, Searchable {
         // topic
         if ($vars['emailId'] && ($email=Email::lookup($vars['emailId']))) {
             $deptId = $deptId ?: $email->getDeptId();
+            $dept = Dept::lookup($deptId);
+            if ($dept && !$dept->isActive())
+                $deptId = $cfg->getDefaultDeptId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())
                 $form->setAnswer('priority', null, $email->getPriorityId());
