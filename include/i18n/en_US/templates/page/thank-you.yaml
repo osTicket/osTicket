@@ -11,33 +11,15 @@ notes: |
 
 name: Thank You
 body: |
-    <div>
-    <br><h4> <strong>Hi %{ticket.name}</strong>,</h4>
+    <div>%{ticket.name},
+    <br>
     <br>
     Thank you for contacting us.
     <br>
-    A support ticket request has been created and a representative will be getting back to you shortly if necessary.
+    <br>
+    A support ticket request has been created and a representative will be
+    getting back to you shortly if necessary.</p>
     <br>
     <br>
-    <table width="100%" border="0" cellspacing="0" cellpadding="2">
-        <tbody>
-            <tr>
-                <td style="width: 150px;"><strong>Your ticket number is</strong>:</td>
-                <td>%{ticket.number}</td>
-            </tr>
-            <tr>
-                <td style="width: 150px;"><strong>The ticket subject is</strong>:</td>
-                <td>%{ticket.subject}</td>
-            </tr>
-            <tr>
-                <td style="width: 150px;"><strong>The ticket details are</strong>:</td>
-                <td>%{ticket.thread.original}</td>
-            </tr>
-        </tbody>
-    </table>
-    <br>
-    <br>
-    Kind Regards, <br>
-    %{ticket.dept} <br>
-    %{company.name} <br>
+    Support Team
     </div>

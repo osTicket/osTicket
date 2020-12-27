@@ -6,9 +6,6 @@
 # feature highlights, etc.
 #
 ---
-deptId: 1 # support
-topicId: 1 # support
-statusId: 1 # support
 source: Web # notrans
 name: osTicket Support
 email: support@osticket.com

@@ -28,18 +28,12 @@ $status=null;
 switch(strtolower($_REQUEST['status'])){ //Status is overloaded
     case 'open':
         $status='open';
-        $results_type=__('Open Tickets');
-        break;
-    case 'pending':
-        $status='pending';
-        $showpending=true;
-        $results_type=__('Pending Tickets');
+		$results_type=__('Open Tickets');
         break;
     case 'closed':
         $status='closed';
-        $results_type=__('Closed Tickets');
+		$results_type=__('Closed Tickets');
         $showassigned=true; //closed by.
-        $showclosed=true; //Show Closed.
         break;
     case 'overdue':
         $status='open';
@@ -111,11 +105,6 @@ if($staffId && ($staffId==$thisstaff->getId())) { //My tickets
     $qwhere.=' AND ticket.isoverdue=1 ';
 }elseif($showanswered) { ////Answered
     $qwhere.=' AND ticket.isanswered=1 ';
-}elseif($showpending) { ////Pending
-    $qwhere.=' AND status.name="pending" ';
-}elseif($showclosed) { ////Closed
-    $qwhere.=' AND status.name<>"pending" ';
-    $qwhere.=' AND status.state="closed" AND status.name<>"pending" ';
 }elseif(!strcasecmp($status, 'open') && !$search) { //Open queue (on search OPEN means all open tickets - regardless of state).
     //Showing answered tickets on open queue??
     if(!$cfg->showAnsweredTickets())
@@ -370,7 +359,7 @@ if ($results) {
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo
  Format::htmlchars($_REQUEST['status'], true); ?>" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="100%">
+ <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
             <?php if($thisstaff->canManageTickets()) { ?>
@@ -382,26 +371,20 @@ if ($results) {
 	        <th width="70">
                 <a  <?php echo $date_sort; ?> href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="<?php echo sprintf(__('Sort by %s %s'), __('Date'), __($negorder)); ?>"><?php echo __('Date'); ?></a></th>
-	        <th>
+	        <th width="280">
                  <a <?php echo $subj_sort; ?> href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                     title="<?php echo sprintf(__('Sort by %s %s'), __('Subject'), __($negorder)); ?>"><?php echo __('Subject'); ?></a></th>
-            <?php
-            if(!($cfg->showTicketDepartments())) { ?>
-                <th width="100">
-                    <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
-                        title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
-            <?php } ?>
-            <th width="80">
+            <th width="170">
                 <a <?php echo $name_sort; ?> href="tickets.php?sort=name&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                      title="<?php echo sprintf(__('Sort by %s %s'), __('Name'), __($negorder)); ?>"><?php echo __('From');?></a></th>
             <?php
             if($search && !$status) { ?>
-                <th width="30">
+                <th width="60">
                     <a <?php echo $status_sort; ?> href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                         title="<?php echo sprintf(__('Sort by %s %s'), __('Status'), __($negorder)); ?>"><?php echo __('Status');?></a></th>
             <?php
             } else { ?>
-                <th width="30" <?php echo $pri_sort;?>>
+                <th width="60" <?php echo $pri_sort;?>>
                     <a <?php echo $pri_sort; ?> href="tickets.php?sort=pri&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                         title="<?php echo sprintf(__('Sort by %s %s'), __('Priority'), __($negorder)); ?>"><?php echo __('Priority');?></a></th>
             <?php
@@ -410,18 +393,18 @@ if ($results) {
             if($showassigned ) {
                 //Closed by
                 if(!strcasecmp($status,'closed')) { ?>
-                    <th width="40">
+                    <th width="150">
                         <a <?php echo $staff_sort; ?> href="tickets.php?sort=staff&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                             title="<?php echo sprintf(__('Sort by %s %s'), __("Closing Agent's Name"), __($negorder)); ?>"><?php echo __('Closed By'); ?></a></th>
                 <?php
                 } else { //assigned to ?>
-                    <th width="40">
+                    <th width="150">
                         <a <?php echo $assignee_sort; ?> href="tickets.php?sort=assignee&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                             title="<?php echo sprintf(__('Sort by %s %s'), __('Assignee'), __($negorder)); ?>"><?php echo __('Assigned To'); ?></a></th>
                 <?php
                 }
             } else { ?>
-                <th width="40">
+                <th width="150">
                     <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
                         title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
             <?php
@@ -455,8 +438,6 @@ if ($results) {
                 }else{
                     $lc=Format::truncate($row['dept_name'],40);
                 }
-                $lcdept=Format::truncate($row['dept_name'],40);
-                
                 $tid=$row['number'];
 
                 $subject = Format::truncate($subject_field->display(
@@ -483,8 +464,8 @@ if ($results) {
                   <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
                     title="<?php echo __('Preview Ticket'); ?>"
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $tid; ?></a></td>
-                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
-                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>"><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
+                <td align="center" nowrap><?php echo Format::db_datetime($row['effective_date']); ?></td>
+                <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tickets.php?id=<?php echo $row['ticket_id']; ?>"><?php echo $subject; ?></a>
                      <?php
                         if ($threadcount>1)
@@ -496,25 +477,21 @@ if ($results) {
                             echo '<i class="icon-fixed-width icon-paperclip"></i>&nbsp;';
                     ?>
                 </td>
-                <?php
-                if(!($cfg->showTicketDepartments())) { ?>
-                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap>&nbsp;<?php echo $lcdept; ?></td>
-                <?php } ?>
-                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap>&nbsp;<?php echo Format::htmlchars(
+                <td nowrap>&nbsp;<?php echo Format::htmlchars(
                         Format::truncate($row['name'], 22, strpos($row['name'], '@'))); ?>&nbsp;</td>
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);
                     if(!strcasecmp($row['state'],'open'))
                         $displaystatus="<b>$displaystatus</b>";
-                    echo "<td nowrap>$displaystatus</td>";
+                    echo "<td>$displaystatus</td>";
                 } else { ?>
-                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
+                <td class="nohover" align="center" style="background-color:<?php echo $row['priority_color']; ?>;">
                     <?php echo $row['priority_desc']; ?></td>
                 <?php
                 }
                 ?>
-                <td title="This ticket is <?php echo strtoupper(ucfirst($row['status'])); ?>" nowrap>&nbsp;<?php echo $lc; ?></td>
+                <td nowrap>&nbsp;<?php echo $lc; ?></td>
             </tr>
             <?php
             } //end of while.
@@ -524,14 +501,7 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
-        <?php
-        if(!($cfg->showTicketDepartments())) { ?>
-        <td colspan="8">
-        <?php
-        } else { ?>
         <td colspan="7">
-        <?php
-        } ?>
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
