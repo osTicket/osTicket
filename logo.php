@@ -26,7 +26,11 @@ require('client.inc.php');
 if (($logo = $ost->getConfig()->getClientLogo())) {
     $logo->display();
 } else {
-    header('Location: '.ASSETS_PATH.'images/logo.png');
+    if(isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+        && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https')
+        header('Location: https://'.$_SERVER['SERVER_NAME'].ASSETS_PATH.'images/logo.png');
+    else
+        header('Location: '.ASSETS_PATH.'images/logo.png');
 }
 
 ?>
