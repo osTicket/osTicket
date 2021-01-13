@@ -39,15 +39,19 @@ if ($info['error']) {
             </td></tr>
         <?php } ?>
         <?php if(count($assignees) > 1) { ?>
-            <?php foreach($assignees as $assignee) { ?>
+            <?php foreach($assignees as $assignee) {
+                    $isStaff = $assignee instanceof Staff;
+                    $assignee_id = $assignee->getId();
+                    $tag = $isStaff ? 'sid' : 'tid';
+                    $checked = (!$_POST || $_POST['assignees'][$tag]); ?>
                 <tr><td>
                     <label class="inline checkbox">
                         <?php echo sprintf(
-                            ($isStaff = $assignee instanceof Staff)
-                                ? '<input type="checkbox" name="sid[]" id="s%d" value="%d">'
-                                : '<input type="checkbox" name="tid[]" id="t%d" value="%d">',
-                            $assignee->getId(),
-                            $assignee->getId()); ?>
+                            '<input type="checkbox" name="assignees[%s]" id="%s" value="%s" %s>',
+                            $tag,
+                            $tag,
+                            $assignee_id,
+                            $checked ? 'checked' : ''); ?>
                     </label>
                     <?php echo '<i class="icon-'.(($isStaff) ? 'user' : 'group').'"></i>'; ?>
                     <?php echo $assignee->getName(); ?>
