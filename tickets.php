@@ -76,7 +76,7 @@ if ($_POST && is_object($ticket) && $ticket->getId()) {
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
 
-        $_POST['message'] = ThreadEntryBody::clean($_POST['message']);
+        $_POST['message'] = ThreadEntryBody::clean($_POST[$messageField->getFormName()]);
         if (!$_POST['message'])
             $errors['message'] = __('Message required');
 
