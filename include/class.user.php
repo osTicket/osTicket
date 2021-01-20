@@ -847,9 +847,21 @@ implements TemplateVariable {
         return $this->parts['middle'];
     }
 
+    function getFirstInitial() {
+        if ($this->parts['first'])
+            return mb_substr($this->parts['first'],0,1).'.';
+        return '';
+    }
+
     function getMiddleInitial() {
         if ($this->parts['middle'])
             return mb_substr($this->parts['middle'],0,1).'.';
+        return '';
+    }
+
+    function getLastInitial() {
+        if ($this->parts['last'])
+            return mb_substr($this->parts['last'],0,1).'.';
         return '';
     }
 
@@ -890,11 +902,11 @@ implements TemplateVariable {
     }
 
     function getShort() {
-        return $this->parts['first'].' '.mb_substr($this->parts['last'],0,1).'.';
+        return $this->parts['first'].' '.$this->getLastInitial();
     }
 
     function getShortFormal() {
-        return mb_substr($this->parts['first'],0,1).'. '.$this->parts['last'];
+        return $this->getFirstInitial().' '.$this->parts['last'];
     }
 
     function getOriginal() {
