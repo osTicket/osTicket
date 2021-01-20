@@ -848,7 +848,9 @@ implements TemplateVariable {
     }
 
     function getMiddleInitial() {
-        return mb_substr($this->parts['middle'],0,1).'.';
+        if ($this->parts['middle'])
+            return mb_substr($this->parts['middle'],0,1).'.';
+        return '';
     }
 
     function getFormal() {
@@ -862,10 +864,9 @@ implements TemplateVariable {
     function getLegal() {
         $parts = array(
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
         );
-        if ($parts[1]) $parts[1] .= '.';
         return implode(' ', array_filter($parts));
     }
 
@@ -873,11 +874,10 @@ implements TemplateVariable {
         $parts = array(
             $this->parts['salutation'],
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
             $this->parts['suffix']
         );
-        if ($parts[2]) $parts[2] .= '.';
         return implode(' ', array_filter($parts));
     }
 
