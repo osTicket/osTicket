@@ -883,6 +883,7 @@ implements TemplateVariable {
 
     function getLastFirst() {
         $name = $this->parts['last'].', '.$this->parts['first'];
+        $name = trim($name, ', ');
         if ($this->parts['suffix'])
             $name .= ', '.$this->parts['suffix'];
         return $name;
