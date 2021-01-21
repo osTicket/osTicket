@@ -127,6 +127,9 @@ elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
         $msg = $_SESSION['_staff']['auth']['msg'];
     }
 }
+elseif ($thisstaff && $thisstaff->isValid()) {
+    Http::redirect($dest);
+}
 
 // Browsers shouldn't suggest saving that username/password
 Http::response(422);

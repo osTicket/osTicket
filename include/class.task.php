@@ -1132,7 +1132,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 return new FormattedDate($this->getCloseDate());
             break;
         case 'last_update':
-            return new FormattedDate($this->last_update);
+            return new FormattedDate($this->updated);
         case 'description':
             return Format::display($this->getThread()->getVar('original') ?: '');
         case 'subject':
