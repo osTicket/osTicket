@@ -957,32 +957,19 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function assignToStaff($staff, $note, $alert=true) {
-
         if(!is_object($staff) && !($staff = Staff::lookup($staff)))
             return false;
 
         if (!$staff->isAvailable())
             return false;
 
-        $this->staff_id = $staff->getId();
-
-        if (!$this->save())
+        if (!$this->assign($staff, array()))
             return false;
 
         $this->onAssignment($staff, $note, $alert);
 
-        global $thisstaff;
-        $data = array();
-        if ($thisstaff && $staff->getId() == $thisstaff->getId())
-            $data['claim'] = true;
-        else
-            $data['staff'] = $staff->getId();
-
-        $this->logEvent('assigned', $data);
-
         return true;
     }
-
 
     function assignViaForm(AssignmentForm $form, &$errors, $alert=true) {
         $assignee = $form->getAssignee();
