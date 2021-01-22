@@ -293,14 +293,9 @@ implements TemplateVariable, Searchable {
         }
 
         // Restrict agents based on visibility of the assigner
-        if (($staff=$criteria['staff'])
-                && !$staff->hasPerm(Staff::PERM_STAFF)
-                && ($depts=$staff->getDepts())) {
-            $members->filter(Q::any(array(
-                'dept_id__in' => $depts,
-                'dept_access__dept_id__in' => $depts,
-            )));
-        }
+        if (($staff=$criteria['staff']))
+            $members = $staff->applyDeptVisibility($members);
+
         // Sort based on set name format
         return Staff::nsort($members);
     }
