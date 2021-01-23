@@ -244,14 +244,17 @@ class ApiController {
      * expected. It is assumed that the functions actually implementing the
      * API will further validate the contents of the request
      */
-    function validateRequestStructure($data, $structure, $prefix="", $strict=true) {
+    function validateRequestStructure($data, $structure, $prefix="", $strict=true, $level=0) {
         global $ost;
 
         foreach ($data as $key=>$info) {
+            if($level == 6)
+                break;
             if (is_array($structure) && (is_array($info) || $info instanceof ArrayAccess)) {
+                $level++;
                 $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*";
                 if (isset($structure[$search])) {
-                    $this->validateRequestStructure($info, $structure[$search], "$prefix$key/", $strict);
+                    $this->validateRequestStructure($info, $structure[$search], "$prefix$key/", $strict, $level);
                     continue;
                 }
             } elseif (in_array($key, $structure)) {
