@@ -473,6 +473,8 @@
     // Respond to an upload
     function upload() {
       stop_loop = false;
+      var allowedType = true;
+      var allowedextension = false;      
 
       if (!files) {
         opts.error(errors[0]);
@@ -483,18 +485,18 @@
         return false;
       }
 
+      // check for file types / mimetypes
       if (opts.allowedfiletypes.push && opts.allowedfiletypes.length) {
         for(var fileIndex = files.length;fileIndex--;) {
           if(!files[fileIndex].type || $.inArray(files[fileIndex].type, opts.allowedfiletypes) < 0) {
-            opts.error(errors[3], files[fileIndex], fileIndex);
-            return false;
+            allowedType = false;
           }
         }
       }
 
+      // check for file extensions
       if (opts.allowedfileextensions.push && opts.allowedfileextensions.length) {
         for(var fileIndex = files.length;fileIndex--;) {
-          var allowedextension = false;
           for (i=0;i<opts.allowedfileextensions.length;i++){
             if (files[fileIndex].name.substr(files[fileIndex].name.length-opts.allowedfileextensions[i].length).toLowerCase()
                     == opts.allowedfileextensions[i].toLowerCase()
@@ -502,11 +504,17 @@
               allowedextension = true;
             }
           }
-          if (!allowedextension){
-            opts.error(errors[8], files[fileIndex], fileIndex);
-            return false;
-          }
         }
+      }
+
+      if (!allowedType && !allowedextension) {
+        opts.error(errors[3], files[fileIndex], fileIndex);
+        return false;
+      }
+
+      if (!allowedextension){
+        opts.error(errors[8], files[fileIndex], fileIndex);
+        return false;
       }
 
       var filesDone = 0,
