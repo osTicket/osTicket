@@ -1487,7 +1487,7 @@ class SelectionField extends FormField {
         return $this->_list;
     }
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         $config = $this->getConfiguration();
         if ($config['widget'] == 'typeahead' && $config['multiselect'] == false)
             $widgetClass = 'TypeaheadSelectionWidget';
@@ -1925,7 +1925,7 @@ class TypeaheadSelectionWidget extends ChoicesWidget {
         return array($this->getValue() => $this->getEnteredValue());
     }
 
-    function getValue($options=array()) {
+    function getValue() {
         $data = $this->field->getSource();
         $name = $this->field->get('name');
         if (isset($data["{$this->name}_id"]) && is_numeric($data["{$this->name}_id"])) {

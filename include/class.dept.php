@@ -275,26 +275,34 @@ implements TemplateVariable, Searchable {
     }
 
     // Get eligible members only
-    function getAssignees() {
+    function getAssignees($criteria=array()) {
+        if (!$this->assignPrimaryOnly() && !$this->assignMembersOnly()) {
+            // this is for if all agents is set - assignment is not restricted
+            // based on department membership.
+            $members =  Staff::objects()->filter(array(
+                'onvacation' => 0,
+                'isactive' => 1,
+            ));
+        } else {
+            //this gets just the members of the dept including extended access
+            $members = clone $this->getAvailableMembers();
 
-      //this is for if all members is set
-      if (!$this->assignPrimaryOnly() && !$this->assignMembersOnly()) {
-        $members =  Staff::objects()->filter(array(
-            'onvacation' => 0,
-            'isactive' => 1,
-        ));
+            //Restrict to the primary members only
+            if ($this->assignPrimaryOnly())
+                $members->filter(array('dept_id' => $this->getId()));
+        }
 
+        // Restrict agents based on visibility of the assigner
+        if (($staff=$criteria['staff'])
+                && !$staff->hasPerm(Staff::PERM_STAFF)
+                && ($depts=$staff->getDepts())) {
+            $members->filter(Q::any(array(
+                'dept_id__in' => $depts,
+                'dept_access__dept_id__in' => $depts,
+            )));
+        }
+        // Sort based on set name format
         return Staff::nsort($members);
-      }
-
-      //this gets just the members of the dept
-      $members = clone $this->getAvailableMembers();
-
-      //this gets just the primary members of the dept
-      if ($this->assignPrimaryOnly())
-        $members->filter(array('dept_id' => $this->getId()));
-
-      return Staff::nsort($members);
     }
 
     function getMembersForAlerts() {

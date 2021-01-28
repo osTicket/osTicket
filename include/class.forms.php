@@ -222,11 +222,11 @@ class Form {
         echo $this->getMedia();
     }
 
-    function getMedia($options=array()) {
+    function getMedia() {
         static $dedup = array();
 
         foreach ($this->getFields() as $f) {
-            if (($M = $f->getMedia($options)) && is_array($M)) {
+            if (($M = $f->getMedia()) && is_array($M)) {
                 foreach ($M as $type=>$files) {
                     foreach ($files as $url) {
                         $key = strtolower($type.$url);
@@ -1215,8 +1215,8 @@ class FormField {
         return;
     }
 
-    function getMedia($options=array()) {
-        $widget = $this->getWidget(false,$options);
+    function getMedia() {
+        $widget = $this->getWidget();
         return $widget::$media;
     }
 
@@ -1330,13 +1330,13 @@ class FormField {
         $this->_config[$prop] = $value;
     }
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         if (!static::$widget)
             throw new Exception(__('Widget not defined for this field'));
         if (!isset($this->_widget)) {
             $wc = $widgetClass ?: $this->get('widget') ?: static::$widget;
             $this->_widget = new $wc($this);
-            $this->_widget->parseValue($options);
+            $this->_widget->parseValue();
         }
         return $this->_widget;
     }
@@ -2006,16 +2006,16 @@ class ChoiceField extends FormField {
         );
     }
 
-    function getSearchMethodWidgets($options=array()) {
+    function getSearchMethodWidgets() {
         return array(
             'set' => null,
             'nset' => null,
             'includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(false, $options),
+                'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
             )),
             '!includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(false, $options),
+                'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
             )),
         );
@@ -2052,7 +2052,7 @@ class ChoiceField extends FormField {
     }
 
     function getQuickFilterChoices() {
-        return $this->getChoices(false, array('filterVisibility' => true));
+        return $this->getChoices();
     }
 
     function applyQuickFilter($query, $qf_value, $name=false) {
@@ -2714,7 +2714,7 @@ class ThreadEntryField extends FormField {
     function isPresentationOnly() {
         return true;
     }
-    function getMedia($options=array()) {
+    function getMedia() {
         $config = $this->getConfiguration();
         $media = parent::getMedia() ?: array();
         if ($config['attachments'])
@@ -2763,7 +2763,7 @@ class ThreadEntryField extends FormField {
         return $config['attachments'];
     }
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         if ($hint = $this->getLocal('hint'))
             $this->set('placeholder', Format::striptags($hint));
         $this->set('hint', null);
@@ -2791,7 +2791,7 @@ class TopicField extends ChoiceField {
             return Topic::lookup($id);
     }
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         $default = $this->get('default');
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Topic)
@@ -2897,7 +2897,7 @@ class SLAField extends ChoiceField {
         return SLA::lookup($id);
     }
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         $default = $this->get('default');
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof SLA)
@@ -3008,7 +3008,7 @@ class PriorityField extends ChoiceField {
         return Priority::lookup($id);
     }
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         $widget = parent::getWidget($widgetClass);
         if ($widget->value instanceof Priority)
             $widget->value = $widget->value->getId();
@@ -3180,7 +3180,7 @@ class TimezoneField extends ChoiceField {
 
 
 class DepartmentField extends ChoiceField {
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         $widget = $this->_widget ?: parent::getWidget($widgetClass);
         if (is_object($widget->value))
             $widget->value = $widget->value->getId();
@@ -3194,6 +3194,8 @@ class DepartmentField extends ChoiceField {
     function getChoices($verbose=false, $options=array()) {
         global $cfg, $thisstaff;
 
+        $config = $this->getConfiguration();
+        $staff = $config['staff'] ?: $thisstaff;
         $selected = self::getWidget();
         if($selected && $selected->value) {
           if(is_array($selected->value)) {
@@ -3208,12 +3210,12 @@ class DepartmentField extends ChoiceField {
           }
         }
 
+        $choices = array();
         if ($thisstaff) {
             $active = $thisstaff->getDepartmentNames(true);
 
-            $choices = array();
-            if ($options['filterVisibility'])
-                $depts = $thisstaff->getDepartmentNames();
+            if ($staff)
+                $depts = $staff->getDepartmentNames(true);
             else {
                 $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
                 return $depts;
@@ -3224,7 +3226,6 @@ class DepartmentField extends ChoiceField {
               ->values('id', 'name')
               ->order_by('name');
 
-            $choices = array();
             if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
               //create array w/queryset
               $active = array();
@@ -3328,7 +3329,7 @@ class AssigneeField extends ChoiceField {
     var $_choices = null;
     var $_criteria = null;
 
-    function getWidget($widgetClass=false, $options=array()) {
+    function getWidget($widgetClass=false) {
         $widget = parent::getWidget($widgetClass);
         $value = $widget->value;
         if (is_object($value)) {
@@ -3368,44 +3369,59 @@ class AssigneeField extends ChoiceField {
         return $value;
     }
 
-    function getChoices($verbose=false, $options=array()) {
-        global $cfg, $thisstaff;
+    function getAssignees($options=array()) {
+        global $thisstaff;
 
-        if (!isset($this->_choices)) {
-            $config = $this->getConfiguration();
-            $choices = array(
+        $config = $this->getConfiguration();
+        $criteria = $this->getCriteria();
+        $dept = $config['dept'] ?: null;
+        $staff = $config['staff'] ?: $thisstaff;
+        $assignees = array();
+        switch (strtolower($config['target'])) {
+        case 'agents':
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $assignees['s'.$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name)
+                    $assignees['s'.$id] = $name;
+            break;
+        case 'teams':
+            foreach (Team::getActiveTeams() ?: array() as $id => $name)
+                $assignees['t'.$id] = $name;
+            break;
+        default:
+            // both agents and teams
+            $assignees = array(
                     __('Agents') => new ArrayObject(),
                     __('Teams') => new ArrayObject());
-            $A = current($choices);
+            $A = current($assignees);
             $criteria = $this->getCriteria();
             $agents = array();
-            if ($options['filterVisibility'])
-                $agents = $thisstaff->getDeptAgents($criteria);
-            else {
-                if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
-                    if (($members = $dept->getAvailableMembers()))
-                        foreach ($members as $member)
-                            $agents[$member->getId()] = $member;
-                } else
-                    $agents = Staff::getStaffMembers($criteria);
-            }
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $A['s'.$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $a => $name)
+                    $A['s'.$a] = $name;
 
-
-            foreach ($agents as $id => $name)
-                $A['s'.$id] = $name;
-
-            next($choices);
-            $T = current($choices);
+            next($assignees);
+            $T = current($assignees);
             if (($teams = Team::getActiveTeams()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
-
-            $this->_choices = $choices;
+            break;
         }
+
+        return $assignees;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        if (!isset($this->_choices))
+            $this->_choices = $this->getAssignees($options);
 
         return $this->_choices;
     }
-
 
     function getChoice($value) {
         $choices = $this->getChoices();
@@ -3427,7 +3443,7 @@ class AssigneeField extends ChoiceField {
     }
 
     function getQuickFilterChoices() {
-        $choices = $this->getChoices(false, array('filterVisibility' => true));
+        $choices = $this->getChoices();
         $names = array();
         foreach ($choices as $value) {
             foreach ($value as $key => $value)
@@ -4238,8 +4254,8 @@ class Widget {
         $this->id = '_' . $this->name;
     }
 
-    function parseValue($options=array()) {
-        $this->value = $this->getValue($options);
+    function parseValue() {
+        $this->value = $this->getValue();
         if (!isset($this->value) && is_object($this->field->getAnswer()))
             $this->value = $this->field->getAnswer()->getValue();
         if (!isset($this->value) && isset($this->field->value))
@@ -4386,7 +4402,7 @@ class PasswordWidget extends TextboxWidget {
         return parent::render($mode, $extra);
     }
 
-    function parseValue($options=array()) {
+    function parseValue() {
         parent::parseValue();
         // Show empty box unless failed POST
         if ($_SERVER['REQUEST_METHOD'] != 'POST'
@@ -4442,7 +4458,7 @@ class TextareaWidget extends Widget {
         <?php
     }
 
-    function parseValue($options=array()) {
+    function parseValue() {
         parent::parseValue();
         if (isset($this->value)) {
             $value = $this->value;
@@ -4604,7 +4620,7 @@ class ChoicesWidget extends Widget {
         }
     }
 
-    function getValue($options=array()) {
+    function getValue() {
 
         if (!($value = parent::getValue()))
             return null;
@@ -4614,7 +4630,7 @@ class ChoicesWidget extends Widget {
 
         // Assume multiselect
         $values = array();
-        $choices = $this->field->getChoices(false, $options);
+        $choices = $this->field->getChoices();
 
         if ($choices && is_array($value)) {
             // Complex choices
@@ -5089,7 +5105,7 @@ class ThreadEntryWidget extends Widget {
         return $field;
     }
 
-    function parseValue($options=array()) {
+    function parseValue() {
         parent::parseValue();
         if (isset($this->value)) {
             $value = $this->value;
@@ -5833,12 +5849,12 @@ class ReferralForm extends Form {
                     'label' => '',
                     'flags' => hexdec(0X450F3),
                     'required' => true,
+                    'validator-error' => __('Agent selection required'),
                     'configuration'=>array('prompt'=>__('Select Agent')),
-                            'validator-error' => __('Agent selection required'),
-                    'visibility' => new VisibilityConstraint(
-                        new Q(array('target__eq'=>'agent')),
-                        VisibilityConstraint::HIDDEN
-                      ),
+                            'visibility' => new VisibilityConstraint(
+                                    new Q(array('target__eq'=>'agent')),
+                                    VisibilityConstraint::HIDDEN
+                              ),
                             )
                 ),
             'team' => new ChoiceField(array(
