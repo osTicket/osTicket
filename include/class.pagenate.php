@@ -20,6 +20,7 @@ class PageNate {
     var $limit;
     var $slack = 0;
     var $total;
+    var $isrealtotal;
     var $page;
     var $pages;
     var $approx=false;
@@ -34,14 +35,19 @@ class PageNate {
     }
 
     function setTotal($total, $approx=false) {
-        $this->total = is_string($total) ? '-' : intval($total);
-        $total = is_string($total) ? 500 : $total;
-        $this->pages = ceil( $total / $this->limit );
+        if (is_numeric($total)) {
+            $this->total = intval($total);
+            $this->isrealtotal = true;
+        } else {
+            $this->total = 500;
+            $this->isrealtotal = false;
+        }
+        $this->pages = ceil( $this->total / $this->limit );
 
-        if (($this->limit > $total) || ($this->page>ceil($total/$this->limit))) {
+        if (($this->limit > $this->total) || ($this->page>ceil($this->total/$this->limit))) {
             $this->start = 0;
         }
-        if (($this->limit-1)*$this->start > $total) {
+        if (($this->limit-1)*$this->start > $this->total) {
             $this->start -= $this->start % $this->limit;
         }
         $this->approx = $approx;
@@ -92,15 +98,14 @@ class PageNate {
     function showing() {
         $html = '';
         $start = $this->getStart() + 1;
-        $end = min($start + $this->limit + $this->slack - 1,
-            is_string($this->total) ? 500 : $this->total);
+        $end = min($start + $this->limit + $this->slack - 1, $this->total);
         if ($end < $this->total) {
             $to= $end;
         } else {
             $to= $this->total;
         }
         $html=__('Showing')."&nbsp;";
-        if (is_string($this->total))
+        if (!$this->isrealtotal)
             $html .= sprintf(__('%1$d - %2$d' /* Used in pagination output */),
                $start, $end);
         elseif ($this->total > 0) {
@@ -117,7 +122,6 @@ class PageNate {
     }
 
     function getPageLinks($hash=false, $pjax=false) {
-        $this->total = is_string($this->total) ? 500 : $this->total; //placeholder if no total
         $html                 = '';
         $file                =$this->url;
         $displayed_span     = 5;
