@@ -1188,6 +1188,7 @@ class TicketsAjaxAPI extends AjaxController {
             $info[':title'] = sprintf('Transfer %s',
                     _N('selected ticket', 'selected tickets', $count));
             $form = TransferForm::instantiate($_POST);
+            $form->hideDisabled();
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))

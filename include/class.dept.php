@@ -663,6 +663,10 @@ implements TemplateVariable, Searchable {
             $query = self::objects();
             if (isset($criteria['publiconly']) && $criteria['publiconly'])
                 $query->filter(array(
+                             'ispublic' => ($criteria['publiconly'] ? 1 : 0)));
+
+            if (isset($criteria['activeonly']) && $criteria['activeonly'])
+                $query->filter(array(
                             'flags__hasbit' => Dept::FLAG_ACTIVE));
 
             if ($manager=$criteria['manager'])
@@ -741,6 +745,15 @@ implements TemplateVariable, Searchable {
 
         if (!$depts)
             $depts = self::getDepartments(array('publiconly'=>true));
+
+        return $depts;
+    }
+
+    static function getActiveDepartments() {
+        $depts =null;
+
+        if (!$depts)
+            $depts = self::getDepartments(array('activeonly'=>true));
 
         return $depts;
     }

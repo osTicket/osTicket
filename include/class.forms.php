@@ -3211,27 +3211,23 @@ class DepartmentField extends ChoiceField {
         }
 
         $choices = array();
-        if ($thisstaff) {
-            $active = $thisstaff->getDepartmentNames(true);
 
-            if ($staff)
-                $depts = $staff->getDepartmentNames(true);
-            else {
-                $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+        //get all depts unfiltered
+        $depts = $config['hideDisabled'] ? Dept::getDepartments(array('activeonly' => true)) :
+            Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+
+        //get staff depts based on permissions
+        if ($staff) {
+            $active = $staff->getDepartmentNames(true);
+
+            if ($staff->hasPerm(Dept::PERM_DEPT))
                 return $depts;
-            }
-        } else {
-            $active_depts = Dept::objects()
-              ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
-              ->values('id', 'name')
-              ->order_by('name');
+        }
+        //filter custom department fields when there is no staff
+        else {
+            $userDepts = Dept::getDepartments(array('publiconly' => true, 'activeonly' => true));
 
-            if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
-              //create array w/queryset
-              $active = array();
-              foreach ($active_depts as $dept)
-                $active[$dept['id']] = $dept['name'];
-            }
+            return $userDepts;
         }
 
          //add selected dept to list
@@ -6076,6 +6072,15 @@ class TransferForm extends Form {
         }
 
         return $this->_dept;
+    }
+
+    function hideDisabled() {
+        global $thisstaff;
+
+        if ($f = $this->getField('dept')) {
+            $f->configure('staff', $thisstaff);
+            $f->configure('hideDisabled', true);
+        }
     }
 }
 

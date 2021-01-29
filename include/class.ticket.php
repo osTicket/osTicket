@@ -1059,13 +1059,16 @@ implements RestrictedAccess, Threadable, Searchable {
         // Teams
         $form->setChoices('team', Team::getActiveTeams());
         // Depts
-        $form->setChoices('dept', Dept::getDepartments());
+        $form->setChoices('dept', Dept::getActiveDepartments());
 
         // Field configurations
         if ($f=$form->getField('agent')) {
             $f->configure('dept', $dept);
             $f->configure('staff', $thisstaff);
         }
+
+        if ($f = $form->getField('dept'))
+            $f->configure('hideDisabled', true);
 
         return $form;
     }
@@ -1093,8 +1096,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $form = TransferForm::instantiate($source);
 
-        if ($f = $form->getField('dept'))
-            $f->configure('staff', $thisstaff);
+        $form->hideDisabled();
 
         return $form;
     }

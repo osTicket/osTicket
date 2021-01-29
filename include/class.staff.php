@@ -461,8 +461,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->getDepartments();
     }
 
-    function getDepartmentNames($publiconly=false) {
-        $depts = Dept::getDepartments(array('publiconly' => $publiconly));
+    function getDepartmentNames($activeonly=false) {
+        $depts = Dept::getDepartments(array('activeonly' => $activeonly));
 
         //filter out departments the agent does not have access to
         if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
