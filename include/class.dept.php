@@ -885,7 +885,7 @@ implements TemplateVariable, Searchable {
         else
           FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
 
-        if ($this->getId() == $cfg->getDefaultDeptId())
+        if ($cfg && ($this->getId() == $cfg->getDefaultDeptId()))
             $vars['status'] = 'active';
 
         switch ($vars['status']) {
