@@ -34,7 +34,7 @@ if ($info['error']) {
             echo $form->getForm(false, array('mode' => 'edit'))->asTable(
                     __('Task Information'),
                     array(
-                        'draft-namespace' => $namespace, 'filterVisibility' => true
+                        'draft-namespace' => $namespace
                         )
                     );
         }

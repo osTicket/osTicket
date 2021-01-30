@@ -461,8 +461,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->getDepartments();
     }
 
-    function getDepartmentNames($publiconly=false) {
-        $depts = Dept::getDepartments(array('publiconly' => $publiconly));
+    function getDepartmentNames($activeonly=false) {
+        $depts = Dept::getDepartments(array('activeonly' => $activeonly));
 
         //filter out departments the agent does not have access to
         if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
@@ -973,6 +973,16 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 'onvacation' => 0,
                 'isactive' => 1,
             ));
+        }
+
+        // Restrict agents based on visibility of the assigner
+        if (($staff=$criteria['staff'])
+                && !$staff->hasPerm(Staff::PERM_STAFF)
+                && ($depts=$staff->getDepts())) {
+            $members->filter(Q::any(array(
+                'dept_id__in' => $depts,
+                'dept_access__dept_id__in' => $depts,
+            )));
         }
 
         $members = self::nsort($members);

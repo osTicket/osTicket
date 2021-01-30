@@ -49,7 +49,9 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     <select name="manager">
                         <option value="0" selected="selected">&mdash; <?php
                             echo __('None'); ?> &mdash;</option><?php
-                        if ($users=Staff::getAvailableStaffMembers()) { ?>
+                        if ($users=Staff::getStaffMembers(array('available' => true,
+                                 'staff' => $thisstaff))) {
+                        ?>
                             <optgroup label="<?php
                                 echo sprintf(__('Agents (%d)'), count($users)); ?>">
 <?php                       foreach($users as $id => $name) {

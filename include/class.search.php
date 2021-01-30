@@ -745,14 +745,14 @@ class SavedQueue extends CustomQueue {
      * configuring this search in the user interface.
      *
      */
-    function getForm($source=null, $searchable=array(), $filterVisibility=NULL) {
+    function getForm($source=null, $searchable=array()) {
         $searchable = null;
         if ($this->isAQueue())
             // Only allow supplemental matches.
             $searchable = array_intersect_key($this->getCurrentSearchFields($source),
                     $this->getSupplementalMatches());
 
-        return parent::getForm($source, $searchable, $filterVisibility);
+        return parent::getForm($source, $searchable);
     }
 
    /**
@@ -1184,10 +1184,8 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
         if (!isset($this->_topics)) {
-            if ($options['filterVisibility'])
-                $this->_topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
-            else
-                $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+            $this->_topics = $thisstaff ? $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED) :
+                Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);;
         }
 
         return $this->_topics;
@@ -1217,12 +1215,9 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
 
-        if (!isset($this->_depts)) {
-            if ($options['filterVisibility'])
-                $this->_depts = $thisstaff->getDepartmentNames();
-            else
-                $this->_depts = Dept::getDepartments();
-        }
+        if (!isset($this->_depts))
+            $this->_depts = $thisstaff ? $thisstaff->getDepartmentNames() : Dept::getDepartments();
+
         return $this->_depts;
     }
 
@@ -1272,10 +1267,7 @@ class AssigneeChoiceField extends ChoiceField {
                 'M' => __('Me'),
                 'T' => __('One of my teams'),
             );
-            if ($options['filterVisibility'])
-                $assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
-            else
-                $assignees = Staff::getStaffMembers();
+            $assignees = Staff::getStaffMembers(array('staff' => $thisstaff));
 
             foreach ($assignees as $id=>$name) {
                 // Don't include $thisstaff (since that's 'Me')
@@ -1560,22 +1552,26 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
 
+        $config = $this->getConfiguration();
+        $dept = $config['dept'] ?: null;
+        $staff = $config['staff'] ?: $thisstaff;
+        $agents = array();
         if (!isset($this->_agents)) {
-          //determine if we should filter results based on panel being visited
-          if ($options['filterVisibility']) {
-              $this->_agents = array('M' => __('Me'));
-              $agents = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
-              foreach (Staff::getStaffMembers() as $id => $name) {
-                if (!$agents || array_key_exists($id, $agents)) {
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $this->_agents[$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name) {
                     // Don't include $thisstaff (since that's 'Me')
-                    if ($thisstaff && $thisstaff->getId() == $id)
+                    if ($staff && $staff->getId() == $id) {
+                        $this->_agents['M'] = __('Me');
                         continue;
+                    }
 
                     $this->_agents[$id] = $name;
                 }
-              }
-          } else
-              $this->_agents = array('M' => __('Me')) +  Staff::getStaffMembers();
+
+
         }
         return $this->_agents;
     }
