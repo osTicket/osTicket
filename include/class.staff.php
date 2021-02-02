@@ -732,6 +732,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $query->filter($this->getTicketsVisibility($exclude_archived));
     }
 
+    function applyDeptVisibility($qs) {
+        // Restrict agents based on visibility of the assigner
+        if (!$this->hasPerm(Staff::PERM_STAFF)
+                && ($depts=$this->getDepts())) {
+            return $qs->filter(Q::any(array(
+                'dept_id__in' => $depts,
+                'dept_access__dept_id__in' => $depts,
+            )));
+        }
+        return $qs;
+    }
+
     /* stats */
     function resetStats() {
         $this->stats = array();
@@ -976,14 +988,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
 
         // Restrict agents based on visibility of the assigner
-        if (($staff=$criteria['staff'])
-                && !$staff->hasPerm(Staff::PERM_STAFF)
-                && ($depts=$staff->getDepts())) {
-            $members->filter(Q::any(array(
-                'dept_id__in' => $depts,
-                'dept_access__dept_id__in' => $depts,
-            )));
-        }
+        if (($staff=$criteria['staff']))
+            $members = $staff->applyDeptVisibility($members);
 
         $members = self::nsort($members);
 
@@ -1006,14 +1012,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             ->select_related('dept')
             ->select_related('dept_access');
 
-        if (!$this->hasPerm(Staff::PERM_STAFF)) {
-            $agents = Staff::objects()
-                ->distinct('staff_id')
-                ->filter(Q::any(array(
-                    'dept_access__dept_id__in' => $this->getDepts(),
-                    'dept_id__in' => $this->getDepts(),
-                )));
-        }
+        $agents = $this->applyDeptVisibility($agents);
 
         if (isset($criteria['available'])) {
             $agents = $agents->filter(array(
