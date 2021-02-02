@@ -399,7 +399,9 @@ implements TemplateVariable, Searchable {
     }
 
     static function getPublicHelpTopics() {
-        return self::getHelpTopics(true);
+        $publicHelpTopic = self::getHelpTopics(true);
+        Signal::send('topic.getPublic', null, $publicHelpTopic);
+        return $publicTop;
     }
 
     static function getAllHelpTopics($localize=false) {
