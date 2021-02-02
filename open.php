@@ -90,7 +90,9 @@ if ($ticket
     );
 }
 else {
-    require(CLIENTINC_DIR.'open.inc.php');
+    $bodyInc = CLIENTINC_DIR.'open.inc.php';
+    Signal::send('open.bodyInc', $cfg, $bodyInc);
+    require($bodyInc);
 }
 require(CLIENTINC_DIR.'footer.inc.php');
 ?>
