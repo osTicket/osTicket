@@ -143,7 +143,9 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
     $nav->setActiveNav('new');
     $inc='open.inc.php';
 }
-include(CLIENTINC_DIR.'header.inc.php');
+$headerInc = CLIENTINC_DIR.'header.inc.php';
+Signal::send('client.headerInc', $cfg, $headerInc);
+include($headerInc);
 include(CLIENTINC_DIR.$inc);
 print $tform->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
