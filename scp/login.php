@@ -135,5 +135,8 @@ elseif ($thisstaff && $thisstaff->isValid()) {
 Http::response(422);
 
 define("OSTSCPINC",TRUE); //Make includes happy!
-include_once(INCLUDE_DIR.'staff/login.tpl.php');
+
+$loginTpl = INCLUDE_DIR.'staff/login.tpl.php';
+Signal::send('login.bodyInc', $cfg, $loginTpl);
+include_once($loginTpl);
 ?>
