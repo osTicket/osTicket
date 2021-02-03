@@ -1210,15 +1210,52 @@ class SLAChoiceField extends AdvancedSearchSelectionField {
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends AdvancedSearchSelectionField {
     static $_depts;
+    static $_alldepts;
     var $_choices;
+
+    function getDepts($criteria=array()) {
+        global $thisstaff;
+
+        $staff = $criteria['staff'];
+        $depts = array();
+        if ($staff)
+            foreach ($staff->getDepartmentNames(true) as $id => $name)
+                $depts[$id] = $name;
+        else
+            foreach (Dept::getDepartments() as $id => $name)
+                $depts[$id] = $name;
+
+        return $depts;
+    }
 
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
+        $config = $this->getConfiguration();
 
-        if (!isset($this->_depts))
-            $this->_depts = $thisstaff ? $thisstaff->getDepartmentNames() : Dept::getDepartments();
+        $criteria = array(
+                'staff' => $config['staff'] ?: $thisstaff
+                );
+        if (!isset($this->_choices))
+            $this->_choices = $this->getDepts($criteria);
 
-        return $this->_depts;
+        return $this->_choices;
+
+    }
+
+    function toString($value) {
+        if (!isset($this->_alldepts))
+            $this->_alldepts = $this->getDepts();
+        $choices =  $this->_alldepts;
+        $selection = array();
+        if (!is_array($value))
+            $value = array($value => $value);
+
+        foreach ($value as $k => $v)
+            if (isset($choices[$k]))
+                $selection[] = $choices[$k];
+
+        return $selection ?  implode(',', $selection) :
+            parent::toString($value);
     }
 
     function getQuickFilterChoices() {
@@ -1546,39 +1583,44 @@ trait ZeroMeansUnset {
 
 class AgentSelectionField extends AdvancedSearchSelectionField {
     use ZeroMeansUnset;
-
+    static $_allagents;
     static $_agents;
+
+    function getAgents($criteria=array()) {
+        $dept = $criteria['dept'] ?: null;
+        $staff = $criteria['staff'] ?: null;
+        $agents = array();
+        if ($dept) {
+            foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                $agents[$a->getId()] = $a;
+        } else {
+            foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name) {
+                if ($staff && $staff->getId() == $id)
+                    $agents['M'] = __('Me');
+                $agents[$id] = $name;
+            }
+        }
+        return $agents;
+    }
 
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
-
         $config = $this->getConfiguration();
-        $dept = $config['dept'] ?: null;
-        $staff = $config['staff'] ?: $thisstaff;
-        $agents = array();
-        if (!isset($this->_agents)) {
-            if ($dept)
-                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
-                    $this->_agents[$a->getId()] = $a;
-            else
-                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name) {
-                    // Don't include $thisstaff (since that's 'Me')
-                    if ($staff && $staff->getId() == $id) {
-                        $this->_agents['M'] = __('Me');
-                        continue;
-                    }
+        $criteria = array(
+                'dept' => $config['dept'] ?: null,
+                'staff' => $config['staff'] ?: $thisstaff
+                );
+        if (!isset($this->_choices))
+            $this->_choices = $this->getAgents($criteria);
 
-                    $this->_agents[$id] = $name;
-                }
+        return $this->_choices;
 
-
-        }
-        return $this->_agents;
     }
 
     function toString($value) {
-
-        $choices =  $this->getChoices();
+        if (!isset($this->_allagents))
+            $this->_allagents = $this->getAgents();
+        $choices =  $this->_allagents;
         $selection = array();
         if (!is_array($value))
             $value = array($value => $value);
