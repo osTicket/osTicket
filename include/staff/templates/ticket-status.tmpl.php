@@ -60,7 +60,7 @@ $action = $info['action'] ?: ('#tickets/status/'. $state);
                                         $s->getId(),
                                         ($info['status_id'] == $s->getId())
                                          ? 'selected="selected"' : '',
-                                        $s->getName()
+                                        $s->getLocalName()
                                         );
                             }
                             ?>

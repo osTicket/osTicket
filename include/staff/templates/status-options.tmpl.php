@@ -66,7 +66,7 @@ if (!$nextStatuses)
                 ><i class="<?php
                         echo $actions[$status->getState()]['icon'] ?: 'icon-tag';
                     ?>"></i> <?php
-                        echo __($status->getName()); ?></a>
+                        echo $status->getLocalName(); ?></a>
         </li>
     <?php
     } ?>

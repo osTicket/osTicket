@@ -329,11 +329,11 @@ if($ticket->isOverdue())
                               onclick="javascript:
                                   saveDraft();"
                               >
-                              <?php echo $ticket->getStatus(); ?>
+                              <?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?>
                           </a>
                         </td>
                       <?php } else { ?>
-                          <td><?php echo ($S = $ticket->getStatus()) ? $S->display() : ''; ?></td>
+                          <td><?php echo ($S = $ticket->getStatus()) ? $S->getLocalName() : ''; ?></td>
                       <?php } ?>
                 </tr>
                 <tr>
@@ -1200,7 +1200,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                             echo sprintf('<option value="%d" %s>%s%s</option>',
                                     $s->getId(),
                                     $selected ? 'selected="selected"' : '',
-                                    __($s->getName()),
+                                    $s->getLocalName(),
                                     $selected ? (' ('.__('current').')') : ''
                                     );
                         }
