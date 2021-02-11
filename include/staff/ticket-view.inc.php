@@ -434,6 +434,7 @@ if($ticket->isOverdue())
                              echo sprintf('<span><a class="manage-collaborators preview"
                                     href="#thread/%d/collaborators/1"><span id="t%d-recipients"><i class="icon-group"></i> (%s)</span></a></span>',
                                     $ticket->getThreadId(),
+                                    __('Manage Collaborators'),
                                     $ticket->getThreadId(),
                                     $recipients);
                              }?>
@@ -1109,7 +1110,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                                 $s->getId(),
                                 $selected
                                  ? 'selected="selected"' : '',
-                                __($s->getName()),
+                                $s->getLocalName(),
                                 $selected
                                 ? (' ('.__('current').')') : ''
                                 );
