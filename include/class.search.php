@@ -1262,7 +1262,6 @@ class DepartmentChoiceField extends AdvancedSearchSelectionField {
        global $thisstaff;
 
        if (!isset($this->_choices)) {
-         $this->_choices = array();
          $depts = $thisstaff ? $thisstaff->getDepts() : array();
          foreach ($this->getChoices() as $id => $name) {
            if (!$depts || in_array($id, $depts))
