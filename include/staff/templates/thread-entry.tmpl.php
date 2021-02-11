@@ -107,8 +107,8 @@ if ($user && $cfg->isAvatarsEnabled())
         <i class="icon-paperclip icon-flip-horizontal"></i>
         <a class="no-pjax truncate filename" href="<?php echo
         $A->file->getDownloadUrl(['id' => $A->getId()]);
-            ?>" download="<?php echo Format::htmlchars($A->getFilename()); ?>"
-            target="_blank"><?php echo Format::htmlchars($A->getFilename());
+            ?>" 
+            ><?php echo Format::htmlchars($A->getFilename());
         ?></a><?php echo $size;?>
         </span>
 <?php   }
