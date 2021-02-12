@@ -81,7 +81,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <?php
                 $criteria = array('states' => array('open'));
                 foreach (TicketStatusList::getStatuses($criteria) as $status) {
-                    $name = $status->getName();
+                    $name = $status->getLocalName();
                     if (!($isenabled = $status->isEnabled()))
                         $name.=' '.__('(disabled)');
 

@@ -423,7 +423,7 @@ print $response_form->getField('attachments')->render();
                                 $s->getId(),
                                 $selected
                                  ? 'selected="selected"' : '',
-                                __($s->getName()));
+                                $s->getLocalName());
                     }
                     ?>
                     </select>
