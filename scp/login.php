@@ -59,7 +59,7 @@ if ($_POST) {
     // use a different CSRF token. This will help ward off both parallel and
     // serial brute force attacks, because new tokens will have to be
     // requested for each attempt.
-    if (!$ost->checkCSRFToken()) {
+    if (isset($_POST['userid']) && !$ost->checkCSRFToken()) {
         $_SESSION['_staff']['auth']['msg'] = __('Valid CSRF Token Required');
         $redirect($_SERVER['REQUEST_URI']);
     }
