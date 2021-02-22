@@ -25,7 +25,13 @@ require_once('../main.inc.php');
 
 if (isset($_GET['backdrop'])) {
     if (($backdrop = $ost->getConfig()->getStaffLoginBackdrop())) {
-        $backdrop->display();
+        $expires = 86400;
+
+        if ($ost->getConfig()->isStaffLoginBackdropRandomized()) {
+            $expires = 0;
+        }
+
+        $backdrop->display(false, $expires);
         // ::display() will not return
     }
     header("Cache-Control: private, max-age=86400");

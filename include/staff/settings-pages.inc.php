@@ -247,6 +247,18 @@ $pages = Page::getPages();
                                 ?>&nbsp;<i class="help-tip icon-question-sign" href="#upload_a_new_backdrop"></i></em>
                             </th>
                         </tr>
+                        <tr>
+                            <td>
+                               <input type="radio" name="selected-backdrop"
+                                      style="margin-left: 1em" value="-1" <?php
+                            $randomized = $ost->getConfig()->isStaffLoginBackdropRandomized();
+                            if ($randomized)
+                                echo 'checked="checked"'; ?>/>
+                            </td>
+                            <td>
+                                <?php echo __('Randomize Background'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#randomize_background"></i></em>
+                            </td>
+                        </tr>
                         <?php
                         $current = $ost->getConfig()->getStaffLoginBackdropId();
                         foreach (AttachmentFile::allBackdrops() as $logo) { ?>
@@ -255,7 +267,7 @@ $pages = Page::getPages();
                                 <input type="radio" name="selected-backdrop"
                                        style="margin-left: 1em" value="<?php
                             echo $logo->getId(); ?>" <?php
-                            if ($logo->getId() == $current)
+                            if ($logo->getId() == $current && !$randomized)
                                 echo 'checked="checked"'; ?>/>
                             </td>
                             <td>
