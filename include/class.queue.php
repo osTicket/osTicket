@@ -146,7 +146,11 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function describeCriteria($criteria=false){
-        $all = $this->getSupportedMatches($this->getRoot());
+        global $account;
+
+        if (!($all = $this->getSupportedMatches($this->getRoot())))
+            return '';
+
         $items = array();
         $criteria = $criteria ?: $this->getCriteria(true);
         foreach ($criteria ?: array() as $C) {
