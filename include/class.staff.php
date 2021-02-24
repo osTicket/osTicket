@@ -1744,9 +1744,7 @@ extends AbstractForm {
             'role_id' => new ChoiceField(array(
                 'label' => __('Primary Role'),
                 'required' => true,
-                'choices' =>
-                    array(0 => __('Select Role'))
-                    + Role::getRoles(),
+                'choices' => Role::getRoles(),
                 'layout' => new GridFluidCell(6),
             )),
             'isadmin' => new BooleanField(array(
