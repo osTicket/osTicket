@@ -580,7 +580,8 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $faq = FAQ::lookup($row[0]);
+            if (!($faq = FAQ::lookup($row[0])))
+               continue;
             $q = $faq->getQuestion();
             if ($k = $faq->getKeywords())
                 $q = $k.' '.$q;
