@@ -226,7 +226,7 @@ if (($bks=Staff2FABackend::allRegistered())) {
                    for($i=1; $i <=30; $i+=$y) {
                      $sel=($staff->auto_refresh_rate==$i)?'selected="selected"':'';
                      echo sprintf('<option value="%d" %s>%s</option>', $i, $sel,
-                        sprintf(_N('Every minute', 'Every %d minutes', $i), $i));
+                        @sprintf(_N('Every minute', 'Every %d minutes', $i), $i));
                      if($i>9)
                         $y=2;
                    } ?>

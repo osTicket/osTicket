@@ -3105,7 +3105,8 @@ implements RestrictedAccess, Threadable, Searchable {
             }
 
             if ($user) {
-                $c = $ticket->getThread()->addCollaborator($user,array(),
+                $v = array();
+                $c = $ticket->getThread()->addCollaborator($user, $v,
                         $errors);
             }
        }
