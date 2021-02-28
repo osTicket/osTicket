@@ -2471,16 +2471,18 @@ implements RestrictedAccess, Threadable, Searchable {
         $parent = $this->isParent() ? $this : (Ticket::lookup($pid));
         $child = $this->isChild() ? $this : '';
         $children = $this->getChildren();
+        $count = count($children);
 
         if ($children) {
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
                 $child->unlinkChild($parent);
+                $count--;
             }
         } elseif ($child)
             $child->unlinkChild($parent);
 
-        if (count($children) == 0) {
+        if ($this->isParent() && $count == 0) {
             $parent->setFlag(Ticket::FLAG_LINKED, false);
             $parent->setFlag(Ticket::FLAG_PARENT, false);
             $parent->save();
