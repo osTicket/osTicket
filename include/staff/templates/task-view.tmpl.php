@@ -367,6 +367,7 @@ if (!$ticket) { ?>
 
                     <tr>
                         <th><?php echo __('Department');?>:</th>
+                        <?php if ($role->hasPerm(Task::PERM_TRANSFER)) {?>
                         <td>
                             <a class="task-action" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Transfer'); ?>"
                               data-redirect="tasks.php?id=<?php echo $task->getId(); ?>"
@@ -375,6 +376,9 @@ if (!$ticket) { ?>
                                   saveDraft();"
                               ><?php echo Format::htmlchars($task->dept->getName()); ?>
                         </td>
+                        <?php }else {?>
+                          <td><?php echo Format::htmlchars($task->dept->getName()); ?></td>
+                        <?php } ?>
                     </tr>
                     <?php
                     if ($task->isOpen()) { ?>
