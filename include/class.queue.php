@@ -815,6 +815,9 @@ class CustomQueue extends VerySimpleModel {
                 || !($fields=$this->getExportFields()))
             return false;
 
+        // Do not store results in memory
+        $query->setOption(QuerySet::OPT_NOCACHE, true);
+
         // See if we have cached export preference
         if (isset($_SESSION['Export:Q'.$this->getId()])) {
             $opts = $_SESSION['Export:Q'.$this->getId()];
