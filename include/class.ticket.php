@@ -4106,7 +4106,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         if(!Validator::process($fields, $vars, $errors) && !$errors['err'])
             $errors['err'] = sprintf('%s — %s',
-                __('Missing or invalid data'),
+                __('Missing or invalid data').'. '.$errors["message"].'. ',
                 __('Correct any errors below and try again'));
 
         // Make sure the due date is valid
