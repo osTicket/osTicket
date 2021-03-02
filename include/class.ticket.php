@@ -2884,6 +2884,7 @@ implements RestrictedAccess, Threadable, Searchable {
             } else {
                 $refer = $this->team ?: null;
                 $this->team_id = $assignee->getId();
+                $this->staff_id = 0;
                 $evd = array('team' => $assignee->getId());
                 $audit = array('team' => $assignee->getName());
                 if (($referral=$this->hasReferral($assignee,ObjectModel::OBJECT_TYPE_TEAM)))
