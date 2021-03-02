@@ -205,7 +205,42 @@ var scp_prep = function() {
         }
      });
 
-    $('form select#cannedResp').select2({width: '350px'});
+    // Custom matcher for non-adjacent keywords
+    // Thanks, https://stackoverflow.com/a/31626588/10706339
+    $('form select#cannedResp').select2({
+        width: '350px',
+        matcher: function (params, data) {
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+
+            var original = data.text.toUpperCase();
+            var term = params.term.toUpperCase();
+            var keywords = term.split(" ");
+
+            for (var i = 0; i < keywords.length; i++) {
+                if (original.indexOf(keywords[i]) == -1)
+                    return null;
+            }
+
+            var termIndex = original.indexOf(term);
+            if (termIndex > -1)
+                return $.extend({'matchType': 'term', 'index': termIndex}, data);
+             
+            return $.extend({'matchType': 'keyword', 'index': original.indexOf(keywords[0])}, data);
+        },
+        sorter: function (data) {
+            if (!data[0].hasOwnProperty('matchType'))
+                return data;
+
+            return data.sort(function(a, b) {
+                if (a.matchType == b.matchType)
+                    return a.index - b.index;
+                
+                return ((a.matchType == 'term') ? -1 : 1);
+            });
+        }
+    });
     $('form select#cannedResp').on('select2:opening', function (e) {
         var redactor = $('.richtext', $(this).closest('form')).data('redactor');
         if (redactor)
