@@ -473,9 +473,14 @@ if (!RedactorPlugins) var RedactorPlugins = {};
           .get();
         var prevRow = $currentRow.prevElement()
           .get();
+        var $head = $R.dom(current).closest('thead');
         $component.removeRow(current);
         if (nextRow) this.caret.setStart(nextRow);
         else if (prevRow) this.caret.setEnd(prevRow);
+        else if ($head.length !== 0) {
+            $component.removeHead();
+            this.caret.setStart($component);
+        }
         else this.deleteTable();
       }
     },
