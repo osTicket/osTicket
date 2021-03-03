@@ -4,7 +4,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
         die('Access Denied');
 
 $info=array();
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 if ($_SESSION[':form-data'] && !$_GET['tid'])
   unset($_SESSION[':form-data']);

@@ -1526,7 +1526,7 @@ class TextboxField extends FormField {
     }
 
     function display($value) {
-        return ($value === '0') ? '&#48;' : Format::htmlchars($this->toString($value ?: $this->value));
+        return ($value === '0') ? '&#48;' : Format::htmlchars($this->toString($value ?: $this->value), true);
     }
 }
 
@@ -1620,7 +1620,7 @@ class TextareaField extends FormField {
         if ($config['html'])
             return Format::safe_html($value);
         else
-            return nl2br(Format::htmlchars($value));
+            return nl2br(Format::htmlchars($value, true));
     }
 
     function searchable($value) {
@@ -4361,7 +4361,7 @@ class TextboxWidget extends Widget {
             <?php echo $autofocus .' '.Format::array_implode('=', ' ',
                     array_filter($attrs)); ?>
             name="<?php echo $this->name; ?>"
-            value="<?php echo Format::htmlchars($this->value); ?>"/>
+            value="<?php echo Format::htmlchars($this->value, true); ?>"/>
         <?php
     }
 }
@@ -4448,7 +4448,7 @@ class TextareaWidget extends Widget {
                 array_filter($attrs)); ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
-                echo Format::htmlchars($this->value);
+                echo Format::htmlchars($this->value, true);
             ?></textarea>
         </span>
         <?php

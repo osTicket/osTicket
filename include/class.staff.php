@@ -623,8 +623,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 || $this->hasPerm(Ticket::PERM_CLOSE, false);
     }
 
-    function isManager() {
-        return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
+    function isManager($dept=null) {
+        return (($dept=$dept?:$this->getDept()) && $dept->getManagerId()==$this->getId());
     }
 
     function isStaff() {

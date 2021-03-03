@@ -4,6 +4,21 @@ osTicket v1.15.1
 * readme: Update PHP Version (a4c85d7)
 * placeholder: Quote and encode html chars (0056d14)
 
+osTicket v1.14.6
+================
+### Enhancements
+* redactor: Upgrade to version 3.4.9 (ab40f97)
+
+### Improvements
+* issue: markAs Popup Manager (No Access) (8d1d623)
+* issue: Task last_update Var (08cd762)
+* issue: SCP Login Redirect (9b12a54)
+* issue: Client-Side Reply Draft Saving (996cd9e)
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
 osTicket v1.14.5
 ================
 ### Enhancements
