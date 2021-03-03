@@ -18,7 +18,7 @@ if($canned && $_REQUEST['a']!='add'){
     $info['isenabled']=isset($info['isenabled'])?$info['isenabled']:1;
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 ?>
 <form action="canned.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" enctype="multipart/form-data">

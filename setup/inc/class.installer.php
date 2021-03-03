@@ -257,7 +257,7 @@ class Installer extends SetupWizard {
             'admin_email'=>$vars['admin_email'],
             'schema_signature'=>$streams['core'],
             'helpdesk_url'=>URL,
-            'helpdesk_title'=>$vars['name']
+            'helpdesk_title'=>Format::htmlchars($vars['name'], true)
         );
 
         $config = new Config('core');

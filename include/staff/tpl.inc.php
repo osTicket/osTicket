@@ -1,5 +1,5 @@
 <?php
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$_REQUEST);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$_REQUEST, true);
 
 if (is_a($template, 'EmailTemplateGroup')) {
     // New template implementation
