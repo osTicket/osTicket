@@ -28,7 +28,7 @@ if($form && $_REQUEST['a']!='add') {
     $submit_text=__('Add Form');
     $newcount=4;
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 ?>
 <form class="manage-form" action="<?php echo $url ?>" method="post" class="save">
