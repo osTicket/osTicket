@@ -53,7 +53,7 @@ class TicketApiController extends ApiController {
 
             $supported['attachments']['*'][] = 'cid';
         }
-
+        $supported[]='userId';  //Just done to supress log warnings.  Figure out the "right" way to do this.
         return $supported;
     }
 
@@ -103,7 +103,7 @@ class TicketApiController extends ApiController {
     }
 
 
-    function create($format) {
+    public function create($format) {
 
         if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
             return $this->exerr(401, __('API key not authorized'));
@@ -114,13 +114,121 @@ class TicketApiController extends ApiController {
             $ticket = $this->processEmail();
         } else {
             # Parse request body
-            $ticket = $this->createTicket($this->getRequest($format));
+            $params=$this->getRequest($format);
+            if(empty($params['email'])) {
+                $user=$this->getUser($params);
+                $params['email']=$user->getEmail();
+                unset($params['userId']);
+            }
+            $ticket = $this->createTicket(array_merge($params, ['source'=>'api']));
         }
 
         if(!$ticket)
             return $this->exerr(500, __("Unable to create new ticket: unknown error"));
 
-        $this->response(201, $ticket->getNumber());
+        $this->response(201, json_encode($ticket->getTicketApiEntity()));
+    }
+
+    ######  Added Methods ############
+    //All methods assume dispatcher validates arguments as integers and handles errors (i.e. (?P<tid>\d+) ).
+    //Most tickets require userId or email in parameters (not necessarily for authentication, but to log who made a change)
+    //TBD whether camelcase or underscore property names are desired by osTicket.
+
+    public function getTickets($format) {
+        //Future:  Allow for optional filtering for name and topic ID
+        if(!($key=$this->requireApiKey()) || !$key->canViewTickets())
+            return $this->exerr(401, __('API key not authorized'));
+        $filter=['user_id' => isset($_GET['userId'])?$_GET['userId']:$this->getUser($_GET)->getId()];
+        if(isset($_GET['status_id'])) {
+            $filter['status_id']=$_GET['status_id'];
+        }
+        $tickets = [];
+        foreach(Ticket::objects()->filter($filter)->all() as $ticket) {
+            $tickets[]=$ticket->getTicketApiEntity();
+        }
+        $this->response(200, json_encode($tickets));
+    }
+
+    public function getTicket($format, $tid) {
+        //This API request does not need to provide user identifier.
+        if(!($key=$this->requireApiKey()) || !$key->canViewTickets())
+            return $this->exerr(401, __('API key not authorized'));
+        $this->response(200, json_encode($this->getByTicketId($tid)->getTicketApiEntity()));
+    }
+
+    public function closeTicket($format, $tid) {
+        if(!($key=$this->requireApiKey()) || !$key->canCloseTickets())
+            return $this->exerr(401, __('API key not authorized'));
+        $ticket = $this->getByTicketId($tid);
+        //$ticket->setStatusId(3);
+        //$currentStatus=$ticket->getStatus();
+        $status= TicketStatus::lookup(3);
+        $errors=[];//passed by reference
+        $ticket->setStatus($status, 'Closed by user', $errors);
+        $this->response(204, null);
+    }
+    public function reopenTicket($format, $tid) {
+        if(!($key=$this->requireApiKey()) || !$key->canReopenTickets())
+            return $this->exerr(401, __('API key not authorized'));
+        $ticket = $this->getByTicketId($tid);
+        $ticket->reopen();
+        $this->response(200, json_encode($ticket->getTicketApiEntity()));
+    }
+    public function updateTicket($format, $tid) {
+        if(!($key=$this->requireApiKey()) || !$key->canUpdateTickets())
+            return $this->exerr(401, __('API key not authorized'));
+        $params = $this->getRequest($format);
+        $user=$this->getUser($params);
+        $ticket = $this->getByTicketId($tid, $user);
+        $vars=[
+            'message'=>$params['message'],
+            'userId'=>$user->getId(),
+            'poster'=>$user->getFullName(),
+            'ip_address'=>$_SERVER['REMOTE_ADDR'] //Use web client's IP
+        ];
+        $response = $ticket->postMessage($vars, 'api');//Ticket::postMessage($vars, $origin='', $alerts=true)
+        $this->response(200, json_encode($ticket->getTicketApiEntity()));
+    }
+    public function getTopics($format) {
+        //This API request does not need to provide user identifier.
+        if(!($key=$this->requireApiKey()) || !$key->canViewTopics())
+            return $this->exerr(401, __('API key not authorized'));
+        $this->response(200, json_encode($this->createList(Topic::getPublicHelpTopics(), 'id', 'value')));
+    }
+    // Private methods to support new api methods.  Verify if existing osTicket methods should be used instead.
+    private function getByTicketId($ticketId) {
+        if(!$pk=Ticket::getIdByNumber($ticketId))
+            return $this->exerr(400, __("Ticket Number '$ticketId' does not exist"));
+        return $this->getByPrimaryId($pk);
+    }
+    private function getByPrimaryId($pk) {
+        if(!$ticket = Ticket::lookup($pk))
+            return $this->exerr(400, __("Ticket ID '$pk' does not exist"));
+        return $ticket;
+    }
+    private function getUser($params=[]) {
+        //userId or email must be provided in request parameters
+        if(!empty($params['userId'])){
+            if(!$user = TicketUser::lookupById($params['userId'])) {
+                return $this->exerr(400, __("Invalid user.  User ID does not exist."));
+            }
+        }
+        elseif(!empty($params['email'])){
+            if(!$user = TicketUser::lookupByEmail($params['email'])) {
+                return $this->exerr(400, __("Invalid user.  User email does not exist."));
+            }
+        }
+        else {
+            return $this->exerr(400, __("Either user ID or email must be provided in request"));
+        }
+        return $user;
+    }
+    private function createList($items, $idName, $valueName) {
+        $list=[];
+        foreach($items as $key=>$value) {
+            $list[]=[$idName=>$key, $valueName=>$value];
+        }
+        return $list;
     }
 
     /* private helper functions */
