@@ -42,7 +42,7 @@
             echo Format::htmlchars($errors['filter']); ?></div>
  </div>
  <div>
-    <div class="faded"><strong><?php echo __("Defaut Sorting"); ?></strong></div>
+    <div class="faded"><strong><?php echo __("Default Sorting"); ?></strong></div>
     <div>
         <select name="sort_id">
          <option value="" <?php if ($queue->sort_id == 0)
