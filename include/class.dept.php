@@ -31,7 +31,7 @@ implements TemplateVariable, Searchable {
                 'null' => true,
              ),
             'sla' => array(
-                'constraint' => array('sla_id' => 'SLA.sla_id'),
+                'constraint' => array('sla_id' => 'SLA.id'),
                 'null' => true,
             ),
             'manager' => array(
