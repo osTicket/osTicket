@@ -67,7 +67,7 @@ class Email extends VerySimpleModel {
         if ($this->mail_encryption == 'SSL')
             $this->mail_proto .= "/".$this->mail_encryption;
 
-        $this->address=$this->name?($this->name.'<'.$this->email.'>'):$this->email;
+        $this->address=$this->name?($this->name.' <'.$this->email.'>'):$this->email;
     }
 
     function getEmail() {
