@@ -829,6 +829,12 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         return $this->save();
     }
 
+    function save($refetch=false) {
+        $this->value = trim($this->value);
+
+        return parent::save($refetch);
+    }
+
     function delete() {
         # Don't really delete, just unset the list_id to un-associate it with
         # the list
