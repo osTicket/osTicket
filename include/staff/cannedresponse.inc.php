@@ -1,4 +1,6 @@
 <?php
+global $cfg;
+
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 $info=$qs = array();
 if($canned && $_REQUEST['a']!='add'){
@@ -84,7 +86,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                     </div>
                 <textarea name="response" cols="21" rows="12"
                     data-root-context="cannedresponse"
-                    style="width:98%;" class="richtext draft draft-delete" <?php
+                    style="width:98%;" class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
+                ?> draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('canned',
         is_object($canned) ? $canned->getId() : false, $info['response']);
     echo $attrs; ?>><?php echo $draft ?: $info['response'];
