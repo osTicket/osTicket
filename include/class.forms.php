@@ -3465,7 +3465,15 @@ class AssigneeField extends ChoiceField {
 
     function to_php($value, $id=false) {
         if (is_string($value))
-            $value = JsonDataParser::parse($value);
+            $value = JsonDataParser::parse($value) ?: $value;
+
+        if (is_string($value) && strpos($value, ',')) {
+            $values = array();
+            list($key, $V) = array_map('trim', explode(',', $value));
+
+            $values[$key] = $V;
+            $value = $values;
+        }
 
         $type = '';
         if (is_array($id)) {
@@ -3477,8 +3485,11 @@ class AssigneeField extends ChoiceField {
         if (is_array($value)) {
             $type = key($value)[0];
             if (!$id)
-                $id = key($value)[1];
+                $id = substr(key($value), 1);
         }
+
+        if (!$type && is_numeric($value))
+            return Staff::lookup($value);
 
         switch ($type) {
         case 's':
