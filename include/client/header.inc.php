@@ -66,6 +66,7 @@ if (osTicket::is_ie())
     if($ost && ($headers=$ost->getExtraHeaders())) {
         echo "\n\t".implode("\n\t", $headers)."\n";
     }
+	Signal::send('client.headers',  null);
 
     // Offer alternate links for search engines
     // @see https://support.google.com/webmasters/answer/189077?hl=en
