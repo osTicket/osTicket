@@ -22,11 +22,12 @@ session_set_save_handler('noop','noop','noop','noop','noop','noop');
 define('DISABLE_SESSION', true);
 
 require('client.inc.php');
-
+$ttl = 86400; // max-age
 if (($logo = $ost->getConfig()->getClientLogo())) {
-    $logo->display();
-} else {
-    header('Location: '.ASSETS_PATH.'images/logo.png');
+    $logo->display(false, $ttl);
 }
 
+header("Cache-Control: private, max-age=$ttl");
+header('Pragma: private');
+header('Location: '.ASSETS_PATH.'images/logo.png');
 ?>

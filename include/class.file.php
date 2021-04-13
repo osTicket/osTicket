@@ -109,9 +109,9 @@ class AttachmentFile extends VerySimpleModel {
         return FileStorageBackend::getInstance($this);
     }
 
-    function sendData($redirect=true, $disposition='inline') {
+    function sendData($redirect=true, $ttl=false, $disposition='inline') {
         $bk = $this->open();
-        if ($redirect && $bk->sendRedirectUrl($disposition))
+        if ($redirect && $bk->sendRedirectUrl($disposition, $ttl))
             return;
 
         @ini_set('zlib.output_compression', 'Off');
@@ -153,8 +153,8 @@ class AttachmentFile extends VerySimpleModel {
         Http::cacheable($this->getSignature(true), $this->lastModified(), $ttl);
     }
 
-    function display($scale=false) {
-        $this->makeCacheable();
+    function display($scale=false, $ttl=86400) {
+        $this->makeCacheable($ttl);
 
         if ($scale && extension_loaded('gd')) {
             $image = imagecreatefromstring($this->getData());
@@ -267,10 +267,10 @@ class AttachmentFile extends VerySimpleModel {
               || $inline)
               && strpos($this->getType(), 'image/') !== false)
             ? 'inline' : 'attachment';
-        $bk = $this->open();
-        if ($bk->sendRedirectUrl($disposition))
-            return;
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
+        $bk = $this->open();
+        if ($bk->sendRedirectUrl($disposition, $ttl))
+            return;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
         Http::download($name ?: $this->getName(), $type, null, $disposition);
@@ -819,7 +819,7 @@ class FileStorageBackend {
      * false to indicate that the read() method should be used to retrieve
      * the data and broker it to the user agent.
      */
-    function sendRedirectUrl($disposition='inline') {
+    function sendRedirectUrl($disposition='inline', $ttl=false) {
         return false;
     }
 
