@@ -1167,6 +1167,23 @@ class DynamicFormEntry extends VerySimpleModel {
         }
         return $entries[$ticket_id];
     }
+
+    function forTask($id, $force=false) {
+        static $entries = array();
+        if (!isset($entries[$id]) || $force) {
+            $stuff = DynamicFormEntry::objects()->filter(array(
+                        'object_id' => $id,
+                        'object_type' => ObjectModel::OBJECT_TYPE_TASK
+                        ));
+            // If forced, don't cache the result
+            if ($force)
+                return $stuff;
+
+            $entries[$id] = &$stuff;
+        }
+        return $entries[$id];
+    }
+
     function setTicketId($ticket_id) {
         $this->object_type = 'T';
         $this->object_id = $ticket_id;
