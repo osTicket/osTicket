@@ -298,7 +298,7 @@ class RolePermission {
     }
 
     function exists($perm) {
-        return @array_key_exists($perm, $this->perms);
+        return array_key_exists($perm, $this->perms ?: array());
     }
 
     function has($perm) {
