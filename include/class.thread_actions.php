@@ -215,6 +215,13 @@ JS
         if (!$entry)
             return false;
 
+        // Move the attachments to the new entry
+        $old->attachments->filter(array(
+            'inline' => false,
+        ))->update(array(
+            'object_id' => $entry->id
+        ));
+
         // Note, anything that points to the $old entry as PID should remain
         // that way for email header lookups and such to remain consistent
 
@@ -231,13 +238,6 @@ JS
             $old->delete();
             $old = $original;
         }
-
-        // Move the attachments to the new entry
-        $old->attachments->filter(array(
-            'inline' => false,
-        ))->update(array(
-            'object_id' => $entry->id
-        ));
 
         // Mark the new entry as edited (but not hidden nor guarded)
         $entry->flags = ($old->flags & ~(ThreadEntry::FLAG_HIDDEN | ThreadEntry::FLAG_GUARDED))

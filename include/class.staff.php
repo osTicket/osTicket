@@ -1398,7 +1398,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
         $permissions = $this->getPermission();
         foreach ($vars as $k => $val) {
-             if (!array_key_exists($val, $permissions->perms)) {
+             if (!$permissions->exists($val)) {
                  $type = array('type' => 'edited', 'key' => $val);
                  Signal::send('object.edited', $this, $type);
              }
@@ -1406,7 +1406,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
-                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                if (!in_array($k, $vars) && $permissions->exists($k)) {
                      $type = array('type' => 'edited', 'key' => $k);
                      Signal::send('object.edited', $this, $type);
                  }

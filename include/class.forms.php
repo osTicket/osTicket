@@ -4471,7 +4471,7 @@ class TextareaWidget extends Widget {
                 array_filter($attrs)); ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
-                echo Format::htmlchars($this->value, true);
+                echo Format::htmlchars($this->value, ($config['html']));
             ?></textarea>
         </span>
         <?php
