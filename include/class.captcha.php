@@ -18,7 +18,7 @@ class Captcha {
     var $bgimages=array('cottoncandy.png','grass.png','ripple.png','silk.png','whirlpool.png',
                         'bubbles.png','crackle.png','lines.png','sand.png','snakeskin.png');
     var $font = 10;
-    function Captcha($len=6,$font=7,$bg=''){
+    function __construct($len=6,$font=7,$bg=''){
 
         $this->hash = strtoupper(substr(md5(rand(0, 9999)),rand(0, 24),$len));
         $this->font = $font;

@@ -1,0 +1,144 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Filter
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+
+execution_order:
+    title: Execution Order
+    content: >
+        Enter a number that controls the priority of the filter. The
+        lower the number, the higher the priority this filter will have in being
+        executed over against another filter that might have higher order of execution.
+        <br><br>
+        If you want this filter to be the last filter applied on a match, enable <span
+        class="doc-desc-title">Stop Processing Further On Match</span>.
+
+target_channel:
+    title: Channel
+    content: >
+        Choose the target <span class="doc-desc-title">Channel</span> for your <span
+        class="doc-desc-title">ticket Filter</span>. The <span
+        class="doc-desc-title">Channel</span> is the source through which the ticket arrived into the system.
+        <br><br>
+        For example, if you choose <span class="doc-desc-opt">Web Forms</span>,
+        you are saying that you want to apply the <span
+        class="doc-desc-title">ticket Filter</span> to those tickets that
+        originated from the Client Portal's webform.
+
+rules_matching_criteria:
+    title: Rules Matching Criteria
+    content: >
+        Choose how elastic you want the matches of your <span
+        class="doc-desc-title">ticket Filter</span> to be. If you would like the
+        <span class="doc-desc-title">ticket Filter</span> to
+        match any of the rules, and then stop, choose <span
+        class="doc-desc-opt">Match Any</span>. If you would like <em><strong>all
+        rules</strong></em> of the <span class="doc-desc-title">ticket
+        Filter</span> to be matched, choose <span class="doc-desc-opt">Match
+        All</span>.
+
+reject_ticket:
+    title: Reject Ticket
+    content: >
+        If this is enabled, further processing is stopped and all other choices of action below will be ignored on match.
+
+reply_to_email:
+    title: Reply-To Email
+    content: >
+        Enable this if you want your Help Desk to honor a User's email
+        application's <span class="doc-desc-title">Reply To</span> header.
+        This field is only relevant if the <span
+        class="doc-desc-title">Channel</span> above includes <span
+        class="doc-desc-opt">Email</span>.
+
+ticket_auto_response:
+    title: Disable Ticket Auto-Response
+    content: >
+        <em>Note: This will override any <span
+        class="doc-desc-title">Department</span> or <span class="doc-desc-title">Autoresponder settings</span>.</em>
+
+canned_response:
+    title: Canned Auto-Reply
+    content: >
+        Choose a <span class="doc-desc-title">Canned Response</span> you
+        want to be emailed to the user on <span
+        class="doc-desc-title">Ticket Filter</span> match.  The <span
+        class="doc-desc-title">New Ticket Auto-Reply</span> template used
+        depends on what <span class="doc-desc-title">template set</span> is
+        assigned as default, or to a matching ticket's <span
+        class="doc-desc-title">Department</span>.
+    links:
+      - title: Manage Canned Responses
+        href: /scp/canned.php
+      - title: Manage Template Sets
+        href: /scp/templates.php
+      - title: New Ticket Auto-Reply Template
+        href: /scp/templates.php?id=2&a=manage
+
+department:
+    title: Department
+    content: >
+        Choose what <span class="doc-desc-title">Department</span> you want the
+        matches of the <span class="doc-desc-title">Ticket Filter</span> to be
+        assigned.
+    links:
+      - title: Manage Departments
+        href: /scp/departments.php
+
+priority:
+    title: Priority
+    content: >
+        Choose the <span class="doc-desc-title">Priority</span> level you want to
+        be applied to the matches of the <span class="doc-desc-title">Ticket
+        Filter</span>.<br />
+        <br />
+        <em>Note: This will override <span
+        class="doc-desc-title">Department</span> or <span class="doc-desc-title"> Help Topic</span> settings.</em>
+
+sla_plan:
+    title: SLA Plan
+    content: >
+        Choose the <span class="doc-desc-title">SLA Plan</span> you want to
+        be applied to the matches of the <span class="doc-desc-title">Ticket
+        Filter</span>.
+    links:
+      - title: Manage SLA Plans
+        href: /scp/slas.php
+
+auto_assign:
+    title: Auto-Assign
+    content: >
+        Choose an Agent or a Team to whom you want the matches of the <span
+        class="doc-desc-title">Ticket Filter</span> to be assigned.
+    links:
+      - title: Manage Agents
+        href: /scp/staff.php
+      - title: Manage Teams
+        href: /scp/teams.php
+
+help_topic:
+    title: Help Topic
+    content: >
+        Choose the <span class="doc-desc-title">Help Topic</span> you want to
+        be applied to the matches of the <span class="doc-desc-title">Ticket
+        Filter</span>.
+    links:
+      - title: Manage Help Topics
+        href: /scp/helptopics.php
+
+admin_notes:
+    title: Admin Notes
+    content: >
+        These notes are only visible to those whose account type is ‘<span
+        class="doc-desc-title">Admin</span>.’

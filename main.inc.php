@@ -27,8 +27,20 @@ Bootstrap::i18n_prep();
 Bootstrap::loadCode();
 Bootstrap::connect();
 
+#Global override
+$_SERVER['REMOTE_ADDR'] = osTicket::get_client_ip();
+
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
-Bootstrap::croak('Unable to load config info from DB. Get tech support.');
+Bootstrap::croak(__('Unable to load config info from DB.').' '.__('Get technical help!'));
+
+if ($cfg && $cfg->forceHttps()
+        && !osTicket::is_cli()
+        && !osTicket::is_https()) {
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET')
+        Http::response(400, 'HTTPS Protocol Required');
+
+    Http::redirect('https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+}
 
 //Init
 $session = $ost->getSession();
@@ -42,5 +54,13 @@ if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
 $_POST=Format::strip_slashes($_POST);
 $_GET=Format::strip_slashes($_GET);
 $_REQUEST=Format::strip_slashes($_REQUEST);
+}
+
+// extract system messages
+$errors = array();
+$msg=$warn=$sysnotice='';
+if ($_SESSION['::sysmsgs']) {
+    extract($_SESSION['::sysmsgs']);
+    unset($_SESSION['::sysmsgs']);
 }
 ?>

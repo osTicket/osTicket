@@ -23,13 +23,13 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
     switch(strtolower($_POST['s'])) {
         case 'prereq':
             if(!$ost->isUpgradePending()) {
-                $errors['err']=' Nothing to do! System already upgraded to the current version';
+                $errors['err']=__('Nothing to do! System already upgraded to the current version');
             } elseif(!$upgrader->isUpgradable()) {
-                $errors['err']='The upgrader does NOT support upgrading from the current vesion!';
+                $errors['err']=__('The upgrader does NOT support upgrading from the current vesion!');
             } elseif(!$upgrader->check_prereq()) {
-                $errors['prereq']='Minimum requirements not met! Refer to Release Notes for more information';
+                $errors['prereq']=__('Minimum requirements not met! Refer to Release Notes for more information');
             } elseif(!strcasecmp(basename(CONFIG_FILE), 'settings.php')) {
-                $errors['err']='Config file rename required to continue!';
+                $errors['err']=__('Config file rename required to continue!');
             } else {
                 $upgrader->setState('upgrade');
             }
@@ -48,7 +48,7 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
             }
             break;
         default:
-            $errors['err']='Unknown action!';
+            $errors['err']=__('Unknown action');
     }
 }
 
@@ -69,16 +69,16 @@ switch(strtolower($upgrader->getState())) {
         elseif(!strcasecmp(basename(CONFIG_FILE), 'settings.php'))
             $inc='rename.inc.php';
         elseif(!$ost->isUpgradePending())
-            $errors['err']='Nothing to do! System already upgraded to <b>'.$ost->getVersion().'</b> with no pending patches to apply.';
+            $errors['err']=sprintf(__('Nothing to do! System already upgraded to <b>%s</b> with no pending patches to apply.'),$ost->getVersion());
         elseif(!$upgrader->isUpgradable())
-            $errors['err']=sprintf('The upgrader does NOT support upgrading from the current patch [%s]!', $cfg->getSchemaSignature());
+            $errors['err']=sprintf(__('The upgrader does NOT support upgrading from the current patch [%s]!'), $cfg->getSchemaSignature());
 
 }
 
 $nav = new AdminNav($thisstaff);
 $nav->setTabActive('dashboard');
-$nav->addSubMenu(array('desc'=>'Upgrader',
-                           'title'=>'Upgrader',
+$nav->addSubMenu(array('desc'=>__('Upgrader'),
+                           'title'=>__('Upgrader'),
                            'href'=>'upgrade.php',
                            'iconclass'=>'preferences'),
                         true);

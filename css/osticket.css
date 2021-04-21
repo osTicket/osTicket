@@ -30,11 +30,12 @@
 
 .non-local-image {
     display: inline-block;
-    border: 5px dashed #eee;
+    border: 3px dashed #eee;
+    border-radius: 5px;
 }
 
 .non-local-image:after {
-    background: url(../assets/default/images/logo.png) center left no-repeat;
+    background: url(../logo.php) center center no-repeat;
     background-size: cover;
     content: "";
     z-index: -1;
@@ -67,3 +68,26 @@ input.dp {
     height:16px;
     background:inherit;
 }
+
+.draft-saved {
+    background-color: black;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px 6px;
+    border-radius: 3px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    line-height: 14px;
+    position: absolute;
+    top: 3em;
+    right: 0.5em;
+}
+
+.delete-draft:hover {
+    background-color: #fc9f41 !important;
+}
+
+.notice_bar { margin: 0; padding: 5px 10px 5px 36px; height: 16px; line-height: 16px; border: 1px solid #0a0; background: url('../assets/default/images/icons/ok.png') 10px 50% no-repeat #e0ffe0; }
+
+.warning_bar { margin: 0; padding: 5px 10px 5px 36px; height: 16px; line-height: 16px; border: 1px solid #f26522; background: url('../assets/default/images/icons/alert.png') 10px 50% no-repeat #ffffdd; }
+
+.error_bar { margin: 0; padding: 5px 10px 5px 36px; height: 16px; line-height: 16px; border: 1px solid #a00; background: url('../assets/default/images/icons/error.png') 10px 50% no-repeat #fff0f0; }

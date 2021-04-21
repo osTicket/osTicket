@@ -1,0 +1,22 @@
+#
+# registration-confirm.yaml
+#
+# Template of the page shown to the user after registering for an account.
+# The system will send the user an email with a link they should follow to
+# confirm the account. This page should inform them of the next step in
+# the process.
+#
+---
+notes: >
+    This templates defines the page shown to Clients after completing the registration
+    form. The template should mention that the system is sending 
+    them an email confirmation link and what is the next step in the registration
+    process.
+name: "Account registration"
+body: >
+    <div><strong>Thanks for registering for an account.</strong><br/>
+    <br />
+    We've just sent you an email to the address you entered. Please follow
+    the link in the email to confirm your account and gain access to your
+    tickets.
+    </div>

@@ -14,15 +14,7 @@ notes: |
 subject: |
     Open Tickets Limit Reached
 body: |
-    <span style="font-family: Georgia; color: rgb(127, 127, 127); font-size: 30pt;">
-    We Hear You</span>
-    <img src="cid:6fe1efdea357534d238b86e7860a7c5a" alt="osTicket Logo (kangaroo)"
-    width="99" height="56" style="float: right; width: 99px; margin: 0px 0px 10px 10px;">
-    <br>
-    <br>
-    <strong>Dear %{ticket.name.first},</strong>
-    <br>
-    <br>
+    <h3><strong>Dear %{ticket.name.first},</strong></h3>
     You have reached the maximum number of open tickets allowed. To be able
     to open another ticket, one of your pending tickets must be closed. To
     update or add comments to an open ticket simply <a
@@ -31,9 +23,3 @@ body: |
     <br>
     Thank you,<br/>
     Support Ticket System
-    <br>
-    <br>
-    <div style="text-align: center;">
-        <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc"
-        alt="Powered by osTicket" width="126" height="19" style="width: 126px;">
-    </div>

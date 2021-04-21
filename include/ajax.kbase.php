@@ -18,7 +18,7 @@ if(!defined('INCLUDE_DIR')) die('!');
 
 class KbaseAjaxAPI extends AjaxController {
 
-    function cannedResp($id, $format='') {
+    function cannedResp($id, $format='text') {
         global $thisstaff, $cfg;
 
         include_once(INCLUDE_DIR.'class.canned.php');
@@ -26,39 +26,10 @@ class KbaseAjaxAPI extends AjaxController {
         if(!$id || !($canned=Canned::lookup($id)) || !$canned->isEnabled())
             Http::response(404, 'No such premade reply');
 
-        //Load ticket.
-        if($_GET['tid']) {
-            include_once(INCLUDE_DIR.'class.ticket.php');
-            $ticket = Ticket::lookup($_GET['tid']);
-        }
+        if (!$cfg->isRichTextEnabled())
+            $format .= '.plain';
 
-        $resp = array();
-        switch($format) {
-            case 'json':
-                $resp['id'] = $canned->getId();
-                $resp['ticket'] = $canned->getTitle();
-                $resp['response'] = $ticket
-                    ? $ticket->replaceVars($canned->getResponseWithImages())
-                    : $canned->getResponseWithImages();
-                $resp['files'] = $canned->attachments->getSeparates();
-
-                if (!$cfg->isHtmlThreadEnabled()) {
-                    $resp['response'] = Format::html2text($resp['response'], 90);
-                    $resp['files'] += $canned->attachments->getInlines();
-                }
-
-                $response = $this->json_encode($resp);
-                break;
-
-            case 'txt':
-            default:
-                $response =$ticket?$ticket->replaceVars($canned->getResponse()):$canned->getResponse();
-
-                if (!$cfg->isHtmlThreadEnabled())
-                    $response = Format::html2text($response, 90);
-        }
-
-        return $response;
+        return $canned->getFormattedResponse($format);
     }
 
     function faq($id, $format='html') {
@@ -74,22 +45,49 @@ class KbaseAjaxAPI extends AjaxController {
                 '<div style="width:650px;">
                  <strong>%s</strong><div class="thread-body">%s</div>
                  <div class="clear"></div>
-                 <div class="faded">Last updated %s</div>
+                 <div class="faded">'.__('Last Updated %s').'</div>
                  <hr>
-                 <a href="faq.php?id=%d">View</a> | <a href="faq.php?id=%d">Attachments (%s)</a>',
+                 <a href="faq.php?id=%d">'.__('View').'</a> | <a href="faq.php?id=%d">'.__('Attachments (%d)').'</a>',
                 $faq->getQuestion(),
                 $faq->getAnswerWithImages(),
-                Format::db_daydatetime($faq->getUpdateDate()),
+                Format::daydatetime($faq->getUpdateDate()),
                 $faq->getId(),
                 $faq->getId(),
                 $faq->getNumAttachments());
-        if($thisstaff && $thisstaff->canManageFAQ()) {
-            $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">Edit</a>',$faq->getId());
+        if($thisstaff
+                && $thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
+            $resp.=sprintf(' | <a href="faq.php?id=%d&a=edit">'.__('Edit').'</a>',$faq->getId());
 
         }
         $resp.='</div>';
 
         return $resp;
+    }
+
+    function manageFaqAccess($id) {
+        global $ost, $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login required');
+        if (!$thisstaff->hasPerm(FAQ::PERM_MANAGE))
+            Http::response(403, 'Access denied');
+        if (!($faq = FAQ::lookup($id)))
+            Http::response(404, 'No such faq article');
+
+        $form = new FaqAccessMgmtForm($_POST ?: $faq->getHashtable());
+
+        if ($_POST && $form->isValid()) {
+            $clean = $form->getClean();
+            $faq->ispublished = $clean['ispublished'];
+            $faq->save();
+            Http::response(201, 'Have a nice day');
+        }
+
+        $title = __("Manage FAQ Access");
+        $verb = __('Update');
+        $path = ltrim($ost->get_path_info(), '/');
+
+        include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
 }
 ?>

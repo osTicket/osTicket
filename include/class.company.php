@@ -17,7 +17,8 @@
 require_once(INCLUDE_DIR.'class.forms.php');
 require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
-class Company {
+class Company
+implements TemplateVariable {
     var $form;
     var $entry;
 
@@ -47,12 +48,30 @@ class Company {
         }
     }
 
-    function asVar() {
+    function getInfo() {
+        return $this->getForm()->getClean();
+    }
+
+    function getName() {
         return $this->getVar('name');
     }
 
-    function getInfo() {
-        return $this->getForm()->getClean();
+    function asVar() {
+        return $this->getName();
+    }
+
+    static function getVarScope() {
+        return VariableReplacer::compileFormScope(
+            DynamicForm::lookup(array('type'=>'C'))
+        );
+    }
+
+    function __toString() {
+        try {
+            if ($name = $this->getForm()->getAnswer('name'))
+                return $name->display();
+        } catch (Exception $e) {}
+        return '';
     }
 
     /**

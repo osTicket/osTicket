@@ -25,7 +25,7 @@ class UserSession {
    var $ip = '';
    var $validated=FALSE;
 
-   function UserSession($userid){
+   function __construct($userid){
 
       $this->browser=(!empty($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : $_ENV['HTTP_USER_AGENT'];
       $this->ip=(!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : getenv('REMOTE_ADDR');
@@ -66,6 +66,14 @@ class UserSession {
       return($token);
    }
 
+   function getLastUpdate($htoken) {
+       if (!$htoken)
+           return 0;
+
+       @list($hash,$expire,$ip)=explode(":",$htoken);
+       return $expire;
+   }
+
    function isvalidSession($htoken,$maxidletime=0,$checkip=false){
         global $cfg;
 
@@ -103,13 +111,20 @@ class UserSession {
 
 }
 
-class ClientSession extends Client {
+class ClientSession extends EndUser {
 
     var $session;
+    var $token;
 
-    function ClientSession($email, $id){
-        parent::Client($id, $email);
-        $this->session= new UserSession($email);
+    function __construct($user) {
+        parent::__construct($user);
+        $this->token = &$_SESSION[':token']['client'];
+        // XXX: Change the key to user-id
+        $this->session= new UserSession($user->getId());
+    }
+
+    function getSessionUser() {
+        return $this->user;
     }
 
     function isValid(){
@@ -118,13 +133,21 @@ class ClientSession extends Client {
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;
 
-        return $this->session->isvalidSession($_SESSION['_client']['token'],$cfg->getClientTimeout(),false)?true:false;
+        return $this->session->isvalidSession($this->token,$cfg->getClientTimeout(),false)?true:false;
     }
 
-    function refreshSession(){
-        global $_SESSION;
-        $_SESSION['_client']['token']=$this->getSessionToken();
+    function refreshSession($force=false){
+        global $cfg;
+
+        $time = $this->session->getLastUpdate($this->token);
+        // Deadband session token updates to once / 30-seconds
+        if (!$force && time() - $time < 30)
+            return;
+
+        $this->token = $this->getSessionToken();
         //TODO: separate expire time from hash??
+
+        osTicketSession::renewCookie($time, $cfg->getClientSessionTimeout());
     }
 
     function getSession() {
@@ -144,24 +167,52 @@ class ClientSession extends Client {
 class StaffSession extends Staff {
 
     var $session;
+    var $token;
 
-    function StaffSession($var){
-        parent::Staff($var);
-        $this->session= new UserSession($this->getId());
+    static function lookup($var) {
+        if ($staff = parent::lookup($var)) {
+            $staff->token = &$_SESSION[':token']['staff'];
+            $staff->session= new UserSession($staff->getId());
+        }
+        return $staff;
+    }
+
+    function clear2FA() {
+        $_SESSION['_auth']['staff']['2fa'] = null;
+        return true;
+    }
+
+    // If 2fa is set then it means it's pending
+    function is2FAPending() {
+        if (!isset($_SESSION['_auth']['staff']['2fa']))
+            return false;
+
+        return true;
     }
 
     function isValid(){
-        global $_SESSION,$cfg;
+        global $cfg;
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
             return false;
 
-        return $this->session->isvalidSession($_SESSION['_staff']['token'],$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
+        if ($this->is2FAPending())
+            return false;
+
+        return $this->session->isvalidSession($this->token,$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;
     }
 
-    function refreshSession(){
-        global $_SESSION;
-        $_SESSION['_staff']['token']=$this->getSessionToken();
+    function refreshSession($force=false){
+        global $cfg;
+
+        $time = $this->session->getLastUpdate($this->token);
+        // Deadband session token updates to once / 30-seconds
+        if (!$force && time() - $time < 30)
+            return;
+
+        $this->token=$this->getSessionToken();
+
+        osTicketSession::renewCookie($time, $cfg->getStaffSessionTimeout());
     }
 
     function getSession() {

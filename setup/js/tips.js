@@ -18,7 +18,7 @@ jQuery(function($) {
     .each(function(i, e) {
         e.rel = 'tip-' + i;
     })
-    .live('mouseover click', function(e) {
+    .on('mouseover click', function(e) {
         e.preventDefault();
 
         var elem = $(this),
@@ -40,16 +40,18 @@ jQuery(function($) {
                     "left":x_pos + "px"
                 }),
             tip_timer = setTimeout(function() {
+                var rtl = $('html.rtl').length > 0;
                 $('.tip_box').remove();
                 $('body').append(the_tip.hide().fadeIn());
-                if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
+                if ((rtl && ($(window).width() > tip_content.outerWidth() + the_tip.position().left))
+                        || (!rtl && ($(window).width() < tip_content.outerWidth() + the_tip.position().left))) {
                     the_tip.css({'left':x_pos-tip_content.outerWidth()-40+'px'});
                     tip_box.addClass('right');
                     tip_arrow.addClass('flip-x');
                 }
             }, 500);
 
-        elem.live('mouseout', function() {
+        elem.on('mouseout', function() {
             clearTimeout(tip_timer);
         });
 

@@ -18,30 +18,34 @@ include_once(INCLUDE_DIR.'class.api.php');
 
 $api=null;
 if($_REQUEST['id'] && !($api=API::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid API key ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('API Key'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$api){
-                $errors['err']='Unknown or invalid API key.';
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('API Key'));
             }elseif($api->update($_POST,$errors)){
-                $msg='API key updated successfully';
+                $msg=sprintf(__('Successfully updated %s.'), __('this API key'));
             }elseif(!$errors['err']){
-                $errors['err']='Error updating API key. Try again!';
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this API key')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
             if(($id=API::add($_POST,$errors))){
-                $msg='API key added successfully';
+                $msg=sprintf(__('Successfully added %s.'), __('an API key'));
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add an API key. Correct error(s) below and try again.';
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this API key')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = 'You must select at least one API key';
+                $errors['err'] = sprintf(__('You must select at least %s.'), __('one API key'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -50,11 +54,14 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected API keys enabled';
+                                $msg = sprintf(__('Successfully enabled %s'),
+                                    _N('selected API key', 'selected API keys', $count));
                             else
-                                $warn = "$num of $count selected API keys enabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
+                                    _N('selected API key', 'selected API keys', $count));
                         } else {
-                            $errors['err'] = 'Unable to enable selected API keys.';
+                            $errors['err'] = sprintf(__('Unable to enable %s'),
+                                _N('selected API key', 'selected API keys', $count));
                         }
                         break;
                     case 'disable':
@@ -62,11 +69,14 @@ if($_POST){
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = 'Selected API keys disabled';
+                                $msg = sprintf(__('Successfully disabled %s'),
+                                    _N('selected API key', 'selected API keys', $count));
                             else
-                                $warn = "$num of $count selected API keys disabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected API key', 'selected API keys', $count));
                         } else {
-                            $errors['err']='Unable to disable selected API keys';
+                            $errors['err']=sprintf(__('Unable to disable %s'),
+                                _N('selected API key', 'selected API keys', $count));
                         }
                         break;
                     case 'delete':
@@ -76,28 +86,35 @@ if($_POST){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = 'Selected API keys deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s.'),
+                                _N('selected API key', 'selected API keys', $count));
                         elseif($i>0)
-                            $warn = "$i of $count selected API keys deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $num, $count,
+                                _N('selected API key', 'selected API keys', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected API keys';
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
+                                _N('selected API key', 'selected API keys', $count));
                         break;
                     default:
-                        $errors['err']='Unknown action - get technical help';
+                        $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action/command';
+            $errors['err']=__('Unknown action');
             break;
     }
 }
 
 $page='apikeys.inc.php';
+$tip_namespace = 'manage.api_keys';
+
 if($api || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
-    $page='apikey.inc.php';
+    $page = 'apikey.inc.php';
 
 $nav->setTabActive('manage');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

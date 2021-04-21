@@ -93,6 +93,11 @@ INSERT INTO `%TABLE_PREFIX%ticket_email_info`
     FROM `%TABLE_PREFIX%ticket_message`
     WHERE `messageId` IS NOT NULL AND `messageId` <>'';
 
+-- Change collation to utf8_general_ci - to avoid Illegal mix of collations error
+ALTER TABLE `%TABLE_PREFIX%ticket_attachment`
+    CHANGE `ref_type` `ref_type` ENUM('M','R','N') CHARACTER
+    SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'M';
+
 -- Update attachment table
 UPDATE `%TABLE_PREFIX%ticket_attachment`
     SET `ref_id` = ( SELECT T2.`id` FROM `%TABLE_PREFIX%ticket_thread` T2

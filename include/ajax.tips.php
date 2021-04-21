@@ -20,8 +20,10 @@ if(!defined('INCLUDE_DIR')) die('!');
 require_once(INCLUDE_DIR.'class.i18n.php');
 
 class HelpTipAjaxAPI extends AjaxController {
-    function getTipsJson($namespace, $lang='en_US') {
-        global $ost;
+    function getTipsJson($namespace, $lang=false) {
+        global $ost, $thisstaff;
+
+        $lang = Internationalization::getCurrentLanguage();
 
         $i18n = new Internationalization($lang);
         $tips = $i18n->getTemplate("help/tips/$namespace.yaml");

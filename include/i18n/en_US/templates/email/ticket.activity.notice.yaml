@@ -1,0 +1,28 @@
+#
+# Email template: ticket.activity.notice.yaml
+#
+# Notice sent to collaborators on ticket activity e.g reply or message
+#
+---
+notes: |
+    Notice sent to collaborators on ticket activity e.g reply or message.
+
+subject: |
+    Re: %{ticket.subject} [#%{ticket.number}]
+body: |
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
+    <div>
+        <em>%{poster.name}</em> just logged a message to a ticket in which you participate.
+    </div>
+    <br>
+    %{message}
+    <br>
+    <br>
+    <hr>
+    <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+    <em>You're getting this email because you are a collaborator
+    on ticket <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+    >#%{ticket.number}</a>.  To participate, simply reply to this email
+    or <a href="%{recipient.ticket_link}" style="color: rgb(84, 141, 212);"
+    >click here</a> for a complete archive of the ticket thread.</em>
+    </div>

@@ -14,11 +14,12 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-Class SetupWizard {
+class SetupWizard {
 
     //Mimimum requirements
-    var $prereq = array('php'   => '5.3',
-                        'mysql' => '5.0');
+    static protected $prereq = array(
+            'php' => '7.2',
+            'mysql' => '5.0');
 
     //Version info - same as the latest version.
 
@@ -28,16 +29,17 @@ Class SetupWizard {
     //Errors
     var $errors=array();
 
-    function SetupWizard(){
+    function __construct(){
         $this->errors=array();
-        $this->version_verbose = ('osTicket '. strtoupper(THIS_VERSION));
+        $this->version_verbose = sprintf(__('osTicket %s' /* <%s> is for the version */),
+            THIS_VERSION);
 
     }
 
     function load_sql_file($file, $prefix, $abort=true, $debug=false) {
 
         if(!file_exists($file) || !($schema=file_get_contents($file)))
-            return $this->abort('Error accessing SQL file '.basename($file), $debug);
+            return $this->abort(sprintf(__('Error accessing SQL file %s'),basename($file)), $debug);
 
         return $this->load_sql($schema, $prefix, $abort, $debug);
     }
@@ -46,6 +48,7 @@ Class SetupWizard {
         load SQL schema - assumes MySQL && existing connection
         */
     function load_sql($schema, $prefix, $abort=true, $debug=false) {
+        global $ost;
 
         # Strip comments and remarks
         $schema=preg_replace('%^\s*(#|--).*$%m', '', $schema);
@@ -55,15 +58,17 @@ Class SetupWizard {
         if(!($statements = array_filter(array_map('trim',
                 // Thanks, http://stackoverflow.com/a/3147901
                 preg_split("/;(?=(?:[^']*'[^']*')*[^']*$)/", $schema)))))
-            return $this->abort('Error parsing SQL schema', $debug);
+            return $this->abort(__('Error parsing SQL schema'), $debug);
 
 
         db_query('SET SESSION SQL_MODE =""', false);
         foreach($statements as $k=>$sql) {
             if(db_query($sql, false)) continue;
             $error = "[$sql] ".db_error();
-            if($abort)
-                    return $this->abort($error, $debug);
+            if ($abort)
+                return $this->abort($error, $debug);
+            elseif ($debug && $ost)
+                $ost->logDBError('DB Error #'.db_errno(), $error, false);
         }
 
         return true;
@@ -77,16 +82,16 @@ Class SetupWizard {
         return $this->version_verbose;
     }
 
-    function getPHPVersion() {
-        return $this->prereq['php'];
+    static function getPHPVersion() {
+        return self::$prereq['php'];
     }
 
-    function getMySQLVersion() {
-        return $this->prereq['mysql'];
+    static function getMySQLVersion() {
+        return self::$prereq['mysql'];
     }
 
     function check_php() {
-        return (version_compare(PHP_VERSION, $this->getPHPVersion())>=0);
+        return (version_compare(PHP_VERSION, self::getPHPVersion())>=0);
     }
 
     function check_mysql() {
@@ -94,7 +99,7 @@ Class SetupWizard {
     }
 
     function check_mysql_version() {
-        return (version_compare(db_version(), $this->getMySQLVersion())>=0);
+        return (version_compare(db_version(), self::getMySQLVersion())>=0);
     }
 
     function check_prereq() {

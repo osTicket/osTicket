@@ -4,7 +4,7 @@
 
     Static osTicket configuration file. Mainly useful for mysql login info.
     Created during installation process and shouldn't change even on upgrades.
-   
+
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2010 osTicket
     http://www.osticket.com
@@ -36,7 +36,7 @@ define('ADMIN_EMAIL','%ADMIN-EMAIL');
 
 #Mysql Login info
 define('DBTYPE','mysql');
-define('DBHOST','%CONFIG-DBHOST'); 
+define('DBHOST','%CONFIG-DBHOST');
 define('DBNAME','%CONFIG-DBNAME');
 define('DBUSER','%CONFIG-DBUSER');
 define('DBPASS','%CONFIG-DBPASS');

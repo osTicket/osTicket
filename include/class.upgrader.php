@@ -18,7 +18,7 @@ require_once INCLUDE_DIR.'class.setup.php';
 require_once INCLUDE_DIR.'class.migrater.php';
 
 class Upgrader {
-    function Upgrader($prefix, $basedir) {
+    function __construct($prefix, $basedir) {
         global $ost;
 
         $this->streams = array();
@@ -72,8 +72,10 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
-        if ($state == 'done')
+        if ($state == 'done') {
+            ModelMeta::flushModelCache();
             $this->createUpgradedTicket();
+        }
     }
 
     function createUpgradedTicket() {
@@ -112,44 +114,6 @@ class Upgrader {
             return call_user_func_array($callable, $args);
         }
     }
-
-    function getTask() {
-        if($this->getCurrentStream())
-            return $this->getCurrentStream()->getTask();
-    }
-
-    function doTask() {
-        return $this->getCurrentStream()->doTask();
-    }
-
-    function getErrors() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getErrors();
-    }
-
-    function getUpgradeSummary() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getUpgradeSummary();
-    }
-
-    function getNextAction() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getNextAction();
-    }
-
-    function getNextVersion() {
-        return $this->getCurrentStream()->getNextVersion();
-    }
-
-    function getSchemaSignature() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getSchemaSignature();
-    }
-
-    function getSHash() {
-        if ($this->getCurrentStream())
-            return $this->getCurrentStream()->getSHash();
-    }
 }
 
 /**
@@ -183,7 +147,7 @@ class StreamUpgrader extends SetupWizard {
      * sqldir - (string<path>) Path of sql patches
      * upgrader - (Upgrader) Parent coordinator of parallel stream updates
      */
-    function StreamUpgrader($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
+    function __construct($schema_signature, $target, $stream, $prefix, $sqldir, $upgrader) {
 
         $this->signature = $schema_signature;
         $this->target = $target;
@@ -215,7 +179,7 @@ class StreamUpgrader extends SetupWizard {
     function onError($error) {
         global $ost, $thisstaff;
 
-        $subject = '['.$this->name.']: Upgrader Error';
+        $subject = '['.$this->name.']: '._S('Upgrader Error');
         $ost->logError($subject, $error);
         $this->setError($error);
         $this->upgrader->setState('aborted');
@@ -232,7 +196,8 @@ class StreamUpgrader extends SetupWizard {
         if($email) {
             $email->sendAlert($thisstaff->getEmail(), $subject, $error);
         } else {//no luck - try the system mail.
-            Mailer::sendmail($thisstaff->getEmail(), $subject, $error, sprintf('"osTicket Alerts"<%s>', $thisstaff->getEmail()));
+            Mailer::sendmail($thisstaff->getEmail(), $subject, $error,
+                '"'._S('osTicket Alerts')."\" <{$thisstaff->getEmail()}>");
         }
 
     }
@@ -278,7 +243,7 @@ class StreamUpgrader extends SetupWizard {
 
     function getNextVersion() {
         if(!$patch=$this->getNextPatch())
-            return '(Latest)';
+            return __('(Latest)');
 
         $info = $this->readPatchInfo($patch);
         return $info['version'];
@@ -318,11 +283,11 @@ class StreamUpgrader extends SetupWizard {
 
     function getNextAction() {
 
-        $action='Upgrade osTicket to '.$this->getVersion();
+        $action=sprintf(__('Upgrade osTicket to %s'), $this->getVersion());
         if($task=$this->getTask()) {
             $action = $task->getDescription() .' ('.$task->getStatus().')';
         } elseif($this->isUpgradable() && ($nextversion = $this->getNextVersion())) {
-            $action = "Upgrade to $nextversion";
+            $action = sprintf(__("Upgrade to %s"),$nextversion);
         }
 
         return '['.$this->name.'] '.$action;
@@ -347,7 +312,8 @@ class StreamUpgrader extends SetupWizard {
         if (!isset($this->task)) {
             $class = (include $task_file);
             if (!is_string($class) || !class_exists($class))
-                return $ost->logError("Bogus migration task", "{$this->phash}:{$class}") ;
+                return $ost->logError("Bogus migration task",
+                        "{$this->phash}:{$class}"); //FIXME: This can cause crash
             $this->task = new $class();
             if (isset($_SESSION['ost_upgrader']['task'][$this->phash]))
                 $this->task->wakeup($_SESSION['ost_upgrader']['task'][$this->phash]);
@@ -361,12 +327,16 @@ class StreamUpgrader extends SetupWizard {
             return false; //Nothing to do.
 
         $this->log(
-                sprintf('Upgrader - %s (task pending).', $this->getShash()),
-                sprintf('The %s task reports there is work to do',
+                sprintf(_S('Upgrader - %s (task pending).'), $this->getShash()),
+                sprintf(_S('The %s task reports there is work to do'),
                     get_class($task))
                 );
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 30; //Default to 30 sec batches.
+
+        // Drop any model meta cache to ensure model changes do not cause
+        // crashes
+        ModelMeta::flushModelCache();
 
         $task->run($max_time);
         if (!$task->isFinished()) {
@@ -392,6 +362,10 @@ class StreamUpgrader extends SetupWizard {
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 300; //Apache/IIS defaults.
 
+        // Drop any model meta cache to ensure model changes do not cause
+        // crashes
+        ModelMeta::flushModelCache();
+
         // Apply up to five patches at a time
         foreach (array_slice($patches, 0, 5) as $patch) {
             //TODO: check time used vs. max execution - break if need be
@@ -405,11 +379,11 @@ class StreamUpgrader extends SetupWizard {
             $shash = substr($phash, 9, 8);
 
             //Log the patch info
-            $logMsg = "Patch $phash applied successfully ";
+            $logMsg = sprintf(_S("Patch %s applied successfully"), $phash);
             if(($info = $this->readPatchInfo($patch)) && $info['version'])
                 $logMsg.= ' ('.$info['version'].') ';
 
-            $this->log("Upgrader - $shash applied", $logMsg);
+            $this->log(sprintf(_S("Upgrader - %s applied"), $shash), $logMsg);
             $this->signature = $shash; //Update signature to the *new* HEAD
             $this->phash = $phash;
 
@@ -450,12 +424,12 @@ class StreamUpgrader extends SetupWizard {
 
         //We have a cleanup script  ::XXX: Don't abort on error?
         if($this->load_sql_file($file, $this->getTablePrefix(), false, true)) {
-            $this->log("Upgrader - {$this->phash} cleanup",
-                "Applied cleanup script {$file}");
+            $this->log(sprintf(_S("Upgrader - %s cleanup"), $this->phash),
+                sprintf(_S("Applied cleanup script %s"), $file));
             return 0;
         }
 
-        $this->log('Upgrader', sprintf("%s: Unable to process cleanup file",
+        $this->log(_S('Upgrader'), sprintf(_S("%s: Unable to process cleanup file"),
                         $this->phash));
         return 0;
     }

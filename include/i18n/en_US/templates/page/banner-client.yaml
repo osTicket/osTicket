@@ -1,0 +1,12 @@
+#
+# banner-client.yaml
+#
+# This forms the header on the staff login page. It can be useful to inform
+# your clients about your login and registration policies.
+---
+notes: >
+    This composes the header on the Client Log In page. It can be useful to
+    inform your Clients about your log in and registration policies.
+name: "Sign in to %{company.name}"
+body: >
+    To better serve you, we encourage our Clients to register for an account.

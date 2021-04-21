@@ -156,21 +156,9 @@ UPDATE `%TABLE_PREFIX%canned_response`
         '>', '&gt;'),
         '\n', '<br/>');
 
--- Migrate ticket-thread to HTML
--- XXX: Migrate & -> &amp; ? -- the problem is that there's a fix in 1.7.1
--- that properly encodes these characters, so encoding & would mean possible
--- double encoding.
-UPDATE `%TABLE_PREFIX%ticket_thread`
-    SET `body` = REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( REPLACE( REPLACE(
-        `body`,
-        '\r', ''),
-        '\n ', '\n'),
-        '\n\n\n', '\n\n'),
-        '\n\n\n', '\n\n'),
-        '\n\n\n', '\n\n'),
-        '<', '&lt;'),
-        '>', '&gt;'),
-        '\n', '<br/>');
+-- Mark all thread entries as text
+ALTER TABLE `%TABLE_PREFIX%ticket_thread`
+  ADD `format` varchar(16) NOT NULL default 'text' AFTER `body`;
 
 -- Finished with patch
 UPDATE `%TABLE_PREFIX%config`

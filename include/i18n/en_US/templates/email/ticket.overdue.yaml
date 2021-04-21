@@ -14,7 +14,7 @@ notes: |
 subject: |
     Stale Ticket Alert
 body: |
-    <h3><strong>Hi %{recipient}</strong>,</h3>
+    <h3><strong>Hi %{recipient.name}</strong>,</h3>
     A ticket, <a href="%{ticket.staff_link}">#%{ticket.number}</a> is
     seriously overdue.
     <br>

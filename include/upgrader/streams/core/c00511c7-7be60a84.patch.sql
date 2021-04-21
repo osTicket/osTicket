@@ -96,6 +96,7 @@ INSERT INTO `%TABLE_PREFIX%sla` (`isactive`, `enable_priority_escalation`,
     VALUES (1, 1, 0, 48, 'Default SLA', NULL, NOW(), NOW());
 
 -- Create a TEAM table
+DROP TABLE IF EXISTS `%TABLE_PREFIX%team`;
 CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%team` (
     `team_id` int(10) unsigned NOT NULL auto_increment,
     `lead_id` int(10) unsigned NOT NULL default '0',
@@ -282,6 +283,7 @@ ALTER TABLE `%TABLE_PREFIX%kb_premade`
   ADD `notes` TEXT NOT NULL AFTER `response`,
   DROP INDEX `title`;
 
+DROP TABLE IF EXISTS `%TABLE_PREFIX%canned_response`;
 ALTER TABLE `%TABLE_PREFIX%kb_premade` RENAME TO `%TABLE_PREFIX%canned_response`;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%faq_category`;

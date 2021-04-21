@@ -2,34 +2,20 @@
 <?php
 if (php_sapi_name() != 'cli') exit();
 
+//Allow user to select suite
+$selected_test = (isset($argv[1])) ? $argv[1] : false;
+
+require_once 'bootstrap.php';
 require_once "tests/class.test.php";
 
-if (!function_exists('get_osticket_root_path')) {
-    function get_osticket_root_path() {
-        # Hop up to the root folder
-        $start = dirname(__file__);
-        for (;;) {
-            if (file_exists($start . '/main.inc.php')) break;
-            $start .= '/..';
-        }
-        return realpath($start);
-    }
-}
 $root = get_osticket_root_path();
-
-if (!function_exists('glob_recursive')) {
-    # Check PHP syntax across all php files
-    function glob_recursive($pattern, $flags = 0) {
-        $files = glob($pattern, $flags);
-        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-            $files = array_merge($files,
-                glob_recursive($dir.'/'.basename($pattern), $flags));
-        }
-        return $files;
-    }
-}
-
 $fails = array();
+
+require_once INCLUDE_DIR . 'class.i18n.php';
+Internationalization::bootstrap();
+
+require_once INCLUDE_DIR . 'class.signal.php';
+require_once INCLUDE_DIR . 'class.search.php';
 
 function show_fails() {
     global $fails, $root;
@@ -57,9 +43,11 @@ if (function_exists('pcntl_signal')) {
 foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     if (strpos($t,"class.") !== false)
         continue;
-    $class = (include $t);
+    $class = @(include $t);
     if (!is_string($class))
         continue;
+    if($selected_test && ($class != $selected_test))
+    	continue;
     $test = new $class();
     echo "Running: " . $test->name . "\n";
     $test->run();

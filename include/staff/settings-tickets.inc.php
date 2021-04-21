@@ -3,36 +3,127 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 if(!($maxfileuploads=ini_get('max_file_uploads')))
     $maxfileuploads=DEFAULT_MAX_FILE_UPLOADS;
 ?>
-<h2>Ticket Settings and Options</h2>
-<form action="settings.php?t=tickets" method="post" id="save">
+<h2><?php echo __('Ticket Settings and Options');?></h2>
+<form action="settings.php?t=tickets" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="tickets" >
+
+<ul class="clean tabs">
+    <li class="active"><a href="#settings"><i class="icon-asterisk"></i>
+        <?php echo __('Settings'); ?></a></li>
+    <li><a href="#autoresp"><i class="icon-mail-reply-all"></i>
+        <?php echo __('Autoresponder'); ?></a></li>
+    <li><a href="#alerts"><i class="icon-bell-alt"></i>
+        <?php echo __('Alerts and Notices'); ?></a></li>
+    <li><a href="#queues"><i class="icon-table"></i>
+        <?php echo __('Queues'); ?></a></li>
+</ul>
+<div class="tab_content" id="settings">
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4>Ticket Settings</h4>
-                <em>Global ticket settings and options.</em>
+                <em><?php echo __('System-wide default ticket settings and options.'); ?></em>
             </th>
         </tr>
     </thead>
     <tbody>
-        <tr><td width="220" class="required">Ticket IDs:</td>
+        <tr>
             <td>
-                <input type="radio" name="random_ticket_ids"  value="0" <?php echo !$config['random_ticket_ids']?'checked="checked"':''; ?> />
-                Sequential
-                <input type="radio" name="random_ticket_ids"  value="1" <?php echo $config['random_ticket_ids']?'checked="checked"':''; ?> />
-                Random  <em>(highly recommended)</em>
+                <?php echo __('Default Ticket Number Format'); ?>:
+            </td>
+            <td>
+                <input type="text" name="ticket_number_format" value="<?php
+                echo $config['ticket_number_format']; ?>"/>
+                <span class="faded"><?php echo __('e.g.'); ?> <span id="format-example"><?php
+                    if ($config['ticket_sequence_id'])
+                        $seq = Sequence::lookup($config['ticket_sequence_id']);
+                    if (!isset($seq))
+                        $seq = new RandomSequence();
+                    echo $seq->current($config['ticket_number_format']);
+                    ?></span></span>
+                <i class="help-tip icon-question-sign" href="#number_format"></i>
+                <div class="error"><?php echo $errors['ticket_number_format']; ?></div>
             </td>
         </tr>
-
+        <tr><td width="220"><?php echo __('Default Ticket Number Sequence'); ?>:</td>
+<?php $selected = 'selected="selected"'; ?>
+            <td>
+                <select name="ticket_sequence_id">
+                <option value="0" <?php if ($config['ticket_sequence_id'] == 0) echo $selected;
+                    ?>>&mdash; <?php echo __('Random'); ?> &mdash;</option>
+<?php foreach (Sequence::objects() as $s) { ?>
+                <option value="<?php echo $s->id; ?>" <?php
+                    if ($config['ticket_sequence_id'] == $s->id) echo $selected;
+                    ?>><?php echo $s->name; ?></option>
+<?php } ?>
+                </select>
+                <button class="action-button pull-right" onclick="javascript:
+                $.dialog('ajax.php/sequence/manage', 205);
+                return false;
+                "><i class="icon-gear"></i> <?php echo __('Manage'); ?></button>
+                <i class="help-tip icon-question-sign" href="#sequence_id"></i>
+            </td>
+        </tr>
+        <tr><td width="220"><?php echo __('Top-Level Ticket Counts'); ?>:</td>
+            <td>
+                <input type="checkbox" name="queue_bucket_counts" <?php echo $config['queue_bucket_counts']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#queue_bucket_counts"></i>
+            </td>
+        </tr>
         <tr>
             <td width="180" class="required">
-                Default SLA:
+                <?php echo __('Default Status'); ?>:
             </td>
             <td>
+                <span>
+                <select name="default_ticket_status_id">
+                <?php
+                $criteria = array('states' => array('open'));
+                foreach (TicketStatusList::getStatuses($criteria) as $status) {
+                    $name = $status->getName();
+                    if (!($isenabled = $status->isEnabled()))
+                        $name.=' '.__('(disabled)');
+
+                    echo sprintf('<option value="%d" %s %s>%s</option>',
+                            $status->getId(),
+                            ($config['default_ticket_status_id'] ==
+                             $status->getId() && $isenabled)
+                             ? 'selected="selected"' : '',
+                             $isenabled ? '' : 'disabled="disabled"',
+                             $name
+                            );
+                }
+                ?>
+                </select>
+                &nbsp;
+                <span class="error">*&nbsp;<?php echo $errors['default_ticket_status_id']; ?></span>
+                <i class="help-tip icon-question-sign" href="#default_ticket_status"></i>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td width="180" class="required"><?php echo __('Default Priority');?>:</td>
+            <td>
+                <select name="default_priority_id">
+                    <?php
+                    $priorities= db_query('SELECT priority_id,priority_desc FROM '.TICKET_PRIORITY_TABLE);
+                    while (list($id,$tag) = db_fetch_row($priorities)){ ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($config['default_priority_id']==$id)?'selected':''; ?>><?php echo $tag; ?></option>
+                    <?php
+                    } ?>
+                </select>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
+             </td>
+        </tr>
+        <tr>
+            <td width="180" class="required">
+                <?php echo __('Default SLA');?>:
+            </td>
+            <td>
+                <span>
                 <select name="default_sla_id">
-                    <option value="0">&mdash; None &mdash;</option>
+                    <option value="0">&mdash; <?php echo __('None');?> &mdash;</option>
                     <?php
                     if($slas=SLA::getSLAs()) {
                         foreach($slas as $id => $name) {
@@ -44,219 +135,167 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
+                </span>
             </td>
         </tr>
         <tr>
-            <td width="180" class="required">Default Priority:</td>
+            <td width="180"><?php echo __('Default Help Topic'); ?>:</td>
             <td>
-                <select name="default_priority_id">
-                    <?php
-                    $priorities= db_query('SELECT priority_id,priority_desc FROM '.TICKET_PRIORITY_TABLE);
-                    while (list($id,$tag) = db_fetch_row($priorities)){ ?>
-                        <option value="<?php echo $id; ?>"<?php echo ($config['default_priority_id']==$id)?'selected':''; ?>><?php echo $tag; ?></option>
+                <select name="default_help_topic">
+                    <option value="0">&mdash; <?php echo __('None'); ?> &mdash;</option><?php
+                    $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+                    while (list($id,$topic) = each($topics)) { ?>
+                        <option value="<?php echo $id; ?>"<?php echo ($config['default_help_topic']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
                     <?php
                     } ?>
-                </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span>
-             </td>
+                </select><br/>
+                <span class="error"><?php echo $errors['default_help_topic']; ?></span>
+            </td>
         </tr>
         <tr>
-            <td>Maximum <b>Open</b> Tickets:</td>
+            <td width="180"><?php echo __('Lock Semantics'); ?>:</td>
+            <td>
+                <select name="ticket_lock" <?php if ($cfg->getLockTime() == 0) echo 'disabled="disabled"'; ?>>
+<?php foreach (array(
+    Lock::MODE_DISABLED => __('Disabled'),
+    Lock::MODE_ON_VIEW => __('Lock on view'),
+    Lock::MODE_ON_ACTIVITY => __('Lock on activity'),
+) as $v => $desc) { ?>
+                <option value="<?php echo $v; ?>" <?php
+                    if ($config['ticket_lock'] == $v) echo 'selected="selected"';
+                    ?>><?php echo $desc; ?></option>
+<?php } ?>
+                </select>
+                <div class="error"><?php echo $errors['ticket_lock']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <?php echo __('Default Ticket Queue'); ?>:
+            </td>
+            <td>
+                <select name="default_ticket_queue">
+<?php foreach (CustomQueue::queues() as $cq) {
+?>
+                  <option value="<?php echo $cq->id; ?>"
+            <?php if ($cq->getId() == $config['default_ticket_queue']) echo 'selected="selected"'; ?>
+            ><?php echo $cq->getFullName(); ?></option>
+<?php } ?>
+                </select>
+                <i class="help-tip icon-question-sign" href="#default_ticket_queue"></i>
+                <div class="error"><?php echo $errors['default_ticket_queue']; ?></div>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Maximum <b>Open</b> Tickets');?>:</td>
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
-                per email/user. <em>(Helps with spam and email flood control - enter 0 for unlimited)</em>
+                <?php echo __('per end user'); ?>
+                <span class="error">*&nbsp;<?php echo $errors['max_open_tickets']; ?></span>
+                <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
         <tr>
-            <td>Ticket Auto-lock Time:</td>
-            <td>
-                <input type="text" name="autolock_minutes" size=4 value="<?php echo $config['autolock_minutes']; ?>">
-                <font class="error"><?php echo $errors['autolock_minutes']; ?></font>
-                <em>(Minutes to lock a ticket on activity - enter 0 to disable locking)</em>
-            </td>
-        </tr>
-        <tr>
-                    <td width="180">Emailed Tickets Priority:</td>
-                    <td>
-                        <input type="checkbox" name="use_email_priority" value="1" <?php echo $config['use_email_priority'] ?'checked="checked"':''; ?> >
-                        <em>(Use email priority when available)</em>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Show Related Tickets:</td>
-            <td>
-                <input type="checkbox" name="show_related_tickets" value="1" <?php echo $config['show_related_tickets'] ?'checked="checked"':''; ?> >
-                <em>(Show all related tickets on user login - otherwise access is restricted to one ticket view per login)</em>
-            </td>
-        </tr>
-        <tr>
-            <td>Human Verification:</td>
+            <td><?php echo __('Human Verification');?>:</td>
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
-                Enable CAPTCHA on new web tickets.<em>(requires GDLib)</em> &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font><br/>
+                <?php echo __('Enable CAPTCHA on new web tickets.');?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>
+                &nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
             </td>
         </tr>
         <tr>
-            <td>Claim Tickets:</td>
+            <td><?php echo __('Collaborator Tickets Visibility'); ?>:</td>
+            <td>
+                <input type="checkbox" name="collaborator_ticket_visibility" <?php echo $config['collaborator_ticket_visibility']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#collaborator_ticket_visibility"></i>
+            </td>
+        </tr>
+        <tr>
+            <td><?php echo __('Claim on Response'); ?>:</td>
             <td>
                 <input type="checkbox" name="auto_claim_tickets" <?php echo $config['auto_claim_tickets']?'checked="checked"':''; ?>>
-                Auto-assign unassigned tickets on response
-                <!-- Help Tip:
-                     Reopened tickets are always assigned to the last respondent -->
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#claim_tickets"></i>
             </td>
         </tr>
         <tr>
-            <td>Assigned Tickets:</td>
+            <td><?php echo __('Auto-refer on Close'); ?>:</td>
             <td>
-                <input type="checkbox" name="show_assigned_tickets" <?php echo $config['show_assigned_tickets']?'checked="checked"':''; ?>>
-                Show assigned tickets on open queue.
+                <input type="checkbox" name="auto_refer_closed" <?php echo $config['auto_refer_closed']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip
+                icon-question-sign" href="#auto_refer"></i>
             </td>
         </tr>
         <tr>
-            <td>Answered Tickets:</td>
+            <td><?php echo __('Require Help Topic to Close'); ?>:</td>
             <td>
-                <input type="checkbox" name="show_answered_tickets" <?php echo $config['show_answered_tickets']?'checked="checked"':''; ?>>
-                Show answered tickets on open queue.
+                <input type="checkbox" name="require_topic_to_close" <?php echo $config['require_topic_to_close']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#require_topic_to_close"></i>
             </td>
         </tr>
         <tr>
-            <td>Staff Identity Masking:</td>
+            <td><?php echo __('Allow External Images'); ?>:</td>
             <td>
-                <input type="checkbox" name="hide_staff_name" <?php echo $config['hide_staff_name']?'checked="checked"':''; ?>>
-                Hide staff's name on responses.
-            </td>
-        </tr>
-        <tr>
-            <td>Enable HTML Ticket Thread:</td>
-            <td>
-                <input type="checkbox" name="enable_html_thread" <?php
-                echo $config['enable_html_thread']?'checked="checked"':''; ?>>
-                Enable rich text in ticket thread and autoresponse emails
+                <input type="checkbox" name="allow_external_images" <?php echo $config['allow_external_images']?'checked="checked"':''; ?>>
+                <?php echo __('Enable'); ?>&nbsp;<i class="help-tip icon-question-sign" href="#allow_external_images"></i>
             </td>
         </tr>
         <tr>
             <th colspan="2">
-                <em><b>Attachments</b>:  Size and max. uploads setting mainly apply to web tickets.</em>
+                <em><b><?php echo __('Attachments');?></b>:  <?php echo __('Size and maximum uploads setting mainly apply to web tickets.');?></em>
             </th>
         </tr>
         <tr>
-            <td width="180">Allow Attachments:</td>
+            <td width="180"><?php echo __('Ticket Attachment Settings');?>:</td>
             <td>
-              <input type="checkbox" name="allow_attachments" <?php echo $config['allow_attachments']?'checked="checked"':''; ?>><b>Allow Attachments</b>
-                &nbsp; <em>(Global Setting)</em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_attachments']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Emailed/API Attachments:</td>
-            <td>
-                <input type="checkbox" name="allow_email_attachments" <?php echo $config['allow_email_attachments']?'checked="checked"':''; ?>> Accept emailed/API attachments.
-                    &nbsp;<font class="error">&nbsp;<?php echo $errors['allow_email_attachments']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Online/Web Attachments:</td>
-            <td>
-                <input type="checkbox" name="allow_online_attachments" <?php echo $config['allow_online_attachments']?'checked="checked"':''; ?> >
-                    Allow web upload &nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="checkbox" name="allow_online_attachments_onlogin" <?php echo $config['allow_online_attachments_onlogin'] ?'checked="checked"':''; ?> >
-                    Limit to authenticated users only. <em>(User must be logged in to upload files)</em>
-                    <font class="error">&nbsp;<?php echo $errors['allow_online_attachments']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td>Max. User File Uploads:</td>
-            <td>
-                <select name="max_user_file_uploads">
-                    <?php
-                    for($i = 1; $i <=$maxfileuploads; $i++) {
-                        ?>
-                        <option <?php echo $config['max_user_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo $i; ?>&nbsp;<?php echo ($i>1)?'files':'file'; ?></option>
-                        <?php
-                    } ?>
-                </select>
-                <em>(Number of files the user is allowed to upload simultaneously)</em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['max_user_file_uploads']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td>Max. Staff File Uploads:</td>
-            <td>
-                <select name="max_staff_file_uploads">
-                    <?php
-                    for($i = 1; $i <=$maxfileuploads; $i++) {
-                        ?>
-                        <option <?php echo $config['max_staff_file_uploads']==$i?'selected="selected"':''; ?> value="<?php echo $i; ?>">
-                            <?php echo $i; ?>&nbsp;<?php echo ($i>1)?'files':'file'; ?></option>
-                        <?php
-                    } ?>
-                </select>
-                <em>(Number of files the staff is allowed to upload simultaneously)</em>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['max_staff_file_uploads']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Maximum File Size:</td>
-            <td>
-                <select name="max_file_size">
-                    <option value="262144">&mdash; Small &mdash;</option>
-                    <?php $next = 512 << 10;
-                    $max = strtoupper(ini_get('upload_max_filesize'));
-                    $limit = (int) $max;
-                    if (!$limit) $limit = 2 << 20; # 2M default value
-                    elseif (strpos($max, 'K')) $limit <<= 10;
-                    elseif (strpos($max, 'M')) $limit <<= 20;
-                    elseif (strpos($max, 'G')) $limit <<= 30;
-                    while ($next <= $limit) {
-                        // Select the closest, larger value (in case the
-                        // current value is between two)
-                        $diff = $next - $config['max_file_size'];
-                        $selected = ($diff >= 0 && $diff < $next / 2)
-                            ? 'selected="selected"' : ''; ?>
-                        <option value="<?php echo $next; ?>" <?php echo $selected;
-                             ?>><?php echo Format::file_size($next);
-                             ?></option><?php
-                        $next *= 2;
-                    }
-                    // Add extra option if top-limit in php.ini doesn't fall
-                    // at a power of two
-                    if ($next < $limit * 2) {
-                        $selected = ($limit == $config['max_file_size'])
-                            ? 'selected="selected"' : ''; ?>
-                        <option value="<?php echo $limit; ?>" <?php echo $selected;
-                             ?>><?php echo Format::file_size($limit);
-                             ?></option><?php
-                    }
-                    ?>
-                </select>
-                <font class="error">&nbsp;<?php echo $errors['max_file_size']; ?></font>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">Ticket Response Files:</td>
-            <td>
-                <input type="checkbox" name="email_attachments" <?php echo $config['email_attachments']?'checked="checked"':''; ?> >Email attachments to the user
-            </td>
-        </tr>
-        <tr>
-            <th colspan="2">
-                <em><strong>Accepted File Types</strong>: Limit the type of files users are allowed to submit.
-                <font class="error">&nbsp;<?php echo $errors['allowed_filetypes']; ?></font></em>
-            </th>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <em>Enter allowed file extensions separated by a comma. e.g .doc, .pdf. To accept all files enter wildcard <b><i>.*</i></b>&nbsp;i.e dotStar (NOT Recommended).</em><br>
-                <textarea name="allowed_filetypes" cols="21" rows="4" style="width: 65%;" wrap="hard" ><?php echo $config['allowed_filetypes']; ?></textarea>
+<?php
+                $tform = TicketForm::objects()->one()->getForm();
+                $f = $tform->getField('message');
+?>
+                <a class="action-button field-config" style="overflow:inherit"
+                    href="#ajax.php/form/field-config/<?php
+                        echo $f->get('id'); ?>"
+                    onclick="javascript:
+                        $.dialog($(this).attr('href').substr(1), [201]);
+                        return false;
+                    "><i class="icon-edit"></i> <?php echo __('Config'); ?></a>
+                <i class="help-tip icon-question-sign" href="#ticket_attachment_settings"></i>
             </td>
         </tr>
     </tbody>
 </table>
-<p style="padding-left:250px;">
-    <input class="button" type="submit" name="submit" value="Save Changes">
-    <input class="button" type="reset" name="reset" value="Reset Changes">
+</div>
+<div class="hidden tab_content" id="autoresp"
+    data-tip-namespace="settings.autoresponder">
+    <?php include STAFFINC_DIR . 'settings-autoresp.inc.php'; ?>
+</div>
+<div class="hidden tab_content" id="alerts"
+    data-tip-namespace="settings.alerts">
+    <?php include STAFFINC_DIR . 'settings-alerts.inc.php'; ?>
+</div>
+
+<div class="hidden tab_content" id="queues">
+    <?php include STAFFINC_DIR . 'queues-ticket.inc.php'; ?>
+</div>
+
+<p style="text-align:center;">
+    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes');?>">
+    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes');?>">
 </p>
 </form>
-
+<script type="text/javascript">
+$(function() {
+    var request = null,
+      update_example = function() {
+      request && request.abort();
+      request = $.get('ajax.php/sequence/'
+        + $('[name=ticket_sequence_id] :selected').val(),
+        {'format': $('[name=ticket_number_format]').val()},
+        function(data) { $('#format-example').text(data); }
+      );
+    };
+    $('[name=ticket_sequence_id]').on('change', update_example);
+    $('[name=ticket_number_format]').on('keyup', update_example);
+});
+</script>

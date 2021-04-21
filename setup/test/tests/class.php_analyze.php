@@ -73,13 +73,19 @@ class SourceAnalyzer extends Test {
         $scope = array();
         while ($token != "{") {
             list(,$token) = each($this->tokens);
-            if (!is_array($token)
-                    || $token[0] == T_WHITESPACE)
-                continue;
-            if ($token[0] == T_STRING)
+            switch ($token[0]) {
+            case T_WHITESPACE:
+                continue 2;
+            case T_STRING:
                 $function['name'] = $token[1];
-            elseif ($token[0] == T_VARIABLE)
+                break;
+            case T_VARIABLE:
                 $scope[$token[1]] = 1;
+                break;
+            case ';':
+                // Abstract function -- no body will follow
+                return;
+            }
         }
         // Start inside a block -- we've already consumed the {
         $this->checkVariableUsage($function, $scope, 1, $options);
@@ -195,11 +201,10 @@ class SourceAnalyzer extends Test {
                 // PHP does not automatically nest scopes. Variables
                 // available inside the closure must be explictly defined.
                 // Therefore, there is no need to pass the current scope.
-                // However, $this is not allowed inside inline functions
-                // unless declared in the use () parameters.
+                // As of PHP 5.4, $this is added to the closure automatically
                 $this->traverseFunction(
                     array($token[2], $function['file']),
-                    array('allow_this'=>false));
+                    array('allow_this'=>true));
                 break;
             case T_STATIC:
                 $c = current($this->tokens);

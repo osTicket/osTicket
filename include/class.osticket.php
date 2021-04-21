@@ -20,6 +20,8 @@
 
 require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
 require_once(INCLUDE_DIR.'class.migrater.php');
+require_once(INCLUDE_DIR.'class.plugin.php');
+require_once INCLUDE_DIR . 'class.message.php';
 
 define('LOG_WARN',LOG_WARNING);
 
@@ -41,24 +43,29 @@ class osTicket {
 
     var $title; //Custom title. html > head > title.
     var $headers;
+    var $pjax_extra;
 
     var $config;
     var $session;
     var $csrf;
     var $company;
+    var $plugins;
 
-    function osTicket() {
+    function __construct() {
 
         require_once(INCLUDE_DIR.'class.config.php'); //Config helper
         require_once(INCLUDE_DIR.'class.company.php');
 
-        $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
+        if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
+            $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
 
         $this->config = new OsticketConfig();
 
         $this->csrf = new CSRF('__CSRFToken__');
 
         $this->company = new Company();
+
+        $this->plugins = new PluginManager();
     }
 
     function isSystemOnline() {
@@ -105,18 +112,17 @@ class osTicket {
         return ($token && $this->getCSRF()->validateToken($token));
     }
 
-    function checkCSRFToken($name='') {
-
-        $name = $name?$name:$this->getCSRF()->getTokenName();
-        if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
+    function checkCSRFToken($name=false, $rotate=false) {
+        $name = $name ?: $this->getCSRF()->getTokenName();
+        $token = $_POST[$name] ?: $_SERVER['HTTP_X_CSRFTOKEN'];
+        if ($token && $this->validateCSRFToken($token)) {
+            if ($rotate) $this->getCSRF()->rotate();
             return true;
+        }
 
-        if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
-            return true;
-
-        $msg=sprintf('Invalid CSRF token [%s] on %s',
-                ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
-        $this->logWarning('Invalid CSRF Token '.$name, $msg, false);
+        $msg=sprintf(__('Invalid CSRF token [%1$s] on %2$s'),
+                Format::htmlchars($token), THISPAGE);
+        $this->logWarning(__('Invalid CSRF Token').' '.$name, $msg, false);
 
         return false;
     }
@@ -127,24 +133,6 @@ class osTicket {
 
     function validateLinkToken($token) {
             return ($token && !strcasecmp($token, $this->getLinkToken()));
-    }
-
-    function isFileTypeAllowed($file, $mimeType='') {
-
-        if(!$file || !($allowedFileTypes=$this->getConfig()->getAllowedFileTypes()))
-            return false;
-
-        //Return true if all file types are allowed (.*)
-        if(trim($allowedFileTypes)=='.*') return true;
-
-        $allowed = array_map('trim', explode(',', strtolower($allowedFileTypes)));
-        $filename = is_array($file)?$file['name']:$file;
-
-        $ext = strtolower(preg_replace("/.*\.(.{3,4})$/", "$1", $filename));
-
-        //TODO: Check MIME type - file ext. shouldn't be solely trusted.
-
-        return ($ext && is_array($allowed) && in_array(".$ext", $allowed));
     }
 
     /* Replace Template Variables */
@@ -159,12 +147,23 @@ class osTicket {
         return $replacer->replaceVars($input);
     }
 
-    function addExtraHeader($header) {
+    static function getVarScope() {
+        return array(
+            'url' => __("osTicket's base url (FQDN)"),
+            'company' => array('class' => 'Company', 'desc' => __('Company Information')),
+        );
+    }
+
+    function addExtraHeader($header, $pjax_script=false) {
         $this->headers[md5($header)] = $header;
+        $this->pjax_extra[md5($header)] = $pjax_script;
     }
 
     function getExtraHeaders() {
         return $this->headers;
+    }
+    function getExtraPjax() {
+        return $this->pjax_extra;
     }
 
     function setPageTitle($title) {
@@ -236,9 +235,9 @@ class osTicket {
             $email=$this->getConfig()->getDefaultEmail(); //will take the default email.
 
         if($email) {
-            $email->sendAlert($to, $subject, $message, null, array('text'=>true));
+            $email->sendAlert($to, $subject, $message, null, array('text'=>true, 'reply-tag'=>false));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, sprintf('"osTicket Alerts"<%s>',$to));
+            Mailer::sendmail($to, $subject, $message, '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
@@ -269,8 +268,13 @@ class osTicket {
             $alert =false;
 
         $e = new Exception();
-        $bt = str_replace(ROOT_DIR, '(root)/', $e->getTraceAsString());
-        $error .= nl2br("\n\n---- Backtrace ----\n".$bt);
+        $bt = str_replace(ROOT_DIR, _S(/* `root` is a root folder */ '(root)').'/',
+            $e->getTraceAsString());
+        $error .= nl2br("\n\n---- "._S('Backtrace')." ----\n".$bt);
+
+        // Prevent recursive loops through this code path
+        if (substr_count($bt, __FUNCTION__) > 1)
+            return;
 
         return $this->log(LOG_ERR, $title, $error, $alert);
     }
@@ -296,16 +300,26 @@ class osTicket {
                 $level=3; //Debug
         }
 
+        $loglevel=array(1=>'Error','Warning','Debug');
+
+        $info = array(
+            'title' => &$title,
+            'level' => $loglevel[$level],
+            'level_id' => $level,
+            'body' => &$message,
+        );
+        Signal::send('syslog', null, $info);
+
         //Logging everything during upgrade.
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
 
         //Alert admin if enabled...
-        if($alert && $this->getConfig()->getLogLevel() >= $level)
+        $alert = $alert && !$this->isUpgradePending();
+        if ($alert && $this->getConfig()->getLogLevel() >= $level)
             $this->alertAdmin($title, $message);
 
         //Save log based on system log level settings.
-        $loglevel=array(1=>'Error','Warning','Debug');
         $sql='INSERT INTO '.SYSLOG_TABLE.' SET created=NOW(), updated=NOW() '
             .',title='.db_input(Format::sanitize($title, true))
             .',log_type='.db_input($loglevel[$level])
@@ -361,6 +375,106 @@ class osTicket {
         return null;
     }
 
+    /**
+     * Fetch the current version(s) of osTicket softwares via DNS. The
+     * constants of MAJOR_VERSION, THIS_VERSION, and GIT_VERSION will be
+     * consulted to arrive at the most relevant version code for the latest
+     * release.
+     *
+     * Parameters:
+     * $product - (string|default:'core') the product to fetch versions for
+     * $major - (string|optional) optional major version to compare. This is
+     *      useful if more than one version is available. Only versions
+     *      specifying this major version ('m') are considered as version
+     *      candidates.
+     *
+     * Dns:
+     * The DNS zone will have TXT records for the product will be published
+     * in this format:
+     *
+     * "v=1; m=1.9; V=1.9.11; c=deadbeef"
+     *
+     * Where the string is a semicolon-separated string of key/value pairs
+     * with the following meanings:
+     *
+     * --+--------------------------
+     * v | DNS record format version
+     *
+     * For v=1, this is the meaning of the other keys
+     * --+-------------------------------------------
+     * m | (optional) major product version
+     * V | Full product version (usually a git tag)
+     * c | Git commit id of the release tag
+     * s | Schema signature of the version, which might help detect
+     *   | required migration
+     *
+     * Returns:
+     * (string|bool|null)
+     *  - 'v1.9.11' or 'deadbeef' if release tag or git commit id seems to
+     *      be most appropriate based on the value of GIT_VERSION
+     *  - null if the $major version is no longer supported
+     *  - false if no information is available in DNS
+     */
+     function getLatestVersion($product='core', $major=null) {
+        $records = dns_get_record($product.'.updates.osticket.com', DNS_TXT);
+        if (!$records)
+            return false;
+
+        $versions = array();
+        foreach ($records as $r) {
+            $txt = $r['txt'];
+            $info = array();
+            foreach (explode(';', $r['txt']) as $kv) {
+                list($k, $v) = explode('=', $kv);
+                if (!($k = trim($k)))
+                    continue;
+                $info[$k] = trim($v);
+            }
+            $versions[] = $info;
+        }
+        foreach ($versions as $info) {
+            switch ($info['v']) {
+            case '1':
+                if ($major && $info['m'] && $info['m'] != $major)
+                    continue 2;
+                if ($product == 'core' && GIT_VERSION == '$git')
+                    return $info['c'];
+                return $info['V'];
+            }
+        }
+    }
+
+   /*
+    * getTrustedProxies
+    *
+    * Get defined trusted proxies
+    */
+
+    static function getTrustedProxies() {
+        static $proxies = null;
+        // Parse trusted proxies from config file
+        if (!isset($proxies) && defined('TRUSTED_PROXIES'))
+            $proxies = array_filter(
+                    array_map('trim', explode(',', TRUSTED_PROXIES)));
+
+        return $proxies ?: array();
+    }
+
+    /*
+     * getLocalNetworkAddresses
+     *
+     * Get defined local network addresses
+     */
+    static function getLocalNetworkAddresses() {
+        static $ips = null;
+        // Parse local addreses from config file
+        if (!isset($ips) && defined('LOCAL_NETWORKS'))
+            $ips = array_filter(
+                    array_map('trim', explode(',', LOCAL_NETWORKS)));
+
+        return $ips ?: array();
+    }
+
     static function get_root_path($dir) {
 
         /* If run from the commandline, DOCUMENT_ROOT will not be set. It is
@@ -397,23 +511,119 @@ class osTicket {
         $file = str_replace('\\','/', $frame['file']);
         $path = substr($file, strlen(ROOT_DIR));
         if($path && ($pos=strpos($_SERVER['SCRIPT_NAME'], $path))!==false)
-            return substr($_SERVER['SCRIPT_NAME'], 0, $pos);
+            return ($pos) ? substr($_SERVER['SCRIPT_NAME'], 0, $pos) : '/';
+
+        if (self::is_cli())
+            return '/';
 
         return null;
+    }
+
+    /*
+     * get_client_ip
+     *
+     * Get client IP address from "Http_X-Forwarded-For" header by following a
+     * chain of trusted proxies.
+     *
+     * "Http_X-Forwarded-For" header value is a comma+space separated list of IP
+     * addresses, the left-most being the original client, and each successive
+     * proxy that passed the request all the way to the originating IP address.
+     *
+     */
+    static function get_client_ip($header='HTTP_X_FORWARDED_FOR') {
+
+        // Request IP
+        $ip = $_SERVER['REMOTE_ADDR'];
+        // Trusted proxies.
+        $proxies = self::getTrustedProxies();
+        // Return current IP address if header is not set and
+        // request is not from a trusted proxy.
+        if (!isset($_SERVER[$header])
+                || !$proxies
+                || !self::is_trusted_proxy($ip, $proxies))
+            return $ip;
+
+        // Get chain of proxied ip addresses
+        $ips = array_map('trim', explode(',', $_SERVER[$header]));
+        // Add request IP to the chain
+        $ips[] = $ip;
+        // Walk the chain in reverse - remove invalid IPs
+        $ips = array_reverse($ips);
+        foreach ($ips as $k => $ip) {
+            // Make sure the IP is valid and not a trusted proxy
+            if ($k && !Validator::is_ip($ip))
+                unset($ips[$k]);
+            elseif ($k && !self::is_trusted_proxy($ip, $proxies))
+                return $ip;
+        }
+
+        // We trust the 400 lb hacker... return left most valid IP
+        return array_pop($ips);
+    }
+
+    /*
+     * Checks if the IP is that of a trusted proxy
+     *
+     */
+    static function is_trusted_proxy($ip, $proxies=array()) {
+        $proxies = $proxies ?: self::getTrustedProxies();
+        // We don't have any proxies set.
+        if (!$proxies)
+            return false;
+        // Wildcard set - trust all proxies
+        else if ($proxies == '*')
+            return true;
+
+        return ($proxies && Validator::check_ip($ip, $proxies));
+    }
+
+    /**
+     * is_local_ip
+     *
+     * Check if a given IP is part of defined local address blocks
+     *
+     */
+    static function is_local_ip($ip, $ips=array()) {
+        $ips = $ips
+            ?: self::getLocalNetworkAddresses()
+            ?: array();
+
+        foreach ($ips as $addr) {
+            if (Validator::check_ip($ip, $addr))
+                return true;
+        }
+
+        return false;
     }
 
     /**
      * Returns TRUE if the request was made via HTTPS and false otherwise
      */
     function is_https() {
-        return (isset($_SERVER['HTTPS'])
+
+        // Local server flags
+        if (isset($_SERVER['HTTPS'])
                 && strtolower($_SERVER['HTTPS']) == 'on')
-            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-                && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) == 'https');
+            return true;
+
+        // Check if SSL was terminated by a loadbalancer
+        return (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+                && !strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https'));
+    }
+
+    /**
+     * Returns TRUE if the current browser is IE and FALSE otherwise
+     */
+    function is_ie() {
+        if (preg_match('/MSIE|Internet Explorer|Trident\/[\d]{1}\.[\d]{1,2}/',
+                $_SERVER['HTTP_USER_AGENT']))
+            return true;
+
+        return false;
     }
 
     /* returns true if script is being executed via commandline */
-    function is_cli() {
+    static function is_cli() {
         return (!strcasecmp(substr(php_sapi_name(), 0, 3), 'cli')
                 || (!isset($_SERVER['REQUEST_METHOD']) &&
                     !isset($_SERVER['HTTP_HOST']))
@@ -423,13 +633,17 @@ class osTicket {
 
     /**** static functions ****/
     function start() {
+        // Prep basic translation support
+        Internationalization::bootstrap();
 
         if(!($ost = new osTicket()))
             return null;
 
-        //Set default time zone... user/staff settting will override it (on login).
-        $_SESSION['TZ_OFFSET'] = $ost->getConfig()->getTZoffset();
-        $_SESSION['TZ_DST'] = $ost->getConfig()->observeDaylightSaving();
+        // Bootstrap installed plugins
+        $ost->plugins->bootstrap();
+
+        // Mirror content updates to the search backend
+        $ost->searcher = new SearchInterface();
 
         return $ost;
     }

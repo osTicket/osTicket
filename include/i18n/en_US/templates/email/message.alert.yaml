@@ -14,7 +14,7 @@ notes: |
 subject: |
     New Message Alert
 body: |
-    <h3><strong>Hi %{recipient},</strong></h3>
+    <h3><strong>Hi %{recipient.name},</strong></h3>
     New message appended to ticket <a
     href="%{ticket.staff_link}">#%{ticket.number}</a>
     <br>
@@ -26,7 +26,7 @@ body: |
              <strong>From</strong>:
         </td>
         <td>
-             %{ticket.name} &lt;%{ticket.email}&gt;
+             %{poster.name} &lt;%{ticket.email}&gt;
         </td>
     </tr>
     <tr>

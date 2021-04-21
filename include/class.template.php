@@ -21,50 +21,168 @@ class EmailTemplateGroup {
     var $id;
     var $ht;
     var $_templates;
-    var $all_names=array(
+    static $all_groups = array(
+        'sys' => /* @trans */ 'System Management Templates',
+        'a.ticket.user' => /* @trans */ 'Ticket End-User Email Templates',
+        'b.ticket.staff' => /* @trans */ 'Ticket Agent Email Templates',
+        'c.task' => /* @trans */ 'Task Email Templates',
+    );
+    static $all_names=array(
         'ticket.autoresp'=>array(
-            'name'=>'New Ticket Auto-response',
-            'desc'=>'Autoresponse sent to user, if enabled, on new ticket.'),
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Ticket Auto-response',
+            'desc'=>/* @trans */ 'Autoresponse sent to user, if enabled, on new ticket.',
+            'context' => array(
+                'ticket', 'signature', 'message', 'recipient'
+            ),
+        ),
         'ticket.autoreply'=>array(
-            'name'=>'New Ticket Auto-reply',
-            'desc'=>'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.'),
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Ticket Auto-reply',
+            'desc'=>/* @trans */ 'Canned Auto-reply sent to user on new ticket, based on filter matches. Overwrites "normal" auto-response.',
+            'context' => array(
+                'ticket', 'signature', 'response', 'recipient',
+            ),
+        ),
         'message.autoresp'=>array(
-            'name'=>'New Message Auto-response',
-            'desc'=>'Confirmation sent to user when a new message is appended to an existing ticket.'),
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Message Auto-response',
+            'desc'=>/* @trans */ 'Confirmation sent to user when a new message is appended to an existing ticket.',
+            'context' => array(
+                'ticket', 'signature', 'recipient',
+            ),
+        ),
         'ticket.notice'=>array(
-            'name'=>'New Ticket Notice',
-            'desc'=>'Notice sent to user, if enabled, on new ticket created by staff on their behalf (e.g phone calls).'),
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Ticket Notice',
+            'desc'=>/* @trans */ 'Notice sent to user, if enabled, on new ticket created by an agent on their behalf (e.g phone calls).',
+            'context' => array(
+                'ticket', 'signature', 'recipient', 'staff', 'message',
+            ),
+        ),
         'ticket.overlimit'=>array(
-            'name'=>'Over Limit Notice',
-            'desc'=>'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.'),
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'Overlimit Notice',
+            'desc'=>/* @trans */ 'A one-time notice sent, if enabled, when user has reached the maximum allowed open tickets.',
+            'context' => array(
+                'ticket', 'signature',
+            ),
+        ),
         'ticket.reply'=>array(
-            'name'=>'Response/Reply Template',
-            'desc'=>'Template used on ticket response/reply'),
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'Response/Reply Template',
+            'desc'=>/* @trans */ 'Template used on ticket response/reply',
+            'context' => array(
+                'ticket', 'signature', 'response', 'staff', 'poster', 'recipient',
+            ),
+        ),
+        'ticket.activity.notice'=>array(
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'New Activity Notice',
+            'desc'=>/* @trans */ 'Template used to notify collaborators on ticket activity (e.g CC on reply)',
+            'context' => array(
+                'ticket', 'signature', 'message', 'poster', 'recipient',
+            ),
+        ),
         'ticket.alert'=>array(
-            'name'=>'New Ticket Alert',
-            'desc'=>'Alert sent to staff, if enabled, on new ticket.'),
+            'group'=>'b.ticket.staff',
+            'name'=>/* @trans */ 'New Ticket Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'message',
+            ),
+        ),
         'message.alert'=>array(
-            'name'=>'New Message Alert',
-            'desc'=>'Alert sent to staff, if enabled, when user replies to an existing ticket.'),
+            'group'=>'b.ticket.staff',
+            'name'=>/* @trans */ 'New Message Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, when user replies to an existing ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'message', 'poster',
+            ),
+        ),
         'note.alert'=>array(
-            'name'=>'Internal Note Alert',
-            'desc'=>'Alert sent to selected staff, if enabled, on new internal note.'),
+            'group'=>'b.ticket.staff',
+            'name'=>/* @trans */ 'Internal Activity Alert',
+            'desc'=>/* @trans */ 'Alert sent out to Agents when internal activity such as an internal note or an agent reply is appended to a ticket.',
+            'context' => array(
+                'ticket', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
         'assigned.alert'=>array(
-            'name'=>'Ticket Assignment Alert',
-            'desc'=>'Alert sent to staff on ticket assignment.'),
+            'group'=>'b.ticket.staff',
+            'name'=>/* @trans */ 'Ticket Assignment Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on ticket assignment.',
+            'context' => array(
+                'ticket', 'recipient', 'comments', 'assignee', 'assigner',
+            ),
+        ),
         'transfer.alert'=>array(
-            'name'=>'Ticket Transfer Alert',
-            'desc'=>'Alert sent to staff on ticket transfer.'),
+            'group'=>'b.ticket.staff',
+            'name'=>/* @trans */ 'Ticket Transfer Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on ticket transfer.',
+            'context' => array(
+                'ticket', 'recipient', 'comments', 'staff',
+            ),
+        ),
         'ticket.overdue'=>array(
-            'name'=>'Overdue Ticket Alert',
-            'desc'=>'Alert sent to staff on stale or overdue tickets.'),
-        'staff.pwreset' => array(
-            'name' => 'Staff Password Reset',
-            'desc' => 'Notice sent to staff with the password reset link.',
-            'default' => 'templates/staff.pwreset.txt'),
-        );
+            'group'=>'b.ticket.staff',
+            'name'=>/* @trans */ 'Overdue Ticket Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue tickets.',
+            'context' => array(
+                'ticket', 'recipient', 'comments',
+            ),
+        ),
+        'task.alert' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Task Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents, if enabled, on new task.',
+            'context' => array(
+                'task', 'recipient', 'message',
+            ),
+        ),
+        'task.activity.notice' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Activity Notice',
+            'desc'=>/* @trans */ 'Template used to notify collaborators on task activity.',
+            'context' => array(
+                'task', 'signature', 'message', 'poster', 'recipient',
+            ),
+        ),
+        'task.activity.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'New Activity Alert',
+            'desc'=>/* @trans */ 'Alert sent to selected agents, if enabled, on new activity.',
+            'context' => array(
+                'task', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
+        'task.assignment.alert' => array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Task Assignment Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on task assignment.',
+            'context' => array(
+                'task', 'recipient', 'comments', 'assignee', 'assigner',
+            ),
+        ),
+        'task.transfer.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Task Transfer Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on task transfer.',
+            'context' => array(
+                'task', 'recipient', 'note', 'comments', 'activity',
+            ),
+        ),
+        'task.overdue.alert'=>array(
+            'group'=>'c.task',
+            'name'=>/* @trans */ 'Overdue Task Alert',
+            'desc'=>/* @trans */ 'Alert sent to agents on stale or overdue task.',
+            'context' => array(
+                'task', 'recipient', 'comments',
+            ),
+        ),
+    );
 
-    function EmailTemplateGroup($id){
+    function __construct($id){
         $this->id=0;
         $this->load($id);
     }
@@ -115,7 +233,7 @@ class EmailTemplateGroup {
     }
 
     function getLanguage() {
-        return 'en_US';
+        return $this->ht['lang'];
     }
 
     function isInUse(){
@@ -140,8 +258,8 @@ class EmailTemplateGroup {
         return (db_query($sql) && db_affected_rows());
     }
 
-    function getTemplateDescription($name) {
-        return $this->all_names[$name];
+    static function getTemplateDescription($name) {
+        return static::$all_names[$name];
     }
 
     function getMsgTemplate($name) {
@@ -153,7 +271,8 @@ class EmailTemplateGroup {
         if ($tpl=EmailTemplate::fromInitialData($name, $this))
             return $tpl;
 
-        $ost->logWarning('Template Fetch Error', "Unable to fetch '$name' template - id #".$this->getId());
+        $ost->logWarning(_S('Template Fetch Error'),
+            sprintf(_S('Unable to fetch "%1$s" template - id #%d'), $name, $this->getId()));
         return false;
     }
 
@@ -171,7 +290,7 @@ class EmailTemplateGroup {
     }
 
     function getUndefinedTemplateNames() {
-        $list = $this->all_names;
+        $list = static::$all_names;
         foreach ($this->getTemplates() as $cn=>$tpl)
             unset($list[$cn]);
         return $list;
@@ -206,6 +325,10 @@ class EmailTemplateGroup {
         return $this->getMsgTemplate('ticket.reply');
     }
 
+    function  getActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('ticket.activity.notice');
+    }
+
     function getOverlimitMsgTemplate() {
         return $this->getMsgTemplate('ticket.overlimit');
     }
@@ -226,10 +349,34 @@ class EmailTemplateGroup {
         return $this->getMsgTemplate('ticket.overdue');
     }
 
-    function update($vars,&$errors) {
+    /* Tasks templates */
+    function getNewTaskAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.alert');
+    }
 
+    function  getTaskActivityAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.activity.alert');
+    }
+
+    function  getTaskActivityNoticeMsgTemplate() {
+        return $this->getMsgTemplate('task.activity.notice');
+    }
+
+    function getTaskTransferAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.transfer.alert');
+    }
+
+    function getTaskAssignmentAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.assignment.alert');
+    }
+
+    function getTaskOverdueAlertMsgTemplate() {
+        return $this->getMsgTemplate('task.overdue.alert');
+    }
+
+    function update($vars,&$errors) {
         if(!$vars['isactive'] && $this->isInUse())
-            $errors['isactive']='Template in use cannot be disabled!';
+            $errors['isactive']=__('In-use template set cannot be disabled!');
 
         if(!$this->save($this->getId(),$vars,$errors))
             return false;
@@ -266,6 +413,9 @@ class EmailTemplateGroup {
                 .' WHERE tpl_id='.db_input($this->getId()));
         }
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         return $num;
     }
 
@@ -296,29 +446,41 @@ class EmailTemplateGroup {
         $vars['name']=Format::striptags(trim($vars['name']));
 
         if($id && $id!=$vars['tpl_id'])
-            $errors['err']='Internal error. Try again';
+            $errors['err']=__('Internal error occurred');
 
         if(!$vars['name'])
-            $errors['name']='Name required';
+            $errors['name']=__('Name is required');
         elseif(($tid=EmailTemplateGroup::getIdByName($vars['name'])) && $tid!=$id)
-            $errors['name']='Template name already exists';
+            $errors['name']=__('Template name already exists');
 
         if(!$id && ($vars['tpl_id'] && !($tpl=EmailTemplateGroup::lookup($vars['tpl_id']))))
-            $errors['tpl_id']='Invalid template group specified';
+            $errors['tpl_id']=__('Invalid template set specified');
 
         if($errors) return false;
+
+        foreach ($vars as $key => $value) {
+            if ($id && isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $sql=' updated=NOW() '
             .' ,name='.db_input($vars['name'])
             .' ,isactive='.db_input($vars['isactive'])
             .' ,notes='.db_input(Format::sanitize($vars['notes']));
 
+        if ($vars['lang_id'])
+            // TODO: Validation of lang_id
+            $sql .= ',lang='.db_input($vars['lang_id']);
+
         if($id) {
             $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET '.$sql.' WHERE tpl_id='.db_input($id);
             if(db_query($sql))
                 return true;
 
-            $errors['err']='Unable to update the template. Internal error occurred';
+            $errors['err']=sprintf(__('Unable to update %s.'), __('this template set'))
+               .' '.__('Internal error occurred');
 
         } else {
 
@@ -327,7 +489,8 @@ class EmailTemplateGroup {
             $sql='INSERT INTO '.EMAIL_TEMPLATE_GRP_TABLE
                 .' SET created=NOW(), '.$sql;
             if(!db_query($sql) || !($new_id=db_insert_id())) {
-                $errors['err']='Unable to create template. Internal error';
+                $errors['err']=sprintf(__('Unable to create %s.'), __('this template set'))
+                   .' '.__('Internal error occurred');
                 return false;
             }
 
@@ -355,7 +518,7 @@ class EmailTemplate {
     var $ht;
     var $_group;
 
-    function EmailTemplate($id, $group=null){
+    function __construct($id, $group=null){
         $this->id=0;
         if ($id) $this->load($id);
         if ($group) $this->_group = $group;
@@ -374,7 +537,7 @@ class EmailTemplate {
 
         $this->ht=db_fetch_array($res);
         $this->id=$this->ht['id'];
-        $this->attachments = new GenericAttachments($this->id, 'T');
+        $this->attachments = GenericAttachments::forIdAndType($this->id, 'T');
 
         return true;
     }
@@ -410,6 +573,10 @@ class EmailTemplate {
         return $this->ht['code_name'];
     }
 
+    function getLastUpdated() {
+        return $this->ht['updated'];
+    }
+
     function getTplId() {
         return $this->ht['tpl_id'];
     }
@@ -425,6 +592,22 @@ class EmailTemplate {
         return $this->getGroup()->getTemplateDescription($this->ht['code_name']);
     }
 
+    function getInvalidVariableUsage() {
+        $context = VariableReplacer::getContextForRoot($this->ht['code_name']);
+        $invalid = array();
+        foreach (array($this->getSubject(), $this->getBody()) as $B) {
+            $variables = array();
+            if (!preg_match_all('`%\{([^}]*)\}`', $B, $variables, PREG_SET_ORDER))
+                continue;
+            foreach ($variables as $V) {
+                if (!isset($context[$V[1]])) {
+                    $invalid[] = $V[0];
+                }
+            }
+        }
+        return $invalid;
+    }
+
     function update($vars, &$errors) {
 
         if(!$this->save($this->getId(),$vars,$errors))
@@ -433,28 +616,26 @@ class EmailTemplate {
         $this->reload();
 
         // Inline images (attached to the draft)
-        if (isset($vars['draft_id']) && $vars['draft_id']) {
-            if ($draft = Draft::lookup($vars['draft_id'])) {
-                $this->attachments->deleteInlines();
-                $this->attachments->upload($draft->getAttachmentIds($this->getBody()), true);
-            }
-        }
+        $keepers = Draft::getAttachmentIds($this->getBody());
+        // Just keep the IDs only
+        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $this->attachments->keepOnlyFileIds($keepers, true);
 
         return true;
     }
 
     function save($id, $vars, &$errors) {
         if(!$vars['subject'])
-            $errors['subject']='Message subject required';
+            $errors['subject'] = __('Message subject is required');
 
         if(!$vars['body'])
-            $errors['body']='Message body required';
+            $errors['body'] = __('Message body is required');
 
         if (!$id) {
             if (!$vars['tpl_id'])
-                $errors['tpl_id']='Template group required';
+                $errors['tpl_id'] = __('Template set is required');
             if (!$vars['code_name'])
-                $errors['code_name']='Code name required';
+                $errors['code_name'] = __('Code name is required');
         }
 
         if ($errors)
@@ -463,6 +644,12 @@ class EmailTemplate {
         $vars['body'] = Format::sanitize($vars['body'], false);
 
         if ($id) {
+            foreach ($vars as $key => $value) {
+                if (isset($this->ht[$key]) && ($this->ht[$key] != $value)) {
+                    $type = array('type' => 'edited', 'key' => $this->getCodeName());
+                    Signal::send('object.edited', $this->getGroup(), $type);
+                }
+            }
             $sql='UPDATE '.EMAIL_TEMPLATE_TABLE.' SET updated=NOW() '
                 .', subject='.db_input($vars['subject'])
                 .', body='.db_input($vars['body'])
@@ -475,8 +662,16 @@ class EmailTemplate {
                 .', code_name='.db_input($vars['code_name'])
                 .', subject='.db_input($vars['subject'])
                 .', body='.db_input($vars['body']);
-            if (db_query($sql) && ($id=db_insert_id()))
+            if (db_query($sql) && ($id=db_insert_id())) {
+                $template = EmailTemplate::lookup($id);
+                foreach ($vars as $key => $value) {
+                    if (isset($template->ht[$key]) && ($template->ht[$key] != $value)) {
+                        $type = array('type' => 'edited', 'key' => $template->getCodeName());
+                        Signal::send('object.edited', $template->getGroup(), $type);
+                    }
+                }
                 return $id;
+            }
         }
         return null;
     }
@@ -489,7 +684,8 @@ class EmailTemplate {
         $inst = self::lookup(self::create($vars, $errors));
 
         // Inline images (attached to the draft)
-        $inst->attachments->upload(Draft::getAttachmentIds($inst->getBody()), true);
+        if ($inst)
+            $inst->attachments->upload(Draft::getAttachmentIds($inst->getBody()), true);
 
         return $inst;
     }
@@ -525,7 +721,7 @@ class EmailTemplate {
             return $templ;
         }
         raise_error("$lang/templates/$name.yaml: "
-            . 'Email templates must define both "subject" and "body" parts of the template',
+            . _S('Email templates must define both "subject" and "body" parts of the template'),
             'InitialDataError');
         return false;
     }

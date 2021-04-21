@@ -14,89 +14,125 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
+
 $team=null;
 if($_REQUEST['id'] && !($team=Team::lookup($_REQUEST['id'])))
-    $errors['err']='Unknown or invalid team ID.';
+    $errors['err']=sprintf(__('%s: Unknown or invalid'), __('team'));
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$team){
-                $errors['err']='Unknown or invalid team.';
+                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('team'));
             }elseif($team->update($_POST,$errors)){
-                $msg='Team updated successfully';
+                $msg=sprintf(__('Successfully updated %s.'),
+                    __('this team'));
             }elseif(!$errors['err']){
-                $errors['err']='Unable to update team. Correct any error(s) below and try again!';
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this team')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'create':
-            if(($id=Team::create($_POST,$errors))){
-                $msg=Format::htmlchars($_POST['team']).' added successfully';
+            $team = Team::create();
+            if (($team->update($_POST, $errors))){
+                $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['team']));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $team, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']='Unable to add team. Correct any error(s) below and try again.';
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this team')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err']='You must select at least one team.';
+                $errors['err']=sprintf(__('You must select at least %s.'), __('one team'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=1 '
-                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Team::objects()->filter(array(
+                            'team_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags' => SqlExpression::bitor(
+                                new SqlField('flags'),
+                                Team::FLAG_ENABLED
+                            )
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
-                                $msg = 'Selected teams activated';
+                                $msg = sprintf(__('Successfully activated %s'),
+                                    _N('selected team', 'selected teams', $count));
                             else
-                                $warn = "$num of $count selected teams activated";
+                                $warn = sprintf(__('%1$d of %2$d %3$s activated'), $num, $count,
+                                    _N('selected team', 'selected teams', $count));
                         } else {
-                            $errors['err'] = 'Unable to activate selected teams';
+                            $errors['err'] = sprintf(__('Unable to activate %s'),
+                                _N('selected team', 'selected teams', $count));
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.TEAM_TABLE.' SET isenabled=0 '
-                            .' WHERE team_id IN ('.implode(',', db_input($_POST['ids'])).')';
+                        $num = Team::objects()->filter(array(
+                            'team_id__in' => $_POST['ids']
+                        ))->update(array(
+                            'flags' => SqlExpression::bitand(
+                                new SqlField('flags'),
+                                ~Team::FLAG_ENABLED
+                            )
+                        ));
 
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        if ($num) {
                             if($num==$count)
-                                $msg = 'Selected teams disabled';
+                                $msg = sprintf(__('Successfully disabled %s'),
+                                    _N('selected team', 'selected teams', $count));
                             else
-                                $warn = "$num of $count selected teams disabled";
+                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
+                                    _N('selected team', 'selected teams', $count));
                         } else {
-                            $errors['err'] = 'Unable to disable selected teams';
+                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                                _N('selected team', 'selected teams', $count));
                         }
                         break;
                     case 'delete':
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=Team::lookup($v)) && $t->delete())
-                                $i++;
+                            if(($t=Team::lookup($v))) {
+                              $t->delete();
+                              $i++;
+                            }
                         }
                         if($i && $i==$count)
-                            $msg = 'Selected teams deleted successfully';
+                            $msg = sprintf(__('Successfully deleted %s.'),
+                                _N('selected team', 'selected teams', $count));
                         elseif($i>0)
-                            $warn = "$i of $count selected teams deleted";
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                                _N('selected team', 'selected teams', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = 'Unable to delete selected teams';
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
+                                _N('selected team', 'selected teams', $count));
                         break;
                     default:
-                        $errors['err'] = 'Unknown action. Get technical help!';
+                        $errors['err'] = sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;
         default:
-            $errors['err']='Unknown action/command';
+            $errors['err']=__('Unknown action');
             break;
     }
 }
 
 $page='teams.inc.php';
-if($team || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add')))
+$tip_namespace = 'staff.team';
+if($team || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
     $page='team.inc.php';
+}
 
 $nav->setTabActive('staff');
+$ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 require(STAFFINC_DIR.$page);
 include(STAFFINC_DIR.'footer.inc.php');

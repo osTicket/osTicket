@@ -2,7 +2,7 @@
 /*********************************************************************
     emailtest.php
 
-    Email Diagnostic 
+    Email Diagnostic
 
     Peter Rotich <peter@osticket.com>
     Copyright (c)  2006-2013 osTicket
@@ -16,60 +16,66 @@
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.csrf.php');
-$info=array();
-$info['subj']='osTicket test email';
 
 if($_POST){
     $errors=array();
     $email=null;
     if(!$_POST['email_id'] || !($email=Email::lookup($_POST['email_id'])))
-        $errors['email_id']='Select from email address';
+        $errors['email_id']=__('Select from email address');
 
-    if(!$_POST['email'] || !Validator::is_email($_POST['email']))
-        $errors['email']='To email address required';
+    if(!$_POST['email'] || !Validator::is_valid_email($_POST['email']))
+        $errors['email']=__('Valid recipient email address required');
 
     if(!$_POST['subj'])
-        $errors['subj']='Subject required';
+        $errors['subj']=__('Subject required');
 
     if(!$_POST['message'])
-        $errors['message']='Message required';
+        $errors['message']=__('Message required');
 
     if(!$errors && $email){
         if($email->send($_POST['email'],$_POST['subj'],
-                Format::sanitize($_POST['message']))) {
-            $msg='Test email sent successfully to '.Format::htmlchars($_POST['email']);
+                Format::sanitize($_POST['message']),
+                null, array('reply-tag'=>false))) {
+            $msg=Format::htmlchars(sprintf(__('Test email sent successfully to <%s>'),
+                $_POST['email']));
             Draft::deleteForNamespace('email.diag');
         }
         else
-            $errors['err']='Error sending email - try again.';
+            $errors['err']=sprintf('%s - %s', __('Error sending email'), __('Please try again!'));
     }elseif($errors['err']){
-        $errors['err']='Error sending email - try again.';
+        $errors['err']=sprintf('%s - %s', __('Error sending email'), __('Please try again!'));
     }
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 $nav->setTabActive('emails');
+$ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />',
+    "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
+
+$info=array();
+$info['subj']='osTicket test email';
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
-<form action="emailtest.php" method="post" id="save">
+<form action="emailtest.php" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
- <h2>Test Outgoing Email</h2>
+ <h2><?php echo __('Test Outgoing Email');?></h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <em>Emails delivery depends on your server settings (php.ini) and/or email SMTP configuration.</em>
+                <em><?php echo __('Use the following form to test whether your <strong>Outgoing Email</strong> settings are properly established.');
+                    ?>&nbsp;<i class="help-tip icon-question-sign" href="#test_outgoing_email"></i></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td width="120" class="required">
-                From:
+                <?php echo __('From');?>:
             </td>
             <td>
                 <select name="email_id">
-                    <option value="0">&mdash; Select FROM Email &mdash;</option>
+                    <option value="0">&mdash; <?php echo __('Select FROM Email');?> &mdash;</option>
                     <?php
                     $sql='SELECT email_id,email,name,smtp_active FROM '.EMAIL_TABLE.' email ORDER by name';
                     if(($res=db_query($sql)) && db_num_rows($res)){
@@ -78,7 +84,7 @@ require(STAFFINC_DIR.'header.inc.php');
                             if($name)
                                 $email=Format::htmlchars("$name <$email>");
                             if($smtp)
-                                $email.=' (SMTP)';
+                                $email.=' ('.__('SMTP').')';
 
                             echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
                         }
@@ -90,16 +96,17 @@ require(STAFFINC_DIR.'header.inc.php');
         </tr>
         <tr>
             <td width="120" class="required">
-                To:
+                <?php echo __('To');?>:
             </td>
             <td>
-                <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>">
+                <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>"
+                    autofocus>
                 &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
             </td>
         </tr>
         <tr>
             <td width="120" class="required">
-                Subject:
+                <?php echo __('Subject');?>:
             </td>
             <td>
                 <input type="text" size="60" name="subj" value="<?php echo $info['subj']; ?>">
@@ -109,18 +116,20 @@ require(STAFFINC_DIR.'header.inc.php');
         <tr>
             <td colspan=2>
                 <div style="padding-top:0.5em;padding-bottom:0.5em">
-                <em><strong>Message</strong>: email message to send.</em>&nbsp;<span class="error">*&nbsp;<?php echo $errors['message']; ?></span></div>
+                <em><strong><?php echo __('Message');?></strong>: <?php echo __('email message to send.');?></em>&nbsp;<span class="error">*&nbsp;<?php echo $errors['message']; ?></span></div>
                 <textarea class="richtext draft draft-delete" name="message" cols="21"
-                    data-draft-namespace="email.diag"
-                    rows="10" style="width: 90%;"><?php echo $info['message']; ?></textarea>
+                    rows="10" style="width: 90%;" <?php
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('email.diag', false, $info['message']);
+    echo $attrs; ?>><?php echo $draft ?: $info['message'];
+                 ?></textarea>
             </td>
         </tr>
     </tbody>
 </table>
-<p style="padding-left:225px;">
-    <input type="submit" name="submit" value="Send Message">
-    <input type="reset"  name="reset"  value="Reset">
-    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="emails.php"'>
+<p style="text-align:center;">
+    <input type="submit" name="submit" value="<?php echo __('Send Message');?>">
+    <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
+    <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="emails.php"'>
 </p>
 </form>
 <?php

@@ -18,6 +18,9 @@
 require_once INCLUDE_DIR.'class.migrater.php';
 require_once(INCLUDE_DIR.'class.file.php');
 
+// Later version of osTicket dropped/undefined the table
+@define('TICKET_ATTACHMENT_TABLE', TABLE_PREFIX.'ticket_attachment');
+
 class AttachmentMigrater extends MigrationTask {
     var $description = "Attachment migration from disk to database";
 
@@ -92,37 +95,33 @@ class AttachmentMigrater extends MigrationTask {
         # need to be recalculated for every shift() operation.
         $info = array_pop($this->queue);
         # Attach file to the ticket
-        if (!($info['data'] = @file_get_contents($info['path']))) {
+        if (!@is_readable($info['path'])) {
             # Continue with next file
             return $this->skip($info['attachId'],
                 sprintf('%s: Cannot read file contents', $info['path']));
         }
         # Get the mime/type of each file
         # XXX: Use finfo_buffer for PHP 5.3+
-        if(function_exists('mime_content_type')) {
-            //XXX: function depreciated in newer versions of PHP!!!!!
-            $info['type'] = mime_content_type($info['path']);
-        } elseif (function_exists('finfo_file')) { // PHP 5.3.0+
+        if (function_exists('finfo_file')) { // PHP 5.3.0+
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $info['type'] = finfo_file($finfo, $info['path']);
         }
+        elseif (function_exists('mime_content_type')) {
+            //XXX: function depreciated in newer versions of PHP!!!!!
+            $info['type'] = mime_content_type($info['path']);
+        }
         # TODO: Add extension-based mime-type lookup
 
-        if (!($fileId = AttachmentFile::save($info))) {
+        $file = $this->saveAttachment($info);
+        if (!$file)
             return $this->skip($info['attachId'],
                 sprintf('%s: Unable to migrate attachment', $info['path']));
-        }
+
         # Update the ATTACHMENT_TABLE record to set file_id
         db_query('update '.TICKET_ATTACHMENT_TABLE
-                .' set file_id='.db_input($fileId)
+                .' set file_id='.db_input($file->id)
                 .' where attach_id='.db_input($info['attachId']));
-        # Remove disk image of the file. If this fails, the migration for
-        # this file would not be retried, because the file_id in the
-        # TICKET_ATTACHMENT_TABLE has a nonzero value now
-        if (!@unlink($info['path'])) //XXX: what should we do on failure?
-            $this->error(
-                sprintf('%s: Unable to remove file from disk',
-                $info['path']));
+
         # TODO: Log an internal note to the ticket?
         return true;
     }
@@ -188,7 +187,7 @@ class AttachmentMigrater extends MigrationTask {
             # TODO: Get the size and mime/type of each file.
             #
             # NOTE: If filesize() fails and file_get_contents() doesn't,
-            # then the AttachmentFile::save() method will automatically
+            # then the AttachmentFile::create() method will automatically
             # estimate the filesize based on the length of the string data
             # received in $info['data'] -- ie. no need to do that here.
             #
@@ -204,7 +203,7 @@ class AttachmentMigrater extends MigrationTask {
             $this->enqueue($info);
         }
 
-        return $this->queueAttachments($limit);
+        return $this->getQueueLength();
     }
 
     function skip($attachId, $error) {
@@ -227,7 +226,46 @@ class AttachmentMigrater extends MigrationTask {
     function getErrors() {
         return $this->errorList;
     }
+
+    // This is (similar to) the AttachmentFile::create() method from
+    // osTicket 1.7.6. It's been ported here so that further changes to the
+    // %file table and the AttachmentFile::create() method do not affect
+    // upgrades from osTicket 1.6 to osTicket 1.8 and beyond.
+    function saveAttachment($file) {
+
+        if (!$file['hash'])
+            $file['hash']=MD5(md5_file($file['path']).time());
+        if (!$file['size'])
+            $file['size'] = filesize($file['path']);
+
+        return OldOneSixFile::create(array(
+            'name' => $file['name'],
+            'size' => $file['size'],
+            'type' => $file['type'],
+            'hash' => $file['hash'],
+            'bk' => '6',
+            'attrs' => $file['path'],
+            'created' => date('Y-m-d H:i:s', Misc::dbtime(filemtime($file['path']))),
+        ));
+    }
+}
+
+class OldOneSixFile extends VerySimpleModel {
+    static $meta = array(
+        'table' => FILE_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'attachments' => array(
+                'reverse' => 'Attachment.file'
+            ),
+        ),
+    );
+
+    static function create($info) {
+        $I = new static($info);
+        $I->save();
+        return $I;
+    }
 }
 
 return 'AttachmentMigrater';
-?>

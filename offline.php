@@ -25,9 +25,9 @@ require(CLIENTINC_DIR.'header.inc.php');
 <div id="landing_page">
 <?php
 if(($page=$cfg->getOfflinePage())) {
-    echo $page->getBody();
+    echo $page->getBodyWithImages();
 } else {
-    echo '<h1>Support Ticket System Offline</h1>';
+    echo '<h1>'.__('Support Ticket System Offline').'</h1>';
 }
 ?>
 </div>

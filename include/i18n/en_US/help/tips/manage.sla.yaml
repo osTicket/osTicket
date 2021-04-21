@@ -1,0 +1,50 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> SLA Plan
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+name:
+    title: Name
+    content: >
+        Choose a discriptive name for this <span class="doc-desc-title">SLA Plan</span>
+        that will reflect its purpose.
+
+grace_period:
+    title: Grace Period
+    content: >
+        Determine the number of hours after a ticket is created that it will
+        be automatically marked as overdue.
+        <br><br>
+        Hours are counted during the specified Schedule. The hierarchy is Department
+        Schedule, SLA Schedule, then System Default Schedule. If no Schedule is
+        configured, the Hours are counted 24/7 (even after business hours) until the
+        Ticket is Overdue.
+
+transient:
+    title: Transient
+    content: >
+        Transient SLAs are considered temporary and can be overridden by
+        a non-transient SLA on <span class="doc-desc-opt">Department</span>
+        transfer or when its <span class="doc-desc-title">Help Topic</span>
+        is changed.
+
+schedule:
+    title: Schedule
+    content: >
+        Choose the Schedule to be used by this SLA when rendering tickets
+        Overdue.
+        <br><br>
+        Please note that Department settings can override this schedule.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php

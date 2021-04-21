@@ -27,6 +27,13 @@ jQuery(function($) {
       });
 
     function autoUpgrade(url, data) {
+
+        if (!$.isFunction('__')) {
+          function __(s) {
+                return s;
+          }
+        }
+
         function _lp(count) {
             $.ajax({
                 type: 'POST',
@@ -38,7 +45,7 @@ jQuery(function($) {
                 success: function(res) {
                     $('#main #task').html(res);
                     $('#upgrading #action').html(res);
-                    $('#upgrading #msg').html('Still busy... smile #'+count);
+                    $('#upgrading #msg').html(__('Still busy... smile #')+count);
                 },
                 statusCode: {
                     200: function() {
@@ -46,19 +53,19 @@ jQuery(function($) {
                     },
 
                     201: function() {
-                        $('#upgrading #msg').html("Cleaning up!...");
+                        $('#upgrading #msg').html(__("Cleaning up!..."));
                         setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 3000);
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    $('#upgrading #action').html('Error occurred. Aborting...');
+                    $('#upgrading #action').html(__('Error occurred.  Aborting...'));
                     switch(jqXHR.status) {
                         case 404:
-                            $('#upgrading #msg').html("Manual upgrade required (ajax failed)");
+                            $('#upgrading #msg').html(__("Manual upgrade required (ajax failed)"));
                             setTimeout(function() { location.href =url+'?m=manual&c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 2000);
                             break;
                         default:
-                            $('#upgrading #msg').html("Something went wrong");
+                            $('#upgrading #msg').html(__("Something went wrong"));
                             setTimeout(function() { location.href =url+'?c='+count+'&r='+Math.floor((Math.random()*100)+1); }, 2000);
                     }
                 }

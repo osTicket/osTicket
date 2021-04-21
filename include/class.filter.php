@@ -13,49 +13,48 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-class Filter {
 
-    var $id;
-    var $ht;
+require_once INCLUDE_DIR . 'class.filter_action.php';
 
-    static $match_types = array(
-        'Basic Fields' => array(
-            'name'      => 'Name',
-            'email'     => 'Email',
-            'subject'   => 'Subject',
-            'body'      => 'Body/Text',
-            'reply-to'  => 'Reply-To Email',
-            'reply-to-name' => 'Reply-To Name',
+class Filter
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => FILTER_TABLE,
+        'pk' => array('id'),
+        'ordering' => array('execorder'),
+        'joins' => array(
+            'rules' => array(
+                'reverse' => 'FilterRule.filter',
+            ),
+            'actions' => array(
+                'reverse' => 'FilterAction.filter',
+            ),
         ),
     );
 
-    function Filter($id) {
-        $this->id=0;
-        $this->load($id);
-    }
+    const FLAG_INACTIVE_HT = 0x0001;
+    const FLAG_INACTIVE_DEPT  = 0x0002;
+    const FLAG_DELETED_OBJECT  = 0x0004;
 
-    function load($id=0) {
+    static $match_types = array(
+        /* @trans */ 'User Information' => array(
+            array('name'      =>    /* @trans */ 'Name',
+                'email'     =>      /* @trans */ 'Email',
+            ),
+            900
+        ),
+        /* @trans */ 'Email Meta-Data' => array(
+            array('reply-to'  =>    /* @trans */ 'Reply-To Email',
+                'reply-to-name' =>  /* @trans */ 'Reply-To Name',
+                'addressee' =>      /* @trans */ 'Addressee (To and Cc)',
+            ),
+            200
+        ),
+    );
 
-        if(!$id && !($id=$this->getId()))
-            return false;
-
-        $sql='SELECT filter.*,count(rule.id) as rule_count '
-            .' FROM '.FILTER_TABLE.' filter '
-            .' LEFT JOIN '.FILTER_RULE_TABLE.' rule ON(rule.filter_id=filter.id) '
-            .' WHERE filter.id='.db_input($id)
-            .' GROUP BY filter.id';
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['id'];
-
-        return true;
-    }
-
-    function reload() {
-        return $this->load($this->getId());
+    function __construct($vars=array()) {
+        parent::__construct($vars);
+        $this->created = SqlFunction::NOW();
     }
 
     function getId() {
@@ -63,35 +62,39 @@ class Filter {
     }
 
     function getTarget() {
-        return $this->ht['target'];
+        return $this->target;
     }
 
     function getName() {
-        return $this->ht['name'];
+        return $this->name;
     }
 
     function getNotes() {
-        return $this->ht['notes'];
+        return $this->notes;
     }
 
     function getInfo() {
-        return  $this->ht;
+        $ht = $this->ht;
+        if (static::$meta['joins'])
+            foreach (static::$meta['joins'] as $k => $v)
+                unset($ht[$k]);
+        return $ht;
     }
 
     function getNumRules() {
-        return $this->ht['rule_count'];
+        return $this->rules->count();
     }
 
     function getExecOrder() {
-        return $this->ht['execorder'];
+        return $this->execorder;
     }
 
     function getEmailId() {
-        return $this->ht['email_id'];
+        return $this->email_id;
     }
 
     function isActive() {
-        return ($this->ht['isactive']);
+        return ($this->isactive);
     }
 
     function isSystemBanlist() {
@@ -99,47 +102,123 @@ class Filter {
     }
 
     function getDeptId() {
-        return $this->ht['dept_id'];
+        return $this->dept_id;
+    }
+
+    function getStatusId() {
+        return $this->status_id;
     }
 
     function getPriorityId() {
-        return $this->ht['priority_id'];
+        return $this->priority_id;
     }
 
     function getSLAId() {
-        return $this->ht['sla_id'];
+        return $this->sla_id;
     }
 
     function getStaffId() {
-        return $this->ht['staff_id'];
+        return $this->staff_id;
     }
 
     function getTeamId() {
-        return $this->ht['team_id'];
+        return $this->team_id;
     }
 
     function getCannedResponse() {
-        return $this->ht['canned_response_id'];
+        return $this->canned_response_id;
+    }
+
+    function getHelpTopic() {
+        return $this->topic_id;
+    }
+
+    public function setFlag($flag, $val) {
+        $vars = array();
+        $errors = array();
+        if ($val)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+        $vars['rules']= $this->getRules();
+        $this->ht['pass'] = true;
+        $this->update($this->ht, $errors);
+    }
+
+    function hasFlag($flag) {
+        return 0 !== ($this->ht['flags'] & $flag);
     }
 
     function stopOnMatch() {
-        return ($this->ht['stop_on_match']);
+        return ($this->stop_onmatch);
     }
 
     function matchAllRules() {
-        return ($this->ht['match_all_rules']);
+        return ($this->match_all_rules);
     }
 
     function rejectOnMatch() {
-        return ($this->ht['reject_ticket']);
+        return ($this->reject_ticket);
     }
 
     function useReplyToEmail() {
-        return ($this->ht['use_replyto_email']);
+        return ($this->use_replyto_email);
+    }
+
+    function disableFilters($object) {
+        switch (get_class($object)) {
+            case 'Topic':
+                $object_id = 'topic_id';
+                $FAClass = 'FA_AssignTopic';
+                break;
+            case 'Dept':
+                $object_id = 'dept_id';
+                $FAClass = 'FA_RouteDepartment';
+                break;
+            case 'Staff':
+                $object_id = 'staff_id';
+                $FAClass = 'FA_AssignAgent';
+                break;
+            case 'Team':
+                $object_id = 'team_id';
+                $FAClass = 'FA_AssignTeam';
+                break;
+            case 'SLA':
+                $object_id = 'sla_id';
+                $FAClass = 'FA_AssignSLA';
+                break;
+            case 'TicketStatus':
+                $object_id = 'status_id';
+                $FAClass = 'FA_SetStatus';
+                break;
+            case 'Email':
+                $object_id = 'from';
+                $FAClass = 'FA_SendEmail';
+                break;
+            case 'Canned':
+                $object_id = 'canned_id';
+                $FAClass = 'FA_AutoCannedResponse';
+            default:
+                return false;
+        }
+        $id = $object->getId();
+        $actions = FilterAction::objects()
+            ->filter(array('type' => $FAClass::$type,
+                           'configuration__like' => sprintf('%%"%s":%s}', $object_id, $id)));
+        foreach($actions as $fa) {
+            // Put a flag on the filter
+            $fa->setFilterFlags(false, 'Filter::FLAG_DELETED_OBJECT', true);
+            $fa->save();
+
+            // Disable the filter
+            $filter = Filter::lookup($fa->filter_id);
+            $filter->isactive = 0;
+            $filter->save();
+        }
     }
 
     function disableAlerts() {
-        return ($this->ht['disable_autoresponder']);
+        return ($this->disable_autoresponder);
     }
 
     function sendAlerts() {
@@ -147,51 +226,29 @@ class Filter {
     }
 
     function getRules() {
-        if (!$this->ht['rules']) {
-            $rules=array();
-            //We're getting the rules...live because it gets cleared on update.
-            $sql='SELECT * FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($this->getId());
-            if(($res=db_query($sql)) && db_num_rows($res)) {
-                while($row=db_fetch_array($res))
-                    $rules[]=array('w'=>$row['what'],'h'=>$row['how'],'v'=>$row['val']);
-            }
-            $this->ht['rules'] = $rules;
-        }
-        return $this->ht['rules'];
-    }
+        $rules = [];
+        foreach ($this->rules as $r)
+            $rules[] = array('w'=>$r->what,'h'=>$r->how,'v'=>$r->val);
 
-    function getFlatRules() { //Format used on html... I'm ashamed
-
-        $info=array();
-        if(($rules=$this->getRules())) {
-            foreach($rules as $k=>$rule) {
-                $i=$k+1;
-                $info["rule_w$i"]=$rule['w'];
-                $info["rule_h$i"]=$rule['h'];
-                $info["rule_v$i"]=$rule['v'];
-            }
-        }
-        return $info;
+        return $rules;
     }
 
     function addRule($what, $how, $val,$extra=array()) {
-        $errors = array();
-
-        $rule= array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
-        $rule['filter_id']=$this->getId();
-
-        return FilterRule::create($rule,$errors);
+        if (isset($extra['notes']))
+            $extra['notes'] = Format::sanitize($extra['notes']);
+        $rule = array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
+        $rule = new FilterRule($rule);
+        $this->rules->add($rule);
+        if ($rule->save())
+            return true;
     }
 
     function removeRule($what, $how, $val) {
-
-        $sql='DELETE FROM '.FILTER_RULE_TABLE
-            .' WHERE filter_id='.db_input($this->getId())
-            .' AND what='.db_input($what)
-            .' AND how='.db_input($how)
-            .' AND val='.db_input($val);
-
-        return (db_query($sql) && db_affected_rows());
+        return $this->rules->filter([
+            'what' => $what,
+            'how' => $how,
+            'val' => $val,
+        ])->delete();
     }
 
     function getRule($id) {
@@ -199,29 +256,17 @@ class Filter {
     }
 
     function getRuleById($id) {
-        return FilterRule::lookup($id,$this->getId());
+        return FilterRule::lookup(array('id'=>$id, 'filter_id'=>$this->getId()));
     }
 
     function containsRule($what, $how, $val) {
-        $val = trim($val);
-        if (isset($this->ht['rules'])) {
-            $match = array("w"=>$what, "h"=>$how, "v"=>$val);
-            foreach ($this->ht['rules'] as $rule) {
-                if ($match == $rule)
-                    return true;
-            }
-            return false;
-
-        } else {
-            # Fetch from database
-            return 0 != db_count(
-                "SELECT COUNT(*) FROM ".FILTER_RULE_TABLE
-               ." WHERE filter_id=".db_input($this->id)
-               ." AND what=".db_input($what)." AND how=".db_input($how)
-               ." AND val=".db_input($val)
-            );
-        }
+        return $this->rules->filter([
+            'what' => $what,
+            'how' => $how,
+            'val' => $val,
+        ])->exists();
     }
+
     /**
      * Simple true/false if the rules defined for this filter match the
      * incoming email
@@ -242,12 +287,14 @@ class Filter {
 
         $how = array(
             # how => array(function, null or === this, null or !== this)
-            'equal'     => array('strcmp', 0),
-            'not_equal' => array('strcmp', null, 0),
-            'contains'  => array('strpos', null, false),
-            'dn_contain'=> array('strpos', false),
-            'starts'    => array('strpos', 0),
-            'ends'      => array('endsWith', true)
+            'equal'     => array('strcasecmp', 0),
+            'not_equal' => array('strcasecmp', null, 0),
+            'contains'  => array('stripos', null, false),
+            'dn_contain'=> array('stripos', false),
+            'starts'    => array('stripos', 0),
+            'ends'      => array('iendsWith', true),
+            'match'     => array('pregMatchB', 1),
+            'not_match' => array('pregMatchB', null, 1),
         );
 
         $match = false;
@@ -260,12 +307,8 @@ class Filter {
         foreach ($this->getRules() as $rule) {
             if (!isset($how[$rule['h']])) continue;
             list($func, $pos, $neg) = $how[$rule['h']];
-            # TODO: convert $what and $rule['v'] to mb_strtoupper and do
-            #       case-sensitive, binary-safe comparisons. Would be really
-            #       nice to do $rule['v'] on the database side for
-            #       performance -- but ::getFlatRules() is a blocker
-            $result = call_user_func($func, strtoupper($what[$rule['w']]),
-                strtoupper($rule['v']));
+
+            $result = call_user_func($func, $what[$rule['w']], $rule['v']);
             if (($pos === null && $result !== $neg) or ($result === $pos)) {
                 # Match.
                 $match = true;
@@ -281,47 +324,44 @@ class Filter {
 
         return $match;
     }
+
+    function getActions() {
+        return $this->actions;
+    }
+
     /**
      * If the matches() method returns TRUE, send the initial ticket to this
      * method to apply the filter actions defined
      */
-    function apply(&$ticket, $info=null) {
-        # TODO: Disable alerting
-        # XXX: Does this imply turning it on as well? (via ->sendAlerts())
-        if ($this->disableAlerts()) $ticket['autorespond']=false;
-        #       Set owning department (?)
-        if ($this->getDeptId())     $ticket['deptId']=$this->getDeptId();
-        #       Set ticket priority (?)
-        if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
-        #       Set SLA plan (?)
-        if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
-        #       Auto-assign to (?)
-        #       XXX: Unset the other (of staffId or teamId) (?)
-        if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
-        elseif ($this->getTeamId()) $ticket['teamId']=$this->getTeamId();
-        #       Override name with reply-to information from the TicketFilter
-        #       match
-        if ($this->useReplyToEmail() && $info['reply-to']) {
-            $ticket['email'] = $info['reply-to'];
-            if ($info['reply-to-name'])
-                $ticket['name'] = $info['reply-to-name'];
-        }
+    function apply(&$ticket, $vars, $postCreate=false) {
+        foreach ($this->getActions() as $a) {
+            //control when certain actions should be applied
+            //if action is send email and postCreate == false, skip
+            //if action is not send email and postCreate == true, skip
+            if ((($a->type == 'email') ? !$postCreate : $postCreate))
+                continue;
 
-        # Use canned response.
-        if ($this->getCannedResponse())
-            $ticket['cannedResponseId'] = $this->getCannedResponse();
+            $a->setFilter($this);
+            $a->apply($ticket, $vars);
+        }
     }
-    /* static */ function getSupportedMatches() {
+
+    function getVars() {
+        return $this->vars;
+    }
+
+    static function getSupportedMatches() {
         foreach (static::$match_types as $k=>&$v) {
-            if (is_callable($v))
-                $v = $v();
+            if (is_callable($v[0]))
+                $v[0] = $v[0]();
         }
         unset($v);
-        return static::$match_types;
+        uasort(static::$match_types, function($a, $b) { return $a[1] - $b[1]; });
+        return array_map(function($a) { return $a[0]; }, static::$match_types);
     }
 
-    static function addSupportedMatches($group, $callable) {
-        static::$match_types[$group] = $callable;
+    static function addSupportedMatches($group, $callable, $order=10) {
+        static::$match_types[$group] = array($callable, $order);
     }
 
     static function getSupportedMatchFields() {
@@ -336,135 +376,42 @@ class Filter {
 
     /* static */ function getSupportedMatchTypes() {
         return array(
-            'equal'=>       'Equal',
-            'not_equal'=>   'Not Equal',
-            'contains'=>    'Contains',
-            'dn_contain'=>  'Does Not Contain',
-            'starts'=>      'Starts With',
-            'ends'=>        'Ends With'
+            'equal'=>       __('Equal'),
+            'not_equal'=>   __('Not Equal'),
+            'contains'=>    __('Contains'),
+            'dn_contain'=>  __('Does Not Contain'),
+            'starts'=>      __('Starts With'),
+            'ends'=>        __('Ends With'),
+            'match'=>       __('Matches Regex'),
+            'not_match'=>   __('Does Not Match Regex'),
         );
     }
 
     function update($vars,&$errors) {
-
-        if(!Filter::save($this->getId(),$vars,$errors))
+        //validate filter actions before moving on
+        if (!self::validate_actions($vars, $errors))
             return false;
 
-        $this->reload();
-
-        return true;
-    }
-
-    function delete() {
-
-        $id=$this->getId();
-        $sql='DELETE FROM '.FILTER_TABLE.' WHERE id='.db_input($id).' LIMIT 1';
-        if(db_query($sql) && ($num=db_affected_rows())) {
-            db_query('DELETE FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
-        }
-
-        return $num;
-    }
-
-    /** static functions **/
-    function getTargets() {
-        return array(
-                'Any' => 'Any',
-                'Web' => 'Web Forms',
-                'API' => 'API Calls',
-                'Email' => 'Emails');
-    }
-
-    function create($vars,&$errors) {
-        return Filter::save(0,$vars,$errors);
-    }
-
-    function getIdByName($name) {
-
-        $sql='SELECT id FROM '.FILTER_TABLE.' WHERE name='.db_input($name);
-        if(($res=db_query($sql)) && db_num_rows($res))
-            list($id)=db_fetch_row($res);
-
-        return $id;
-    }
-
-    function lookup($id) {
-        return ($id && is_numeric($id) && ($f= new Filter($id)) && $f->getId()==$id)?$f:null;
-    }
-
-    function validate_rules($vars,&$errors) {
-        return self::save_rules(0,$vars,$errors);
-    }
-
-    function save_rules($id,$vars,&$errors) {
-
-        $matches = array_keys(self::getSupportedMatchFields());
-        $types = array_keys(self::getSupportedMatchTypes());
-
-        $rules=array();
-        for($i=1; $i<=25; $i++) { //Expecting no more than 25 rules...
-            if($vars["rule_w$i"] || $vars["rule_h$i"]) {
-                if(!$vars["rule_w$i"] || !in_array($vars["rule_w$i"],$matches))
-                    $errors["rule_$i"]='Invalid match selection';
-                elseif(!$vars["rule_h$i"] || !in_array($vars["rule_h$i"],$types))
-                    $errors["rule_$i"]='Invalid match type selection';
-                elseif(!$vars["rule_v$i"])
-                    $errors["rule_$i"]='Value required';
-                elseif($vars["rule_w$i"]=='email'
-                        && $vars["rule_h$i"]=='equal'
-                        && !Validator::is_email($vars["rule_v$i"]))
-                    $errors["rule_$i"]='Valid email required for the match type';
-                else //for everything-else...we assume it's valid.
-                    $rules[]=array('what'=>$vars["rule_w$i"],
-                        'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
-            }elseif($vars["rule_v$i"]) {
-                $errors["rule_$i"]='Incomplete selection';
-            }
-        }
-
-        if(!$rules && is_array($vars["rules"]))
-            # XXX: Validation bypass
-            $rules = $vars["rules"];
-        elseif(!$rules && !$errors)
-            $errors['rules']='You must set at least one rule.';
-
-        if($errors) return false;
-
-        if(!$id) return true; //When ID is 0 then assume it was just validation...
-
-        //Clear existing rules...we're doing mass replace on each save!!
-        db_query('DELETE FROM '.FILTER_RULE_TABLE.' WHERE filter_id='.db_input($id));
-        $num=0;
-        foreach($rules as $rule) {
-            $rule['filter_id']=$id;
-            if(FilterRule::create($rule, $errors))
-                $num++;
-        }
-
-        return $num;
-    }
-
-    function save($id,$vars,&$errors) {
-
+        $vars['flags'] = $this->flags;
 
         if(!$vars['execorder'])
-            $errors['execorder'] = 'Order required';
+            $errors['execorder'] = __('Order required');
         elseif(!is_numeric($vars['execorder']))
-            $errors['execorder'] = 'Must be numeric value';
+            $errors['execorder'] = __('Must be numeric value');
 
         if(!$vars['name'])
-            $errors['name'] = 'Name required';
-        elseif(($sid=self::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name'] = 'Name already in use';
+            $errors['name'] = __('Name required');
+        elseif(($filter=static::getByName($vars['name'])) && $filter->id!=$this->id)
+            $errors['name'] = __('Name already in use');
 
         if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
-            $errors['rules'] = 'Unable to validate rules as entered';
+            $errors['rules'] = __('Unable to validate rules as entered');
 
         $targets = self::getTargets();
         if(!$vars['target'])
-            $errors['target'] = 'Target required';
+            $errors['target'] = __('Target required');
         else if(!is_numeric($vars['target']) && !$targets[$vars['target']])
-            $errors['target'] = 'Unknown or invalid target';
+            $errors['target'] = __('Unknown or invalid target');
 
         if($errors) return false;
 
@@ -474,95 +421,306 @@ class Filter {
             $vars['target'] = 'Email';
         }
 
-        $sql=' updated=NOW() '
-            .',isactive='.db_input($vars['isactive'])
-            .',target='.db_input($vars['target'])
-            .',name='.db_input($vars['name'])
-            .',execorder='.db_input($vars['execorder'])
-            .',email_id='.db_input($emailId)
-            .',dept_id='.db_input($vars['dept_id'])
-            .',priority_id='.db_input($vars['priority_id'])
-            .',sla_id='.db_input($vars['sla_id'])
-            .',match_all_rules='.db_input($vars['match_all_rules'])
-            .',stop_onmatch='.db_input(isset($vars['stop_onmatch'])?1:0)
-            .',reject_ticket='.db_input(isset($vars['reject_ticket'])?1:0)
-            .',use_replyto_email='.db_input(isset($vars['use_replyto_email'])?1:0)
-            .',disable_autoresponder='.db_input(isset($vars['disable_autoresponder'])?1:0)
-            .',canned_response_id='.db_input($vars['canned_response_id'])
-            .',notes='.db_input(Format::sanitize($vars['notes']));
+        //Note: this will be set when validating filters
+        if ($vars['email_id'])
+            $emailId = $vars['email_id'];
+        $this->isactive = $vars['isactive'];
+        $this->flags = $vars['flags'];
+        $this->target = $vars['target'];
+        $this->name = $vars['name'];
+        $this->execorder = $vars['execorder'];
+        $this->email_id = $emailId;
+        $this->match_all_rules = $vars['match_all_rules'];
+        $this->stop_onmatch = $vars['stop_onmatch'];
+        $this->notes = Format::sanitize($vars['notes']);
 
-
-        //Auto assign ID is overloaded...
-        if($vars['assign'] && $vars['assign'][0]=='s')
-             $sql.=',team_id=0,staff_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
-        elseif($vars['assign'] && $vars['assign'][0]=='t')
-            $sql.=',staff_id=0,team_id='.db_input(preg_replace("/[^0-9]/", "",$vars['assign']));
-        else
-            $sql.=',staff_id=0,team_id=0 '; //no auto-assignment!
-
-        if($id) {
-            $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
-            if(!db_query($sql))
-                $errors['err']='Unable to update the filter. Internal error occurred';
-        }else{
-            $sql='INSERT INTO '.FILTER_TABLE.' SET '.$sql.',created=NOW() ';
-            if(!db_query($sql) || !($id=db_insert_id()))
-                $errors['err']='Unable to add filter. Internal error';
+        if (!$this->save()) {
+            if (!$this->__new__) {
+                $errors['err']=sprintf(__('Unable to update %s.'), __('this ticket filter'))
+                   .' '.__('Internal error occurred');
+            }
+            else {
+                $errors['err']=sprintf(__('Unable to add %s.'), __('this ticket filter'))
+                   .' '.__('Internal error occurred');
+            }
+            return false;
         }
 
-        if($errors || !$id) return false;
+        // Attempt to create/update the actions. Collect the errors
+        $this->save_actions($this->getId(), $vars, $errors);
+        if ($errors)
+            return false;
 
         //Success with update/create...save the rules. We can't recover from any errors at this point.
         # Don't care about errors stashed in $xerrors
         $xerrors = array();
-        self::save_rules($id,$vars,$xerrors);
-
-        return true;
-    }
-}
-
-class FilterRule {
-
-    var $id;
-    var $ht;
-
-    var $filter;
-
-    function FilterRule($id,$filterId=0) {
-        $this->id=0;
-        $this->load($id,$filterId);
-    }
-
-    function load($id,$filterId=0) {
-
-        $sql='SELECT rule.* FROM '.FILTER_RULE_TABLE.' rule '
-            .' WHERE rule.id='.db_input($id);
-        if($filterId)
-            $sql.=' AND rule.filter_id='.db_input($filterId);
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
+        if (!$this->save_rules($vars,$xerrors))
             return false;
 
-
-
-        $this->ht=db_fetch_array($res);
-        $this->id=$this->ht['id'];
-
-        $this->filter=null;
-
         return true;
     }
 
-    function reload() {
-        return $this->load($this->getId());
+    function delete() {
+        try {
+            parent::delete();
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
+            $this->rules->expunge();
+            $this->actions->expunge();
+        }
+        catch (OrmException $e) {
+            return false;
+        }
+        return true;
     }
+
+    /** static functions **/
+    function getTargets() {
+        return array(
+                'Any' => __('Any'),
+                'Web' => __('Web Forms'),
+                'API' => __('API Calls'),
+                'Email' => __('Emails'));
+    }
+
+    static function getByName($name) {
+        return static::lookup(['name' => $name]);
+    }
+
+    function validate_rules($vars,&$errors) {
+        $matches = array_keys(self::getSupportedMatchFields());
+        $types = array_keys(self::getSupportedMatchTypes());
+        $rules = array();
+        foreach ($vars['rules'] as $i=>$rule) {
+            if ($rule->ht) {
+                $rule = $rule->ht;
+                $rule["w"] = $rule["what"];
+                $rule["h"] = $rule["how"];
+                $rule["v"] = $rule["val"];
+            }
+
+            if (is_array($rule)) {
+                if($rule["w"] || $rule["h"]) {
+                // Check for REGEX compile errors
+                if (in_array($rule["h"], array('match','not_match'))) {
+                    $wrapped = "/".$rule["v"]."/iu";
+                    if (false === @preg_match($rule["v"], ' ')
+                            && (false !== @preg_match($wrapped, ' ')))
+                        $rule["v"] = $wrapped;
+                }
+
+                if(!$rule["w"] || !in_array($rule["w"],$matches))
+                    $errors["rule_$i"]=__('Invalid match selection');
+                elseif(!$rule["h"] || !in_array($rule["h"],$types))
+                    $errors["rule_$i"]=__('Invalid match type selection');
+                elseif(!$rule["v"])
+                    $errors["rule_$i"]=__('Value required');
+                elseif($rule["w"]=='email'
+                        && $rule["h"]=='equal'
+                        && !Validator::is_email($rule["v"]))
+                    $errors["rule_$i"]=__('Valid email required for the match type');
+                elseif (in_array($rule["h"], array('match','not_match'))
+                        && (false === @preg_match($rule["v"], ' ')))
+                    $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
+                        preg_last_error());
+
+
+                else //for everything-else...we assume it's valid.
+                    $rules[]=array('what'=>$rule["w"],
+                        'how'=>$rule["h"],'val'=>trim($rule["v"]));
+            }elseif($rule["v"]) {
+                $errors["rule_$i"]=__('Incomplete selection');
+            }
+            }
+        }
+
+        if(!$rules && !$errors)
+            $errors['rules']=__('You must set at least one rule.');
+
+        return $rules;
+    }
+
+    function save_rules($vars, &$errors) {
+        $rules = $this->validate_rules($vars, $errors);
+
+        if ($errors)
+            return false;
+
+        //Clear existing rules...we're doing mass replace on each save!!
+        $this->rules->expunge();
+        $num = 0;
+        foreach ($rules as $rule) {
+            $rule = new FilterRule($rule);
+            $this->rules->add($rule);
+            $rule->save();
+            $num++;
+        }
+
+        return $num;
+    }
+
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
+        return parent::save($refetch || $this->dirty);
+    }
+
+    static function create($vars,&$errors) {
+        $filter = new static($vars);
+        if ($filter->save())
+            return $filter;
+    }
+
+    function validate_actions($vars, &$errors) {
+        //allow the save if it is to set a filter flag
+        if ($vars['pass'])
+            return true;
+
+        if (!is_array(@$vars['actions']))
+            return;
+        foreach ($vars['actions'] as $sort=>$v) {
+          if (is_array($v)) {
+              $info = $v['type'];
+              $sort = $v['sort'] ?: $sort;
+          } else
+              $info = substr($v, 1);
+          $action = new FilterAction(array(
+              'type'=>$info,
+              'sort' => (int) $sort,
+          ));
+          $err = array();
+          $action->setConfiguration($err, $vars);
+          $config = json_decode($action->ht['configuration'], true);
+          if (is_numeric($action->ht['type'])) {
+              foreach ($config as $key => $value) {
+                  switch ($key) {
+                      case 'topic_id':
+                          $action->ht['type'] = 'topic';
+                          $config['topic_id'] = $value;
+                          break;
+                      case 'dept_id':
+                          $action->ht['type'] = 'dept';
+                          $config['dept_id'] = $value;
+                          break;
+                      case 'sla_id':
+                          $action->ht['type'] = __('SLA');
+                          break;
+                      case 'team_id':
+                          $action->ht['type'] = __('Team');
+                          break;
+                      case 'staff_id':
+                          $action->ht['type'] = __('Agent');
+                          break;
+                      case 'status_id':
+                          $action->ht['type'] = __('Ticket Status');
+                          break;
+                      case 'canned_id':
+                          $action->ht['type'] = __('Canned Response');
+                          break;
+                      default:
+                          $action->ht['type'] = __('All Actions');
+                          break;
+                  }
+              }
+          }
+
+          // do not throw an error if we are deleting an action
+          if (substr($v, 0, 1) != 'D') {
+              switch ($action->ht['type']) {
+                case 'dept':
+                  $dept = Dept::lookup($config['dept_id']);
+                  if (!$dept || !$dept->isActive()) {
+                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Department');
+                  }
+                  break;
+                case 'topic':
+                  $topic = Topic::lookup($config['topic_id']);
+                  if (!$topic || !$topic->isActive()) {
+                    $errors['err'] = sprintf(__('Unable to save: Please choose an active %s'), 'Help Topic');
+                  }
+                  break;
+                default:
+                  foreach ($config as $key => $value) {
+                    if (!$value || is_null($value)) {
+                        $errors['err'] = sprintf(__('Unable to save: Please insert a value for %s'), $action->ht['type']);
+                        return 1;
+                    }
+                  }
+                  break;
+              }
+          }
+      }
+      if (count($errors) == 0) {
+          $fa = FilterAction::lookup($info);
+          if ($fa) {
+              $filter = Filter::lookup($fa->getFilterId());
+              //Clear flags that may have been set on a successful save
+              $filter->setFlag(constant('Filter::FLAG_DELETED_OBJECT'), false);
+              $filter->setFlag(constant('Filter::FLAG_INACTIVE_DEPT'), false);
+              $filter->setFlag(constant('Filter::FLAG_INACTIVE_HT'), false);
+          }
+      }
+      return count($errors) == 0;
+    }
+
+    function save_actions($id, $vars, &$errors) {
+        if (!is_array(@$vars['actions']))
+            return;
+        foreach ($vars['actions'] as $sort=>$v) {
+            if (is_array($v)) {
+                $info = $v['type'];
+                $sort = $v['sort'] ?: $sort;
+                $action = 'N';
+            }
+            else {
+                $action = $v[0];
+                $info = substr($v, 1);
+            }
+            switch ($action) {
+            case 'N': # new filter action
+                $I = new FilterAction(array(
+                    'type'=>$info,
+                    'filter_id'=>$id,
+                    'sort' => (int) $sort,
+                ));
+                $I->setConfiguration($errors, $vars);
+                $I->save();
+                break;
+            case 'I': # existing filter action
+                if ($I = FilterAction::lookup($info)) {
+                    $I->setConfiguration($errors, $vars);
+                    $I->sort = (int) $sort;
+                    $I->save();
+                }
+                break;
+            case 'D': # deleted filter action
+                if ($I = FilterAction::lookup($info))
+                    $I->delete();
+                break;
+            }
+        }
+    }
+}
+Signal::connect('object.deleted', array('Filter', 'disableFilters'));
+
+class FilterRule
+extends VerySimpleModel {
+    static $meta = array(
+        'table' => FILTER_RULE_TABLE,
+        'pk' => array('id'),
+        'joins' => array(
+            'filter' => array(
+                'constraint' => array('filter_id' => 'Filter.id'),
+            ),
+        ),
+    );
 
     function getId() {
         return $this->id;
     }
 
     function isActive() {
-        return ($this->ht['isactive']);
+        return ($this->isactive);
     }
 
     function getHashtable() {
@@ -574,72 +732,38 @@ class FilterRule {
     }
 
     function getFilterId() {
-        return $this->ht['filter_id'];
+        return $this->filter_id;
     }
 
     function getFilter() {
-
-        if(!$this->filter && $this->getFilterId())
-            $this->filter = Filter::lookup($this->getFilterId());
-
         return $this->filter;
     }
 
-    function update($vars,&$errors) {
-        if(!$this->save($this->getId(),$vars,$errors))
+    function update($vars, &$errors) {
+        if (!$vars['filter_id'])
+            $errors['err']=__('Parent filter ID required');
+
+        if ($errors)
             return false;
 
-        $this->reload();
-        return true;
+        $this->what = $vars['what'];
+        $this->how = $vars['how'];
+        $this->val = $vars['val'];
+        $this->isactive = isset($vars['isactive']) ? (int) $vars['isactive'] : 1;
+
+        if (isset($vars['notes']))
+            $this->notes = Format::sanitize($vars['notes']);
+
+        if ($this->save())
+            return true;
     }
 
-    function delete() {
+    function save($refetch=false) {
+        if ($this->dirty)
+            $this->updated = SqlFunction::NOW();
 
-        $sql='DELETE FROM '.FILTER_RULE_TABLE.' WHERE id='.db_input($this->getId()).' AND filter_id='.db_input($this->getFilterId());
-
-        return (db_query($sql) && db_affected_rows());
+        return parent::save($refetch || $this->dirty);
     }
-
-    /* static */ function create($vars,&$errors) {
-        return self::save(0,$vars,$errors);
-    }
-
-    /* static private */ function save($id,$vars,&$errors) {
-
-        if(!$vars['filter_id'])
-            $errors['err']='Parent filter ID required';
-
-
-        if($errors) return false;
-
-        $sql=' updated=NOW() '.
-             ',what='.db_input($vars['what']).
-             ',how='.db_input($vars['how']).
-             ',val='.db_input($vars['val']).
-             ',isactive='.db_input(isset($vars['isactive'])?$vars['isactive']:1);
-
-
-        if(isset($vars['notes']))
-            $sql.=',notes='.db_input($vars['notes']);
-
-        if($id) {
-            $sql='UPDATE '.FILTER_RULE_TABLE.' SET '.$sql.' WHERE id='.db_input($id).' AND filter_id='.db_input($vars['filter_id']);
-            if(db_query($sql))
-                return true;
-
-        } else {
-            $sql='INSERT INTO '.FILTER_RULE_TABLE.' SET created=NOW(), filter_id='.db_input($vars['filter_id']).', '.$sql;
-            if(db_query($sql) && ($id=db_insert_id()))
-                return $id;
-        }
-
-        return false;
-    }
-
-    /* static */ function lookup($id,$filterId=0) {
-        return ($id && is_numeric($id) && ($r= new FilterRule($id,$filterId)) && $r->getId()==$id)?$r:null;
-    }
-
 }
 
 /**
@@ -665,7 +789,7 @@ class TicketFilter {
      *  ---------------
      *  @see Filter::matches() for a complete list of supported keys
      */
-    function TicketFilter($origin, $vars=array()) {
+    function __construct($origin, $vars=array()) {
 
         //Normalize the target based on ticket's origin.
         $this->target = self::origin2target($origin);
@@ -679,23 +803,26 @@ class TicketFilter {
             if (in_array($k, $interest))
                 $this->vars[$k] = trim($v);
         }
+        if (isset($vars['recipients']) && $vars['recipients']) {
+            foreach ($vars['recipients'] as $r) {
+                $this->vars['addressee'][] = $r['name'];
+                $this->vars['addressee'][] = $r['email'];
+            }
+            $this->vars['addressee'] = implode(' ', $this->vars['addressee']);
+        }
 
          //Init filters.
         $this->build();
     }
 
     function build() {
-
         //Clear any memoized filters
         $this->filters = array();
         $this->short_list = null;
 
         //Query DB for "possibly" matching filters.
-        $res = $this->getAllActive();
-        if($res) {
-            while (list($id) = db_fetch_row($res))
-                array_push($this->filters, new Filter($id));
-        }
+        foreach ($this->getAllActive() as $filter)
+            $this->filters[] = $filter;
 
         return $this->filters;
     }
@@ -721,92 +848,34 @@ class TicketFilter {
         return $this->short_list;
     }
     /**
-     * Determine if the filters that match the received vars indicate that
-     * the email should be rejected
-     *
-     * Returns FALSE if the email should be acceptable. If the email should
-     * be rejected, the first filter that matches and has reject ticket set is
-     * returned.
-     */
-    function shouldReject() {
-        foreach ($this->getMatchingFilterList() as $filter) {
-            # Set reject if this filter indicates that the email should
-            # be blocked; however, don't unset $reject, because if it
-            # was set by another rule that did not set stopOnMatch(), we
-            # should still honor its configuration
-            if ($filter->rejectOnMatch()) return $filter;
-        }
-        return false;
-    }
-    /**
      * Determine if any filters match the received email, and if so, apply
      * actions defined in those filters to the ticket-to-be-created.
+     *
+     * Throws:
+     * RejectedException if the email should not be acceptable. If the email
+     * should be rejected, the first filter that matches and has reject
+     * ticket set is returned.
      */
-    function apply(&$ticket) {
+    function apply(&$ticket, $postCreate=false) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            $filter->apply($ticket, $this->vars);
+            $filter->apply($ticket, $this->vars, $postCreate);
             if ($filter->stopOnMatch()) break;
         }
     }
 
-    /* static */ function getAllActive() {
-
-        $sql='SELECT id FROM '.FILTER_TABLE
-            .' WHERE isactive=1 '
-            .'  AND target IN ("Any", '.db_input($this->getTarget()).') ';
+    function getAllActive() {
+        $filters = Filter::objects()->filter([
+            'isactive' => 1,
+            'target__in' => array('Any', $this->getTarget()),
+        ]);
 
         #Take into account email ID.
-        if($this->vars['emailId'])
-            $sql.=' AND (email_id=0 OR email_id='.db_input($this->vars['emailId']).')';
+        if ($this->vars['emailId'])
+            $filters = $filters->filter([
+                'email_id__in' => array(0, $this->vars['emailId'])
+            ]);
 
-        $sql.=' ORDER BY execorder';
-
-        return db_query($sql);
-    }
-
-    /**
-     * Quick function to determine if the received email-address is
-     * indicated by an active email filter to be banned. Returns the id of
-     * the filter that has the address blacklisted and FALSE if the email is
-     * not blacklisted.
-     *
-     * XXX: If more detailed matching is to be supported, perhaps this
-     *      should receive an array like the constructor and
-     *      Filter::matches() method.
-     *      Peter - Let's keep it as a quick scan for obviously banned emails.
-     */
-    /* static */
-    function isBanned($addr) {
-
-        $sql='SELECT filter.id, what, how, UPPER(val) '
-            .' FROM '.FILTER_TABLE.' filter'
-            .' INNER JOIN '.FILTER_RULE_TABLE.' rule'
-            .' ON (filter.id=rule.filter_id)'
-            .' WHERE filter.reject_ticket'
-            .'   AND filter.match_all_rules=0'
-            .'   AND filter.email_id=0'
-            .'   AND filter.isactive'
-            .'   AND rule.isactive '
-            .'   AND rule.what="email"'
-            .'   AND LOCATE(rule.val,'.db_input($addr).')';
-
-        if(!($res=db_query($sql)) || !db_num_rows($res))
-            return false;
-
-        # XXX: Use MB_xxx function for proper unicode support
-        $addr = strtoupper($addr);
-        $how=array('equal'      => array('strcmp', 0),
-                   'contains'   => array('strpos', null, false));
-
-        while ($row=db_fetch_array($res)) {
-            list($func, $pos, $neg) = $how[$row['how']];
-            if (!$func) continue;
-            $result = call_user_func($func, $addr, $row['val']);
-            if (($neg === null && $result === $pos) || $result !== $neg)
-                return $row['id'];
-        }
-
-        return false;
+        return $filters->order_by('execorder')->all();
     }
 
     /**
@@ -818,19 +887,23 @@ class TicketFilter {
      *    http://msdn.microsoft.com/en-us/library/ee219609(v=exchg.80).aspx
      */
     /* static */
-    function isAutoResponse($headers) {
+    static function isAutoReply($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $auto_headers = array(
-            'Auto-Submitted'    => 'AUTO-REPLIED',
+            'Auto-Submitted'    => array('AUTO-REPLIED', 'AUTO-GENERATED'),
             'Precedence'        => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
-            'Subject'           => array('OUT OF OFFICE', 'AUTO-REPLY:', 'AUTORESPONSE'),
+            'X-Precedence'      => array('AUTO_REPLY', 'BULK', 'JUNK', 'LIST'),
             'X-Autoreply'       => 'YES',
-            'X-Auto-Response-Suppress' => array('ALL', 'DR', 'RN', 'NRN', 'OOF', 'AutoReply'),
-            'X-Autoresponse'    => '',
-            'X-Auto-Reply-From' => ''
+            'X-Auto-Response-Suppress' => array('AutoReply'),
+            'X-Autoresponse'    => '*',
+            'X-AutoReply-From'  => '*',
+            'X-Autorespond'     => '*',
+            'X-Mail-Autoreply'  => '*',
+            'X-Autogenerated'   => 'REPLY',
+            'X-AMAZON-MAIL-RELAY-TYPE' => 'NOTIFICATION',
         );
 
         foreach ($auto_headers as $header=>$find) {
@@ -846,39 +919,44 @@ class TicketFilter {
                 foreach ($find as $f)
                     if (strpos($value, $f) === 0)
                         return true;
+            } elseif ($find === '*') {
+                return true;
             } elseif (strpos($value, $find) === 0) {
                 return true;
             }
         }
 
-        # Bounces also counts as auto-responses.
-        if(self::isAutoBounce($headers))
-            return true;
-
         return false;
     }
 
-    function isAutoBounce($headers) {
+    static function isBounce($headers) {
 
         if($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $bounce_headers = array(
-            'From'          => array('<MAILER-DAEMON@MAILER-DAEMON>', 'MAILER-DAEMON', '<>'),
-            'Subject'       => array('DELIVERY FAILURE', 'DELIVERY STATUS', 'UNDELIVERABLE:'),
+            'From'  => array('stripos',
+                        array('MAILER-DAEMON', '<>', 'postmaster@'), null, false),
+            'Subject'   => array('stripos',
+                array('DELIVERY FAILURE', 'DELIVERY STATUS',
+                    'UNDELIVERABLE:', 'Undelivered Mail Returned'), 0),
+            'Return-Path'   => array('strcmp', array('<>'), 0),
+            'Content-Type'  => array('stripos', array('report-type=delivery-status'), null, false),
+            'X-Failed-Recipients' => array('strpos', array('@'), null, false)
         );
 
         foreach ($bounce_headers as $header => $find) {
             if(!isset($headers[$header])) continue;
 
-            $value = strtoupper($headers[$header]);
+            @list($func, $searches, $pos, $neg) = $find;
 
-            if (is_array($find)) {
-                foreach ($find as $f)
-                    if (strpos($value, $f) === 0)
-                        return true;
-            } elseif (strpos($value, $find) === 0) {
-                return true;
+            if(!($value = $headers[$header]) || !is_array($searches))
+                continue;
+
+            foreach ($searches as $f) {
+                $result = call_user_func($func, $value, $f);
+                if (($pos === null && $result !== $neg) or ($result === $pos))
+                    return true;
             }
         }
 
@@ -896,19 +974,55 @@ class TicketFilter {
     }
 }
 
+class RejectedException extends Exception {
+    var $filter;
+    var $vars;
+
+    function __construct(Filter $filter, $vars) {
+        parent::__construct('Ticket rejected by a filter');
+        $this->filter = $filter;
+        $this->vars = $vars;
+    }
+
+    function getRejectingFilter() {
+        return $this->filter;
+    }
+
+    function get($what) {
+        return $this->vars[$what];
+    }
+}
+
+class FilterDataChanged extends Exception {
+    var $data;
+
+    function __construct($data) {
+         parent::__construct('Ticket filter data changed');
+         $this->data = $data;
+    }
+
+    function getData() {
+        return $this->data;
+    }
+}
+
 /**
  * Function: endsWith
  *
  * Returns TRUE if the haystack ends with needle and FALSE otherwise.
  * Thanks, http://stackoverflow.com/a/834355
  */
-function endsWith($haystack, $needle)
+function iendsWith($haystack, $needle)
 {
-    $length = strlen($needle);
+    $length = mb_strlen($needle);
     if ($length == 0) {
         return true;
     }
 
-    return (substr($haystack, -$length) === $needle);
+    return (strcasecmp(mb_substr($haystack, -$length), $needle) === 0);
+}
+
+function pregMatchB($subject, $pattern) {
+    return preg_match($pattern, $subject);
 }
 ?>

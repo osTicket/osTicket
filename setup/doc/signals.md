@@ -56,7 +56,25 @@ the signal handler should be called.
 
 Signals in osTicket
 -------------------
-**auth.login.succeeded**
+#### ajax.client
+Sent before an AJAX request is processed for the client interface
+
+Context:
+Object<Dispatcher> - Dispatcher used to resolve and service the request
+
+Parameters:
+(none)
+
+#### ajax.scp
+Sent before an AJAX request is processed for the staff interface
+
+Context:
+Object<Dispatcher> - Dispatcher used to resolve and service the request
+
+Parameters:
+(none)
+
+#### auth.login.succeeded
 Sent after a successful login is process for a user
 
 Context:
@@ -65,7 +83,7 @@ Object<StaffSession> - Staff object retrieved from the login credentials
 Parameters:
 (none)
 
-**auth.login.failed**
+#### auth.login.failed
 Sent after an unsuccessful login is attempted by a user.
 
 Context:
@@ -75,7 +93,7 @@ Arguments:
   * **username**: *read-only* username submitted to the login form
   * **passowrd**: *read-only* password submitted to the login form
 
-**auth.pwreset.email**
+#### auth.pwreset.email
 Sent just before an email is sent to the user with the password reset token
 
 Context:
@@ -85,8 +103,10 @@ Parameters:
   * **email**: *read-only* email object used to send the email
   * **vars**: (array) template variables used to render the password-reset
         email template
+  * **log**: (bool) TRUE if a log should be appended to the system log
+        concerning the password reset attempt
 
-**auth.pwreset.login**
+#### auth.pwreset.login
 Sent just before processing the automatic login for the staff from the link
 and token provided in the password-reset email. This signal is only sent if
 the token presented is considered completely valid and the password for the
@@ -99,7 +119,7 @@ Parameters:
   * **page**: Page / URL sent in the redirect to the user. In other words,
         the next page the staff will see.
 
-**auth.pwchange**
+#### auth.pwchange
 Sent when the password for a user is changed
 
 Context:
@@ -107,3 +127,9 @@ Object<Staff> - Staff whose password is being changed
 
 Parameters:
   * **password**: New password (clear-text) for the user
+
+#### cron
+Sent at the end of a cron run
+
+Context:
+null
