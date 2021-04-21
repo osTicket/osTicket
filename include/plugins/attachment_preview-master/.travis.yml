@@ -1,0 +1,32 @@
+language: php
+php:
+  #- 5.6
+  - 7.1
+  - 7.3
+
+# These are the current latest versions of osTicket
+env: 
+  - OSTICKET_VERSION=1.10.5
+  - OSTICKET_VERSION=1.11
+  
+### Prepare the build matrix for Travis to create the different tests we want
+### Note: Each env above is mixed with each include directive here to create
+### 8 different test runs.. which can get expensive, so, we limit this to 
+### just the ones we need to test. Therefore, we specifically exclude
+### unsupported builds, like osTicket 1.10 with php 5.3
+matrix:
+  fast_finish: true
+      
+# Turn off the xdebug extension, we don't use coverage reports, and the precise errors were annoying
+before_install:
+  - phpenv config-rm xdebug.ini
+
+install:
+  - ./tests/install.sh
+
+## In order:
+# Run a PHP syntax check on every php file, cancels the build for any syntax errors
+# Set a timezone, picked a random one in Paris, PHP needs a timezone.
+before_script:
+  - '! find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
+  - echo 'date.timezone = "Europe/Paris"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini

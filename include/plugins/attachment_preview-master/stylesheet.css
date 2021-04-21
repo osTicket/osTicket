@@ -1,0 +1,51 @@
+@CHARSET "ISO-8859-1";
+/** Allow attachments to be as big as the thread */
+.thread-body .attachment-info {
+    width: 100%;
+    height: auto;
+}
+/** Add some borders and margins */
+div.ap_embedded {
+    max-width: 100%;
+    height: auto;
+    padding: 4px;
+    border: 1px solid #C3D9FF;
+    margin-top: 10px;
+}
+
+div.ap_embedded img {
+    max-width: 100%;
+}
+/* If we get reeeeeallly specific with it, CSS let's us override things in a stylesheet */
+.thread-body>div.attachments>span.attachment-info>div.ap_embedded {
+    margin-bottom: 10px !important;
+}
+
+/* Grant the buttonishness to osTicket 1.9, taken from scp.css line 1797, in particular, our toggle button. ;-) */
+.button {
+    cursor: pointer;
+    box-sizing: content-box;
+    display:inline-block;
+    vertical-align:bottom;
+    margin:0 4px;
+    height:22px;
+    line-height: 22px;
+    border: none;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
+    padding:2px 11px;
+    color: #555;
+    background-color: #f0f0f0;
+    background-color: rgba(0,0,0,0.02);
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 0.95em;
+    font-weight: normal;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, background 0.1s ease;
+    transition: opacity 0.1s ease, background-color 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, background 0.1s ease;
+}

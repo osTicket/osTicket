@@ -1051,6 +1051,7 @@
 
 .redactor-styles {
   margin: 0;
+  max-width:100% !important;
   padding: 16px 18px;
   color: #333;
   font-family: "Trebuchet MS", "Helvetica Neue", Helvetica, Tahoma, sans-serif;

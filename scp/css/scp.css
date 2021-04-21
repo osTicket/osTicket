@@ -6,7 +6,7 @@ body {
           font-smoothing:antialiased;
 }
 body, html {
-    background:#eee;
+    background:#00034c;
     color:#000;
     font-size:14px;
     margin:0;
@@ -126,7 +126,8 @@ a time {
 
 
 #container {
-    width:960px;
+    width:95%;
+	min-width:1200px;
     margin:0 auto 20px auto;
 }
 
@@ -726,7 +727,7 @@ a time {
 .jb-overflowmenu {
     position: relative;
     height:35px;
-    width: 960px;
+    width: 100%;
 }
 
 
@@ -1120,7 +1121,7 @@ table.dashboard-stats tbody:nth-child(2) tr:hover th {
     color:#000;
 }
 
-table { vertical-align:top; }
+table { vertical-align:top; width: 100%;}
 
 table.list {
     clear:both;
@@ -1467,6 +1468,7 @@ h3.title > .sub-title {
 
 .ticket_info {
     background:#F4FAFF;
+	width: 100%;
 }
 
 .ticket_info.custom-data thead th {
@@ -3585,7 +3587,7 @@ input[type=checkbox] {
   padding: 0;
   margin:0;
   margin-right: 0.1em;
-  vertical-align: middle;
+  vertical-align: bottom;
   position: relative;
   top: -0.05em;
   *overflow: hidden;
