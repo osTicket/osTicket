@@ -4617,8 +4617,13 @@ class ChoicesWidget extends Widget {
     }
 
     function getValue() {
-
-        if (!($value = parent::getValue()))
+        // Data will not be empty on update
+        // When updating a multiselect, ensure an unset choice 
+        // is set to an empty array so DB is update correctly
+        $data = $this->field->getSource();
+        $config = $this->field->getConfiguration();
+        $updating_multiselect = $data && $config['multiselect'];
+        if (!($value = parent::getValue()) && !$updating_multiselect)
             return null;
 
         if ($value && !is_array($value))
