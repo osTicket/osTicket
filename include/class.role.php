@@ -297,6 +297,10 @@ class RolePermission {
             $this->perms = array();
     }
 
+    function exists($perm) {
+        return @array_key_exists($perm, $this->perms);
+    }
+
     function has($perm) {
         return (bool) $this->get($perm);
     }
