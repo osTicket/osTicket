@@ -53,28 +53,34 @@ implements EmailContact, ITicketUser, TemplateVariable {
     }
 
     function getVar($tag) {
-        global $cfg;
-
         switch (strtolower($tag)) {
         case 'ticket_link':
-            $qstr = array();
             $ticket = $this->getTicket();
-            if ($cfg && $cfg->isAuthTokenEnabled()
-                    && $ticket
-                    && !$ticket->getNumCollaborators()) {
-                $qstr['auth'] = $ticket->getAuthToken($this);
-                return sprintf('%s/view.php?%s',
+            return $this->getTicketLink(($ticket &&
+                        !$ticket->getNumCollaborators()));
+            break;
+        }
+    }
+
+    function getTicketLink($authtoken=true) {
+        global $cfg;
+
+        $ticket = $this->getTicket();
+        if ($authtoken
+                && $ticket
+                && $cfg->isAuthTokenEnabled()) {
+            $qstr = array();
+            $qstr['auth'] = $ticket->getAuthToken($this);
+            return sprintf('%s/view.php?%s',
                         $cfg->getBaseUrl(),
                         Http::build_query($qstr, false)
                         );
-            } else {
-                return sprintf('%s/tickets.php?id=%s',
-                        $cfg->getBaseUrl(),
-                        $ticket ? $ticket->getId() : 0
-                        );
-            }
-            break;
         }
+
+        return sprintf('%s/view.php?id=%s',
+                $cfg->getBaseUrl(),
+                $ticket ? $ticket->getId() : 0
+                );
     }
 
     function getId() { return ($this->user) ? $this->user->getId() : null; }
@@ -241,6 +247,11 @@ class EndUser extends BaseAuthenticatedUser {
         return UserAuthenticationBackend::getBackend($authkey);
     }
 
+    function get2FABackend() {
+        //TODO: support 2FA on client portal
+        return null;
+    }
+
     function getTicketStats() {
         if (!isset($this->_stats))
             $this->_stats = $this->getStats();
@@ -375,7 +386,7 @@ class EndUser extends BaseAuthenticatedUser {
 
 class ClientAccount extends UserAccount {
 
-    function checkPassword($password, $autoupdate=true) {
+    function check_passwd($password, $autoupdate=true) {
 
         /*bcrypt based password match*/
         if(Passwd::cmp($password, $this->get('passwd')))
@@ -396,7 +407,7 @@ class ClientAccount extends UserAccount {
     }
 
     function hasCurrentPassword($password) {
-        return $this->checkPassword($password, false);
+        return $this->check_passwd($password, false);
     }
 
     function cancelResetTokens() {
@@ -425,32 +436,37 @@ class ClientAccount extends UserAccount {
             return parent::update($vars, $errors);
 
         $rtoken = $_SESSION['_client']['reset-token'];
-        if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
+
+
+		if ($rtoken) {
+			$_config = new Config('pwreset');
+			if ($_config->get($rtoken) != 'c'.$this->getUserId())
+				$errors['err'] =
+					__('Invalid reset token. Logout and try again');
+			elseif (!($ts = $_config->lastModified($rtoken))
+					&& ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+				$errors['err'] =
+					__('Invalid reset token. Logout and try again');
+		} elseif ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
 
             if (!$vars['passwd1'])
                 $errors['passwd1']=__('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']=__('Passwords do not match');
-
-            if ($rtoken) {
-                $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != 'c'.$this->getUserId())
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-                elseif (!($ts = $_config->lastModified($rtoken))
-                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-            }
             elseif ($this->get('passwd')) {
                 if (!$vars['cpasswd'])
                     $errors['cpasswd']=__('Current password is required');
                 elseif (!$this->hasCurrentPassword($vars['cpasswd']))
                     $errors['cpasswd']=__('Invalid current password!');
-                elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                    $errors['passwd1']=__('New password MUST be different from the current password!');
+            }
+
+            // Check password policies
+			if (!$errors) {
+                try {
+                    UserAccount::checkPassword($vars['passwd1'], @$vars['cpasswd']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] = $ex->getMessage();
+                }
             }
         }
 

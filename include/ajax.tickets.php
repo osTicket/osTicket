@@ -1086,13 +1086,7 @@ class TicketsAjaxAPI extends AjaxController {
 
                         $depts = $tickets->values_flat('dept_id');
                     }
-                    $members = Staff::objects()
-                        ->distinct('staff_id')
-                        ->filter(array(
-                                    'onvacation' => 0,
-                                    'isactive' => 1,
-                                    )
-                                );
+                    $members = $thisstaff->getDeptAgents(array('available' => true));
 
                     if ($depts) {
                         $all_agent_depts = Dept::objects()->filter(
@@ -1194,6 +1188,7 @@ class TicketsAjaxAPI extends AjaxController {
             $info[':title'] = sprintf('Transfer %s',
                     _N('selected ticket', 'selected tickets', $count));
             $form = TransferForm::instantiate($_POST);
+            $form->hideDisabled();
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
@@ -1597,7 +1592,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such ticket'));
 
-        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MARKANSWERED) && !$thisstaff->isManager())
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MARKANSWERED) && !$thisstaff->isManager($ticket->getDept()))
             Http::response(403, __('Permission denied'));
 
         $errors = array();
@@ -1816,6 +1811,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $vars['default_formdata'] = $form->getClean();
                 $vars['internal_formdata'] = $iform->getClean();
                 $desc = $form->getField('description');
+                $vars['description'] = $desc->getClean();
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))
@@ -1973,7 +1969,7 @@ class TicketsAjaxAPI extends AjaxController {
             $id = $queue->getId();
             $_SESSION['Export:Q'.$id]['fields'] = $_POST['fields'];
             $_SESSION['Export:Q'.$id]['filename'] = $_POST['filename'];
-            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['delimiter'];
+            $_SESSION['Export:Q'.$id]['delimiter'] = $_POST['csv-delimiter'];
             // Save fields selection if requested
             if ($queue->isSaved() && isset($_POST['save-changes']))
                $queue->updateExports(array_flip($_POST['fields']));
@@ -1993,7 +1989,7 @@ class TicketsAjaxAPI extends AjaxController {
             try {
                 $interval = 5;
                 $options = ['filename' => $filename,
-                    'interval' => $interval];
+                    'interval' => $interval, 'delimiter' => $_POST['csv-delimiter']];
                 // Create desired exporter
                 $exporter = new CsvExporter($options);
                 // Acknowledge the export

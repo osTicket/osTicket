@@ -1744,7 +1744,7 @@ class SelectionField extends FormField {
         return $config;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!$this->_choices || $verbose) {
             $choices = array();
             foreach ($this->getList()->getItems() as $i)

@@ -121,6 +121,50 @@ if ($avatar->isChangeable()) { ?>
             <div class="error"><?php echo $errors['username']; ?></div>
           </td>
         </tr>
+
+<?php
+if (($bks=Staff2FABackend::allRegistered())) {
+    $current = $staff->get2FABackendId();
+    $required2fa = $cfg->require2FAForAgents();
+    $_config = $staff->getConfig();
+?>
+        <tr>
+          <td <?php if ($required2fa) echo 'class="required"'; ?>><?php echo __('Default 2FA'); ?>:</td>
+          <td>
+            <select name="default_2fa" id="default2fa-selection"
+              style="width:300px">
+              <?php
+              if (!$required2fa) { ?>
+              <option value="">&mdash; <?php echo __('Disable'); ?> &mdash;</option>
+              <?php
+              }
+             foreach ($bks as $bk) {
+                 $configuration = $staff->get2FAConfig($bk->getId());
+                 $configured = $configuration['verified'];
+                 ?>
+              <option id="<?php echo $bk->getId(); ?>"
+                      value="<?php echo $bk->getId(); ?>" <?php
+                if ($current == $bk->getId() && $configured)
+                  echo ' selected="selected" '; ?>
+                <?php
+                if (!$configured)
+                   echo ' disabled="disabled" '; ?>
+                 ><?php
+                echo $bk->getName(); ?></option>
+             <?php } ?>
+            </select>
+            &nbsp;
+            <button type="button" id="config2fa-button" class="action-button" onclick="javascript:
+            $.dialog('ajax.php/staff/'+<?php echo $staff->getId();
+                    ?>+'/2fa/configure', 201);">
+              <i class="icon-gear"></i> <?php echo __('Configure Options'); ?>
+            </button>
+            <i class="offset help-tip icon-question-sign" href="#config2fa"></i>
+            <div class="error"><?php echo $errors['default_2fa']; ?></div>
+          </td>
+        </tr>
+<?php
+} ?>
       </tbody>
       <!-- ================================================ -->
       <tbody>
@@ -182,7 +226,7 @@ if ($avatar->isChangeable()) { ?>
                    for($i=1; $i <=30; $i+=$y) {
                      $sel=($staff->auto_refresh_rate==$i)?'selected="selected"':'';
                      echo sprintf('<option value="%d" %s>%s</option>', $i, $sel,
-                        sprintf(_N('Every minute', 'Every %d minutes', $i), $i));
+                        @sprintf(_N('Every minute', 'Every %d minutes', $i), $i));
                      if($i>9)
                         $y=2;
                    } ?>

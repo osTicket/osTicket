@@ -44,7 +44,7 @@ class OverviewReport {
         if ($translate) {
             $format = str_replace(
                     array('y', 'Y', 'm'),
-                    array('yy', 'yyyy', 'mm'),
+                    array('y', 'yy', 'mm'),
                     $format);
         }
 
@@ -226,7 +226,7 @@ class OverviewReport {
             $headers = array(__('Help Topic'));
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
-            $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+            $topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
             if (empty($topics))
                 return array("columns" => array_merge($headers, $dash_headers),
                       "data" => array());

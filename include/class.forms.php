@@ -112,7 +112,7 @@ class Form {
     }
 
     function getTitle() { return $this->title; }
-    function getInstructions() { return $this->instructions; }
+    function getInstructions() { return Format::htmldecode($this->instructions); }
     function getSource() { return $this->_source; }
     function setSource($source) { $this->_source = $source; }
 
@@ -1148,7 +1148,7 @@ class FormField {
      * Fetch a pseudo-random id for this form field. It is used when
      * rendering the widget in the @name attribute emitted in the resulting
      * HTML. The form element is based on the form id, field id and name,
-     * and the current user's session id. Therefor, the same form fields
+     * and the current user's session id. Therefore, the same form fields
      * will yield differing names for different users. This is used to ward
      * off bot attacks as it makes it very difficult to predict and
      * correlate the form names to the data they represent.
@@ -1157,12 +1157,30 @@ class FormField {
         $default = $this->get('name') ?: $this->get('id');
         if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
             return substr(md5(
-                session_id() . '-form-field-id-' . $fid . $default), -14);
+                session_id() . "-form-field-id-$fid-$default-" . SECRET_SALT), -14);
         elseif (is_numeric($this->get('id')))
             return substr(md5(
-                session_id() . '-field-id-'.$this->get('id')), -16);
+                session_id() . '-field-id-'.$this->get('id') . '-' . SECRET_SALT), -16);
 
         return $default;
+    }
+
+    function getFormNames() {
+
+        // All possible names - this is important for inline data injection
+        $names = array_filter([
+                'hash' => $this->getFormName(),
+                'name' => $this->get('name'),
+                'id' => $this->get('id')]);
+
+        // Force pseudo-random name for Dynamicforms on POST (Web Tickets)
+        if (0 && $_POST
+                && !defined('APICALL')
+                && isset($this->ht['form'])
+                && ($this->ht['form'] instanceof DynamicForm))
+            return [$names['hash']];
+
+        return $names;
     }
 
     function setForm($form) {
@@ -1508,7 +1526,7 @@ class TextboxField extends FormField {
     }
 
     function display($value) {
-        return ($value === '0') ? '&#48;' : Format::htmlchars($this->toString($value ?: $this->value));
+        return ($value === '0') ? '&#48;' : Format::htmlchars($this->toString($value ?: $this->value), true);
     }
 }
 
@@ -1517,7 +1535,8 @@ class PasswordField extends TextboxField {
 
     function __construct($options=array()) {
         parent::__construct($options);
-        $this->set('validator', 'password');
+        if (!isset($options['validator']))
+            $this->set('validator', 'password');
     }
 
     function parse($value) {
@@ -1601,7 +1620,7 @@ class TextareaField extends FormField {
         if ($config['html'])
             return Format::safe_html($value);
         else
-            return nl2br(Format::htmlchars($value));
+            return nl2br(Format::htmlchars($value, true));
     }
 
     function searchable($value) {
@@ -1942,7 +1961,7 @@ class ChoiceField extends FormField {
         return $selection;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if ($this->_choices === null || $verbose) {
             // Allow choices to be set in this->ht (for configurationOptions)
             $this->_choices = $this->get('choices');
@@ -2758,8 +2777,10 @@ class TopicField extends ChoiceField {
     var $_choices;
 
     function getTopics() {
+        global $thisstaff;
+
         if (!isset($this->topics))
-            $this->topics = Topic::getHelpTopics(false, false, true);
+            $this->topics = $thisstaff->getTopicNames();
 
         return $this->topics;
     }
@@ -2784,7 +2805,7 @@ class TopicField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $this->_choices = $this->getTopics();
         }
@@ -2890,7 +2911,7 @@ class SLAField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $choices = array();
             foreach ($this->getSLAs() as $s)
@@ -2998,7 +3019,7 @@ class PriorityField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $choices = array();
             foreach ($this->getPriorities() as $p)
@@ -3123,7 +3144,7 @@ class TimezoneField extends ChoiceField {
         return false;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $cfg;
 
         $choices = array();
@@ -3170,9 +3191,11 @@ class DepartmentField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
-        global $cfg;
+    function getChoices($verbose=false, $options=array()) {
+        global $cfg, $thisstaff;
 
+        $config = $this->getConfiguration();
+        $staff = $config['staff'] ?: $thisstaff;
         $selected = self::getWidget();
         if($selected && $selected->value) {
           if(is_array($selected->value)) {
@@ -3187,30 +3210,37 @@ class DepartmentField extends ChoiceField {
           }
         }
 
-        $active_depts = Dept::objects()
-          ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
-          ->values('id', 'name')
-          ->order_by('name');
-
         $choices = array();
-        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
-          //create array w/queryset
-          $active = array();
-          foreach ($active_depts as $dept)
-            $active[$dept['id']] = $dept['name'];
 
-          //add selected dept to list
-          if($current_id)
+        //get all depts unfiltered
+        $depts = $config['hideDisabled'] ? Dept::getDepartments(array('activeonly' => true)) :
+            Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+
+        //get staff depts based on permissions
+        if ($staff) {
+            $active = $staff->getDepartmentNames(true);
+
+            if ($staff->hasPerm(Dept::PERM_DEPT))
+                return $depts;
+        }
+        //filter custom department fields when there is no staff
+        else {
+            $userDepts = Dept::getDepartments(array('publiconly' => true, 'activeonly' => true));
+
+            return $userDepts;
+        }
+
+         //add selected dept to list
+         if($current_id)
             $active[$current_id] = $current_name;
-          else
+         else
             return $active;
 
-          foreach ($depts as $id => $name) {
+         foreach ($depts as $id => $name) {
             $choices[$id] = $name;
             if(!array_key_exists($id, $active) && $current_id)
                 unset($choices[$id]);
-          }
-        }
+         }
 
         return $choices;
     }
@@ -3310,7 +3340,7 @@ class AssigneeField extends ChoiceField {
 
     function getCriteria() {
         if (!isset($this->_criteria)) {
-            $this->_criteria = array('available' => true);
+            $this->_criteria = array('available' => true, 'namesOnly' => true);
             if (($c=parent::getCriteria()))
                 $this->_criteria = array_merge($this->_criteria, $c);
         }
@@ -3335,36 +3365,56 @@ class AssigneeField extends ChoiceField {
         return $value;
     }
 
-    function getChoices($verbose=false) {
-        global $cfg;
+    function getAssignees($options=array()) {
+        global $thisstaff;
 
-        if (!isset($this->_choices)) {
-            $config = $this->getConfiguration();
-            $choices = array(
+        $config = $this->getConfiguration();
+        $criteria = $this->getCriteria();
+        $dept = $config['dept'] ?: null;
+        $staff = $config['staff'] ?: $thisstaff;
+        $assignees = array();
+        switch (strtolower($config['target'])) {
+        case 'agents':
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $assignees['s'.$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name)
+                    $assignees['s'.$id] = $name;
+            break;
+        case 'teams':
+            foreach (Team::getActiveTeams() ?: array() as $id => $name)
+                $assignees['t'.$id] = $name;
+            break;
+        default:
+            // both agents and teams
+            $assignees = array(
                     __('Agents') => new ArrayObject(),
                     __('Teams') => new ArrayObject());
-            $A = current($choices);
+            $A = current($assignees);
             $criteria = $this->getCriteria();
             $agents = array();
-            if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
-                if (($members = $dept->getAvailableMembers()))
-                    foreach ($members as $member)
-                        $agents[$member->getId()] = $member;
-            } else {
-                $agents = Staff::getStaffMembers($criteria);
-            }
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $A['s'.$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $a => $name)
+                    $A['s'.$a] = $name;
 
-            foreach ($agents as $id => $name)
-                $A['s'.$id] = $name;
-
-            next($choices);
-            $T = current($choices);
+            next($assignees);
+            $T = current($assignees);
             if (($teams = Team::getActiveTeams()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
-
-            $this->_choices = $choices;
+            break;
         }
+
+        return $assignees;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        if (!isset($this->_choices))
+            $this->_choices = $this->getAssignees($options);
 
         return $this->_choices;
     }
@@ -3386,6 +3436,17 @@ class AssigneeField extends ChoiceField {
         }
 
         return parent::getChoice($value);
+    }
+
+    function getQuickFilterChoices() {
+        $choices = $this->getChoices();
+        $names = array();
+        foreach ($choices as $value) {
+            foreach ($value as $key => $value)
+                $names[$key] = is_object($value) ? $value->name : $value;
+        }
+
+        return $names;
     }
 
     function getValue() {
@@ -3539,7 +3600,7 @@ class TicketStateField extends ChoiceField {
         return false;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         static $_choices;
 
         $states = static::$_states;
@@ -3627,7 +3688,7 @@ class TicketFlagField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         $this->ht['default'] =  '';
 
         if (!$this->_choices) {
@@ -4199,13 +4260,10 @@ class Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        // Search for HTML form name first
-        if (isset($data[$this->name]))
-            return $data[$this->name];
-        elseif (isset($data[$this->field->get('name')]))
-            return $data[$this->field->get('name')];
-        elseif (isset($data[$this->field->get('id')]))
-            return $data[$this->field->get('id')];
+        foreach ($this->field->getFormNames() as $name)
+            if (isset($data[$name]))
+                return $data[$name];
+
         return null;
     }
 
@@ -4250,20 +4308,46 @@ class TextboxWidget extends Widget {
                 if (!isset($config[$k]) || !$config[$k])
                     $config[$k] = $v;
         }
-        if (isset($config['size']))
-            $size = "size=\"{$config['size']}\"";
-        if (isset($config['length']) && $config['length'])
-            $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['classes']))
-            $classes = 'class="'.$config['classes'].'"';
-        if (isset($config['autocomplete']))
-            $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+
+        // Input attributes
+        $attrs = array();
+        foreach ($config as $k => $v) {
+            switch ($k) {
+                case 'autocomplete':
+                    if (is_numeric($v))
+                        $v = $v ? 'on' : 'off';
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'disabled';
+                    $attrs[$k] = '"disabled"';
+                    break;
+                case 'translatable':
+                    if ($v)
+                        $attrs['data-translate-tag'] =  '"'.$v.'"';
+                    break;
+                case 'size':
+                case 'maxlength':
+                    if ($v && is_numeric($v))
+                        $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'class':
+                case 'classes':
+                    $attrs['class'] = '"'.$v.'"';
+                    break;
+                case 'inputmode':
+                case 'pattern':
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+            }
+        }
+        // autofocus
+        $autofocus = '';
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
-        if (isset($config['disabled']))
-            $disabled = 'disabled="disabled"';
-        if (isset($config['translatable']) && $config['translatable'])
-            $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        // placeholder
+        $attrs['placeholder'] = sprintf('"%s"',
+                Format::htmlchars($this->field->getLocal('placeholder',
+                    $config['placeholder'])));
         $type = static::$input_type;
         $types = array(
             'email' => 'email',
@@ -4271,16 +4355,13 @@ class TextboxWidget extends Widget {
         );
         if ($type == 'text' && isset($types[$config['validator']]))
             $type = $types[$config['validator']];
-        $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
-            $config['placeholder']));
         ?>
         <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
-            <?php echo implode(' ', array_filter(array(
-                $size, $maxlength, $classes, $autocomplete, $disabled,
-                $translatable, $placeholder, $autofocus))); ?>
+            <?php echo $autofocus .' '.Format::array_implode('=', ' ',
+                    array_filter($attrs)); ?>
             name="<?php echo $this->name; ?>"
-            value="<?php echo Format::htmlchars($this->value); ?>"/>
+            value="<?php echo Format::htmlchars($this->value, true); ?>"/>
         <?php
     }
 }
@@ -4329,30 +4410,45 @@ class PasswordWidget extends TextboxWidget {
 class TextareaWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        $class = $cols = $rows = $maxlength = "";
+        // process textarea attributes
         $attrs = array();
-        if (isset($config['rows']))
-            $rows = "rows=\"{$config['rows']}\"";
-        if (isset($config['cols']))
-            $cols = "cols=\"{$config['cols']}\"";
-        if (isset($config['length']) && $config['length'])
-            $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['html']) && $config['html']) {
-            $class = array('richtext', 'no-bar');
-            $class[] = @$config['size'] ?: 'small';
-            $class = sprintf('class="%s"', implode(' ', $class));
-            $this->value = Format::viewableImages($this->value);
+        foreach ($config as $k => $v) {
+            switch ($k) {
+                case 'rows':
+                case 'cols':
+                case 'length':
+                case 'maxlength':
+                    if ($v && is_numeric($v))
+                        $attrs[$k] = '"'.$v.'"';;
+                    break;
+                case 'context':
+                    $attrs['data-root-context'] =  '"'.$v.'"';
+                    break;
+                case 'class':
+                    // This might conflict with html attr below
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'html':
+                    if ($v) {
+                        $class = array('richtext', 'no-bar');
+                        $class[] = @$config['size'] ?: 'small';
+                        $attrs['class'] =  '"'.implode(' ', $class).'"';
+                        $this->value = Format::viewableImages($this->value);
+                    }
+                    break;
+            }
         }
-        if (isset($config['context']))
-            $attrs['data-root-context'] = '"'.$config['context'].'"';
+        // placeholder
+        $attrs['placeholder'] = sprintf('"%s"',
+                Format::htmlchars($this->field->getLocal('placeholder',
+                $config['placeholder'])));
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
-                .' '.Format::array_implode('=', ' ', $attrs)
-                .' placeholder="'.$this->field->getLocal('placeholder', $config['placeholder']).'"'; ?>
+        <textarea <?php echo Format::array_implode('=', ' ',
+                array_filter($attrs)); ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
-                echo Format::htmlchars($this->value);
+                echo Format::htmlchars($this->value, true);
             ?></textarea>
         </span>
         <?php
@@ -4425,7 +4521,7 @@ class ChoicesWidget extends Widget {
 
         // Determine the value for the default (the one listed if nothing is
         // selected)
-        $choices = $this->field->getChoices(true);
+        $choices = $this->field->getChoices(true, $options);
         $prompt = ($config['prompt'])
             ? $this->field->getLocal('prompt', $config['prompt'])
             : __('Select'
@@ -4466,7 +4562,7 @@ class ChoicesWidget extends Widget {
               foreach ($config['data'] as $D=>$V)
                 echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
             ?>
-            data-placeholder="<?php echo $prompt; ?>"
+            data-placeholder="<?php echo Format::htmlchars($prompt); ?>"
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
             <?php if ($showdefault || (!$have_def && !$config['multiselect'])) { ?>
@@ -4974,7 +5070,7 @@ class ThreadEntryWidget extends Widget {
 
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
-        <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
+        <textarea style="width:100%;" name="<?php echo $this->name; ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('placeholder')); ?>"
             class="<?php if ($config['html']) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
@@ -5518,7 +5614,6 @@ class AssignmentForm extends Form {
         if (isset($this->_assignees))
             $fields['assignee']->setChoices($this->_assignees);
 
-
         $this->setFields($fields);
 
         return $this->fields;
@@ -5745,17 +5840,17 @@ class ReferralForm extends Form {
                                ),
                             )
                 ),
-            'agent' => new ChoiceField(array(
+            'agent' => new AgentSelectionField(array(
                     'id'=>2,
                     'label' => '',
                     'flags' => hexdec(0X450F3),
                     'required' => true,
+                    'validator-error' => __('Agent selection required'),
                     'configuration'=>array('prompt'=>__('Select Agent')),
-                            'validator-error' => __('Agent selection required'),
-                    'visibility' => new VisibilityConstraint(
-                        new Q(array('target__eq'=>'agent')),
-                        VisibilityConstraint::HIDDEN
-                      ),
+                            'visibility' => new VisibilityConstraint(
+                                    new Q(array('target__eq'=>'agent')),
+                                    VisibilityConstraint::HIDDEN
+                              ),
                             )
                 ),
             'team' => new ChoiceField(array(
@@ -5977,6 +6072,15 @@ class TransferForm extends Form {
         }
 
         return $this->_dept;
+    }
+
+    function hideDisabled() {
+        global $thisstaff;
+
+        if ($f = $this->getField('dept')) {
+            $f->configure('staff', $thisstaff);
+            $f->configure('hideDisabled', true);
+        }
     }
 }
 

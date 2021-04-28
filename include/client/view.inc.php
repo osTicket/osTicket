@@ -173,7 +173,7 @@ if ((!$ticket->isClosed() || $ticket->isReopenable()) && !$blockReply) { ?>
          echo __('To best assist you, we request that you be specific and detailed'); ?></em>
         <font class="error">*&nbsp;<?php echo $errors['message']; ?></font>
         </p>
-        <textarea name="message" id="message" cols="50" rows="9" wrap="soft"
+        <textarea name="<?php echo $messageField->getFormName(); ?>" id="message" cols="50" rows="9" wrap="soft"
             class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                 ?> draft" <?php
 list($draft, $attrs) = Draft::getDraftAndDataAttrs('ticket.client', $ticket->getId(), $info['message']);

@@ -38,7 +38,7 @@ if($faq && $faq->getId()){
     }
 }
 //TODO: Add attachment support.
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 $qstr = Http::build_query($qs);
 ?>
 <form action="faq.php?<?php echo $qstr; ?>" method="post" class="save" enctype="multipart/form-data">
@@ -71,7 +71,7 @@ $qstr = Http::build_query($qs);
     <div class="error"><?php echo $errors['category_id']; ?></div>
 
 <?php
-if ($topics = Topic::getAllHelpTopics()) {
+if ($topics = $thisstaff->getTopicNames()) {
     if (!is_array(@$info['topics']))
         $info['topics'] = array();
 ?>

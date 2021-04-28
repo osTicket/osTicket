@@ -1,3 +1,136 @@
+osTicket v1.15.2
+================
+### Enhancements
+* Issue: Visibility Permissions (8da9da3)
+* Depts Visibility (fe37ae2)
+* Issue: Task Inline Transfer (e43d6bf)
+
+### Improvements
+* Make word count error match the actual limit (3e177bb)
+* Mute warning when Every Minute is selected. (2a56da7)
+* Remove extra selection - Choice Field handles prompt. (b564ce3)
+* Fail gracefully when supported matches return null (4550b65)
+* Create variable before passing it by reference (858649c)
+* FAQ: Check for lookup failures (edd1feb)
+* 2fa: use isset to check checkbox (7f68060)
+* Session: Regenerate session id before closing it. (14e9fb2)
+* Issue: Unlinking Tickets (98efec5)
+* Issue: Agents/Depts in Queue Cols (d8f6ef6)
+* Issue: Revise getDepartments (71f4c0c)
+* Issue: Visibility Permissions (3ee5941)
+* issue: getDefaultDeptId() On Null (38a09e6)
+* issue: Dashboard Export Date Range (db79149)
+* Issue: Echoing Default Dept Status (fe31575)
+* issue: Export Memory Limit (3a5e5c9)
+* Use PageNate->showing() for Users and Orgs in SCP (63f0ae8)
+* Don't capitalize Queue menu items (2348850)
+* Issue: Disabled Dept on Email (b1397a3)
+* issue: Assign To Sort Alphabetically (77c7a12)
+* Update class.plugin.php (4a3451f)
+
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
+osTicket v1.15.1
+================
+### Improvements
+* readme: Update PHP Version (a4c85d7)
+* placeholder: Quote and encode html chars (0056d14)
+
+osTicket v1.14.6
+================
+### Enhancements
+* redactor: Upgrade to version 3.4.9 (ab40f97)
+
+### Improvements
+* issue: markAs Popup Manager (No Access) (8d1d623)
+* issue: Task last_update Var (08cd762)
+* issue: SCP Login Redirect (9b12a54)
+* issue: Client-Side Reply Draft Saving (996cd9e)
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
+osTicket v1.14.5
+================
+### Enhancements
+* typo: Change User Confirmation Popup (79e6513)
+* redactor: Upgrade to version 3.4.6 (5c77b0d)
+
+### Improvements
+* issue: MailFetch Inline Disposition (fbf0c7d)
+* issue: Editor Spacing (a6cbc5c)
+* Issue: Collaborator Adding New Collabs (a4ab6b6)
+* mail: Reply to Ticket Owner Only (a4bb20a)
+* dept: Dept Deletion Bug (7cba73d)
+* issue: Task From Ticket (4b48456)
+
+### Security
+* security: Parent Ticket Access (Client) (5972fe8)
+
+osTicket v1.15
+==============
+### Enhancements
+* Change dept_id and priority_id fron tinyint to int (e54f6f3)
+* csrf: Add ability to rotate token (36e614c)
+* Feature: Agent/Department Visibility (5fbd762, e4346d2, 4ad7e95, 49b2f1b, 46033d1, 3a8ea4b, 6eae7e6, f306ce8, 6fdc111, 4489b2f, 7f0602a, 484023d, 3722fc5, 6425146, 9902ac2, 07b2373, ca81176, 4e86313)
+* db: Latest Indexes (da2fd37, 2731074, c359d12, ea09373, 4c9968b)
+* SLA Plan Search Field (0fd63b4)
+* 2FA Backends (5dd0a34, 4ef752c, cff12f7, ea86103, 4b6bc73, a1b7826, 3f08e62, 9d46c84, 8f4fe18)
+* Password Policy Revisited (e1aba7c, 744676b)
+
+### Improvements
+* Issue: Missing Events (38232f2)
+* Issue: 2FA Upgrade (0065c3b)
+* Ticket From Email (f02edd9)
+* Issue: User Custom Dept Field (52825f0)
+* Staff: Password Change (7527ea7)
+* oops: Indexes Patch Schema (709b55f)
+* CsvImporter: Skip Byte Order Mark (BOM) if present (bfd5da8)
+* Oops: Method Inheritance Compatibility (cb13b82)
+* issue: Form Instructions Translation (4f7d23c)
+
+osTicket v1.14.4
+================
+### Enhancements
+* forms: Pseudo-random name for Dynamicforms on POST (077d26f)
+* Authcode: Ticket Access Link (043c3fe)
+* redactor: Upgrade to version 3.4.5 (e593c5c, 9102240, e471132)
+* Auth: Client Create Request (c3c01d3, 43e07c2)
+
+### Improvements
+* Issue: Event YAML (52c7211)
+* issue: Missing Description On New Task (949acc6)
+* issue: Draft Save (f2c5c5a)
+* mpdf: Logo Overlap (5012ccc)
+* Issue: Viewing Email Templates (817cdee)
+* Issue: Topics on Install (bfaad5b)
+* Partially revert commit 077d26f6d0bb15 (d554c2b)
+* Issue: Prevent Deleting All Topics (8d2b8c6)
+* Issue: Sub Queues (8e3a6c6)
+* authtoken: Add ticket link when recipient is ticket owner (2be608c)
+* redactor: Improper Formatting When Double Spacing (fe26123)
+* forms: Add SECRET_SALT to field name hash (4eeb4b5, 133362d)
+* issue: Better URL Parsing For External Inline Images (50eed90)
+* Issue: Default Delimiter (f302503)
+* issue: Update Autocomplete (d3245b1)
+* Fix incorrrect compare locked staff at Ticket Preview (e8f0c58)
+* Don't use a default comment on ticket assignment (433e62d)
+* Issue: Ticket Export Delimiters (38dbe73)
+* CsvImporter: Skip Byte Order Mark (BOM) if present (9e1dfef)
+* Drop nested table from open new ticket (fb0164b)
+* issue: New Message Alert Recipients (ea9cd56)
+* issue: Custom REGEX Failure (4850b2a)
+* Issue: Ticket From Thread Attachments (1de3f6a)
+* cli: Manage.php Errors (239b9ba)
+* issue: Assignee Field (3c89117)
+* issue: Agent Password Reset With No Existing Password (101ebea)
+* More modern, cleaner DocBlock (84195ec)
+* issue: Ticket Merge Select2 (bffac98)
+
 osTicket v1.14.3
 ================
 ### Enhancements

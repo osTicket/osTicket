@@ -295,7 +295,9 @@ $dispatcher = patterns('',
         url_get('^/(?P<id>\d+)/perms', 'getAgentPerms'),
         url('^/reset-permissions', 'resetPermissions'),
         url('^/change-department', 'changeDepartment'),
-        url('^/(?P<id>\d+)/avatar/change', 'setAvatar')
+        url('^/(?P<id>\d+)/avatar/change', 'setAvatar'),
+        url('^/(?P<id>\d+)/2fa/configure(?:/(?P<mfid>.+))?$', 'configure2FA'),
+        url('^/(?P<id>\d+)/reset-2fa', 'reset2fA')
     )),
     url('^/queue/', patterns('ajax.search.php:SearchAjaxAPI',
         url('^(?P<id>\d+/)?preview$', 'previewQueue'),

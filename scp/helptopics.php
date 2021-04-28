@@ -63,6 +63,10 @@ if($_POST){
             if (!$errors) {
                 $count=$_POST['ids']?count($_POST['ids']):0;
 
+                $activeTopics = Topic::getHelpTopics(false, false);
+                $allTopics = count(Topic::getAllHelpTopics());
+                $diff = array_intersect($_POST['ids'], array_keys($activeTopics));
+
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
                         $topics = Topic::objects()->filter(array(
@@ -94,22 +98,30 @@ if($_POST){
                         }
                         break;
                     case 'disable':
+                        $num=0;
                         $topics = Topic::objects()->filter(array(
                           'topic_id__in'=>$_POST['ids'],
                         ))->exclude(array(
                             'topic_id'=>$cfg->getDefaultTopicId()
                         ));
-                        foreach ($topics as $t) {
-                          $t->setFlag(Topic::FLAG_ARCHIVED, false);
-                          $t->setFlag(Topic::FLAG_ACTIVE, false);
-                          $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
-                          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
-                          if($t->save()) {
-                              $type = array('type' => 'edited', 'status' => 'Disabled');
-                              Signal::send('object.edited', $t, $type);
-                              $num++;
-                          }
+
+                        if (($count >= $allTopics) ||
+                            (count($diff) == count($activeTopics))) {
+                            $errors['err'] = __('At least one Topic must be Active');
+                        } else {
+                            foreach ($topics as $t) {
+                              $t->setFlag(Topic::FLAG_ARCHIVED, false);
+                              $t->setFlag(Topic::FLAG_ACTIVE, false);
+                              $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
+                              if($t->save()) {
+                                  $type = array('type' => 'edited', 'status' => 'Disabled');
+                                  Signal::send('object.edited', $t, $type);
+                                  $num++;
+                              }
+                            }
                         }
+
                         if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
@@ -118,27 +130,35 @@ if($_POST){
                                 $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
                                     _N('selected help topic', 'selected help topics', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to disable %s'),
+                            $errors['err'] = $errors['err'] ?: sprintf(__('Unable to disable %s'),
                                 _N('selected help topic', 'selected help topics', $count));
                         }
                         break;
                     case 'archive':
+                        $num=0;
                         $topics = Topic::objects()->filter(array(
                           'topic_id__in'=>$_POST['ids'],
                         ))->exclude(array(
                             'topic_id'=>$cfg->getDefaultTopicId()
                         ));
-                        foreach ($topics as $t) {
-                          $t->setFlag(Topic::FLAG_ARCHIVED, true);
-                          $t->setFlag(Topic::FLAG_ACTIVE, false);
-                          $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
-                          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
-                          if($t->save()) {
-                            $type = array('type' => 'edited', 'status' => 'Archived');
-                            Signal::send('object.edited', $t, $type);
-                            $num++;
-                          }
+
+                        if (($count >= $allTopics) ||
+                            (count($diff) == count($activeTopics))) {
+                            $errors['err'] = __('At least one Topic must be Active');
+                        } else {
+                            foreach ($topics as $t) {
+                              $t->setFlag(Topic::FLAG_ARCHIVED, true);
+                              $t->setFlag(Topic::FLAG_ACTIVE, false);
+                              $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $t->getId().'}'));
+                              FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
+                              if($t->save()) {
+                                $type = array('type' => 'edited', 'status' => 'Archived');
+                                Signal::send('object.edited', $t, $type);
+                                $num++;
+                              }
+                            }
                         }
+
                         if ($num > 0) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully archived %s'),
@@ -147,23 +167,32 @@ if($_POST){
                                 $warn = sprintf(__('%1$d of %2$d %3$s archived'), $num, $count,
                                     _N('selected help topic', 'selected help topics', $count));
                         } else {
-                            $errors['err'] = sprintf(__('Unable to archive %s'),
+                            $errors['err'] = $errors['err'] ?: sprintf(__('Unable to archive %s'),
                                 _N('selected help topic', 'selected help topics', $count));
                         }
                         break;
                     case 'delete':
+                        $i=1;
                         $topics = Topic::objects()->filter(array(
                             'topic_id__in'=>$_POST['ids']
                         ));
 
-                        foreach ($topics as $t)
-                            $t->delete();
+                        //dont allow deletion of all topics
+                        if (($count >= $allTopics) ||
+                             count($diff) == count($activeTopics)) {
+                            $errors['err'] = __('At least one Topic must be Active');
+                        } else {
+                            foreach($topics as $t) {
+                                if($t->getId()!=$cfg->getDefaultTopicId() && $t->delete())
+                                    $i++;
+                            }
+                        }
 
-                        if($topics && $topics->count()==$count)
+                        if($i==($count + 1))
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected help topic', 'selected help topics', $count));
-                        elseif($topics>0)
-                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $topics, $count,
+                        elseif($i>1)
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), ($i-1), $count,
                                 _N('selected help topic', 'selected help topics', $count));
                         elseif(!$errors['err'])
                             $errors['err']  = sprintf(__('Unable to delete %s.'),

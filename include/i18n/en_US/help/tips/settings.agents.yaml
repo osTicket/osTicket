@@ -39,19 +39,12 @@ disable_agent_collabs:
         This setting is global for all User created Tickets via API, Piping, and Fetching.
 
 # Authentication settings
-password_reset:
-    title: Password Expiration Policy
+agent_password_policy:
+    title: Password Management Policy
     content: >
-        Sets how often (in months) Agents will be required to change
-        their password. If disabled (set to "No expiration"), passwords will
-        not expire.
-
-password_expiration_policy:
-    title: Password Expiration Policy
-    content: >
-        Choose how often Agents will be required to change their password. If
-        disabled (i.e., <span class="doc-desc-opt">No Expiration</span>), passwords
-        will not expire.
+        Chose a <span class="doc-desc-title">Password Policy</span> for <span class="doc-desc-title">Agents</span>.
+        <br><br>
+        Additional policies can be added by installing <span class="doc-desc-title">Password Policy</span> plugins.
 
 allow_password_resets:
     title: Allow Password Resets
@@ -85,3 +78,11 @@ bind_staff_session_to_ip:
         upon Log In.
         <br><br>
         This setting is not recommened for users assigned IP addresses dynamically.
+
+require_agent_2fa:
+     title: Require Two Factor Authentication
+     content: >
+         Enable this feature if you would like to have an extra layer of authentication
+         set up for Agents when they log into the helpdesk. Once they correctly submit
+         their username and password, they will be required to submit a token to finish
+         logging into the helpdesk.

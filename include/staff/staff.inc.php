@@ -19,6 +19,8 @@ if ($_REQUEST['a']=='add'){
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
     }
     $title=__('Add New Agent');
@@ -159,6 +161,35 @@ if (count($bks) > 1) {
                 echo $ab->getName(); ?></option>
 <?php } ?>
             </select>
+          </td>
+        </tr>
+<?php
+} ?>
+<?php
+if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend()) {
+    $_config = $staff->getConfig();
+?>
+        <tr>
+          <td><?php echo __('Default 2FA'); ?>:</td>
+          <td>
+              <input type="text" size="40" style="width:300px"
+                name="default_2fa" disabled value="<?php echo $current->getName(); ?>" />
+            &nbsp;
+            <button type="button" id="reset-2fa" class="action-button" onclick="javascript:
+                if (confirm('<?php echo __('You sure?'); ?>')) {
+                    $.ajax({
+                        url: 'ajax.php/staff/'+<?php echo $staff->getId(); ?>+'/reset-2fa',
+                        type: 'POST',
+                        data: {'staffId':<?php echo $staff->getId(); ?>},
+                        success: function(data) {
+                            location.reload();
+                        }
+                    });
+                }
+                return false;">
+              <i class="icon-gear"></i> <?php echo __('Reset 2FA'); ?>
+            </button>
+            <i class="offset help-tip icon-question-sign" href="#reset2fa"></i>
           </td>
         </tr>
 <?php

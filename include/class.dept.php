@@ -14,6 +14,7 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR.'class.role.php';
 
 class Dept extends VerySimpleModel
 implements TemplateVariable, Searchable {
@@ -75,6 +76,16 @@ implements TemplateVariable, Searchable {
     const FLAG_ARCHIVED = 0x0008;
     const FLAG_ASSIGN_PRIMARY_ONLY = 0x0010;
     const FLAG_DISABLE_REOPEN_AUTO_ASSIGN = 0x0020;
+
+    const PERM_DEPT = 'visibility.departments';
+
+    static protected $perms = array(
+        self::PERM_DEPT => array(
+            'title' => /* @trans */ 'Department',
+            'desc'  => /* @trans */ 'Ability to see all Departments',
+            'primary' => true,
+        ),
+    );
 
     function asVar() {
         return $this->getName();
@@ -167,28 +178,6 @@ implements TemplateVariable, Searchable {
 
     function isActive() {
         return !!($this->flags & self::FLAG_ACTIVE);
-    }
-
-    function clearInactiveDept($dept_id) {
-      global $cfg;
-
-      $topics = Topic::objects()->filter(array('dept_id'=>$dept_id))->values_flat('topic_id');
-      if ($topics) {
-        foreach ($topics as $topic_id) {
-          $topic = Topic::lookup($topic_id[0]);
-          $topic->dept_id = $cfg->getDefaultDeptId();
-          $topic->save();
-        }
-      }
-
-      $emails = Email::objects()->filter(array('dept_id'=>$dept_id))->values_flat('email_id');
-      if ($emails) {
-        foreach ($emails as $email_id) {
-          $email = Email::lookup($email_id[0]);
-          $email->dept_id = $cfg->getDefaultDeptId();
-          $email->save();
-        }
-      }
     }
 
     function getEmailId() {
@@ -286,26 +275,29 @@ implements TemplateVariable, Searchable {
     }
 
     // Get eligible members only
-    function getAssignees() {
+    function getAssignees($criteria=array()) {
+        if (!$this->assignPrimaryOnly() && !$this->assignMembersOnly()) {
+            // this is for if all agents is set - assignment is not restricted
+            // based on department membership.
+            $members =  Staff::objects()->filter(array(
+                'onvacation' => 0,
+                'isactive' => 1,
+            ));
+        } else {
+            //this gets just the members of the dept including extended access
+            $members = clone $this->getAvailableMembers();
 
-      //this is for if all members is set
-      if (!$this->assignPrimaryOnly() && !$this->assignMembersOnly()) {
-        $members =  Staff::objects()->filter(array(
-            'onvacation' => 0,
-            'isactive' => 1,
-        ));
+            //Restrict to the primary members only
+            if ($this->assignPrimaryOnly())
+                $members->filter(array('dept_id' => $this->getId()));
+        }
 
+        // Restrict agents based on visibility of the assigner
+        if (($staff=$criteria['staff']))
+            $members = $staff->applyDeptVisibility($members);
+
+        // Sort based on set name format
         return Staff::nsort($members);
-      }
-
-      //this gets just the members of the dept
-      $members = clone $this->getAvailableMembers();
-
-      //this gets just the primary members of the dept
-      if ($this->assignPrimaryOnly())
-        $members->filter(array('dept_id' => $this->getId()));
-
-      return Staff::nsort($members);
     }
 
     function getMembersForAlerts() {
@@ -541,10 +533,11 @@ implements TemplateVariable, Searchable {
             // Clear any settings using dept to default back to system default
             Topic::objects()
                 ->filter(array('dept_id' => $id))
-                ->delete();
+                ->update(array('dept_id' => 0));
+
             Email::objects()
                 ->filter(array('dept_id' => $id))
-                ->delete();
+                ->update(array('dept_id' => 0));
 
             // Delete extended access entries
             StaffDeptAccess::objects()
@@ -632,6 +625,15 @@ implements TemplateVariable, Searchable {
         return $row ? $row[0] : 0;
     }
 
+    static function getEmailIdById($id) {
+        $row = static::objects()
+            ->filter(array('id' => $id))
+            ->values_flat('email_id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
+
     function getNameById($id) {
         $names = Dept::getDepartments();
         return $names[$id];
@@ -654,7 +656,11 @@ implements TemplateVariable, Searchable {
             // XXX: This will upset the static $depts array
             $depts = array();
             $query = self::objects();
-            if (isset($criteria['publiconly']))
+            if (isset($criteria['publiconly']) && $criteria['publiconly'])
+                $query->filter(array(
+                             'ispublic' => ($criteria['publiconly'] ? 1 : 0)));
+
+            if (isset($criteria['activeonly']) && $criteria['activeonly'])
                 $query->filter(array(
                             'flags__hasbit' => Dept::FLAG_ACTIVE));
 
@@ -734,6 +740,15 @@ implements TemplateVariable, Searchable {
 
         if (!$depts)
             $depts = self::getDepartments(array('publiconly'=>true));
+
+        return $depts;
+    }
+
+    static function getActiveDepartments() {
+        $depts =null;
+
+        if (!$depts)
+            $depts = self::getDepartments(array('activeonly'=>true));
 
         return $depts;
     }
@@ -865,6 +880,9 @@ implements TemplateVariable, Searchable {
         else
           FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_DEPT', true);
 
+        if ($cfg && ($this->getId() == $cfg->getDefaultDeptId()))
+            $vars['status'] = 'active';
+
         switch ($vars['status']) {
           case 'active':
             $this->setFlag(self::FLAG_ACTIVE, true);
@@ -973,7 +991,12 @@ implements TemplateVariable, Searchable {
 
       return true;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Dept::getPermissions());
 
 class DepartmentQuickAddForm
 extends Form {

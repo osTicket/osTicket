@@ -44,6 +44,15 @@ if($thisstaff->forcePasswdChange() && !$errors['err'])
             $thisstaff->getFirstName()
         )
     );
+elseif($thisstaff->force2faConfig() && !$errors['err'])
+    $errors['err'] = str_replace(
+        '<a>',
+        sprintf('<a data-dialog="ajax.php/staff/%d/2fa/configure" href="#">', $thisstaff->getId()),
+        sprintf(
+            __('<b>Hi %s</b> - You must <a>configure and save Two Factor Authentication </a>!'),
+            $thisstaff->getFirstName()
+        )
+    );
 elseif($thisstaff->onVacation() && !$warn)
     $warn=sprintf(__("<b>Welcome back %s</b>! You are listed as 'on vacation' Please let your manager know that you are back."),$thisstaff->getFirstName());
 

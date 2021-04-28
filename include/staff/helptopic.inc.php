@@ -65,7 +65,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                   <option value="disabled"<?php echo ($info['status'] == __('Disabled'))?'selected="selected"':'';?>><?php echo __('Disabled'); ?></option>
                   <option value="archived"<?php echo ($info['status'] == __('Archived'))?'selected="selected"':'';?>><?php echo __('Archived'); ?></option>
                 </select>
-                &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#htstatus"></i>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['status']; ?></span> <i class="help-tip icon-question-sign" href="#htstatus"></i>
             </td>
         </tr>
         <tr>
@@ -75,7 +75,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
             <td>
                 <input type="radio" name="ispublic" value="1" <?php echo $info['ispublic']?'checked="checked"':''; ?>> <?php echo __('Public'); ?>
                 <input type="radio" name="ispublic" value="0" <?php echo !$info['ispublic']?'checked="checked"':''; ?>> <?php echo __('Private/Internal'); ?>
-                &nbsp;<span class="error">*&nbsp;</span> <i class="help-tip icon-question-sign" href="#type"></i>
+                &nbsp;<span class="error">*&nbsp;<?php echo $errors['ispublic']; ?></span> <i class="help-tip icon-question-sign" href="#type"></i>
             </td>
         </tr>
         <tr>

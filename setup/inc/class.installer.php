@@ -206,6 +206,8 @@ class Installer extends SetupWizard {
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
             Email::PERM_BANLIST,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
         $staff->setPassword($vars['passwd']);
         if (!$staff->save()) {
@@ -257,7 +259,7 @@ class Installer extends SetupWizard {
             'admin_email'=>$vars['admin_email'],
             'schema_signature'=>$streams['core'],
             'helpdesk_url'=>URL,
-            'helpdesk_title'=>$vars['name']
+            'helpdesk_title'=>Format::htmlchars($vars['name'], true)
         );
 
         $config = new Config('core');

@@ -319,25 +319,25 @@ implements TemplateVariable, Searchable {
             $this->flags &= ~$flag;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array()) {
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array(), $allData=false) {
       global $cfg;
       static $topics, $names = array();
 
       // If localization is specifically requested, then rebuild the list.
       if (!$names || $localize) {
           $objects = self::objects()->values_flat(
-              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic'
+              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic', 'dept_id'
           )
           ->order_by('sort');
 
           // Fetch information for all topics, in declared sort order
           $topics = array();
           foreach ($objects as $T) {
-              list($id, $pid, $pub, $flags, $topic) = $T;
+              list($id, $pid, $pub, $flags, $topic, $deptId) = $T;
 
               $display = ($flags & self::FLAG_ACTIVE);
               $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
-                  'disabled'=>!$display, 'topic'=>$topic);
+                  'disabled'=>!$display, 'topic'=>$topic, 'dept_id'=>$deptId);
           }
 
           $localize_this = function($id, $default) use ($localize) {
@@ -371,6 +371,7 @@ implements TemplateVariable, Searchable {
 
       // Apply requested filters
       $requested_names = array();
+      $topicsClean = array();
       foreach ($names as $id=>$n) {
           $info = $topics[$id];
           if ($publicOnly && !$info['public'])
@@ -381,7 +382,11 @@ implements TemplateVariable, Searchable {
           if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
               $n .= " - ".__("(disabled)");
           $requested_names[$id] = $n;
+          $topicsClean[$id] = $info;
       }
+
+      if ($allData)
+        return $topicsClean;
 
       // If localization requested and the current locale is not the
       // primary, the list may need to be sorted. Caching is ok here,
@@ -442,6 +447,18 @@ implements TemplateVariable, Searchable {
         if ($vars['custom-numbers'] && !preg_match('`(?!<\\\)#`', $vars['number_format']))
             $errors['number_format'] =
                 'Ticket number format requires at least one hash character (#)';
+
+        if ($cfg) {
+            //Make sure at least 1 Topic is Public
+            $publicTopics = Topic::getHelpTopics(true);
+            if ((count($publicTopics) == 1) && array_key_exists($this->getId(), $publicTopics) && ($vars['ispublic'] == 0))
+                $errors['ispublic'] = __('At least one Topic must be Public');
+
+            //Make sure at least 1 Topic is Active
+            $activeTopics = Topic::getHelpTopics(false, false);
+            if ((count($activeTopics) == 1) && array_key_exists($this->getId(), $activeTopics) && ($vars['status'] != 'active'))
+                $errors['status'] = __('At least one Topic must be Active');
+        }
 
         if ($errors)
             return false;
