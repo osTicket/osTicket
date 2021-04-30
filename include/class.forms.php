@@ -3043,10 +3043,13 @@ class PriorityField extends ChoiceField {
         }
         elseif (is_array($value))
             list($value, $id) = $value;
-        elseif ($id === false)
+        elseif ($id === false && is_numeric($value)) {
             $id = $value;
-
-        return $this->getPriority($id);
+            return $this->getPriority($id);
+        } elseif (is_numeric($id))
+            return $this->getPriority($id);
+        else
+            return $value;
     }
 
     function to_database($value) {
@@ -3243,6 +3246,15 @@ class DepartmentField extends ChoiceField {
          }
 
         return $choices;
+    }
+
+    function display($dept, &$styles=null) {
+        if (!is_numeric($dept) && is_string($dept))
+            return Format::htmlchars($dept);
+        elseif ($dept instanceof Dept)
+            return Format::htmlchars($dept->getName());
+
+        return parent::display($dept);
     }
 
     function parse($id) {
