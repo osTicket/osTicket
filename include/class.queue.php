@@ -2381,7 +2381,7 @@ extends VerySimpleModel {
             return '';
 
         $val = $f->to_php($f->from_query($row, $this->primary));
-        if (!is_string($val))
+        if (!is_string($val) || is_numeric($val))
             $val = $f->display($val);
 
         return $val;
