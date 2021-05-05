@@ -1238,8 +1238,8 @@ implements CustomListItem, TemplateVariable, Searchable {
         return $this->get('id');
     }
 
-    function getName() {
-        return $this->get('name');
+    function getName($localize=true) {
+        return $localize ? $this->getLocalName() : $this->get('name');
     }
 
     function getState() {
@@ -1249,8 +1249,9 @@ implements CustomListItem, TemplateVariable, Searchable {
     function getValue() {
         return $this->getName();
     }
+
     function getLocalName() {
-        return $this->getLocal('value', $this->getName());
+        return $this->getLocal('value', $this->get('name'));
     }
 
     function getAbbrev() {
@@ -1442,15 +1443,7 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function display() {
-
-        return $this->getLocalName();
-
-        return sprintf('<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">%s</a>',
-                $this->getListId(),
-                $this->getId(),
-                $this->getLocalName()
-                );
+        return $this->getName();
     }
 
     function update($vars, &$errors) {
