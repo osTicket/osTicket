@@ -847,8 +847,22 @@ implements TemplateVariable {
         return $this->parts['middle'];
     }
 
+    function getFirstInitial() {
+        if ($this->parts['first'])
+            return mb_substr($this->parts['first'],0,1).'.';
+        return '';
+    }
+
     function getMiddleInitial() {
-        return mb_substr($this->parts['middle'],0,1).'.';
+        if ($this->parts['middle'])
+            return mb_substr($this->parts['middle'],0,1).'.';
+        return '';
+    }
+
+    function getLastInitial() {
+        if ($this->parts['last'])
+            return mb_substr($this->parts['last'],0,1).'.';
+        return '';
     }
 
     function getFormal() {
@@ -862,10 +876,9 @@ implements TemplateVariable {
     function getLegal() {
         $parts = array(
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
         );
-        if ($parts[1]) $parts[1] .= '.';
         return implode(' ', array_filter($parts));
     }
 
@@ -873,27 +886,27 @@ implements TemplateVariable {
         $parts = array(
             $this->parts['salutation'],
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
             $this->parts['suffix']
         );
-        if ($parts[2]) $parts[2] .= '.';
         return implode(' ', array_filter($parts));
     }
 
     function getLastFirst() {
         $name = $this->parts['last'].', '.$this->parts['first'];
+        $name = trim($name, ', ');
         if ($this->parts['suffix'])
             $name .= ', '.$this->parts['suffix'];
         return $name;
     }
 
     function getShort() {
-        return $this->parts['first'].' '.mb_substr($this->parts['last'],0,1).'.';
+        return $this->parts['first'].' '.$this->getLastInitial();
     }
 
     function getShortFormal() {
-        return mb_substr($this->parts['first'],0,1).'. '.$this->parts['last'];
+        return $this->getFirstInitial().' '.$this->parts['last'];
     }
 
     function getOriginal() {
