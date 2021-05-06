@@ -532,6 +532,7 @@ class FA_SendEmail extends TriggerAction {
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
             'ticket' => $ticket['ticket'],
+            'recipient' => $ticket['ticket']->getOwner(),
         );
         $info = $ost->replaceTemplateVariables(array(
             'subject' => $config['subject'],
