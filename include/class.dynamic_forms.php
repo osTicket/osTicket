@@ -362,8 +362,7 @@ class DynamicForm extends VerySimpleModel {
                     $cdata['object_id'],
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
-            return self::dropDynamicDataView($cdata);
+        db_query($sql);
     }
 
     static function updateDynamicFormEntryAnswer($answer, $data) {
