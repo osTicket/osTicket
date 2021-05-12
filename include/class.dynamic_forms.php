@@ -283,6 +283,14 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
+    // ensure cdata tables exists
+    static function ensureDynamicDataViews($build=true) {
+        TicketForm::ensureDynamicDataView($build);
+        TaskForm::ensureDynamicDataView($build);
+        UserForm::ensureDynamicDataView($build);
+        OrganizationForm::ensureDynamicDataView($build);
+    }
+
     static function ensureDynamicDataView($build=false, $croak=true) {
 
         if (!($cdata=static::$cdata) || !$cdata['table'])
