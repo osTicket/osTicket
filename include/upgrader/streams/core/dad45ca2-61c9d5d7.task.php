@@ -37,10 +37,6 @@ class DynamicFormLoader extends MigrationTask {
             DynamicForm::create($f);
         }
         unset($f);
-
-        // Make sure cdata tables are created
-        DynamicForm::ensureDynamicDataViews();
-
     }
 
     function f2m($flags) {
