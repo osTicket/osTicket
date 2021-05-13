@@ -291,11 +291,18 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
+    static function rebuildDynamicDataViews() {
+        return self::ensureDynamicDataViews(true, true);
+    }
+
     // ensure cdata tables exists
-    static function ensureDynamicDataViews($build=true) {
+    static function ensureDynamicDataViews($build=true, $force=false) {
         $forms = ['TicketForm', 'TaskForm', 'UserForm', 'OrganizationForm'];
-        foreach ($forms as $form)
+        foreach ($forms as $form) {
+            if ($force && $build)
+                $form::dropDynamicDataView(false);
             $form::ensureDynamicDataView($build);
+        }
     }
 
     static function ensureCdataTables($obj, $data) {
@@ -330,16 +337,17 @@ class DynamicForm extends VerySimpleModel {
         db_query($sql);
     }
 
-    static function dropDynamicDataView($cdata, $rebuild=true) {
+    static function dropDynamicDataView($rebuild=true) {
 
-        if (!$cdata['table'])
+        if (!($cdata=static::$cdata) || !$cdata['table'])
             return false;
 
         $sql = 'DROP TABLE IF EXISTS `'.$cdata['table'].'`';
         if (!db_query($sql))
             return false;
 
-        return  static::ensureDynamicDataView($rebuild);
+        return  $rebuild ?  static::ensureDynamicDataView($rebuild, false) :
+            true;
     }
 
     static function updateDynamicDataView($answer, $data) {
@@ -398,13 +406,13 @@ class DynamicForm extends VerySimpleModel {
 
         switch ($field->form->get('type')) {
         case 'T':
-            return TicketForm::dropDynamicDataView(TicketForm::$cdata);
+            return TicketForm::dropDynamicDataView();
         case 'A':
-            return TaskForm::dropDynamicDataView(TaskForm::$cdata);
+            return TaskForm::dropDynamicDataView();
         case 'U':
-            return UserForm::dropDynamicDataView(UserForm::$cdata);
+            return UserForm::dropDynamicDataView();
         case 'O':
-            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata);
+            return OrganizationForm::dropDynamicDataView();
         }
 
     }
