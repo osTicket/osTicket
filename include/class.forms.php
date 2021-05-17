@@ -3037,19 +3037,19 @@ class PriorityField extends ChoiceField {
     function to_php($value, $id=false) {
         if ($value instanceof Priority)
             return $value;
+
         if (is_array($id)) {
             reset($id);
             $id = key($id);
-        }
-        elseif (is_array($value))
+        } elseif (is_array($value)) {
             list($value, $id) = $value;
-        elseif ($id === false && is_numeric($value)) {
+        } elseif ($id === false && is_numeric($value))
             $id = $value;
+
+        if (is_numeric($id))
             return $this->getPriority($id);
-        } elseif (is_numeric($id))
-            return $this->getPriority($id);
-        else
-            return $value;
+
+        return $value;
     }
 
     function to_database($value) {
