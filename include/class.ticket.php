@@ -777,8 +777,11 @@ implements RestrictedAccess, Threadable, Searchable, JsonSerializable {
     function getAssignees() {
 
         $assignees = array();
-        if ($staff = $this->getStaff())
+        if ($staff = $this->getStaff()) {
             $assignees[] = $staff->getName();
+            $assignees[] = $staff->getVar('mobile');
+            $assignees[] = $staff->getUserName();
+        }
 
         if ($team = $this->getTeam())
             $assignees[] = $team->getName();
