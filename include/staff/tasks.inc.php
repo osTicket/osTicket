@@ -247,8 +247,6 @@ $pageNav=new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tasks.php', $args);
 $tasks = $pageNav->paginate($tasks);
 
-TaskForm::ensureDynamicDataView();
-
 // Save the query to the session for exporting
 $_SESSION[':Q:tasks'] = $tasks;
 

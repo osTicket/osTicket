@@ -283,14 +283,30 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
-    static function ensureDynamicDataView() {
+    // ensure cdata tables exists
+    static function ensureDynamicDataViews($build=true) {
+        TicketForm::ensureDynamicDataView($build);
+        TaskForm::ensureDynamicDataView($build);
+        UserForm::ensureDynamicDataView($build);
+        OrganizationForm::ensureDynamicDataView($build);
+    }
+
+    static function ensureDynamicDataView($build=false, $croak=true) {
 
         if (!($cdata=static::$cdata) || !$cdata['table'])
             return false;
 
         $sql = 'SHOW TABLES LIKE \''.$cdata['table'].'\'';
-        if (!db_num_rows(db_query($sql)))
-            return static::buildDynamicDataView($cdata);
+        // Return true if the cdata table exists
+        if (db_num_rows(db_query($sql)))
+            return true;
+
+        if (!$build && $croak)
+            die(sprintf('%s. %s.',
+                        __('Missing CDATA table'),
+                        __('Get technical support')));
+
+        return $build ? static::buildDynamicDataView($cdata) : false;
     }
 
     static function buildDynamicDataView($cdata) {
@@ -300,8 +316,16 @@ class DynamicForm extends VerySimpleModel {
         db_query($sql);
     }
 
-    static function dropDynamicDataView($table) {
-        db_query('DROP TABLE IF EXISTS `'.$table.'`');
+    static function dropDynamicDataView($cdata, $rebuild=true) {
+
+        if (!$cdata['table'])
+            return false;
+
+        $sql = 'DROP TABLE IF EXISTS `'.$cdata['table'].'`';
+        if (!db_query($sql))
+            return false;
+
+        return  static::ensureDynamicDataView($rebuild);
     }
 
     static function updateDynamicDataView($answer, $data) {
@@ -333,7 +357,7 @@ class DynamicForm extends VerySimpleModel {
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
         if (!db_query($sql))
-            return self::dropDynamicDataView($cdata['table']);
+            return self::dropDynamicDataView($cdata);
     }
 
     static function updateDynamicFormEntryAnswer($answer, $data) {
@@ -361,13 +385,13 @@ class DynamicForm extends VerySimpleModel {
 
         switch ($field->form->get('type')) {
         case 'T':
-            return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
+            return TicketForm::dropDynamicDataView(TicketForm::$cdata);
         case 'A':
-            return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
+            return TaskForm::dropDynamicDataView(TaskForm::$cdata);
         case 'U':
-            return UserForm::dropDynamicDataView(UserForm::$cdata['table']);
+            return UserForm::dropDynamicDataView(UserForm::$cdata);
         case 'O':
-            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata['table']);
+            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata);
         }
 
     }
