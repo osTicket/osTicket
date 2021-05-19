@@ -285,10 +285,16 @@ class DynamicForm extends VerySimpleModel {
 
     // ensure cdata tables exists
     static function ensureDynamicDataViews($build=true) {
-        TicketForm::ensureDynamicDataView($build);
-        TaskForm::ensureDynamicDataView($build);
-        UserForm::ensureDynamicDataView($build);
-        OrganizationForm::ensureDynamicDataView($build);
+        $forms = ['TicketForm', 'TaskForm', 'UserForm', 'OrganizationForm'];
+        foreach ($forms as $form)
+            $form::ensureDynamicDataView($build);
+    }
+
+    static function ensureCdataTables($obj, $data) {
+        // Only perfrom check on real cron call, not autocrons triggered on
+        // agents activity.
+        if ($data['autocron'] === false)
+            self::ensureDynamicDataViews(true);
     }
 
     static function ensureDynamicDataView($build=false, $croak=true) {
@@ -356,8 +362,7 @@ class DynamicForm extends VerySimpleModel {
                     $cdata['object_id'],
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
-            return self::dropDynamicDataView($cdata);
+        db_query($sql);
     }
 
     static function updateDynamicFormEntryAnswer($answer, $data) {
@@ -555,6 +560,9 @@ Signal::connect('model.updated',
     'DynamicFormField',
     function($o, $d) { return isset($d['dirty'])
         && (isset($d['dirty']['name']) || isset($d['dirty']['type'])); });
+
+// Check to make sure cdata tables exists
+Signal::connect('cron', array('DynamicForm', 'ensureCdataTables'));
 
 Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
     $matches = array();
