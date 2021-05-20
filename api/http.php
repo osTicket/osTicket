@@ -23,26 +23,15 @@ require 'api.inc.php';
 require_once INCLUDE_DIR."class.dispatcher.php";
 
 $dispatcher = patterns('',
-        url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
-  
-        
+    url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
     url_post("^/tickets/reply\.(?P<format>json)$", array('api.tickets.php:TicketApiController','postReply')),
-// RESTful
+    url_post("^/tickets/update\.(?P<format>json)$", array('api.tickets.php:TicketApiController','updateTicket')),
     url_get("^/tickets$", array('api.tickets.php:TicketApiController','restGetTickets')),
-   // url_get("^/tickets/(?P<ticket_number>\d{6})$", array('api.tickets.php:TicketApiController','restGetTicket')),
     url_get("^/tickets/ticketInfo$", array('api.tickets.php:TicketApiController','getTicketInfo')),
     url_get("^/tickets/staffTickets$", array('api.tickets.php:TicketApiController','getStaffTickets')),
     url_get("^/tickets/clientTickets$", array('api.tickets.php:TicketApiController','getClientTickets')),
-    # Should stay disabled until there's an api key permission for ticket deletion
-    #url_delete("^/tickets/(?P<ticket_number>\d{6})$",
-    #     array('api.tickets.php:TicketApiController','restDelete')),
-    url('^/tasks/', patterns('',
-        url_post("^cron$", array('api.cron.php:CronApiController', 'execute'))
-        ))
-
-
-        
-        );
+    url('^/tasks/', patterns('', url_post("^cron$", array('api.cron.php:CronApiController', 'execute'))))
+);
 
 Signal::send('api', $dispatcher);
 

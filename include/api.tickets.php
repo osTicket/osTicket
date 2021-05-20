@@ -155,6 +155,39 @@ class TicketApiController extends ApiController {
         return $ticket;
     }
 
+    function updateTicket($format) {
+        try {
+            if (!($key=$this->requireApiKey()) || !$key->canCreateTickets())
+                return $this->exerr(401, __('API key not authorized'));
+
+            # Create the ticket with the data (attempt to anyway)
+            $errors = array();
+
+            $data = $this->getRequest($format);
+            $ticket = Ticket::lookupByNumber($data['ticketNumber']);
+            $ticket->update($data, $errors);
+            # Return errors (?)
+            if (count($errors)) {
+                if (isset($errors['errno']) && $errors['errno'] == 403)
+                    return $this->exerr(403, __('Ticket update denied'));
+                else
+                    return $this->exerr(
+                            400,
+                            __("Unable to update the ticket: validation errors").":\n"
+                            .Format::array_implode(": ", "\n", $errors)
+                            );
+            }
+
+            $result = array('status_code'=>'0', 'status_msg'=>'Ticket updated successfully');
+            $result_code = 200;
+            $this->response($result_code, json_encode($result), $contentType="application/json");
+        } catch (Throwable $e) {
+            $msg = $e->getMessage();
+            $result = array('tickets'=>array(), 'status_code'=>'FAILURE', 'status_msg'=>$msg);
+            $this->response(500, json_encode($result), $contentType="application/json");
+        }
+    }
+
     function processEmail($data=false) {
 
         if (!$data)
