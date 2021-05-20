@@ -18,3 +18,8 @@ stage
 include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
+
+# Ignore composer files
+composer.lock
+composer.json
+vendor/
