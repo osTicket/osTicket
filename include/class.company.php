@@ -49,7 +49,12 @@ implements TemplateVariable {
     }
 
     function getInfo() {
-        return $this->getForm()->getClean();
+        // Loop through fields and return array of id=>value, name=>value
+        foreach ($this->getForm()->getFields() as $k=>$f) {
+            $info[$key] = $info[$f->get('name')] =
+                ($a=$f->getAnswer()) ? $a->getValue() : null;
+        }
+        return $info;
     }
 
     function getName() {
