@@ -150,7 +150,13 @@ if (!$nav) {
 // Browsers shouldn't suggest saving that username/password
 Http::response(422);
 
-require CLIENTINC_DIR.'header.inc.php';
-require CLIENTINC_DIR.$inc;
-require CLIENTINC_DIR.'footer.inc.php';
+$headerInc = CLIENTINC_DIR.'header.inc.php';
+$bodyInc = CLIENTINC_DIR.$inc;
+$footerInc = CLIENTINC_DIR.'footer.inc.php';
+Signal::send('login.headerInc', $cfg, $headerInc);
+Signal::send('login.bodyInc', $cfg, $bodyInc);
+Signal::send('login.footerInc', $cfg, $footerInc);
+require $headerInc;
+require $bodyInc;
+require $footerInc;
 ?>
