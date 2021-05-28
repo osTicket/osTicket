@@ -120,7 +120,7 @@ class ZipArchive {
 }
 
 class Spyc {
-    function YAMLLoad() {}
+    static function YAMLLoad() {}
 }
 
 class finfo {

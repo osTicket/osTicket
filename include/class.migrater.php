@@ -78,9 +78,8 @@ class DatabaseMigrater {
      * If the hash file doesn't match the schema_signature on record, then an
      * update is triggered and the patches in the stream folder are used to
      * upgrade the database.
-	 */
-	/* static */
-    function getUpgradeStreams($basedir) {
+     */
+    static function getUpgradeStreams($basedir) {
 		static $streams = array();
         if ($streams) return $streams;
 
