@@ -189,6 +189,42 @@ class ApiController {
         return $this->apikey;
     }
 
+    function getContentType() {
+        return strtolower($_SERVER['CONTENT-TYPE']);
+       }
+
+    function contentTypeToFormat($content_type) {
+
+        # Require a valid content-type (json, xml or rfc822) for POST and PUT
+        switch($content_type) {
+			case 'application/json':
+				return "json";
+			case 'application/xml':
+				return "xml";
+			case 'message/rfc822':
+				return "email";
+			default:
+                switch(strtolower($_SERVER['REQUEST_METHOD'])) {
+                    case 'post':
+                    case 'put':
+                        $this->exerr(415, __('Unsupported data format'));
+                    case 'get':
+                    case 'delete':
+                        return "";
+                }
+			}
+    }
+
+    /**
+     * Identifies request data format using content-type and passes it on to
+     * getRequest
+     */
+    function getRequestAuto() {
+        $content_type = $this->getContentType();
+        $format = $this->contentTypeToFormat($content_type);
+        return $this->getRequest($format);
+    }
+
     /**
      * Retrieves the body of the API request and converts it to a common
      * hashtable. For JSON formats, this is mostly a noop, the conversion
@@ -308,8 +344,8 @@ class ApiController {
     }
 
     //Default response method - can be overwritten in subclasses.
-    function response($code, $resp) {
-        Http::response($code, $resp);
+    function response($code, $resp, $contentType="text/plain") {
+        Http::response($code, $resp, $contentType);
         exit();
     }
 }
