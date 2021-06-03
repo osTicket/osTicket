@@ -791,7 +791,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       this.isOpen = true;
       this.opts.zindex = 1051;
       // fix bootstrap modal focus
-      if (window.jQuery) jQuery(document).off('focusin.modal');
+      if (window.jQuery) window.jQuery(document).off('focusin.modal');
     },
     close: function () {
       this.isOpen = false;
@@ -959,7 +959,11 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         });
       } else {
         if (data.match(this.opts.regex.youtube)) {
-          data = data.replace(this.opts.regex.youtube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
+          var yturl = '//www.youtube.com';
+          if (data.search('youtube-nocookie.com') !== -1) {
+            yturl = '//www.youtube-nocookie.com';
+          }
+          data = data.replace(this.opts.regex.youtube, iframeStart + yturl + '/embed/$1' + iframeEnd);
         } else if (data.match(this.opts.regex.vimeo)) {
           data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
         }
