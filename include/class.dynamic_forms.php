@@ -128,8 +128,16 @@ class DynamicForm extends VerySimpleModel {
         return $form;
     }
 
+    function hasFlag($flag) {
+        return (isset($this->flags) && ($this->flags & $flag) != 0);
+    }
+
+    function isDeleted() {
+        return $this->hasFlag(self::FLAG_DELETED);
+    }
+
     function isDeletable() {
-        return $this->flags & self::FLAG_DELETABLE;
+        return $this->hasFlag(self::FLAG_DELETABLE);
     }
 
     function setFlag($flag) {
