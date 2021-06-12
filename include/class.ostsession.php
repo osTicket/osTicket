@@ -101,6 +101,7 @@ class osTicketSession {
     }
 
     static function renewCookie($baseTime=false, $window=false) {
+        session_regenerate_id(); // Prevent Session Fixation
         setcookie(session_name(), session_id(),
             ($baseTime ?: time()) + ($window ?: SESSION_TTL),
             ini_get('session.cookie_path'),
