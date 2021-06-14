@@ -83,6 +83,12 @@ class Export {
                     ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
             ));
 
+        $tickets->annotate(array(
+            'time_spent' => TicketThread::objects()
+                ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                ->aggregate(array('count' => SqlAggregate::SUM('entries__time_spent'))),
+        ));
+
         // Fetch staff information
         // FIXME: Adjust Staff model so it doesn't do extra queries
         foreach (Staff::objects() as $S)
