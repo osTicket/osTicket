@@ -318,8 +318,8 @@ class Installer extends SetupWizard {
             $user->setOrganization($org);
         }
 
-        // Ensure cdata tables exists
-        DynamicForm::ensureDynamicDataViews();
+        // Rebuild cdata tables
+        DynamicForm::rebuildDynamicDataViews();
 
         //TODO: create another personalized ticket and assign to admin??
         //Log a message.
