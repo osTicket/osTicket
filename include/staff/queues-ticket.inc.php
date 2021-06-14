@@ -33,7 +33,7 @@
     </div>
     <div class="clear"></div>
  <?php csrf_token(); ?>
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <thead>
         <tr>
             <th width="3%">&nbsp;</th>

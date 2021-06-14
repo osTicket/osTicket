@@ -43,7 +43,7 @@ $info = $team->getInfo();
 </ul>
 
 <div id="team" class="tab_content">
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

@@ -5,7 +5,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
 <form action="emailsettings.php" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="emails" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

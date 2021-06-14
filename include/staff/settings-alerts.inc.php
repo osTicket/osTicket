@@ -1,4 +1,4 @@
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <tbody>
         <tr><th><em><b><?php echo __('New Ticket Alert'); ?></b>:
             <i class="help-tip icon-question-sign" href="#ticket_alert"></i>

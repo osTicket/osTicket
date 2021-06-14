@@ -117,7 +117,7 @@ else
  <input type="hidden" name="a" value="mass_process" >
  <input type="hidden" id="action" name="do" value="" >
  <input type="hidden" id="selected-count" name="count" value="" >
- <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="0" width="100%">
     <thead>
         <tr>
             <th nowrap width="4%">&nbsp;</th>

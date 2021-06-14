@@ -6,7 +6,7 @@ $schedules = HolidaysSchedule::getSchedules();
 //    ->order_by('name')
 ?>
 <div>
-<table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table fixed" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead><tr><th><em><?php
         echo __('Check all Holiday Schedules applicable to this schedule');
         ?></em></th></tr></thead>
