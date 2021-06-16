@@ -633,6 +633,7 @@ class osTicket {
 
     /**** static functions ****/
     function start() {
+    	global $ost;
         // Prep basic translation support
         Internationalization::bootstrap();
 
