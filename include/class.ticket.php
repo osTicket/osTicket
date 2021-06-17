@@ -3959,6 +3959,53 @@ implements RestrictedAccess, Threadable, Searchable {
         return db_fetch_array(db_query($sql));
     }
 
+    /**
+     * Handle the forms associate with the help topics.
+     * Instanciate the entries, disable and track the requested disabled fields.
+     * 
+     * @param TicketForm $form Ticket form
+     * @param int $topicId ID from the help topic.
+     * @param array $vars Variables array
+     * @return array Associated forms
+     */
+    protected static function handleFormsAssociation(&$form, $topicId, $vars) {
+        global $cfg;
+        
+        $topic_forms = array();
+        if ($topicId) {
+            if ($__topic=Topic::lookup($topicId)) {
+                foreach ($__topic->getForms() as $idx=>$__F) {
+                    $disabled = array();
+                    foreach ($__F->getFields() as $field) {
+                        if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
+                            $disabled[] = $field->get('id');
+                    }
+                    // Special handling for the ticket form — disable fields
+                    // requested to be disabled as per the help topic.
+                    if ($__F->get('type') == 'T') {
+                        foreach ($form->getFields() as $field) {
+                            if (false !== array_search($field->get('id'), $disabled))
+                                $field->disable();
+                        }
+                        $form->sort = $idx;
+                        $__F = $form;
+                    }
+                    else {
+                        $__F = $__F->instanciate($idx);
+                        $__F->setSource($vars);
+                        $topic_forms[] = $__F;
+                    }
+                    // Track fields currently disabled
+                    $__F->extra = JsonDataEncoder::encode(array(
+                        'disable' => $disabled
+                    ));
+                }
+            }
+        }
+
+        return $topic_forms;
+    }
+
     protected function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
         global $cfg;
 
@@ -4120,38 +4167,7 @@ implements RestrictedAccess, Threadable, Searchable {
         $topic_forms = array();
         if (!$errors) {
 
-            // Handle the forms associate with the help topics. Instanciate the
-            // entries, disable and track the requested disabled fields.
-            if ($vars['topicId']) {
-                if ($__topic=Topic::lookup($vars['topicId'])) {
-                    foreach ($__topic->getForms() as $idx=>$__F) {
-                        $disabled = array();
-                        foreach ($__F->getFields() as $field) {
-                            if (!$field->isEnabled() && $field->hasFlag(DynamicFormField::FLAG_ENABLED))
-                                $disabled[] = $field->get('id');
-                        }
-                        // Special handling for the ticket form — disable fields
-                        // requested to be disabled as per the help topic.
-                        if ($__F->get('type') == 'T') {
-                            foreach ($form->getFields() as $field) {
-                                if (false !== array_search($field->get('id'), $disabled))
-                                    $field->disable();
-                            }
-                            $form->sort = $idx;
-                            $__F = $form;
-                        }
-                        else {
-                            $__F = $__F->instanciate($idx);
-                            $__F->setSource($vars);
-                            $topic_forms[] = $__F;
-                        }
-                        // Track fields currently disabled
-                        $__F->extra = JsonDataEncoder::encode(array(
-                            'disable' => $disabled
-                        ));
-                    }
-                }
-            }
+            $topic_forms = self::handleFormsAssociation($form, $vars['topicId'], $vars);
 
             try {
                 $vars = self::filterTicketData($origin, $vars,
@@ -4274,6 +4290,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     && ($T = $email->getTopic())
                     && ($T->isActive())) {
                 $topic = $T;
+                $topic_forms = self::handleFormsAssociation($form, $T->getId(), $vars);
             }
             $email = null;
             $source = 'Email';
