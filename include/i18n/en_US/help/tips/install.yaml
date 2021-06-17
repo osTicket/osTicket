@@ -54,7 +54,7 @@ username:
 password:
     title: Password
     content: |
-        <p>Admin's password.  Must be five (5) characters or more.</p>
+        <p>Admin's password.  Must be six (6) characters or more.</p>
 
 password2:
     title: Confirm Password
