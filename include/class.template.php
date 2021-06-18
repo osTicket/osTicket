@@ -84,6 +84,14 @@ class EmailTemplateGroup {
                 'ticket', 'signature', 'message', 'poster', 'recipient',
             ),
         ),
+        'ticket.close'=>array(
+            'group'=>'a.ticket.user',
+            'name'=>/* @trans */ 'Ticket Closed Notification',
+            'desc'=>/* @trans */ 'Notice sent to client on the closure of a ticket.',
+            'context' => array(
+                'ticket', 'signature', 'response', 'recipient',
+            ),
+        ),
         'ticket.alert'=>array(
             'group'=>'b.ticket.staff',
             'name'=>/* @trans */ 'New Ticket Alert',
@@ -323,6 +331,10 @@ class EmailTemplateGroup {
 
     function getReplyMsgTemplate() {
         return $this->getMsgTemplate('ticket.reply');
+    }
+
+    function getCloseMsgTemplate() {
+        return $this->getMsgTemplate('ticket.close');
     }
 
     function  getActivityNoticeMsgTemplate() {
