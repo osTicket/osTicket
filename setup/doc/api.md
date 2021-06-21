@@ -19,27 +19,37 @@ HTTP API. All API keys are valid for the HTTP API.
 
 HTTP Access
 -----------
-Access to the HTTP API is restricted to valid API keys. An `X-API-Key` HTTP
+Access to the HTTP API is restricted to valid API keys. An `x-api-key` HTTP
 header must be sent to indicate which API key is to be used with the
 request. The API key must match the remote IP of the connected HTTP client.
 The remote IP is checked as usual. If the osTicket server is sitting behind
 a reverse proxy, the original IP of the client will be retrieved from the
 `X-Forwarded-For` header, if provided by your proxy.
 
+* Note that the header name must be 'x-api-key', with all letters in lower case.
+
 Example:
 
-    X-API-Key: BA00B76BAA30F62E1940B46CC1C3C73C
+    x-api-key: BA00B76BAA30F62E1940B46CC1C3C73C
 
 Commandline Example with Curl:
 
-    curl -d "{}" -H "X-API-Key: BA00B76BAA30F62E1940B46CC1C3C73C"
+    curl -d "{}" -H "x-api-key: BA00B76BAA30F62E1940B46CC1C3C73C"
         https://support.you.tld/api/tickets.json
 
 Wrappers
 --------
 
-Currently, there are no wrappers for the API. If you've written one and
-would like it on the list, submit a pull request to add your wrapper.
+Wrappers are located in the api/wrappers folder. They are
+separated by language to keep it organized.
+
+If you've written one wrapper and would like it on the list,
+submit a pull request to add your wrapper.
+
+The current list of wrappers is:
+
+- [C#] osTicketWrapper by pedro-lb: https://github.com/pedro-lb/osTicket
+
 
 Resources
 ---------

@@ -1,0 +1,9 @@
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\bin\Debug\osTicketWrapper.dll
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\bin\Debug\osTicketWrapper.pdb
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\bin\Debug\Newtonsoft.Json.dll
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\bin\Debug\RestSharp.dll
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\bin\Debug\Newtonsoft.Json.xml
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\obj\Debug\osTicketWrapper.csprojResolveAssemblyReference.cache
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\obj\Debug\osTicketWrapper.csproj.CoreCompileInputs.cache
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\obj\Debug\osTicketWrapper.dll
+c:\users\pedro\source\repos\osTicketWrapper\osTicketWrapper\obj\Debug\osTicketWrapper.pdb
