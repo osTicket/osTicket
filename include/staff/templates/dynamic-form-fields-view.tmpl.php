@@ -4,6 +4,7 @@
             <input type="hidden" name="forms[]" value="<?php echo $form->get('id'); ?>" />
             <div class="pull-right">
             <i class="icon-large icon-move icon-muted"></i>
+<?php if ($form->get('type') != 'T') { ?>
             <a href="#" title="<?php echo __('Delete'); ?>" onclick="javascript:
             if (confirm(__('You sure?'))) {
                 var tbody = $(this).closest('tbody');
@@ -13,20 +14,21 @@
                 tbody.fadeOut(function(){this.remove()});
             }
             return false;"><i class="icon-large icon-trash"></i></a>
+<?php } ?>
             </div>
             <div><strong><?php echo Format::htmlchars($form->getLocal('title')); ?></strong></div>
             <div><?php echo Format::display($form->getLocal('instructions')); ?></div>
         </td>
     </tr>
-    <tr class="header">
-        <td><?php echo __('Enable'); ?></td>
-        <td><?php echo __('Label'); ?></td>
-        <td><?php echo __('Type'); ?></td>
-        <td><?php echo __('Visibility'); ?></td>
-        <td><?php echo __('Variable'); ?></td>
+    <tr class="flush-left">
+        <th><?php echo __('Enable'); ?></th>
+        <th><?php echo __('Label'); ?></th>
+        <th><?php echo __('Type'); ?></th>
+        <th><?php echo __('Visibility'); ?></th>
+        <th><?php echo __('Variable'); ?></th>
     </tr>
 <?php
-    foreach ($form->getFields() as $f) { ?>
+    foreach ($form->getDynamicFields() as $f) { ?>
     <tr>
         <td><input type="checkbox" name="fields[]" value="<?php
             echo $f->get('id'); ?>" <?php

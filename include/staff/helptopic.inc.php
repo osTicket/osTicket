@@ -344,38 +344,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                     <i class="help-tip icon-question-sign" href="#ticket_auto_response"></i>
             </td>
         </tr>
-    </tbody>
- </table>
-</div>
-
-<div class="hidden tab_content" id="forms">
- <table id="topic-forms" class="table" border="0" cellspacing="0" cellpadding="2">
-
-<?php
-$current_forms = array();
-foreach ($forms as $F) {
-    $current_forms[] = $F->id; ?>
-    <tbody data-form-id="<?php echo $F->get('id'); ?>">
-        <tr>
-            <td class="handle" colspan="6">
-                <input type="hidden" name="forms[]" value="<?php echo $F->get('id'); ?>" />
-                <div class="pull-right">
-                <i class="icon-large icon-move icon-muted"></i>
-<?php if ($F->get('type') != 'T') { ?>
-                <a href="#" title="<?php echo __('Delete'); ?>" onclick="javascript:
-                if (confirm(__('You sure?')))
-                    var tbody = $(this).closest('tbody');
-                    tbody.fadeOut(function(){this.remove()});
-                    $(this).closest('form')
-                        .find('[name=form_id] [value=' + tbody.data('formId') + ']')
-                        .prop('disabled', false);
-                return false;"><i class="icon-large icon-trash"></i></a>
-<?php } ?>
-                </div>
-                <div><strong><?php echo Format::htmlchars($F->getLocal('title')); ?></strong></div>
-                <div><?php echo Format::display($F->getLocal('instructions')); ?></div>
-            </td>
-        </tr>
         <tr style="text-align:left">
             <th><?php echo __('Enable'); ?></th>
             <th><?php echo __('Label'); ?></th>
@@ -395,29 +363,32 @@ foreach ($forms as $F) {
             <td><?php echo $f->get('name'); ?></td>
         </tr>
         <?php } ?>
+        <tr>
+            <td width="180">
+                <?php echo __('Add Canned Tasks'); ?>:
+            </td>
+            <td>
+                <select name="task_group_id">
+                    <option value="0">— <?php echo __('No Canned Tasks'); ?> —</option>
+<?php
+foreach (TaskTemplateGroup::allActive()->filter(array(
+    'topic_id__in' => array(0, $info['id'] ? $info['id'] : 0),
+)) as $TG) {
+    echo sprintf('<option value="%d" %s>%s</option>',
+        $TG->id,
+        $info['task_group_id'] == $TG->id ? 'selected="selected"' : '',
+        Format::htmlchars($TG->getName())
+    );
+} ?>
+                </select>
+            </td>
+         </tr>
     </tbody>
-    <?php } ?>
  </table>
+</div>
 
-   <br/>
-   <strong><?php echo __('Add Custom Form'); ?></strong>:
-   <select name="form_id" id="newform">
-    <option value=""><?php echo '— '.__('Add a custom form') . ' —'; ?></option>
-    <?php foreach (DynamicForm::objects()
-        ->filter(array('type'=>'G'))
-        ->exclude(array('flags__hasbit' => DynamicForm::FLAG_DELETED))
-    as $F) { ?>
-        <option value="<?php echo $F->get('id'); ?>"
-           <?php if (in_array($F->id, $current_forms))
-               echo 'disabled="disabled"'; ?>
-           <?php if ($F->get('id') == $info['form_id'])
-                echo 'selected="selected"'; ?>>
-           <?php echo $F->getLocal('title'); ?>
-        </option>
-    <?php } ?>
-   </select>
-   &nbsp;<span class="error">&nbsp;<?php echo $errors['form_id']; ?></span>
-   <i class="help-tip icon-question-sign" href="#custom_form"></i>
+<div class="hidden tab_content" id="forms">
+<?php include STAFFINC_DIR . 'templates/manage-custom-fields.tmpl.php'; ?>
 </div>
 
 </div>
@@ -442,35 +413,5 @@ $(function() {
     $('[name=sequence_id]').on('change', update_example);
     $('[name=number_format]').on('keyup', update_example);
 
-    $('form select#newform').change(function() {
-        var $this = $(this),
-            val = $this.val();
-        if (!val) return;
-        $.ajax({
-            url: 'ajax.php/form/' + val + '/fields/view',
-            dataType: 'json',
-            success: function(json) {
-                if (json.success) {
-                    $(json.html).appendTo('#topic-forms').effect('highlight');
-                    $this.find(':selected').prop('disabled', true);
-                }
-            }
-        });
-    });
-    $('table#topic-forms').sortable({
-      items: 'tbody',
-      handle: 'td.handle',
-      tolerance: 'pointer',
-      forcePlaceholderSize: true,
-      helper: function(e, ui) {
-        ui.children().each(function() {
-          $(this).children().each(function() {
-            $(this).width($(this).width());
-          });
-        });
-        ui=ui.clone().css({'background-color':'white', 'opacity':0.8});
-        return ui;
-      }
-    }).disableSelection();
 });
 </script>

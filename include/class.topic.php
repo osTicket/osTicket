@@ -57,6 +57,12 @@ implements TemplateVariable, Searchable {
                 'reverse' => 'TopicFormModel.topic',
                 'null' => true,
             ),
+            'task_group' => array(
+                'constraint' => array(
+                    'task_group_id' => 'TaskTemplateGroup.id',
+                ),
+                'null' => true,
+            ),
         ),
     );
 
@@ -240,6 +246,10 @@ implements TemplateVariable, Searchable {
 
         return $sequence->next($this->number_format ?: '######',
             array('Ticket', 'isTicketNumberUnique'));
+    }
+
+    function getTaskTemplateGroup() {
+        return $this->task_group;
     }
 
     function getTranslateTag($subtag) {
@@ -485,6 +495,7 @@ implements TemplateVariable, Searchable {
         $this->number_format = $vars['number_format'];
         $this->setFlag(self::FLAG_CUSTOM_NUMBERS, ($vars['custom-numbers']));
         $this->noautoresp = $vars['noautoresp'];
+        $this->task_group_id = $vars['task_group_id'] ?: 0;
         $this->notes = Format::sanitize($vars['notes']);
 
         $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));
