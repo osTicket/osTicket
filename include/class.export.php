@@ -743,12 +743,11 @@ class CsvResultsExporter extends ResultSetExporter {
 class JsonResultsExporter extends ResultSetExporter {
     function dump() {
         require_once(INCLUDE_DIR.'class.json.php');
-        $exp = new JsonDataEncoder();
         $rows = array();
         while ($row=$this->nextArray()) {
             $rows[] = $row;
         }
-        echo $exp->encode($rows);
+        echo JsonDataEncoder::encode($rows);
     }
 }
 

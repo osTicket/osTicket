@@ -269,7 +269,7 @@ class TasksAjaxAPI extends AjaxController {
                         break;
                     default:
                         $clean =  $field->getClean();
-                        $clean = is_array($clean) ? implode($clean, ',') :
+                        $clean = is_array($clean) ? implode(',', $clean) :
                             (string) $clean;
                         if (strlen($clean) > 200)
                              $clean = Format::truncate($clean, 200);

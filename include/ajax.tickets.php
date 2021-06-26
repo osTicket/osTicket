@@ -688,7 +688,7 @@ class TicketsAjaxAPI extends AjaxController {
                         break;
                     default:
                         $clean =  $field->getClean();
-                        $clean = is_array($clean) ? implode($clean, ',') :
+                        $clean = is_array($clean) ? implode(',', $clean) :
                             (string) $clean;
                 }
 

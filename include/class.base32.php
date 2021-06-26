@@ -20,7 +20,7 @@ class Base32 {
      * to double performance
      */
 
-    function encode($inString)
+    static function encode($inString)
     {
         $outString = "";
         $compBits = "";
@@ -68,7 +68,7 @@ class Base32 {
      *
      */
 
-    function decode($inString) {
+    static function decode($inString) {
         /* declaration */
         $deCompBits = '';
         $outString = '';

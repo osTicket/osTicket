@@ -381,7 +381,7 @@ class ApiXmlDataParser extends XmlDataParser {
 
 include_once "class.json.php";
 class ApiJsonDataParser extends JsonDataParser {
-    function parse($stream, $tidy=false) {
+    static function parse($stream, $tidy=false) {
         return $this->fixup(parent::parse($stream));
     }
     function fixup($current) {

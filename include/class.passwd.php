@@ -20,7 +20,7 @@ define('DEFAULT_WORK_FACTOR',8);
 
 class Passwd {
 
-    function cmp($passwd,$hash,$work_factor=0){
+    static function cmp($passwd,$hash,$work_factor=0){
         
         if($work_factor < 4 || $work_factor > 31)
             $work_factor=DEFAULT_WORK_FACTOR;
@@ -30,7 +30,7 @@ class Passwd {
         return ($hasher && $hasher->CheckPassword($passwd,$hash));
     }
 
-    function hash($passwd, $work_factor=0){
+    static function hash($passwd, $work_factor=0){
        
         if($work_factor < 4 || $work_factor > 31)
             $work_factor=DEFAULT_WORK_FACTOR;
