@@ -59,6 +59,8 @@ class ThreadAjaxAPI extends AjaxController {
     function addRemoteCollaborator($tid, $type, $bk, $id) {
         global $thisstaff;
 
+        $id = str_replace('/','\\',$id);
+
         if (!($thread=Thread::lookup($tid))
                 || !($object=$thread->getObject())
                 || !$object->checkStaffPerm($thisstaff))
