@@ -28,5 +28,11 @@ api_key:
 ip_addr:
     title: IP Address
     content: >
-        Client's network IP address. Each unique client IP address will
-        require separate API keys
+         Client's network IP address. Each unique client IP address will
+         require separate API keys. Allowed Formats:<br/>
+         <b>IP <i>( 1.2.3.4 )</i></b><br/>compares with source ip<br/>
+         <b>IP Wildcard <i>( 1.2.*.*  )</i></b><br/>wildcard compare with source ip<br/>
+         <b>IP Regex <i>( regex:/^123.\d{1,3}.789.0$/</i></b><br/>applies regex directly to source ip<br/>
+         <b>Hostname <i>( hostname:some.example.domain.com )</i></b><br/>dns look up domain, comapres with source ip<br/>
+         <b>Hostname Wildcard <i>( hostname:*.*.example.domain.com )</i></b><br/>reverse dns lookup on source ip wilcard compared with domain<br/>
+         <b>Hostname Regex <i>( hostname:regex:/\w+?\.example(\.domain)?\.com/i )</i></b><br/>reverse dns lookup on source ip, then regex applied to domain<br/>

@@ -99,11 +99,18 @@ class API {
         return ($key && $ip && self::getIdByKey($key, $ip));
     }
 
+    function getAddrById($id) {
+        $sql='SELECT ipaddr FROM '.API_KEY_TABLE.' WHERE id='.db_input($id);
+
+        if(($res=db_query($sql)) && db_num_rows($res))
+            list($addr) = db_fetch_row($res);
+
+        return $addr;
+    }
+
     function getIdByKey($key, $ip='') {
 
         $sql='SELECT id FROM '.API_KEY_TABLE.' WHERE apikey='.db_input($key);
-        if($ip)
-            $sql.=' AND ipaddr='.db_input($ip);
 
         if(($res=db_query($sql)) && db_num_rows($res))
             list($id) = db_fetch_row($res);
@@ -121,8 +128,12 @@ class API {
 
     function save($id, $vars, &$errors) {
 
-        if(!$id && (!$vars['ipaddr'] || !Validator::is_ip($vars['ipaddr'])))
-            $errors['ipaddr'] = __('Valid IP is required');
+        if(!preg_match('/^hostname:(?:[\w\-\*]+\.?)+$/i', $vars['ipaddr']) &&
+            !preg_match('/^(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/i',$vars['ipaddr']) &&
+             !preg_match('/^(?:hostname:)?regex:.+$/i',$vars['ipaddr'])&&
+            (!$id && !$vars['ipaddr'])){
+                $errors['ipaddr'] = __('Valid IP/Hostname is required');
+            }
 
         if($errors) return false;
 
@@ -172,12 +183,31 @@ class ApiController {
     function requireApiKey() {
         # Validate the API key -- required to be sent via the X-API-Key
         # header
-
+        
         if(!($key=$this->getApiKey()))
             return $this->exerr(401, __('Valid API key required'));
-        elseif (!$key->isActive() || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
-            return $this->exerr(401, __('API key not found/active or source IP not authorized'));
+        elseif (!$key->isActive()) {
+            return $this->exerr(401, __('API key not found/active or source IP/hostname not authorized'));
+        } else {
+            if(!preg_match('/^(hostname:)?(regex:)?(.+)$/i',API::getAddrById($key->id),$matches))
+                return $this->exerr(401, __('API key not found/active or source IP/hostname not authorized'));
+            
+            list($_,$is_hostname_match,$is_re_match,$match_addr) = $matches;
+            $is_wc_match = $is_re_match ? false : (strpos($matches[3],"*") !== false);
 
+            if ($is_hostname_match && !$is_re_match && !$is_wc_match) {
+                $match_addr = gethostbyname($match_addr);
+                $is_hostname_match = false;
+            }
+            
+            if( $is_wc_match )
+                $match_addr = "/^".str_replace("*",".+?",str_replace(".","\.",$match_addr))."$/i";
+
+            $remote_ip_or_hostname = $is_hostname_match ? gethostbyaddr($_SERVER['REMOTE_ADDR']) : $_SERVER['REMOTE_ADDR'];
+        
+            if (!preg_match($match_addr,$remote_ip_or_hostname))
+                return $this->exerr(401, __('API key not found/active or source IP/hostname not authorized'));
+        }
         return $key;
     }
 
@@ -327,8 +357,8 @@ class ApiXmlDataParser extends XmlDataParser {
     function fixup($current) {
         global $cfg;
 
-		if($current['ticket'])
-			$current = $current['ticket'];
+        if($current['ticket'])
+            $current = $current['ticket'];
 
         if (!is_array($current))
             return $current;
