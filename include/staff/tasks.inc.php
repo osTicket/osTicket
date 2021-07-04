@@ -101,6 +101,11 @@ case 'search':
         break;
     }
     // Fall-through and show open tickets
+case 'any':
+    $status='any';
+    $results_type=__('Any Task');
+    $queue_sort_options = array('created', 'updated', 'due', 'number', 'hot');
+    break;
 case 'open':
     $status='open';
     $results_type=__('Open Tasks');
@@ -110,7 +115,7 @@ case 'open':
 
 // Apply filters
 $filters = array();
-if ($status) {
+if ($status && $status != "any") {
     $SQ = new Q(array('flags__hasbit' => TaskModel::ISOPEN));
     if (!strcasecmp($status, 'closed'))
         $SQ->negate();
@@ -318,7 +323,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
         </div>
         <div class="pull-right flush-right">
            <?php
-           if ($count)
+           if ($count && $status != "any")
                 echo Task::getAgentActions($thisstaff, array('status' => $status));
             ?>
         </div>
