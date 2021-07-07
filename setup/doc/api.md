@@ -28,11 +28,11 @@ a reverse proxy, the original IP of the client will be retrieved from the
 
 Example:
 
-    X-API-Key: BA00B76BAA30F62E1940B46CC1C3C73C
+    x-api-key: BA00B76BAA30F62E1940B46CC1C3C73C
 
 Commandline Example with Curl:
 
-    curl -d "{}" -H "X-API-Key: BA00B76BAA30F62E1940B46CC1C3C73C"
+    curl -d "{}" -H "x-api-key: BA00B76BAA30F62E1940B46CC1C3C73C"
         https://support.you.tld/api/tickets.json
 
 Wrappers
