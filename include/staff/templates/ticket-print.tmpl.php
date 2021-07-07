@@ -120,7 +120,7 @@ img.avatar {
     <div class="hr">&nbsp;</div>
     <table><tr>
         <td class="flush-left"><?php echo (string) $ost->company; ?></td>
-        <td class="flush-right"><?php echo Format::daydatetime(Misc::gmtime()); ?></td>
+        <td class="flush-right"><?php $datetime = new DateTime(); echo Format::daydatetime($datetime->format(DateTime::ISO8601), true, $thisstaff->getTimezone()); ?></td>
     </tr></table>
 </htmlpageheader>
 
@@ -129,7 +129,7 @@ img.avatar {
     <table width="100%"><tr><td class="flush-left">
         Ticket #<?php echo $ticket->getNumber(); ?> printed by
         <?php echo $thisstaff->getUserName(); ?> on
-        <?php echo Format::daydatetime(Misc::gmtime()); ?>
+        <?php echo Format::daydatetime($datetime->format(DateTime::ISO8601), true, $thisstaff->getTimezone()); ?>
     </td>
     <td class="flush-right">
         Page {PAGENO}
