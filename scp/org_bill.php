@@ -3,7 +3,7 @@ require('staff.inc.php');
 
 // Collect Time Items
 // --Determine ID value for time-type
-	
+
 function countTime($ticketid) {
     static $time_types;
     if (!isset($time_types)) {
@@ -20,15 +20,15 @@ function countTime($ticketid) {
     $ticket = Ticket::lookup($ticketid);
     if (!$ticket)
         return $totals;
-    
+
     $times = $ticket->getTimeTotalsByType();
-    
+
     foreach ($times as $typeid=>$total) {
         $type_name = $time_types[$typeid];
         $totals[$type_name] = $total;
     }
-	
-	return $totals;
+
+    return $totals;
 }
 
 //Get Organisation Details
@@ -46,8 +46,9 @@ $tickets = Ticket::objects()
 //New code contributed by @damiangraber
     ->filter([
         'user__org_id' => $org->getId(),
-        'status__state' => 'closed',
-        'created__range' => array( "'" . $_REQUEST['startdate'] ."'" , "'" . $_REQUEST['enddate'] . "'" ),
+        //'' => 'closed',
+        'created__range' => array($_REQUEST['startdate'], $_REQUEST['enddate']),
+        //'created__range' => array( "'" . '2020-04-29 06:47:51' ."'" , "'" . '2020-05-29 06:47:51' . "'" ),
     ])
     ->values('staff_id', 'isoverdue', 'ticket_id', 'number',
         'cdata__subject', 'user__default_email__address', 'source',
@@ -71,10 +72,10 @@ $subject_field = TicketForm::getInstance()->getField('subject');
 require_once(STAFFINC_DIR.'header.inc.php');
 ?>
 
-<h1>Bill / Invoice</h1>
-<b>Organistation:</b> <?php echo $org->getName(); ?><br />
-<b>Billing Period:</b> <?php echo $_REQUEST['startdate']; ?> - <?php echo $_REQUEST['enddate']; ?><br /><br />
-<h2>Labour / Time Details</h2>
+<h1><?php echo __('Bill / Invoice'); ?></h1>
+<b><?php echo __('Organization'); ?>:</b> <?php echo $org->getName(); ?><br />
+<b><?php echo __('Billing Period'); ?>:</b> <?php echo $_REQUEST['startdate']; ?> - <?php echo $_REQUEST['enddate']; ?><br /><br />
+<h2><?php echo __('Labour / Time Details'); ?></h2>
 <?php if (count($tickets)) { ?>
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
@@ -85,7 +86,7 @@ require_once(STAFFINC_DIR.'header.inc.php');
             <?php
             } ?>
             <th width="70"><?php echo __('Ticket'); ?></th>
-            <th width="100"><?php echo __('Date'); ?></th>
+            <th width="100"><?php echo __('Last Update'); ?></th>
             <th width="100"><?php echo __('Status'); ?></th>
             <th width="300"><?php echo __('Subject'); ?></th>
             <th width="400"><?php echo __('Time Summary'); ?></th>
@@ -97,11 +98,10 @@ require_once(STAFFINC_DIR.'header.inc.php');
         $flag=null;
         if($T['isoverdue'])
             $flag='overdue';
-
         $subject = $subject_field->display($subject_field->to_php($T['cdata__subject']));
         $threadcount=$T['thread_count'];
         ?>
-        <tr id="<?php echo $row['ticket_id']; ?>">
+        <tr id="<?php echo $T['ticket_id']; ?>">
             <?php
             //Implement mass  action....if need be.
             if (0) { ?>
@@ -116,7 +116,7 @@ require_once(STAFFINC_DIR.'header.inc.php');
                 href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                 data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                 ><?php echo $T['number']; ?></a></td>
-            <td align="center" nowrap><?php echo Format::datetime($row['lastupdate']); ?></td>
+            <td align="center" nowrap><?php echo Format::datetime($T['lastupdate']); ?></td>
 <?php       $displaystatus=TicketStatus::getLocalById($T['status_id'], 'value', $T['status__name']);
             if(!strcasecmp($T['status__state'],'open'))
                 $displaystatus="<b>$displaystatus</b>";
@@ -146,14 +146,14 @@ require_once(STAFFINC_DIR.'header.inc.php');
                 foreach (countTime($T['ticket_id']) as $name=>$time) {
                     echo sprintf('%s %s<br/>', Ticket::formatTime($time), $name);
                 } ?>
-			</td>
+            </td>
         </tr>
     <?php } ?>
     </tbody>
 </table>
 <?php
 } else {
-	echo '<p>No tickets found</p>';
+    echo '<p>' . __('No tickets found') . '</p>';
 }
 
 require_once(STAFFINC_DIR.'footer.inc.php');

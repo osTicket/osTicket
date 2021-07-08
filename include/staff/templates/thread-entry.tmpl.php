@@ -85,12 +85,12 @@ if ($user && $cfg->isAvatarsEnabled())
             echo $entry->title; ?></span>
         </span>
         <?php if ($cfg->isThreadTime()) {
-			if ($entry->time_spent > 0) { ?>
-				<span style="display:inline-block">
-					<?php echo Ticket::formatTime($entry->time_spent) .' - '. Ticket::convTimeType($entry->time_type); ?>
-				</span>
+            if ($entry->time_spent > 0) { ?>
+                <span style="display:inline-block">
+                    <?php echo Ticket::formatTime($entry->time_spent) .' - '. Ticket::convTimeType($entry->time_type); ?>
+                </span>
             <?php }
-		} ?>
+        } ?>
     </div>
     <div class="thread-body no-pjax">
         <div><?php echo $entry->getBody()->toHtml(); ?></div>
