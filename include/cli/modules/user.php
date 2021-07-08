@@ -86,6 +86,10 @@ class UserManager extends Module {
             break;
 
         case 'activate':
+            global $ost, $cfg;
+            $ost = osTicket::start();
+            $cfg = $ost->getConfig();
+
             $users = $this->getQuerySet($options);
             foreach ($users as $U) {
                 if ($options['verbose']) {
@@ -95,16 +99,18 @@ class UserManager extends Module {
                     ));
                 }
                 if (!($account = $U->getAccount())) {
-                    $account = UserAccount::create(array('user' => $U));
-                    $U->account = $account;
+                    $errors = array();
+                    $vars = array(
+                        'id' => $U->getId(),
+                        'username' => $U->getEmail(),
+                        'sendemail' => ($options['send-mail']) ? 1 : 0
+                    );
+                    $account = UserAccount::register($U, $vars, $errors);
+                    $U->account = $account->ht->user->ht->account;
                     $U->save();
                 }
 
                 if ($options['send-mail']) {
-                    global $ost, $cfg;
-                    $ost = osTicket::start();
-                    $cfg = $ost->getConfig();
-
                     if (($error = $account->sendConfirmEmail()) && $error !== true) {
                         $this->warn(sprintf('%s: Unable to send email: %s',
                             $U->getDefaultEmail(), $error->getMessage()
