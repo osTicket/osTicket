@@ -61,14 +61,14 @@ if ($cats->all()) { ?>
     <div class="featured-category front-page">
         <i class="icon-folder-open icon-2x"></i>
         <div class="category-name">
-            <?php echo $C->getName(); ?>
+            <?php echo $C->getLocalName(); ?>
         </div>
 <?php foreach ($C->getTopArticles() as $F) { ?>
         <div class="article-headline">
             <div class="article-title"><a href="<?php echo ROOT_PATH;
                 ?>kb/faq.php?id=<?php echo $F->getId(); ?>"><?php
-                echo $F->getQuestion(); ?></a></div>
-            <div class="article-teaser"><?php echo $F->getTeaser(); ?></div>
+                echo $F->getLocalQuestion(); ?></a></div>
+            <div class="article-teaser"><?php echo $F->getLocalTeaser(); ?></div>
         </div>
 <?php } ?>
     </div>
