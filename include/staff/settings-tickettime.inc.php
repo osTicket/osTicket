@@ -13,7 +13,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <th colspan="2">
                 <h4><?php echo __('Ticket Time Settings');?></h4>
                 <em><?php echo __("Enabling these options allow you to add time to you tickets.");?></em>
-				<em><b><?php echo __('General Settings'); ?></b></em>
+                <em><b><?php echo __('General Settings'); ?></b></em>
             </th>
         </tr>
     </thead>
@@ -27,7 +27,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#client_time"></i>
             </td>
         </tr>
-		<tr>
+        <tr>
             <td width="180"><?php echo __('Thread Ticket Time');?>:</td>
             <td>
                 <input type="checkbox" name="isthreadtime" value="1" <?php echo $config['isthreadtime']?'checked="checked"':''; ?> >
@@ -36,12 +36,12 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#thread_time"></i>
             </td>
         </tr>
-		<tr>
-			<th colspan="2">
-				<em><b><?php echo __('Thread Settings'); ?></b></em>
+        <tr>
+            <th colspan="2">
+                <em><b><?php echo __('Thread Settings'); ?></b></em>
             </th>
-		</tr>
-		<tr>
+        </tr>
+        <tr>
             <td width="180"><?php echo __('Ticket Timer');?>:</td>
             <td>
                 <input type="checkbox" name="isthreadtimer" value="1" <?php echo $config['isthreadtimer']?'checked="checked"':''; ?> >
@@ -50,7 +50,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#thread_timer"></i>
             </td>
         </tr>
-		<tr>
+        <tr>
             <td width="180"><?php echo __('Time Billable');?>:</td>
             <td>
                 <input type="checkbox" name="isthreadbill" value="1" <?php echo $config['isthreadbill']?'checked="checked"':''; ?> >
@@ -59,7 +59,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#thread_bill"></i>
             </td>
         </tr>
-		<tr>
+        <tr>
             <td width="180"><?php echo __('Billable as Default');?>:</td>
             <td>
                 <input type="checkbox" name="isthreadbilldefault" value="1" <?php echo $config['isthreadbilldefault']?'checked="checked"':''; ?> >

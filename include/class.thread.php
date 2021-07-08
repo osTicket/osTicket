@@ -969,6 +969,12 @@ implements TemplateVariable {
         return $this->save();
     }
 
+    function setTimeInvoice($time_invoice) {
+        global $cfg;
+        $this->time_invoice = (int) $time_invoice;
+        return $this->save();
+    }
+
     function getMessage() {
         return $this->getBody();
     }
@@ -1649,7 +1655,10 @@ implements TemplateVariable {
 
         if (!($body = Format::strip_emoticons($vars['body']->getClean())))
             $body = '-'; //Special tag used to signify empty message as stored.
-        
+
+        // Ensure valid external images
+        $body = Format::stripExternalImages($body);
+
         $time_spent = $vars['time_spent'];
         if ($time_spent && is_object($time_spent))
             $time_spent = (float) $time_spent;
@@ -1659,9 +1668,9 @@ implements TemplateVariable {
         $time_bill = $vars['time_bill'];
         if ($time_bill && is_object($time_bill))
             $time_bill = (int) $time_bill;
-
-        // Ensure valid external images
-        $body = Format::stripExternalImages($body);
+        $time_invoice = $vars['time_invoice'];
+        if ($time_invoice && is_object($time_invoice))
+            $time_invoice = (int) $time_invoice;
 
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
@@ -1677,8 +1686,9 @@ implements TemplateVariable {
             'user_id' => $vars['userId'],
             'poster' => $poster,
             'time_spent' => $time_spent,
-			'time_type' => $time_type,
-			'time_bill' => $time_bill,
+            'time_type' => $time_type,
+            'time_bill' => $time_bill,
+            'time_invoice' => $time_invoice,
             'source' => $vars['source'],
             'flags' => $vars['flags'] ?: 0,
         ));
