@@ -383,6 +383,7 @@ implements TemplateVariable, Searchable {
               $n .= " - ".__("(disabled)");
           $requested_names[$id] = $n;
           $topicsClean[$id] = $info;
+          $topicsClean[$id]['topic'] = $n;
       }
 
       if ($allData)
