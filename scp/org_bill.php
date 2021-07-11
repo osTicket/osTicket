@@ -1,4 +1,17 @@
 <?php
+/*********************************************************************
+    org_bill.php
+
+    Organisation Billing
+
+    Robin Toy <robin@strobe-it.co.uk>
+    https://www.strobe-it.co.uk
+
+    Released under the GNU General Public License WITHOUT ANY WARRANTY.
+    See LICENSE.TXT for details.
+
+    vim: expandtab sw=4 ts=4 sts=4:
+**********************************************************************/
 require('staff.inc.php');
 
 // Collect Time Items

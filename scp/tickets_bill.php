@@ -1,8 +1,8 @@
 <?php
 /*********************************************************************
-    billing.php
+    tickets_bill.php
 
-    Billing
+    Ticket Invoice / Bill
 
     Robin Toy <robin@strobe-it.co.uk>
     https://www.strobe-it.co.uk
