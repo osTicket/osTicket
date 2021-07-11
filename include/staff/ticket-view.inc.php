@@ -97,9 +97,9 @@ if($ticket->isOverdue())
                  <li title="PDF File"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=1"><i
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes + Events'); ?></a>
 <?php if ($cfg->isThreadTime()) { ?>
-                 <li><a class="no-pjax" target="_blank" href="tickets_bill.php?id=<?php echo $ticket->getId(); ?>"><i
+                 <li><a class="no-pjax" href="tickets_bill.php?id=<?php echo $ticket->getId(); ?>"><i
                  class="icon-file-alt"></i> <?php echo __('Bill / Invoice'); ?></a>
-                 <li><a class="no-pjax" target="_blank" href="tickets_cost.php?id=<?php echo $ticket->getId(); ?>"><i
+                 <li><a class="no-pjax" href="tickets_cost.php?id=<?php echo $ticket->getId(); ?>"><i
                  class="icon-file-text-alt"></i> <?php echo __('Billing Information'); ?></a>
 <?php } ?> 
                  <?php if (extension_loaded('zip')) { ?>

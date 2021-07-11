@@ -124,6 +124,7 @@ class StaffNav {
 
     function getTabs(){
         global $thisstaff;
+		global $cfg;
 
         if(!$this->tabs) {
             $this->tabs = array();
@@ -139,6 +140,9 @@ class StaffNav {
             $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>__('Ticket Queue'));
 
             $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
+			if ($cfg->isThreadTime()) {
+				$this->tabs['timebill'] = array('desc'=>__('Time and Billing'),'href'=>'timebill.php','title'=>__('Time and Billing'));
+			}
             if (!is_null($this->getRegisteredApps()))
                 $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));
         }
