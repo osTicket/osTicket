@@ -1,4 +1,17 @@
 <?php
+/*********************************************************************
+    tickets_cost.php
+
+    Ticket Costs
+
+    Robin Toy <robin@strobe-it.co.uk>
+    https://www.strobe-it.co.uk
+
+    Released under the GNU General Public License WITHOUT ANY WARRANTY.
+    See LICENSE.TXT for details.
+
+    vim: expandtab sw=4 ts=4 sts=4:
+**********************************************************************/
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
@@ -30,9 +43,22 @@ if($_REQUEST['id']) {
     }
 }
 
-//Navigation & Page Info
+
+//Navigation
 $nav->setTabActive('tickets');
-$ost->setPageTitle(sprintf(__('Ticket #%s Billing Report'),$ticket->getNumber()));
+$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
+
+$nav->addSubMenu(array('desc'=>__('View Ticket'),
+                        'title'=> __('View Ticket Information'),
+                        'href'=>'tickets.php?id='.$ticket->getId(),
+                        'iconclass'=>'newTicket',
+                        'id' => 'new-ticket'),
+                    ($_REQUEST['id']==$ticket->getId()));
+
+
+if($ticket) {
+    $ost->setPageTitle(sprintf(__('Ticket #%s Billing Report'),$ticket->getNumber()));
+}
 
 
 if(!$errors) {
