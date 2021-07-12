@@ -179,6 +179,9 @@ class StaffNav {
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
+				case 'timebill':
+					$subnav[]=array('desc'=>__('Ticket Information'),'href'=>'timebill.php','iconclass'=>'logs');
+					break;
                 case 'apps':
                     foreach ($this->getRegisteredApps() as $app)
                         $subnav[] = $app;
