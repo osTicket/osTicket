@@ -1,19 +1,4 @@
 <?php
-/*********************************************************************
-    tickets_bill.php
-
-    Ticket Invoice / Bill
-
-    Robin Toy <robin@strobe-it.co.uk>
-    https://www.strobe-it.co.uk
-
-    Released under the GNU General Public License WITHOUT ANY WARRANTY.
-    See LICENSE.TXT for details.
-
-    vim: expandtab sw=4 ts=4 sts=4:
-**********************************************************************/
-require('staff.inc.php');
-require_once(INCLUDE_DIR.'class.ticket.php');
 
 if ( isset( $_POST['submit'] ) ) {
     //actions to take on updating ticket box
@@ -65,21 +50,11 @@ if($_REQUEST['id']) {
     }
 }
 
-//Navigation
-$nav->setTabActive('tickets');
-$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
-
-$nav->addSubMenu(array('desc'=>__('View Ticket'),
-                        'title'=> __('View Ticket Information'),
-                        'href'=>'tickets.php?id='.$ticket->getId(),
-                        'iconclass'=>'newTicket',
-                        'id' => 'new-ticket'),
-                    ($_REQUEST['id']==$ticket->getId()));
 
 
-if($ticket) {
-    $ost->setPageTitle(sprintf(__('Ticket #%s Bill / Invoice'),$ticket->getNumber()));
-}
+#if($ticket) {
+#    $ost->setPageTitle(sprintf(__('Ticket #%s Invoice'),$ticket->getNumber()));
+#}
 
 
 
@@ -90,15 +65,14 @@ if(!$errors) {
     $TicketNo = $ticket->getNumber();
 }
 
-require_once(STAFFINC_DIR.'header.inc.php');
 
 if(!$errors) {
 ?>
 
-    <h1><?php echo __('Bill / Invoice'); ?></h1>
+    <h1><?php echo __('Time and Billing Invoice'); ?></h1>
     
     <h2><?php echo __('Ticket Information'); ?></h2>
-    <p><b><?php echo __('Ticket'); ?>:</b> #<?php echo $TicketNo; ?> <br />
+    <p><b><?php echo __('Ticket'); ?>:</b> <a href="tickets.php?id=<?php echo $ticket->getId() ?>">#<?php echo $TicketNo; ?></a><br />
         <b><?php echo __('Subject'); ?>:</b> <?php echo $Subject; ?> <br />
         <b><?php echo __('Generated'); ?>:</b> <?php echo Format::datetime(Misc::gmtime(), false); ?>
     </p>
@@ -113,7 +87,7 @@ if(!$errors) {
     <p>&nbsp;</p>
     
     <h2><?php echo __('Time History / Detail'); ?></h2>
-    <form action="tickets_bill.php?id=<?php echo $_REQUEST['id']?>" method="post" id="save">
+    <form action="timebill.php?id=<?php echo $_REQUEST['id']?>&view=invoice" method="post" id="save">
     <?php csrf_token(); ?>
     <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
         <tr>
@@ -170,5 +144,4 @@ if(!$errors) {
     <p><?php echo __('You do not have access to this report.'); ?></p>
 <?php
 }
-require_once(STAFFINC_DIR.'footer.inc.php');
 ?>
