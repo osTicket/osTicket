@@ -1,19 +1,4 @@
 <?php
-/*********************************************************************
-    tickets_cost.php
-
-    Ticket Costs
-
-    Robin Toy <robin@strobe-it.co.uk>
-    https://www.strobe-it.co.uk
-
-    Released under the GNU General Public License WITHOUT ANY WARRANTY.
-    See LICENSE.TXT for details.
-
-    vim: expandtab sw=4 ts=4 sts=4:
-**********************************************************************/
-require('staff.inc.php');
-require_once(INCLUDE_DIR.'class.ticket.php');
 
 $time_types = array();
 foreach (DynamicList::lookup(['type' => 'time-type'])->getItems() as $I) {
@@ -44,21 +29,9 @@ if($_REQUEST['id']) {
 }
 
 
-//Navigation
-$nav->setTabActive('tickets');
-$nav->addSubNavInfo('jb-overflowmenu', 'customQ_nav');
-
-$nav->addSubMenu(array('desc'=>__('View Ticket'),
-                        'title'=> __('View Ticket Information'),
-                        'href'=>'tickets.php?id='.$ticket->getId(),
-                        'iconclass'=>'newTicket',
-                        'id' => 'new-ticket'),
-                    ($_REQUEST['id']==$ticket->getId()));
-
-
-if($ticket) {
-    $ost->setPageTitle(sprintf(__('Ticket #%s Billing Report'),$ticket->getNumber()));
-}
+#if($ticket) {
+#    $ost->setPageTitle(sprintf(__('Ticket #%s Billing Report'),$ticket->getNumber()));
+#}
 
 
 if(!$errors) {
@@ -68,15 +41,14 @@ if(!$errors) {
     $TicketNo = $ticket->getNumber();
 }
 
-require_once(STAFFINC_DIR.'header.inc.php');
 
 if(!$errors) {
 ?>
 
-    <h1><?php echo __('Billing Report'); ?></h1>
+    <h1><?php echo __('Time and Billing Time Report'); ?></h1>
 
     <h2><?php echo __('Ticket Information'); ?></h2>
-    <p><b><?php echo __('Ticket'); ?>:</b> #<?php echo $TicketNo; ?> <br />
+    <p><b><?php echo __('Ticket'); ?>:</b> <a href="tickets.php?id=<?php echo $ticket->getId() ?>">#<?php echo $TicketNo; ?> </a><br />
         <b><?php echo __('Subject'); ?>:</b> <?php echo $Subject; ?> <br />
         <b><?php echo __('Generated'); ?>:</b> <?php echo Format::datetime(Misc::gmtime(), false); ?>
     </p>
@@ -148,5 +120,4 @@ if(!$errors) {
     <p><?php echo __('You do not have access to this report.'); ?></p>
 <?php
 }
-require_once(STAFFINC_DIR.'footer.inc.php');
 ?>
