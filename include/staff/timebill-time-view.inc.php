@@ -20,7 +20,12 @@ function countTime(Ticket $ticket) {
 $ticket = $user = null; //clean start.
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
-    if(!($ticket=Ticket::lookup($_REQUEST['id'])))
+	if (isset($_GET['search'])) {
+		$TicketID=Ticket::getIdByNumber($_REQUEST['id']);
+	} else {
+		$TicketID=$_REQUEST['id'];
+	}
+    if(!($ticket=Ticket::lookup($TicketID)))
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif(!$thisstaff->canAccess($ticket)) {
         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
@@ -36,7 +41,6 @@ if($_REQUEST['id']) {
 
 if(!$errors) {
     // Retrieve Ticket Information
-    $TicketID = $_GET['id'];
     $Subject = $ticket->getSubject();
     $TicketNo = $ticket->getNumber();
 }
