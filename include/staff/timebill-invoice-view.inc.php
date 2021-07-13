@@ -21,7 +21,6 @@ if ( isset( $_POST['submit'] ) ) {
 }
 
 
-
 $time_types = array();
 foreach (DynamicList::lookup(['type' => 'time-type'])->getItems() as $I) {
     $time_types[$I->id] = $I->getValue();
@@ -42,7 +41,12 @@ function countTime(Ticket $ticket) {
 $ticket = $user = null; //clean start.
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
-    if(!($ticket=Ticket::lookup($_REQUEST['id'])))
+	if (isset($_GET['search'])) {
+		$TicketID=Ticket::getIdByNumber($_REQUEST['id']);
+	} else {
+		$TicketID=$_REQUEST['id'];
+	}
+    if(!($ticket=Ticket::lookup($TicketID)))
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif(!$thisstaff->canAccess($ticket)) {
         $errors['err']=__('Access denied. Contact admin if you believe this is in error');
@@ -60,7 +64,6 @@ if($_REQUEST['id']) {
 
 if(!$errors) {
     // Retrieve Ticket Information
-    $TicketID = $_GET['id'];
     $Subject = $ticket->getSubject();
     $TicketNo = $ticket->getNumber();
 }
@@ -87,7 +90,7 @@ if(!$errors) {
     <p>&nbsp;</p>
     
     <h2><?php echo __('Time History / Detail'); ?></h2>
-    <form action="timebill.php?id=<?php echo $_REQUEST['id']?>&view=invoice" method="post" id="save">
+    <form action="timebill.php?id=<?php echo $ticket->getId() ?>&view=invoice" method="post" id="save">
     <?php csrf_token(); ?>
     <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
         <tr>
