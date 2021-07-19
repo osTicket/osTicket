@@ -97,7 +97,8 @@ if (!$ticket) {
             $_SESSION['advsearch'][$key] = [$criteria];
             $queue_id = "adhoc,{$key}";
         } else {
-            $errors['err'] = __('Search term cannot have more than 3 keywords');
+            $errors['err'] = sprintf(
+                    __('Search term cannot have more than %d keywords', 4));
         }
     }
 

@@ -4,7 +4,7 @@ if (!defined('OSTSCPINC')
         || !($ticket->checkStaffPerm($thisstaff, Ticket::PERM_EDIT)))
     die('Access Denied');
 
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo());
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$ticket->getUpdateInfo(), true);
 if ($_POST)
     // Reformat duedate to the display standard (but don't convert to local
     // timezone)
@@ -154,7 +154,7 @@ if ($_POST)
 <table class="form_table dynamic-forms" width="940" border="0" cellspacing="0" cellpadding="2">
         <?php if ($forms)
             foreach ($forms as $form) {
-                $form->render(array('staff'=>true,'mode'=>'edit','width'=>160,'entry'=>$form, 'filterVisibility' => true));
+                $form->render(array('staff'=>true,'mode'=>'edit','width'=>160,'entry'=>$form));
         } ?>
 </table>
 <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">

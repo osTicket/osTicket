@@ -4,7 +4,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
         die('Access Denied');
 
 $info=array();
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 if ($_SESSION[':form-data'] && !$_GET['tid'])
   unset($_SESSION[':form-data']);
@@ -318,12 +318,16 @@ if ($_POST)
                 <select id="assignId" name="assignId">
                     <option value="0" selected="selected">&mdash; <?php echo __('Select an Agent OR a Team');?> &mdash;</option>
                     <?php
-                    if(($users=$assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true)))) {
+                    $users = Staff::getStaffMembers(array(
+                                'available' => true,
+                                'staff' => $thisstaff,
+                                ));
+                    if ($users) {
                         echo '<OPTGROUP label="'.sprintf(__('Agents (%d)'), count($users)).'">';
-                        foreach($users as $id => $name) {
+                        foreach ($users as $id => $name) {
                             $k="s$id";
                             echo sprintf('<option value="%s" %s>%s</option>',
-                                        $k,(($info['assignId']==$k)?'selected="selected"':''),$name);
+                                        $k, (($info['assignId']==$k) ? 'selected="selected"' : ''), $name);
                         }
                         echo '</OPTGROUP>';
                     }

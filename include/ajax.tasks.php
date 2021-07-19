@@ -454,6 +454,7 @@ class TasksAjaxAPI extends AjaxController {
             $info[':title'] = sprintf('Transfer %s',
                     _N('selected task', 'selected tasks', $count));
             $form = TransferForm::instantiate($_POST);
+            $form->hideDisabled();
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Task::lookup($tid))
@@ -638,6 +639,8 @@ class TasksAjaxAPI extends AjaxController {
                 );
 
         $form = $task->getTransferForm($_POST);
+        $form->hideDisabled();
+
         if ($_POST && $form->isValid()) {
             if ($task->transfer($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
@@ -668,7 +671,7 @@ class TasksAjaxAPI extends AjaxController {
 
         if (!$task->checkStaffPerm($thisstaff, Task::PERM_ASSIGN)
                 || !($form=$task->getAssignmentForm($_POST, array(
-                            'target' => $target, 'filterVisibility' => true))))
+                            'target' => $target))))
             Http::response(403, __('Permission denied'));
 
         $errors = array();

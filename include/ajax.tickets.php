@@ -1188,6 +1188,7 @@ class TicketsAjaxAPI extends AjaxController {
             $info[':title'] = sprintf('Transfer %s',
                     _N('selected sort', 'selected sorts', $count));
             $form = TransferForm::instantiate($_POST);
+            $form->hideDisabled();
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
@@ -1591,7 +1592,7 @@ class TicketsAjaxAPI extends AjaxController {
         if (!($ticket=Ticket::lookup($tid)))
             Http::response(404, __('No such sort'));
 
-        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MARKANSWERED) && !$thisstaff->isManager())
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_MARKANSWERED) && !$thisstaff->isManager($ticket->getDept()))
             Http::response(403, __('Permission denied'));
 
         $errors = array();
@@ -1810,6 +1811,7 @@ class TicketsAjaxAPI extends AjaxController {
                 $vars['default_formdata'] = $form->getClean();
                 $vars['internal_formdata'] = $iform->getClean();
                 $desc = $form->getField('description');
+                $vars['description'] = $desc->getClean();
                 if ($desc
                         && $desc->isAttachmentsEnabled()
                         && ($attachments=$desc->getWidget()->getAttachments()))

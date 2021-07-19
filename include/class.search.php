@@ -580,7 +580,8 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $faq = FAQ::lookup($row[0]);
+            if (!($faq = FAQ::lookup($row[0])))
+               continue;
             $q = $faq->getQuestion();
             if ($k = $faq->getKeywords())
                 $q = $k.' '.$q;
@@ -745,14 +746,14 @@ class SavedQueue extends CustomQueue {
      * configuring this search in the user interface.
      *
      */
-    function getForm($source=null, $searchable=array(), $filterVisibility=NULL) {
+    function getForm($source=null, $searchable=array()) {
         $searchable = null;
         if ($this->isAQueue())
             // Only allow supplemental matches.
             $searchable = array_intersect_key($this->getCurrentSearchFields($source),
                     $this->getSupplementalMatches());
 
-        return parent::getForm($source, $searchable, $filterVisibility);
+        return parent::getForm($source, $searchable);
     }
 
    /**
@@ -1184,10 +1185,8 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
         if (!isset($this->_topics)) {
-            if ($options['filterVisibility'])
-                $this->_topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
-            else
-                $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+            $this->_topics = $thisstaff ? $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED) :
+                Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);;
         }
 
         return $this->_topics;
@@ -1212,25 +1211,58 @@ class SLAChoiceField extends AdvancedSearchSelectionField {
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends AdvancedSearchSelectionField {
     static $_depts;
+    static $_alldepts;
     var $_choices;
+
+    function getDepts($criteria=array()) {
+        global $thisstaff;
+
+        $staff = $criteria['staff'];
+        $depts = array();
+        if ($staff)
+            foreach ($staff->getDepartmentNames(true) as $id => $name)
+                $depts[$id] = $name;
+        else
+            foreach (Dept::getDepartments() as $id => $name)
+                $depts[$id] = $name;
+
+        return $depts;
+    }
 
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
+        $config = $this->getConfiguration();
 
-        if (!isset($this->_depts)) {
-            if ($options['filterVisibility'])
-                $this->_depts = $thisstaff->getDepartmentNames();
-            else
-                $this->_depts = Dept::getDepartments();
-        }
-        return $this->_depts;
+        $criteria = array(
+                'staff' => $config['staff'] ?: $thisstaff
+                );
+        if (!isset($this->_choices))
+            $this->_choices = $this->getDepts($criteria);
+
+        return $this->_choices;
+
+    }
+
+    function toString($value) {
+        if (!isset($this->_alldepts))
+            $this->_alldepts = $this->getDepts();
+        $choices =  $this->_alldepts;
+        $selection = array();
+        if (!is_array($value))
+            $value = array($value => $value);
+
+        foreach ($value as $k => $v)
+            if (isset($choices[$k]))
+                $selection[] = $choices[$k];
+
+        return $selection ?  implode(',', $selection) :
+            parent::toString($value);
     }
 
     function getQuickFilterChoices() {
        global $thisstaff;
 
        if (!isset($this->_choices)) {
-         $this->_choices = array();
          $depts = $thisstaff ? $thisstaff->getDepts() : array();
          foreach ($this->getChoices() as $id => $name) {
            if (!$depts || in_array($id, $depts))
@@ -1272,10 +1304,7 @@ class AssigneeChoiceField extends ChoiceField {
                 'M' => __('Me'),
                 'T' => __('One of my teams'),
             );
-            if ($options['filterVisibility'])
-                $assignees = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
-            else
-                $assignees = Staff::getStaffMembers();
+            $assignees = Staff::getStaffMembers(array('staff' => $thisstaff));
 
             foreach ($assignees as $id=>$name) {
                 // Don't include $thisstaff (since that's 'Me')
@@ -1554,35 +1583,44 @@ trait ZeroMeansUnset {
 
 class AgentSelectionField extends AdvancedSearchSelectionField {
     use ZeroMeansUnset;
-
+    static $_allagents;
     static $_agents;
+
+    function getAgents($criteria=array()) {
+        $dept = $criteria['dept'] ?: null;
+        $staff = $criteria['staff'] ?: null;
+        $agents = array();
+        if ($dept) {
+            foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                $agents[$a->getId()] = $a;
+        } else {
+            foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name) {
+                if ($staff && $staff->getId() == $id)
+                    $agents['M'] = __('Me');
+                $agents[$id] = $name;
+            }
+        }
+        return $agents;
+    }
 
     function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
+        $config = $this->getConfiguration();
+        $criteria = array(
+                'dept' => $config['dept'] ?: null,
+                'staff' => $config['staff'] ?: $thisstaff
+                );
+        if (!isset($this->_choices))
+            $this->_choices = $this->getAgents($criteria);
 
-        if (!isset($this->_agents)) {
-          //determine if we should filter results based on panel being visited
-          if ($options['filterVisibility']) {
-              $this->_agents = array('M' => __('Me'));
-              $agents = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
-              foreach (Staff::getStaffMembers() as $id => $name) {
-                if (!$agents || array_key_exists($id, $agents)) {
-                    // Don't include $thisstaff (since that's 'Me')
-                    if ($thisstaff && $thisstaff->getId() == $id)
-                        continue;
+        return $this->_choices;
 
-                    $this->_agents[$id] = $name;
-                }
-              }
-          } else
-              $this->_agents = array('M' => __('Me')) +  Staff::getStaffMembers();
-        }
-        return $this->_agents;
     }
 
     function toString($value) {
-
-        $choices =  $this->getChoices();
+        if (!isset($this->_allagents))
+            $this->_allagents = $this->getAgents();
+        $choices =  $this->_allagents;
         $selection = array();
         if (!is_array($value))
             $value = array($value => $value);

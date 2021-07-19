@@ -24,7 +24,7 @@ if($dept && $_REQUEST['a']!='add') {
     $qs += array('a' => $_REQUEST['a']);
 }
 
-$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
+$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
 ?>
 <form action="departments.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
@@ -95,11 +95,15 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
                 <?php echo __('Status');?>:
             </td>
             <td>
+                <?php if ($dept->getId() == $cfg->getDefaultDeptId())
+                    echo $dept->getStatus();
+                else { ?>
                 <select name="status">
                   <option value="active"<?php echo (!strcasecmp($info['status'], 'active'))?'selected="selected"':'';?>><?php echo __('Active'); ?></option>
                   <option value="disabled"<?php echo (!strcasecmp($info['status'], 'disabled'))?'selected="selected"':'';?>><?php echo __('Disabled'); ?></option>
                   <option value="archived"<?php echo (!strcasecmp($info['status'], 'archived'))?'selected="selected"':'';?>><?php echo __('Archived'); ?></option>
                 </select>
+                <?php } ?>
                 &nbsp;<span class="error">&nbsp;</span> <i class="help-tip icon-question-sign" href="#status"></i>
             </td>
         </tr>

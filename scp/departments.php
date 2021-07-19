@@ -166,8 +166,6 @@ if($_REQUEST['id'] && !($dept=Dept::lookup($_REQUEST['id'])))
                                 $type = array('type' => 'edited', 'status' => 'Archived');
                                 Signal::send('object.edited', $d, $type);
                                 $num++;
-                                //set dept_id to default for topics/emails using archived dept
-                                Dept::clearInactiveDept($d->getId());
                               }
                             }
                             if ($num > 0) {

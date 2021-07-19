@@ -53,7 +53,7 @@ require(STAFFINC_DIR.'header.inc.php');
 
 $info=array();
 $info['subj']='osTicket test email';
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <form action="emailtest.php" method="post" class="save">
  <?php csrf_token(); ?>

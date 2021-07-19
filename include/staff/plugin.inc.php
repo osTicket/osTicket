@@ -15,7 +15,7 @@ if($plugin && $_REQUEST['a']!='add') {
     $info = $plugin->ht;
 }
 
-$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info);
+$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
 ?>
 
 <form action="?<?php echo Http::build_query(array('id' => $_REQUEST['id'])); ?>" method="post" class="save">

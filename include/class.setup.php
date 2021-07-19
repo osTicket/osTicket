@@ -18,7 +18,7 @@ class SetupWizard {
 
     //Mimimum requirements
     static protected $prereq = array(
-            'php' => '5.6',
+            'php' => '7.2',
             'mysql' => '5.0');
 
     //Version info - same as the latest version.

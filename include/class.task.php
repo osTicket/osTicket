@@ -487,27 +487,14 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $prompt = $assignee = '';
         // Possible assignees
-        $assignees = array();
+        $dept = $this->getDept();
         switch (strtolower($options['target'])) {
             case 'agents':
-                $dept = $this->getDept();
-                if ($options['filterVisibility']) {
-                    foreach ($thisstaff->getDeptAgents(array('available' => true)) as $member)
-                        $assignees['s'.$member->getId()] = $member;
-                } else {
-                    foreach ($dept->getAssignees() as $member)
-                        $assignees['s'.$member->getId()] = $member;
-                }
-
                 if (!$source && $this->isOpen() && $this->staff)
                     $assignee = sprintf('s%d', $this->staff->getId());
                 $prompt = __('Select an Agent');
                 break;
             case 'teams':
-                if (($teams = Team::getActiveTeams()))
-                    foreach ($teams as $id => $name)
-                        $assignees['t'.$id] = $name;
-
                 if (!$source && $this->isOpen() && $this->team)
                     $assignee = sprintf('t%d', $this->team->getId());
                 $prompt = __('Select a Team');
@@ -520,12 +507,15 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
         $form = AssignmentForm::instantiate($source, $options);
 
-        if ($assignees)
-            $form->setAssignees($assignees);
-
-        if ($prompt && ($f=$form->getField('assignee')))
-            $f->configure('prompt', $prompt);
-
+        // Field configurations
+        if ($f=$form->getField('assignee')) {
+            $f->configure('dept', $dept);
+            $f->configure('staff', $thisstaff);
+            if ($prompt)
+                $f->configure('prompt', $prompt);
+            if ($options['target'])
+                $f->configure('target', $options['target']);
+        }
 
         return $form;
     }
@@ -1132,7 +1122,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 return new FormattedDate($this->getCloseDate());
             break;
         case 'last_update':
-            return new FormattedDate($this->last_update);
+            return new FormattedDate($this->updated);
         case 'description':
             return Format::display($this->getThread()->getVar('original') ?: '');
         case 'subject':

@@ -161,7 +161,7 @@ class PluginManager {
         if (static::$plugin_list)
             return static::$plugin_list;
 
-        $sql = 'SELECT * FROM '.PLUGIN_TABLE;
+        $sql = 'SELECT * FROM '.PLUGIN_TABLE.' ORDER BY name';
         if (!($res = db_query($sql)))
             return static::$plugin_list;
 

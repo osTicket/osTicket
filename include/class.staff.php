@@ -461,8 +461,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->getDepartments();
     }
 
-    function getDepartmentNames($publiconly=false) {
-        $depts = Dept::getDepartments(array('publiconly' => $publiconly));
+    function getDepartmentNames($activeonly=false) {
+        $depts = Dept::getDepartments(array('activeonly' => $activeonly));
 
         //filter out departments the agent does not have access to
         if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
@@ -623,8 +623,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 || $this->hasPerm(Ticket::PERM_CLOSE, false);
     }
 
-    function isManager() {
-        return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
+    function isManager($dept=null) {
+        return (($dept=$dept?:$this->getDept()) && $dept->getManagerId()==$this->getId());
     }
 
     function isStaff() {
@@ -730,6 +730,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function applyVisibility($query, $exclude_archived=false) {
         return $query->filter($this->getTicketsVisibility($exclude_archived));
+    }
+
+    function applyDeptVisibility($qs) {
+        // Restrict agents based on visibility of the assigner
+        if (!$this->hasPerm(Staff::PERM_STAFF)
+                && ($depts=$this->getDepts())) {
+            return $qs->filter(Q::any(array(
+                'dept_id__in' => $depts,
+                'dept_access__dept_id__in' => $depts,
+            )));
+        }
+        return $qs;
     }
 
     /* stats */
@@ -975,6 +987,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             ));
         }
 
+        // Restrict agents based on visibility of the assigner
+        if (($staff=$criteria['staff']))
+            $members = $staff->applyDeptVisibility($members);
+
         $members = self::nsort($members);
 
         $users=array();
@@ -996,14 +1012,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             ->select_related('dept')
             ->select_related('dept_access');
 
-        if (!$this->hasPerm(Staff::PERM_STAFF)) {
-            $agents = Staff::objects()
-                ->distinct('staff_id')
-                ->filter(Q::any(array(
-                    'dept_access__dept_id__in' => $this->getDepts(),
-                    'dept_id__in' => $this->getDepts(),
-                )));
-        }
+        $agents = $this->applyDeptVisibility($agents);
 
         if (isset($criteria['available'])) {
             $agents = $agents->filter(array(
@@ -1011,6 +1020,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 'isactive' => 1,
             ));
         }
+
+        $agents = self::nsort($agents);
 
         if (isset($criteria['namesOnly'])) {
             $clean = array();
@@ -1733,9 +1744,7 @@ extends AbstractForm {
             'role_id' => new ChoiceField(array(
                 'label' => __('Primary Role'),
                 'required' => true,
-                'choices' =>
-                    array(0 => __('Select Role'))
-                    + Role::getRoles(),
+                'choices' => Role::getRoles(),
                 'layout' => new GridFluidCell(6),
             )),
             'isadmin' => new BooleanField(array(

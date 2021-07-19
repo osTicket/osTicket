@@ -94,8 +94,7 @@ else {
         <div class="error"><?php echo $errors['criteria']; ?></div>
         <div class="advanced-search">
 <?php
-            $filterVisibility = false;
-            $form = $queue->getForm(null, null, $filterVisibility);
+            $form = $queue->getForm();
             $search = $queue;
             $matches = $queue->getSupportedMatches();
             include STAFFINC_DIR . 'templates/advanced-search-criteria.tmpl.php';

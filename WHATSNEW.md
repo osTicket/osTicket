@@ -1,3 +1,76 @@
+osTicket v1.15.2
+================
+### Enhancements
+* Issue: Visibility Permissions (8da9da3)
+* Depts Visibility (fe37ae2)
+* Issue: Task Inline Transfer (e43d6bf)
+
+### Improvements
+* Make word count error match the actual limit (3e177bb)
+* Mute warning when Every Minute is selected. (2a56da7)
+* Remove extra selection - Choice Field handles prompt. (b564ce3)
+* Fail gracefully when supported matches return null (4550b65)
+* Create variable before passing it by reference (858649c)
+* FAQ: Check for lookup failures (edd1feb)
+* 2fa: use isset to check checkbox (7f68060)
+* Session: Regenerate session id before closing it. (14e9fb2)
+* Issue: Unlinking Tickets (98efec5)
+* Issue: Agents/Depts in Queue Cols (d8f6ef6)
+* Issue: Revise getDepartments (71f4c0c)
+* Issue: Visibility Permissions (3ee5941)
+* issue: getDefaultDeptId() On Null (38a09e6)
+* issue: Dashboard Export Date Range (db79149)
+* Issue: Echoing Default Dept Status (fe31575)
+* issue: Export Memory Limit (3a5e5c9)
+* Use PageNate->showing() for Users and Orgs in SCP (63f0ae8)
+* Don't capitalize Queue menu items (2348850)
+* Issue: Disabled Dept on Email (b1397a3)
+* issue: Assign To Sort Alphabetically (77c7a12)
+* Update class.plugin.php (4a3451f)
+
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
+osTicket v1.15.1
+================
+### Improvements
+* readme: Update PHP Version (a4c85d7)
+* placeholder: Quote and encode html chars (0056d14)
+
+osTicket v1.14.6
+================
+### Enhancements
+* redactor: Upgrade to version 3.4.9 (ab40f97)
+
+### Improvements
+* issue: markAs Popup Manager (No Access) (8d1d623)
+* issue: Task last_update Var (08cd762)
+* issue: SCP Login Redirect (9b12a54)
+* issue: Client-Side Reply Draft Saving (996cd9e)
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
+osTicket v1.14.5
+================
+### Enhancements
+* typo: Change User Confirmation Popup (79e6513)
+* redactor: Upgrade to version 3.4.6 (5c77b0d)
+
+### Improvements
+* issue: MailFetch Inline Disposition (fbf0c7d)
+* issue: Editor Spacing (a6cbc5c)
+* Issue: Collaborator Adding New Collabs (a4ab6b6)
+* mail: Reply to Ticket Owner Only (a4bb20a)
+* dept: Dept Deletion Bug (7cba73d)
+* issue: Task From Ticket (4b48456)
+
+### Security
+* security: Parent Ticket Access (Client) (5972fe8)
+
 osTicket v1.15
 ==============
 ### Enhancements

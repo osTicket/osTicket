@@ -39,7 +39,7 @@ $action = $info[':action'] ?: ('#');
         <tbody>
             <tr><td colspan=2>
              <?php
-             $options = array('template' => 'simple', 'form_id' => 'transfer', 'filterVisibility' => true);
+             $options = array('template' => 'simple', 'form_id' => 'transfer');
              $form->render($options);
              ?>
             </td> </tr>

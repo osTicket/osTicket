@@ -418,7 +418,6 @@ a time {
     padding-bottom:2px;
     display:inline-block;
     text-decoration:none;
-    text-transform:capitalize;
 }
 .customQ-dropdown a.truncate {
     min-width: 140px;
