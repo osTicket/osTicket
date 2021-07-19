@@ -39,7 +39,8 @@ class osTicketSession {
         // Set session cleanup time to match TTL
         ini_set('session.gc_maxlifetime', $ttl);
 
-        if (OsticketConfig::getDBVersion())
+        // Skip db version check if version is later than 1.7
+        if (!defined('MAJOR_VERSION') && OsticketConfig::getDBVersion())
             return session_start();
 
         # Cookies
