@@ -540,16 +540,7 @@ implements RestrictedAccess, Threadable, Searchable {
             $totals = $totals + $T['totaltime'];
         }
 
-        return $this->formatTime($totals);
-    }
-
-    function convTimeSpent($time) {
-        return $this->formatTime($time);
-    }
-
-    static function convTimeType($type) {
-        $typetext = DynamicListItem::lookup($type);
-        return $typetext->value;
+        return self::formatTime($totals);
     }
 
     static function formatTime($time) {
