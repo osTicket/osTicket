@@ -975,6 +975,32 @@ implements TemplateVariable {
         return $this->save();
     }
 
+	function getTimeInvoice() {
+		return $this->time_invoice;
+	}
+
+	function getTimeSpent() {
+		return $this->time_spent;
+	}
+
+	function getTimeType() {
+		return $this->time_type;
+	}
+
+    function getTimeTypeName() {
+        $typetext = DynamicListItem::lookup($this->time_type);
+        return $typetext->value;
+    }
+
+	function getTimeBill() {
+		return $this->time_bill;
+	}
+
+	function setTimeBill($val) {
+		$this->time_bill = $val;
+		$this->save();
+	}
+
     function getMessage() {
         return $this->getBody();
     }

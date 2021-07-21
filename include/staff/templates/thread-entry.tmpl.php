@@ -87,7 +87,7 @@ if ($user && $cfg->isAvatarsEnabled())
         <?php if ($cfg->isThreadTime()) {
             if ($entry->time_spent > 0) { ?>
                 <span style="display:inline-block">
-                    <?php echo Ticket::formatTime($entry->time_spent) .' - '. Ticket::convTimeType($entry->time_type); ?>
+                    <?php echo Ticket::formatTime($entry->time_spent) .' - '. $entry->getTimeTypeName(); ?>
                 </span>
             <?php }
         } ?>
