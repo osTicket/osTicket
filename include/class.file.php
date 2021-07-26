@@ -180,6 +180,7 @@ class AttachmentFile extends VerySimpleModel {
         }
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
+        header("Content-Security-Policy: default-src 'self'");
         $this->sendData();
         exit();
     }
