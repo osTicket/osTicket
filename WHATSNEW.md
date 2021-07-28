@@ -1,3 +1,33 @@
+osTicket v1.15.3
+================
+### Enhancements
+* Enhancement: S3 Plugin Folder Capability (ae4ed63)
+
+### Improvements
+* Auth: Service Name on Client Portal (b755b99)
+* CDATA: Rebuild Cdata tables post Install (4409dbd)
+* Issue: Deleted Forms on Help Topics (4494bf4)
+* Issue: Saving Priority Field (56c50b8)
+* CDATA: Dynamic Forms Views (4ab3602)
+* CDATA: Check Cdata Tables on Cron (b758c14, 3397987, aba5970)
+* CDATA: DynamicFormField Update (678decc, 9f01ee1)
+* Issue: Filter Email Variables (3a36727)
+* status: Localize Status Names (6173a73)
+* Issue: Queue Columns Custom Fields (bd4cfb4)
+* Issue: Custom Dept/Custom Assignee Exports (8140d4b)
+* Issue: 'Open' heading don't get translated (6065715)
+* Make Max-Age consistent across backends (292df94)
+* Zip Export: Include Custom File Upload Files (1328bd7)
+* Issue: Spaces in List Items (ef6c949)
+* Issue: Class PageNate had problems with total value as string (573ab33)
+* Tweak PersonsName->getShort() and getShortFormal() (fa64ad4, ad91e66, 8671a68)
+
+### Security
+* xss: SVG Image (68dcaa2)
+* security: open.php Refresh (b8603c7)
+* xss: Client-Side i18n (fd560df)
+* session: Verify UserAgent String (f71c954)
+
 osTicket v1.15.2
 ================
 ### Enhancements
