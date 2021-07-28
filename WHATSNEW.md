@@ -1,3 +1,8 @@
+osTicket v1.15.3.1
+==================
+### Improvements
+* Auth: Service Name (da05573)
+
 osTicket v1.15.3
 ================
 ### Enhancements
