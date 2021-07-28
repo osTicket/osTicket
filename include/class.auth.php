@@ -461,6 +461,13 @@ interface ExternalAuthentication {
     function renderExternalLink();
 
     /**
+     * Function: getServiceName
+     *
+     * Called to get the service name displayed on login page.
+     */
+     function getServiceName();
+
+    /**
      * Function: triggerAuth
      *
      * Called when a user clicks the button rendered in the
@@ -643,7 +650,7 @@ abstract class ExternalStaffAuthenticationBackend
     static $service_name = "External";
 
     function getServiceName() {
-        return static::$service_name;
+        return __(static::$service_name);
     }
 
     function renderExternalLink() {
@@ -846,6 +853,10 @@ abstract class ExternalUserAuthenticationBackend
     static $fa_icon = "signin";
     static $sign_in_image_url = false;
     static $service_name = "External";
+
+    function getServiceName() {
+        return __(static::$service_name);
+    }
 
     function renderExternalLink() {
         $service = sprintf('%s %s',
