@@ -39,6 +39,33 @@ osTicket v1.15.1
 * readme: Update PHP Version (a4c85d7)
 * placeholder: Quote and encode html chars (0056d14)
 
+osTicket v1.14.7
+================
+### Enhancements
+* redactor: Upgrade to version 3.5.1 (2617f53)
+
+### Improvements
+* issue: Setup Admin Password Heltip Verbiage (7866a72)
+* issue: getDBVersion() SQL Errors (43210e3)
+* issue: Missing Thread On Referral Check (1359d91)
+* readme: Update PHP Version (a1cf24f)
+* typo: Default Sorting (89c322b)
+* issue: Choices Field Sanitization (07526af)
+* issue: "New Task Alert" email template typo (8178b4d)
+* issue: Edit Entry Dropped Attachments (a9a64ed)
+* issue: EmailTest Draft (27259e1)
+* issue: Release Notes Links (e9a2155)
+* Role: Handle null perms (4211952)
+* Issue: Missing null check in Staff->updatePerms() (f9626f8)
+* Banlist sorting by Updated (15ccc71)
+* issue: ticket.dept.sla Variable sla_id (bf15d6f)
+
+### Security
+* xss: SVG Image (68dcaa2)
+* security: open.php Refresh (b8603c7)
+* xss: Client-Side i18n (fd560df)
+* session: Verify UserAgent String (f71c954)
+
 osTicket v1.14.6
 ================
 ### Enhancements

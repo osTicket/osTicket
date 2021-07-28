@@ -202,6 +202,12 @@ extends SessionBackend {
         catch (OrmException $e) {
             return false;
         }
+        // Verify the User Agent string
+        if (isset($this->data->user_agent)
+                && (strcmp($_SERVER['HTTP_USER_AGENT'], $this->data->user_agent) !== 0)) {
+            $this->destroy($id);
+            return false;
+        }
         return $this->data->session_data;
     }
 

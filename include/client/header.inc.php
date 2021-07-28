@@ -77,11 +77,11 @@ if (osTicket::is_ie())
         parse_str($_SERVER['QUERY_STRING'], $qs);
         foreach ($langs as $L) {
             $qs['lang'] = $L; ?>
-        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>?<?php
+        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . htmlspecialchars($_SERVER['REQUEST_URI']); ?>?<?php
             echo http_build_query($qs); ?>" hreflang="<?php echo $L; ?>" />
 <?php
         } ?>
-        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>"
+        <link rel="alternate" href="//<?php echo $_SERVER['HTTP_HOST'] . htmlspecialchars($_SERVER['REQUEST_URI']); ?>"
             hreflang="x-default" />
 <?php
     }
