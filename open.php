@@ -51,7 +51,8 @@ if ($_POST) {
             session_write_close();
             session_regenerate_id();
             @header('Location: tickets.php?id='.$ticket->getId());
-        }
+        } else
+            $ost->getCSRF()->rotate();
     }else{
         $errors['err'] = $errors['err'] ?: sprintf('%s %s',
             __('Unable to create a ticket.'),
