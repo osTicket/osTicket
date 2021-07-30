@@ -969,6 +969,13 @@ implements TemplateVariable {
         return $this->save();
     }
 
+	static function validateTime($vars, &$errors) {
+		if ($vars['time_spent'] < 0)
+			$errors['time_spent'] = __("Time spent must be +ve");
+		if (! isset($vars['time_type']))
+			$errors['time_type'] = __("Please select a time type");
+	}
+	
     function setTimeInvoice($time_invoice) {
         global $cfg;
         $this->time_invoice = (int) $time_invoice;
@@ -3021,12 +3028,17 @@ class ResponseThreadEntry extends ThreadEntry {
     }
 
     static function add($vars, &$errors=array()) {
+		global $cfg;
 
         if (!$vars || !is_array($vars) || !$vars['threadId'])
             $errors['err'] = __('Missing or invalid data');
         elseif (!$vars['response'])
             $errors['response'] = __('Response content is required');
 
+		if ($cfg->isThreadTime()) {
+			ThreadEntry::validateTime($vars, $errors);
+
+		}
         if ($errors) return false;
 
         $vars['type'] = self::ENTRY_TYPE;
