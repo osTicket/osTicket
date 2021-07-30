@@ -1543,10 +1543,10 @@ function saveDraft() {
         $('#response').redactor('plugin.draft.saveDraft');
 }
 // Strobe Technologies Ltd | 22/06/2016 | START - Ticket Time Timer
-<?php if ($cfg->isThreadTimer()) {
+<?php if ($cfg->isThreadTimer()) { ?>
 // sets default value to 0 minutes if no POST value
-    echo "\$('input[name=time_spent]').val(".($_POST['time_spent'] ?? 0).")";
-?>
+$('input[name=time_spent]').val( <?php echo $_POST['time_spent'] ?? 0; ?> );
+
 $('i.icon-play').hide();
 var timerOn = true;                        // var to store if the timer is on or off
 
