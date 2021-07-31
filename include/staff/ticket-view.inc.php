@@ -1160,7 +1160,6 @@ if ($errors['err'] && isset($_POST['a'])) {
                 if ($errors['time_type'])
                     echo sprintf('<div class="error">%s</div>',$errors['time_type']);
 				?>
-
                     <select id="time_type" name="time_type">
 					<option selected disabled style="display:none">Please Select ...</option>
                     <?php
@@ -1168,7 +1167,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                     foreach ($list->getAllItems() as $item) { ?>
                         <option value="<?php echo $item->getId(); ?>"
 						<?php if ($_POST['time_type'] == $item->getId()) echo "selected"; ?>
-						> <?php echo $item->getValue(); ?> </option>
+						><?php echo $item->getValue(); ?></option>
 <?php               } ?>
                     </select>
                     <?php if ($cfg->isThreadBill()) { ?>
@@ -1302,7 +1301,9 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <?php
                     $list = DynamicList::lookup(['type' => 'time-type']);
                     foreach ($list->getAllItems() as $item) { ?>
-                        <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+                        <option value="<?php echo $item->getId(); ?>"
+						  <?php if ($_POST['time_type'] == $item->getId()) echo "selected"; ?>
+						><?php echo $item->getValue(); ?></option>
 <?php               } ?>
                     </select>
                     <?php if ($cfg->isThreadBill()) { ?>
@@ -1546,7 +1547,6 @@ function saveDraft() {
 <?php if ($cfg->isThreadTimer()) { ?>
 // sets default value to 0 minutes if no POST value
 $('input[name=time_spent]').val( <?php echo $_POST['time_spent'] ?? 0; ?> );
-
 $('i.icon-play').hide();
 var timerOn = true;                        // var to store if the timer is on or off
 
