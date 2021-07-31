@@ -169,10 +169,6 @@ if($_POST && !$errors):
                 $vars['response'] = ThreadEntryBody::clean($vars['response']);
                 if(!$vars['response'])
                     $errors['response']=__('Response required');
-				if (!$vars['time_spent']>=1)
-					$errors['time_spent']=__('Time spent must be greater than 0');
-				if (!$vars['time_type'])
-					$errors['time_type']=__('Select time type from list');
 
                 if ($cfg->isTicketLockEnabled()) {
                     if (!$lock) {
