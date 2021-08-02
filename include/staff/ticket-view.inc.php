@@ -1149,6 +1149,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <i class="icon-pause" title="Pause timer"></i>
                     <i class="icon-undo" title="Reset timer to zero"></i>
                     <?php } ?>
+				<span class="startTime"></span>
                 </td>
             </tr>
             <tr>
@@ -1285,6 +1286,7 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <i class="icon-pause" title="Pause timer"></i>
                     <i class="icon-undo" title="Reset timer to zero"></i>
                     <?php } ?>
+				<span class="startTime"></span>
                 </td>
             </tr>
             <tr>
@@ -1543,34 +1545,73 @@ function saveDraft() {
     if (redactor.opts.draftId)
         $('#response').redactor('plugin.draft.saveDraft');
 }
-// Strobe Technologies Ltd | 22/06/2016 | START - Ticket Time Timer
+// Strobe Technologies Ltd | START - Ticket Time Timer
 <?php if ($cfg->isThreadTimer()) { ?>
 // sets default value to 0 minutes if no POST value
 $('input[name=time_spent]').val( <?php echo $_POST['time_spent'] ?? 0; ?> );
 $('i.icon-play').hide();
 var timerOn = true;                        // var to store if the timer is on or off
+var timerStart=new Date();
+var timeSpent = 0;      // overall time
+var interval = 60000; // 60s
 
-setInterval(function() {
-    $('input[name=time_spent]').each(function() {
-        if (timerOn) $(this).val(parseInt($(this).val()) + 1);
-    });
-}, 60000);
+$('.startTime').html("Timer started at "+timerStart);
+var startTime=timerStart.getTime();
 
+// callback for recording elapsed time
+var incTime = function () {
+	if (! timerOn) return;		// timer disabled for now
+
+	// calculate time spent since start
+	var now = new Date().getTime();
+	var elapsed = (now-startTime)/interval;
+	$('input[name=time_spent]').val(Math.round(timeSpent + elapsed));
+};
+// set up the callback
+setInterval(incTime, interval);
+
+// button click functions
 $('i.icon-undo').click(function() {
-    $('input[name=time_spent]').val(0);        // sets default value to 0 minutes
+    // reset - throw away recorded time and start again
+	timerStart=new Date();
+	startTime = timerStart.getTime();
+	timeSpent=0;
+    $('input[name=time_spent]').val(timeSpent);
+	$('.startTime').html("Timer reset at "+timerStart);
+
     return false;
 });
-
 $('i.icon-play').click(function() {
+	// record when the timer was started
+	timerStart = new Date();
+	startTime = timerStart.getTime();
+	$('.startTime').html("Timer restarted at "+timerStart);
+	// start recording again
     timerOn = true;
+
+	// toggle the icons
     $('i.icon-play').hide();
     $('i.icon-pause').show();
+
     return false;
 });
 $('i.icon-pause').click(function() {
-    timerOn = false;
+	// turn off the timer callback
+	timerOn = false;
+	
+	// record when we did it
+	now = new Date();
+	$('.startTime').html("Timer paused at "+now);
+
+	// calculate time since the last "start" event and add to the time spent
+	elapsed = (now.getTime() - startTime) / interval;
+	timeSpent = timeSpent + elapsed;
+	$('input[name=time_spent]').val(Math.round(timeSpent));
+
+	// toggle the icons
     $('i.icon-pause').hide();
     $('i.icon-play').show();
+
     return false;
 });
 <?php } ?>
