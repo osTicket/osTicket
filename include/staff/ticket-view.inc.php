@@ -1137,8 +1137,11 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label><strong><?php echo __('Time Spent');?>:</strong></label>
                 </td>
                 <td>
-				<div class="error"><?php echo $errors['time_spent']; ?></div>
-                    <input type="text" name="time_spent" size="5"
+                <?php
+                if ($errors['time_spent'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_spent']);
+				?>
+				<input type="text" id="time_spent" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (Minutes)
                     <?php if ($cfg->isThreadTimer()) { ?>
@@ -1153,13 +1156,18 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label for="time_type"><strong>Time Type:</strong></label>
                 </td>
                 <td>
-					<div class="error"><?php echo $errors['time_type']; ?></div>
+                <?php
+                if ($errors['time_type'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_type']);
+				?>
                     <select id="time_type" name="time_type">
-					<option value="" disabled selected hidden>Choose Type...</option>
+					<option selected disabled style="display:none">Please Select ...</option>
                     <?php
                     $list = DynamicList::lookup(['type' => 'time-type']);
                     foreach ($list->getAllItems() as $item) { ?>
-                        <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+                        <option value="<?php echo $item->getId(); ?>"
+						<?php if ($_POST['time_type'] == $item->getId()) echo "selected"; ?>
+						><?php echo $item->getValue(); ?></option>
 <?php               } ?>
                     </select>
                     <?php if ($cfg->isThreadBill()) { ?>
@@ -1265,8 +1273,11 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label><strong><?php echo __('Time Spent');?>:</strong></label>
                 </td>
                 <td>
-					<div class="error"><?php echo $errors['time_spent']; ?></div>
-                    <input type="text" name="time_spent" size="5"
+                <?php
+                if ($errors['time_spent'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_spent']);
+				?>
+                    <input type="text" id="time_spent" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (Minutes)
                     <?php if ($cfg->isThreadTimer()) { ?>
@@ -1281,13 +1292,18 @@ if ($errors['err'] && isset($_POST['a'])) {
                     <label for="time_type"><strong>Time Type:</strong></label>
                 </td>
                 <td>
-					<div class="error"><?php echo $errors['time_type']; ?></div>
-                    <select id="time_type" name="time_type">
-					<option value="" disabled selected hidden>Choose Type...</option>
+                <?php
+                if ($errors['time_type'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_type']);
+				?>
+				<select id="time_type" name="time_type">
+					<option selected disabled style="display:none">Please Select ...</option>
                     <?php
                     $list = DynamicList::lookup(['type' => 'time-type']);
                     foreach ($list->getAllItems() as $item) { ?>
-                        <option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+                        <option value="<?php echo $item->getId(); ?>"
+						  <?php if ($_POST['time_type'] == $item->getId()) echo "selected"; ?>
+						><?php echo $item->getValue(); ?></option>
 <?php               } ?>
                     </select>
                     <?php if ($cfg->isThreadBill()) { ?>
@@ -1528,13 +1544,9 @@ function saveDraft() {
         $('#response').redactor('plugin.draft.saveDraft');
 }
 // Strobe Technologies Ltd | 22/06/2016 | START - Ticket Time Timer
-<?php if ($cfg->isThreadTimer()) {
+<?php if ($cfg->isThreadTimer()) { ?>
 // sets default value to 0 minutes if no POST value
-if (isset($_POST["time_spent"]))
-    echo "\$('input[name=time_spent]').val(".$_POST['time_spent'].")";
-else
-    echo "\$('input[name=time_spent]').val(0);"
-?>
+$('input[name=time_spent]').val( <?php echo $_POST['time_spent'] ?? 0; ?> );
 $('i.icon-play').hide();
 var timerOn = true;                        // var to store if the timer is on or off
 
