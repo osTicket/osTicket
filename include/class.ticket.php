@@ -4018,6 +4018,14 @@ implements RestrictedAccess, Threadable, Searchable {
             // Init ticket filters...
             $ticket_filter = new TicketFilter($origin, $vars);
             $ticket_filter->apply($vars, $postCreate);
+
+            if ($postCreate && $filterMatches = $ticket_filter->getMatchingFilterList()) {
+                foreach ($filterMatches as $f)
+                    $filters[$f->getId()] = $f->getName();
+
+                $username = __('Ticket Filter');
+                $postCreate->logEvent('filter', array('filter' => $filters), $username);
+            }
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
@@ -4418,7 +4426,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $vars['ticket'] = $ticket;
         self::filterTicketData($origin, $vars,
-            array_merge(array($form), $topic_forms), $user, true);
+            array_merge(array($form), $topic_forms), $user, $ticket);
 
         // If a message was posted, flag it as the orignal message. This
         // needs to be done on new ticket, so as to otherwise separate the

@@ -2063,6 +2063,7 @@ class ThreadEvent extends VerySimpleModel {
             'merged'      => 'code-fork',
             'linked'      => 'link',
             'unlinked'    => 'unlink',
+            'filter'      => 'filter',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -2648,6 +2649,21 @@ class TransferEvent extends ThreadEvent {
 
 class ViewEvent extends ThreadEvent {
     static $state = 'viewed';
+}
+
+class FilterEvent extends ThreadEvent {
+    static $icon = 'filter';
+    static $state = 'filter';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        $data = $this->getData();
+
+        foreach($data['filter'] as $id => $name)
+            $filters[] = $name;
+
+        $desc = sprintf(__('Ticket Filters applied: <b>%s</b> </b>{timestamp}'), implode(', ', $filters));
+        return $this->template($desc);
+    }
 }
 
 class MergedEvent extends ThreadEvent {
