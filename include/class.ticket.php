@@ -4020,11 +4020,19 @@ implements RestrictedAccess, Threadable, Searchable {
             $ticket_filter->apply($vars, $postCreate);
 
             if ($postCreate && $filterMatches = $ticket_filter->getMatchingFilterList()) {
-                foreach ($filterMatches as $f)
-                    $filters[$f->getId()] = $f->getName();
-
                 $username = __('Ticket Filter');
-                $postCreate->logEvent('filter', array('filter' => $filters), $username);
+                foreach ($filterMatches as $f) {
+                    $actions = $f->getActions();
+                    foreach ($actions as $key => $value) {
+                        $filterName = $f->getName();
+                        $coreClass = $value->lookupByType($value->type);
+
+                        if (method_exists($coreClass,'getDescription')) {
+                            $description = $coreClass::getDescription($value, $filterName);
+                            $postCreate->logEvent($description['type'], $description['desc'], $username);
+                        }
+                    }
+                }
             }
         }
         catch (FilterDataChanged $ex) {
