@@ -3,4 +3,9 @@ os: linux
 files:
   - source: /
     destination: /var/www/html/osTicket
-file_exists_behavior: OVERWRITE
+hooks:
+  BeforeInstall:
+    - location: cicd-scripts/beforeInstallScript.sh
+  AfterInstall:
+    - location: cicd-scripts/cleanSetupScript.sh
+      timeout: 60
