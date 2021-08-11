@@ -162,6 +162,10 @@ abstract class TriggerAction {
         return array();
     }
 
+    function getEventDescription($action, $filterName) {
+        return null;
+    }
+
     function getConfigurationForm($source=false) {
         if (!$this->_cform) {
             $config = $this->getConfiguration();
@@ -320,14 +324,14 @@ class FA_RouteDepartment extends TriggerAction {
         }
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
         if ($config['dept_id']) {
             $dept = Dept::lookup($config['dept_id']);
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $dept->getName(),
+                    'desc' => array('value' => $dept ? $dept->getName() : false,
                     'filter' => $filterName, 'type' => 'Department'));
         }
 
@@ -373,14 +377,14 @@ class FA_AssignPriority extends TriggerAction {
             $ticket['priorityId'] = $config['priority'];
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
         if ($config['priority']) {
             $priority = Priority::lookup($config['priority']);
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $priority->getDesc(),
+                    'desc' => array('value' => $priority ? $priority->getDesc() : false,
                     'filter' => $filterName, 'type' => 'Priority'));
         }
 
@@ -415,7 +419,7 @@ class FA_AssignSLA extends TriggerAction {
             $ticket['slaId'] = $config['sla_id'];
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
@@ -423,7 +427,7 @@ class FA_AssignSLA extends TriggerAction {
             $sla = SLA::lookup($config['sla_id']);
 
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $sla->getName(),
+                    'desc' => array('value' => $sla ? $sla->getName() : false,
                     'filter' => $filterName, 'type' => 'SLA'));
         }
 
@@ -452,14 +456,14 @@ class FA_AssignTeam extends TriggerAction {
             $ticket['teamId'] = $config['team_id'];
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
         if ($config['team_id']) {
             $team = Team::lookup($config['team_id']);
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $team->getName(),
+                    'desc' => array('value' => $team ? $team->getName() : false,
                     'filter' => $filterName, 'type' => 'Team'));
         }
 
@@ -497,14 +501,14 @@ class FA_AssignAgent extends TriggerAction {
             $ticket['staffId'] = $config['staff_id'];
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
         if ($config['staff_id']) {
             $staff = Staff::lookup($config['staff_id']);
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $staff->getName()->name,
+                    'desc' => array('value' => $staff ? $staff->getName()->name : false,
                     'filter' => $filterName, 'type' => 'Agent'));
         }
 
@@ -536,14 +540,14 @@ class FA_AssignTopic extends TriggerAction {
         }
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
         if ($config['topic_id']) {
             $topic = Topic::lookup($config['topic_id']);
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $topic->getName(),
+                    'desc' => array('value' => $topic ? $topic->getName() : false,
                     'filter' => $filterName, 'type' => 'Topic'));
         }
 
@@ -580,14 +584,14 @@ class FA_SetStatus extends TriggerAction {
             $ticket['statusId'] = $config['status_id'];
     }
 
-    function getDescription($action, $filterName) {
+    function getEventDescription($action, $filterName) {
         $config = $action->getConfiguration();
         $info = array();
 
         if ($config['status_id']) {
             $status = Team::lookup($config['status_id']);
             $info = array('type' => 'edited',
-                    'desc' => array('value' => $status->getName(),
+                    'desc' => array('value' => $status ? $status->getName() : false,
                     'filter' => $filterName, 'type' => 'Ticket Status'));
         }
 

@@ -4025,12 +4025,12 @@ implements RestrictedAccess, Threadable, Searchable {
                     $actions = $f->getActions();
                     foreach ($actions as $key => $value) {
                         $filterName = $f->getName();
-                        $coreClass = $value->lookupByType($value->type);
+                        if (!$coreClass = $value->lookupByType($value->type))
+                            continue;
 
-                        if (method_exists($coreClass,'getDescription')) {
-                            $description = $coreClass::getDescription($value, $filterName);
+                        if ($description = $coreClass->getEventDescription($value, $filterName))
                             $postCreate->logEvent($description['type'], $description['desc'], $username);
-                        }
+
                     }
                 }
             }
