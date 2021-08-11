@@ -3,6 +3,7 @@ os: linux
 files:
   - source: /
     destination: /var/www/html/osTicket
+    overwrite: true
 hooks:
   BeforeInstall:
     - location: cicd-scripts/beforeInstallScript.sh
