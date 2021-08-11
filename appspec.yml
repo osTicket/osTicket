@@ -6,6 +6,8 @@ files:
 hooks:
   BeforeInstall:
     - location: cicd-scripts/beforeInstallScript.sh
+      runas: root
   AfterInstall:
     - location: cicd-scripts/cleanSetupScript.sh
       timeout: 60
+      runas: root
