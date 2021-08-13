@@ -3228,33 +3228,44 @@ extends AbstractForm {
 
 class ThreadTimeSpentSum
 extends QueueColumnAnnotation {
-static $icon = 'paperclip';
-static $qname = '_time_spent';
-static $desc = /* @trans */ 'Time Spent';
+	static $icon = 'time';
+	static $qname = '_time_spent';
+	static $desc = /* @trans */ 'Time Spent';
 
-function annotate($query, $name=false) {
-    // TODO: Convert to Thread attachments
-    $name = $name ?: static::$qname;
-        
-        return $query->annotate(array(
-            'time_spent' => TicketThread::objects()
-                ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))  
-                ->aggregate(array('count' => SqlAggregate::SUM('entries__time_spent'))),            
-    ));
-}
+	// what we actually want is to add all the time up but grouped by time_type which
+	// can't be done as a single entry in the base query
+	function annotate($query, $name=false) {
+		return $query;
+	}
 
-function getDecoration($row, $text) {
-    $TimeSpentSum = $row[static::$qname];
-    if ($TimeSpentSum) {
-        return sprintf(
-            '&nbsp;<small class="faded-more"><i class="icon-%s"></i> %s</small>',
-            static::$icon,
-            $TimeSpentSum > 1 ? $TimeSpentSum : ''
-        );
-    }
-}
+	function getDecoration($row, $text) {
+		// can't work out how to get the aggregate to work right, so run the query and
+		// then add up the times by type
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $row['ticket_id'] ])
+            ->values('ticket_id', 'thread__entries__time_type', 'thread__entries__time_spent');
 
-function isVisible($row) {
-    return $row[static::$qname] > 0;
-}
+		// add up times by type
+        foreach ($times as $T) {
+			$ttype = $T['thread__entries__time_type'];
+			if ($ttype == 0 || $T['thread__entries__time_spent'] == 0) continue;
+			$time[$ttype] = $time[$ttype] + $T['thread__entries__time_spent'];
+		}
+		if (! $time) return;
+
+		// format some output
+		foreach ($time as $ttype => $T) {
+			$tt = DynamicListItem::lookup($ttype);
+			$TimeSpentSum .= $tt->value . ": ". Ticket::formatTime($T)."<br>";
+		}
+		return sprintf(
+			'<span data-html="true" class="pull-right faded-more" data-toggle="tooltip" title="%s"><i class="icon-%s"></i></span>',
+			$TimeSpentSum, static::$icon);
+
+	}
+
+
+	function isVisible($row) {
+		return $row[static::$qname] > 0;
+	}
 }
