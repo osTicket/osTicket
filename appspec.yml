@@ -10,5 +10,4 @@ hooks:
       runas: root
   AfterInstall:
     - location: cicd-scripts/SetupScript.sh
-      timeout: 120
       runas: root
