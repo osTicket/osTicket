@@ -8,6 +8,3 @@ hooks:
   BeforeInstall:
     - location: cicd-scripts/beforeInstallScript.sh
       runas: root
-  AfterInstall:
-    - location: cicd-scripts/SetupScript.sh
-      runas: root
