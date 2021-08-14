@@ -3233,35 +3233,30 @@ extends QueueColumnAnnotation {
 	static $desc = /* @trans */ 'Time Spent';
 
 	// what we actually want is to add all the time up but grouped by time_type which
-	// can't be done as a single entry in the base query
+	// can't be done as a single entry in the base query because we'd get back more than
+	// one row which would break *everything*
+	// Instead, let the base query run and then pull the data we need in the decorate fn
 	function annotate($query, $name=false) {
 		return $query;
 	}
 
 	function getDecoration($row, $text) {
-		// can't work out how to get the aggregate to work right, so run the query and
-		// then add up the times by type
-        $times = Ticket::objects()
-            ->filter(['ticket_id' => $row['ticket_id'] ])
-            ->values('ticket_id', 'thread__entries__time_type', 'thread__entries__time_spent');
+		// get sum of time spent by type
+        $times = Ticket::lookup($row['ticket_id'])->getTimeTotalsByType(false);
 
-		// add up times by type
-        foreach ($times as $T) {
-			$ttype = $T['thread__entries__time_type'];
-			if ($ttype == 0 || $T['thread__entries__time_spent'] == 0) continue;
-			$time[$ttype] = $time[$ttype] + $T['thread__entries__time_spent'];
-		}
-		if (! $time) return;
-
+		$totalTime = 0;
 		// format some output
-		foreach ($time as $ttype => $T) {
+		foreach ($times as $ttype => $val) {
+			if ($ttype == 0 || $val == 0) continue;
 			$tt = DynamicListItem::lookup($ttype);
-			$TimeSpentSum .= $tt->value . ": ". Ticket::formatTime($T)."<br>";
+			$summary .= $tt->value . ": ". Ticket::formatTime($val)."<br>";
+			$totalTime += $val;
 		}
-		return sprintf(
-			'<span data-html="true" class="pull-right faded-more" data-toggle="tooltip" title="%s"><i class="icon-%s"></i></span>',
-			$TimeSpentSum, static::$icon);
-
+		if ($totalTime == 0) return;
+		$summary .= "Total time: ".Ticket::formatTime($totalTime);
+		return sprintf('<span data-html="true" class="pull-right faded-more" '.
+				'data-toggle="tooltip" title="%s"><i class="icon-%s"></i></span>',
+			$summary, static::$icon);
 	}
 
 
