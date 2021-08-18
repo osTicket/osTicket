@@ -3,7 +3,7 @@
     logo.php
 
     Simple logo to facilitate serving a customized client-side logo from
-    osTicet. The logo is configurable in Admin Panel -> Settings -> Pages
+    osTicket. The logo is configurable in Admin Panel -> Settings -> Pages
 
     Peter Rotich <peter@osticket.com>
     Jared Hancock <jared@osticket.com>

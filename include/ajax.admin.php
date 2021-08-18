@@ -64,7 +64,7 @@ class AdminAjaxAPI extends AjaxController {
      *
      * Throws:
      * 403 - Not logged in
-     * 403 - Not an adminitrator
+     * 403 - Not an administrator
      */
     function addTeam() {
         global $ost, $thisstaff;

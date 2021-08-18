@@ -145,7 +145,7 @@ class UrlMatcher {
         return call_user_func_array($func, $args);
     }
     /**
-     * For the $prefix recieved by the constuctor, prepend it to the
+     * For the $prefix recieved by the constructor, prepend it to the
      * received $class, if any, then make an import if necessary. Lastly,
      * return the appropriate $class, and $func that should be invoked to
      * dispatch the URL.
