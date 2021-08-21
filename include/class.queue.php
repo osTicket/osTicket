@@ -3228,33 +3228,38 @@ extends AbstractForm {
 
 class ThreadTimeSpentSum
 extends QueueColumnAnnotation {
-static $icon = 'paperclip';
-static $qname = '_time_spent';
-static $desc = /* @trans */ 'Time Spent';
+	static $icon = 'time';
+	static $qname = '_time_spent';
+	static $desc = /* @trans */ 'Time Spent';
 
-function annotate($query, $name=false) {
-    // TODO: Convert to Thread attachments
-    $name = $name ?: static::$qname;
-        
-        return $query->annotate(array(
-            'time_spent' => TicketThread::objects()
-                ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))  
-                ->aggregate(array('count' => SqlAggregate::SUM('entries__time_spent'))),            
-    ));
-}
+	// what we actually want is to add all the time up but grouped by time_type which
+	// can't be done as a single entry in the base query because we'd get back more than
+	// one row which would break *everything*
+	// Instead, let the base query run and then pull the data we need in the decorate fn
+	function annotate($query, $name=false) {
+		return $query;
+	}
 
-function getDecoration($row, $text) {
-    $TimeSpentSum = $row[static::$qname];
-    if ($TimeSpentSum) {
-        return sprintf(
-            '&nbsp;<small class="faded-more"><i class="icon-%s"></i> %s</small>',
-            static::$icon,
-            $TimeSpentSum > 1 ? $TimeSpentSum : ''
-        );
-    }
-}
+	function getDecoration($row, $text) {
+		// get sum of time spent by type
+        $times = Ticket::lookup($row['ticket_id'])->getTimeTotalsByType(false);
 
-function isVisible($row) {
-    return $row[static::$qname] > 0;
-}
+		$totalTime = 0;
+		// format some output
+		foreach ($times as $ttype => $val) {
+			if ($ttype == 0 || $val == 0) continue;
+			$tt = DynamicListItem::lookup($ttype);
+			$summary .= $tt->value . ": ". Ticket::formatTime($val)."<br>";
+			$totalTime += $val;
+		}
+		if ($totalTime == 0) return;
+		$summary .= "Total time: ".Ticket::formatTime($totalTime);
+		return sprintf('<span data-html="true" class="pull-right faded-more" '.
+				'data-toggle="tooltip" title="%s"><i class="icon-%s"></i></span>',
+			$summary, static::$icon);
+	}
+
+	function isVisible($row) {
+		return $row[static::$qname] > 0;
+	}
 }

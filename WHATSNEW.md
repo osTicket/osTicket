@@ -1,3 +1,38 @@
+osTicket v1.15.3.1
+==================
+### Improvements
+* Auth: Service Name (da05573)
+
+osTicket v1.15.3
+================
+### Enhancements
+* Enhancement: S3 Plugin Folder Capability (ae4ed63)
+
+### Improvements
+* Auth: Service Name on Client Portal (b755b99)
+* CDATA: Rebuild Cdata tables post Install (4409dbd)
+* Issue: Deleted Forms on Help Topics (4494bf4)
+* Issue: Saving Priority Field (56c50b8)
+* CDATA: Dynamic Forms Views (4ab3602)
+* CDATA: Check Cdata Tables on Cron (b758c14, 3397987, aba5970)
+* CDATA: DynamicFormField Update (678decc, 9f01ee1)
+* Issue: Filter Email Variables (3a36727)
+* status: Localize Status Names (6173a73)
+* Issue: Queue Columns Custom Fields (bd4cfb4)
+* Issue: Custom Dept/Custom Assignee Exports (8140d4b)
+* Issue: 'Open' heading don't get translated (6065715)
+* Make Max-Age consistent across backends (292df94)
+* Zip Export: Include Custom File Upload Files (1328bd7)
+* Issue: Spaces in List Items (ef6c949)
+* Issue: Class PageNate had problems with total value as string (573ab33)
+* Tweak PersonsName->getShort() and getShortFormal() (fa64ad4, ad91e66, 8671a68)
+
+### Security
+* xss: SVG Image (68dcaa2)
+* security: open.php Refresh (b8603c7)
+* xss: Client-Side i18n (fd560df)
+* session: Verify UserAgent String (f71c954)
+
 osTicket v1.15.2
 ================
 ### Enhancements
@@ -38,6 +73,33 @@ osTicket v1.15.1
 ### Improvements
 * readme: Update PHP Version (a4c85d7)
 * placeholder: Quote and encode html chars (0056d14)
+
+osTicket v1.14.7
+================
+### Enhancements
+* redactor: Upgrade to version 3.5.1 (2617f53)
+
+### Improvements
+* issue: Setup Admin Password Heltip Verbiage (7866a72)
+* issue: getDBVersion() SQL Errors (43210e3)
+* issue: Missing Thread On Referral Check (1359d91)
+* readme: Update PHP Version (a1cf24f)
+* typo: Default Sorting (89c322b)
+* issue: Choices Field Sanitization (07526af)
+* issue: "New Task Alert" email template typo (8178b4d)
+* issue: Edit Entry Dropped Attachments (a9a64ed)
+* issue: EmailTest Draft (27259e1)
+* issue: Release Notes Links (e9a2155)
+* Role: Handle null perms (4211952)
+* Issue: Missing null check in Staff->updatePerms() (f9626f8)
+* Banlist sorting by Updated (15ccc71)
+* issue: ticket.dept.sla Variable sla_id (bf15d6f)
+
+### Security
+* xss: SVG Image (68dcaa2)
+* security: open.php Refresh (b8603c7)
+* xss: Client-Side i18n (fd560df)
+* session: Verify UserAgent String (f71c954)
 
 osTicket v1.14.6
 ================

@@ -561,7 +561,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getTimeTotalsByType($billable=true, $typeid=false) {
         $times = Ticket::objects()
             ->filter(['ticket_id' => $this->getId()])
-            ->values('thread__entries__time_type')
+            ->values('thread__entries__time_type', 'totaltime')
             ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
 
         if ($typeid)
@@ -2688,7 +2688,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function hasReferral($object, $type) {
-        if (($referral=$this->thread->getReferral($object->getId(), $type)))
+        if (($referral=$this->getThread()->getReferral($object->getId(), $type)))
             return $referral;
 
         return false;
