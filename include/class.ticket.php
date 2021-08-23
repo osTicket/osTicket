@@ -570,8 +570,15 @@ implements RestrictedAccess, Threadable, Searchable {
             $times = $times->filter(['thread__entries__time_bill' => 1]);
 
         $totals = array();
+		// decode time_type to text value
         foreach ($times as $T) {
-            $totals[$T['thread__entries__time_type']] = $T['totaltime'];
+			$ttype = $T['thread__entries__time_type'];
+			if ($ttype == 0 || $T['totaltime'] == 0) 
+				continue;
+			else {
+				$type = DynamicListItem::lookup($ttype)->value;
+			}
+            $totals[$type] = $T['totaltime'];
         }
         return $totals;
     }

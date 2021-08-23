@@ -3247,9 +3247,8 @@ extends QueueColumnAnnotation {
 		$totalTime = 0;
 		// format some output
 		foreach ($times as $ttype => $val) {
-			if ($ttype == 0 || $val == 0) continue;
-			$tt = DynamicListItem::lookup($ttype);
-			$summary .= $tt->value . ": ". Ticket::formatTime($val)."<br>";
+			if ($val == 0) continue;
+			$summary .= $ttype . ": ". Ticket::formatTime($val)."<br>";
 			$totalTime += $val;
 		}
 		if ($totalTime == 0) return;

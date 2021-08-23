@@ -20,24 +20,6 @@ if ( isset( $_POST['submit'] ) ) {
     }
 }
 
-
-$time_types = array();
-foreach (DynamicList::lookup(['type' => 'time-type'])->getItems() as $I) {
-    $time_types[$I->id] = $I->getValue();
-}
-
-function countTime(Ticket $ticket) {
-    global $time_types;
-
-    $totals = array();
-    foreach ($ticket->getTimeTotalsByType() as $typeid=>$total) {
-        $type_name = $time_types[$typeid];
-        $totals[$type_name] = $total;
-    }
-    
-    return $totals;
-}
-
 $ticket = $user = null; //clean start.
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
 if($_REQUEST['id']) {
@@ -83,7 +65,7 @@ if(!$errors) {
     
     <h2><?php echo __('Time Summary'); ?></h2>
     <p>
-<?php   foreach (countTime($ticket) as $name=>$total) {
+<?php   foreach ($ticket->getTimeTotalsByType() as $name=>$total) {
             echo sprintf('%s %s<br/>', Ticket::formatTime($total), $name);
         } ?>
     </p>

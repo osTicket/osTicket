@@ -107,9 +107,9 @@ include STAFFINC_DIR . 'templates/notes.tmpl.php';
 <div class="hidden tab_content" id="billing">
     <form action="org_bill.php" method="get">
         <h2><?php echo __('Enter Billing Information'); ?></h2>
-        <?php echo __('Start Date');?>: <input class="dp" id="startdate" name="startdate" value="<?php echo Format::htmlchars($info['startdate']); ?>" size="12" autocomplete=OFF>
+        <?php echo __('Start Date');?>: <input class="dp" id="startdate" name="startdate" value="<?php echo Format::htmlchars($info['startdate']); ?>" size="12" autocomplete="OFF" data-fixed="true">
         <br />
-        <?php echo __('End Date');?>: <input class="dp" id="enddate" name="enddate" value="<?php echo Format::htmlchars($info['enddate']); ?>" size="12" autocomplete=OFF>
+        <?php echo __('End Date');?>: <input class="dp" id="enddate" name="enddate" value="<?php echo Format::htmlchars($info['enddate']); ?>" size="12" autocomplete="OFF" data-fixed="true">
         <br />
         <input type="submit" name="submit" value="<?php echo _P('action-button', __('View report'));?>">
         <?php echo '<input type="hidden" name="orgid" value="'.$org->getId().'">'; ?>
