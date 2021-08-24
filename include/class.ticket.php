@@ -1526,8 +1526,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
-                    $type = array('type' => 'closed');
-                    Signal::send('object.edited', $t, $type);
                     $t->deleteDrafts();
                 };
                 break;
