@@ -726,7 +726,7 @@ label.required, span.required {
 }
 #clientLogin input[type=submit] {
     padding: 1px 6px;
-    border-radius: 10px;
+    border-radius: 9px;
 }
 #reply {
   margin-top: 5px;
