@@ -34,8 +34,6 @@ else
     </div>
     <p>
         <input class="btn" type="submit" value="<?php echo $button; ?>">
-        <input class="btn" type="reset" value="Reset"/>
-
     </p>
     </div>
     <div class="instructions">
