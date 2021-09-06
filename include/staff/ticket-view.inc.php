@@ -585,12 +585,16 @@ if($ticket->isOverdue())
                          if ($role->hasPerm(Ticket::PERM_EDIT)) {
                              $duedate = $ticket->getField('duedate'); ?>
                            <td>
-                      <a class="inline-edit" data-placement="bottom"
+                      <a class="inline-edit" data-placement="bottom" data-toggle="tooltip"
+                          title="<?php echo __('Update'); ?>"
                           href="#tickets/<?php echo $ticket->getId();
                            ?>/field/duedate/edit">
-                           <span id="field_duedate"><?php echo Format::datetime($ticket->getEstDueDate()); ?></span>
+                           <?php $due_date = Format::datetime($ticket->getEstDueDate()); ?>
+                           <span id="field_duedate" <?php if (!$due_date) echo 'class="faded"'; ?>>
+                               <?php echo $due_date ?: '&mdash;'.__('Empty').'&mdash;'; ?>
+                           </span>
                       </a>
-                    <td>
+                           </td>
                       <?php } else { ?>
                            <td><?php echo Format::datetime($ticket->getEstDueDate()); ?></td>
                       <?php } ?>
