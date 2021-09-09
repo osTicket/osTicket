@@ -2026,6 +2026,8 @@ class ThreadEvent extends VerySimpleModel {
     const VIEWED    = 'viewed';
     const MERGED    = 'merged';
     const UNLINKED    = 'unlinked';
+    const MARK_ANSWERED   = 'mark-answered';
+    const MARK_UNANSWERED = 'mark-unanswered';
 
     const MODE_STAFF = 1;
     const MODE_CLIENT = 2;
@@ -2063,6 +2065,8 @@ class ThreadEvent extends VerySimpleModel {
             'merged'      => 'code-fork',
             'linked'      => 'link',
             'unlinked'    => 'unlink',
+            'mark-answered'   => 'circle-arrow-right',
+            'mark-unanswered' => 'circle-arrow-left',
         );
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
@@ -2677,6 +2681,24 @@ class UnlinkEvent extends ThreadEvent {
     function getDescription($mode=self::MODE_STAFF) {
         return sprintf($this->template(__('<b>{somebody}</b> unlinked this ticket from %s{data.id}%s<b>{data.ticket}</b>%s {timestamp}'), $mode),
                 '<a href="tickets.php?id=', '">', '</a>');
+    }
+}
+
+class MarkAnsweredEvent extends ThreadEvent {
+    static $icon = 'circle-arrow-right';
+    static $state = 'mark-answered';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(sprintf(__('Ticket flagged as %s by %s'), 'answered', '<b>{somebody}</b> {timestamp}'), $mode);
+    }
+}
+
+class MarkUnansweredEvent extends ThreadEvent {
+    static $icon = 'circle-arrow-left';
+    static $state = 'mark-unanswered';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(sprintf(__('Ticket flagged as %s by %s'), 'unanswered', '<b>{somebody}</b> {timestamp}'), $mode);
     }
 }
 
