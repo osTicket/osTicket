@@ -29,7 +29,7 @@ class Bootstrap {
         error_reporting($error_reporting); //Respect whatever is set in php.ini (sysadmin knows better??)
 
         #Don't display errors
-        ini_set('display_errors', 1);
+        ini_set('display_errors', 0);
         ini_set('display_startup_errors', 1);
 
         //Default timezone
