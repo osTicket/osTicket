@@ -665,6 +665,9 @@ class TicketsAjaxAPI extends AjaxController {
                       );
 
                 switch (true) {
+                    case ($fid == 'duedate'):
+                        $clean = Format::datetime($ticket->getEstDueDate());
+                        break;
                     case $field instanceof DateTime:
                     case $field instanceof DatetimeField:
                         $clean = Format::datetime((string) $field->getClean());
