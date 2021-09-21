@@ -2534,6 +2534,12 @@ class EditEvent extends ThreadEvent {
     function getDescription($mode=self::MODE_STAFF) {
         $data = $this->getData();
         switch (true) {
+        case isset($data['filter']):
+            $desc = sprintf(__('%s set %s %s {timestamp}'),
+                    '<b>' . $data['filter'] . '</b> Filter ',
+                    __($data['type']),
+                    $data['value'] ? 'to <strong>' . $data['value'] . '</strong>' :  '');
+            break;
         case isset($data['owner']):
             $desc = __('<b>{somebody}</b> changed ownership to {<User>data.owner} {timestamp}');
             break;
