@@ -427,7 +427,7 @@ class VerySimpleModel {
     }
 
     function __isset($field) {
-        return ($this->ht && array_key_exists($field, $this->ht))
+        return ($this->ht && array_key_exists($field, $this->ht) && isset($this->ht[$field]))
             || isset(static::$meta['joins'][$field]);
     }
 
