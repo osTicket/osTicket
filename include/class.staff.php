@@ -1175,7 +1175,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             }
             $this->updateAccess($access, $errors);
             $this->setExtraAttr('def_assn_role',
-                isset($vars['assign_use_pri_role']), false);
+                isset($vars['assign_use_pri_role']), true);
 
             // Format team membership as [array(team_id, alerts?)]
             $teams = array();
