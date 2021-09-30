@@ -399,7 +399,7 @@ if($ticket->isOverdue())
                                 'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
                             )); ?>" title="<?php echo __('Related Tickets'); ?>"
                             data-dropdown="#action-dropdown-stats">
-                            (<b><?php echo $user->getNumTickets(); ?></b>)
+                            (<b><?php echo $user->getNumOpenTickets(), " / ", $user->getNumTickets(); ?></b>)
                             </a>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
