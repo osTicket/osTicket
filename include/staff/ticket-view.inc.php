@@ -397,9 +397,9 @@ if($ticket->isOverdue())
                         if ($user) { ?>
                             <a href="tickets.php?<?php echo Http::build_query(array(
                                 'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
-                            )); ?>" title="<?php echo __('Related Tickets'); ?>"
-                            data-dropdown="#action-dropdown-stats">
-                            (<b><?php echo $user->getNumOpenTickets(), " / ", $user->getNumTickets(); ?></b>)
+                            )); ?>" title="<?php echo __('Related Tickets');?>" 
+                            data-dropdown="#action-dropdown-stats" style="<?php if ($user->getNumOpenTickets() > 0) {echo "background-color: yellow; color: red;";}; ?>">
+							(<b><?php if ($user->getNumOpenTickets() > 0){echo $user->getNumOpenTickets(), " / ";}; echo $user->getNumTickets(); ?></b>)
                             </a>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
