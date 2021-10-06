@@ -606,6 +606,7 @@ CREATE TABLE `%TABLE_PREFIX%staff` (
   `lastlogin` datetime default NULL,
   `passwdreset` datetime default NULL,
   `updated` datetime NOT NULL,
+  `avatar_data` longblob NULL,
   PRIMARY KEY  (`staff_id`),
   UNIQUE KEY `username` (`username`),
   KEY `dept_id` (`dept_id`),
