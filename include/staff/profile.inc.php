@@ -18,8 +18,17 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
       <tbody>
         <tr><td colspan="2"><div>
         <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">
-<?php       $avatar = $staff->getAvatar();
-            echo $avatar;
+        <input type="file"  name="avatart" id="inputFile"  style=""  >
+        <a id="imagenAvatar" onclick="document.getElementById('inputFile').click();" > 
+<?php      $avatar = $staff->getAvatar();
+            echo $avatar; ?>
+        <img onclick="document.getElementById('inputFile').click();" src="./images/icons/add.png" class=" iconAdd">
+</p></a>
+
+
+
+
+<?php      
 if ($avatar->isChangeable()) { ?>
           <div style="text-align: center">
             <a class="button no-pjax"
