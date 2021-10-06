@@ -50,7 +50,7 @@ if ($avatar->isChangeable()) { ?>
         $a.closest('.avatar').find('img').replaceWith($(json.img));
       }
     });
-    return false;"><i class="icon-retweet"></i></a>
+    return false;" style="visibility:hidden;position:absolute" ><i class="icon-retweet"></i></a>
           </div>
 <?php
 } ?>
