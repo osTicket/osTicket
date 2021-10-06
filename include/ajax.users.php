@@ -228,6 +228,10 @@ class UsersAjaxAPI extends AjaxController {
 
             if ($errors['err'])
                 $info['error'] = $errors['err'];
+            else if($errors['user_invalidate']){ //INSERT ONE MORE ERROR HANDLING ELSE IF
+                    $info['error'] = __('Unable to update account.') //HERE USERNAE ERROR
+                        .' '.__('Username already exists.');
+                }
             else
                 $info['error'] = __('Unable to update account.')
                     .' '.__('Correct any errors below and try again.');
