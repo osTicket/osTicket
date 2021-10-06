@@ -22,7 +22,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
         <a id="imagenAvatar" onclick="document.getElementById('inputFile').click();" > 
 <?php      $avatar = $staff->getAvatar();
             echo $avatar; ?>
-        <img onclick="document.getElementById('inputFile').click();" src="./images/icons/add.png" class=" iconAdd">
+        <img  src="./images/icons/add.png" class=" iconAdd">
 </p></a>
 
 
