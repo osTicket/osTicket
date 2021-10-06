@@ -18,7 +18,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
       <tbody>
         <tr><td colspan="2"><div>
         <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">
-        <input type="file"  name="avatart" id="inputFile"  style=""  >
+        <input type="file"  name="avatart" class="avatart" id="inputFile"  style=""  >
         <a id="imagenAvatar" onclick="document.getElementById('inputFile').click();" > 
 <?php      $avatar = $staff->getAvatar();
             echo $avatar; ?>
