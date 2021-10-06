@@ -1552,9 +1552,10 @@ img.avatar {
 }
 .avatar > img.avatar {
     width: auto;
-    max-width: 100%;
-    max-height: 100%;
     height: auto;
+    max-width: 100px;
+    max-height: 100px;
+    
 }
 .avatar> a >img.avatar {
     width: auto;
