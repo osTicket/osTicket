@@ -1556,6 +1556,23 @@ img.avatar {
     max-height: 100%;
     height: auto;
 }
+.avatar> a >img.avatar {
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    height: auto;
+}
+.avatar> input.avatart{
+    visibility:hidden;
+    position:absolute
+}
+.avatar >a > img.iconAdd {
+    position: absolute;
+    top: 100px; 
+    left: 60px;
+}
+
+
 .thread-entry .header {
     padding: 8px 0.9em;
     border: 1px solid #ccc;
