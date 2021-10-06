@@ -868,8 +868,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->lang = $vars['lang'];
         $this->onvacation = $vars['onvacation'];
 
-        if (isset($vars['avatar_code']))
-          $this->setExtraAttr('avatar', $vars['avatar_code']);
+        if($vars['avatar']!=""){
+            $this->avatar_data=$vars['avatar'];
+        }
+        if (isset($vars['avatar_code'])){
+            $this->setExtraAttr('avatar', $vars['avatar_code']);
+        }
 
         if ($errors)
             return false;
