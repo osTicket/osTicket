@@ -1296,9 +1296,15 @@ class UserAccount extends VerySimpleModel {
         }
 
         // Make sure the username is not an email.
-        if ($vars['username'] && Validator::is_email($vars['username']))
+        if ($vars['username'] && Validator::is_email($vars['username'])){
             $errors['username'] =
                 __('Users can always sign in with their email address');
+        }else if($vars['username'] && ($uid=Staff::getIdByUsername($vars['username']))
+        && (!isset($this->staff_id) || $uid!=$this->getId())){ //user_invalidate
+            $errors['user_invalidate'] =
+                __('Usuário repetido!');
+            print("Entrou no IFF!");
+        }
 
         if ($errors) return false;
 
