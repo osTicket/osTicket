@@ -2077,7 +2077,7 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($msg=$tpl->getAssignedAlertMsgTemplate())
         ) {
             $msg = $this->replaceVars($msg->asArray(),
-                array('comments' => $comments,
+                array('comments' => $comments ?: '',
                       'assignee' => $assignee,
                       'assigner' => $assigner
                 )
