@@ -978,6 +978,13 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         else
             return null;
     }
+    static function setAvatarData($valor,$idUsuario){
+        $members = static::objects();
+        $members = $members->filter(array(
+            'staff_id'=>$idUsuario
+            ))->update(array(
+                'avatar_data' => $valor));
+    }
 
     static function getStaffMembers($criteria=array()) {
         global $cfg;

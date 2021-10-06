@@ -23,6 +23,14 @@ if($_POST && $_POST['id']!=$thisstaff->getId()) { //Check dummy ID used on the f
  $errors['err']=__('Action Denied.')
         .' '.__('Internal error occurred');
 } elseif(!$errors && $_POST) { //Handle post
+    if ($_FILES['avatart']['size']>0 && $_FILES['avatart']['error'] == 0)
+    {
+        $imagePath = $_FILES['avatart']['tmp_name'];
+	    $data = file_get_contents($imagePath);
+	    $dataURI = 'data:' . $_FILES['avatart']['type'] . ';base64,' . base64_encode($data);
+        $_POST["avatar"]=$dataURI;
+        
+    }
 
     if(!$staff)
         $errors['err']=sprintf(__('%s: Unknown or invalid'), __('agent'));
@@ -55,6 +63,7 @@ elseif($thisstaff->force2faConfig() && !$errors['err'])
     );
 elseif($thisstaff->onVacation() && !$warn)
     $warn=sprintf(__("<b>Welcome back %s</b>! You are listed as 'on vacation' Please let your manager know that you are back."),$thisstaff->getFirstName());
+
 
 $inc='profile.inc.php';
 if ($nav)

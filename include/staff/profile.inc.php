@@ -2,7 +2,7 @@
 if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
 ?>
 
-<form action="profile.php" method="post" class="save" autocomplete="off">
+<form action="profile.php" method="post" class="save" autocomplete="off" enctype="multipart/form-data" >
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="id" value="<?php echo $staff->getId(); ?>">
@@ -18,7 +18,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
       <tbody>
         <tr><td colspan="2"><div>
         <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">
-        <input type="file"  name="avatart" class="avatart" id="inputFile"  style=""  >
+        <input type="file"  name="avatart" class="avatart" id="inputFile"  >
         <a id="imagenAvatar" onclick="document.getElementById('inputFile').click();" > 
 <?php      $avatar = $staff->getAvatar();
             echo $avatar; ?>
