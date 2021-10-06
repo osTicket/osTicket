@@ -25,15 +25,21 @@ abstract class Avatar {
     abstract function getUrl($size);
 
     function getImageTag($size=null) {
+        if(isset($this->user->avatar_data)){
+            $avatar=$this->user->avatar_data;
+        }
         $style = ($size)
             ? sprintf('style="max-height:%spx"', $size)
             : '';
-        return "<img {$style} class=\"avatar\" alt=\""
-            .__('Avatar').'" src="'.$this->getUrl($size).'" />';
+        return "<img {$style} id=\"imagenAvatar\" class=\"avatar\" alt=\""
+            .__('Avatar').'" src="'.$avatar.'" / >';
     }
 
     function __toString() {
         return $this->getImageTag();
+    }
+    function setAvatar($avatar){
+        $this->user->avatar_data=$avatar;
     }
 
     function isChangeable() {
