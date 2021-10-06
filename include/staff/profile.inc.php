@@ -6,7 +6,7 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="update">
  <input type="hidden" name="id" value="<?php echo $staff->getId(); ?>">
-<h2><?php echo __('My Account Profile');?></h2>
+<h2><?php echo __('My Account Profile'); ?></h2>
   <ul class="clean tabs">
     <li class="active"><a href="#account"><i class="icon-user"></i> <?php echo __('Account'); ?></a></li>
     <li><a href="#preferences"><?php echo __('Preferences'); ?></a></li>
@@ -20,12 +20,10 @@ if(!defined('OSTSTAFFINC') || !$staff || !$thisstaff) die('Access Denied');
         <div class="avatar pull-left" style="margin: 10px 15px; width: 100px; height: 100px;">
         <input type="file"  name="avatart" class="avatart" id="inputFile"  >
         <a id="imagenAvatar" onclick="document.getElementById('inputFile').click();" > 
-<?php      $avatar = $staff->getAvatar();
+<?php     $avatar = $staff->getAvatar();
             echo $avatar; ?>
         <img  src="./images/icons/add.png" class=" iconAdd">
-</p></a>
-
-
+</a>
 
 
 <?php      
