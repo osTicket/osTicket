@@ -169,6 +169,10 @@ class UsersAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown user');
 
         $errors = array();
+        $form = UserForm::getUserForm()->getForm($_POST);
+        if (!is_string($form->getField('name')->getValue()))
+            Http::response(404, 'Invalid Data');
+
         if ($user->updateInfo($_POST, $errors, true) && !$errors)
              Http::response(201, $user->to_json(),  'application/json');
 
@@ -298,6 +302,8 @@ class UsersAjaxAPI extends AjaxController {
 
             $info['title'] = __('Add New User');
             $form = UserForm::getUserForm()->getForm($_POST);
+            if (!is_string($form->getField('name')->getValue()))
+                Http::response(404, 'Invalid Data');
             if (($user = User::fromForm($form)))
                 Http::response(201, $user->to_json(), 'application/json');
 
