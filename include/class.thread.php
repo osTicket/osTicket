@@ -637,6 +637,12 @@ implements Searchable {
             ->delete();
     }
 
+    function deleteReferrals() {
+        return ThreadReferral::objects()
+            ->filter(array('thread_id'=>$this->getId()))
+            ->delete();
+    }
+
     function setExtra($mergedThread, $info='') {
 
         if ($info && $info['extra']) {
@@ -748,6 +754,7 @@ implements Searchable {
         // Mass delete entries
         $this->deleteAttachments();
         $this->removeCollaborators();
+        $this->deleteReferrals();
 
         $this->entries->delete();
 
