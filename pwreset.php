@@ -15,7 +15,9 @@ if($_POST) {
     }
     switch ($_POST['do']) {
         case 'sendmail':
-            if (($acct=ClientAccount::lookupByUsername($_POST['userid']))) {
+            $userid = (string) $_POST['userid'];
+            if (Validator::is_userid($userid)
+                    && ($acct=ClientAccount::lookupByUsername($userid))) {
                 if (!$acct->isPasswdResetEnabled()) {
                     $banner = __('Password reset is not enabled for your account. Contact your administrator');
                 }
