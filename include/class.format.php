@@ -341,7 +341,7 @@ class Format {
             $config['elements'] = '*+iframe';
             $config['spec'] = 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?('
                 .implode('|', $whitelist)
-                .')/?`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
+                .')/?([^@]*)$`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
         }
 
         return Format::html($html, $config);
