@@ -29,8 +29,8 @@ if($_POST) {
                         .' '.__('Internal error occurred');
             }
             else
-                $banner = sprintf(__('Unable to verify username %s'),
-                    Format::htmlchars($_POST['userid']));
+                $inc = 'pwreset.sent.php';
+
             break;
         case 'reset':
             $inc = 'pwreset.login.php';

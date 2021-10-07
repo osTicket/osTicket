@@ -53,8 +53,7 @@ if($_POST) {
                 }
             }
             else
-                $msg = sprintf(__('Unable to verify username %s'),
-                    Format::htmlchars($_POST['userid']));
+                $tpl = 'pwreset.sent.php';
             break;
         case 'newpasswd':
             // TODO: Compare passwords
