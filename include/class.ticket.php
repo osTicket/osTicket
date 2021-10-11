@@ -530,9 +530,12 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getTimeSpent(){
+		// exclude HIDDEN/GUARDED thread entries from this calculation
+		// edited threads get cloned and the old one is hidden
         $times = Ticket::objects()
             ->filter(['ticket_id' => $this->getId()])
             ->values('thread__entries__time_type')
+			->exclude(array('thread__entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN | ThreadEntry::FLAG_GUARDED))
             ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
 
         $totals = 0;
