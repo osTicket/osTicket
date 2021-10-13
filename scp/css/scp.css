@@ -33,7 +33,7 @@ a:hover i[class^="icon-"],
 }
 
 div#header a {
-    color:#E65524;
+    color:#3fcf00;
 }
 
 .centered {
@@ -418,6 +418,7 @@ a time {
     padding-bottom:2px;
     display:inline-block;
     text-decoration:none;
+    text-transform:capitalize;
 }
 .customQ-dropdown a.truncate {
     min-width: 140px;
@@ -1100,7 +1101,7 @@ table.dashboard-stats tbody:first-child th {
     padding:0 4px 8px;
 }
 table.dashboard-stats tbody:nth-child(2) tr:nth-child(odd) {
-    background-color:#f0faff;
+    background-color:#f2ffec;
 }
 
 table.dashboard-stats tbody:nth-child(2) th {
@@ -1163,7 +1164,7 @@ table.list tbody td {
 }
 
 table.list tbody td { background: #fff; padding: 4px 3px; vertical-align: top; }
-table.list tbody tr:nth-child(2n+1) td { background-color: #f0faff; }
+table.list tbody tr:nth-child(2n+1) td { background-color: #f2ffec; }
 table.list tbody tr:hover td { background: #ffe; }
 table.list tbody tr:nth-child(2n+1):hover td { background: #ffd; }
 /* row highlighting on hover + select */
@@ -1465,7 +1466,8 @@ h3.title > .sub-title {
 }
 
 .ticket_info {
-    background:#F4FAFF;
+    #background:#F4FAFF;
+    background:#f2ffec;
 }
 
 .ticket_info.custom-data thead th {
@@ -1588,10 +1590,12 @@ img.avatar {
 }
 
 .thread-entry.message .header {
-    background:#C3D9FF;
+    #background:#C3D9FF;
+    background:#a8e88c;
 }
 .thread-entry.avatar.message .header:after {
-    border-left: 7px solid #C3D9FF;
+    #border-left: 7px solid #C3D9FF;
+    border-left: 7px solid #a8e88c;
     margin-right: 1px;
 }
 
@@ -2564,8 +2568,10 @@ button[type=submit], input[type="submit"], .primary.button {
 }
 
 .save.pending {
-  background-color: rgba(255, 174, 0, 0.63);
-  box-shadow: 0 0 0 2px rgba(255, 174, 0, 1) inset;
+  #background-color: rgba(255, 174, 0, 0.63);
+  #box-shadow: 0 0 0 2px rgba(255, 174, 0, 1) inset;
+  background-color: rgba(63, 207, 0, 0.63);
+  box-shadow: 0 0 0 2px rgba(63, 207, 0, 1) inset;
 }
 
 .button:hover, .button:active,
@@ -2591,8 +2597,10 @@ button[type=submit]:disabled, input[type=submit]:disabled {
 }
 
 .save.pending:hover {
-  box-shadow: 0 0 0 2px rgba(242, 165, 0, 1) inset;
-  background-color: rgba(255, 174, 0, 0.79);
+  #box-shadow: 0 0 0 2px rgba(242, 165, 0, 1) inset;
+  #background-color: rgba(255, 174, 0, 0.79);
+  box-shadow: 0 0 0 2px rgba(63, 207, 0, 1) inset;
+  background-color: rgba(63, 207, 0, 0.79);
   color: black;
 }
 
@@ -2665,7 +2673,7 @@ input[type=button].small, .small.button, input[type=submit].small {
 
 #upgrader #main { width: 680px; float: left;}
 #upgrader #main h1 { margin: 0; padding: 0; font-size: 1.6em; font-weight: normal; }
-#upgrader #main h2 { font-size: 1.2em; margin: 0; padding: 0; color:#E65524; }
+#upgrader #main h2 { font-size: 1.2em; margin: 0; padding: 0; color:#3fcf00; }
 #upgrader #main h3 { margin: 0; padding: 0; }
 #upgrader #main div#intro { padding-bottom: 5px; margin-bottom:10px; border-bottom: 1px solid #aaaaaa; }
 #upgrader #main  { padding-bottom: 20px; }
@@ -2710,7 +2718,7 @@ ul.progress li.no small {color:red;}
     vertical-align: middle;
 }
 
-#loading h1, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #d80; }
+#loading h1, #upgrading h4 { margin: 3px 0 0 0; padding: 0; color: #3fcf00; }
 #loading, #upgrading { color: white; }
 
 .non-local-image {
@@ -3081,7 +3089,7 @@ button a:hover {
 tr:hover i.help-tip,
 tr i.help-tip.warning {
     opacity: 0.8 !important;
-    color: #ffc20f;
+    color: #3fcf00;
 }
 
 .form_table tr i.help-tip {
