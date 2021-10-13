@@ -36,4 +36,6 @@ COPY . $OST_ROOT
 
 RUN rm -rf $OST_ROOT/setup
 
+RUN rm -f $OST_ROOT/php.ini-development
+
 RUN chmod 644 $OST_ROOT/include/ost-config.php
