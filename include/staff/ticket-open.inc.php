@@ -56,6 +56,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
 if ($_POST)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
+<link type="text/css" rel="stylesheet" href="/css/trello.css">
 <form action="tickets.php?a=open" method="post" class="save"  enctype="multipart/form-data">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="create">
@@ -472,7 +473,20 @@ print $response_form->getField('attachments')->render();
         </tr>
     </tbody>
 </table>
+<div id="trelloLoggedOut">
+  <div id="trelloHeader">
+    <a id="trelloConnect" href="#">Connect to Trello</a>
+  </div>
+</div>
+<div id="trelloLoggedIn">
+  <div id="trelloHeader">
+    Logged in to Trello as: <span id="trelloFullName"></span> 
+    <a id="trelloDisconnect" href="#">Log Out</a>
+  </div>
+  <div id="trelloOutput"></div>
+</div>
 <p style="text-align:center;">
+    <input type="button" id="trelloCreateCard" name="0" value="Create Card">
     <input type="submit" name="submit" value="<?php echo _P('action-button', 'Open');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick="javascript:
@@ -481,6 +495,10 @@ print $response_form->getField('attachments')->render();
         window.location.href='tickets.php'; " />
 </p>
 </form>
+
+<script type="text/javascript" src="/js/trello.js"></script>
+<script type="text/javascript" src="https://api.trello.com/1/client.js?key=002f8a6256ecdc5da4564df0f3c3552d"></script>
+
 <script type="text/javascript">
 $(function() {
     $('input#user-email').typeahead({

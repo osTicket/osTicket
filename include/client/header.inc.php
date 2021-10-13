@@ -111,13 +111,13 @@ if (osTicket::is_ie())
             <?php
             } elseif($nav) {
                 if ($cfg->getClientRegistrationMode() == 'public') { ?>
-                    <?php echo __('Guest User'); ?> | <?php
+                    <?php #echo __('Guest User'); ?><!-- | --><?php
                 }
                 if ($thisclient && $thisclient->isValid() && $thisclient->isGuest()) { ?>
-                    <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a><?php
+                    <a href="<?php #echo $signout_url; ?>"><?php #echo __('Sign Out'); ?></a><?php
                 }
                 elseif ($cfg->getClientRegistrationMode() != 'disabled') { ?>
-                    <a href="<?php echo $signin_url; ?>"><?php echo __('Sign In'); ?></a>
+                    <a href="<?php #echo $signin_url; ?>"><?php #echo __('Sign In'); ?></a>
 <?php
                 }
             } ?>

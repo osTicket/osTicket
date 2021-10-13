@@ -64,6 +64,11 @@ if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';
 
 ?>
+
+<!-- Start Added Trello CSS -->
+<link type="text/css" rel="stylesheet" href="/css/trello.css">
+<!-- End Added Trello CSS -->
+
 <div>
     <div id="msg_notice" style="display: none;"><span id="msg-txt"><?php echo $msg ?: ''; ?></span></div>
     <div class="sticky bar">
@@ -1120,11 +1125,38 @@ if ($errors['err'] && isset($_POST['a'])) {
             </tr>
          </tbody>
         </table>
+
+        <!-- Start Added Trello Integration -->
+        <div id="trelloLoggedOut">
+        <div id="trelloHeader">
+            <a id="trelloConnect" href="#">Connect to Trello</a>
+        </div>
+        </div>
+        <div id="trelloLoggedIn">
+        <div id="trelloHeader">
+            Logged in to Trello as: <span id="trelloFullName"></span> 
+            <a id="trelloDisconnect" href="#">Log Out</a>
+        </div>
+        <div id="trelloOutput"></div>
+        </div>
+        <!-- End Added Trello Integration -->
+
         <p  style="text-align:center;">
+
+            <!-- Start Added Trello Create Card Button -->
+            <input type="button" id="trelloCreateCard" name="1" value="Create Card">
+            <!-- End Added Trello Create Card Button -->
+
             <input class="save pending" type="submit" value="<?php echo __('Post Reply');?>">
             <input class="" type="reset" value="<?php echo __('Reset');?>">
         </p>
     </form>
+
+    <!-- Start Added Trello Scripts -->
+    <script type="text/javascript" src="/js/trello.js"></script>
+    <script type="text/javascript" src="https://api.trello.com/1/client.js?key=002f8a6256ecdc5da4564df0f3c3552d"></script>
+    <!-- End Added Trello Scripts -->
+
     <?php
     }
     if (!($blockReply)) {

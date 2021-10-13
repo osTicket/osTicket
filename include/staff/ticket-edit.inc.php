@@ -10,6 +10,9 @@ if ($_POST)
     // timezone)
     $info['duedate'] = Format::date(strtotime($info['duedate']), false, false, 'UTC');
 ?>
+<!-- Start Added Trello CSS -->
+<link type="text/css" rel="stylesheet" href="/osticket/css/trello.css">
+<!-- End Added Trello CSS -->
 <form action="tickets.php?id=<?php echo $ticket->getId(); ?>&a=edit" method="post" class="save"  enctype="multipart/form-data">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="update">
@@ -173,12 +176,41 @@ if ($_POST)
         </tr>
     </tbody>
 </table>
+
+<!-- Start Added Trello Integration -->
+<!--
+<div id="trelloLoggedOut">
+  <div id="trelloHeader">
+    <a id="trelloConnect" href="#">Connect to Trello</a>
+  </div>
+</div>
+<div id="trelloLoggedIn">
+  <div id="trelloHeader">
+    Logged in to Trello as: <span id="trelloFullName"></span> 
+    <a id="trelloDisconnect" href="#">Log Out</a>
+  </div>
+  <div id="trelloOutput"></div>
+</div>
+-->
+<!-- End Added Trello Integration -->
+
 <p style="text-align:center;">
+    <!-- Start Added Trello Create Card Button (currently disabled) -->
+    <!--
+    <input type="button" id="trelloCreateCard" name="2" value="Create Card">
+    -->
+    <!-- End Added Trello Create Card Button -->
     <input type="submit" name="submit" value="<?php echo __('Save');?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
     <input type="button" name="cancel" value="<?php echo __('Cancel');?>" onclick='window.location.href="tickets.php?id=<?php echo $ticket->getId(); ?>"'>
 </p>
 </form>
+
+<!-- Start Added Trello Scripts -->
+<script type="text/javascript" src="/osticket/js/trello.js"></script>
+<script type="text/javascript" src="https://api.trello.com/1/client.js?key=002f8a6256ecdc5da4564df0f3c3552d"></script>
+<!-- End Added Trello Scripts -->
+
 <div style="display:none;" class="dialog draggable" id="user-lookup">
     <div class="body"></div>
 </div>

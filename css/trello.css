@@ -1,0 +1,36 @@
+#trelloConnect {
+    text-decoration: none;
+    color: #184E81;
+    font-size: 14px;
+    vertical-align: bottom;
+}
+
+#trelloLoggedOut {
+    /* text-align: center;
+    font-size: 20px;
+    padding-top: 30px; */
+}
+
+#trelloLoggedIn { 
+    display: none; 
+}
+
+#trelloHeader {
+    padding: 4px;
+    border-bottom: 1px solid #000;
+    background: #eee;
+}
+
+#trelloOutput {
+    padding: 4px;
+}
+
+#trelloCreateCard {
+    background-color: #0079bf;
+    color: #fff;
+}
+
+.card { 
+    display: block; 
+    padding: 2px;
+}
