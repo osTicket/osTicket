@@ -13,10 +13,10 @@ services:
     hostname: db
     restart: unless-stopped
     environment:
-      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-      - MARIADB_USER=${DB_USER}
-      - MARIADB_PASSWORD=${DB_PASSWORD}
-      - MARIADB_DATABASE=${DB_DATABASE}
+      - MARIADB_ROOT_PASSWORD
+      - MARIADB_USER
+      - MARIADB_PASSWORD
+      - MARIADB_DATABASE
     volumes: 
       - mariadb_data:/var/lib/mysql
     ports:
@@ -50,13 +50,13 @@ services:
     ports:
       - 80:80
     environment:
-      - ADMIN_EMAIL=${ADMIN_EMAIL}
-      - DBHOST=${DB_HOST}
-      - DBNAME=${DB_NAME}
-      - DBPASS=${DB_PASS}
-      - DBTYPE=${DB_TYPE}
-      - DBUSER=${DB_USER}
-      - SALT=${OST_SALT}
+      - ADMIN_EMAIL
+      - DBHOST
+      - DBNAME
+      - DBPASS
+      - DBTYPE
+      - DBUSER
+      - SALT
     networks:
       - osticket
 
