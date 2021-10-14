@@ -1,0 +1,73 @@
+# docker-compose --env-file .env up -d
+# docker-compose down
+
+version: '3.9'
+
+services:
+
+##################################################
+#####                Mariadb                 #####
+##################################################
+  db:
+    image: mariadb
+    hostname: db
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MARIADB_USER=${DB_USER}
+      - MARIADB_PASSWORD=${DB_PASSWORD}
+      - MARIADB_DATABASE=${DB_DATABASE}
+    volumes: 
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - osticket
+
+##################################################
+#####                Adminer                 #####
+##################################################
+  adminer:
+    image: adminer
+    hostname: adminer
+    restart: unless-stopped
+    depends_on: 
+      - db
+    ports:
+      - 8080:8080
+    networks:
+      - osticket
+
+##################################################
+#####               osTicket                 #####
+##################################################
+  osticket:
+    image: unitely/osticket:latest
+    hostname: osticket
+    restart: unless-stopped
+    depends_on: 
+      - db
+    ports:
+      - 80:80
+    environment:
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - DBHOST=${DB_HOST}
+      - DBNAME=${DB_NAME}
+      - DBPASS=${DB_PASS}
+      - DBTYPE=${DB_TYPE}
+      - DBUSER=${DB_USER}
+      - SALT=${OST_SALT}
+    networks:
+      - osticket
+
+##################################################
+#####               NETWORKS                 #####
+##################################################
+
+networks:
+  osticket:
+    attachable: true
+    name: osticket
+
+volumes:
+  mariadb_data:

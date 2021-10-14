@@ -19,5 +19,5 @@ include/mpdf/ttfontdata
 include/mpdf/tmp
 nbproject/
 
-# docker-compose
-docker-compose.yml
+# Secrets
+.env
