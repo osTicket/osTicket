@@ -19,4 +19,4 @@ include/mpdf/tmp
 nbproject/
 
 # Secrets
-.env
+*.env

@@ -1,4 +1,4 @@
-# docker-compose --env-file .env up -d
+# docker-compose --env-file unitely.env up -d
 # docker-compose down
 
 version: '3.9'
