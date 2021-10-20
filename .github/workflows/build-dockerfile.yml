@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - "develop"
+      - "Unitely"
+      - "OAOSupport"
 jobs:
   get_semver:
     name: Create semver
