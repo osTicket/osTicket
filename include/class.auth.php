@@ -134,7 +134,7 @@ class ClientCreateRequest {
     function attemptAutoRegister() {
         global $cfg;
 
-        if (!$cfg || !$cfg->isClientRegistrationEnabled())
+        if (!$cfg || $cfg->isClientRegistrationMode(['disabled']))
             return false;
 
         // Attempt to automatically register
