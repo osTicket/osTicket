@@ -38,4 +38,6 @@ RUN rm -rf $OST_ROOT/setup
 
 RUN rm -f $OST_ROOT/php.ini-development
 
+RUN mv $OST_ROOT/include/ost-sampleconfig.php $OST_ROOT/include/ost-config.php
+
 RUN chmod 644 $OST_ROOT/include/ost-config.php
