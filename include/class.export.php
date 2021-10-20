@@ -899,6 +899,18 @@ class TicketZipExporter {
             $zip->addFromString("{$prefix}/{$att->getFilename()}",
                 $att->getFile()->getData());
         }
+
+        // Include custom fields attachments
+        foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+            $answers = $form->getAnswers()->filter(
+                    array('field__type' => 'files'));
+            foreach ($answers as $answer) {
+                $field = $answer->getField();
+                foreach ($field->getAttachments() as $a)
+                    $zip->addFromString("{$prefix}/{$a->getFilename()}",
+                            $a->getFile()->getData());
+            }
+        }
     }
 
     function addTask($task, $zip, $prefix, $notes=true, $psize=null) {
@@ -923,6 +935,17 @@ class TicketZipExporter {
         foreach ($attachments as $att) {
             $zip->addFromString("{$prefix}/{$task->getNumber()}/{$att->getFilename()}",
                 $att->getFile()->getData());
+        }
+        // Include custom fields attachments
+        foreach (DynamicFormEntry::forTask($task->getId()) as $form) {
+            $answers = $form->getAnswers()->filter(
+                    array('field__type' => 'files'));
+            foreach ($answers as $answer) {
+                $field = $answer->getField();
+                foreach ($field->getAttachments() as $a)
+                    $zip->addFromString("{$prefix}/{$task->getNumber()}/{$a->getFilename()}",
+                            $a->getFile()->getData());
+            }
         }
     }
 

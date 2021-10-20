@@ -364,7 +364,7 @@
   .redactor-file-remover:hover {
     opacity: 1; }
 
-#redactor-overlay {
+.redactor-overlay {
   position: fixed;
   z-index: 1051;
   top: 0;
@@ -372,7 +372,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(16, 16, 18, 0.3); }
-  #redactor-overlay > .redactor-close {
+  .redactor-overlay > .redactor-close {
     position: fixed;
     top: 1rem;
     right: 1rem; }

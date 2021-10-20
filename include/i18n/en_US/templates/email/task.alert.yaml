@@ -32,7 +32,7 @@ body: |
     <br>
     <br>
     <hr>
-    <div>To view or respond to the ticket, please <a
+    <div>To view or respond to the task, please <a
     href="%{task.staff_link}">login</a> to the support system</div>
     <em style="font-size: small">Your friendly Customer Support System</em>
     <br>

@@ -17,7 +17,7 @@ if($_REQUEST['q'] && strlen($_REQUEST['q'])>3) {
     $errors['q']=__('Term too short!');
 }
 
-$sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','created'=>'rule.updated');
+$sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','updated'=>'rule.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'email';
 //Sorting options...

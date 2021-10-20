@@ -385,7 +385,8 @@ class CustomQueue extends VerySimpleModel {
             $exclude[$base] = 1;
             foreach ($base::getMeta('joins') as $path=>$j) {
                 $fc = $j['fkey'][0];
-                if (isset($exclude[$fc]) || $j['list'])
+                if (isset($exclude[$fc]) || $j['list']
+                        || (isset($j['searchable']) && !$j['searchable']))
                     continue;
                 foreach (static::getSearchableFields($fc, $recurse-1,
                     true, $exclude)
@@ -2381,7 +2382,7 @@ extends VerySimpleModel {
             return '';
 
         $val = $f->to_php($f->from_query($row, $this->primary));
-        if (!is_string($val))
+        if (!is_string($val) || is_numeric($val))
             $val = $f->display($val);
 
         return $val;
