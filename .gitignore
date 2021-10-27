@@ -20,3 +20,6 @@ nbproject/
 
 # Secrets
 *.env
+
+# Other
+Dumps_Backups
