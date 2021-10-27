@@ -331,7 +331,13 @@ class MailFetcher {
         );
         Signal::send('mail.decoded', $this, $info);
 
-        $sender=$headerinfo->from[0];
+        // Respect "reply-to" address if present
+	if (isset($headerinfo->reply_to)){
+          $sender=$headerinfo->reply_to[0];
+        } else {
+          $sender=$headerinfo->from[0];
+        }
+
         //Just what we need...
         $header=array('name'  => $this->mime_decode(@$sender->personal),
                       'email'  => trim(strtolower($sender->mailbox).'@'.$sender->host),
