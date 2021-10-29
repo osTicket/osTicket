@@ -231,7 +231,7 @@ var scp_prep = function() {
                 success: function(canned){
                     //Canned response.
                     var box = $('#response', fObj),
-                        redactor = $R('#response');
+                        redactor = $R('#response.richtext');
                     if (canned.response) {
                         if (redactor) {
                             redactor.api('selection.restore');
