@@ -18,30 +18,10 @@ require('staff.inc.php');
 // --Determine ID value for time-type
 
 function countTime($ticketid) {
-    static $time_types;
-    if (!isset($time_types)) {
-        $time_types = array();
-        foreach (DynamicList::lookup(['type' => 'time-type'])->getItems() as $I) {
-            $time_types[$I->id] = $I->getValue();
-        }
-    }
-
-    // TODO: Run one query for all tickets returned by the outer query below
-    //       so that multiple trips to the database are not necessary here.
-    //       It would also make calculating a grand total easier.
-    $totals = array();
     $ticket = Ticket::lookup($ticketid);
     if (!$ticket)
-        return $totals;
-
-    $times = $ticket->getTimeTotalsByType();
-
-    foreach ($times as $typeid=>$total) {
-        $type_name = $time_types[$typeid];
-        $totals[$type_name] = $total;
-    }
-
-    return $totals;
+        return array();
+    return $ticket->getTimeTotalsByType(false);
 }
 
 //Get Organisation Details
@@ -51,17 +31,17 @@ $org = Organization::lookup($_REQUEST['orgid']);
 $nav->setTabActive('users');
 $ost->setPageTitle(sprintf(__('%s - Bill / Invoice'),$org->getName()));
 
+// dates come out of the form like dd/mm/yyyy and must convert to yyyy-mm-dd for sql
+$startdate = DateTime::createFromFormat('d/m/Y', $_REQUEST['startdate'])->format('Y-m-d');
+$enddate = DateTime::createFromFormat('d/m/Y', $_REQUEST['enddate'])->format('Y-m-d');
+
 //Ticket information
 // --Generate SQL
 $tickets = Ticket::objects()
-// previous code
-//'created__range' => array($_REQUEST['startdate'], $_REQUEST['enddate']),
 //New code contributed by @damiangraber
     ->filter([
         'user__org_id' => $org->getId(),
-        //'' => 'closed',
-        'created__range' => array($_REQUEST['startdate'], $_REQUEST['enddate']),
-        //'created__range' => array( "'" . '2020-04-29 06:47:51' ."'" , "'" . '2020-05-29 06:47:51' . "'" ),
+        'created__range' => array($startdate, $enddate),
     ])
     ->values('staff_id', 'isoverdue', 'ticket_id', 'number',
         'cdata__subject', 'user__default_email__address', 'source',
@@ -87,7 +67,7 @@ require_once(STAFFINC_DIR.'header.inc.php');
 
 <h1><?php echo __('Bill / Invoice'); ?></h1>
 <b><?php echo __('Organization'); ?>:</b> <?php echo $org->getName(); ?><br />
-<b><?php echo __('Billing Period'); ?>:</b> <?php echo $_REQUEST['startdate']; ?> - <?php echo $_REQUEST['enddate']; ?><br /><br />
+<b><?php echo __('Billing Period'); ?>:</b> <?php echo $startdate; ?> - <?php echo $enddate; ?><br /><br />
 <h2><?php echo __('Labour / Time Details'); ?></h2>
 <?php if (count($tickets)) { ?>
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">

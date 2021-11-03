@@ -88,6 +88,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     'ticket_id'  => 'TicketThread.object_id',
                     "'C'" => 'TicketThread.object_type',
                 ),
+                'searchable' => false,
                 'null' => true,
             ),
             'cdata' => array(
@@ -530,9 +531,12 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getTimeSpent(){
+		// exclude HIDDEN/GUARDED thread entries from this calculation
+		// edited threads get cloned and the old one is hidden
         $times = Ticket::objects()
             ->filter(['ticket_id' => $this->getId()])
             ->values('thread__entries__time_type')
+			->exclude(array('thread__entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN | ThreadEntry::FLAG_GUARDED))
             ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
 
         $totals = 0;
@@ -561,7 +565,7 @@ implements RestrictedAccess, Threadable, Searchable {
     function getTimeTotalsByType($billable=true, $typeid=false) {
         $times = Ticket::objects()
             ->filter(['ticket_id' => $this->getId()])
-            ->values('thread__entries__time_type')
+            ->values('thread__entries__time_type', 'totaltime')
             ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
 
         if ($typeid)
@@ -570,8 +574,15 @@ implements RestrictedAccess, Threadable, Searchable {
             $times = $times->filter(['thread__entries__time_bill' => 1]);
 
         $totals = array();
+		// decode time_type to text value
         foreach ($times as $T) {
-            $totals[$T['thread__entries__time_type']] = $T['totaltime'];
+			$ttype = $T['thread__entries__time_type'];
+			if ($ttype == 0 || $T['totaltime'] == 0) 
+				continue;
+			else {
+				$type = DynamicListItem::lookup($ttype)->value;
+			}
+            $totals[$type] = $T['totaltime'];
         }
         return $totals;
     }
@@ -1573,8 +1584,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
-                    $type = array('type' => 'closed');
-                    Signal::send('object.edited', $t, $type);
                     $t->deleteDrafts();
                 };
                 break;
@@ -2132,7 +2141,7 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($msg=$tpl->getAssignedAlertMsgTemplate())
         ) {
             $msg = $this->replaceVars($msg->asArray(),
-                array('comments' => $comments,
+                array('comments' => $comments ?: '',
                       'assignee' => $assignee,
                       'assigner' => $assigner
                 )
@@ -2688,7 +2697,7 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function hasReferral($object, $type) {
-        if (($referral=$this->thread->getReferral($object->getId(), $type)))
+        if (($referral=$this->getThread()->getReferral($object->getId(), $type)))
             return $referral;
 
         return false;
@@ -4065,6 +4074,22 @@ implements RestrictedAccess, Threadable, Searchable {
             // Init ticket filters...
             $ticket_filter = new TicketFilter($origin, $vars);
             $ticket_filter->apply($vars, $postCreate);
+
+            if ($postCreate && $filterMatches = $ticket_filter->getMatchingFilterList()) {
+                $username = __('Ticket Filter');
+                foreach ($filterMatches as $f) {
+                    $actions = $f->getActions();
+                    foreach ($actions as $key => $value) {
+                        $filterName = $f->getName();
+                        if (!$coreClass = $value->lookupByType($value->type))
+                            continue;
+
+                        if ($description = $coreClass->getEventDescription($value, $filterName))
+                            $postCreate->logEvent($description['type'], $description['desc'], $username);
+
+                    }
+                }
+            }
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
@@ -4465,6 +4490,10 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
+
+        $vars['ticket'] = $ticket;
+        self::filterTicketData($origin, $vars,
+            array_merge(array($form), $topic_forms), $user, $ticket);
 
         // If a message was posted, flag it as the orignal message. This
         // needs to be done on new ticket, so as to otherwise separate the

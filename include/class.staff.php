@@ -966,11 +966,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (is_array($var))
             return parent::lookup($var);
         elseif (is_numeric($var))
-            return parent::lookup(array('staff_id'=>$var));
+            return parent::lookup(array('staff_id' => (int) $var));
         elseif (Validator::is_email($var))
-            return parent::lookup(array('email'=>$var));
-        elseif (is_string($var))
-            return parent::lookup(array('username'=>$var));
+            return parent::lookup(array('email' => $var));
+        elseif (is_string($var) &&  Validator::is_username($var))
+            return parent::lookup(array('username' => (string) $var));
         else
             return null;
     }
@@ -1312,7 +1312,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             }
             $this->updateAccess($access, $errors);
             $this->setExtraAttr('def_assn_role',
-                isset($vars['assign_use_pri_role']), false);
+                isset($vars['assign_use_pri_role']), true);
 
             // Format team membership as [array(team_id, alerts?)]
             $teams = array();

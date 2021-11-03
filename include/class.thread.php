@@ -638,6 +638,12 @@ implements Searchable {
             ->delete();
     }
 
+    function deleteReferrals() {
+        return ThreadReferral::objects()
+            ->filter(array('thread_id'=>$this->getId()))
+            ->delete();
+    }
+
     function setExtra($mergedThread, $info='') {
 
         if ($info && $info['extra']) {
@@ -749,6 +755,7 @@ implements Searchable {
         // Mass delete entries
         $this->deleteAttachments();
         $this->removeCollaborators();
+        $this->deleteReferrals();
 
         $this->entries->delete();
 
@@ -2591,6 +2598,12 @@ class EditEvent extends ThreadEvent {
     function getDescription($mode=self::MODE_STAFF) {
         $data = $this->getData();
         switch (true) {
+        case isset($data['filter']):
+            $desc = sprintf(__('%s set %s %s {timestamp}'),
+                    '<b>' . $data['filter'] . '</b> Filter ',
+                    __($data['type']),
+                    $data['value'] ? 'to <strong>' . $data['value'] . '</strong>' :  '');
+            break;
         case isset($data['owner']):
             $desc = __('<b>{somebody}</b> changed ownership to {<User>data.owner} {timestamp}');
             break;
