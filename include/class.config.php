@@ -253,7 +253,7 @@ class OsticketConfig extends Config {
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
         'force_https' => '',
-        'allow_external_images' => 1,
+        'allow_external_images' => 0,
     );
 
     function __construct($section=null) {

@@ -1,3 +1,37 @@
+osTicket v1.15.4
+================
+### Enhancements
+* Feature: Log Event For Filters (7d48735, 1fd2b6b, 99ec09a)
+
+### Improvements
+* Issue: Delete Referrals (790c0e6)
+* Show "-Empty-" value for empty due dates in ticket view (64712eb)
+* Issue: Audit Closed Ticket Events (311a600)
+
+### Security
+* security: PwReset Username and Username Discoverability (e282910, 86165c2)
+* security: SSRF External Images (1c6f98e)
+* xss: Stored XSS/Domain Whitelist Bypass (4b4da5b)
+* security: Recipient Injection via User's Name (7c5c584)
+* xss: Advanced Search (4a8d3c8)
+* xss: Tasks (b01c6a2)
+
+osTicket v1.14.8
+================
+### Improvements
+* issue: Auto-Assign Comments Var (c3171c3)
+* issue: List Item Properties On Mouseover (a6a7192)
+* issue: def_assn_role (6ad568f)
+* search: Child Thread Relation (08785f9)
+
+### Security
+* security: PwReset Username and Username Discoverability (e282910, 86165c2)
+* security: SSRF External Images (1c6f98e)
+* xss: Stored XSS/Domain Whitelist Bypass (4b4da5b)
+* security: Recipient Injection via User's Name (7c5c584)
+* xss: Advanced Search (4a8d3c8)
+* xss: Tasks (b01c6a2)
+
 osTicket v1.15.3.1
 ==================
 ### Improvements
@@ -62,7 +96,6 @@ osTicket v1.15.2
 * Issue: Disabled Dept on Email (b1397a3)
 * issue: Assign To Sort Alphabetically (77c7a12)
 * Update class.plugin.php (4a3451f)
-
 
 ### Security
 * xss: FormAction Attribute (8d956e0)

@@ -15,7 +15,7 @@ $info = ($_POST && $errors)?Format::htmlchars($_POST):array();
     </a></h1>
     <h3><?php echo __('A confirmation email has been sent'); ?></h3>
     <h3 style="color:black;"><em><?php echo __(
-    'A password reset email was sent to the email on file for your account.  Follow the link in the email to reset your password.'
+    'If the information provided is valid a password reset email will be sent to the email address you have on file. Follow the link in the email to reset your password.'
     ); ?>
     </em></h3>
 
