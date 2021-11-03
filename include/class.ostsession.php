@@ -39,7 +39,8 @@ class osTicketSession {
         // Set session cleanup time to match TTL
         ini_set('session.gc_maxlifetime', $ttl);
 
-        if (OsticketConfig::getDBVersion())
+        // Skip db version check if version is later than 1.7
+        if (!defined('MAJOR_VERSION') && OsticketConfig::getDBVersion())
             return session_start();
 
         # Cookies
@@ -199,6 +200,12 @@ extends SessionBackend {
             $this->data = new SessionData(['session_id' => $id, 'session_data' => '']);
         }
         catch (OrmException $e) {
+            return false;
+        }
+        // Verify the User Agent string
+        if (isset($this->data->user_agent)
+                && (strcmp($_SERVER['HTTP_USER_AGENT'], $this->data->user_agent) !== 0)) {
+            $this->destroy($id);
             return false;
         }
         return $this->data->session_data;

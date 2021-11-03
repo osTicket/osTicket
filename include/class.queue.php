@@ -3258,7 +3258,6 @@ extends QueueColumnAnnotation {
 			$summary, static::$icon);
 	}
 
-
 	function isVisible($row) {
 		return $row[static::$qname] > 0;
 	}
