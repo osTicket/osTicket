@@ -23,7 +23,6 @@ require 'api.inc.php';
 require_once INCLUDE_DIR."class.dispatcher.php";
 
 $dispatcher = patterns('',
-		url("^/ticket/(?P<id>\d+)/setStatus$", array('api.tickets.php:TicketApiController','setStatus'), null, "PUT"),
 
 		// Generic method for ticket creation
         url_post("^/tickets\.(?P<format>xml|json|email)$", array('api.tickets.php:TicketApiController','create')),
@@ -36,6 +35,12 @@ $dispatcher = patterns('',
 		url_get("^/ticket/statuses$", array('api.tickets.php:TicketApiController','ticketStatuses')),
 
 		// Updates (PUT)
+		// set ticket status (in parameters)
+		url("^/ticket/(?P<id>\d+)/setStatus$", array('api.tickets.php:TicketApiController','setStatus'), null, "PUT"),
+		// mark thread entry as billed
+		url("^/thread/(?P<id>\d+)/billed$", array('api.ticketTime.php:TicketTimeApiController', 'threadBilled'), null, "PUT"),
+		// mark ticket thread entries as billed by time type (in parameters)
+		url("^/ticket/(?P<id>\d+)/billed$", array('api.ticketTime.php:TicketTimeApiController', 'ticketBilled'), null, "PUT"),
 
         url('^/tasks/', patterns('',
                 url_post("^cron$", array('api.cron.php:CronApiController', 'execute'))

@@ -2,6 +2,7 @@
 
 include_once INCLUDE_DIR.'class.api.php';
 include_once INCLUDE_DIR.'class.ticket.php';
+include_once INCLUDE_DIR.'class.list.php';
 
 class TicketApiController extends ApiController {
 	function getRequest($format)
@@ -356,8 +357,20 @@ class TicketApiController extends ApiController {
 		// be the *actual* URL
 		$output['url'] = $ticket->getVar("staff_link");
 
-		if ($cfg->isThreadTime())
+		if ($cfg->isThreadTime()) {
+			// add total time by time_type
+			$times = $ticket->getTimeTotalsByType(false);
+			foreach ($times as $t => $time) {
+				if ($t == 0) continue;
+				$type = DynamicListItem::lookup($t);
+				if ($type)
+					$output['times'][$type->value] = $time;
+				else
+					$output['times'][$t] = $time;
+			}
+
 			$output['total_time_spent'] = $ticket->getTimeSpent();
+		}
 
 //		$output['raw'] = serialize($ticket);
 
@@ -372,6 +385,7 @@ class TicketApiController extends ApiController {
 		$output = array();
 		foreach ($ticket->getThreadEntries() as $th) {
 			$thread = array();
+			$thread['id'] = $th->id;
 			$thread['title'] = $th->getTitle();
 			$thread['type_name'] = $th->getTypeName();
 			$thread['poster'] = $th->getPoster();
