@@ -105,7 +105,7 @@ conversation of integrating your new feature into osTicket.
 
 The interface for osTicket is now completely translatable. Language packs
 are available on the [download page](https://osticket.com/download). If you
-do not see your language there, join the [Crowdin](http://i18n.osticket.com)
+do not see your language there, join the [Crowdin](https://crowdin.com/project/osticket-official)
 project and request to have your language added. Languages which reach 100%
 translated are are significantly reviewed will be made available on the
 osTicket download page.
