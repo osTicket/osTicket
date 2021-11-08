@@ -151,6 +151,10 @@ class Bootstrap {
     }
 
     function loadConfig() {
+        // Try to determine the path in the URI used as the base of the osTicket
+        // installation for setup usage
+        define('TMP_ROOT_PATH', rtrim(osTicket::get_root_path(dirname(__file__), '/').'/'));
+
         #load config info
         $configfile='';
         if(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
@@ -164,13 +168,17 @@ class Bootstrap {
                 Http::response(500,
                     'Please rename config file include/settings.php to include/ost-config.php to continue!');
         } elseif(file_exists(ROOT_DIR.'setup/'))
-            Http::redirect(ROOT_PATH.'setup/');
+            Http::redirect(TMP_ROOT_PATH.'setup/');
 
         if(!$configfile || !file_exists($configfile))
             Http::response(500,'<b>Error loading settings. Contact admin.</b>');
 
         require($configfile);
         define('CONFIG_FILE',$configfile); //used in admin.php to check perm.
+
+        # if still no ROOT_PATH has been configured, use the determined one
+        if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
+            define('ROOT_PATH', rtrim($rp, '/').'/');
 
         # This is to support old installations. with no secret salt.
         if (!defined('SECRET_SALT'))
@@ -357,11 +365,6 @@ require(INCLUDE_DIR.'class.osticket.php');
 require(INCLUDE_DIR.'class.misc.php');
 require(INCLUDE_DIR.'class.http.php');
 require(INCLUDE_DIR.'class.validator.php');
-
-// Determine the path in the URI used as the base of the osTicket
-// installation
-if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
-    define('ROOT_PATH', rtrim($rp, '/').'/');
 
 Bootstrap::init();
 
