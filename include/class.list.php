@@ -927,9 +927,9 @@ class TicketStatusList extends CustomListHandler {
         $items = TicketStatus::objects();
         if ($filters)
             $items->filter($filters);
-        if ($criteria['limit'])
+        if (isset($criteria['limit']))
             $items->limit($criteria['limit']);
-        if ($criteria['offset'])
+        if (isset($criteria['offset']))
             $items->offset($criteria['offset']);
 
         $items->order_by($this->getListOrderBy());

@@ -1328,7 +1328,7 @@ implements TemplateVariable {
     function logEmailHeaders($id, $mid, $header=false) {
         $headerInfo = Mail_Parse::splitHeaders($header);
 
-        if (!$id || !$mid)
+        if (is_null($id) || !$mid)
             return false;
 
         $this->email_info = new ThreadEntryEmailInfo(array(

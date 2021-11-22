@@ -960,7 +960,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
         $cfg = $ost->getConfig();
 
         $authsession = &$_SESSION['_auth']['staff'];
-        if (!$authsession['laststrike'])
+        if (!isset($authsession['laststrike']))
             return;
 
         //Veto login due to excessive login attempts.

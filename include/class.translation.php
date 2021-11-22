@@ -540,6 +540,7 @@ class FileReader {
 class Translation extends gettext_reader implements Serializable {
 
     var $charset;
+    var $encode;
 
     const META_HEADER = 0;
 
@@ -798,7 +799,7 @@ class TextDomain {
                 $locale, $m)
             ) {
 
-            if ($m['modifier']) {
+            if (isset($m['modifier'])) {
                 // TODO: Confirm if Crowdin uses the modifer flags
                 if ($m['country']) {
                     $locale_names[] = "{$m['lang']}_{$m['country']}@{$m['modifier']}";

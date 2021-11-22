@@ -43,7 +43,7 @@ if ($thisstaff && $thisstaff->is2FAPending())
             <input type="hidden" name="do" value="scplogin">
             <fieldset>
             <input type="text" name="userid" id="name" value="<?php
-                echo $info['userid']; ?>" placeholder="<?php echo __('Email or Username'); ?>"
+                echo $info['userid'] ?? null; ?>" placeholder="<?php echo __('Email or Username'); ?>"
                 autofocus autocorrect="off" autocapitalize="off">
             <input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
                 <h3 style="display:inline"><a id="reset-link" class="<?php

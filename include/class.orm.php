@@ -197,15 +197,15 @@ class ModelMeta implements ArrayAccess {
                     = is_array($foreign) ? $foreign : explode('.', $foreign);
             }
         }
-        if ($j['list'] && !isset($j['broker'])) {
+        if (isset($j['list']) && !isset($j['broker'])) {
             $j['broker'] = 'InstrumentedList';
         }
-        if ($j['broker'] && !class_exists($j['broker'])) {
+        if (isset($j['broker']) && !class_exists($j['broker'])) {
             throw new OrmException($j['broker'] . ': List broker does not exist');
         }
         foreach ($constraint as $local => $foreign) {
             list($class, $field) = $foreign;
-            if ($local[0] == "'" || $field[0] == "'" || !class_exists($class))
+            if ((isset($local[0]) && $local[0] == "'") || $field[0] == "'" || !class_exists($class))
                 continue;
             $j['fkey'] = $foreign;
             $j['local'] = $local;
@@ -351,7 +351,7 @@ class VerySimpleModel {
                 foreach ($j['constraint'] as $local=>$foreign) {
                     list($_klas,$F) = $foreign;
                     $fkey[$F ?: $_klas] = ($local[0] == "'")
-                        ? trim($local, "'") : $this->ht[$local];
+                        ? trim($local, "'") : $this->ht[$local] ?? null;
                 }
                 $v = $this->ht[$field] = new $j['broker'](
                     // Send Model, [Foriegn-Field => Local-Id]
@@ -444,7 +444,7 @@ class VerySimpleModel {
         $joins = static::getMeta('joins');
         if (isset($joins[$field])) {
             $j = $joins[$field];
-            if ($j['list'] && ($value instanceof InstrumentedList)) {
+            if (isset($j['list']) && ($value instanceof InstrumentedList)) {
                 // Magic list property
                 $this->ht[$field] = $value;
                 return;
@@ -773,6 +773,7 @@ class AnnotatedModel {
         if ($extras instanceof VerySimpleModel) {
             $extra = "Writeable";
         }
+        $extra = $extra ?? null;
         if (!isset($classes[$class])) {
             $classes[$class] = eval(<<<END_CLASS
 class {$extra}AnnotatedModel___{$class}
@@ -1244,7 +1245,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
     function getSortFields() {
         $ordering = $this->ordering;
-        if ($this->extra['order_by'])
+        if (isset($this->extra['order_by']))
             $ordering = array_merge($ordering, $this->extra['order_by']);
         return $ordering;
     }
@@ -1265,7 +1266,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     function isWindowed() {
-        return $this->limit || $this->offset || (count($this->values) + count($this->annotations) + @count($this->extra['select'])) > 1;
+        return $this->limit || $this->offset || (count($this->values) + count($this->annotations) + @count($this->extra['select'] ?? array())) > 1;
     }
 
     /**
@@ -1618,7 +1619,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         $meta = $model::getMeta();
         $query = clone $this;
         $options += $this->options;
-        if ($options['nosort'])
+        if (isset($options['nosort']))
             $query->ordering = array();
         elseif (!$query->ordering && $meta['ordering'])
             $query->ordering = $meta['ordering'];
@@ -1627,7 +1628,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         if (!$query->defer && $meta['defer'])
             $query->defer = $meta['defer'];
 
-        $class = $options['compiler'] ?: $this->compiler;
+        $class = $options['compiler'] ?? $this->compiler;
         $compiler = new $class($options);
         $this->query = $compiler->compileSelect($query);
 
@@ -1992,6 +1993,7 @@ implements IteratorAggregate {
     function getIterator() {
         $func = ($this->map) ? 'getRow' : 'getArray';
         $func = array($this->resource, $func);
+        $cache = true;
 
         return new CallbackSimpleIterator(function() use ($func, $cache) {
             global $StopIteration;
@@ -2293,7 +2295,7 @@ class SqlCompiler {
                 $field = array_pop($path);
             }
         }
-        return array($field, $path, $operator ?: 'exact');
+        return array($field, $path, $operator ?? 'exact');
     }
 
     /**
@@ -2454,7 +2456,7 @@ class SqlCompiler {
         foreach ($joins as $i=>$A) {
             // Add the conststraint as the last arg to the last join
             if ($i == $last)
-                $constraint = $options['constraint'];
+                $constraint = $options['constraint'] ?? null;
             $alias = $this->pushJoin($A[0], $A[1], $A[2], $A[3], $constraint);
         }
 
@@ -2627,7 +2629,7 @@ class SqlCompiler {
     function getJoins($queryset) {
         $sql = '';
         foreach ($this->joins as $path => $j) {
-            if (!$j['sql'])
+            if (!isset($j['sql']))
                 continue;
             list($base, $constraints) = $j['sql'];
             // Add in path-specific constraints, if any
@@ -2811,8 +2813,8 @@ class MySqlCompiler extends SqlCompiler {
     function __range($a, $b) {
       return sprintf('%s BETWEEN %s AND %s',
         $a,
-        $b[2] ? $b[0] : $this->input($b[0]),
-        $b[2] ? $b[1] : $this->input($b[1]));
+        isset($b[2]) ? $b[0] : $this->input($b[0]),
+        isset($b[2]) ? $b[1] : $this->input($b[1]));
     }
 
     function compileJoin($tip, $model, $alias, $info, $extra=false) {
@@ -3102,7 +3104,7 @@ class MySqlCompiler extends SqlCompiler {
                 if ($A instanceof SqlAggregate)
                     $need_group_by = true;
                 $T = $A->toSql($this, $model, $alias);
-                if ($fieldMap) {
+                if (isset($fieldMap)) {
                     array_splice($fields, count($fieldMap[0][0]), 0, array($T));
                     $fieldMap[0][0][] = $alias;
                 }
@@ -3179,7 +3181,7 @@ class MySqlCompiler extends SqlCompiler {
             break;
         }
 
-        return new MysqlExecutor($sql, $this->params, $fieldMap);
+        return new MysqlExecutor($sql, $this->params, $fieldMap ?? array());
     }
 
     function __compileUpdateSet($model, array $pk) {

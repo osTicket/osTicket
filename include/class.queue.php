@@ -385,8 +385,8 @@ class CustomQueue extends VerySimpleModel {
             $exclude[$base] = 1;
             foreach ($base::getMeta('joins') as $path=>$j) {
                 $fc = $j['fkey'][0];
-                if (isset($exclude[$fc]) || $j['list']
-                        || (isset($j['searchable']) && !$j['searchable']))
+                if (isset($exclude[$fc]) || isset($j['list'])
+                        || (isset($j['searchable']) && !isset($j['searchable'])))
                     continue;
                 foreach (static::getSearchableFields($fc, $recurse-1,
                     true, $exclude)
@@ -2278,7 +2278,7 @@ extends VerySimpleModel {
             $secondary = CustomQueue::getOrmPath($this->secondary);
             if (($F = $fields[$primary]) && (list(,$field) = $F))
                 $this->_fields[$primary] = $field;
-            if (($F = $fields[$secondary]) && (list(,$field) = $F))
+            if ((isset($fields[$secondary]) && ($F = $fields[$secondary])) && (list(,$field) = $F))
                 $this->_fields[$secondary] = $field;
         }
         return $this->_fields;
@@ -2368,7 +2368,7 @@ extends VerySimpleModel {
         ) {
             return new LazyDisplayWrapper($F, $T);
         }
-        if (($F = $fields[$secondary])
+        if (isset($fields[$secondary]) && ($F = $fields[$secondary])
             && ($T = $F->from_query($row, $secondary))
         ) {
             return new LazyDisplayWrapper($F, $T);
@@ -2434,7 +2434,7 @@ extends VerySimpleModel {
             $query = $this->addToQuery($query, $field,
                 CustomQueue::getOrmPath($this->primary, $query));
         }
-        if ($field = $fields[$this->secondary]) {
+        if (isset($fields[$this->secondary]) && ($field = $fields[$this->secondary])) {
             $query = $this->addToQuery($query, $field,
                 CustomQueue::getOrmPath($this->secondary, $query));
         }

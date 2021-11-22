@@ -204,7 +204,7 @@ class SearchInterface {
         if (defined('SEARCH_BACKEND'))
             $bk = SearchBackend::getInstance(SEARCH_BACKEND);
 
-        if (!$bk && !($bk = SearchBackend::getInstance('mysql')))
+        if (!isset($bk) && !($bk = SearchBackend::getInstance('mysql')))
             // No backend registered or defined
             return false;
 
@@ -793,7 +793,7 @@ class SavedQueue extends CustomQueue {
 
         if (!isset($this->_criteria)) {
             $this->getSettings();
-            $this->_criteria = $this->_settings['criteria'] ?: array();
+            $this->_criteria = $this->_settings['criteria'] ?? array();
         }
 
         $criteria = $this->_criteria;

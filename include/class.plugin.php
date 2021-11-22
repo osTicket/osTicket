@@ -171,9 +171,10 @@ class PluginManager {
             $info = static::getInfoForPath(
                 INCLUDE_DIR . $ht['install_path'], $ht['isphar']);
 
-            list($path, $class) = explode(':', $info['plugin']);
-            if (!$class)
-                $class = $path;
+            if (is_array($info) && isset($info['plugin']))
+                list($path, $class) = explode(':', $info['plugin']);
+            if (!isset($class))
+                $class = $path ?? null;
             elseif ($ht['isphar'])
                 @include_once('phar://' . INCLUDE_DIR . $ht['install_path']
                     . '/' . $path);

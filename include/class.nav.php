@@ -125,7 +125,7 @@ class StaffNav {
     function getTabs(){
         global $thisstaff;
 
-        if(!$this->tabs) {
+        if(!isset($this->tabs)) {
             $this->tabs = array();
             $this->tabs['dashboard'] = array(
                 'desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard'), "class"=>"no-pjax"
@@ -210,7 +210,7 @@ class AdminNav extends StaffNav{
 
     function getTabs(){
 
-        if(!$this->tabs){
+        if(!isset($this->tabs)){
 
             $tabs=array();
             $tabs['dashboard']=array('desc'=>__('Dashboard'),'href'=>'logs.php','title'=>__('Admin Dashboard'));

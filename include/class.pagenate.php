@@ -61,6 +61,8 @@ class PageNate {
          $url = THISPAGE.'?';
         }
 
+        if (is_array($vars) && empty($vars))
+            $vars = '';
         if ($vars && is_array($vars))
             $vars = Http::build_query($vars);
 

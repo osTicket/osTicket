@@ -604,7 +604,7 @@ class FormField {
             foreach (static::$more_types as $group => $entries)
                 foreach ($entries as $c)
                     static::$types[$group] = array_merge(
-                            static::$types[$group] ?: array(), call_user_func($c));
+                            static::$types[$group] ?? array(), call_user_func($c));
 
             static::$more_types = array();
         }
@@ -1234,7 +1234,7 @@ class FormField {
      * the default value will be reflected in the returned configuration.
      */
     function getConfiguration() {
-        if (!$this->_config) {
+        if (!isset($this->_config)) {
             $this->_config = $this->get('configuration');
             if (is_string($this->_config))
                 $this->_config = JsonDataParser::parse($this->_config);

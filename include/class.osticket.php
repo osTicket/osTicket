@@ -183,7 +183,7 @@ class osTicket {
     }
 
     function getError() {
-        return $this->system['err'];
+        return $this->system['err'] ?? null;
     }
 
     function setError($error) {
@@ -208,7 +208,7 @@ class osTicket {
 
 
     function getNotice() {
-        return $this->system['notice'];
+        return $this->system['notice'] ?? null;
     }
 
     function setNotice($notice) {
