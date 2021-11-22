@@ -380,8 +380,10 @@ class gettext_reader {
                   $this->get_plural_forms(), $matches))
               return 1;
 
-          $this->plural_expression = create_function('$n',
-              sprintf('return %s;', str_replace('n', '($n)', $matches[2])));
+          $this->plural_expression = function ($n) use ($matches) {
+              $var = str_replace('n', $n, $matches[2]);
+              return eval("return $var");
+          };
           $this->plural_total = (int) $matches[1];
       }
       $func = $this->plural_expression;
