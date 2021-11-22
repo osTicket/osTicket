@@ -175,7 +175,7 @@ class Mailer {
             $utype = 'M';
             break;
         default:
-            $utype = $options['utype'] ?: is_array($recipient) ? 'M' : '?';
+            $utype = ($options['utype'] ?: is_array($recipient)) ? 'M' : '?';
         }
 
 

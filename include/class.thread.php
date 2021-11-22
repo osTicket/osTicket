@@ -2177,7 +2177,7 @@ class ThreadEvent extends VerySimpleModel {
         $inst->timestamp = SqlFunction::NOW();
 
         global $thisstaff, $thisclient;
-        $user = is_object($user) ? $user : $thisstaff ?: $thisclient;
+        $user = (is_object($user) ? $user : $thisstaff) ?: $thisclient;
         if ($user instanceof Staff) {
             $inst->uid_type = 'S';
             $inst->uid = $user->getId();
@@ -2351,7 +2351,7 @@ class ThreadEvents extends InstrumentedList {
         }
 
         $username = $user;
-        $user = is_object($user) ? $user : $thisclient ?: $thisstaff;
+        $user = (is_object($user) ? $user : $thisclient) ?: $thisstaff;
         if (!is_string($username)) {
             if ($user instanceof Staff) {
                 $username = $user->getUserName();
@@ -2490,7 +2490,7 @@ class CollaboratorEvent extends ThreadEvent {
                         break;
                     }
                 }
-                $collabs[] = Format::htmlchars($U ? $U->getName() : @$c['name'] ?: $c);
+                $collabs[] = Format::htmlchars($U ? $U->getName() : (@$c['name'] ?: $c));
             }
             $desc = sprintf($base, implode(', ', $collabs));
             break;
@@ -2508,7 +2508,7 @@ class CollaboratorEvent extends ThreadEvent {
                         }
                     }
                     $c = sprintf("%s %s",
-                        Format::htmlchars($U ? $U->getName() : @$c['name'] ?: $c),
+                        Format::htmlchars($U ? $U->getName() : (@$c['name'] ?: $c)),
                         $c['src'] ? sprintf(__('via %s'
                             /* e.g. "Added collab "Me <me@company.me>" via Email (to)" */
                             ), $c['src']) : ''
