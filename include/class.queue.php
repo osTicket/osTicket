@@ -571,7 +571,7 @@ class CustomQueue extends VerySimpleModel {
         return $this->_conditions;
     }
 
-    function getExportableFields() {
+    static function getExportableFields() {
         $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
             // Ignore core fields
@@ -1582,7 +1582,7 @@ abstract class QueueColumnAnnotation {
     }
 
     // Add the annotation to a QuerySet
-    abstract function annotate($query, $name);
+    abstract static function annotate($query, $name);
 
     // Fetch some HTML to render the decoration on the page. This function
     // can return boolean FALSE to indicate no decoration should be applied
@@ -1636,7 +1636,7 @@ extends QueueColumnAnnotation {
     static $qname = '_thread_count';
     static $desc = /* @trans */ 'Thread Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => TicketThread::objects()
@@ -1667,7 +1667,7 @@ extends QueueColumnAnnotation {
     static $qname = '_reopen_count';
     static $desc = /* @trans */ 'Reopen Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => TicketThread::objects()
@@ -1699,7 +1699,7 @@ extends QueueColumnAnnotation {
     static $qname = '_att_count';
     static $desc = /* @trans */ 'Attachment Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         // TODO: Convert to Thread attachments
         $name = $name ?: static::$qname;
         return $query->annotate(array(
@@ -1730,7 +1730,7 @@ extends QueueColumnAnnotation {
     static $qname = '_task_count';
     static $desc = /* @trans */ 'Tasks Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => Task::objects()
@@ -1759,7 +1759,7 @@ extends QueueColumnAnnotation {
     static $qname = '_collabs';
     static $desc = /* @trans */ 'Collaborator Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => TicketThread::objects()
@@ -1787,7 +1787,7 @@ extends QueueColumnAnnotation {
     static $icon = 'exclamation';
     static $desc = /* @trans */ 'Overdue Icon';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('isoverdue');
     }
 
@@ -1806,7 +1806,7 @@ extends QueueColumnAnnotation {
     static $icon = 'code-fork';
     static $desc = /* @trans */ 'Merged Icon';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('ticket_pid', 'flags');
     }
 
@@ -1833,7 +1833,7 @@ extends QueueColumnAnnotation {
     static $icon = 'link';
     static $desc = /* @trans */ 'Linked Icon';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('ticket_pid', 'flags');
     }
 
@@ -1854,7 +1854,7 @@ extends QueueColumnAnnotation {
     static $icon = 'phone';
     static $desc = /* @trans */ 'Ticket Source';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('source');
     }
 
@@ -1869,7 +1869,7 @@ extends QueueColumnAnnotation {
     static $icon = "lock";
     static $desc = /* @trans */ 'Locked';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         global $thisstaff;
 
         return $query
@@ -1896,7 +1896,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'Assignee Avatar';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('staff_id', 'team_id');
     }
 
@@ -1935,7 +1935,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'User Avatar';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('user_id');
     }
 

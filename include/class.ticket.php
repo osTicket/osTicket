@@ -252,7 +252,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->_children ?: array();
     }
 
-    function getMergeTypeByFlag($flag) {
+    static function getMergeTypeByFlag($flag) {
         if (($flag & self::FLAG_COMBINE_THREADS) != 0)
             return 'combine';
         if (($flag & self::FLAG_SEPARATE_THREADS) != 0)
@@ -279,10 +279,15 @@ implements RestrictedAccess, Threadable, Searchable {
         return false;
     }
 
-    function isParent($flag=false) {
-        if (is_numeric($flag) && ($flag & self::FLAG_PARENT) != 0)
+    function isParent() {
+        if ($this->hasFlag(self::FLAG_PARENT))
             return true;
-        elseif (!is_numeric($flag) && $this->hasFlag(self::FLAG_PARENT))
+
+        return false;
+    }
+
+    static function isParentStatic($flag=false) {
+        if (is_numeric($flag) && ($flag & self::FLAG_PARENT) != 0)
             return true;
 
         return false;
@@ -2490,7 +2495,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return true;
     }
 
-    function manageMerge($tickets) {
+    static function manageMerge($tickets) {
         global $thisstaff;
 
         $permission = ($tickets['title'] && $tickets['title'] == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
@@ -2554,7 +2559,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return $ticketObjects;
     }
 
-    function merge($tickets) {
+    static function merge($tickets) {
         $options = $tickets;
         if (!$tickets = self::manageMerge($tickets))
             return false;
@@ -3958,7 +3963,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return db_fetch_array(db_query($sql));
     }
 
-    protected function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
+    protected static function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
         global $cfg;
 
         // Unset all the filter data field data in case things change

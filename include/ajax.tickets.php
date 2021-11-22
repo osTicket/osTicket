@@ -318,7 +318,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_userlookup($user, null, $info);
     }
 
-    function _userlookup($user, $form, $info) {
+    static function _userlookup($user, $form, $info) {
         global $thisstaff;
 
         ob_start();
@@ -450,7 +450,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_updateMerge($parent, $tickets, $info);
     }
 
-    private function _updateMerge($ticket, $tickets, $info) {
+    static private function _updateMerge($ticket, $tickets, $info) {
         include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
     }
 
@@ -994,7 +994,7 @@ class TicketsAjaxAPI extends AjaxController {
             foreach ($tickets as $ticket) {
                 list($ticket_id, $flags, $dept_id, $ticket_pid) = $ticket;
                 $mergeType = Ticket::getMergeTypeByFlag($flags);
-                $isParent = Ticket::isParent($flags);
+                $isParent = Ticket::isParentStatic($flags);
                 $role = $thisstaff->getRole($dept_id);
                 $hasPermission[] = $role->hasPerm($permission);
 
@@ -1670,7 +1670,7 @@ class TicketsAjaxAPI extends AjaxController {
         $thread->triggerAction($action);
     }
 
-    private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
+    private static function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
 
         $count = $_REQUEST['count'] ?:
             ($_REQUEST['tids'] ?  count($_REQUEST['tids']) : 0);
@@ -1702,7 +1702,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_changeStatus($state, $info, $errors);
     }
 
-    private function _changeTicketStatus($ticket, $state, $info=array(), $errors=array()) {
+    private static function _changeTicketStatus($ticket, $state, $info=array(), $errors=array()) {
 
         $verb = TicketStateField::getVerb($state);
 
@@ -1738,7 +1738,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_changeStatus($state, $info, $errors);
     }
 
-    private function _changeStatus($state, $info=array(), $errors=array()) {
+    private static function _changeStatus($state, $info=array(), $errors=array()) {
 
         if ($info && isset($info['errors']))
             $errors = array_merge($errors, $info['errors']);

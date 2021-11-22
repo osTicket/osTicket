@@ -180,7 +180,7 @@ class Mail_Parse {
     }
 
     /* static */
-    function findHeaderEntry($headers, $name, $allEntries=false) {
+    static function findHeaderEntry($headers, $name, $allEntries=false) {
         if (!is_array($headers))
             $headers = self::splitHeaders($headers, $allEntries);
         foreach ($headers as $key=>$val)
@@ -561,7 +561,7 @@ class Mail_Parse {
     	return 0;
     }
 
-    function parseAddressList($address, $charset='UTF-8'){
+    static function parseAddressList($address, $charset='UTF-8'){
         if (!$address)
             return array();
 
@@ -603,7 +603,7 @@ class EmailDataParser {
         $this->stream = $stream;
     }
 
-    function parse($stream) {
+    static function parse($stream) {
         global $cfg;
 
         $contents ='';

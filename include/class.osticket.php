@@ -363,7 +363,7 @@ class osTicket {
         return db_input($this->get_var($index, $vars), $quote);
     }
 
-    function get_path_info() {
+    static function get_path_info() {
         if(isset($_SERVER['PATH_INFO']))
             return $_SERVER['PATH_INFO'];
 
@@ -599,7 +599,7 @@ class osTicket {
     /**
      * Returns TRUE if the request was made via HTTPS and false otherwise
      */
-    function is_https() {
+    static function is_https() {
 
         // Local server flags
         if (isset($_SERVER['HTTPS'])
@@ -614,7 +614,7 @@ class osTicket {
     /**
      * Returns TRUE if the current browser is IE and FALSE otherwise
      */
-    function is_ie() {
+    static function is_ie() {
         if (preg_match('/MSIE|Internet Explorer|Trident\/[\d]{1}\.[\d]{1,2}/',
                 $_SERVER['HTTP_USER_AGENT']))
             return true;
@@ -632,7 +632,7 @@ class osTicket {
     }
 
     /**** static functions ****/
-    function start() {
+    static function start() {
         // Prep basic translation support
         Internationalization::bootstrap();
 

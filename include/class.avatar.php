@@ -52,7 +52,7 @@ abstract class AvatarSource {
             $this->mode = $mode;
     }
 
-    function getName() {
+    static function getName() {
         return __(static::$name);
     }
 

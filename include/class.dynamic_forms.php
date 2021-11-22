@@ -794,7 +794,7 @@ class DynamicFormField extends VerySimpleModel {
      * flags which should be set on the new field to implement the
      * requirement / visibility mode.
      */
-    function allRequirementModes() {
+    static function allRequirementModes() {
         return array(
             'a' => array('desc' => __('Optional'),
                 'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW
@@ -1198,7 +1198,7 @@ class DynamicFormEntry extends VerySimpleModel {
         return $vars;
     }
 
-    function forTicket($ticket_id, $force=false) {
+    static function forTicket($ticket_id, $force=false) {
         static $entries = array();
         if (!isset($entries[$ticket_id]) || $force) {
             $stuff = DynamicFormEntry::objects()
@@ -1241,7 +1241,7 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $object_id;
     }
 
-    function forObject($object_id, $object_type) {
+    static function forObject($object_id, $object_type) {
         return DynamicFormEntry::objects()
             ->filter(array('object_id'=>$object_id, 'object_type'=>$object_type));
     }

@@ -28,7 +28,7 @@ class Application {
             array('desc'=>$desc, 'href'=>$href));
     }
 
-    function getStaffApps() {
+    static function getStaffApps() {
         return self::$staff_apps;
     }
 
@@ -37,7 +37,7 @@ class Application {
             array('desc'=>$desc, 'href'=>$href));
     }
 
-    function getClientApps() {
+    static function getClientApps() {
         return self::$client_apps;
     }
 
@@ -46,7 +46,7 @@ class Application {
             array('desc'=>$desc, 'href'=>$href));
     }
 
-    function getAdminApps() {
+    static function getAdminApps() {
         return self::$admin_apps;
     }
 }

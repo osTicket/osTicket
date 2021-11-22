@@ -580,7 +580,7 @@ class FormField {
     static $more_types = array();
     static $uid = null;
 
-    function _uid() {
+    static function _uid() {
         return ++self::$uid;
     }
 
@@ -2207,7 +2207,7 @@ class DatetimeField extends FormField {
         return $this->max;
     }
 
-    function getPastPresentLabels() {
+    static function getPastPresentLabels() {
       return array(__('Create Date'), __('Reopen Date'),
                     __('Close Date'), __('Last Update'));
     }
@@ -2853,7 +2853,7 @@ class TopicField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -2961,7 +2961,7 @@ class SLAField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3077,7 +3077,7 @@ class PriorityField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3158,7 +3158,7 @@ class TimezoneField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {

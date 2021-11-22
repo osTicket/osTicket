@@ -189,7 +189,7 @@ class ThreadAjaxAPI extends AjaxController {
         return $resp;
     }
 
-    function _addcollaborator($thread, $user=null, $form=null, $type=null, $info=array()) {
+    static function _addcollaborator($thread, $user=null, $form=null, $type=null, $info=array()) {
         global $thisstaff;
 
         $info += array(
@@ -227,7 +227,7 @@ class ThreadAjaxAPI extends AjaxController {
 
 
 
-    function _collaborator($collaborator, $form=null, $info=array()) {
+    static function _collaborator($collaborator, $form=null, $info=array()) {
         global $thisstaff;
 
         $info += array('action' => sprintf('#thread/%d/collaborators/%d',
@@ -243,7 +243,7 @@ class ThreadAjaxAPI extends AjaxController {
         return $resp;
     }
 
-    function _collaborators($thread, $info=array()) {
+    static function _collaborators($thread, $info=array()) {
 
         ob_start();
         include(STAFFINC_DIR . 'templates/collaborators.tmpl.php');

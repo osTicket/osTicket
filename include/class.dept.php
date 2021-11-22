@@ -634,12 +634,12 @@ implements TemplateVariable, Searchable {
         return $row ? $row[0] : 0;
     }
 
-    function getNameById($id) {
+    static function getNameById($id) {
         $names = Dept::getDepartments();
         return $names[$id];
     }
 
-    function getDefaultDeptName() {
+    static function getDefaultDeptName() {
         global $cfg;
 
         return ($cfg

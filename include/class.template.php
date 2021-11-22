@@ -435,7 +435,7 @@ class EmailTemplateGroup {
         return $id;
     }
 
-    function lookup($id){
+    static function lookup($id){
         return ($id && is_numeric($id) && ($t= new EmailTemplateGroup($id)) && $t->getId()==$id)?$t:null;
     }
 
@@ -690,7 +690,7 @@ class EmailTemplate {
         return $inst;
     }
 
-    function lookupByName($tpl_id, $name, $group=null) {
+    static function lookupByName($tpl_id, $name, $group=null) {
         $sql = 'SELECT id FROM '.EMAIL_TEMPLATE_TABLE
             .' WHERE tpl_id='.db_input($tpl_id)
             .' AND code_name='.db_input($name);
@@ -700,7 +700,7 @@ class EmailTemplate {
         return false;
     }
 
-    function lookup($id, $group=null) {
+    static function lookup($id, $group=null) {
         return ($id && is_numeric($id) && ($t= new EmailTemplate($id, $group)) && $t->getId()==$id)?$t:null;
     }
 
@@ -709,7 +709,7 @@ class EmailTemplate {
      * file should be free flow text. The first line is the subject and the
      * rest of the file is the body.
      */
-    function fromInitialData($name, $group=null) {
+    static function fromInitialData($name, $group=null) {
         $templ = new EmailTemplate(0, $group);
         $lang = ($group) ? $group->getLanguage() : 'en_US';
         $i18n = new Internationalization($lang);

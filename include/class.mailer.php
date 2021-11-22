@@ -626,7 +626,7 @@ class Mailer {
 
     //Emails using native php mail function - if DB connection doesn't exist.
     //Don't use this function if you can help it.
-    function sendmail($to, $subject, $message, $from, $options=null) {
+    static function sendmail($to, $subject, $message, $from, $options=null) {
         $mailer = new Mailer(null, array('notice'=>true, 'nobounce'=>true));
         $mailer->setFromAddress($from);
         return $mailer->send($to, $subject, $message, $options);

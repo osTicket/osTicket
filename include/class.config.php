@@ -187,7 +187,7 @@ extends VerySimpleModel {
             ))->delete();
     }
 
-    function getConfigsByNamespace($namespace=false, $key, $value=false) {
+    static function getConfigsByNamespace($namespace=false, $key, $value=false) {
         $filter = array();
 
          $filter['key'] = $key;
@@ -1778,7 +1778,7 @@ class OsticketConfig extends Config {
     }
 
     //Used to detect version prior to 1.7 (useful during upgrade)
-    /* static */ function getDBVersion() {
+    static function getDBVersion() {
         $sql='SELECT `ostversion` FROM '.TABLE_PREFIX.'config '
             .'WHERE id=1';
         return db_result(db_query($sql));

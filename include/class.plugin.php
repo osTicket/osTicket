@@ -233,7 +233,7 @@ class PluginManager {
         return $plugins;
     }
 
-    function throwException($errno, $errstr) {
+    static function throwException($errno, $errstr) {
         throw new RuntimeException($errstr);
     }
 
@@ -310,7 +310,7 @@ class PluginManager {
         return static::$plugin_info[$install_path];
     }
 
-    function getInstance($path) {
+    static function getInstance($path) {
         static $instances = array();
         if (!isset($instances[$path])
                 && ($ps = static::allInstalled())

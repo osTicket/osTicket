@@ -20,12 +20,12 @@ require_once INCLUDE_DIR.'class.signal.php';
 
 class Cron {
 
-    function MailFetcher() {
+    static function MailFetcher() {
         require_once(INCLUDE_DIR.'class.mailfetch.php');
         MailFetcher::run(); //Fetch mail..frequency is limited by email account setting.
     }
 
-    function TicketMonitor() {
+    static function TicketMonitor() {
         require_once(INCLUDE_DIR.'class.ticket.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
         // Cleanup any expired locks
@@ -34,34 +34,35 @@ class Cron {
 
     }
 
-    function PurgeLogs() {
+    static function PurgeLogs() {
         global $ost;
         // Once a day on a 5-minute cron
         if (rand(1,300) == 42)
             if($ost) $ost->purgeLogs();
     }
 
-    function PurgeDrafts() {
+    static function PurgeDrafts() {
         require_once(INCLUDE_DIR.'class.draft.php');
         Draft::cleanup();
     }
 
-    function CleanOrphanedFiles() {
+    static function CleanOrphanedFiles() {
         require_once(INCLUDE_DIR.'class.file.php');
         AttachmentFile::deleteOrphans();
     }
 
-    function CleanExpiredSessions() {
+    static function CleanExpiredSessions() {
         require_once(INCLUDE_DIR.'class.ostsession.php');
-        DbSessionBackend::cleanup();
+        $backend = new DbSessionBackend();
+        $backend->cleanup();
     }
 
-    function CleanPwResets() {
+    static function CleanPwResets() {
         require_once(INCLUDE_DIR.'class.config.php');
         ConfigItem::cleanPwResets();
     }
 
-    function MaybeOptimizeTables() {
+    static function MaybeOptimizeTables() {
         // Once a week on a 5-minute cron
         $chance = rand(1,2000);
         switch ($chance) {
@@ -102,7 +103,7 @@ class Cron {
         }
     }
 
-    function run(){ //called by outside cron NOT autocron
+    static function run(){ //called by outside cron NOT autocron
         global $ost;
         if (!$ost || $ost->isUpgradePending())
             return;

@@ -178,7 +178,7 @@ class UsersAjaxAPI extends AjaxController {
         include(STAFFINC_DIR . 'templates/user.tmpl.php');
     }
 
-    function register($id) {
+    static function register($id) {
         global $thisstaff;
 
         if (!$thisstaff)
@@ -286,7 +286,7 @@ class UsersAjaxAPI extends AjaxController {
         return self::addUser();
     }
 
-    function addUser() {
+    static function addUser() {
         global $thisstaff;
 
         $info = array();

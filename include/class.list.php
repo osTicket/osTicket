@@ -45,7 +45,7 @@ interface CustomList {
     function getConfigurationForm();
     function getSummaryFields();
 
-    function getSortModes();
+    static function getSortModes();
     function getSortMode();
     function getListOrderBy();
 
@@ -181,7 +181,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return ($this->getForm() && $this->getForm()->getFields());
     }
 
-    function getSortModes() {
+    static function getSortModes() {
         return array(
             'Alpha'     => __('Alphabetical'),
             '-Alpha'    => __('Alphabetical (Reversed)'),

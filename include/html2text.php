@@ -410,7 +410,7 @@ class HtmlBlockElement extends HtmlInlineElement {
         return $output."\n";
     }
 
-    function borderize($what, $width) {
+    static function borderize($what, $width) {
         $output = ',-'.str_repeat('-', $width)."-.\n";
         foreach (explode("\n", $what) as $l)
             $output .= '| '.mb_str_pad($l, $width)." |\n";

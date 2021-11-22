@@ -166,8 +166,7 @@ class Validator {
     static function is_email($email, $list=false, $verify=false) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
-        $rfc822 = new Mail_RFC822();
-        if (!($mails = @$rfc822->parseAddressList($email)) || PEAR::isError($mails))
+        if (!($mails = @Mail_Parse::parseAddressList($email)) || PEAR::isError($mails))
             return false;
 
         if (!$list && count($mails) > 1)
@@ -340,7 +339,7 @@ class Validator {
         return true;
     }
 
-    function process($fields,$vars,&$errors){
+    static function process($fields,$vars,&$errors){
 
         $val = new Validator();
         $val->setFields($fields);
@@ -350,7 +349,7 @@ class Validator {
         return (!$errors);
     }
 
-    function check_acl($backend) {
+    static function check_acl($backend) {
         global $cfg;
 
         $acl = $cfg->getACL();

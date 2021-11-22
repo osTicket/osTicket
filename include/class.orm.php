@@ -2907,7 +2907,7 @@ class MySqlCompiler extends SqlCompiler {
         return sprintf("`%s`", str_replace("`", "``", $what));
     }
 
-    function supportsOption($option) {
+    static function supportsOption($option) {
         return true;
     }
 

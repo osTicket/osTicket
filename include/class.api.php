@@ -91,15 +91,15 @@ class API {
     }
 
     /** Static functions **/
-    function add($vars, &$errors) {
+    static function add($vars, &$errors) {
         return API::save(0, $vars, $errors);
     }
 
-    function validate($key, $ip) {
+    static function validate($key, $ip) {
         return ($key && $ip && self::getIdByKey($key, $ip));
     }
 
-    function getIdByKey($key, $ip='') {
+    static function getIdByKey($key, $ip='') {
 
         $sql='SELECT id FROM '.API_KEY_TABLE.' WHERE apikey='.db_input($key);
         if($ip)
@@ -111,15 +111,15 @@ class API {
         return $id;
     }
 
-    function lookupByKey($key, $ip='') {
+    static function lookupByKey($key, $ip='') {
         return self::lookup(self::getIdByKey($key, $ip));
     }
 
-    function lookup($id) {
+    static function lookup($id) {
         return ($id && is_numeric($id) && ($k= new API($id)) && $k->getId()==$id)?$k:null;
     }
 
-    function save($id, $vars, &$errors) {
+    static function save($id, $vars, &$errors) {
 
         if(!$id && (!$vars['ipaddr'] || !Validator::is_ip($vars['ipaddr'])))
             $errors['ipaddr'] = __('Valid IP is required');
@@ -382,9 +382,9 @@ class ApiXmlDataParser extends XmlDataParser {
 include_once "class.json.php";
 class ApiJsonDataParser extends JsonDataParser {
     static function parse($stream, $tidy=false) {
-        return $this->fixup(parent::parse($stream));
+        return self::fixup(parent::parse($stream));
     }
-    function fixup($current) {
+    static function fixup($current) {
         if (!is_array($current))
             return $current;
         foreach ($current as $key=>&$value) {
@@ -427,7 +427,7 @@ class ApiJsonDataParser extends JsonDataParser {
 include_once "class.mailparse.php";
 class ApiEmailDataParser extends EmailDataParser {
 
-    function parse($stream) {
+    static function parse($stream) {
         return $this->fixup(parent::parse($stream));
     }
 

@@ -59,6 +59,27 @@ class Test {
         return $scripts;
     }
 
+    static function find_function_calls($scripts) {
+        $calls=array();
+        foreach ($scripts as $s) {
+            $lines = explode("\n", file_get_contents($s));
+            $lineno=0;
+            foreach ($lines as $line) {
+                $lineno++; $matches=array();
+                // Ignore what looks like within comments (#|/|*)
+                if (preg_match('/^(\s*?)(#|\/|\*)/m', $line))
+                    continue;
+
+                preg_match_all('/^.*\w+(?:-[>]|::)([a-zA-Z0-9_]+)\(.*/', $line, $matches,
+                    PREG_SET_ORDER);
+                foreach ($matches as $m)
+                    if (strpos($m[0], 'nolint') === false)
+                        $calls[] = array($s, $lineno, $line, $m[1]);
+            }
+        }
+        return $calls;
+    }
+
     function fail($script, $line, $message) {
         $this->fails[] = array(get_class($this), $script, $line, $message);
         fputs(STDOUT, 'F');

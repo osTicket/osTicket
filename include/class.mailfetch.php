@@ -989,7 +989,7 @@ class MailFetcher {
 
        Static function called to initiate email polling
      */
-    function run() {
+    static function run() {
         global $ost;
 
         if(!$ost->getConfig()->isEmailPollingEnabled())

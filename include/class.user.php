@@ -527,7 +527,7 @@ implements TemplateVariable, Searchable {
         return $imported;
     }
 
-    function importFromPost($stream, $extra=array()) {
+    static function importFromPost($stream, $extra=array()) {
         if (!is_array($stream))
             $stream = sprintf('name, email%s %s',PHP_EOL, $stream);
 
@@ -784,7 +784,7 @@ implements TemplateVariable {
     static function parse($address) {
         require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
-        if (($parts = Mail_RFC822::parseAddressList($address))
+        if (($parts = Mail_Parse::parseAddressList($address))
                 && !PEAR::isError($parts))
             return current($parts);
     }
@@ -1226,7 +1226,7 @@ class UserAccount extends VerySimpleModel {
         Signal::send('auth.clean', $this->getUser());
     }
 
-    protected function sendUnlockEmail($template) {
+    protected static function sendUnlockEmail($template) {
         global $ost, $cfg;
 
         $token = Misc::randCode(48); // 290-bits

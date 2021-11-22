@@ -66,7 +66,7 @@ class StaffAjaxAPI extends AjaxController {
 
       $title = __("Set Agent Password");
       $verb = $id == 0 ? __('Set') : __('Update');
-      $path = ltrim($ost->get_path_info(), '/');
+      $path = ltrim(Osticket::get_path_info(), '/');
 
       include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
   }
@@ -119,7 +119,7 @@ class StaffAjaxAPI extends AjaxController {
 
         $title = __("Change Password");
         $verb = __('Update');
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
@@ -163,7 +163,7 @@ class StaffAjaxAPI extends AjaxController {
 
         $title = __("Reset Agent Permissions");
         $verb = __("Continue");
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/reset-agent-permissions.tmpl.php';
     }
@@ -205,7 +205,7 @@ class StaffAjaxAPI extends AjaxController {
 
         $title = __("Change Primary Department");
         $verb = __("Continue");
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }

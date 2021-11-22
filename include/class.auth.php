@@ -280,7 +280,7 @@ abstract class AuthenticationBackend {
      * $forcedAuth - indicate if authentication is required.
      *
      */
-    function processSignOn(&$errors, $forcedAuth=true) {
+    static function processSignOn(&$errors, $forcedAuth=true) {
 
         foreach (static::allRegistered() as $bk) {
             // All backends are queried here, even if they don't support
@@ -437,7 +437,7 @@ abstract class AuthenticationBackend {
     abstract function authenticate($username, $password);
     abstract function login($user, $bk);
     abstract static function getUser(); //Validates  authenticated users.
-    abstract function getAllowedBackends($userid);
+    abstract static function getAllowedBackends($userid);
     abstract protected function getAuthKey($user);
     abstract static function signOut($user);
 }
@@ -489,7 +489,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return array_merge(self::$_registry, parent::allRegistered());
     }
 
-    function isBackendAllowed($staff, $bk) {
+    static function isBackendAllowed($staff, $bk) {
 
         if (!($backends=self::getAllowedBackends($staff->getId())))
             return true;  //No restrictions
@@ -509,7 +509,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         return $policies;
     }
 
-    function getAllowedBackends($userid) {
+    static function getAllowedBackends($userid) {
 
         $backends =array();
         //XXX: Only one backend can be specified at the moment.
@@ -718,7 +718,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         return $policies;
     }
 
-    function getAllowedBackends($userid) {
+    static function getAllowedBackends($userid) {
         $backends = array();
         $sql = 'SELECT A1.backend FROM '.USER_ACCOUNT_TABLE
               .' A1 INNER JOIN '.USER_EMAIL_TABLE.' A2 ON (A2.user_id = A1.user_id)'
@@ -928,7 +928,7 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
         return false;
     }
 
-    function getAllowedBackends($userid) {
+    static function getAllowedBackends($userid) {
         return array();
     }
 
@@ -945,8 +945,8 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
 
     }
 
-    abstract function authStrike($credentials);
-    abstract function authTimeout();
+    abstract static function authStrike($credentials);
+    abstract static function authTimeout();
 }
 
 /*
@@ -954,7 +954,7 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
  */
 class StaffAuthStrikeBackend extends  AuthStrikeBackend {
 
-    function authTimeout() {
+    static function authTimeout() {
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -975,7 +975,7 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
         $authsession['strikes']=0;
     }
 
-    function authstrike($credentials) {
+    static function authstrike($credentials) {
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -1023,7 +1023,7 @@ StaffAuthenticationBackend::register('StaffAuthStrikeBackend');
  */
 class UserAuthStrikeBackend extends  AuthStrikeBackend {
 
-    function authTimeout() {
+    static function authTimeout() {
         global $ost;
 
         $cfg = $ost->getConfig();
@@ -1044,7 +1044,7 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
         $authsession['strikes']=0;
     }
 
-    function authstrike($credentials) {
+    static function authstrike($credentials) {
         global $ost;
 
         $cfg = $ost->getConfig();

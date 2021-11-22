@@ -48,5 +48,5 @@ $dispatcher = patterns('',
     ))
 );
 Signal::send('ajax.client', $dispatcher);
-print $dispatcher->resolve($ost->get_path_info());
+print $dispatcher->resolve(Osticket::get_path_info());
 ?>

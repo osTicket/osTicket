@@ -670,7 +670,7 @@ implements Searchable {
      * email communication without a thread entry, for instance, like
      * tickets created without an initial message.
      */
-    function lookupByEmailHeaders(&$mailinfo) {
+    static function lookupByEmailHeaders(&$mailinfo) {
         $possibles = array();
         foreach (array('mid', 'in-reply-to', 'references') as $header) {
             $matches = array();
@@ -1401,7 +1401,7 @@ implements TemplateVariable {
      *      previously seen. This is useful if no thread-id is associated
      *      with the email (if it was rejected for instance).
      */
-    function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
+    static function lookupByEmailHeaders(&$mailinfo, &$seen=false) {
         // Search for messages using the References header, then the
         // in-reply-to header
         if ($mailinfo['mid'] &&
@@ -1570,7 +1570,7 @@ implements TemplateVariable {
         return $entry;
     }
 
-    function setExtra($entries, $info=NULL, $thread_id=NULL) {
+    static function setExtra($entries, $info=NULL, $thread_id=NULL) {
         foreach ($entries as $entry) {
             $mergeInfo = ThreadEntryMergeInfo::objects()
                 ->filter(array('thread_entry_id'=>$entry->getId()))
@@ -1598,7 +1598,7 @@ implements TemplateVariable {
         return $this->merge_info ? $this->merge_info->data : null;
     }
 
-    function sortEntries($entries, $ticket) {
+    static function sortEntries($entries, $ticket) {
         $buckets = array();
         $childEntries = array();
         foreach ($entries as $i=>$E) {

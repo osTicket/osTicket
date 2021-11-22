@@ -55,7 +55,7 @@ abstract class SearchBackend {
         static::$registry[$backend::$id] = $backend;
     }
 
-    function getInstance($id) {
+    static function getInstance($id) {
         if (!isset(self::$registry[$id]))
             return null;
 
@@ -1096,7 +1096,7 @@ extends SavedSearch {
         return $this->title ?: $this->describeCriteria();
     }
 
-    function load($key) {
+    static function load($key) {
         global $thisstaff;
 
         if (strpos($key, 'adhoc') === 0)
