@@ -488,7 +488,7 @@ extends VerySimpleModel {
     }
 
     function validate_rules($vars,&$errors) {
-        $matches = array_keys(self::getSupportedMatchFields());
+        $matches = self::getSupportedMatchFields();
         $types = array_keys(self::getSupportedMatchTypes());
         $rules = array();
         foreach ($vars['rules'] as $i=>$rule) {

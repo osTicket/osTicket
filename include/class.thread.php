@@ -1009,7 +1009,7 @@ implements TemplateVariable {
 
     function getEmailReferences($include_mid=true) {
         $references = '';
-        $headers = self::getEmailHeaderArray();
+        $headers = $this->getEmailHeaderArray();
         if (isset($headers['References']) && $headers['References'])
             $references = $headers['References']." ";
         if ($include_mid && ($mid = $this->getEmailMessageId()))
@@ -1027,7 +1027,7 @@ implements TemplateVariable {
      * not received via email.
      */
     function getAllEmailRecipients() {
-        $headers = self::getEmailHeaderArray();
+        $headers = $this->getEmailHeaderArray();
         $recipients = array();
         if (!$headers)
             return $recipients;

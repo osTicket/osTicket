@@ -358,8 +358,9 @@ class MysqlSearchBackend extends SearchBackend {
 
         // Require the use of at least one operator and conform to the
         // boolean mode grammar
-        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
-            && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
+        $T = array();
+        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T)
+            && preg_match("`^{$BOOLEAN}$`u", $query, $T)
         ) {
             // If using boolean operators, search in boolean mode. This regex
             // will ensure proper placement of operators, whitespace, and quotes

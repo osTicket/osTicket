@@ -194,7 +194,7 @@ class DynamicForm extends VerySimpleModel {
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        if ($rv = parent::save($refetch | $this->dirty))
+        if ($rv = parent::save($refetch || $this->dirty))
             return $this->saveTranslations();
         return $rv;
     }
