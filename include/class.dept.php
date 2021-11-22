@@ -941,7 +941,8 @@ implements TemplateVariable, Searchable {
       $dropped = array();
       foreach ($this->extended as $DA)
           $dropped[$DA->staff_id] = 1;
-      while (list(, list($staff_id, $role_id, $alerts)) = each($access)) {
+      foreach ($access as $acc) {
+          list ($staff_id, $role_id, $alerts) = $acc;
           unset($dropped[$staff_id]);
           if (!$role_id || !Role::lookup($role_id))
               $errors['members'][$staff_id] = __('Select a valid role');

@@ -145,7 +145,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <select name="default_help_topic">
                     <option value="0">&mdash; <?php echo __('None'); ?> &mdash;</option><?php
                     $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
-                    while (list($id,$topic) = each($topics)) { ?>
+                    foreach ($topics as $id=>$topic) { ?>
                         <option value="<?php echo $id; ?>"<?php echo ($config['default_help_topic']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
                     <?php
                     } ?>

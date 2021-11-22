@@ -237,7 +237,8 @@ implements TemplateVariable {
       $dropped = array();
       foreach ($this->members as $member)
           $dropped[$member->staff_id] = 1;
-      while (list(, list($staff_id, $alerts)) = each($access)) {
+      foreach ($access as $acc) {
+          list($staff_id, $alerts) = $acc;
           unset($dropped[$staff_id]);
           if (!$staff_id || !Staff::lookup($staff_id))
               $errors['members'][$staff_id] = __('No such agent');

@@ -901,7 +901,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $dropped[$TM->team_id] = 1;
 
         reset($membership);
-        while(list(, list($team_id, $alerts)) = each($membership)) {
+        foreach ($membership as $mem) {
+            list($team_id, $alerts) = $mem;
             $member = $this->teams->findFirst(array('team_id' => $team_id));
             if (!$member) {
                 $this->teams->add($member = new TeamMember(array(
@@ -1351,7 +1352,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $dropped = array();
         foreach ($this->dept_access as $DA)
             $dropped[$DA->dept_id] = 1;
-        while (list(, list($dept_id, $role_id, $alerts)) = each($access)) {
+        foreach ($access as $acc) {
+            list($dept_id, $role_id, $alerts) = $acc;
             unset($dropped[$dept_id]);
             if (!$role_id || !Role::lookup($role_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid role');

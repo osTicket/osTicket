@@ -488,7 +488,7 @@ class MailFetcher {
             // Do not recurse into email (rfc822) attachments unless requested
             && (strtolower($ctype) !== 'message/rfc822' || $recurseIntoRfc822)
         ) {
-            while(list($i, $substruct) = each($struct->parts)) {
+            foreach ($struct->parts as $i=>$substruct) {
                 if ($partNumber)
                     $prefix = $partNumber . '.';
                 if ($result = $this->getPart($mid, $mimeType, $encoding,

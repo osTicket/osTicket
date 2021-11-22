@@ -125,8 +125,9 @@ class SearchAjaxAPI extends AjaxController {
             // the recent search list
             if (isset($_SESSION[$key])) {
                 reset($_SESSION[$key]);
-                while (count($keep) < 5) {
-                    list($k, $v) = each($_SESSION[$key]);
+                for ($i = 0; $i < 5; $i++) {
+                    $k = key($_SESSION[$key]);
+                    $v = current($_SESSION[$key]);
                     if (!$k)
                         break;
                     $keep[$k] = $v;

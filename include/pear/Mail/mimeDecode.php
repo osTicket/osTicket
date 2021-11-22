@@ -253,7 +253,7 @@ class Mail_mimeDecode extends PEAR
         }
 
         reset($headers);
-        while (list($key, $value) = each($headers)) {
+        foreach ($headers as $key=>$value) {
             $headers[$key]['name'] = strtolower($headers[$key]['name']);
             switch ($headers[$key]['name']) {
 
@@ -266,7 +266,7 @@ class Mail_mimeDecode extends PEAR
                     }
 
                     if (isset($content_type['other'])) {
-                        while (list($p_name, $p_value) = each($content_type['other'])) {
+                        foreach ($content_type['other'] as $p_name=>$p_value) {
                             $return->ctype_parameters[$p_name] = $p_value;
                         }
                     }

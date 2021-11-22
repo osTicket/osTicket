@@ -86,7 +86,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <select name="topic_pid">
                     <option value="">&mdash; <?php echo __('Top-Level Topic'); ?> &mdash;</option><?php
                     $topics = Topic::getHelpTopics();
-                    while (list($id,$topic) = each($topics)) {
+                    foreach ($topics as $id=>$topic) {
                         if ($id == $info['topic_id'])
                             continue; ?>
                         <option value="<?php echo $id; ?>"<?php echo ($info['topic_pid']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
