@@ -252,7 +252,7 @@ class ModelMeta implements ArrayAccess {
      */
     function getFieldNames() {
         if (!isset($this->fields))
-            $this->fields = self::inspectFields();
+            $this->fields = $this->inspectFields();
         return $this->fields;
     }
 

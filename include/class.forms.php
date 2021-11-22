@@ -2058,18 +2058,19 @@ class ChoiceField extends FormField {
     function applyQuickFilter($query, $qf_value, $name=false) {
         global $thisstaff;
 
+        $field = new AssigneeChoiceField();
         //special assignment quick filters
         switch (true) {
             case ($qf_value == 'assigned'):
             case ($qf_value == '!assigned'):
-                $result = AssigneeChoiceField::getSearchQ($qf_value, $qf_value);
+                $result = $field->getSearchQ($qf_value, $qf_value);
                 return $query->filter($result);
             case (strpos($qf_value, 's') !== false):
             case (strpos($qf_value, 't') !== false):
             case ($qf_value == 'M'):
             case ($qf_value == 'T'):
                 $value = array($qf_value => $qf_value);
-                $result = AssigneeChoiceField::getSearchQ('includes', $value);
+                $result = $field->getSearchQ('includes', $value);
                 return $query->filter($result);
                 break;
         }
@@ -3199,7 +3200,7 @@ class DepartmentField extends ChoiceField {
 
         $config = $this->getConfiguration();
         $staff = $config['staff'] ?: $thisstaff;
-        $selected = self::getWidget();
+        $selected = $this->getWidget();
         if($selected && $selected->value) {
           if(is_array($selected->value)) {
             foreach ($selected->value as $k => $v) {

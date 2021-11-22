@@ -404,7 +404,7 @@ extends VerySimpleModel {
         elseif(($filter=static::getByName($vars['name'])) && $filter->id!=$this->id)
             $errors['name'] = __('Name already in use');
 
-        if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
+        if(!$errors && !$this->validate_rules($vars,$errors) && !$errors['rules'])
             $errors['rules'] = __('Unable to validate rules as entered');
 
         $targets = self::getTargets();

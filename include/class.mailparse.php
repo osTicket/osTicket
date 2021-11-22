@@ -569,7 +569,8 @@ class Mail_Parse {
         if (is_array($address))
             $address = implode(', ', $address);
 
-        $parsed = Mail_RFC822::parseAddressList($address, null, null,false);
+        $rfc822 = new Mail_RFC822();
+        $parsed = $rfc822->parseAddressList($address, null, null,false);
 
         if (PEAR::isError($parsed))
             return array();

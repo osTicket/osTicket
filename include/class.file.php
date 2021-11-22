@@ -207,7 +207,7 @@ class AttachmentFile extends VerySimpleModel {
     function getExternalDownloadUrl($options=array()) {
         global $cfg;
 
-        $download = self::getDownloadUrl($options);
+        $download = $this->getDownloadUrl($options);
         // Separate URL handle and args
         list($handle, $args) = explode('file.php?', $download);
 

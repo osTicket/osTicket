@@ -239,7 +239,7 @@ extends SessionBackend {
     }
 
     function cleanup() {
-        self::gc(0);
+        $this->gc(0);
     }
 
     function gc($maxlife){

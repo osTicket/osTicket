@@ -909,7 +909,8 @@ class MailFetcher {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 // Never process this email again!
-                ThreadEntry::logEmailHeaders(0, $vars['mid']);
+                $entry = new ThreadEntry();
+                $entry->logEmailHeaders(0, $vars['mid']);
                 return true;
             }
 
