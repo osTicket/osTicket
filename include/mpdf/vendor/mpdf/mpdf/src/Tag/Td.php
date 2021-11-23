@@ -12,19 +12,23 @@ class Td extends Tag
 	public function open($attr, &$ahtml, &$ihtml)
 	{
 		$tag = $this->getTagName();
+
 		$this->mpdf->ignorefollowingspaces = true;
 		$this->mpdf->lastoptionaltag = $tag; // Save current HTML specified optional endtag
+
 		$this->cssManager->tbCSSlvl++;
+
 		$this->mpdf->InlineProperties = [];
 		$this->mpdf->InlineBDF = []; // mPDF 6
 		$this->mpdf->InlineBDFctr = 0; // mPDF 6
 		$this->mpdf->tdbegin = true;
 		$this->mpdf->col++;
+
 		while (isset($this->mpdf->cell[$this->mpdf->row][$this->mpdf->col])) {
 			$this->mpdf->col++;
 		}
 
-		//Update number column
+		// Update number column
 		if ($this->mpdf->table[$this->mpdf->tableLevel][$this->mpdf->tbctr[$this->mpdf->tableLevel]]['nc'] < $this->mpdf->col + 1) {
 			$this->mpdf->table[$this->mpdf->tableLevel][$this->mpdf->tbctr[$this->mpdf->tableLevel]]['nc'] = $this->mpdf->col + 1;
 		}
@@ -114,10 +118,10 @@ class Td extends Tag
 		// INHERITED THEAD CSS Properties
 		if ($this->mpdf->tablethead) {
 			if ($this->mpdf->thead_valign_default) {
-				$c['va'] = self::ALIGN[strtolower($this->mpdf->thead_valign_default)];
+				$c['va'] = $this->getAlign($this->mpdf->thead_valign_default);
 			}
 			if ($this->mpdf->thead_textalign_default) {
-				$c['a'] = self::ALIGN[strtolower($this->mpdf->thead_textalign_default)];
+				$c['a'] = $this->getAlign($this->mpdf->thead_textalign_default);
 			}
 			if ($this->mpdf->thead_font_weight === 'B') {
 				$this->mpdf->SetStyle('B', true);
@@ -133,10 +137,10 @@ class Td extends Tag
 		// INHERITED TFOOT CSS Properties
 		if ($this->mpdf->tabletfoot) {
 			if ($this->mpdf->tfoot_valign_default) {
-				$c['va'] = self::ALIGN[strtolower($this->mpdf->tfoot_valign_default)];
+				$c['va'] = $this->getAlign($this->mpdf->tfoot_valign_default);
 			}
 			if ($this->mpdf->tfoot_textalign_default) {
-				$c['a'] = self::ALIGN[strtolower($this->mpdf->tfoot_textalign_default)];
+				$c['a'] = $this->getAlign($this->mpdf->tfoot_textalign_default);
 			}
 			if ($this->mpdf->tfoot_font_weight === 'B') {
 				$this->mpdf->SetStyle('B', true);
@@ -195,9 +199,9 @@ class Td extends Tag
 		}
 		/* -- END BACKGROUNDS -- */
 		if (isset($properties['VERTICAL-ALIGN'])) {
-			$c['va'] = self::ALIGN[strtolower($properties['VERTICAL-ALIGN'])];
+			$c['va'] = $this->getAlign($properties['VERTICAL-ALIGN']);
 		} elseif (isset($attr['VALIGN'])) {
-			$c['va'] = self::ALIGN[strtolower($attr['VALIGN'])];
+			$c['va'] = $this->getAlign($attr['VALIGN']);
 		}
 
 
@@ -205,7 +209,7 @@ class Td extends Tag
 			if (0 === strpos($properties['TEXT-ALIGN'], 'D')) {
 				$c['a'] = $properties['TEXT-ALIGN'];
 			} else {
-				$c['a'] = self::ALIGN[strtolower($properties['TEXT-ALIGN'])];
+				$c['a'] = $this->getAlign($properties['TEXT-ALIGN']);
 			}
 		}
 		if (!empty($attr['ALIGN'])) {
@@ -221,7 +225,7 @@ class Td extends Tag
 					$c['a'] = 'DPR';
 				}
 			} else {
-				$c['a'] = self::ALIGN[strtolower($attr['ALIGN'])];
+				$c['a'] = $this->getAlign($attr['ALIGN']);
 			}
 		}
 

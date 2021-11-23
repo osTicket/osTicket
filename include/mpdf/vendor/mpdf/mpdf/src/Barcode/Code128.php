@@ -16,14 +16,14 @@ class Code128 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Bar
 	 * @param string $type
 	 * @param bool $ean
 	 */
-	public function __construct($code, $type = 'B', $ean = false)
+	public function __construct($code, $type = 'B', $ean = false, $quiet_zone_left = null, $quiet_zone_right = null)
 	{
 		$this->init($code, $type, $ean);
 
 		$this->data['nom-X'] = 0.381; // Nominal value for X-dim (bar width) in mm (2 X min. spec.)
 		$this->data['nom-H'] = 10;  // Nominal value for Height of Full bar in mm (non-spec.)
-		$this->data['lightmL'] = 10; // LEFT light margin =  x X-dim (spec.)
-		$this->data['lightmR'] = 10; // RIGHT light margin =  x X-dim (spec.)
+		$this->data['lightmL'] = ($quiet_zone_left !== null ? $quiet_zone_left : 10); // LEFT light margin =  x X-dim (spec.)
+		$this->data['lightmR'] = ($quiet_zone_right !== null ? $quiet_zone_right : 10); // RIGHT light margin =  x X-dim (spec.)
 		$this->data['lightTB'] = 0; // TOP/BOTTOM light margin =  x X-dim (non-spec.)
 	}
 
@@ -148,36 +148,97 @@ class Code128 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Bar
 		];
 
 		switch (strtoupper($type)) {
+
+			case 'RAW':
+
+				$newCode='';
+				$startid = false;
+
+				foreach (explode(" ", $code) as $v) {
+
+					if (is_numeric($v) && round($v, 0) == $v) {
+
+						if ($v>=0 && $v<=105) {
+							if ($startid===false) {
+								$startid=$v;
+							} else {
+								$newCode.=chr($v);
+							}
+						} else {
+							throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE128RAW barcode value "%s". 0-105 needed', $code));
+						}
+
+					} else {
+						//double spaces generates empty $v any other is not allowed
+						if ($v!='') {
+							throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE128RAW barcode value "%s". 0-105 needed', $code));
+						}
+					}
+				}
+
+				if ($startid < 103 || $startid > 105) {
+					throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE128RAW startid value "%s". Must be 103, 104 or 105 (for A, B or C)', $startid));
+				}
+
+				$keys='';
+
+				for ($i = 0; $i <= 105; ++$i) {
+					$keys .= chr($i);
+				}
+
+				$code=$newCode;
+
+				break;
+
 			case 'A':
+
 				$startid = 103;
 				$keys = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_';
+
 				for ($i = 0; $i < 32; ++$i) {
 					$keys .= chr($i);
 				}
+
 				break;
+
 			case 'B':
+
 				$startid = 104;
+
 				$keys = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~' . chr(127);
+
 				break;
+
 			case 'C':
+
 				$startid = 105;
 				$keys = '';
+
 				if ((strlen($code) % 2) != 0) {
 					// The length of barcode value must be even ($code). You must pad the number with zeros
 					throw new \Mpdf\Barcode\BarcodeException('Invalid CODE128C barcode value');
 				}
+
 				for ($i = 0; $i <= 99; ++$i) {
 					$keys .= chr($i);
 				}
+
 				$newCode = '';
 				$hclen = (strlen($code) / 2);
+
 				for ($i = 0; $i < $hclen; ++$i) {
-					$newCode .= chr((int) ($code{(2 * $i)} . $code{(2 * $i + 1)}));
+					if ($code[2 * $i]<"0" || $code[2 * $i]>"9" || $code[2 * $i + 1]<"0" || $code[2 * $i + 1]>"9") {
+						throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid character "%s" in CODE128C barcode value "%s"', $code[$i], $code));
+					}
+					$newCode .= chr((int) ($code[2 * $i] . $code[2 * $i + 1]));
 				}
+
 				$code = $newCode;
+
 				break;
+
 			default:
-				throw new \Mpdf\Barcode\BarcodeException('Invalid CODE128 barcode type');
+				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE128 barcode type "%s"', $type));
 		}
 
 		// calculate check character
@@ -187,14 +248,19 @@ class Code128 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Bar
 		if ($ean) {
 			$code = chr(102) . $code;
 		}
+
 		$clen = strlen($code);
 		for ($i = 0; $i < $clen; ++$i) {
 			if ($ean && $i == 0) {
 				$sum += 102;
 			} else {
+				if (strpos($keys, $code[$i]) === false) {
+					throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid character "%s" in CODE128%s barcode value "%s"', $code[$i], $type, $code));
+				}
 				$sum += (strpos($keys, $code[$i]) * ($i + 1));
 			}
 		}
+
 		$check = ($sum % 103);
 		$checkdigit = $check;
 
@@ -214,8 +280,9 @@ class Code128 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Bar
 				$seq = $chr[$ck];
 			} else {
 				// invalid character
-				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid character "%s" in CODE128C barcode value', $code[$i]));
+				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid character "%s" in CODE128C barcode value "%s"', $code[$i], $code));
 			}
+
 			for ($j = 0; $j < 6; ++$j) {
 				if (($j % 2) == 0) {
 					$t = true; // bar

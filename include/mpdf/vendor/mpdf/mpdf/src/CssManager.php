@@ -4,7 +4,7 @@ namespace Mpdf;
 
 use Mpdf\Color\ColorConverter;
 use Mpdf\Css\TextVars;
-
+use Mpdf\File\StreamWrapperChecker;
 use Mpdf\Utils\Arrays;
 use Mpdf\Utils\UtfString;
 
@@ -47,7 +47,12 @@ class CssManager
 
 	var $cell_border_dominance_T;
 
-	public function __construct(Mpdf $mpdf, Cache $cache, SizeConverter $sizeConverter, ColorConverter $colorConverter)
+	/**
+	 * @var \Mpdf\RemoteContentFetcher
+	 */
+	private $remoteContentFetcher;
+
+	public function __construct(Mpdf $mpdf, Cache $cache, SizeConverter $sizeConverter, ColorConverter $colorConverter, RemoteContentFetcher $remoteContentFetcher)
 	{
 		$this->mpdf = $mpdf;
 		$this->cache = $cache;
@@ -58,6 +63,7 @@ class CssManager
 		$this->cascadeCSS = [];
 		$this->tbCSSlvl = 0;
 		$this->colorConverter = $colorConverter;
+		$this->remoteContentFetcher = $remoteContentFetcher;
 	}
 
 	function ReadCSS($html)
@@ -143,12 +149,14 @@ class CssManager
 		}
 
 		while ($match) {
+
 			$path = $CSSext[$ind];
 
 			$path = htmlspecialchars_decode($path); // mPDF 6
 
 			$this->mpdf->GetFullPath($path);
-			$CSSextblock = $this->_get_file($path);
+
+			$CSSextblock = $this->getFileContents($path);
 			if ($CSSextblock) {
 				// look for embedded @import stylesheets in other stylesheets
 				// and fix url paths (including background-images) relative to stylesheet
@@ -357,7 +365,9 @@ class CssManager
 							$tag = '';
 
 							if (preg_match('/^[.](.*)$/', $t, $m)) {
-								$tag = 'CLASS>>' . $m[1];
+								$classes = explode('.', $m[1]);
+								sort($classes);
+								$tag = 'CLASS>>' . join('.', $classes);
 							} elseif (preg_match('/^[#](.*)$/', $t, $m)) {
 								$tag = 'ID>>' . $m[1];
 							} elseif (preg_match('/^\[LANG=[\'\"]{0,1}([A-Z\-]{2,11})[\'\"]{0,1}\]$/', $t, $m)) {
@@ -365,7 +375,9 @@ class CssManager
 							} elseif (preg_match('/^:LANG\([\'\"]{0,1}([A-Z\-]{2,11})[\'\"]{0,1}\)$/', $t, $m)) { // mPDF 6  Special case for lang as attribute selector
 								$tag = 'LANG>>' . strtolower($m[1]);
 							} elseif (preg_match('/^(' . $this->mpdf->allowedCSStags . ')[.](.*)$/', $t, $m)) { // mPDF 6  Special case for lang as attribute selector
-								$tag = $m[1] . '>>CLASS>>' . $m[2];
+								$classes = explode('.', $m[2]);
+								sort($classes);
+								$tag = $m[1] . '>>CLASS>>' . join('.', $classes);
 							} elseif (preg_match('/^(' . $this->mpdf->allowedCSStags . ')\s*:NTH-CHILD\((.*)\)$/', $t, $m)) {
 								$tag = $m[1] . '>>SELECTORNTHCHILD>>' . $m[2];
 							} elseif (preg_match('/^(' . $this->mpdf->allowedCSStags . ')[#](.*)$/', $t, $m)) {
@@ -402,7 +414,9 @@ class CssManager
 							if ($t) {
 
 								if (preg_match('/^[.](.*)$/', $t, $m)) {
-									$tag = 'CLASS>>' . $m[1];
+									$classes = explode('.', $m[1]);
+									sort($classes);
+									$tag = 'CLASS>>' . join('.', $classes);
 								} elseif (preg_match('/^[#](.*)$/', $t, $m)) {
 									$tag = 'ID>>' . $m[1];
 								} elseif (preg_match('/^\[LANG=[\'\"]{0,1}([A-Z\-]{2,11})[\'\"]{0,1}\]$/', $t, $m)) {
@@ -410,7 +424,9 @@ class CssManager
 								} elseif (preg_match('/^:LANG\([\'\"]{0,1}([A-Z\-]{2,11})[\'\"]{0,1}\)$/', $t, $m)) { // mPDF 6  Special case for lang as attribute selector
 									$tag = 'LANG>>' . strtolower($m[1]);
 								} elseif (preg_match('/^(' . $this->mpdf->allowedCSStags . ')[.](.*)$/', $t, $m)) { // mPDF 6  Special case for lang as attribute selector
-									$tag = $m[1] . '>>CLASS>>' . $m[2];
+									$classes = explode('.', $m[2]);
+									sort($classes);
+									$tag = $m[1] . '>>CLASS>>' . join('.', $classes);
 								} elseif (preg_match('/^(' . $this->mpdf->allowedCSStags . ')\s*:NTH-CHILD\((.*)\)$/', $t, $m)) {
 									$tag = $m[1] . '>>SELECTORNTHCHILD>>' . $m[2];
 								} elseif (preg_match('/^(' . $this->mpdf->allowedCSStags . ')[#](.*)$/', $t, $m)) {
@@ -1107,37 +1123,57 @@ class CssManager
 	{
 		$sh = [];
 		$c = preg_match_all('/(rgba|rgb|device-cmyka|cmyka|device-cmyk|cmyk|hsla|hsl)\(.*?\)/', $v, $x); // mPDF 5.6.05
+
 		for ($i = 0; $i < $c; $i++) {
-			$col = preg_replace('/,/', '*', $x[0][$i]);
+			$col = preg_replace('/,\s/', '*', $x[0][$i]);
 			$v = str_replace($x[0][$i], $col, $v);
 		}
+
 		$ss = explode(',', $v);
+
 		foreach ($ss as $s) {
+
 			$new = ['blur' => 0];
 			$p = explode(' ', trim($s));
+
 			if (isset($p[0])) {
 				$new['x'] = $this->sizeConverter->convert(trim($p[0]), $this->mpdf->FontSize, $this->mpdf->FontSize, false);
 			}
+
 			if (isset($p[1])) {
 				$new['y'] = $this->sizeConverter->convert(trim($p[1]), $this->mpdf->FontSize, $this->mpdf->FontSize, false);
 			}
+
 			if (isset($p[2])) {
+
 				if (preg_match('/^\s*[\.\-0-9]/', $p[2])) {
-					$new['blur'] = $this->sizeConverter->convert(trim($p[2]), $this->mpdf->blk[$this->mpdf->blklvl]['inner_width'], $this->mpdf->FontSize, false);
+
+					$new['blur'] = $this->sizeConverter->convert(
+						trim($p[2]),
+						isset($this->mpdf->blk[$this->mpdf->blklvl]['inner_width']) ? $this->mpdf->blk[$this->mpdf->blklvl]['inner_width'] : 0,
+						$this->mpdf->FontSize,
+						false
+					);
+
 				} else {
 					$new['col'] = $this->colorConverter->convert(preg_replace('/\*/', ',', $p[2]), $this->mpdf->PDFAXwarnings);
 				}
+
 				if (isset($p[3])) {
 					$new['col'] = $this->colorConverter->convert(preg_replace('/\*/', ',', $p[3]), $this->mpdf->PDFAXwarnings);
 				}
 			}
+
 			if (!isset($new['col']) || !$new['col']) {
 				$new['col'] = $this->colorConverter->convert('#888888', $this->mpdf->PDFAXwarnings);
 			}
+
 			if (isset($new['y'])) {
 				array_unshift($sh, $new);
 			}
+
 		}
+
 		return $sh;
 	}
 
@@ -1203,9 +1239,11 @@ class CssManager
 	{
 		$prop = preg_split('/\s+/', trim($mp));
 		$prop_count = count($prop);
+
 		if ($prop_count === 1) {
 			return ['T' => $prop[0], 'R' => $prop[0], 'B' => $prop[0], 'L' => $prop[0]];
 		}
+
 		if ($prop_count === 2) {
 			return ['T' => $prop[0], 'R' => $prop[1], 'B' => $prop[0], 'L' => $prop[1]];
 		}
@@ -1213,9 +1251,12 @@ class CssManager
 		if ($prop_count === 3) {
 			return ['T' => $prop[0], 'R' => $prop[1], 'B' => $prop[2], 'L' => $prop[1]];
 		}
-		if ($prop_count === 4) {
+
+		// Ignore rule parts after first 4 values (most likely !important)
+		if ($prop_count >= 4) {
 			return ['T' => $prop[0], 'R' => $prop[1], 'B' => $prop[2], 'L' => $prop[3]];
 		}
+
 		return [];
 	}
 
@@ -1325,7 +1366,7 @@ class CssManager
 		$ret = $arrays[0];
 		for ($i = 1; $i < $narrays; $i ++) {
 			foreach ($arrays[$i] as $key => $value) {
-				if (((string) $key) === ((string)((int) $key))) { // integer or string as integer key - append
+				if (((string) $key) === ((string) ((int) $key))) { // integer or string as integer key - append
 					$ret[] = $value;
 				} else { // string key - merge
 					if (is_array($value) && isset($ret[$key])) {
@@ -1479,7 +1520,9 @@ class CssManager
 
 		$classes = [];
 		if (isset($attr['CLASS'])) {
-			$classes = preg_split('/\s+/', $attr['CLASS']);
+			$classes = array_map(function ($combination) {
+				return join('.', $combination);
+			}, Arrays::allUniqueSortedCombinations(preg_split('/\s+/', $attr['CLASS'])));
 		}
 		if (!isset($attr['ID'])) {
 			$attr['ID'] = '';
@@ -1494,11 +1537,12 @@ class CssManager
 				$shortlang = substr($attr['LANG'], 0, 2);
 			}
 		}
-		//===============================================
+
 		/* -- TABLES -- */
+
 		// Set Inherited properties
 		if ($inherit === 'TOPTABLE') { // $tag = TABLE
-			//===============================================
+
 			// Save Cascading CSS e.g. "div.topic p" at this block level
 			if (isset($this->mpdf->blk[$this->mpdf->blklvl]['cascadeCSS'])) {
 				$this->tablecascadeCSS[0] = $this->mpdf->blk[$this->mpdf->blklvl]['cascadeCSS'];
@@ -1506,24 +1550,42 @@ class CssManager
 				$this->tablecascadeCSS[0] = $this->cascadeCSS;
 			}
 		}
-		//===============================================
+
 		// Set Inherited properties
 		if ($inherit === 'TOPTABLE' || $inherit === 'TABLE') {
-			//Cascade everything from last level that is not an actual property, or defined by current tag/attributes
+
+			// Cascade everything from last level that is not an actual property, or defined by current tag/attributes
 			if (isset($this->tablecascadeCSS[$this->tbCSSlvl - 1]) && is_array($this->tablecascadeCSS[$this->tbCSSlvl - 1])) {
 				foreach ($this->tablecascadeCSS[$this->tbCSSlvl - 1] as $k => $v) {
 					$this->tablecascadeCSS[$this->tbCSSlvl][$k] = $v;
 				}
 			}
-			$this->_mergeFullCSS($this->cascadeCSS, $this->tablecascadeCSS[$this->tbCSSlvl], $tag, $classes, $attr['ID'], $attr['LANG']);
-			//===============================================
+
+			$this->_mergeFullCSS(
+				$this->cascadeCSS,
+				$this->tablecascadeCSS[$this->tbCSSlvl],
+				$tag,
+				$classes,
+				$attr['ID'],
+				$attr['LANG']
+			);
+
 			// Cascading forward CSS e.g. "table.topic td" for this table in $this->tablecascadeCSS
-			//===============================================
 			// STYLESHEET TAG e.g. table
-			$this->_mergeFullCSS($this->tablecascadeCSS[$this->tbCSSlvl - 1], $this->tablecascadeCSS[$this->tbCSSlvl], $tag, $classes, $attr['ID'], $attr['LANG']);
-			//===============================================
+			if (isset($this->tablecascadeCSS[$this->tbCSSlvl - 1])) {
+				$this->_mergeFullCSS(
+					$this->tablecascadeCSS[$this->tbCSSlvl - 1],
+					$this->tablecascadeCSS[$this->tbCSSlvl],
+					$tag,
+					$classes,
+					$attr['ID'],
+					$attr['LANG']
+				);
+			}
 		}
+
 		/* -- END TABLES -- */
+
 		//===============================================
 		// Set Inherited properties
 		if ($inherit === 'BLOCK') {
@@ -2076,7 +2138,9 @@ class CssManager
 		$oldcascadeCSS = $this->mpdf->blk[$this->mpdf->blklvl]['cascadeCSS'];
 		$classes = [];
 		if (isset($attr['CLASS'])) {
-			$classes = preg_split('/\s+/', $attr['CLASS']);
+			$classes = array_map(function ($combination) {
+				return join('.', $combination);
+			}, Arrays::allUniqueSortedCombinations(preg_split('/\s+/', $attr['CLASS'])));
 		}
 		//===============================================
 		// DEFAULT for this TAG set in DefaultCSS
@@ -2215,25 +2279,18 @@ class CssManager
 		return $select;
 	}
 
-	private function _get_file($path)
+	private function getFileContents($path)
 	{
 		// If local file try using local path (? quicker, but also allowed even if allow_url_fopen false)
+		$wrapperChecker = new StreamWrapperChecker($this->mpdf);
+		if ($wrapperChecker->hasBlacklistedStreamWrapper($path)) {
+			throw new \Mpdf\MpdfException('File contains an invalid stream. Only ' . implode(', ', $wrapperChecker->getWhitelistedStreamWrappers()) . ' streams are allowed.');
+		}
 
 		// mPDF 5.7.3
 		if (strpos($path, '//') === false) {
 			$path = preg_replace('/\.css\?.*$/', '.css', $path);
 		}
-
-        /*** Start osTicket Security Patch ***/
-
-        // Make sure only schemes allowed are http & https - this is to
-        // neutralize phar:// attack
-        $scheme = parse_url($path, PHP_URL_SCHEME);
-        if ($scheme && !in_array(strtolower($scheme), ['http', 'https']))
-            return '';
-
-        /*** End osTicket Security Patch ***/
-
 
 		$contents = @file_get_contents($path);
 
@@ -2242,11 +2299,13 @@ class CssManager
 		}
 
 		if ($this->mpdf->basepathIsLocal) {
+
 			$tr = parse_url($path);
-			$lp = getenv('SCRIPT_NAME');
+			$lp = __FILE__;
 			$ap = realpath($lp);
 			$ap = str_replace("\\", '/', $ap);
 			$docroot = substr($ap, 0, strpos($ap, $lp));
+
 			// WriteHTML parses all paths to full URLs; may be local file name
 			// DOCUMENT_ROOT is not returned on IIS
 			if (!empty($tr['scheme']) && $tr['host'] && !empty($_SERVER['DOCUMENT_ROOT'])) {
@@ -2256,13 +2315,17 @@ class CssManager
 			} else {
 				$localpath = $path;
 			}
+
 			$contents = @file_get_contents($localpath);
-		} elseif (!$contents && !ini_get('allow_url_fopen') && function_exists('curl_init')) { // if not use full URL
-			$ch = curl_init($path);
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$contents = curl_exec($ch);
-			curl_close($ch);
+
+		} else { // if not use full URL
+
+			try {
+				$contents = $this->remoteContentFetcher->getFileContentsByCurl($path);
+			} catch (\Mpdf\MpdfException $e) {
+				// Ignore error
+			}
+
 		}
 
 		return $contents;
