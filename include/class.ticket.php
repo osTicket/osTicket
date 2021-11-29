@@ -3098,7 +3098,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($vars['userId']) {
                 $user = User::lookup($vars['userId']);
              } elseif ($vars['header']
-                    && ($hdr= Mail_parse::splitHeaders($vars['header'], true))
+                    && ($hdr= Mail_Parse::splitHeaders($vars['header'], true))
                     && $hdr['From']
                     && ($addr= Mail_Parse::parseAddressList($hdr['From']))) {
                 $info = array(

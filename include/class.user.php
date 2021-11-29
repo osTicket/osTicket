@@ -782,7 +782,6 @@ implements TemplateVariable {
     // Parse and email adddress (RFC822) into it's parts.
     // @address - one address is expected
     static function parse($address) {
-        require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
         if (($parts = Mail_Parse::parseAddressList($address))
                 && !PEAR::isError($parts))
