@@ -26,7 +26,7 @@
 
        // ->filter(array('faq_count__gt' => 0));
     if ($categories->exists(true)) { ?>
-        <div><?php echo __('Click on the category to browse FAQs.'); ?></div>
+        <div><?php echo __('Click on the category to browse the Knowledgebase.'); ?></div>
         <ul id="kb">
 <?php
         foreach ($categories as $C) {
