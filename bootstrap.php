@@ -133,6 +133,7 @@ class Bootstrap {
         define('FILTER_ACTION_TABLE', $prefix.'filter_action');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
+        define('PLUGIN_INSTANCE_TABLE', $prefix.'plugin_instance');
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
         define('QUEUE_TABLE', $prefix.'queue');

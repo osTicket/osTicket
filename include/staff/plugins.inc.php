@@ -3,7 +3,7 @@
 <div class="sticky bar opaque">
     <div class="content">
         <div class="pull-left flush-left">
-            <h2><?php echo __('Currently Installed Plugins'); ?></h2>
+            <h2><?php echo __('Installed Plugins'); ?></h2>
         </div>
         <div class="pull-right flush-right">
             <a href="plugins.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
@@ -55,7 +55,10 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
     <thead>
         <tr>
             <th width="4%">&nbsp;</th>
-            <th width="56%"><?php echo __('Plugin Name'); ?></th>
+            <th width="40%"><?php echo sprintf('%s (%s)',
+                    __('Plugin Name'),
+                    __('instances'));
+                ?></th>
             <th width="10%"><?php echo __('Version'); ?></th>
             <th width="10%"><?php echo __('Status'); ?></th>
             <th width="20%"><?php echo __('Date Installed'); ?></th>
@@ -64,18 +67,27 @@ $showing=$pageNav->showing().' '._N('plugin', 'plugins', $count);
     <tbody>
 <?php
 foreach ($ost->plugins->allInstalled() as $p) {
-    if ($p instanceof Plugin) { ?>
+    if (!$p instanceof Plugin)
+        continue; ?>
     <tr>
         <td align="center"><input type="checkbox" class="ckb" name="ids[]" value="<?php echo $p->getId(); ?>"
                 <?php echo $sel?'checked="checked"':''; ?>></td>
         <td><a href="plugins.php?id=<?php echo $p->getId(); ?>">
-        <?php echo $p->getName(); ?></a></td>
-        <td><?php echo $p->getVersion(); ?></a></td>
+        <?php echo sprintf('%s (%d)',
+                $p->getName(),
+                $p->getNumInstances());
+        ?>
+        </a>
+        <?php if ($p->isDefunct())
+            echo sprintf('&nbsp;<span class="error">(%s)</span>',
+                    __('defunct — missing')); ?>
+
+        </td>
+        <td><?php echo $p->getVersion(); ?></td>
         <td><?php echo ($p->isActive())
             ? 'Enabled' : '<strong>Disabled</strong>'; ?></td>
         <td><?php echo Format::datetime($p->getInstallDate()); ?></td>
     </tr>
-    <?php } else {} ?>
 <?php } ?>
     </tbody>
     <tfoot>

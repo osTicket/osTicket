@@ -1,25 +1,64 @@
 <?php
-
 require_once(INCLUDE_DIR.'/class.config.php');
-class PluginConfig extends Config {
-    var $table = CONFIG_TABLE;
+
+/*
+ * PluginConfig
+ *
+ * Base class for plugin configs
+ *
+ */
+abstract class PluginConfig {
+    var $instance;
+    var $data;
+    var $defaults;
     var $form;
 
-    function __construct($name) {
-        // Use parent constructor to place configurable information into the
-        // central config table in a namespace of "plugin.<id>"
-        parent::__construct("plugin.$name");
+    function __construct($instance=null) {
+
+        $this->instance = $instance;
+        $this->config = $instance ? $this->decode($instance->getConfiguration()) : [];
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name))
-                $this->config[$name]->value = $field->to_php($this->get($name));
+                $this->config[$name] = $field->to_php($this->get($name));
             elseif ($default = $field->get('default'))
                 $this->defaults[$name] = $default;
         }
     }
 
-    /* abstract */
+    function getId() {
+        if ($this->instance)
+            return sprintf('p%di%d',
+                    $this->instance->getPluginId(),
+                    $this->instance->getId());
+    }
+
+    function getName() {
+        if ($this->instance)
+            return $this->instance->getName();
+    }
+
     function getOptions() {
         return array();
+    }
+
+    function getInfo() {
+        return array_merge($this->config, $this->defaults ?? []);
+    }
+
+    function get($key, $default=null) {
+        if (isset($this->config[$key]))
+            return $this->config[$key];
+        if (isset($this->defaults[$key]))
+            return $this->defaults[$key];
+        return $default;
+    }
+
+    function exists($key) {
+        return ($this->get($key, null));
+    }
+
+    function set($key, $value) {
+        $this->config[$key] =  $value;
     }
 
     function hasCustomConfig() {
@@ -40,7 +79,7 @@ class PluginConfig extends Config {
     }
 
     /**
-     * commit
+     * to_db
      *
      * Used in the POST request of the configuration process. The
      * ::getForm() method should be used to retrieve a configuration form
@@ -54,48 +93,51 @@ class PluginConfig extends Config {
      *      configuration form
      *
      * Returns:
-     * (bool) true if the configuration was updated, false if there were
-     * errors. If false, the errors were written into the received errors
-     * array.
+     *  json string
      */
-    function commit(&$errors=array()) {
-        global $msg;
-
-        if ($this->hasCustomConfig())
-            return $this->saveCustomConfig($errors);
-
-        return $this->commitForm($errors);
-    }
-
-    function commitForm(&$errors=array()) {
-        global $msg;
-
-        $f = $this->getForm();
+    function to_db(SimpleForm $form = null, &$errors=array(), $encode=true) {
+        $f = $form ?: $this->getForm();
         $commit = false;
         if ($f->isValid()) {
-            $config = $f->getClean();
-            $commit = $this->pre_save($config, $errors);
+            $clean = $f->getClean();
+            $commit = $this->pre_save($clean, $errors);
         }
         $errors += $f->errors();
         if ($commit && count($errors) === 0) {
-            $dbready = array();
-            foreach ($config as $name => $val) {
+            $config = array();
+            foreach ($clean as $name => $val) {
                 $field = $f->getField($name);
                 try {
-                    $dbready[$name] = $field->to_database($val);
+                    $config[$name] = $field->to_database($val);
                 }
                 catch (FieldUnchanged $e) {
-                    // Don't save the field value
-                    continue;
+                    $config[$name] = $this->get($name);
                 }
             }
-            if ($this->updateAll($dbready)) {
-                if (!$msg)
-                    $msg = 'Successfully updated configuration';
-                return true;
-            }
+            return $encode ? $this->encode($config) : $config;
         }
         return false;
+    }
+
+    /**
+     * encode
+     *
+     * Used to encode and possibly encrypt config data to be stored in database
+     */
+    function encode($config) {
+        return JsonDataEncoder::encode($config);
+    }
+
+    /**
+     * decode
+     *
+     * Used to decode and possibly decrypt config data
+     */
+    function decode($config) {
+        if (is_string($config))
+            $config = JsonDataParser::parse($config);
+
+        return $config;
     }
 
     /**
@@ -109,12 +151,11 @@ class PluginConfig extends Config {
 
     /**
      * Remove all configuration for this plugin -- used when the plugin is
-     * uninstalled
+     * uninstalled / deleted.
+     * Plugin
      */
     function purge() {
-        $sql = 'DELETE FROM '.$this->table
-            .' WHERE `namespace`='.db_input($this->getNamespace());
-        return (db_query($sql) && db_affected_rows());
+        return true;
     }
 }
 
@@ -144,11 +185,12 @@ class PluginManager {
      */
     function bootstrap() {
         foreach ($this->allActive() as $p)
-            $p->bootstrap();
+            foreach($p->getActiveInstances() as $i)
+                    $i->bootstrap();
     }
 
     /**
-     * allActive
+     * allInstalled
      *
      * Scans the plugin registry to find all installed and active plugins.
      * Those plugins are included, instanciated, and cached in a list.
@@ -160,54 +202,10 @@ class PluginManager {
     static function allInstalled() {
         if (static::$plugin_list)
             return static::$plugin_list;
-
-        $sql = 'SELECT * FROM '.PLUGIN_TABLE.' ORDER BY name';
-        if (!($res = db_query($sql)))
-            return static::$plugin_list;
-
-        while ($ht = db_fetch_array($res)) {
-            // XXX: Only read active plugins here. allInfos() will
-            //      read all plugins
-            $info = static::getInfoForPath(
-                INCLUDE_DIR . $ht['install_path'], $ht['isphar']);
-
-            if (is_array($info) && isset($info['plugin']))
-                list($path, $class) = explode(':', $info['plugin']);
-            if (!isset($class))
-                $class = $path ?? null;
-            elseif ($ht['isphar'])
-                @include_once('phar://' . INCLUDE_DIR . $ht['install_path']
-                    . '/' . $path);
-            else
-                @include_once(INCLUDE_DIR . $ht['install_path']
-                    . '/' . $path);
-
-            if (!class_exists($class)) {
-                $class = 'DefunctPlugin';
-                $ht['isactive'] = false;
-                $info = array('name' => $ht['name'] . ' '. __('(defunct — missing)'));
-            }
-
-            if ($ht['isactive']) {
-                static::$plugin_list[$ht['install_path']]
-                    = new $class($ht['id']);
-            }
-            else {
-                // Get instance without calling the constructor. Thanks
-                // http://stackoverflow.com/a/2556089
-                $a = unserialize(
-                    sprintf(
-                        'O:%d:"%s":0:{}',
-                        strlen($class), $class
-                    )
-                );
-                // Simulate __construct() and load()
-                $a->id = $ht['id'];
-                $a->ht = $ht;
-                $a->info = $info;
-                static::$plugin_list[$ht['install_path']] = &$a;
-                unset($a);
-            }
+        foreach (Plugin::objects() as $p) {
+            $a = $p->getImpl() ?: $p;
+            static::$plugin_list[$p->getInstallPath()] = &$a;
+            unset($a);
         }
         return static::$plugin_list;
     }
@@ -334,6 +332,14 @@ class PluginManager {
         return $instances[$path];
     }
 
+    static function lookup($id) {
+        if (!($p=Plugin::lookup( (int) $id)))
+            return null;
+
+        return $p->getImpl() ?: $p;
+    }
+
+
     /**
      * install
      *
@@ -345,16 +351,17 @@ class PluginManager {
         if (!($info = $this->getInfoForPath(INCLUDE_DIR . $path, $is_phar)))
             return false;
 
-        $sql='INSERT INTO '.PLUGIN_TABLE.' SET installed=NOW() '
-            .', install_path='.db_input($path)
-            .', name='.db_input($info['name'])
-            .', isphar='.db_input($is_phar);
-        if ($info['version'])
-            $sql.=', version='.db_input($info['version']);
-        if (!db_query($sql) || !db_affected_rows())
-            return false;
-        static::clearCache();
-        return true;
+        $vars = [
+            'name' => $info['name'],
+            'is_phar' => $is_phar,
+            'version' => $info['version'] ?: '',
+            'install_path' => $path
+        ];
+        $p = Plugin::create($vars);
+        if ($p->save(true)) {
+            static::clearCache();
+            return $p;
+        }
     }
 
     static function clearCache() {
@@ -362,21 +369,36 @@ class PluginManager {
     }
 }
 
-/**
- * Class: Plugin (abstract)
- *
- * Base class for plugins. Plugins should inherit from this class and define
- * the useful pieces of the
- */
-abstract class Plugin {
+
+class Plugin extends VerySimpleModel {
+    static $meta = array(
+        'table' => PLUGIN_TABLE,
+        'ordering' => array('name'),
+        'pk' => array('id'),
+        'joins' => array(
+            'instances' => array(
+                'reverse' => 'PluginInstance.plugin',
+            ),
+        ),
+    );
+
     /**
      * Configuration manager for the plugin. Should be the name of a class
      * that inherits from PluginConfig. This is abstract and must be defined
      * by the plugin subclass.
      */
     var $config_class = null;
-    var $id;
+    //  plugin subclass impl
+    var $_impl;
+    // config instance
+    var $config;
+    // active instances
+    var $active_instances;
+
+    //
     var $info;
+    var $form;
+    var $defunct;
 
     const VERIFIED = 1;             // Thumbs up
     const VERIFY_EXT_MISSING = 2;   // PHP extension missing
@@ -387,39 +409,149 @@ abstract class Plugin {
 
     static $verify_domain = 'updates.osticket.com';
 
-    function __construct($id) {
-        $this->id = $id;
-        $this->load();
-    }
-
-    function load() {
-        $sql = 'SELECT * FROM '.PLUGIN_TABLE.' WHERE
-            `id`='.db_input($this->id);
-        if (($res = db_query($sql)) && ($ht=db_fetch_array($res)))
-            $this->ht = $ht;
-        $this->info = PluginManager::getInfoForPath($this->ht['install_path'],
+    function __onload() {
+        $this->info = PluginManager::getInfoForPath(INCLUDE_DIR.$this->ht['install_path'],
             $this->isPhar());
     }
 
-    function getId() { return $this->id; }
-    function getName() { return $this->__($this->info['name']); }
-    function isActive() { return $this->ht['isactive']; }
-    function isPhar() { return $this->ht['isphar']; }
-    function getVersion() { return $this->ht['version'] ?: $this->info['version']; }
-    function getInstallDate() { return $this->ht['installed']; }
-    function getInstallPath() { return $this->ht['install_path']; }
+
+    /*
+     * useModalConfig
+     *
+     * Plugin instance can be configured via a dialog modal or inline page.
+     * A modal is suitable for plugins with short or no configuration,
+     * whereas inline page caters for more complex / larger configuration
+     */
+    function useModalConfig() {
+        return false;
+    }
+
+    /*
+     * getImpl
+     *
+     * Returns plugin subclass impl if any
+     */
+    function getImpl() {
+        if (!isset($this->_impl) && $this->info['plugin']) {
+            // TODO: if if the class is already cached in PluginManager
+            list($file, $class) = explode(':', $this->info['plugin']);
+            $path = INCLUDE_DIR . $this->getInstallPath();
+            if ($this->isPhar())
+                $path = 'phar://' . $path;
+            $file = "$path/$file";
+            if (file_exists($file)) {
+                @include_once $file;
+                if (class_exists($class))
+                    $this->_impl = $class::lookup($this->getId());
+            }
+        }
+        $this->defunct = !isset($this->_impl);
+
+        return $this->_impl;
+    }
+
+    function getId() { return $this->get('id'); }
+    function getName() { return $this->__($this->get('name', $this->info['name'])); }
+    function isActive() { return ($this->get('isactive')); }
+    function isPhar() { return $this->get('isphar'); }
+    function getVersion() { return $this->get('version', $this->info['version']); }
+    function getAuthor() { return $this->info['author']; }
+    function getInstallDate() { return $this->get('installed'); }
+    function getInstallPath() { return $this->get('install_path'); }
+    function getNotes() { return $this->get('notes') ?: $this->info['description']; }
+
+    function getStatus() {
+        return __($this->isActive() ? 'Active' : 'Disabled');
+    }
+
+    function getNumInstances() {
+        return $this->getInstances()->count();
+    }
+
+    function getInstances() {
+        return $this->instances;
+    }
+
+    function getActiveInstances() {
+        if (!isset($this->active_instances)) {
+            $instances = clone $this->instances;
+            $this->active_instances = $instances->filter(
+                    ['flags__hasbit' => PluginInstance::FLAG_ENABLED]);
+        }
+        return $this->active_instances;
+    }
+
+    function getInstance($id) {
+        return $this->instances->findFirst(['id' => (int) $id]);
+    }
 
     function getIncludePath() {
         return realpath(INCLUDE_DIR . $this->info['install_path'] . '/'
             . $this->info['include_path']) . '/';
     }
 
-    /**
-     * Main interface for plugins. Called at the beginning of every request
-     * for each installed plugin. Plugins should register functionality and
-     * connect to signals, etc.
-     */
-    abstract function bootstrap();
+    function isDefunct() {
+        if (!isset($this->defunct)) {
+            $this->defunct = false;
+            if (!$this->info['plugin'] || !$this->getImpl())
+                $this->defunct = true;
+        }
+        return  $this->defunct;
+    }
+
+    function update($vars, &$errors) {
+        $this->isactive = $vars['isactive'];
+        $this->notes = $vars['notes'];
+        return $this->save(true);
+    }
+
+    function getConfig(PluginInstance $instance = null) {
+        if (!isset($this->config) && ($class=$this->config_class))
+            $this->config = new $class($instance);
+        return $this->config;
+    }
+
+    function getConfigForm($vars=null) {
+        if (!isset($this->form) || $vars)
+            $this->form = $this->getConfig()->getForm($vars);
+
+        return $this->form;
+    }
+
+    function isInstanceUnique($vars, $id=0) {
+        $criteria = array();
+        // Make sure name is unique
+        $criteria = ['name' => $vars['name']];
+        $i = $this->instances->findFirst($criteria);
+        return !($i && $i->getId() != $id);
+    }
+
+    function addInstance($vars, &$errors) {
+        $form = $this->getConfigForm($vars);
+        if (!$vars['name'])
+            $errors['name']= __('Name Required');
+        elseif (!$this->isInstanceUnique($vars))
+            $errors['name']= __('Name already in use');
+        if ($form->isValid() && !$errors) {
+            $instance = [
+                'name' => $vars['name'],
+                'plugin_id' => $this->getId(),
+                'notes' => $vars['notes'],
+                'flags' => $vars['isactive'] ? 1 : 0];
+            if (($i=PluginInstance::create($instance))) {
+                $i->setConfiguration($form, $errors);
+                if ($i->save())
+                    return $i;
+            }
+        }
+
+        return false;
+    }
+
+    function delete() {
+        $this->instances->delete();
+        parent::delete();
+    }
 
     /**
      * uninstall
@@ -433,15 +565,8 @@ abstract class Plugin {
         if ($this->pre_uninstall($errors) === false)
             return false;
 
-        $sql = 'DELETE FROM '.PLUGIN_TABLE
-            .' WHERE id='.db_input($this->getId());
+        $this->delete();
         PluginManager::clearCache();
-        if (!db_query($sql) || !db_affected_rows())
-            return false;
-
-        if ($config = $this->getConfig())
-            $config->purge();
-
         return true;
     }
 
@@ -453,173 +578,6 @@ abstract class Plugin {
      */
     function pre_uninstall(&$errors) {
         return true;
-    }
-
-    function enable() {
-        $sql = 'UPDATE '.PLUGIN_TABLE
-            .' SET isactive=1 WHERE id='.db_input($this->getId());
-        PluginManager::clearCache();
-        return (db_query($sql) && db_affected_rows());
-    }
-
-    function disable() {
-        $sql = 'UPDATE '.PLUGIN_TABLE
-            .' SET isactive=0 WHERE id='.db_input($this->getId());
-        PluginManager::clearCache();
-        return (db_query($sql) && db_affected_rows());
-    }
-
-    /**
-     * upgrade
-     *
-     * Upgrade the plugin. This is used to migrate the database pieces of
-     * the plugin using the database migration stream packaged with the
-     * plugin.
-     */
-    function upgrade() {
-    }
-
-    function getConfig() {
-        static $config = null;
-        if ($config === null && $this->config_class)
-            $config = new $this->config_class($this->getId());
-
-        return $config;
-    }
-
-    function source($what) {
-        $what = str_replace('\\', '/', $what);
-        if ($what && $what[0] != '/')
-            $what = $this->getIncludePath() . $what;
-        include_once $what;
-    }
-
-    static function lookup($id) { //Assuming local ID is the only lookup used!
-        $path = false;
-        if ($id && is_numeric($id)) {
-            $sql = 'SELECT install_path FROM '.PLUGIN_TABLE
-                .' WHERE id='.db_input($id);
-            $path = db_result(db_query($sql));
-        }
-        if ($path)
-           return PluginManager::getInstance($path);
-    }
-
-    /**
-     * Function: isVerified
-     *
-     * This will help verify the content, integrity, oversight, and origin
-     * of plugins, language packs and other modules distributed for
-     * osTicket.
-     *
-     * This idea is that the signature of the PHAR file will be registered
-     * in DNS, for instance,
-     * `7afc8bf80b0555bed88823306744258d6030f0d9.updates.osticket.com`, for
-     * a PHAR file with a SHA1 signature of
-     * `7afc8bf80b0555bed88823306744258d6030f0d9 `, which will resolve to a
-     * string like the following:
-     * ```
-     * "v=1; i=storage:s3; s=MEUCIFw6A489eX4Oq17BflxCZ8+MH6miNjtcpScUoKDjmb
-     * lsAiEAjiBo9FzYtV3WQtW6sbhPlJXcoPpDfYyQB+BFVBMps4c=; V=0.1;"
-     * ```
-     * Which is a simple semicolon separated key-value pair string with the
-     * following keys
-     *
-     *   Key | Description
-     *  :----|:---------------------------------------------------
-     *   v   | Algorithm version
-     *   i   | Plugin 'id' registered in plugin.php['id']
-     *   V   | Plugin 'version' registered in plugin.php['version']
-     *   s   | OpenSSL signature of the PHAR SHA1 signature using a
-     *       | private key (specified on the command line)
-     *
-     * The public key, which will be distributed with osTicket, can be used
-     * to verify the signature of the PHAR file from the data received from
-     * DNS.
-     *
-     * Parameters:
-     * $phar - (string) filename of phar file to verify
-     *
-     * Returns:
-     * (int) -
-     *      Plugin::VERIFIED upon success
-     *      Plugin::VERIFY_DNS_PASS if found in DNS but cannot verify sig
-     *      Plugin::VERIFY_NO_KEY if public key not found in include/plugins
-     *      Plugin::VERIFY_FAILED if the plugin fails validation
-     *      Plugin::VERIFY_EXT_MISSING if a PHP extension is required
-     *      Plugin::VERIFY_ERROR if an unexpected error occurred
-     */
-    static function isVerified($phar) {
-        static $pubkey = null;
-
-        if (!class_exists('Phar') || !extension_loaded('openssl'))
-            return self::VERIFY_EXT_MISSING;
-        elseif (!file_exists(INCLUDE_DIR . '/plugins/updates.pem'))
-            return self::VERIFY_NO_KEY;
-
-        if (!isset($pubkey)) {
-            $pubkey = openssl_pkey_get_public(
-                    file_get_contents(INCLUDE_DIR . 'plugins/updates.pem'));
-        }
-        if (!$pubkey) {
-            return self::VERIFY_ERROR;
-        }
-
-        $P = new Phar($phar);
-        $sig = $P->getSignature();
-        $info = array();
-        $ignored = null;
-        if ($r = dns_get_record($sig['hash'].'.'.self::$verify_domain.'.', DNS_TXT)) {
-            foreach ($r as $rec) {
-                foreach (explode(';', $rec['txt']) as $kv) {
-                    list($k, $v) = explode('=', trim($kv));
-                    $info[$k] = trim($v);
-                }
-                if ($info['v'] && $info['s'])
-                    break;
-            }
-        }
-
-        if (is_array($info) && isset($info['v'])) {
-            switch ($info['v']) {
-            case '1':
-                if (!($signature = base64_decode($info['s'])))
-                    return self::VERIFY_FAILED;
-                elseif (!function_exists('openssl_verify'))
-                    return self::VERIFY_DNS_PASS;
-
-                $codes = array(
-                    -1 => self::VERIFY_ERROR,
-                    0 => self::VERIFY_FAILED,
-                    1 => self::VERIFIED,
-                );
-                $result = openssl_verify($sig['hash'], $signature, $pubkey,
-                    OPENSSL_ALGO_SHA1);
-                return $codes[$result];
-            }
-        }
-        return self::VERIFY_FAILED;
-    }
-
-    static function showVerificationBadge($phar) {
-        switch (self::isVerified($phar)) {
-        case self::VERIFIED:
-            $show_lock = true;
-        case self::VERIFY_DNS_PASS: ?>
-        &nbsp;
-        <span class="label label-verified" title="<?php
-            if ($show_lock) echo sprintf(__('Verified by %s'), self::$verify_domain);
-            ?>"> <?php
-            if ($show_lock) echo '<i class="icon icon-lock"></i>'; ?>
-            <?php echo $show_lock ? __('Verified') : __('Registered'); ?></span>
-<?php       break;
-        case self::VERIFY_FAILED: ?>
-        &nbsp;
-        <span class="label label-danger" title="<?php
-            echo __('The originator of this extension cannot be verified');
-            ?>"><i class="icon icon-warning-sign"></i></span>
-<?php       break;
-        }
     }
 
     /**
@@ -713,6 +671,162 @@ abstract class Plugin {
             },
         );
     }
+
+    static function create($vars=false) {
+        $p = new Static($vars);
+        $p->installed = SqlFunction::NOW();
+        return $p;
+    }
+}
+
+
+/**
+ * Represents an instance of a plugin
+ *
+ */
+class PluginInstance extends VerySimpleModel {
+    static $meta = array(
+        'table' => PLUGIN_INSTANCE_TABLE,
+        'pk' => array('id'),
+        'ordering' => array('name'),
+        'joins' => array(
+            'plugin' => array(
+                'null' => false,
+                'constraint' => array('plugin_id' => 'Plugin.id'),
+            ),
+        ),
+    );
+    var $_config;
+    var $_form;
+    var $_data;
+
+    const FLAG_ENABLED  =  0x0001;
+
+    protected function hasFlag($flag) {
+        return ($this->get('flags') & $flag) !== 0;
+    }
+
+    protected function clearFlag($flag) {
+        return $this->set('flags', $this->get('flags') & ~$flag);
+    }
+
+    protected function setFlag($flag, $val) {
+        if ($val)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
+
+    function getId() {
+        return $this->get('id');
+    }
+
+    function getName() {
+        return $this->get('name');
+    }
+
+    function getCreateDate() {
+        return $this->get('created');
+    }
+
+    function getUpdateDate() {
+        return $this->get('updated');
+    }
+
+    function getPluginId() {
+        return $this->plugin_id;
+    }
+
+    function getPlugin() {
+        return $this->plugin->getImpl();
+    }
+
+    function isEnabled() {
+        return $this->hasFlag(self::FLAG_ENABLED);
+    }
+
+    function setStatus($status) {
+        $this->setFlag(self::FLAG_ENABLED, $status);
+    }
+
+    function getConfig() {
+        if (!isset($this->_config))
+            $this->_config = $this->getPlugin()->getConfig($this);
+
+        return $this->_config;
+    }
+
+    function getForm($vars=null) {
+        if (!isset($this->_form) || $vars)
+            $this->_form = $this->getConfig()->getForm($vars);
+
+        return $this->_form;
+    }
+
+    function getConfiguration() {
+        return $this->get('config', []);
+    }
+
+    function setConfiguration($form, &$errors) {
+
+        $c=$this->getConfig();
+        if ($c->hasCustomConfig())
+            return $c->saveCustomConfig($errors);
+
+        if (($config=$c->to_db($form, $errors))
+                && is_string($config))
+            $this->config = $config;
+    }
+
+    function getInfo() {
+        $ht = array_intersect_key($this->ht, array_flip(['name', 'notes']));
+        $ht['isactive'] = $this->isEnabled() ? 1 : 0;
+        return $ht;
+    }
+
+    function isNameUnique($name) {
+        return $this->plugin->isInstanceUnique(['name' =>
+                Format::htmlchars($name)],
+                $this->getId());
+    }
+
+    function update($vars, &$errors) {
+        if (!$vars['name'])
+            $errors['name'] = __('Name Required');
+        elseif (!$this->isNameUnique($vars['name']))
+            $errors['name'] = __('Name already in-use');
+
+        $form = $this->getForm($vars);
+        if ($form->isValid() && !$errors) {
+            $this->setFlag(self::FLAG_ENABLED, ($vars['isactive']));
+            $this->setConfiguration($form, $errors);
+            $this->name = Format::htmlchars($vars['name']);
+            $this->notes = Format::sanitize($vars['notes']);
+            $this->updated = SqlFunction::NOW();
+            if (!$errors && $this->save())
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * boostrap plugin instance.
+     *
+     */
+    function bootstrap() {
+        if ($this->isEnabled()
+                && ($plugin = $this->getPlugin())
+                // Side load this instance config
+                && ($plugin->getConfig($this)))
+            return $plugin->bootstrap();
+    }
+
+    static function create($vars=false) {
+        $i = new Static($vars);
+        $i->created = SqlFunction::NOW();
+        return $i;
+    }
+
 }
 
 class DefunctPlugin extends Plugin {

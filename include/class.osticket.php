@@ -640,7 +640,9 @@ class osTicket {
             return null;
 
         // Bootstrap installed plugins
-        $ost->plugins->bootstrap();
+        //XXX: This is TEMP for v1.17
+        if (!$ost->isUpgradePending())
+            $ost->plugins->bootstrap();
 
         // Mirror content updates to the search backend
         $ost->searcher = new SearchInterface();

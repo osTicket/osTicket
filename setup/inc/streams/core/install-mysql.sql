@@ -914,8 +914,24 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
   `isphar` tinyint(1) not null default 0,
   `isactive` tinyint(1) not null default 0,
   `version` varchar(64),
+  `notes` text DEFAULT NULL,
   `installed` datetime not null,
-  primary key (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `install_path` (`install_path`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%plugin_instance`;
+CREATE TABLE `%TABLE_PREFIX%plugin_instance` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `plugin_id` int(11) unsigned NOT NULL,
+  `flags` int(10) NOT NULL DEFAULT 0,
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `config` text DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `plugin_id` (`plugin_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%queue`;

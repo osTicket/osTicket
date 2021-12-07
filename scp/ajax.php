@@ -88,6 +88,12 @@ $dispatcher = patterns('',
         url_post('^(?P<list>\w+)/disable$', 'disableItems'),
         url_post('^(?P<list>\w+)/enable$', 'undisableItems')
     )),
+    url('^/plugins/', patterns('ajax.plugins.php:PluginsAjaxAPI',
+        url_get('^(?P<id>\d+)/instances$', 'getInstances'),
+        url('^(?P<id>\d+)/instances/(?P<iid>\d+)/update$', 'updateInstance'),
+        url('^(?P<id>\d+)/instances/add$', 'addInstance'),
+        url_post('^(?P<id>\d+)/instances/(\w+)$', 'actions')
+    )),
     url('^/report/overview/', patterns('ajax.reports.php:OverviewReportAjaxAPI',
         # Send
         url_get('^graph$', 'getPlotData'),
