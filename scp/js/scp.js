@@ -805,6 +805,38 @@ $.confirm = function(message, title, options) {
     return D.promise();
 };
 
+
+$.confirmAction = function(action, form, confirmed) {
+    var ids = [];
+    $(':checkbox.mass:checked', form).each(function() {
+        ids.push($(this).val());
+    });
+    if (ids.length) {
+      var submit = function(data) {
+        form.find('#action').val(action);
+        $.each(ids, function() { form.append($('<input type="hidden" name="ids[]">').val(this)); });
+        if (data)
+          $.each(data, function() { form.append($('<input type="hidden">').attr('name', this.name).val(this.value)); });
+        form.find('#selected-count').val(ids.length);
+        form.submit();
+      };
+      var options = {};
+      if (!confirmed)
+          $.confirm(__('You sure?'), undefined, options).then(function(data) {
+            if (data === false)
+              return false;
+            submit(data);
+          });
+      else
+          submit();
+    } else {
+        $.sysAlert(__('Oops'),
+            __('You need to select at least one item'));
+    }
+};
+
+
+
 $.userLookup = function (url, cb) {
     $.dialog(url, 201, function (xhr, user) {
         if ($.type(user) == 'string')
