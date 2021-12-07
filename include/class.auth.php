@@ -174,13 +174,11 @@ class ClientCreateRequest {
  * receives a username and optional password. If the authentication
  * succeeds, an instance deriving from <User> should be returned.
  */
-abstract class AuthenticationBackend {
-    static protected $registry = array();
+abstract class AuthenticationBackend extends ServiceRegistry {
     static $name;
     static $id;
 
 
-    /* static */
     static function register($class) {
         if (is_string($class) && class_exists($class))
             $class = new $class();
@@ -189,16 +187,27 @@ abstract class AuthenticationBackend {
                 || !($class instanceof AuthenticationBackend))
             return false;
 
-        return static::_register($class);
-    }
-
-    static function _register($class) {
-        // XXX: Raise error if $class::id is already in the registry
-        static::$registry[$class::$id] = $class;
+        static::$registry[$class->getId()] = $class;
     }
 
     static function allRegistered() {
-        return static::$registry;
+        return self::getRegistry();
+    }
+
+    static function getInteractive() {
+        $backends = [];
+        foreach (static::allRegistered() as $bk)
+            if ($bk->isInteractive())
+                $backends[] = $bk;
+        return $backends;
+    }
+
+    static function getExternal() {
+        $backends = [];
+        foreach (static::allRegistered() as $bk)
+            if ($bk->isExternal())
+                $backends[] = $bk;
+        return $backends;
     }
 
     static function getBackend($id) {
@@ -238,7 +247,7 @@ abstract class AuthenticationBackend {
         foreach (static::allRegistered() as $bk) {
             if ($backends //Allowed backends
                     && $bk->supportsInteractiveAuthentication()
-                    && !in_array($bk::$id, $backends))
+                    && !in_array($bk->getId(), $backends))
                 // User cannot be authenticated against this backend
                 continue;
 
@@ -339,18 +348,26 @@ abstract class AuthenticationBackend {
     }
 
     /**
-     * Fetches the friendly name of the backend
-     */
-    function getName() {
-        return static::$name;
-    }
-
-    /**
      * Indicates if the backed supports authentication. Useful if the
      * backend is used for logging or lockout only
      */
     function supportsInteractiveAuthentication() {
         return true;
+    }
+
+    /**
+     * Alias for supportsInteractiveAuthentication()
+     *
+     */
+    function isInteractive() {
+        return $this->supportsInteractiveAuthentication();
+    }
+
+    /**
+     * Indicates of the backend is External Authentication
+     */
+    function isExternal() {
+        return ($this instanceof ExternalAuthentication);
     }
 
     /**
@@ -478,15 +495,10 @@ interface ExternalAuthentication {
 }
 
 abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
-
-    static private $_registry = array();
-
-    static function _register($class) {
-        static::$_registry[$class::$id] = $class;
-    }
+    static protected $registry = array();
 
     static function allRegistered() {
-        return array_merge(self::$_registry, parent::allRegistered());
+        return array_merge(self::$registry, parent::allRegistered());
     }
 
     static function isBackendAllowed($staff, $bk) {
@@ -494,7 +506,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         if (!($backends=self::getAllowedBackends($staff->getId())))
             return true;  //No restrictions
 
-        return in_array($bk::$id, array_map('strtolower', $backends));
+        return in_array($bk->getId(), array_map('strtolower', $backends));
     }
 
     function getPasswordPolicies($user=null) {
@@ -502,7 +514,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getStaffPasswordPolicy())) {
             foreach ($policies as $P)
-                if ($policy == $P::$id)
+                if ($policy == $P->getId())
                     return array($P);
         }
 
@@ -558,7 +570,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         }
 
         // Tag the authkey.
-        $authkey = $bk::$id.':'.$authkey;
+        $authkey = $bk->getId().':'.$authkey;
         // Now set session crap and lets roll baby!
         $authsession = &$_SESSION['_auth']['staff'];
         $authsession = array(); //clear.
@@ -700,24 +712,18 @@ Signal::connect('api', function($dispatcher) {
 });
 
 abstract class UserAuthenticationBackend  extends AuthenticationBackend {
-
-    static private $_registry = array();
-
-    static function _register($class) {
-        static::$_registry[$class::$id] = $class;
-    }
+    static protected $registry = array();
 
     static function allRegistered() {
-        return array_merge(self::$_registry, parent::allRegistered());
+        return array_merge(self::$registry, parent::allRegistered());
     }
-
 
     function getPasswordPolicies($user=null) {
         global $cfg;
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getClientPasswordPolicy())) {
             foreach ($policies as $P)
-                if ($policy == $P::$id)
+                if ($policy == $P->getId())
                     return array($P);
         }
 
@@ -1433,9 +1439,7 @@ class BadPassword extends Exception {}
 class ExpiredPassword extends Exception {}
 class PasswordUpdateFailed extends Exception {}
 
-abstract class PasswordPolicy {
-    static protected $registry = array();
-
+abstract class PasswordPolicy extends ServiceRegistry {
     static $id;
     static $name;
 
@@ -1451,14 +1455,7 @@ abstract class PasswordPolicy {
     abstract function onLogin($user, $password);
 
     /*
-     * get friendly name of the policy
-     */
-    function getName() {
-        return static::$name;
-    }
-
-    /*
-     * Check a password aganist all available policies 
+     * Check a password aganist all available policies
      */
     static function checkPassword($new, $current, $bk=null) {
         if ($bk && is_a($bk, 'AuthenticationBackend'))
@@ -1472,17 +1469,13 @@ abstract class PasswordPolicy {
 
     static function allActivePolicies() {
         $policies = array();
-        foreach (array_reverse(static::$registry) as $P) {
+        foreach (array_reverse(self::getRegistry()) as $P) {
             if (is_string($P) && class_exists($P))
                 $P = new $P();
             if ($P instanceof PasswordPolicy)
                 $policies[] = $P;
         }
         return $policies;
-    }
-
-    static function register($policy) {
-        static::$registry[] = $policy;
     }
 
     static function cleanSessions($model, $user=null) {
