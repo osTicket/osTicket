@@ -165,7 +165,7 @@ class API {
  * API request.
  */
 
-class ApiController {
+class ApiController extends Controller {
 
     var $apikey;
 

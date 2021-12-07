@@ -204,6 +204,7 @@ class Bootstrap {
     static function loadCode() {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
+        include_once INCLUDE_DIR.'class.controller.php';
         require_once INCLUDE_DIR.'class.translation.php';
         require_once(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.model.php');
