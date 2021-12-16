@@ -604,7 +604,7 @@ class EmailDataParser {
         $this->stream = $stream;
     }
 
-    static function parse($stream) {
+    function parse($stream) {
         global $cfg;
 
         $contents ='';

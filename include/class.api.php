@@ -427,7 +427,7 @@ class ApiJsonDataParser extends JsonDataParser {
 include_once "class.mailparse.php";
 class ApiEmailDataParser extends EmailDataParser {
 
-    static function parse($stream) {
+    function parse($stream) {
         return $this->fixup(parent::parse($stream));
     }
 
