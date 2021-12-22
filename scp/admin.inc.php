@@ -13,7 +13,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require('staff.inc.php');
+require_once 'staff.inc.php';
 //Make sure config is loaded and the staff is set and of admin type
 if(!$ost or !$thisstaff or !$thisstaff->isAdmin()){
     header('Location: index.php');
@@ -44,7 +44,7 @@ if($ost->isUpgradePending()) {
             die($sysnotice);
 
     } elseif(file_exists('../setup/')) {
-        $sysnotice=__('Please take a minute to delete <strong>setup/install</strong> directory (../setup/) for security reasons.');
+        $sysnotice=__('Please take a minute to delete <strong>setup</strong> directory (../setup/) for security reasons.');
     } elseif(CONFIG_FILE && file_exists(CONFIG_FILE) && is_writable(CONFIG_FILE)) {
             //Confirm for real that the file is writable by group or world.
             clearstatcache(); //clear the cache!

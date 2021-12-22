@@ -17,7 +17,7 @@ require_once("class.file.php");
 
 class Knowledgebase {
 
-    function Knowledgebase($id) {
+    function __construct($id) {
         $res=db_query(
             'SELECT title, isenabled, dept_id, created, updated '
            .'FROM '.CANNED_TABLE.' WHERE canned_id='.db_input($id));
@@ -35,7 +35,7 @@ class Knowledgebase {
     /* ------------------> Getter methods <--------------------- */
     function getTitle() { return $this->title; }
     function isEnabled() { return !!$this->enabled; }
-    function getAnswer() { 
+    function getAnswer() {
         if (!isset($this->answer)) {
             if ($res=db_query('SELECT answer FROM '.CANNED_TABLE
                     .' WHERE canned_id='.db_input($this->id))) {
@@ -92,14 +92,14 @@ class Knowledgebase {
     }
 
     /* -------------> Database access methods <----------------- */
-    function update() { 
+    function update() {
         if (!@$this->validate()) return false;
         db_query(
             'UPDATE '.CANNED_TABLE.' SET title='.db_input($this->title)
                 .', isenabled='.db_input($this->enabled)
                 .', dept_id='.db_input($this->department)
                 .', updated=NOW()'
-                .((isset($this->answer)) 
+                .((isset($this->answer))
                     ? ', answer='.db_input($this->answer) : '')
                 .' WHERE canned_id='.db_input($this->id));
         return db_affected_rows() == 1;

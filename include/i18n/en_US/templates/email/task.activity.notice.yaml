@@ -1,0 +1,25 @@
+#
+# Email template: task.activity.notice.yaml
+#
+# Notice sent to collaborators on task activity e.g reply or message
+#
+---
+notes: |
+    Notice sent to collaborators on task activity e.g reply or message.
+
+subject: |
+    Re: %{task.title} [#%{task.number}]
+body: |
+    <h3><strong>Dear %{recipient.name.first},</strong></h3>
+    <div>
+        <em>%{poster.name}</em> just logged a message to a task in which you participate.
+    </div>
+    <br>
+    %{message}
+    <br>
+    <br>
+    <hr>
+    <div style="color: rgb(127, 127, 127); font-size: small; text-align: center;">
+    <em>You're getting this email because you are a collaborator on task
+    #%{task.number}. To participate, simply reply to this email.</em>
+    </div>

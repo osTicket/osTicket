@@ -25,9 +25,6 @@ require_once (INCLUDE_DIR.'class.api.php');
  * consistency.
  */
 class AjaxController extends ApiController {
-    function AjaxController() {
-    
-    }
     function staffOnly() {
         global $thisstaff;
         if(!$thisstaff || !$thisstaff->isValid()) {

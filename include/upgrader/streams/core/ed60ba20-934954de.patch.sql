@@ -18,9 +18,11 @@ UPDATE `%TABLE_PREFIX%filter_rule`
 -- Previously there was no primary key on the %ticket_email_info table, so
 -- clean up any junk records before adding one
 ALTER TABLE `%TABLE_PREFIX%ticket_email_info`
-    CHANGE `message_id` `thread_id` int(11) unsigned NOT NULL,
     DROP INDEX  `message_id`,
     ADD INDEX  `email_mid` (`email_mid`);
+
+ALTER TABLE `%TABLE_PREFIX%ticket_email_info`
+    CHANGE `message_id` `thread_id` int(11) unsigned NOT NULL;
 
 -- [#386](https://github.com/osTicket/osTicket-1.8/issues/386)
 UPDATE `%TABLE_PREFIX%email_template`

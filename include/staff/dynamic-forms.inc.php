@@ -1,28 +1,52 @@
-<div class="pull-left" style="width:700;padding-top:5px;">
- <h2><?php echo __('Custom Forms'); ?></h2>
+<form action="forms.php" method="POST" name="forms">
+
+<div class="sticky bar opaque">
+    <div class="content">
+        <div class="pull-left flush-left">
+            <h2><?php echo __('Custom Forms'); ?></h2>
+        </div>
+        <div class="pull-right flush-right">
+            <a href="forms.php?a=add" class="green button action-button"><i class="icon-plus-sign"></i> <?php
+                    echo __('Add New Custom Form'); ?></a>
+            <span class="action-button" data-dropdown="#action-dropdown-more">
+                    <i class="icon-caret-down pull-right"></i>
+                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            </span>
+            <div id="action-dropdown-more" class="action-dropdown anchor-right">
+                <ul id="actions">
+                    <li class="danger">
+                        <a class="confirm" data-name="delete" href="forms.php?a=delete">
+                            <i class="icon-trash icon-fixed-width"></i>
+                            <?php echo __( 'Delete'); ?>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="pull-right flush-right" style="padding-top:5px;padding-right:5px;">
-<b><a href="forms.php?a=add" class="Icon form-add"><?php
-    echo __('Add New Custom Form'); ?></a></b></div>
 <div class="clear"></div>
 
 <?php
+$other_forms = DynamicForm::objects()
+    ->filter(array('type'=>'G'))
+    ->exclude(array('flags__hasbit' => DynamicForm::FLAG_DELETED));
+
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = DynamicForm::objects()->filter(array('type__in'=>array('G')))->count();
+$count = $other_forms->count();
 $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('forms.php');
 $showing=$pageNav->showing().' '._N('form','forms',$count);
 ?>
 
-<form action="forms.php" method="POST" name="forms">
 <?php csrf_token(); ?>
 <input type="hidden" name="do" value="mass_process" >
 <input type="hidden" id="action" name="a" value="" >
 <table class="list" border="0" cellspacing="1" cellpadding="0" width="940">
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
-            <th><?php echo __('Built-in Forms'); ?></th>
+            <th width="4%">&nbsp;</th>
+            <th width="50%"><?php echo __('Built-in Forms'); ?></th>
             <th><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
@@ -31,6 +55,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
     $forms = array(
         'U' => 'icon-user',
         'T' => 'icon-ticket',
+        'A' => 'icon-tasks',
         'C' => 'icon-building',
         'O' => 'icon-group',
     );
@@ -38,7 +63,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
             ->filter(array('type__in'=>array_keys($forms)))
             ->order_by('type', 'title') as $form) { ?>
         <tr>
-        <td><i class="<?php echo $forms[$form->get('type')]; ?>"></i></td>
+        <td align="center"><i class="<?php echo $forms[$form->get('type')]; ?>"></i></td>
             <td><a href="?id=<?php echo $form->get('id'); ?>">
                 <?php echo $form->get('title'); ?></a>
             <td><?php echo $form->get('updated'); ?></td>
@@ -46,24 +71,22 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
     <?php } ?>
     </tbody>
     <tbody>
-    <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="7">&nbsp;</th>
+            <th width="4%">&nbsp;</th>
             <th><?php echo __('Custom Forms'); ?></th>
             <th><?php echo __('Last Updated'); ?></th>
         </tr>
     </thead>
     <tbody>
-    <?php foreach (DynamicForm::objects()->filter(array('type'=>'G'))
-                ->order_by('title')
+<?php foreach ($other_forms->order_by('title')
                 ->limit($pageNav->getLimit())
                 ->offset($pageNav->getStart()) as $form) {
             $sel=false;
             if($ids && in_array($form->get('id'),$ids))
                 $sel=true; ?>
         <tr>
-            <td><?php if ($form->isDeletable()) { ?>
+            <td align="center"><?php if ($form->isDeletable()) { ?>
                 <input type="checkbox" class="ckb" name="ids[]" value="<?php echo $form->get('id'); ?>"
                     <?php echo $sel?'checked="checked"':''; ?>>
             <?php } ?></td>
@@ -94,9 +117,7 @@ $showing=$pageNav->showing().' '._N('form','forms',$count);
 if ($count) //Show options..
     echo '<div>&nbsp;'.__('Page').':'.$pageNav->getPageLinks().'&nbsp;</div>';
 ?>
-<p class="centered" id="actions">
-    <input class="button" type="submit" name="delete" value="<?php echo __('Delete'); ?>">
-</p>
+
 </form>
 
 <div style="display:none;" class="dialog" id="confirm-action">

@@ -27,8 +27,8 @@ $wizard=array();
 $wizard['title']=__('osTicket Installer');
 $wizard['tagline']=sprintf(__('Installing osTicket %s'),$installer->getVersionVerbose());
 $wizard['logo']='logo.png';
-$wizard['menu']=array(__('Installation Guide')=>'http://osticket.com/wiki/Installation',
-        __('Get Professional Help')=>'http://osticket.com/support');
+$wizard['menu']=array(__('Installation Guide')=>'https://docs.osticket.com/en/latest/Getting%20Started/Installation.html',
+        __('Get Professional Help')=>'https://osticket.com/support');
 
 if($_POST && $_POST['s']) {
     $errors = array();
@@ -56,7 +56,9 @@ if($_POST && $_POST['s']) {
                 //TODO: Go to subscribe step.
                 $_SESSION['ost_installer']['s']='done';
             } elseif(!($errors=$installer->getErrors()) || !$errors['err']) {
-                $errors['err']=__('Error installing osTicket - correct the errors below and try again.');
+                $errors['err'] = sprintf('%s %s',
+                    __('Error installing osTicket.'),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'subscribe':

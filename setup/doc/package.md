@@ -11,11 +11,11 @@ being added to the distribution.
 
 More information is available via the automated help output.
 
-    php setup/cli/manage.php package --help
+    php manage.php package --help
 
 Creating the ZIP file
 ---------------------
 To package the system using the defaults (as a ZIP file), just invoke the
 packager with no other options.
 
-    php setup/cli/manage.php package
+    php manage.php package

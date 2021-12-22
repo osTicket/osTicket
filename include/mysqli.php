@@ -69,12 +69,14 @@ function db_connect($host, $user, $passwd, $options = array()) {
     if(isset($options['db'])) $__db->select_db($options['db']);
 
     //set desired encoding just in case mysql charset is not UTF-8 - Thanks to FreshMedia
-    @$__db->query('SET NAMES "utf8"');
-    @$__db->query('SET CHARACTER SET "utf8"');
-    @$__db->query('SET COLLATION_CONNECTION=utf8_general_ci');
+    @db_set_all(array(
+        'NAMES'                 => 'utf8',
+        'CHARACTER SET'         => 'utf8',
+        'COLLATION_CONNECTION'  => 'utf8_general_ci',
+        'SQL_MODE'              => '',
+        'TIME_ZONE'             => 'SYSTEM',
+    ), 'session');
     $__db->set_charset('utf8');
-
-    @db_set_variable('sql_mode', '');
 
     $__db->autocommit(true);
 
@@ -88,6 +90,12 @@ function db_autocommit($enable=true) {
     global $__db;
 
     return $__db->autocommit($enable);
+}
+
+function db_rollback() {
+    global $__db;
+
+    return $__db->rollback();
 }
 
 function db_close() {
@@ -108,7 +116,7 @@ function db_version() {
 }
 
 function db_timezone() {
-    return db_get_variable('time_zone');
+    return db_get_variable('system_time_zone', 'global');
 }
 
 function db_get_variable($variable, $type='session') {
@@ -117,10 +125,30 @@ function db_get_variable($variable, $type='session') {
 }
 
 function db_set_variable($variable, $value, $type='session') {
-    $sql =sprintf('SET %s %s=%s',strtoupper($type), $variable, db_input($value));
-    return db_query($sql);
+    return db_set_all(array($variable => $value), $type);
 }
 
+function db_set_all($variables, $type='session') {
+    global $__db;
+
+    $set = array();
+    $type = strtoupper($type);
+    foreach ($variables as $k=>$v) {
+        $k = strtoupper($k);
+        $T = $type;
+        if (in_array($k, ['NAMES', 'CHARACTER SET'])) {
+            // MySQL doesn't support the session/global flag, and doesn't
+            // use an equal sign for these
+            $T = '';
+        }
+        else {
+            $k .= ' =';
+        }
+        $set[] = "$T $k ".($__db->real_escape_string($v) ?: "''");
+    }
+    $sql = 'SET ' . implode(', ', $set);
+    return db_query($sql);
+}
 
 function db_select_database($database) {
     global $__db;
@@ -134,30 +162,26 @@ function db_create_database($database, $charset='utf8',
         sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s',
             $database, $charset, $collate));
 }
-
 /**
  * Function: db_query
- * Execute sql query
+ * Execute SQL query
  *
  * Parameters:
- * $query - (string) SQL query (with parameters)
- * $logError - (mixed):
- *      - (bool) true or false if error should be logged and alert email sent
- *      - (callable) to receive error number and return true or false if
- *      error should be logged and alert email sent. The callable is only
- *      invoked if the query fails.
  *
- * Returns:
- * (mixed) MysqliResource if SELECT query succeeds, true if an INSERT,
- * UPDATE, or DELETE succeeds, false or null if the query fails.
+ * @param string $query
+ *     SQL query (with parameters)
+ * @param bool|callable $logError
+ *     - (bool) true or false if error should be logged and alert email sent
+ *     - (callable) to receive error number and return true or false if
+ *       error should be logged and alert email sent. The callable is only
+ *       invoked if the query fails.
+ *
+ * @return bool|mysqli_result
+ *   mysqli_result object if SELECT query succeeds, true if an INSERT,
+ *   UPDATE, or DELETE succeeds, false if the query fails.
  */
 function db_query($query, $logError=true, $buffered=true) {
     global $ost, $__db;
-
-    if ($__db->unbuffered_result) {
-        $__db->unbuffered_result->free();
-        $__db->unbuffered_result = false;
-    }
 
     $tries = 3;
     do {
@@ -175,28 +199,14 @@ function db_query($query, $logError=true, $buffered=true) {
 
         $msg='['.$query.']'."\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
-        //echo $msg; #uncomment during debuging or dev.
+        //echo $msg; #uncomment during debugging or dev.
     }
-
-    if (is_object($res) && !$buffered)
-        $__db->unbuffered_result = $res;
 
     return $res;
 }
 
 function db_query_unbuffered($sql, $logError=false) {
     return db_query($sql, $logError, true);
-}
-
-function db_squery($query) { //smart db query...utilizing args and sprintf
-
-    $args  = func_get_args();
-    $query = array_shift($args);
-    $query = str_replace("?", "%s", $query);
-    $args  = array_map('db_real_escape', $args);
-    array_unshift($args, $query);
-    $query = call_user_func_array('sprintf', $args);
-    return db_query($query);
 }
 
 function db_count($query) {
@@ -226,7 +236,7 @@ function db_fetch_field($res) {
     return ($res) ? $res->fetch_field() : NULL;
 }
 
-function db_assoc_array($res, $mode=false) {
+function db_assoc_array($res, $mode=MYSQLI_ASSOC) {
     $result = array();
     if($res && db_num_rows($res)) {
         while ($row=db_fetch_array($res, $mode))

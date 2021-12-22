@@ -14,22 +14,25 @@ if($template && $_REQUEST['a']!='add'){
     $action='add';
     $submit_text=__('Add Template');
     $info['isactive']=isset($info['isactive'])?$info['isactive']:0;
-    $info['lang_id'] = $cfg->getSystemLanguage();
+    $info['lang_id'] = $cfg->getPrimaryLanguage();
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
-<form action="templates.php?<?php echo Http::build_query($qs); ?>" method="post" id="save">
+<form action="templates.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="tpl_id" value="<?php echo $info['tpl_id']; ?>">
- <h2><?php echo __('Email Template');?></h2>
+ <h2><?php echo $title; ?>
+    <?php if (isset($info['name'])) { ?><small>
+    — <?php echo $info['name']; ?></small>
+     <?php } ?>
+</h2>
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <h4><?php echo $title; ?></h4>
                 <em><?php echo __('Template information');?></em>
             </th>
         </tr>
@@ -75,11 +78,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             uasort($_tpls, function($a,$b) {
                 return strcmp($a['group'].$a['name'], $b['group'].$b['name']);
             });
-         foreach($_tpls as $cn=>$info){
-             if (!$info['name'])
+         foreach($_tpls as $cn=>$i){
+             if (!$i['name'])
                  continue;
-             if (!$current_group || $current_group != $info['group']) {
-                $current_group = $info['group']; ?>
+             if (!$current_group || $current_group != $i['group']) {
+                $current_group = $i['group']; ?>
         <tr>
             <th colspan="2">
             <em><strong><?php echo isset($_groups[$current_group])
@@ -90,15 +93,15 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } # end if ($current_group)
             if (isset($impl[$cn])) {
                 echo sprintf('<tr><td colspan="2">&nbsp;<strong><a href="templates.php?id=%d&a=manage">%s</a></strong>, <span class="faded">%s</span><br/>&nbsp;%s</td></tr>',
-                $impl[$cn]->getId(), Format::htmlchars(__($info['name'])),
-                sprintf(__('Updated %s'), Format::db_datetime($impl[$cn]->getLastUpdated())),
-                Format::htmlchars(__($info['desc'])));
+                $impl[$cn]->getId(), Format::htmlchars(__($i['name'])),
+                sprintf(__('Updated %s'), Format::datetime($impl[$cn]->getLastUpdated())),
+                Format::htmlchars(__($i['desc'])));
             } else {
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
                     href="templates.php?tpl_id=%d&a=implement&code_name=%s"
                     >%s</a></strong><br/>&nbsp%s</td></tr>',
-                    $template->getid(),$cn,format::htmlchars(__($info['name'])),
-                    format::htmlchars(__($info['desc'])));
+                    $template->getid(),$cn,format::htmlchars(__($i['name'])),
+                    format::htmlchars(__($i['desc'])));
             }
          } # endfor
         } else { ?>
@@ -153,7 +156,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <tr>
             <th colspan="2">
                 <em><strong><?php echo __('Internal Notes');?></strong>: <?php echo __(
-                "be liberal, they're internal");?></em>
+                "Be liberal, they're internal");?></em>
             </th>
         </tr>
         <tr>

@@ -35,51 +35,59 @@ if($_REQUEST['id']) {
 if (!$ticket && $thisclient->isGuest())
     Http::redirect('view.php');
 
-$tform = TicketForm::objects()->one();
+$tform = TicketForm::objects()->one()->getForm();
 $messageField = $tform->getField('message');
 $attachments = $messageField->getWidget()->getAttachments();
 
 //Process post...depends on $ticket object above.
-if($_POST && is_object($ticket) && $ticket->getId()):
+if ($_POST && is_object($ticket) && $ticket->getId()) {
     $errors=array();
     switch(strtolower($_POST['a'])){
     case 'edit':
         if(!$ticket->checkUserAccess($thisclient) //double check perm again!
                 || $thisclient->getId() != $ticket->getUserId())
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
-        elseif (!$cfg || !$cfg->allowClientUpdates())
-            $errors['err']=__('Access Denied. Client updates are currently disabled');
         else {
             $forms=DynamicFormEntry::forTicket($ticket->getId());
+            $changes = array();
             foreach ($forms as $form) {
+                $form->filterFields(function($f) { return !$f->isStorable(); });
                 $form->setSource($_POST);
-                if (!$form->isValid())
+                if (!$form->isValidForClient(true))
                     $errors = array_merge($errors, $form->errors());
             }
         }
         if (!$errors) {
-            foreach ($forms as $f) $f->save();
+            foreach ($forms as $form) {
+                $changes += $form->getChanges();
+                $form->saveAnswers(function ($f) {
+                        return $f->isVisibleToUsers()
+                         && $f->isEditableToUsers(); });
+
+            }
+            if ($changes) {
+              $user = User::lookup($thisclient->getId());
+              $ticket->logEvent('edited', array('fields' => $changes), $user);
+            }
             $_REQUEST['a'] = null; //Clear edit action - going back to view.
-            $ticket->logNote(__('Ticket details updated'), sprintf(
-                __('Ticket details were updated by client %s &lt;%s&gt;'),
-                $thisclient->getName(), $thisclient->getEmail()));
         }
         break;
     case 'reply':
         if(!$ticket->checkUserAccess($thisclient)) //double check perm again!
             $errors['err']=__('Access Denied. Possibly invalid ticket ID');
 
-        if(!$_POST['message'])
-
-            $errors['message']=__('Message required');
+        $_POST['message'] = ThreadEntryBody::clean($_POST[$messageField->getFormName()]);
+        if (!$_POST['message'])
+            $errors['message'] = __('Message required');
 
         if(!$errors) {
             //Everything checked out...do the magic.
             $vars = array(
                     'userId' => $thisclient->getId(),
                     'poster' => (string) $thisclient->getName(),
-                    'message' => $_POST['message']);
-            $vars['cannedattachments'] = $attachments->getClean();
+                    'message' => $_POST['message']
+                    );
+            $vars['files'] = $attachments->getFiles();
             if (isset($_POST['draft_id']))
                 $vars['draft_id'] = $_POST['draft_id'];
 
@@ -92,30 +100,44 @@ if($_POST && is_object($ticket) && $ticket->getId()):
                 $attachments->reset();
                 $attachments->getForm()->setSource(array());
             } else {
-                $errors['err']=__('Unable to post the message. Try again');
+                $errors['err'] = sprintf('%s %s',
+                    __('Unable to post the message.'),
+                    __('Correct any errors below and try again.'));
             }
 
         } elseif(!$errors['err']) {
-            $errors['err']=__('Error(s) occurred. Please try again');
+            $errors['err'] = __('Correct any errors below and try again.');
         }
         break;
     default:
         $errors['err']=__('Unknown action');
     }
-    $ticket->reload();
-endif;
+}
+elseif (is_object($ticket) && $ticket->getId()) {
+    switch(strtolower($_REQUEST['a'])) {
+    case 'print':
+        if (!$ticket || !$ticket->pdfExport($_REQUEST['psize']))
+            $errors['err'] = __('Unable to print to PDF.')
+                .' '.__('Internal error occurred');
+        break;
+    }
+}
+
 $nav->setActiveNav('tickets');
 if($ticket && $ticket->checkUserAccess($thisclient)) {
     if (isset($_REQUEST['a']) && $_REQUEST['a'] == 'edit'
-            && $cfg->allowClientUpdates()) {
+            && $ticket->hasClientEditableFields()) {
         $inc = 'edit.inc.php';
         if (!$forms) $forms=DynamicFormEntry::forTicket($ticket->getId());
         // Auto add new fields to the entries
-        foreach ($forms as $f) $f->addMissingFields();
+        foreach ($forms as $form) {
+            $form->filterFields(function($f) { return !$f->isStorable(); });
+            $form->addMissingFields();
+        }
     }
     else
         $inc='view.inc.php';
-} elseif($thisclient->getNumTickets()) {
+} elseif($thisclient->getNumTickets($thisclient->canSeeOrgTickets())) {
     $inc='tickets.inc.php';
 } else {
     $nav->setActiveNav('new');
@@ -123,8 +145,6 @@ if($ticket && $ticket->checkUserAccess($thisclient)) {
 }
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
-if ($tform instanceof DynamicFormEntry)
-    $tform = $tform->getForm();
 print $tform->getMedia();
 include(CLIENTINC_DIR.'footer.inc.php');
 ?>

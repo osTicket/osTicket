@@ -13,8 +13,9 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 if(!defined('INCLUDE_DIR')) die('!');
+
+require_once INCLUDE_DIR.'class.ajax.php';
 
 class ContentAjaxAPI extends AjaxController {
 
@@ -28,7 +29,7 @@ class ContentAjaxAPI extends AjaxController {
                     $log->getTitle(),
                     Format::display(str_replace(',',', ',$log->getText())),
                     __('Log Date'),
-                    Format::db_daydatetime($log->getCreateDate()),
+                    Format::daydatetime($log->getCreateDate()),
                     __('IP Address'),
                     $log->getIP());
         }else {
@@ -52,23 +53,23 @@ class ContentAjaxAPI extends AjaxController {
             <td width="55%" valign="top">
                 <table width="100%" border="0" cellspacing=1 cellpadding=1>
                     <tr><td width="130">%{ticket.id}</td><td>'.__('Ticket ID').' ('.__('internal ID').')</td></tr>
-                    <tr><td>%{ticket.number}</td><td>'.__('Ticket number').' ('.__('external ID').')</td></tr>
-                    <tr><td>%{ticket.email}</td><td>'.__('Email address').'</td></tr>
-                    <tr><td>%{ticket.name}</td><td>'.__('Full name').' &mdash;
+                    <tr><td>%{ticket.number}</td><td>'.__('Ticket Number').' ('.__('external ID').')</td></tr>
+                    <tr><td>%{ticket.email}</td><td>'.__('Email Address').'</td></tr>
+                    <tr><td>%{ticket.name}</td><td>'.__('Full Name').' &mdash;
                         <em>'.__('see name expansion').'</em></td></tr>
                     <tr><td>%{ticket.subject}</td><td>'.__('Subject').'</td></tr>
                     <tr><td>%{ticket.phone}</td><td>'.__('Phone number | ext').'</td></tr>
                     <tr><td>%{ticket.status}</td><td>'.__('Status').'</td></tr>
                     <tr><td>%{ticket.priority}</td><td>'.__('Priority').'</td></tr>
-                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned agent and/or team').'</td></tr>
-                    <tr><td>%{ticket.create_date}</td><td>'.__('Date created').'</td></tr>
-                    <tr><td>%{ticket.due_date}</td><td>'.__('Due date').'</td></tr>
-                    <tr><td>%{ticket.close_date}</td><td>'.__('Date closed').'</td></tr>
+                    <tr><td>%{ticket.assigned}</td><td>'.__('Assigned Agent / Team').'</td></tr>
+                    <tr><td>%{ticket.create_date}</td><td>'.__('Date Created').'</td></tr>
+                    <tr><td>%{ticket.due_date}</td><td>'.__('Due Date').'</td></tr>
+                    <tr><td>%{ticket.close_date}</td><td>'.__('Date Closed').'</td></tr>
                     <tr><td>%{ticket.recipients}</td><td>'.__('List of all recipient names').'</td></tr>
                     <tr><td nowrap>%{recipient.ticket_link}</td><td>'.__('Auth. token used for auto-login').'<br/>
                     '.__('Agent\'s ticket view link').'</td></tr>
                     <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Expandable Variables').'</b></em></td></tr>
-                    <tr><td>%{ticket.topic}</td><td>'.__('Help topic').'</td></tr>
+                    <tr><td>%{ticket.topic}</td><td>'.__('Help Topic').'</td></tr>
                     <tr><td>%{ticket.dept}</td><td>'.__('Department').'</td></tr>
                     <tr><td>%{ticket.staff}</td><td>'.__('Assigned/closing agent').'</td></tr>
                     <tr><td>%{ticket.team}</td><td>'.__('Assigned/closing team').'</td></tr>
@@ -81,7 +82,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>%{response}</td><td>'.__('Outgoing response').'</td></tr>
                     <tr><td>%{comments}</td><td>'.__('Assign/transfer comments').'</td></tr>
                     <tr><td>%{note}</td><td>'.__('Internal note <em>(expandable)</em>').'</td></tr>
-                    <tr><td>%{assignee}</td><td>'.__('Assigned agent/team').'</td></tr>
+                    <tr><td>%{assignee}</td><td>'.__('Assigned Agent / Team').'</td></tr>
                     <tr><td>%{assigner}</td><td>'.__('Agent assigning the ticket').'</td></tr>
                     <tr><td>%{url}</td><td>'.__('osTicket\'s base url (FQDN)').'</td></tr>
                     <tr><td>%{reset_link}</td>
@@ -100,7 +101,7 @@ class ContentAjaxAPI extends AjaxController {
                     <tr><td>.lastmessage</td><td>'.__('Last Message').'</td></tr>
                     <tr><td colspan="2" style="padding:5px 0 5px 0;"><em><b>'.__('Thread Entry expansions').'</b></em></td></tr>
                     <tr><td>.poster</td><td>'.__('Poster').'</td></tr>
-                    <tr><td>.create_date</td><td>'.__('Date created').'</td></tr>
+                    <tr><td>.create_date</td><td>'.__('Date Created').'</td></tr>
                 </table>
             </td>
         </tr>
@@ -119,6 +120,11 @@ class ContentAjaxAPI extends AjaxController {
         switch ($type) {
         case 'none':
             break;
+        case 'agent':
+            if (!($staff = Staff::lookup($id)))
+                Http::response(404, 'No such staff member');
+            echo Format::viewableImages($staff->getSignature());
+            break;
         case 'mine':
             echo Format::viewableImages($thisstaff->getSignature());
             break;
@@ -134,24 +140,42 @@ class ContentAjaxAPI extends AjaxController {
     }
 
     function manageContent($id, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
-        $info = $content->getHashtable();
+
+        $langs = Internationalization::getConfiguredSystemLanguages();
+        $translations = $content->getAllTranslations();
+        $info = array(
+            'title' => $content->getName(),
+            'body' => $content->getBody(),
+        );
+        foreach ($translations as $t) {
+            if (!($data = $t->getComplex()))
+                continue;
+            $info['trans'][$t->lang] = array(
+                'title' => $data['name'],
+                'body' => $data['body'],
+            );
+        }
+
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
     function manageNamedContent($type, $lang=false) {
-        global $thisstaff;
+        global $thisstaff, $cfg;
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
 
-        $content = Page::lookup(Page::getIdByType($type, $lang));
+        $langs = $cfg->getSecondaryLanguages();
+
+        $content = Page::lookupByType($type, $lang);
         $info = $content->getHashtable();
+
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
     }
 
@@ -168,17 +192,35 @@ class ContentAjaxAPI extends AjaxController {
 
         $vars = array_merge($content->getHashtable(), $_POST);
         $errors = array();
+
         // Allow empty content for the staff banner
-        if ($content->save($id, $vars, $errors,
+        if ($content->update($vars, $errors,
             $content->getType() == 'banner-staff')
         ) {
             Http::response(201, 'Have a great day!');
         }
         if (!$errors['err'])
-            $errors['err'] = __('Correct the error(s) below and try again!');
+            $errors['err'] = __('Correct any errors below and try again.');
         $info = $_POST;
         $errors = Format::htmlchars($errors);
         include STAFFINC_DIR . 'templates/content-manage.tmpl.php';
+    }
+
+    function context() {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
+        if (!$_GET['root'])
+            Http::response(400, '`root` is required parameter');
+
+        $items = VariableReplacer::getContextForRoot($_GET['root']);
+
+        if (!$items)
+            Http::response(422, 'No such context');
+
+        header('Content-Type: application/json');
+        return $this->encode($items);
     }
 }
 ?>

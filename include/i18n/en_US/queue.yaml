@@ -1,0 +1,647 @@
+#
+# Basic queues for the initial ticket system. Queues installed for
+# - Open / All
+# - Open / Unassigned
+# - Open / Overdue
+# - Answered / All
+# - My Tickets / All
+# - Closed / All
+#
+# Fields:
+# id:
+# parent_id:
+# flags:
+#   0x01:   FLAG_PUBLIC
+#   0x02:   FLAG_QUEUE (should be set for everything here)
+#   0x04:   FLAG_DISABLED
+#   0x08:   FLAG_INHERIT (inherit criteria from parent)
+#   0x10:   FLAG_INHERIT_COLUMNS
+#   0x20:   FLAG_INHERIT_SORTING
+# staff_id: User owner of the queue
+# sort:     Manual sort order
+# title:    Display name of the queue
+# config:   Criteria configuration
+# filter:   Quick filter field
+# root:     Object type of the queue listing
+#   'T':    Tickets
+#   'A':    Tasks
+#
+---
+- id: 1
+  title: Open
+  parent_id: 0
+  flags: 0x03
+  sort: 1
+  sort_id: 1
+  root: T
+  config: '[["status__state","includes",{"open":"Open"}]]'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Updated
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Assigned To
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 2
+  title: Open
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 1
+  sort_id: 4
+  config: '{"criteria":[["isanswered","nset",null]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Updated
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Assigned To
+
+- id: 3
+  title: Answered
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 2
+  sort_id: 4
+  config: '{"criteria":[["isanswered","set",null]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Updated
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Assigned To
+
+- id: 4
+  title: Overdue
+  parent_id: 1
+  flags: 0x2b
+  root: T
+  sort: 3
+  sort_id: 4
+  config: '{"criteria":[["isoverdue","set",null]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 9
+      bits: 1
+      sort: 1
+      sort: 9
+      width: 150
+      heading: Due Date
+    - column_id: 3
+      bits: 1
+      sort: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Assigned To
+
+- id: 5
+  title: My Tickets
+  parent_id: 0
+  flags: 0x03
+  root: T
+  sort: 3
+  sort_id: 3
+  config: '{"criteria":[["assignee","includes",{"M":"Me","T":"One of my teams"}],["status__state","includes",{"open":"Open"}]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 11
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Department
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 6
+  title: Assigned to Me
+  parent_id: 5
+  flags: 0x2b
+  root: T
+  sort: 1
+  config: '{"criteria":[["assignee","includes",{"M":"Me"}]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 11
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Department
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 7
+  title: Assigned to Teams
+  parent_id: 5
+  flags: 0x2b
+  root: T
+  sort: 2
+  config: '{"criteria":[["assignee","!includes",{"M":"Me"}]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 10
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Last Update
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 5
+      bits: 1
+      sort: 5
+      width: 85
+      heading: Priority
+    - column_id: 14
+      bits: 1
+      sort: 6
+      width: 160
+      heading: Team
+  sorts:
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 8
+  parent_id: 0
+  title: Closed
+  flags: 0x03
+  sort: 4
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["status__state","includes",{"closed":"Closed"}]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 9
+  parent_id: 8
+  title: Today
+  flags: 0x2b
+  sort: 1
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","td"]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 10
+  parent_id: 8
+  title: Yesterday
+  flags: 0x2b
+  sort: 2
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","yd"]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 11
+  parent_id: 8
+  title: This Week
+  flags: 0x2b
+  sort: 3
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","tw"]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 12
+  parent_id: 8
+  title: This Month
+  flags: 0x2b
+  sort: 4
+  root: T
+  sort_id: 5
+  config: '{"criteria":[["closed","period","tm"]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 13
+  parent_id: 8
+  title: This Quarter
+  flags: 0x2b
+  sort: 5
+  root: T
+  sort_id: 6
+  config: '{"criteria":[["closed","period","tq"]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7
+
+- id: 14
+  parent_id: 8
+  title: This Year
+  flags: 0x2b
+  sort: 6
+  root: T
+  sort_id: 7
+  config: '{"criteria":[["closed","period","ty"]],"conditions":[]}'
+  columns:
+    - column_id: 1
+      bits: 1
+      sort: 1
+      width: 100
+      heading: Ticket
+    - column_id: 7
+      bits: 1
+      sort: 2
+      width: 150
+      heading: Date Closed
+    - column_id: 3
+      bits: 1
+      sort: 3
+      width: 300
+      heading: Subject
+    - column_id: 4
+      bits: 1
+      sort: 4
+      width: 185
+      heading: From
+    - column_id: 8
+      bits: 1
+      sort: 1
+      sort: 6
+      width: 160
+      heading: Closed By
+  sorts:
+    - sort_id: 5
+    - sort_id: 1
+    - sort_id: 2
+    - sort_id: 3
+    - sort_id: 4
+    - sort_id: 6
+    - sort_id: 7

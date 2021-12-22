@@ -5,17 +5,17 @@ if (php_sapi_name() != 'cli') exit();
 //Allow user to select suite
 $selected_test = (isset($argv[1])) ? $argv[1] : false;
 
+require_once 'bootstrap.php';
 require_once "tests/class.test.php";
 
 $root = get_osticket_root_path();
-define('INCLUDE_DIR', "$root/include/");
-define('PEAR_DIR', INCLUDE_DIR."pear/");
-ini_set('include_path', './'.PATH_SEPARATOR.INCLUDE_DIR.PATH_SEPARATOR.PEAR_DIR);
-
 $fails = array();
 
 require_once INCLUDE_DIR . 'class.i18n.php';
 Internationalization::bootstrap();
+
+require_once INCLUDE_DIR . 'class.signal.php';
+require_once INCLUDE_DIR . 'class.search.php';
 
 function show_fails() {
     global $fails, $root;
@@ -43,7 +43,7 @@ if (function_exists('pcntl_signal')) {
 foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     if (strpos($t,"class.") !== false)
         continue;
-    $class = (include $t);
+    $class = @(include $t);
     if (!is_string($class))
         continue;
     if($selected_test && ($class != $selected_test))

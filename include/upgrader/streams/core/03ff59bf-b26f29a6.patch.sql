@@ -1,7 +1,7 @@
 /**
  * @version v1.9.4
  * @signature b26f29a6bb5dbb3510b057632182d138
- * @title Add properties filed and drop 'resolved' state
+ * @title Add properties field and drop 'resolved' state
  *
  * This patch drops resolved state and any associated statuses
  *

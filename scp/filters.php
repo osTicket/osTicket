@@ -31,19 +31,24 @@ if($_POST){
             if(!$filter){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ticket filter'));
             }elseif($filter->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'), __('this ticket filter'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Correct error(s) below and try again.'),
-                    __('this ticket filter'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this ticket filter')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
-            if((Filter::create($_POST,$errors))){
-                $msg=sprintf(__('Successfully updated %s'), __('this ticket filter'));
+            $filter = new Filter();
+            if ($filter->update($_POST, $errors)) {
+                $msg=sprintf(__('Successfully updated %s.'), __('this ticket filter'));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $filter, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this ticket filter'));
+                $errors['err'] = sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this ticket filter')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -54,9 +59,16 @@ if($_POST){
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
-                        $sql='UPDATE '.FILTER_TABLE.' SET isactive=1 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = 0;
+                        foreach (Filter::objects()->filter([
+                            'id__in' => $_POST['ids'],
+                        ]) as $F) {
+                            $F->isactive = 1;
+                            if ($F->save())
+                                $num++;
+                        }
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected ticket filter', 'selected ticket filters', $count));
@@ -69,9 +81,16 @@ if($_POST){
                         }
                         break;
                     case 'disable':
-                        $sql='UPDATE '.FILTER_TABLE.' SET isactive=0 '
-                            .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
-                        if(db_query($sql) && ($num=db_affected_rows())) {
+                        $num = 0;
+                        foreach (Filter::objects()->filter([
+                            'id__in' => $_POST['ids'],
+                        ]) as $F) {
+                            $F->isactive = 0;
+                            if ($F->save())
+                                $num++;
+                        }
+
+                        if ($num) {
                             if($num==$count)
                                 $msg = sprintf(__('Successfully disabled %s'),
                                     _N('selected ticket filter', 'selected ticket filters', $count));
@@ -91,22 +110,22 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %s deleted'), $i, $count,
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected ticket filter', 'selected ticket filters', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                  _N('selected ticket filter', 'selected ticket filters', $count));
                         break;
                     default:
-                        $errors['err']=__('Unknown action - get technical help.');
+                        $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;
         default:
-            $errors['err']=__('Unknown command/action');
+            $errors['err']=__('Unknown action');
             break;
     }
 }
@@ -114,6 +133,23 @@ if($_POST){
 $page='filters.inc.php';
 $tip_namespace = 'manage.filter';
 if($filter || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+  if($filter) {
+    foreach ($filter->getActions() as $A) {
+      $config = JsonDataParser::parse($A->configuration);
+      if($A->type == 'dept')
+        $dept = Dept::lookup($config['dept_id']);
+
+      if($A->type == 'topic')
+        $topic = Topic::lookup($config['topic_id']);
+    }
+  }
+
+  if($dept && !$dept->isActive())
+    $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Ticket Filter'), __('Department'));
+
+  if($topic && !$topic->isActive())
+    $warn = sprintf(__('%s is assigned a %s that is not active.'), __('Ticket Filter'), __('Help Topic'));
+
     $page='filter.inc.php';
 }
 

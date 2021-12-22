@@ -32,14 +32,14 @@ require_once('setup.inc.php');
 </div>
 <div id="t7">
 <b><?php echo __('Password');?></b>
-<p><?php echo __("Admin's password.  Must be five (5) characters or more.");?></p>
+<p><?php echo __("Admin's password.  Must be six (6) characters or more.");?></p>
 </div>
 <div id="t8">
 <b><?php echo __('Confirm Password');?></b>
 <p><?php echo __("Retype admin's password. Must match.");?></p>
 </div>
 <div id="t9">
-<b><?php echo __('MySQL Table Prefix.');?></b>
+<b><?php echo __('MySQL Table Prefix');?></b>
 <p><?php echo __('osTicket requires table prefix in order to avoid possible table conflicts in a shared database.');?></p>
 </div>
 <div id="t10">

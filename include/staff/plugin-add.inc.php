@@ -17,7 +17,7 @@ foreach ($ost->plugins->allInfos() as $info) {
     if (isset($installed[$info['install_path']]))
         continue;
     ?>
-        <tr><td><button type="submit" name="install_path"
+        <tr><td><button class="button action-button" type="submit" name="install_path"
             value="<?php echo $info['install_path'];
             ?>"><?php echo __('Install'); ?></button></td>
         <td>

@@ -21,7 +21,7 @@ $(document).ready(function(){
         left : ($(window).width() / 2 - 160)
      });
 
-    $("form :input").change(function() {
+    $(document).on('change', "form :input:not(.nowarn)", function() {
         var fObj = $(this).closest('form');
         if(!fObj.data('changed')){
             fObj.data('changed', true);
@@ -30,7 +30,7 @@ $(document).ready(function(){
                 return __("Are you sure you want to leave? Any changes or info you've entered will be discarded!");
              });
         }
-       });
+    });
 
     $("form :input[type=reset]").click(function() {
         var fObj = $(this).closest('form');
@@ -45,6 +45,17 @@ $(document).ready(function(){
 
     $('form').submit(function() {
         $(window).unbind('beforeunload');
+        // Disable client-side Post Reply/Create Ticket buttons to help
+        // prevent duplicate POST
+        var form = $(this);
+        $(this).find('input[type="submit"]').each(function (index) {
+            // Clone original input
+            $(this).clone(false).removeAttr('id').prop('disabled', true).insertBefore($(this));
+
+            // Hide original input and add it to top of form
+            $(this).hide();
+            form.prepend($(this));
+        });
         $('#overlay, #loading').show();
         return true;
        });
@@ -77,39 +88,6 @@ $(document).ready(function(){
         }
 
     });
-
-    getConfig = (function() {
-        var dfd = $.Deferred(),
-            requested = false;
-        return function() {
-            if (dfd.state() != 'resolved' && !requested)
-                requested = $.ajax({
-                    url: "ajax.php/config/client",
-                    dataType: 'json',
-                    success: function (json_config) {
-                        dfd.resolve(json_config);
-                    }
-                });
-            return dfd;
-        }
-    })();
-
-    $.translate_format = function(str) {
-        var translation = {
-            'd':'dd',
-            'j':'d',
-            'z':'o',
-            'm':'mm',
-            'F':'MM',
-            'n':'m',
-            'Y':'yy'
-        };
-        // Change PHP formats to datepicker ones
-        $.each(translation, function(php, jqdp) {
-            str = str.replace(php, jqdp);
-        });
-        return str;
-    };
 
     var showNonLocalImage = function(div) {
         var $div = $(div),
@@ -166,6 +144,10 @@ $(document).ready(function(){
             // TODO: Add a hover-button to show just one image
         });
     });
+
+    $('div.thread-body a').each(function() {
+        $(this).attr('target', '_blank');
+    });
 });
 
 showImagesInline = function(urls, thread_id) {
@@ -181,25 +163,24 @@ showImagesInline = function(urls, thread_id) {
             var timeout, caption = $('<div class="image-hover">')
                 .css({'float':e.css('float')});
             e.wrap(caption).parent()
-                .hover(
-                    function() {
-                        var self = this;
-                        timeout = setTimeout(
-                            function() { $(self).find('.caption').slideDown(250); },
-                            500);
-                    },
-                    function() {
-                        clearTimeout(timeout);
-                        $(this).find('.caption').slideUp(250);
-                    }
-                ).append($('<div class="caption">')
-                    .append('<span class="filename">'+info.filename+'</span>')
-                    .append('<a href="'+info.download_url+'" class="action-button pull-right"><i class="icon-download-alt"></i> ' + __('Download') + '</a>')
+                .append($('<div class="caption">')
+                    .append($('<a href="'+info.download_url+'" class="button action-button pull-right no-pjax"><i class="icon-download-alt"></i></a>')
+                      .attr('download', info.filename)
+                      .attr('title', __('Download'))
+                    )
                 );
             e.data('wrapped', true);
         }
     });
-}
+};
+
+getConfig = (function() {
+    var dfd = $.Deferred(),
+        requested = false;
+    return function() {
+        return dfd;
+    };
+})();
 
 $.sysAlert = function (title, msg, cb) {
     var $dialog =  $('.dialog#alert');
@@ -226,10 +207,15 @@ $(document).on('submit', 'form', function() {
     $('.dp', $(this)).each(function(i, e) {
         var $e = $(e),
             d = $e.datepicker('getDate');
-        if (!d) return;
-        var day = ('0'+d.getDate()).substr(-2),
-            month = ('0'+(d.getMonth()+1)).substr(-2),
-            year = d.getFullYear();
-        $e.val(year+'-'+month+'-'+day);
+        if (d)
+            $e.val(d.toISOString());
     });
+});
+
+$(document).on('click', '.link:not(a):not(.button)', function(event) {
+  var $e = $(event.currentTarget);
+  $('<a>').prop({href: $e.attr('href'), 'class': $e.attr('class')})
+    .hide()
+    .insertBefore($e)
+    .get(0).click(event);
 });

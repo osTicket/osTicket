@@ -3,7 +3,7 @@
 #
 # Files initially inserted into the system. Canned responses have their own
 # method for attachments; however, this file will make it easier to add
-# thinkgs like inline images.
+# things like inline images.
 #
 # NOTE: If the files aren't attached to something by the installer, they
 # bill be cleaned up shortly after installation (by the autocron).

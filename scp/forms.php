@@ -7,6 +7,8 @@ if($_REQUEST['id'] && !($form=DynamicForm::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('custom form'));
 
 if($_POST) {
+    $_POST = Format::htmlchars($_POST, true);
+    $_POST['instructions'] = Format::htmldecode($_POST['instructions']);
     $fields = array('title', 'notes', 'instructions');
     $required = array('title');
     $max_sort = 0;
@@ -63,6 +65,8 @@ if($_POST) {
                 // Keep track of the last sort number
                 $max_sort = max($max_sort, $field->get('sort'));
             }
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $form, $type);
             break;
         case 'add':
             $form = DynamicForm::create();
@@ -73,11 +77,13 @@ if($_POST) {
                 elseif (isset($_POST[$f]))
                     $form->set($f, $_POST[$f]);
             }
+            $type = array('type' => 'created');
+            Signal::send('object.created', $form, $type);
             break;
 
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s'), __('one custom form'));
+                $errors['err'] = sprintf(__('You must select at least %s.'), __('one custom form'));
             } else {
                 $count = count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -88,13 +94,13 @@ if($_POST) {
                                 $i++;
                         }
                         if ($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected custom form', 'selected custom forms', $count));
                         elseif ($i > 0)
-                            $warn = sprintf(__('%1$d of %1$d %3$s deleted'), $i, $count,
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected custom form', 'selected custom forms', $count));
                         elseif (!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected custom form', 'selected custom forms', $count));
                         break;
                 }
@@ -113,7 +119,7 @@ if($_POST) {
                 'name'=>trim($_POST["name-new-$i"]),
             ));
             $field->setRequirementMode($_POST["visibility-new-$i"]);
-            $field->setForm($form);
+            $form->fields->add($field);
             if (in_array($field->get('name'), $names))
                 $field->addError(__('Field variable name is not unique'), 'name');
             if ($field->isValid()) {
@@ -124,9 +130,7 @@ if($_POST) {
             else
                 $errors["new-$i"] = $field->errors();
         }
-        // XXX: Move to an instrumented list that can handle this better
         if (!$errors) {
-            $form->_dfields = $form->_fields = null;
             $form->save(true);
             foreach ($form_fields as $field) {
                 $field->form = $form;
@@ -139,7 +143,7 @@ if($_POST) {
     if ($errors)
         $errors['err'] = sprintf(__('Unable to commit %s. Check validation errors'), __('this custom form'));
     else
-        $msg = sprintf(__('Successfully updated %s'),
+        $msg = sprintf(__('Successfully updated %s.'),
             __('this custom form'));
 }
 

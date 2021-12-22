@@ -615,6 +615,10 @@ class Spyc {
       return false;
     }
 
+    if (is_string($value) && preg_match('/^0x[0-9a-fA-F]+$/', $value)) {
+      return hexdec($value);
+    }
+
     if (is_numeric($value)) {
       if ($value === '0') return 0;
       if (rtrim ($value, 0) === $value)

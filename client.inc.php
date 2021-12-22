@@ -22,6 +22,10 @@ require_once($thisdir.'main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error');
 
+// Enforce ACL (if applicable)
+if (!Validator::check_acl('client'))
+    die(__('Access Denied'));
+
 /*Some more include defines specific to client only */
 define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
 define('OSTCLIENTINC',TRUE);
@@ -48,8 +52,7 @@ $nav=null;
 $thisclient = UserAuthenticationBackend::getUser();
 
 if (isset($_GET['lang']) && $_GET['lang']) {
-    if (Internationalization::getLanguageInfo($_GET['lang']))
-        $_SESSION['client:lang'] = $_GET['lang'];
+    Internationalization::setCurrentLanguage($_GET['lang']);
 }
 
 // Bootstrap gettext translations as early as possible, but after attempting
@@ -77,6 +80,7 @@ $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'"
 /* Client specific defaults */
 define('PAGE_LIMIT', DEFAULT_PAGE_LIMIT);
 
+require(INCLUDE_DIR.'class.nav.php');
 $nav = new UserNav($thisclient, 'home');
 
 $exempt = in_array(basename($_SERVER['SCRIPT_NAME']), array('logout.php', 'ajax.php', 'logs.php', 'upgrade.php'));

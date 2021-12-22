@@ -1,63 +1,60 @@
-    <h3><?php echo __('Item Properties'); ?> &mdash; <?php echo $item->getValue() ?></h3>
-    <a class="close" href=""><i class="icon-remove-circle"></i></a>
-    <hr/>
-    <form method="post" action="#list/<?php
-            echo $list->getId(); ?>/item/<?php
-            echo $item->getId(); ?>/properties">
-        <?php
-        echo csrf_token();
-        $config = $item->getConfiguration();
-        $internal = $item->isInternal();
-        $form = $item->getConfigurationForm();
-        echo $form->getMedia();
-        foreach ($form->getFields() as $f) {
-            ?>
-            <div class="custom-field" id="field<?php
-                echo $f->getWidget()->id; ?>"
-                <?php
-                if (!$f->isVisible()) echo 'style="display:none;"'; ?>>
-            <div class="field-label">
-            <label for="<?php echo $f->getWidget()->name; ?>"
-                style="vertical-align:top;padding-top:0.2em">
-                <?php echo Format::htmlchars($f->get('label')); ?>:</label>
-                <?php
-                if (!$internal && $f->isEditable() && $f->get('hint')) { ?>
-                    <br /><em style="color:gray;display:inline-block"><?php
-                        echo Format::htmlchars($f->get('hint')); ?></em>
-                <?php
-                } ?>
-            </div><div>
-            <?php
-            if ($internal && !$f->isEditable())
-                $f->render('view');
-            else {
-                $f->render();
-                if ($f->get('required')) { ?>
-                    <font class="error">*</font>
-                <?php
-                }
-            }
-            ?>
-            </div>
-            <?php
-            foreach ($f->errors() as $e) { ?>
-                <div class="error"><?php echo $e; ?></div>
-            <?php } ?>
-            </div>
-            <?php
-        }
-        ?>
-        </table>
-        <hr>
-        <p class="full-width">
-            <span class="buttons pull-left">
-                <input type="reset" value="<?php echo __('Reset'); ?>">
-                <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
-            </span>
-            <span class="buttons pull-right">
-                <input type="submit" value="<?php echo __('Save'); ?>">
-            </span>
-         </p>
-    </form>
-    <div class="clear"></div>
+<?php
+    $properties_form = $item ? $item->getConfigurationForm($_POST ?: null)
+        : $list->getConfigurationForm($_POST ?: null);
+    $hasProperties = count($properties_form->getFields()) > 0;
+?>
+<h3 class="drag-handle"><?php echo $list->getName(); ?> &mdash; <?php
+    echo $item ? $item->getValue() : __('Add New List Item'); ?></h3>
+<a class="close" href=""><i class="icon-remove-circle"></i></a>
+<hr/>
 
+<?php if ($hasProperties) { ?>
+<ul class="tabs" id="item_tabs">
+    <li class="active">
+        <a href="#value"><i class="icon-reorder"></i>
+        <?php echo __('Value'); ?></a>
+    </li>
+    <li><a href="#item-properties"><i class="icon-asterisk"></i>
+        <?php echo __('Item Properties'); ?></a>
+    </li>
+</ul>
+<?php } ?>
+
+<form method="post" id="item_tabs_container" action="<?php echo $action; ?>">
+    <?php
+    echo csrf_token();
+    $internal = $item ? $item->isInternal() : false;
+?>
+
+<div class="tab_content" id="value">
+<?php
+    $form = $item_form;
+    include 'dynamic-form-simple.tmpl.php';
+?>
+</div>
+
+<div class="tab_content hidden" id="item-properties">
+<?php
+    if ($hasProperties) {
+        $form = $properties_form;
+        include 'dynamic-form-simple.tmpl.php';
+    }
+?>
+</div>
+
+<hr>
+<p class="full-width">
+    <span class="buttons pull-left">
+        <input type="reset" value="<?php echo __('Reset'); ?>">
+        <input type="button" value="<?php echo __('Cancel'); ?>" class="close">
+    </span>
+    <span class="buttons pull-right">
+        <input type="submit" value="<?php echo __('Save'); ?>">
+    </span>
+ </p>
+</form>
+
+<script type="text/javascript">
+   // Make translatable fields translatable
+   $('input[data-translate-tag], textarea[data-translate-tag]').translatable();
+</script>

@@ -19,7 +19,7 @@ class Log {
     var $id;
     var $info;
 
-    function Log($id){
+    function __construct($id){
         $this->id=0;
         return $this->load($id);
     }

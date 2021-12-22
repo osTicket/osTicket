@@ -34,7 +34,7 @@ Class CSRF {
 
     var $csrf;
 
-    function CSRF($name='__CSRFToken__', $timeout=0) {
+    function __construct($name='__CSRFToken__', $timeout=0) {
 
         $this->name = $name;
         $this->timeout = $timeout;

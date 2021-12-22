@@ -2,7 +2,7 @@
 if (!$info['title'])
     $info['title'] = Format::htmlchars($org->getName());
 ?>
-<h3><?php echo $info['title']; ?></h3>
+<h3 class="drag-handle"><?php echo $info['title']; ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
 <hr/>
 <?php
@@ -28,7 +28,7 @@ if ($info['error']) {
 <?php foreach ($org->getDynamicData() as $entry) {
 ?>
     <tr><td colspan="2" style="border-bottom: 1px dotted black"><strong><?php
-         echo $entry->getForm()->get('title'); ?></strong></td></tr>
+         echo $entry->getTitle(); ?></strong></td></tr>
 <?php foreach ($entry->getAnswers() as $a) { ?>
     <tr style="vertical-align:top"><td style="width:30%;border-bottom: 1px dotted #ccc"><?php echo Format::htmlchars($a->getField()->get('label'));
          ?>:</td>
@@ -40,7 +40,7 @@ if ($info['error']) {
     </table>
     <div class="clear"></div>
     <hr>
-    <div class="faded">Last updated <b><?php echo Format::db_datetime($org->getUpdateDate()); ?> </b></div>
+    <div class="faded">Last updated <b><?php echo Format::datetime($org->getUpdateDate()); ?> </b></div>
 </div>
 <div id="org-form" style="display:<?php echo $forms ? 'block' : 'none'; ?>;">
 <div><p id="msg_info"><i class="icon-info-sign"></i>&nbsp; <?php echo __(

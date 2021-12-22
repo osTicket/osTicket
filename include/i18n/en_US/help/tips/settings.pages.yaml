@@ -60,3 +60,18 @@ upload_a_new_logo:
         resize the display of your image. We will not, however, resize the image’s
         data. Therefore, to speed load times, it is recommended that you keep your
         image close to the default image size (817px &times; 170px).
+
+backdrops:
+    title: Backdrops
+    content: >
+        You may customize the <span class="doc-desc-title">Backdrop</span> that will be
+        displayed on the staff login page.
+
+upload_a_new_backdrop:
+    title: Upload a New Backdrop
+    content: >
+        Choose an image in the .gif, .jpg or .png formats. We will proportionally
+        resize the display of your image. We will not, however, resize the image’s
+        data. Therefore, to speed load times, it is recommended that you keep your
+        image relatively small (under a megabyte). Note also that the PHP
+        max upload settings apply.

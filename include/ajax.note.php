@@ -54,14 +54,14 @@ class NoteAjaxAPI extends AjaxController {
             Http::response(403, "Login required");
         elseif (!isset($_POST['note']) || !$_POST['note'])
             Http::response(422, "Send `note` parameter");
-        elseif (!($note = QuickNote::create(array(
-                'staff_id' => $thisstaff->getId(),
-                'body' => Format::sanitize($_POST['note']),
-                'created' => new SqlFunction('NOW'),
-                'ext_id' => $ext_id,
-                ))))
-            Http::response(500, "Unable to create new note");
-        elseif (!$note->save(true))
+
+        $note = new QuickNote(array(
+            'staff_id' => $thisstaff->getId(),
+            'body' => Format::sanitize($_POST['note']),
+            'created' => new SqlFunction('NOW'),
+            'ext_id' => $ext_id,
+        ));
+        if (!$note->save(true))
             Http::response(500, "Unable to create new note");
 
         $show_options = true;

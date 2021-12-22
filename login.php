@@ -48,7 +48,7 @@ if ($_POST) {
 if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
         $errors['err'] = __('Valid username or email address is required');
-    elseif (($user = UserAuthenticationBackend::process($_POST['luser'],
+    elseif (($user = UserAuthenticationBackend::process(trim($_POST['luser']),
             $_POST['lpasswd'], $errors))) {
         if ($user instanceof ClientCreateRequest) {
             if ($cfg && $cfg->isClientRegistrationEnabled()) {
@@ -70,7 +70,7 @@ if ($_POST && isset($_POST['luser'])) {
                 ?: 'tickets.php');
         }
     } elseif(!$errors['err']) {
-        $errors['err'] = __('Invalid username or password - try again!');
+        $errors['err'] = sprintf('%s - %s', __('Invalid username or password'), __('Please try again!'));
     }
     $suggest_pwreset = true;
 }
@@ -85,22 +85,35 @@ elseif ($_POST && isset($_POST['lticket'])) {
         if (!$cfg->isClientEmailVerificationRequired())
             Http::redirect('tickets.php');
 
+        // This will succeed as it is checked in the authentication backend
+        $ticket = Ticket::lookupByNumber($_POST['lticket'], $_POST['lemail']);
+
         // We're using authentication backend so we can guard aganist brute
         // force attempts (which doesn't buy much since the link is emailed)
-        $user->sendAccessLink();
-        $msg = sprintf(__("%s - access link sent to your email!"),
-            Format::htmlchars($user->getName()->getFirst()));
-        $_POST = null;
+        if ($ticket) {
+            $ticket->sendAccessLink($user);
+            $msg = sprintf(__("%s - access link sent to your email!"),
+                Format::htmlchars($user->getName()->getFirst()));
+            $_POST = null;
+        } else {
+            $errors['err'] = sprintf('%s - %s',
+                __('Invalid email or ticket number'),
+                __('Please try again!'));
+        }
     } elseif(!$errors['err']) {
-        $errors['err'] = __('Invalid email or ticket number - try again!');
+        $errors['err'] = sprintf('%s - %s', __('Invalid email or ticket number'), __('Please try again!'));
     }
 }
 elseif (isset($_GET['do'])) {
     switch($_GET['do']) {
     case 'ext':
         // Lookup external backend
-        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk']))
-            $bk->triggerAuth();
+        if ($bk = UserAuthenticationBackend::getBackend($_GET['bk'])) {
+            $result = $bk->triggerAuth();
+            if ($result instanceof AccessDenied) {
+                $errors['err'] = $result->getMessage();
+            }
+        }
     }
 }
 elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
@@ -124,7 +137,8 @@ elseif ($user = UserAuthenticationBackend::processSignOn($errors, false)) {
         }
     }
     elseif ($user instanceof AuthenticatedUser) {
-        Http::redirect('tickets.php');
+        Http::redirect($_SESSION['_client']['auth']['dest']
+                ?: 'tickets.php');
     }
 }
 
@@ -132,6 +146,10 @@ if (!$nav) {
     $nav = new UserNav();
     $nav->setActiveNav('status');
 }
+
+// Browsers shouldn't suggest saving that username/password
+Http::response(422);
+
 require CLIENTINC_DIR.'header.inc.php';
 require CLIENTINC_DIR.$inc;
 require CLIENTINC_DIR.'footer.inc.php';

@@ -15,7 +15,9 @@
 
 if(!defined('INCLUDE_DIR')) die('403');
 
+require_once INCLUDE_DIR . 'class.organization.php';
 include_once(INCLUDE_DIR.'class.ticket.php');
+require_once INCLUDE_DIR.'ajax.tickets.php';
 
 class OrgsAjaxAPI extends AjaxController {
 
@@ -25,26 +27,38 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(400, 'Query argument is required');
         }
 
+        if (!$_REQUEST['q'])
+            return $this->json_encode(array());
+
+        $q = $_REQUEST['q'];
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
-        $orgs=array();
 
-        $escaped = db_input(strtolower($_REQUEST['q']), false);
-        $sql='SELECT DISTINCT org.id, org.name '
-            .' FROM '.ORGANIZATION_TABLE.' org '
-            .' LEFT JOIN '.FORM_ENTRY_TABLE.' entry ON (entry.object_type=\'O\' AND entry.object_id = org.id)
-               LEFT JOIN '.FORM_ANSWER_TABLE.' value ON (value.entry_id=entry.id) '
-            .' WHERE org.name LIKE \'%'.$escaped.'%\' OR value.value LIKE \'%'.$escaped.'%\''
-            .' ORDER BY org.created '
-            .' LIMIT '.$limit;
+        if (strlen(Format::searchable($q)) < 3)
+            return $this->encode(array());
 
-        if(($res=db_query($sql)) && db_num_rows($res)){
-            while(list($id, $name)=db_fetch_row($res)) {
-                $orgs[] = array('name' => Format::htmlchars($name), 'info' => $name,
-                    'id' => $id, '/bin/true' => $_REQUEST['q']);
-            }
+        $orgs = Organization::objects()
+            ->values_flat('id', 'name')
+            ->limit($limit);
+
+        global $ost;
+        $orgs = $ost->searcher->find($q, $orgs);
+        $orgs->order_by(new SqlCode('__relevance__'), QuerySet::DESC)
+            ->distinct('id');
+
+        if (!count($orgs) && preg_match('`\w$`u', $q)) {
+            // Do wildcard full-text search
+            $_REQUEST['q'] = $q."*";
+            return $this->search($type);
         }
 
-        return $this->json_encode(array_values($orgs));
+        $matched = array();
+        foreach ($orgs as $O) {
+            list($id, $name) = $O;
+            $matched[] = array('name' => Format::htmlchars($name), 'info' => $name,
+                'id' => $id, '/bin/true' => $_REQUEST['q']);
+        }
+
+        return $this->json_encode(array_values($matched));
 
     }
 
@@ -53,6 +67,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -71,12 +87,17 @@ class OrgsAjaxAPI extends AjaxController {
 
         if(!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif(!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
         $errors = array();
-        if($org->update($_POST, $errors))
-             Http::response(201, $org->to_json());
+        if ($profile) {
+            if ($org->updateProfile($_POST, $errors))
+                Http::response(201, $org->to_json(), 'application/json');
+        } elseif ($org->update($_POST, $errors))
+             Http::response(201, $org->to_json(), 'application/json');
 
         $forms = $org->getForms();
 
@@ -96,6 +117,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_DELETE))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -104,7 +127,7 @@ class OrgsAjaxAPI extends AjaxController {
             if ($org->delete())
                  Http::response(204, 'Organization deleted successfully');
             else
-                $info['error'] = 'Unable to delete organization - try again!';
+                $info['error'] = sprintf('%s - %s', __('Unable to delete organization'), __('Please try again!'));
         }
 
         include(STAFFINC_DIR . 'templates/org-delete.tmpl.php');
@@ -115,6 +138,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(User::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($id)))
             Http::response(404, 'Unknown organization');
 
@@ -135,14 +160,15 @@ class OrgsAjaxAPI extends AjaxController {
                             Format::htmlchars($user->getName()));
             } else { //Creating new  user
                 $form = UserForm::getUserForm()->getForm($_POST);
-                if (!($user = User::fromForm($form)))
-                    $info['error'] = __('Error adding user - try again!');
+                $can_create = $thisstaff->hasPerm(User::PERM_CREATE);
+                if (!($user = User::fromForm($form, $can_create)))
+                    $info['error'] = sprintf('%s - %s', __('Error adding user'), __('Please try again!'));
             }
 
             if (!$info['error'] && $user && $user->setOrganization($org))
-                Http::response(201, $user->to_json());
+                Http::response(201, $user->to_json(), 'application/json');
             elseif (!$info['error'])
-                $info['error'] = __('Unable to add user to the organization - try again');
+                $info['error'] = sprintf('%s - %s', __('Unable to add user to the organization'), __('Please try again!'));
 
         } elseif ($remote && $userId) {
             list($bk, $userId) = explode(':', $userId, 2);
@@ -173,6 +199,8 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, 'Login Required');
+        elseif (!$thisstaff->hasPerm(Organization::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($org_id)))
             Http::response(404, 'No such organization');
 
@@ -196,15 +224,19 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function addOrg() {
+        global $thisstaff;
+
+        if (!$thisstaff->hasPerm(Organization::PERM_CREATE))
+            Http::response(403, 'Permission Denied');
 
         $info = array();
 
         if ($_POST) {
             $form = OrganizationForm::getDefaultForm()->getForm($_POST);
             if (($org = Organization::fromForm($form)))
-                Http::response(201, $org->to_json());
+                Http::response(201, $org->to_json(), 'application/json');
 
-            $info = array('error' =>__('Error adding organization - try again!'));
+            $info = array('error' =>sprintf('%s - %s', __('Error adding organization'), __('Please try again!')));
         }
 
         $info['title'] = __('Add New Organization');
@@ -246,7 +278,7 @@ class OrgsAjaxAPI extends AjaxController {
             $info += array('title' => __('Organization Lookup'));
 
         if ($_POST && ($org = Organization::lookup($_POST['orgid']))) {
-            Http::response(201, $org->to_json());
+            Http::response(201, $org->to_json(), 'application/json');
         }
 
         ob_start();
@@ -258,7 +290,7 @@ class OrgsAjaxAPI extends AjaxController {
     }
 
     function manageForms($org_id) {
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         $info = array('action' => '#orgs/'.Format::htmlchars($org_id).'/forms/manage');
         include(STAFFINC_DIR . 'templates/form-manage.tmpl.php');
     }
@@ -268,13 +300,15 @@ class OrgsAjaxAPI extends AjaxController {
 
         if (!$thisstaff)
             Http::response(403, "Login required");
+        elseif (!$thisstaff->hasPerm(Organization::PERM_EDIT))
+            Http::response(403, 'Permission Denied');
         elseif (!($org = Organization::lookup($org_id)))
             Http::response(404, "No such ticket");
         elseif (!isset($_POST['forms']))
             Http::response(422, "Send updated forms list");
 
         // Add new forms
-        $forms = DynamicFormEntry::forOrganization($org_id);
+        $forms = DynamicFormEntry::forObject($org_id, 'O');
         foreach ($_POST['forms'] as $sort => $id) {
             $found = false;
             foreach ($forms as $e) {
@@ -298,6 +332,30 @@ class OrgsAjaxAPI extends AjaxController {
         }
 
         Http::response(201, 'Successfully managed');
+    }
+
+    function exportTickets($id) {
+        global $thisstaff;
+
+        if (!$thisstaff)
+            Http::response(403, 'Agent login is required');
+        elseif (!$id)
+            Http::response(403, __('Organization ID Required'));
+
+        $org = Organization::lookup($id);
+        if (!$org)
+            Http::response(403, __('Organization Not Found'));
+
+        $queue = $org->getTicketsQueue();
+
+        if ($_POST) {
+            $api = new TicketsAjaxAPI();
+            return $api->queueExport($queue);
+        }
+
+        $info = array('action' => "#orgs/$id/tickets/export");
+
+        include STAFFINC_DIR . 'templates/queue-export.tmpl.php';
     }
 }
 ?>

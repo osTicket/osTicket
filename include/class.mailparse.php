@@ -32,7 +32,7 @@ class Mail_Parse {
 
     var $tnef = false;      // TNEF encoded mail
 
-    function Mail_parse(&$mimeMessage, $charset=null){
+    function __construct(&$mimeMessage, $charset=null){
 
         $this->mime_message = &$mimeMessage;
 
@@ -152,7 +152,7 @@ class Mail_Parse {
      * the header key. If left as FALSE, only the value given in the last
      * occurance of the header is retained.
      */
-    /* static */ function splitHeaders($headers_text, $as_array=false) {
+    static function splitHeaders($headers_text, $as_array=false) {
         $headers = preg_split("/\r?\n/", $headers_text);
         for ($i=0, $k=count($headers); $i<$k; $i++) {
             // first char might be whitespace (" " or "\t")
@@ -208,14 +208,14 @@ class Mail_Parse {
         if (!($header = $this->struct->headers['from']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getDeliveredToAddressList() {
         if (!($header = $this->struct->headers['delivered-to']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getToAddressList(){
@@ -223,7 +223,7 @@ class Mail_Parse {
         $tolist = array();
         if ($header = $this->struct->headers['to'])
             $tolist = array_merge($tolist,
-                Mail_Parse::parseAddressList($header));
+                Mail_Parse::parseAddressList($header, $this->charset));
         return $tolist ? $tolist : null;
     }
 
@@ -231,14 +231,14 @@ class Mail_Parse {
         if (!($header = @$this->struct->headers['cc']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getBccAddressList(){
         if (!($header = @$this->struct->headers['bcc']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getMessageId(){
@@ -258,7 +258,7 @@ class Mail_Parse {
         if (!($header = @$this->struct->headers['reply-to']))
             return null;
 
-        return Mail_Parse::parseAddressList($header);
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function isBounceNotice() {
@@ -279,7 +279,7 @@ class Mail_Parse {
             && $this->struct->ctype_parameters['report-type'] == 'delivery-status'
         ) {
             if ($body = $this->getPart($this->struct, 'text/plain', 3, false))
-                return new TextThreadBody($body);
+                return new TextThreadEntryBody($body);
         }
         return false;
     }
@@ -303,21 +303,21 @@ class Mail_Parse {
     function getBody(){
         global $cfg;
 
-        if ($cfg && $cfg->isHtmlThreadEnabled()) {
+        if ($cfg && $cfg->isRichTextEnabled()) {
             if ($html=$this->getPart($this->struct,'text/html'))
-                $body = new HtmlThreadBody($html);
+                $body = new HtmlThreadEntryBody($html);
             elseif ($text=$this->getPart($this->struct,'text/plain'))
-                $body = new TextThreadBody($text);
+                $body = new TextThreadEntryBody($text);
         }
         elseif ($text=$this->getPart($this->struct,'text/plain'))
-            $body = new TextThreadBody($text);
+            $body = new TextThreadEntryBody($text);
         elseif ($html=$this->getPart($this->struct,'text/html'))
-            $body = new TextThreadBody(
+            $body = new TextThreadEntryBody(
                     Format::html2text(Format::safe_html($html),
                         100, false));
 
         if (!isset($body))
-            $body = new TextThreadBody('');
+            $body = new TextThreadEntryBody('');
 
         if ($cfg && $cfg->stripQuotedReply())
             $body->stripQuotedReply($cfg->getReplySeparator());
@@ -386,7 +386,7 @@ class Mail_Parse {
     }
 
     function getAttachments($part=null){
-        $files=array();
+        $files = $matches = array();
 
         /* Consider this part as an attachment if
          *   * It has a Content-Disposition header
@@ -417,18 +417,36 @@ class Mail_Parse {
             elseif (isset($part->ctype_parameters['name*']))
                 $filename = Format::decodeRfc5987(
                     $part->ctype_parameters['name*']);
-
+            elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches))
+                $filename = Format::mimedecode($matches[1], $this->charset);
             // Some mail clients / servers (like Lotus Notes / Domino) will
             // send images without a filename. For such a case, generate a
             // random filename for the image
             elseif (isset($part->headers['content-id'])
                     && $part->headers['content-id']
-                    && 0 === strcasecmp($part->ctype_primary, 'image'))
+                    && 0 === strcasecmp($part->ctype_primary, 'image')) {
                 $filename = 'image-'.Misc::randCode(4).'.'
                     .strtolower($part->ctype_secondary);
-            else
+            // Attachment of type message/rfc822 without name!!!
+            } elseif (strcasecmp($part->ctype_primary, 'message') === 0) {
+                $struct = $part->parts[0];
+                if ($struct && isset($struct->headers['subject']))
+                    $filename = Format::mimedecode($struct->headers['subject'],
+                                $this->charset);
+                else
+                    $filename = 'email-message-'.Misc::randCode(4);
+
+                $filename .='.eml';
+            } elseif (isset($part->headers['content-disposition'])
+                    && $part->headers['content-disposition']
+                    && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches)) {
+                $filename = Format::mimedecode($matches[1], $this->charset);
+            } else {
                 // Not an attachment?
                 return false;
+            }
 
             $file=array(
                     'name'  => $filename,
@@ -543,7 +561,7 @@ class Mail_Parse {
     	return 0;
     }
 
-    function parseAddressList($address){
+    function parseAddressList($address, $charset='UTF-8'){
         if (!$address)
             return array();
 
@@ -558,11 +576,11 @@ class Mail_Parse {
 
         // Decode name and mailbox
         foreach ($parsed as $p) {
-            $p->personal = Format::mimedecode($p->personal, $this->charset);
+            $p->personal = Format::mimedecode($p->personal, $charset);
             // Some mail clients may send ISO-8859-1 strings without proper encoding.
             // Also, handle the more sane case where the mailbox is properly encoded
             // against RFC2047
-            $p->mailbox = Format::mimedecode($p->mailbox, $this->charset);
+            $p->mailbox = Format::mimedecode($p->mailbox, $charset);
         }
 
         return $parsed;
@@ -581,7 +599,7 @@ class EmailDataParser {
     var $stream;
     var $error;
 
-    function EmailDataParser($stream=null) {
+    function __construct($stream=null) {
         $this->stream = $stream;
     }
 
@@ -608,7 +626,7 @@ class EmailDataParser {
         $data['header'] = $parser->getHeader();
         $data['mid'] = $parser->getMessageId();
         $data['priorityId'] = $parser->getPriority();
-        $data['flags'] = new ArrayObject();
+        $data['mailflags'] = new ArrayObject();
 
         //FROM address: who sent the email.
         if(($fromlist = $parser->getFromAddressList())) {
@@ -647,21 +665,32 @@ class EmailDataParser {
         if (($dt = $parser->getDeliveredToAddressList()))
             $tolist['delivered-to'] = $dt;
 
+        $data['system_emails'] = array();
+        $data['thread_entry_recipients'] = array();
         foreach ($tolist as $source => $list) {
             foreach($list as $addr) {
                 if (!($emailId=Email::getIdByEmail(strtolower($addr->mailbox).'@'.$addr->host))) {
                     //Skip virtual Delivered-To addresses
                     if ($source == 'delivered-to') continue;
 
+                    $name = trim(@$addr->personal, '"');
+                    $email = strtolower($addr->mailbox).'@'.$addr->host;
                     $data['recipients'][] = array(
                         'source' => sprintf(_S("Email (%s)"), $source),
-                        'name' => trim(@$addr->personal, '"'),
-                        'email' => strtolower($addr->mailbox).'@'.$addr->host);
-                } elseif(!$data['emailId']) {
-                    $data['emailId'] = $emailId;
+                        'name' => $name,
+                        'email' => $email);
+
+                    $data['thread_entry_recipients'][$source][] = sprintf('%s <%s>', $name, $email);
+                } elseif ($emailId) {
+                    $data['system_emails'][] = $emailId;
+                    $system_email = Email::lookup($emailId);
+                    $data['thread_entry_recipients']['to'][] = (string) $system_email;
+                    if (!$data['emailId'])
+                        $data['emailId'] = $emailId;
                 }
             }
         }
+        $data['thread_entry_recipients']['to'] = array_unique($data['thread_entry_recipients']['to']);
 
         /*
          * In the event that the mail was delivered to the system although none of the system
@@ -680,33 +709,35 @@ class EmailDataParser {
 
 
         //maybe we got BCC'ed??
-        if(!$data['emailId']) {
-            $emailId =  0;
-            if($bcc = $parser->getBccAddressList()) {
-                foreach ($bcc as $addr)
-                    if(($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host)))
-                        break;
+        if($bcc = $parser->getBccAddressList()) {
+            foreach ($bcc as $addr) {
+                if (($emailId=Email::getIdByEmail($addr->mailbox.'@'.$addr->host))) {
+                    $data['system_emails'][] = $emailId;
+                    if (!$data['emailId'])
+                        $data['emailId'] =  $emailId;
+                }
             }
-            $data['emailId'] = $emailId;
         }
+
+        $data['system_emails'] = array_unique($data['system_emails']);
 
         if ($parser->isBounceNotice()) {
             // Fetch the original References and assign to 'references'
             if ($headers = $parser->getOriginalMessageHeaders()) {
                 $data['references'] = $headers['references'];
-                $data['in-reply-to'] = @$headers['in-reply-to'] ?: null;
+                $data['in-reply-to'] = $headers['message-id'] ?: @$headers['in-reply-to'] ?: null;
             }
             // Fetch deliver status report
             $data['message'] = $parser->getDeliveryStatusMessage() ?: $parser->getBody();
             $data['thread-type'] = 'N';
-            $data['flags']['bounce'] = true;
+            $data['mailflags']['bounce'] = true;
         }
         else {
             // Typical email
             $data['message'] = $parser->getBody();
             $data['in-reply-to'] = @$parser->struct->headers['in-reply-to'];
             $data['references'] = @$parser->struct->headers['references'];
-            $data['flags']['bounce'] = TicketFilter::isBounce($data['header']);
+            $data['mailflags']['bounce'] = TicketFilter::isBounce($data['header']);
         }
 
         $data['to-email-id'] = $data['emailId'];

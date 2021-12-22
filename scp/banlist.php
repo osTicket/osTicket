@@ -34,7 +34,7 @@ if($_POST && !$errors && $filter){
             if(!$rule){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ban rule'));
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])){
-                $errors['err']=$errors['val']=__('Valid email address required');
+                $errors['err']=$errors['val']=__('Valid email address is required');
             }elseif(!$errors){
                 $vars=array('what'=>'email',
                             'how'=>'equal',
@@ -43,9 +43,11 @@ if($_POST && !$errors && $filter){
                             'isactive'=>$_POST['isactive'],
                             'notes'=>$_POST['notes']);
                 if($rule->update($vars,$errors)){
-                    $msg=sprintf(__('Successfully updated %s'), Format::htmlchars($_POST['val']));
+                    $msg=sprintf(__('Successfully updated %s.'), Format::htmlchars($_POST['val']));
                 }elseif(!$errors['err']){
-                    $errors['err']=sprintf(__('Error updating %s. Try again!'), __('this ban rule'));
+                    $errors['err'] = sprintf('%s %s',
+                        sprintf(__('Unable to update %s.'), __('this ban rule')),
+                        __('Correct any errors below and try again.'));
                 }
             }
             break;
@@ -53,7 +55,7 @@ if($_POST && !$errors && $filter){
             if(!$filter) {
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('ban list'));
             }elseif(!$_POST['val'] || !Validator::is_email($_POST['val'])) {
-                $errors['err']=$errors['val']=__('Valid email address required');
+                $errors['err']=$errors['val']=__('Valid email address is required');
             }elseif(BanList::includes(trim($_POST['val']))) {
                 $errors['err']=$errors['val']=__('Email already in the ban list');
             }elseif($filter->addRule('email','equal',trim($_POST['val']),array('isactive'=>$_POST['isactive'],'notes'=>$_POST['notes']))) {
@@ -61,12 +63,13 @@ if($_POST && !$errors && $filter){
                 $_REQUEST['a']=null;
                 //Add filter rule here.
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error creating %s. Try again!'), __('ban rule'));
+                $errors['err']=sprintf('%s %s', sprintf(__('Error creating %s.'), __('ban rule')), __('Please try again!'));
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = __('You must select at least one email to process.');
+                $errors['err'] = sprintf(__('You must select at least %s to process.'),
+                    __('one email'));
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -109,18 +112,18 @@ if($_POST && !$errors && $filter){
                                 $i++;
                         }
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected ban rule', 'selected ban rules', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected ban rule', 'selected ban rules', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected ban rule', 'selected ban rules', $count));
 
                         break;
                     default:
-                        $errors['err'] = __('Unknown action - get technical help.');
+                        $errors['err'] = sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;

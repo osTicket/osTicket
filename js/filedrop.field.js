@@ -11,6 +11,7 @@
       progressUpdated: $.proxy(this.progressUpdated, this),
       speedUpdated: $.proxy(this.speedUpdated, this),
       dragOver: $.proxy(this.dragOver, this),
+      dragLeave: $.proxy(this.dragLeave, this),
       drop: $.proxy(this.drop, this),
       beforeSend: $.proxy(this.beforeSend, this),
       beforeEach: $.proxy(this.beforeEach, this),
@@ -29,6 +30,9 @@
   };
 
   FileDropbox.prototype = {
+    dragLeave: function(e) {
+        this.$element.removeAttr('style');
+    },
     drop: function(e) {
         this.$element.removeAttr('style');
     },
@@ -109,7 +113,7 @@
             // Upload failed. TODO: Add a button to the UI to retry on
             // HTTP 500
             return e.remove();
-          e.find('[name="'+that.options.name+'"]').val(json.id);
+          e.find('[name="'+that.options.name+'"]').val(''+json.id+','+file.name);
           e.data('fileId', json.id);
           e.find('.progress-bar')
             .width('100%')
@@ -171,7 +175,6 @@
             .hide())
           .append($('<input type="hidden"/>').attr('name', this.options.name)
             .val(file.id))
-          .append($('<div class="clear"></div>'));
       if (this.options.deletable) {
         filenode.prepend($('<span><i class="icon-trash"></i></span>')
           .addClass('trash pull-right')
@@ -197,7 +200,7 @@
         var i = this.uploads.indexOf(filenode);
         if (i !== -1)
             this.uploads.splice(i,1);
-        filenode.slideUp('fast', function() { this.remove(); });
+        filenode.slideUp('fast', function() { $(this).remove(); });
       }
     },
     cancelUpload: function(node) {
@@ -248,7 +251,7 @@
     files: [],
     deletable: true,
     shim: !window.FileReader,
-    queuefiles: 4
+    queuefiles: 1
   };
 
   $.fn.filedropbox.messages = {
@@ -292,8 +295,6 @@
  *
  */
 ;(function($) {
-
-  jQuery.event.props.push("dataTransfer");
 
   var default_opts = {
       fallback_id: '',
@@ -350,8 +351,8 @@
     this.on('drop', drop).on('dragstart', opts.dragStart).on('dragenter', dragEnter).on('dragover', dragOver).on('dragleave', dragLeave);
     $(document).on('drop', docDrop).on('dragenter', docEnter).on('dragover', docOver).on('dragleave', docLeave);
 
-    (opts.link || this).on('click', function(e){
-      $('#' + opts.fallback_id).trigger(e);
+    (opts.link || this).click(function(e) {
+      $('#' + opts.fallback_id).trigger('click');
       return false;
     });
 
@@ -364,9 +365,9 @@
 
     function drop(e) {
       if( opts.drop.call(this, e) === false ) return false;
-      if(!e.dataTransfer)
+      if(!e.originalEvent.dataTransfer)
         return;
-      files = e.dataTransfer.files;
+      files = e.originalEvent.dataTransfer.files;
       if (files === null || files === undefined || files.length === 0) {
         opts.error(errors[0]);
         return false;

@@ -69,7 +69,7 @@ class Crypto {
      *      is only really useful for testing. The crypto library will be
      *      automatically selected based on the available PHP extensions.
      */
-    function encrypt($input, $key, $skey='encryption', $crypt=null) {
+    static function encrypt($input, $key, $skey='encryption', $crypt=null) {
 
         //Gets preffered crypto.
         if(!($crypto =  Crypto::get($crypt)))
@@ -97,7 +97,7 @@ class Crypto {
      * skey - (string_ sub key or namespace used originally for the
      *      encryption
      */
-    function decrypt($ciphertext, $key, $skey='encryption') {
+    static function decrypt($ciphertext, $key, $skey='encryption') {
 
         if(!$key || !$ciphertext || $ciphertext[0] != '$')
             return false;
@@ -112,7 +112,7 @@ class Crypto {
         return $crypto->decrypt(base64_decode($ciphertext));
     }
 
-    function get($crypt) {
+    static function get($crypt) {
 
         $cryptos = self::cryptos();
         if(!$cryptos || ($crypt && !isset($cryptos[$crypt])))
@@ -133,7 +133,7 @@ class Crypto {
      *  Returns list of supported cryptos
      *
      */
-    function cryptos() {
+    static function cryptos() {
 
         static $cryptos = false;
 
@@ -153,7 +153,7 @@ class Crypto {
         return $cryptos;
     }
 
-    function hash($string, $key) {
+    static function hash($string, $key) {
         $hash = new Crypt_Hash('sha512');
         $hash->setKey($key);
         return $hash->hash($string);
@@ -164,7 +164,7 @@ class Crypto {
       Credit: The routine borrows heavily from PHPSecLib's Crypt_Random
       package.
      */
-    function random($len) {
+    static function random($len) {
 
         if(CRYPT_IS_WINDOWS) {
             if (function_exists('openssl_random_pseudo_bytes')
@@ -231,7 +231,7 @@ class CryptoAlgo {
 
     var $ciphers = null;
 
-    function  CryptoAlgo($tag) {
+    function __construct($tag) {
         $this->tag_number = $tag;
     }
 
@@ -332,8 +332,8 @@ Class CryptoMcrypt extends CryptoAlgo {
                 ),
             );
 
-    function getCipher($cid=null) {
-        return parent::getCipher($cid, array($this, '_checkCipher'));
+    function getCipher($cid=null, $callback=false) {
+        return parent::getCipher($cid, $callback ?: array($this, '_checkCipher'));
     }
 
    function _checkCipher($c) {
@@ -465,8 +465,8 @@ class CryptoOpenSSL extends CryptoAlgo {
             ? $cipher['method']: '';
     }
 
-    function getCipher($cid) {
-        return parent::getCipher($cid, array($this, '_checkCipher'));
+    function getCipher($cid=null, $callback=false) {
+        return parent::getCipher($cid, $callback ?: array($this, '_checkCipher'));
     }
 
     function _checkCipher($c) {
@@ -580,8 +580,8 @@ class CryptoPHPSecLib extends CryptoAlgo {
         return new $class($c['mode']);
     }
 
-    function getCipher($cid) {
-        return  parent::getCipher($cid, array($this, '_checkCipher'));
+    function getCipher($cid=null, $callback=false) {
+        return  parent::getCipher($cid, $callback ?: array($this, '_checkCipher'));
     }
 
     function _checkCipher($c) {

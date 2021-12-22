@@ -38,14 +38,15 @@ if($_POST){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'),
                     __('message template'));
             }elseif($template->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     __('this message template'));
                 // Drop drafts for this template for ALL users
                 Draft::deleteForNamespace('tpl.'.$template->getCodeName()
                     .'.'.$template->getTplId());
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'),
-                    __('this template'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this template')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'implement':
@@ -53,35 +54,40 @@ if($_POST){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('template set'));
             }elseif($new = EmailTemplate::add($_POST,$errors)){
                 $template = $new;
-                $msg=sprintf(__('Successfully updated %s'), __('this message template'));
+                $msg=sprintf(__('Successfully updated %s.'), __('this message template'));
                 // Drop drafts for this user for this template
                 Draft::deleteForNamespace('tpl.'.$new->getCodeName()
                     .$new->getTplId(), $thisstaff->getId());
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'),
-                    __('this message template'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this message template')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'update':
             if(!$template){
                 $errors['err']=sprintf(__('%s: Unknown or invalid'), __('template set'));
             }elseif($template->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
+                $msg=sprintf(__('Successfully updated %s.'),
                     mb_convert_case(__('this message template'), MB_CASE_TITLE));
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Error updating %s. Try again!'),
-                    __('this message template'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to update %s.'), __('this message template')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'add':
             if(($new=EmailTemplateGroup::add($_POST,$errors))){
                 $template=$new;
-                $msg=sprintf(__('Successfully added %s'),
+                $msg=sprintf(__('Successfully added %s.'),
                     mb_convert_case(__('a template set'), MB_CASE_TITLE));
                 $_REQUEST['a']=null;
+                $type = array('type' => 'created');
+                Signal::send('object.created', $new, $type);
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this template set'));
+                $errors['err']=sprintf('%s %s',
+                    sprintf(__('Unable to add %s.'), __('this message template')),
+                    __('Correct any errors below and try again.'));
             }
             break;
         case 'mass_process':
@@ -95,6 +101,11 @@ if($_POST){
                         $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET isactive=1 '
                             .' WHERE tpl_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
+                            foreach ($_POST['ids'] as $k=>$v) {
+                                $tmpl = EmailTemplateGroup::lookup($v);
+                                $type = array('type' => 'edited', 'status' => 'Enabled');
+                                Signal::send('object.edited', $tmpl, $type);
+                            }
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected template set', 'selected template sets', $count));
@@ -108,13 +119,21 @@ if($_POST){
                         break;
                     case 'disable':
                         $i=0;
+                        $templates = array();
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->disable())
+                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->disable()) {
+                                $templates[] = $t;
                                 $i++;
+                            }
                         }
-                        if($i && $i==$count)
+                        if($i && $i==$count) {
                             $msg = sprintf(__('Successfully disabled %s'),
                                 _N('selected template set', 'selected template sets', $count));
+                            foreach ($templates as $tmpl) {
+                                $type = array('type' => 'edited', 'status' => 'Disabled');
+                                Signal::send('object.edited', $tmpl, $type);
+                            }
+                        }
                         elseif($i)
                             $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $i, $count,
                                 _N('selected template set', 'selected template sets', $count))
@@ -132,17 +151,17 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
+                            $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected template set', 'selected template sets', $count));
                         elseif($i>0)
                             $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
                                 _N('selected template set', 'selected template sets', $count));
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
+                            $errors['err'] = sprintf(__('Unable to delete %s.'),
                                 _N('selected template set', 'selected template sets', $count));
                         break;
                     default:
-                        $errors['err']=__('Unknown action - get technical help.');
+                        $errors['err']=sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                 }
             }
             break;

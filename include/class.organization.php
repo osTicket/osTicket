@@ -16,6 +16,7 @@ require_once(INCLUDE_DIR . 'class.orm.php');
 require_once(INCLUDE_DIR . 'class.forms.php');
 require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
 require_once(INCLUDE_DIR . 'class.user.php');
+require_once INCLUDE_DIR . 'class.search.php';
 
 class OrganizationModel extends VerySimpleModel {
     static $meta = array(
@@ -25,12 +26,47 @@ class OrganizationModel extends VerySimpleModel {
             'users' => array(
                 'reverse' => 'User.org',
             ),
-        )
+            'cdata' => array(
+                'constraint' => array('id' => 'OrganizationCdata.org_id'),
+            ),
+            'entries' => array(
+                'constraint' => array(
+                    'id' => 'DynamicFormEntry.object_id',
+                    "'O'" => 'DynamicFormEntry.object_type',
+                ),
+                'list' => true,
+            ),
+        ),
     );
 
     const COLLAB_ALL_MEMBERS =      0x0001;
     const COLLAB_PRIMARY_CONTACT =  0x0002;
     const ASSIGN_AGENT_MANAGER =    0x0004;
+
+    const SHARE_PRIMARY_CONTACT =   0x0008;
+    const SHARE_EVERYBODY =         0x0010;
+
+    const PERM_CREATE =     'org.create';
+    const PERM_EDIT =       'org.edit';
+    const PERM_DELETE =     'org.delete';
+
+    static protected $perms = array(
+        self::PERM_CREATE => array(
+            'title' => /* @trans */ 'Create',
+            'desc' => /* @trans */ 'Ability to create new organizations',
+            'primary' => true,
+        ),
+        self::PERM_EDIT => array(
+            'title' => /* @trans */ 'Edit',
+            'desc' => /* @trans */ 'Ability to manage organizations',
+            'primary' => true,
+        ),
+        self::PERM_DELETE => array(
+            'title' => /* @trans */ 'Delete',
+            'desc' => /* @trans */ 'Ability to delete organizations',
+            'primary' => true,
+        ),
+    );
 
     var $_manager;
 
@@ -40,6 +76,10 @@ class OrganizationModel extends VerySimpleModel {
 
     function getName() {
         return $this->name;
+    }
+
+    function getNumUsers() {
+        return $this->users->count();
     }
 
     function getAccountManager() {
@@ -75,6 +115,24 @@ class OrganizationModel extends VerySimpleModel {
         return $this->check(self::ASSIGN_AGENT_MANAGER);
     }
 
+    function autoFlagChanged($flag, $var) {
+        if (($flag && !$var) || (!$flag && $var))
+            return true;
+    }
+
+    function shareWithPrimaryContacts() {
+        return $this->check(self::SHARE_PRIMARY_CONTACT);
+    }
+
+    function shareWithEverybody() {
+        return $this->check(self::SHARE_EVERYBODY);
+    }
+
+    function sharingFlagChanged($flag, $var, $title) {
+        if (($flag && !$var) || (!$flag && $var == $title))
+            return true;
+    }
+
     function getUpdateDate() {
         return $this->updated;
     }
@@ -98,11 +156,32 @@ class OrganizationModel extends VerySimpleModel {
     function allMembers() {
         return $this->users;
     }
+
+    static function getPermissions() {
+        return self::$perms;
+    }
+}
+include_once INCLUDE_DIR.'class.role.php';
+RolePermission::register(/* @trans */ 'Organizations',
+    OrganizationModel::getPermissions());
+
+class OrganizationCdata extends VerySimpleModel {
+    static $meta = array(
+        'table' => ORGANIZATION_CDATA_TABLE,
+        'pk' => array('org_id'),
+        'joins' => array(
+            'org' => array(
+                'constraint' => array('ord_id' => 'OrganizationModel.id'),
+            ),
+        ),
+    );
 }
 
-class Organization extends OrganizationModel {
+class Organization extends OrganizationModel
+implements TemplateVariable, Searchable {
     var $_entries;
     var $_forms;
+    var $_queue;
 
     function addDynamicData($data) {
         $entry = $this->addForm(OrganizationForm::objects()->one(), 1, $data);
@@ -115,7 +194,7 @@ class Organization extends OrganizationModel {
 
     function getDynamicData($create=true) {
         if (!isset($this->_entries)) {
-            $this->_entries = DynamicFormEntry::forOrganization($this->id)->all();
+            $this->_entries = DynamicFormEntry::forObject($this->id, 'O')->all();
             if (!$this->_entries && $create) {
                 $g = OrganizationForm::getInstance($this->id, true);
                 $g->save();
@@ -130,18 +209,18 @@ class Organization extends OrganizationModel {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
-            foreach ($this->getDynamicData() as $cd) {
-                $cd->addMissingFields();
+            foreach ($this->getDynamicData() as $entry) {
+                $entry->addMissingFields();
                 if(!$data
-                        && ($form = $cd->getForm())
+                        && ($form = $entry->getDynamicForm())
                         && $form->get('type') == 'O' ) {
-                    foreach ($cd->getFields() as $f) {
+                    foreach ($entry->getFields() as $f) {
                         if ($f->get('name') == 'name')
                             $f->value = $this->getName();
                     }
                 }
 
-                $this->_forms[] = $cd->getForm();
+                $this->_forms[] = $entry;
             }
         }
 
@@ -158,6 +237,8 @@ class Organization extends OrganizationModel {
                 'collab-all-flag' => Organization::COLLAB_ALL_MEMBERS,
                 'collab-pc-flag' => Organization::COLLAB_PRIMARY_CONTACT,
                 'assign-am-flag' => Organization::ASSIGN_AGENT_MANAGER,
+                'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
+                'sharing-all' => Organization::SHARE_EVERYBODY,
         ) as $ck=>$flag) {
             if ($this->check($flag))
                 $base[$ck] = true;
@@ -196,7 +277,7 @@ class Organization extends OrganizationModel {
         }
     }
 
-    function addForm($form, $sort=1, $data) {
+    function addForm($form, $sort=1, $data=null) {
         $entry = $form->instanciate($sort, $data);
         $entry->set('object_type', 'O');
         $entry->set('object_id', $this->getId());
@@ -207,13 +288,16 @@ class Organization extends OrganizationModel {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
-            if ($entry->getForm()->get('type') != 'O')
-                continue;
             $vars += $entry->getFilterData();
-            // Add special `name` field
-            $f = $entry->getForm()->getField('name');
-            $vars['field.'.$f->get('id')] = $this->getName();
+
+            // Add special `name` field in Org form
+            if ($entry->getDynamicForm()->get('type') != 'O')
+                continue;
+
+            if ($f = $entry->getField('name'))
+                $vars['field.'.$f->get('id')] = $this->getName();
         }
+
         return $vars;
     }
 
@@ -251,33 +335,55 @@ class Organization extends OrganizationModel {
     }
 
     function getVar($tag) {
-        if($tag && is_callable(array($this, 'get'.ucfirst($tag))))
-            return call_user_func(array($this, 'get'.ucfirst($tag)));
-
         $tag = mb_strtolower($tag);
         foreach ($this->getDynamicData() as $e)
             if ($a = $e->getAnswer($tag))
                 return $a;
+
+        switch ($tag) {
+        case 'members':
+            return new UserList($this->users);
+        case 'manager':
+            return $this->getAccountManager();
+        case 'contacts':
+            return new UserList($this->users->filter(array(
+                'status' => User::PRIMARY_ORG_CONTACT
+            )));
+        }
     }
 
-    function update($vars, &$errors) {
+    static function getVarScope() {
+        $base = array(
+            'contacts' => array('class' => 'UserList', 'desc' => __('Primary Contacts')),
+            'manager' => __('Account Manager'),
+            'members' => array('class' => 'UserList', 'desc' => __('Organization Members')),
+            'name' => __('Name'),
+        );
+        $extra = VariableReplacer::compileFormScope(OrganizationForm::getInstance());
+        return $base + $extra;
+    }
 
-        $valid = true;
-        $forms = $this->getForms($vars);
-        foreach ($forms as $cd) {
-            if (!$cd->isValid())
-                $valid = false;
-            if ($cd->get('type') == 'O'
-                        && ($form= $cd->getForm($vars))
-                        && ($f=$form->getField('name'))
-                        && $f->getClean()
-                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
-                        && $o->id != $this->getId()) {
-                $valid = false;
-                $f->addError(__('Organization with the same name already exists'));
-            }
+    static function getSearchableFields() {
+        $base = array();
+        $uform = OrganizationForm::objects()->one();
+        $base = array();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
         }
+        return $base;
+    }
 
+    static function supportsCustomData() {
+        return true;
+    }
+
+    function updateProfile($vars, &$errors) {
         if ($vars['domain']) {
             foreach (explode(',', $vars['domain']) as $d) {
                 if (!Validator::is_email('t@' . trim($d))) {
@@ -300,20 +406,99 @@ class Organization extends OrganizationModel {
             }
         }
 
+        // Attempt to valid & update dynamic data even on errors
+        if (!$this->update($vars, $errors))
+            $errors['error'] = __('Unable to update organization form');
+
+        if ($errors)
+            return false;
+
+        return $this->save();
+    }
+
+    function update($vars, &$errors) {
+        $valid = true;
+        $forms = $this->getForms($vars);
+        foreach ($forms as $entry) {
+            if (!$entry->isValid())
+                $valid = false;
+            if ($entry->getDynamicForm()->get('type') == 'O'
+                        && ($f = $entry->getField('name'))
+                        && $f->getClean()
+                        && ($o=Organization::lookup(array('name'=>$f->getClean())))
+                        && $o->id != $this->getId()) {
+                $valid = false;
+                $f->addError(__('Organization with the same name already exists'));
+            }
+        }
         if (!$valid || $errors)
             return false;
 
-        foreach ($this->getDynamicData() as $cd) {
-            if (($f=$cd->getForm())
-                    && ($f->get('type') == 'O')
-                    && ($name = $f->getField('name'))) {
-                    $this->name = $name->getClean();
-                    $this->save();
+        // Save dynamic data.
+        foreach ($this->getDynamicData() as $entry) {
+            $fields = $entry->getFields();
+            foreach ($fields as $field) {
+                $changes = $field->getChanges();
+                if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                    $type = array('type' => 'edited', 'key' => $field->getLabel());
+                    Signal::send('object.edited', $this, $type);
                 }
-            $cd->setSource($vars);
-            if ($cd->save())
+            }
+            if ($entry->getDynamicForm()->get('type') == 'O'
+               && ($name = $entry->getField('name'))
+            ) {
+                if ($this->name != $name->getClean()) {
+                    $type = array('type' => 'edited', 'key' => 'Name');
+                    Signal::send('object.edited', $this, $type);
+                }
+                $this->name = $name->getClean();
+                $this->save();
+            }
+            $entry->setSource($vars);
+            if ($entry->save())
                 $this->updated = SqlFunction::NOW();
         }
+
+        if ($auditCollabAll = $this->autoFlagChanged($this->autoAddMembersAsCollabs(),
+            $vars['collab-all-flag']))
+                $key = 'collab-all-flag';
+        if ($auditCollabPc = $this->autoFlagChanged($this->autoAddPrimaryContactsAsCollabs(),
+            $vars['collab-pc-flag']))
+                $key = 'collab-pc-flag';
+        if ($auditAssignAm = $this->autoFlagChanged($this->autoAssignAccountManager(),
+            $vars['assign-am-flag']))
+                $key = 'assign-am-flag';
+
+        if ($auditCollabAll || $auditCollabPc || $auditAssignAm) {
+            $type = array('type' => 'edited', 'key' => $key);
+            Signal::send('object.edited', $this, $type);
+        }
+
+        foreach ($vars as $key => $value) {
+            // Primary Contacts List Changes
+            if ($key == 'contacts') {
+                $ogContacts = $value;
+                if ($contacts = $this->getVar('contacts')) {
+                    $allContacts = array();
+                    foreach ($contacts as $key => $value)
+                        $allContacts[] = strval($value->getId());
+
+                    if ($ogContacts != $allContacts) {
+                        $type = array('type' => 'edited', 'key' => 'contacts');
+                        Signal::send('object.edited', $this, $type);
+                    }
+                }
+            }
+            if ($key != 'id' && $this->get($key) && $value != $this->get($key)) {
+                    $type = array('type' => 'edited', 'key' => $key);
+                    Signal::send('object.edited', $this, $type);
+            }
+        }
+
+        $sharingPrimary = $this->sharingFlagChanged($this->shareWithPrimaryContacts(),
+            $vars['sharing'], 'sharing-primary');
+        $sharingEverybody = $this->sharingFlagChanged($this->shareWithEverybody(),
+            $vars['sharing'], 'sharing-all');
 
         // Set flags
         foreach (array(
@@ -327,6 +512,20 @@ class Organization extends OrganizationModel {
                 $this->clearStatus($flag);
         }
 
+        foreach (array(
+                'sharing-primary' => Organization::SHARE_PRIMARY_CONTACT,
+                'sharing-all' => Organization::SHARE_EVERYBODY,
+        ) as $ck=>$flag) {
+            if (($sharingPrimary || $sharingEverybody) && $vars['sharing'] == $ck) {
+                $type = array('type' => 'edited', 'key' => 'sharing');
+                Signal::send('object.edited', $this, $type);
+            }
+            if ($vars['sharing'] == $ck)
+                $this->setStatus($flag);
+            else
+                $this->clearStatus($flag);
+        }
+
         // Set staff and primary contacts
         $this->set('domain', $vars['domain']);
         $this->set('manager', $vars['manager'] ?: '');
@@ -335,37 +534,61 @@ class Organization extends OrganizationModel {
                 $u->setPrimaryContact(array_search($u->id, $vars['contacts']) !== false);
                 $u->save();
             }
+        } else {
+            $members = $this->allMembers();
+            $members->update(array(
+                'status' => SqlExpression::bitand(
+                    new SqlField('status'), ~User::PRIMARY_ORG_CONTACT)
+                ));
         }
 
-        // Send signal for search engine updating if not modifying the
-        // fields specific to the organization
-        if (count($this->dirty) === 0)
-            Signal::send('model.updated', $this);
-
-        return $this->save();
+        return true;
     }
 
     function delete() {
         if (!parent::delete())
             return false;
 
+        // Clear organization from session to avoid refetch failure
+        unset($_SESSION[':Q:orgs'], $_SESSION[':O:tickets']);
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
+        // Remove users from this organization
+        User::objects()
+            ->filter(array('org' => $this))
+            ->update(array('org_id' => 0));
+
         foreach ($this->getDynamicData(false) as $entry) {
-            $entry->delete();
+            if (!$entry->delete())
+                return false;
         }
+        return true;
+    }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('scp/orgs.php?id=%s', $id);
     }
 
     static function fromVars($vars) {
-
-        if (!($org = Organization::lookup(array('name' => $vars['name'])))) {
-            $org = Organization::create(array(
+        $vars['name'] = Format::striptags($vars['name']);
+        if (!($org = static::lookup(array('name' => $vars['name'])))) {
+            $org = static::create(array(
                 'name' => $vars['name'],
-                'created' => new SqlFunction('NOW'),
                 'updated' => new SqlFunction('NOW'),
             ));
             $org->save(true);
             $org->addDynamicData($vars);
         }
 
+        Signal::send('organization.created', $org);
+        $type = array('type' => 'created');
+        Signal::send('object.created', $org, $type);
         return $org;
     }
 
@@ -382,7 +605,7 @@ class Organization extends OrganizationModel {
         // Make sure the name is not in-use
         if (($field=$form->getField('name'))
                 && $field->getClean()
-                && Organization::lookup(array('name' => $field->getClean()))) {
+                && static::lookup(array('name' => $field->getClean()))) {
             $field->addError(__('Organization with the same name already exists'));
             $valid = false;
         }
@@ -390,11 +613,18 @@ class Organization extends OrganizationModel {
         return $valid ? self::fromVars($form->getClean()) : null;
     }
 
+    static function create($vars=false) {
+        $org = new static($vars);
+
+        $org->created = new SqlFunction('NOW');
+        $org->setStatus(self::SHARE_PRIMARY_CONTACT);
+        return $org;
+    }
+
     // Custom create called by installer/upgrader to load initial data
     static function __create($ht, &$error=false) {
 
-        $ht['created'] = new SqlFunction('NOW');
-        $org = Organization::create($ht);
+        $org = static::create($ht);
         // Add dynamic data (if any)
         if ($ht['fields']) {
             $org->save(true);
@@ -403,11 +633,36 @@ class Organization extends OrganizationModel {
 
         return $org;
     }
+
+    function getTicketsQueue() {
+        global $thisstaff;
+
+        if (!$this->_queue) {
+            $name = $this->getName();
+            $this->_queue = new AdhocSearch(array(
+                'id' => 'adhoc,orgid'.$this->getId(),
+                'root' => 'T',
+                'staff_id' => $thisstaff->getId(),
+                'title' => $name
+            ));
+            $this->_queue->config = [[
+                'user__org__name', 'equal', $name
+            ]];
+        }
+
+        return $this->_queue;
+    }
 }
 
 class OrganizationForm extends DynamicForm {
     static $instance;
     static $form;
+
+    static $cdata = array(
+            'table' => ORGANIZATION_CDATA_TABLE,
+            'object_id' => 'org_id',
+            'object_type' => ObjectModel::OBJECT_TYPE_ORG,
+        );
 
     static function objects() {
         $os = parent::objects();
@@ -477,5 +732,4 @@ Filter::addSupportedMatches(/*@trans*/ 'Organization Data', function() {
     }
     return $matches;
 },40);
-Organization::_inspect();
 ?>

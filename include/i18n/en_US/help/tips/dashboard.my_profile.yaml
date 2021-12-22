@@ -27,6 +27,14 @@ username:
       - title: Change a username as an Administrator
         href: /scp/staff.php
 
+config2fa:
+    title: Two Factor Authentication
+    content: >
+        Two Factor Authentication adds an extra layer of security
+        when logging into the helpdesk. Once you correctly submit
+        your username and password, you will need to enter a token
+        to finish logging into the helpdesk.
+
 time_zone:
     title: Time Zone
     content: >
@@ -54,10 +62,15 @@ default_paper_size:
 show_assigned_tickets:
     title: Show Assigned Tickets
     content: >
-        Enable this to hide your name from the <span class="doc-desc-title">Open 
-        Tickets</span> queue for those tickets which you have been assigned. Upon 
-        hiding, the <span class="doc-desc-title">Department</span> name to which
-        you belong will replace where your name would normally be displayed.
+        <p>
+        Enabling this option will override the global setting to hide
+        assigned tickets from the open queues.
+        </p>
+        <p class="info-banner">
+        <i class="icon-info-sign"></i>
+        This setting is only available when assigned tickets are excluded
+        globally.
+        </p>
 
 password:
     title: Password
@@ -78,11 +91,11 @@ confirm_new_password:
 signature:
     title: Signature
     content: >
-        Create an optional <span class="doc-desc-title">Signature</span> 
-        that perhaps appears at the end of your Ticket Responses. Whether this 
-        <span class="doc-desc-title">Signature</span> appears, or not, depends 
-        on the <span class="doc-desc-title">Email Template</span> that will be 
-        used in a Ticket Response. 
+        Create an optional <span class="doc-desc-title">Signature</span>
+        that perhaps appears at the end of your Ticket Responses. Whether this
+        <span class="doc-desc-title">Signature</span> appears, or not, depends
+        on the <span class="doc-desc-title">Email Template</span> that will be
+        used in a Ticket Response.
     links:
       - title: Create Emails Templates in the Admin Panel
         href: /scp/templates.php

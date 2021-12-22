@@ -25,7 +25,7 @@ class UserSession {
    var $ip = '';
    var $validated=FALSE;
 
-   function UserSession($userid){
+   function __construct($userid){
 
       $this->browser=(!empty($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : $_ENV['HTTP_USER_AGENT'];
       $this->ip=(!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : getenv('REMOTE_ADDR');
@@ -123,6 +123,10 @@ class ClientSession extends EndUser {
         $this->session= new UserSession($user->getId());
     }
 
+    function getSessionUser() {
+        return $this->user;
+    }
+
     function isValid(){
         global $_SESSION,$cfg;
 
@@ -165,16 +169,34 @@ class StaffSession extends Staff {
     var $session;
     var $token;
 
-    function __construct($var) {
-        parent::__construct($var);
-        $this->token = &$_SESSION[':token']['staff'];
-        $this->session= new UserSession($this->getId());
+    static function lookup($var) {
+        if ($staff = parent::lookup($var)) {
+            $staff->token = &$_SESSION[':token']['staff'];
+            $staff->session= new UserSession($staff->getId());
+        }
+        return $staff;
+    }
+
+    function clear2FA() {
+        $_SESSION['_auth']['staff']['2fa'] = null;
+        return true;
+    }
+
+    // If 2fa is set then it means it's pending
+    function is2FAPending() {
+        if (!isset($_SESSION['_auth']['staff']['2fa']))
+            return false;
+
+        return true;
     }
 
     function isValid(){
-        global $_SESSION, $cfg;
+        global $cfg;
 
         if(!$this->getId() || $this->session->getSessionId()!=session_id())
+            return false;
+
+        if ($this->is2FAPending())
             return false;
 
         return $this->session->isvalidSession($this->token,$cfg->getStaffTimeout(),$cfg->enableStaffIPBinding())?true:false;

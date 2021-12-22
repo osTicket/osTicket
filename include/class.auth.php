@@ -1,19 +1,56 @@
 <?php
-require(INCLUDE_DIR.'class.ostsession.php');
-require(INCLUDE_DIR.'class.usersession.php');
+
+require_once(INCLUDE_DIR.'class.2fa.php');
+
+interface AuthenticatedUser {
+    // Get basic information
+    function getId();
+    function getUsername();
+    function getUserType();
 
 
-abstract class AuthenticatedUser {
+    // Get password reset timestamp
+    function getPasswdResetTimestamp();
+
+    //Backend used to authenticate the user
+    function getAuthBackend();
+
+    // Get 2FA Backend
+    function get2FABackend();
+
+    //Authentication key
+    function setAuthKey($key);
+
+    function getAuthKey();
+
+    // logOut the user
+    function logOut();
+
+    // Signal method to allow performing extra things when a user is logged
+    // into the sysem
+    function onLogin($bk);
+}
+
+abstract class BaseAuthenticatedUser
+implements AuthenticatedUser {
     //Authorization key returned by the backend used to authorize the user
     private $authkey;
 
     // Get basic information
     abstract function getId();
     abstract function getUsername();
-    abstract function getRole();
+    abstract function getUserType();
+
+    // Get password reset timestamp
+    function getPasswdResetTimestamp() {
+        return null;
+    }
 
     //Backend used to authenticate the user
     abstract function getAuthBackend();
+
+    // Get 2FA Backend
+    abstract function get2FABackend();
 
     //Authentication key
     function setAuthKey($key) {
@@ -32,7 +69,14 @@ abstract class AuthenticatedUser {
 
         return false;
     }
+
+    // Signal method to allow performing extra things when a user is logged
+    // into the sysem
+    function onLogin($bk) {}
 }
+
+require_once(INCLUDE_DIR.'class.ostsession.php');
+require_once(INCLUDE_DIR.'class.usersession.php');
 
 interface AuthDirectorySearch {
     /**
@@ -90,21 +134,20 @@ class ClientCreateRequest {
     function attemptAutoRegister() {
         global $cfg;
 
-        if (!$cfg)
+        if (!$cfg || !$cfg->isClientRegistrationEnabled())
             return false;
 
         // Attempt to automatically register
         $this_form = UserForm::getUserForm()->getForm($this->getInfo());
         $bk = $this->getBackend();
         $defaults = array(
-            'timezone_id' => $cfg->getDefaultTimezoneId(),
-            'dst' => $cfg->observeDaylightSaving(),
+            'timezone' => $cfg->getDefaultTimezone(),
             'username' => $this->getUsername(),
         );
         if ($bk->supportsInteractiveAuthentication())
             // User can only be authenticated against this backend
             $defaults['backend'] = $bk::$id;
-        if ($this_form->isValid(function($f) { return !$f->get('private'); })
+        if ($this_form->isValid(function($f) { return !$f->isVisibleToUsers(); })
                 && ($U = User::fromVars($this_form->getClean()))
                 && ($acct = ClientAccount::createForUser($U, $defaults))
                 // Confirm and save the account
@@ -186,7 +229,7 @@ abstract class AuthenticationBackend {
             $bk->audit($result, $credentials);
     }
 
-    static function process($username, $password=null, &$errors) {
+    static function process($username, $password=null, &$errors=array()) {
 
         if (!$username)
             return false;
@@ -321,6 +364,60 @@ abstract class AuthenticationBackend {
         return false;
     }
 
+
+    /**
+     * Get supported password policies for the backend.
+     *
+     */
+    function getPasswordPolicies($user=null) {
+        return PasswordPolicy::allActivePolicies();
+    }
+
+    /**
+     * Request the backend to update the password for a user. This method is
+     * the main entry for password updates so that password policies can be
+     * applied to the new password before passing the new password to the
+     * backend for updating.
+     *
+     * Throws:
+     * BadPassword — if password does not meet policy requirement
+     * PasswordUpdateFailed — if backend failed to update the password
+     */
+    function setPassword($user, $password, $current=false) {
+        foreach ($this->getPasswordPolicies($user) as $P)
+            $P->onSet($password, $current);
+
+        $rv = $this->syncPassword($user, $password);
+        if ($rv) {
+            $info = array('password' => $password, 'current' => $current);
+            Signal::send('auth.pwchange', $user, $info);
+        }
+        return $rv;
+    }
+
+    /*
+     * Request the backend to check the policies for a just logged
+     * in user.
+     * Throws: BadPassword & ExpiredPassword - for password related failures
+     */
+    function checkPolicies($user, $password) {
+        // Password policies
+        foreach ($this->getPasswordPolicies($user) as $P)
+            $P->onLogin($user, $password);
+    }
+
+    /**
+     * Request the backend to update the user's password with the password
+     * given. This method should only be used if the backend advertises
+     * supported password updates with the supportsPasswordChange() method.
+     *
+     * Returns:
+     * true if the password was successfully updated and false otherwise.
+     */
+    protected function syncPassword($user, $password) {
+        return false;
+    }
+
     function supportsPasswordReset() {
         return false;
     }
@@ -364,6 +461,13 @@ interface ExternalAuthentication {
     function renderExternalLink();
 
     /**
+     * Function: getServiceName
+     *
+     * Called to get the service name displayed on login page.
+     */
+     function getServiceName();
+
+    /**
      * Function: triggerAuth
      *
      * Called when a user clicks the button rendered in the
@@ -391,6 +495,18 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             return true;  //No restrictions
 
         return in_array($bk::$id, array_map('strtolower', $backends));
+    }
+
+    function getPasswordPolicies($user=null) {
+        global $cfg;
+        $policies = PasswordPolicy::allActivePolicies();
+        if ($cfg && ($policy = $cfg->getStaffPasswordPolicy())) {
+            foreach ($policies as $P)
+                if ($policy == $P::$id)
+                    return array($P);
+        }
+
+        return $policies;
     }
 
     function getAllowedBackends($userid) {
@@ -423,34 +539,41 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             return false;
 
         //Log debug info.
-        $ost->logDebug(_S('Agent login'),
+        $ost->logDebug(_S('Agent Login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
                 $_SERVER['REMOTE_ADDR'], get_class($bk))); //Debug.
 
-        $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() '
-            .' WHERE staff_id='.db_input($staff->getId());
-        db_query($sql);
+        $agent = Staff::lookup($staff->getId());
+        $type = array('type' => 'login');
+        Signal::send('person.login', $agent, $type);
 
-        //Tag the authkey.
+        // Check if the agent has 2fa enabled
+        $auth2fa = null;
+        if (($_2fa = $staff->get2FABackend())
+                && ($token=$_2fa->send($staff))) {
+            $auth2fa = sprintf('%s:%s:%s',
+                    $_2fa->getId(), md5($token.$staff->getId()), time());
+        }
+
+        // Tag the authkey.
         $authkey = $bk::$id.':'.$authkey;
-
-        //Now set session crap and lets roll baby!
+        // Now set session crap and lets roll baby!
         $authsession = &$_SESSION['_auth']['staff'];
-
         $authsession = array(); //clear.
         $authsession['id'] = $staff->getId();
         $authsession['key'] =  $authkey;
+        $authsession['2fa'] =  $auth2fa;
 
         $staff->setAuthKey($authkey);
         $staff->refreshSession(true); //set the hash.
-
-        $_SESSION['TZ_OFFSET'] = $staff->getTZoffset();
-        $_SESSION['TZ_DST'] = $staff->observeDaylight();
-
         Signal::send('auth.login.succeeded', $staff);
 
         if ($bk->supportsInteractiveAuthentication())
             $staff->cancelResetTokens();
+
+
+        // Update last-used language, login time, etc
+        $staff->onLogin($bk);
 
         return true;
     }
@@ -471,6 +594,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
                     $staff->getUserName(),
                     $_SERVER['REMOTE_ADDR'])); //Debug.
 
+        $agent = Staff::lookup($staff->getId());
+        $type = array('type' => 'logout');
+        Signal::send('person.logout', $agent, $type);
         Signal::send('auth.logout', $staff);
     }
 
@@ -510,7 +636,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
     protected function validate($authkey) {
 
-        if (($staff = new StaffSession($authkey)) && $staff->getId())
+        if (($staff = StaffSession::lookup($authkey)) && $staff->getId())
             return $staff;
     }
 }
@@ -523,19 +649,27 @@ abstract class ExternalStaffAuthenticationBackend
     static $sign_in_image_url = false;
     static $service_name = "External";
 
-    function renderExternalLink() { ?>
-        <a class="external-sign-in" title="Sign in with <?php echo static::$service_name; ?>"
+    function getServiceName() {
+        return __(static::$service_name);
+    }
+
+    function renderExternalLink() {
+        $service = sprintf('%s %s',
+                __('Sign in with'),
+                $this->getServiceName());
+        ?>
+        <a class="external-sign-in" title="<?php echo $service; ?>"
                 href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
-            ?>" alt="Sign in with <?php echo static::$service_name; ?>"/>
+            ?>" alt="<?php echo $service; ?>"/>
 <?php } else { ?>
             <div class="external-auth-box">
             <span class="external-auth-icon">
                 <i class="icon-<?php echo static::$fa_icon; ?> icon-large icon-fixed-with"></i>
             </span>
             <span class="external-auth-name">
-                Sign in with <?php echo static::$service_name; ?>
+               <?php echo $service; ?>
             </span>
             </div>
 <?php } ?>
@@ -569,6 +703,19 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
     static function allRegistered() {
         return array_merge(self::$_registry, parent::allRegistered());
+    }
+
+
+    function getPasswordPolicies($user=null) {
+        global $cfg;
+        $policies = PasswordPolicy::allActivePolicies();
+        if ($cfg && ($policy = $cfg->getClientPasswordPolicy())) {
+            foreach ($policies as $P)
+                if ($policy == $P::$id)
+                    return array($P);
+        }
+
+        return $policies;
     }
 
     function getAllowedBackends($userid) {
@@ -614,19 +761,21 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
 
         $user->refreshSession(true); //set the hash.
 
-        if (($acct = $user->getAccount()) && ($tid = $acct->get('timezone_id'))) {
-            $_SESSION['TZ_OFFSET'] = Timezone::getOffsetById($tid);
-            $_SESSION['TZ_DST'] = $acct->get('dst');
-        }
-
         //Log login info...
         $msg=sprintf(_S('%1$s (%2$s) logged in [%3$s]'
                 /* Tokens are <username>, <id>, and <ip> */),
                 $user->getUserName(), $user->getId(), $_SERVER['REMOTE_ADDR']);
         $ost->logDebug(_S('User login'), $msg);
 
+        $u = $user->getSessionUser()->getUser();
+        $type = array('type' => 'login');
+        Signal::send('person.login', $u, $type);
+
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
+
+        // Update last-used language, login time, etc
+        $user->onLogin($bk);
 
         return true;
     }
@@ -657,6 +806,10 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $ost->logDebug(_S('User logout'),
             sprintf(_S("%s logged out [%s]" /* Tokens are <username> and <ip> */),
                 $user->getUserName(), $_SERVER['REMOTE_ADDR']));
+
+        $u = $user->getSessionUser()->getUser();
+        $type = array('type' => 'logout');
+        Signal::send('person.logout', $u, $type);
     }
 
     protected function getAuthKey($user) {
@@ -701,19 +854,28 @@ abstract class ExternalUserAuthenticationBackend
     static $sign_in_image_url = false;
     static $service_name = "External";
 
-    function renderExternalLink() { ?>
-        <a class="external-sign-in" title="<?php echo sprintf(__('Sign in with %s'), __(static::$service_name)); ?>"
+    function getServiceName() {
+        return __(static::$service_name);
+    }
+
+    function renderExternalLink() {
+        $service = sprintf('%s %s',
+                __('Sign in with'),
+                $this->getServiceName());
+
+        ?>
+        <a class="external-sign-in" title="<?php echo $service; ?>"
                 href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
-            ?>" alt="<?php echo sprintf(__('Sign in with %s'), __(static::$service_name)); ?>"/>
+            ?>" alt="<?php $service; ?>"/>
 <?php } else { ?>
             <div class="external-auth-box">
             <span class="external-auth-icon">
                 <i class="icon-<?php echo static::$fa_icon; ?> icon-large icon-fixed-with"></i>
             </span>
             <span class="external-auth-name">
-                <?php echo sprintf(__('Sign in with %s'), __(static::$service_name)); ?>
+                <?php echo $service; ?>
             </span>
             </div>
 <?php } ?>
@@ -832,8 +994,16 @@ class StaffAuthStrikeBackend extends  AuthStrikeBackend {
                    ._S('Time').": ".date('M j, Y, g:i a T')."\n\n"
                    ._S('Attempts').": {$authsession['strikes']}\n"
                    ._S('Timeout').": ".sprintf(_N('%d minute', '%d minutes', $timeout), $timeout)."\n\n";
+            $admin_alert = ($cfg->alertONLoginError() == 1) ? TRUE : FALSE;
             $ost->logWarning(sprintf(_S('Excessive login attempts (%s)'),$username),
-                    $alert, $cfg->alertONLoginError());
+                    $alert, $admin_alert);
+
+              if ($username) {
+                $agent = Staff::lookup($username);
+                $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
+                Signal::send('person.login', $agent, $type);
+              }
+
             return new AccessDenied(__('Forgot your login info? Contact Admin.'));
         //Log every other third failed login attempt as a warning.
         } elseif($authsession['strikes']%3==0) {
@@ -892,14 +1062,30 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
                     _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".
                     _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
                     _S('Attempts').": {$authsession['strikes']}";
-            $ost->logError(_S('Excessive login attempts (user)'), $alert, ($cfg->alertONLoginError()));
-            return new AccessDenied(__('Access Denied'));
+            $admin_alert = ($cfg->alertONLoginError() == 1 ? TRUE : FALSE);
+            $ost->logError(_S('Excessive login attempts (user)'), $alert, $admin_alert);
+
+            if ($username) {
+              $account = UserAccount::lookupByUsername($username);
+              $id = UserEmailModel::getIdByEmail($username);
+              if ($account)
+                  $user = User::lookup($account->user_id);
+              elseif ($id)
+                $user = User::lookup($id);
+
+              if ($user) {
+                $type = array('type' => 'login', 'msg' => sprintf('Excessive login attempts (%s)', $authsession['strikes']));
+                Signal::send('person.login', $user, $type);
+              }
+            }
+
+            return new AccessDenied(__('Access denied'));
         } elseif($authsession['strikes']%3==0) { //Log every third failed login attempt as a warning.
             $alert=_S('Username').": {$username}\n".
                     _S('IP').": {$_SERVER['REMOTE_ADDR']}\n".
                     _S('Time').": ".date('M j, Y, g:i a T')."\n\n".
                     _S('Attempts').": {$authsession['strikes']}";
-            $ost->logWarning(_S('Failed login attempt (user)'), $alert);
+            $ost->logWarning(_S('Failed login attempt (user)'), $alert, false);
         }
 
     }
@@ -907,27 +1093,36 @@ class UserAuthStrikeBackend extends  AuthStrikeBackend {
 UserAuthenticationBackend::register('UserAuthStrikeBackend');
 
 
-class osTicketAuthentication extends StaffAuthenticationBackend {
+class osTicketStaffAuthentication extends StaffAuthenticationBackend {
     static $name = "Local Authentication";
     static $id = "local";
 
     function authenticate($username, $password) {
-        if (($user = new StaffSession($username)) && $user->getId() &&
+        if (($user = StaffSession::lookup($username)) && $user->getId() &&
                 $user->check_passwd($password)) {
-
-            //update last login && password reset stuff.
-            $sql='UPDATE '.STAFF_TABLE.' SET lastlogin=NOW() ';
-            if($user->isPasswdResetDue() && !$user->isAdmin())
-                $sql.=',change_passwd=1';
-            $sql.=' WHERE staff_id='.db_input($user->getId());
-            db_query($sql);
-
+            try {
+                $this->checkPolicies($user, $password);
+            } catch (BadPassword | ExpiredPassword $ex) {
+                $user->change_passwd = 1;
+            }
             return $user;
         }
     }
 
+    function supportsPasswordChange() {
+        return true;
+    }
+
+    function syncPassword($staff, $password) {
+        $staff->passwd = Passwd::hash($password);
+    }
+
+    static function checkPassword($new, $current) {
+        PasswordPolicy::checkPassword($new, $current, new self());
+    }
+
 }
-StaffAuthenticationBackend::register('osTicketAuthentication');
+StaffAuthenticationBackend::register('osTicketStaffAuthentication');
 
 class PasswordResetTokenBackend extends StaffAuthenticationBackend {
     static $id = "pwreset.staff";
@@ -943,8 +1138,9 @@ class PasswordResetTokenBackend extends StaffAuthenticationBackend {
             return false;
         elseif (!($_config = new Config('pwreset')))
             return false;
-        elseif (($staff = new StaffSession($_POST['userid'])) &&
-                !$staff->getId())
+
+        $staff = StaffSession::lookup($_POST['userid']);
+        if (!$staff || !$staff->getId())
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
                 || $id != $staff->getId())
@@ -981,6 +1177,11 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
 
 
     function signOn() {
+        global $cfg;
+
+
+        if (!$cfg || !$cfg->isAuthTokenEnabled())
+            return null;
 
         $user = null;
         if ($_GET['auth']) {
@@ -992,7 +1193,8 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
             if (($ticket = Ticket::lookupByNumber($_GET['t'], $_GET['e']))
                     // Using old ticket auth code algo - hardcoded here because it
                     // will be removed in ticket class in the upcoming rewrite
-                    && !strcasecmp($_GET['a'], md5($ticket->getId() .  $_GET['e'] . SECRET_SALT))
+                    && strcasecmp((string) $_GET['a'], md5($ticket->getId()
+                            .  strtolower($_GET['e']) . SECRET_SALT)) === 0
                     && ($owner = $ticket->getOwner()))
                 $user = new ClientSession($owner);
         }
@@ -1030,8 +1232,10 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
         $user = null;
         switch ($matches['type']) {
             case 'c': //Collaborator
-                $criteria = array( 'userId' => $matches['id'],
-                        'ticketId' => $matches['tid']);
+                $criteria = array(
+                    'user_id' => $matches['id'],
+                    'thread__ticket__ticket_id' => $matches['tid']
+                );
                 if (($c = Collaborator::lookup($criteria))
                         && ($c->getTicketId() == $matches['tid']))
                     $user = new ClientSession($c);
@@ -1054,6 +1258,7 @@ class AuthTokenAuthentication extends UserAuthenticationBackend {
     }
 
 }
+
 UserAuthenticationBackend::register('AuthTokenAuthentication');
 
 //Simple ticket lookup backend used to recover ticket access link.
@@ -1082,8 +1287,9 @@ class AccessLinkAuthentication extends UserAuthenticationBackend {
             $user = $ticket->getOwner();
         // Collaborator?
         elseif (!($user = Collaborator::lookup(array(
-                'userId' => $user->getId(),
-                'ticketId' => $ticket->getId()))))
+                'user_id' => $user->getId(),
+                'thread__ticket__ticket_id' => $ticket->getId())
+        )))
             return false; //Bro, we don't know you!
 
         return $user;
@@ -1133,10 +1339,14 @@ class osTicketClientAuthentication extends UserAuthenticationBackend {
         if (($client = new ClientSession(new EndUser($acct->getUser())))
                 && !$client->getId())
             return false;
-        elseif (!$acct->checkPassword($password))
+        elseif (!$acct->check_passwd($password))
             return false;
         else
             return $client;
+    }
+
+    static function checkPassword($new, $current) {
+        PasswordPolicy::checkPassword($new, $current, new self());
     }
 }
 UserAuthenticationBackend::register('osTicketClientAuthentication');
@@ -1160,7 +1370,7 @@ class ClientPasswordResetTokenBackend extends UserAuthenticationBackend {
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             $errors['msg'] = __('Invalid user-id given');
         elseif (!($id = $_config->get($_POST['token']))
-                || $id != $client->getId())
+                || $id != 'c'.$client->getId())
             $errors['msg'] = __('Invalid reset token');
         elseif (!($ts = $_config->lastModified($_POST['token']))
                 && ($ost->getConfig()->getPwResetWindow() < (time() - strtotime($ts))))
@@ -1195,9 +1405,9 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
             return false;
         elseif (!($id = $_config->get($_GET['token'])))
             return false;
-        elseif (!($acct = ClientAccount::lookup(array('user_id'=>$id)))
+        elseif (!($acct = ClientAccount::lookup(array('user_id'=>substr($id,1))))
                 || !$acct->getId()
-                || $id != $acct->getUserId()
+                || $id != 'c'.$acct->getUserId()
                 || !($client = new ClientSession(new EndUser($acct->getUser()))))
             return false;
         else
@@ -1205,4 +1415,127 @@ class ClientAcctConfirmationTokenBackend extends UserAuthenticationBackend {
     }
 }
 UserAuthenticationBackend::register('ClientAcctConfirmationTokenBackend');
+
+// ----- Password Policy --------------------------------------
+
+class BadPassword extends Exception {}
+class ExpiredPassword extends Exception {}
+class PasswordUpdateFailed extends Exception {}
+
+abstract class PasswordPolicy {
+    static protected $registry = array();
+
+    static $id;
+    static $name;
+
+    /**
+     * Check a password and throw BadPassword with a meaningful message if
+     * the password cannot be accepted.
+     */
+    abstract function onset($new, $current);
+
+    /*
+     * Called on login to enforce policies & check for expired passwords
+     */
+    abstract function onLogin($user, $password);
+
+    /*
+     * get friendly name of the policy
+     */
+    function getName() {
+        return static::$name;
+    }
+
+    /*
+     * Check a password aganist all available policies 
+     */
+    static function checkPassword($new, $current, $bk=null) {
+        if ($bk && is_a($bk, 'AuthenticationBackend'))
+            $policies = $bk->getPasswordPolicies();
+        else
+            $policies = self::allActivePolicies();
+
+        foreach ($policies as $P)
+            $P->onSet($new, $current);
+    }
+
+    static function allActivePolicies() {
+        $policies = array();
+        foreach (array_reverse(static::$registry) as $P) {
+            if (is_string($P) && class_exists($P))
+                $P = new $P();
+            if ($P instanceof PasswordPolicy)
+                $policies[] = $P;
+        }
+        return $policies;
+    }
+
+    static function register($policy) {
+        static::$registry[] = $policy;
+    }
+
+    static function cleanSessions($model, $user=null) {
+        $criteria = array();
+
+        switch (true) {
+            case ($model instanceof Staff):
+                $criteria['user_id'] = $model->getId();
+
+                if ($user && ($model->getId() == $user->getId()))
+                    array_push($criteria,
+                        Q::not(array('session_id' => $user->session->session_id)));
+                break;
+            case ($model instanceof User):
+                $regexp = '_auth\|.*"user";[a-z]+:[0-9]+:\{[a-z]+:[0-9]+:"id";[a-z]+:'.$model->getId();
+                $criteria['user_id'] = 0;
+                $criteria['session_data__regex'] = $regexp;
+
+                if ($user)
+                    array_push($criteria,
+                        Q::not(array('session_id' => $user->session->session_id)));
+                break;
+            default:
+                return false;
+        }
+
+        return SessionData::objects()->filter($criteria)->delete();
+    }
+}
+Signal::connect('auth.clean', array('PasswordPolicy', 'cleanSessions'));
+
+/*
+ * Basic default password policy that ships with osTicket.
+ * 
+ */
+class osTicketPasswordPolicy
+extends PasswordPolicy {
+    static $id = "basic";
+    static $name = /* @trans */ "Default Basic Policy";
+
+    function onLogin($user, $password) {
+        global $cfg;
+
+        // Check for possible password expiration
+        // Check is only here for legacy reasons - password management
+        // policies are now done via plugins.
+        if ($cfg && $user
+                && ($period=$cfg->getPasswdResetPeriod())
+                && ($time=$user->getPasswdResetTimestamp())
+                && $time < time()-($period*2629800))
+            throw new ExpiredPassword(__('Expired password'));
+    }
+
+    function onSet($passwd, $current) {
+        if (strlen($passwd) < 6) {
+            throw new BadPassword(
+                __('Password must be at least 6 characters'));
+        }
+        // XXX: Changing case is technicall changing the password
+        if (0 === strcasecmp($passwd, $current)) {
+            throw new BadPassword(
+                __('New password MUST be different from the current password!'));
+        }
+    }
+}
+PasswordPolicy::register('osTicketPasswordPolicy');
 ?>

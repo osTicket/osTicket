@@ -1,0 +1,36 @@
+#
+# Email template: task.overdue.alert.yaml
+#
+# Sent to agents when a tasks transitions to overdue in the system.
+# Overdue tasks occur based on set due-date.
+#
+---
+notes: |
+    Sent to agents when a task transitions to overdue in the system.
+    Overdue tasks occur based on the set due-date.
+
+subject: |
+    Stale Task Alert
+body: |
+    <h3><strong>Hi %{recipient.name}</strong>,</h3>
+    A task, <a href="%{task.staff_link}">#%{task.number}</a> is
+    seriously overdue.
+    <br>
+    <br>
+    We should all work hard to guarantee that all tasks are being
+    addressed in a timely manner.
+    <br>
+    <br>
+    Signed,<br>
+    %{task.dept.manager.name}
+    <hr>
+    <div>To view or respond to the task, please <a
+    href="%{task.staff_link}"><span style="color: rgb(84, 141, 212);"
+    >login</span></a> to the support system. You're receiving this
+    notice because the task is assigned directly to you or to a team or
+    department of which you're a member.</div>
+    <em style="font-size: small">Your friendly <span style="font-size: smaller"
+    >(although with limited patience)</span> Customer Support
+    System</em><br>
+    <img src="cid:b56944cb4722cc5cda9d1e23a3ea7fbc" height="19"
+        alt="Powered by osTicket" width="126" style="width: 126px;">

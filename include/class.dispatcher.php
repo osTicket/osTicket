@@ -21,7 +21,7 @@
  * functions aren't separated
  */
 class Dispatcher {
-    function Dispatcher($file=false) {
+    function __construct($file=false) {
         $this->urls = array();
         $this->file = $file;
     }
@@ -81,7 +81,7 @@ class Dispatcher {
 }
 
 class UrlMatcher {
-    function UrlMatcher($regex, $func, $args=false, $method=false) {
+    function __construct($regex, $func, $args=false, $method=false) {
         # Add the slashes for the Perl syntax
         $this->regex = "@" . $regex . "@";
         $this->func = $func;

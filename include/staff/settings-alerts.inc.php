@@ -1,16 +1,4 @@
-<h2><?php echo __('Alerts and Notices'); ?>
-    <i class="help-tip icon-question-sign" href="#page_title"></i></h2>
-<form action="settings.php?t=alerts" method="post" id="save">
-<?php csrf_token(); ?>
-<input type="hidden" name="t" value="alerts" >
 <table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
-    <thead>
-        <tr>
-            <th>
-                <h4><?php echo __('Alerts and Notices sent to agents on ticket "events"'); ?></h4>
-            </th>
-        </tr>
-    </thead>
     <tbody>
         <tr><th><em><b><?php echo __('New Ticket Alert'); ?></b>:
             <i class="help-tip icon-question-sign" href="#ticket_alert"></i>
@@ -135,7 +123,7 @@
         <tr>
             <td>
               <input type="checkbox" name="assigned_alert_staff" <?php echo
-              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agent / Team'); ?>
+              $config['assigned_alert_staff']?'checked':''; ?>> <?php echo __('Assigned Agent'); ?>
             </td>
         </tr>
         <tr>
@@ -233,8 +221,3 @@
         </tr>
     </tbody>
 </table>
-<p style="text-align:center;">
-    <input class="button" type="submit" name="submit" value="<?php echo __('Save Changes'); ?>">
-    <input class="button" type="reset" name="reset" value="<?php echo __('Reset Changes'); ?>">
-</p>
-</form>

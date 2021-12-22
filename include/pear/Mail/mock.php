@@ -84,7 +84,7 @@ class Mail_mock extends Mail {
      * @param array Hash containing any parameters.
      * @access public
      */
-    function Mail_mock($params)
+    function __construct($params)
     {
         if (isset($params['preSendCallback']) &&
             is_callable($params['preSendCallback'])) {

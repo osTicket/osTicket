@@ -1,9 +1,22 @@
 <?php
-if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
-    $activeMenu=$nav->getActiveMenu();
-    if($activeMenu>0 && !isset($subnav[$activeMenu-1]))
-        $activeMenu=0;
+if (!$nav || !($subnav=$nav->getSubMenu()) || !is_array($subnav))
+    return;
+
+$activeMenu=$nav->getActiveMenu();
+if ($activeMenu>0 && !isset($subnav[$activeMenu-1]))
+    $activeMenu=0;
+
+$info = $nav->getSubNavInfo();
+?>
+<nav class="<?php echo @$info['class']; ?>" id="<?php echo $info['id']; ?>">
+  <ul id="sub_nav">
+<?php
     foreach($subnav as $k=> $item) {
+        if (is_callable($item)) {
+            if ($item($nav) && !$activeMenu)
+                $activeMenu = 'x';
+            continue;
+        }
         if($item['droponly']) continue;
         $class=$item['iconclass'];
         if ($activeMenu && $k+1==$activeMenu
@@ -17,7 +30,15 @@ if(($subnav=$nav->getSubMenu()) && is_array($subnav)){
         if (!($id=$item['id']))
             $id="subnav$k";
 
-        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s">%s</a></li>',
-                $class, $item['href'], $item['title'], $id, $item['desc']);
+        //Extra attributes
+        $attr = '';
+        if ($item['attr'])
+            foreach ($item['attr'] as $name => $value)
+                $attr.=  sprintf("%s='%s' ", $name, $value);
+
+        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s" %s>%s</a></li>',
+                $class, $item['href'], $item['title'], $id, $attr, $item['desc']);
     }
-}
+?>
+  </ul>
+</nav>

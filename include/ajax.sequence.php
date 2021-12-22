@@ -67,7 +67,7 @@ class SequenceAjaxAPI extends AjaxController {
             foreach ($_POST['seq'] as $id=>$info) {
                 if (strpos($id, 'new-') === 0) {
                     unset($info['id']);
-                    $sequences[] = Sequence::create($info);
+                    $sequences[] = new Sequence($info);
                 }
                 else {
                     foreach ($sequences as $s) {

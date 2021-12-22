@@ -21,19 +21,11 @@ ignore_user_abort(1);//Leave me a lone bro!
 $data=sprintf ("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%",
         71,73,70,56,57,97,1,0,1,0,128,255,0,192,192,192,0,0,0,33,249,4,1,0,0,0,0,44,0,0,0,0,1,0,1,0,0,2,2,68,1,0,59);
 
-header('Content-type:  image/gif');
-header('Cache-Control: no-cache, must-revalidate');
-header('Content-Length: '.strlen($data));
-header('Connection: Close');
-print $data;
-// Flush the request buffer
-while(@ob_end_flush());
-flush();
-//Terminate the request
-if (function_exists('fastcgi_finish_request'))
-    fastcgi_finish_request();
+// Flush the gif image
+Http::flush(201, $data, 'image/gif');
 
-ob_start(); //Keep the image output clean. Hide our dirt.
+// Keep the image output clean. Hide our dirt.
+ob_start();
 //TODO: Make cron DB based to allow for better time limits. Direct calls for now sucks big time.
 //We DON'T want to spawn cron on every page load...we record the lastcroncall on the session per user
 $sec=time()-$_SESSION['lastcroncall'];
@@ -41,9 +33,14 @@ $caller = $thisstaff->getUserName();
 
 // Agent can call cron once every 3 minutes.
 if ($sec < 180 || !$ost || $ost->isUpgradePending())
-    ob_end_clean();
+    return ob_end_clean();
 
 require_once(INCLUDE_DIR.'class.cron.php');
+
+// Run tickets count every 3rd run or so... force new count by skipping cached
+// results
+if ((mt_rand(1, 12) % 3) == 0)
+    SavedQueue::counts($thisstaff, false);
 
 // Clear staff obj to avoid false credit internal notes & auto-assignment
 $thisstaff = null;
@@ -66,7 +63,7 @@ if($cfg && $cfg->isAutoCronEnabled()) { //ONLY fetch tickets if autocron is enab
 }
 
 $data = array('autocron'=>true);
-Signal::send('cron', $data);
+Signal::send('cron', null, $data);
 
 ob_end_clean();
 ?>
