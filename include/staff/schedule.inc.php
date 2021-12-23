@@ -49,7 +49,7 @@
 </ul>
 <div id="schedule-tabs_container">
 <div id="schedule" class="tab_content hidden">
-   <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+   <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

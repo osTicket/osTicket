@@ -7,7 +7,7 @@ $gmtime = Misc::gmtime();
 <form action="settings.php?t=system" method="post" class="save">
 <?php csrf_token(); ?>
 <input type="hidden" name="t" value="system" >
-<table class="form_table settings_table" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table settings_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -91,6 +91,14 @@ $gmtime = Misc::gmtime();
                     } ?>
                 </select>
                 <i class="help-tip icon-question-sign" href="#default_page_size"></i>
+            </td>
+        </tr>
+        </tr>
+        <tr><td><?php echo __('Default Page Width');?>:</td>
+            <td>
+                <input type="text" size="10" name="max_page_width" value="<?php echo $config['max_page_width']; ?>">
+                &nbsp;<font class="error">*&nbsp;<?php echo $errors['max_page_width']; ?></font>
+                <i class="help-tip icon-question-sign" href="#default_page_width"></i>
             </td>
         </tr>
         <tr>

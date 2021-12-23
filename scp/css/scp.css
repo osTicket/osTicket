@@ -126,7 +126,6 @@ a time {
 
 
 #container {
-    width:960px;
     margin:0 auto 20px auto;
 }
 
@@ -329,6 +328,7 @@ a time {
     margin:0;
     padding:0;
     line-height:26px;
+    width:100%;
 }
 
 #sub_nav > ul {
@@ -1126,6 +1126,7 @@ table.list {
     background:#ccc;
     margin: 2px 0;
     border-bottom: 1px solid #ccc;
+    width:100%;
 }
 
 table.list caption {

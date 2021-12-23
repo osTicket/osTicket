@@ -331,7 +331,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
  <input type="hidden" name="do" id="action" value="" >
  <input type="hidden" name="status" value="<?php echo
  Format::htmlchars($_REQUEST['status'], true); ?>" >
- <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
+ <table class="list" border="0" cellspacing="1" cellpadding="2" width="100%">
     <thead>
         <tr>
             <?php if ($thisstaff->canManageTickets()) { ?>
