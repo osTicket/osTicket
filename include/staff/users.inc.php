@@ -193,7 +193,7 @@ else
                     <a class="preview"
                         href="users.php?id=<?php echo $U['id']; ?>"
                         data-preview="#users/<?php echo $U['id']; ?>/preview"><?php
-                        echo Format::htmlchars($name); ?></a>
+                        echo Format::htmlchars($name); ?></a><?php echo (BanList::isbanned($U['default_email__address']) ? '&nbsp;&nbsp;<font color="ff0000">(Banned)</font>' : ''); ?>
                     &nbsp;
                     <?php
                     if ($U['ticket_count'])
