@@ -4083,8 +4083,7 @@ implements RestrictedAccess, Threadable, Searchable {
         Signal::send('ticket.create.before', null, $vars);
 
         // Create and verify the dynamic form entry for the new ticket
-        $form = TicketForm::getNewInstance();
-        $form->setSource($vars);
+        $form = TicketForm::getNewInstance($vars);
 
         // If submitting via email or api, ensure we have a subject and such
         if (!in_array(strtolower($origin), array('web', 'staff'))) {
@@ -4390,6 +4389,11 @@ implements RestrictedAccess, Threadable, Searchable {
             $topic_form->save();
         }
 
+        // Attach canned tasks, if configured
+        if ($topic && ($task_group = $topic->getTaskTemplateGroup())) {
+            $task_set = $task_group->instanciate($ticket);
+        }
+
         $ticket->loadDynamicData(true);
 
         $dept = $ticket->getDept();
@@ -4572,6 +4576,13 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($user->getNumOpenTickets()==$cfg->getMaxOpenTickets())
         ) {
             $ticket->onOpenLimit($autorespond && strcasecmp($origin, 'staff'));
+        }
+
+        // Start associated canned tasks, if any
+        if ($task_set) {
+            // If not alerting staff of the new ticket, then pass on the
+            // alerts for new tasks as well
+            $task_set->start($alertstaff);
         }
 
         // Fire post-create signal (for extra email sending, searching)

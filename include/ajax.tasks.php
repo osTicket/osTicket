@@ -118,7 +118,8 @@ class TasksAjaxAPI extends AjaxController {
                 $vars['staffId'] = $thisstaff->getId();
                 $vars['poster'] = $thisstaff;
                 $vars['ip_address'] = $_SERVER['REMOTE_ADDR'];
-                if (($task=Task::create($vars, $errors))) {
+
+                if (($task=Task::createFromUi($vars, $errors))) {
                   if ($_SESSION[':form-data']['eid']) {
                     //add internal note to original task:
                     $taskLink = sprintf('<a href="tasks.php?id=%d"><b>#%s</b></a>',
@@ -340,7 +341,7 @@ class TasksAjaxAPI extends AjaxController {
             $form = AssignmentForm::instantiate($_POST);
 
             $assignCB = function($t, $f, $e) {
-                return $t->assign($f, $e);
+                return $t->assignViaForm($f, $e);
             };
 
             $assignees = null;
@@ -690,7 +691,7 @@ class TasksAjaxAPI extends AjaxController {
         }
 
         if ($_POST && $form->isValid()) {
-            if ($task->assign($form, $errors)) {
+            if ($task->assignViaForm($form, $errors)) {
                 $_SESSION['::sysmsgs']['msg'] = sprintf(
                         __('%s successfully'),
                         sprintf(
@@ -818,6 +819,7 @@ class TasksAjaxAPI extends AjaxController {
         $statuses = array(
                 'open' => __('Reopen'),
                 'closed' => __('Close'),
+                'cancel' => __('Cancel'),
                 );
 
         if(!($task=Task::lookup($tid)) || !$task->checkStaffPerm($thisstaff))
@@ -850,6 +852,53 @@ class TasksAjaxAPI extends AjaxController {
                 $info['warn'] = sprintf(__('Are you sure you want to change status of %s?'),
                         __('this task'));
             break;
+        case 'cancel':
+            $perm = Task::PERM_CLOSE;
+            $info = array(
+                    ':title' => sprintf(__('Cancel Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/cancel',
+                        $task->getId())
+                    );
+
+            if (count($task->getDependents())) {
+                $form = new TaskCascadeCancelForm($_POST, array('task' => $task));
+                $info[':extra'] = $form->asTable();
+                if ($_POST) {
+                    $cascaded = array();
+                    foreach ($form->getClean(Form::FORMAT_PHP) as $id=>$value) {
+                        if ($value) {
+                            list($_, $task_id) = explode('_', $id);
+                            $T = Task::lookup($task_id);
+                            if ($T && $T->isCancellable()) {
+                                $T->cancel(false, false);
+                            }
+                        }
+                        // XXX: Some tasks might not get started? It's maybe
+                        // possible that if some odd combination of
+                        // dependent tasks were cancelled and only the
+                        // dependents of the main task were considered to be
+                        // started after this main task is cancelled, that
+                        // some tasks might get stuck?
+                    }
+                }
+            }
+
+            if (($m=$task->isCancellable()) !== true)
+                $errors['err'] = $info['error'] = $m;
+            else
+                $info['warn'] = sprintf(__('Are you sure you want to %s?'),
+                        sprintf(__('change status of %s'), __('this task')));
+            break;
+        case 'start':
+            $perm = Task::PERM_CREATE;
+            $info = array(
+                    ':title' => sprintf(__('Start Task #%s'),
+                        $task->getNumber()),
+                    ':action' => sprintf('#tasks/%d/start',
+                        $task->getId())
+                    );
+            break;
         default:
             Http::response(404, __('Unknown status'));
         }
@@ -877,6 +926,14 @@ class TasksAjaxAPI extends AjaxController {
 
    function close($tid) {
        return $this->changeStatus($tid, 'closed');
+   }
+
+   function cancel($tid) {
+       return $this->changeStatus($tid, 'cancel');
+   }
+
+   function start($tid) {
+       return $this->changeStatus($tid, 'start');
    }
 
     function task($tid) {
@@ -919,6 +976,49 @@ class TasksAjaxAPI extends AjaxController {
         }
 
         include STAFFINC_DIR . 'templates/task-view.tmpl.php';
+    }
+
+
+    // TASK TEMPLATE OPERATIONS --------------------------------------
+
+    function addTemplateGroup() {
+        global $thisstaff;
+
+        if (!$thisstaff || !$thisstaff->isAdmin())
+            Http::response(403, __('Permission Denied'));
+
+        $form = new TaskTemplateGroupForm($_POST);
+        if ($_POST && $form->isValid()) {
+            $set = new TaskTemplateGroup($form->getClean(Form::FORMAT_PHP));
+            if ($set->save())
+                Http::response(201);
+        }
+
+        $info = array('action' => '#tasks/template/group/add');
+        include STAFFINC_DIR . 'templates/task-template-group.tmpl.php';
+    }
+
+    function editTemplateGroup($gid) {
+        global $thisstaff;
+
+        if (!$thisstaff || !$thisstaff->isAdmin())
+            Http::response(403, __('Permission Denied'));
+        elseif (!($set = TaskTemplateGroup::lookup($gid)))
+            Http::response(404, 'No such task template');
+
+        $form = new TaskTemplateGroupForm($_POST ?: $set->getDbFields());
+        if ($_POST && $form->isValid()) {
+            $data = $form->getClean(Form::FORMAT_PHP);
+            $set->name = $data['name'];
+            $set->notes = $data['notes'];
+            $set->dept_id = $data['dept_id'];
+            $set->topic_id = $data['topic_id'];
+            if ($set->save())
+                Http::response(201);
+        }
+
+        $info = array('action' => '#tasks/template/group/'.$gid);
+        include STAFFINC_DIR . 'templates/task-template-group.tmpl.php';
     }
 }
 ?>

@@ -223,6 +223,22 @@ if ($task->isOverdue())
                                 echo __('Reopen');?> </a>
                         </li>
                         <?php
+                        } elseif ($task->isPending() && $task->isOpen()) { ?>
+                        <li>
+                            <a class="no-pjax task-action"
+                                href="#tasks/<?php echo $task->getId(); ?>/cancel"><i
+                                class="icon-fixed-width icon-remove"></i> <?php
+                                echo __('Cancel');?> </a>
+                        </li>
+<?php                       if ($task->canStart()) { ?>
+                        <li>
+                            <a class="no-pjax task-action"
+                                href="#tasks/<?php echo $task->getId(); ?>/start"><i
+                                class="icon-fixed-width icon-level-up"></i> <?php
+                                echo __('Start');?> </a>
+                        </li>
+                        <?php
+                            }
                         } elseif ($canClose) {
                         ?>
                         <li>
@@ -474,7 +490,7 @@ if (!$ticket) { ?>
         <tbody>
             <tr>
             <td colspan="2">
-                <table cellspacing="0" cellpadding="4" width="100%" border="0">
+                <table style="margin-bottom:0.8em" cellspacing="0" cellpadding="4" width="100%" border="0">
                 <?php foreach($displayed as $a) {
                     $field = $a->getField();
                     $id =  $a->getLocal('id');
@@ -526,6 +542,94 @@ if (!$ticket) { ?>
 <?php
 } ?>
 <div class="clear"></div>
+
+<?php if ($upstream = $task->getDependencies()) { ?>
+<div style="margin-bottom:1em;">
+<table class="table full-width"><tbody>
+  <tr class="flush-left">
+    <th style="width:20%;vertical-align:top"><?php echo __('Dependencies'); ?>:</th>
+    <td style="line-height:1.3em">
+<?php   foreach ($upstream as $T) {
+            echo sprintf('<div><i style="display:inline-block;width:16px" class="flush-left %s"></i> <span class="%s">%s</span> (%s)</div>',
+                $T->isClosed() ? 'icon-check' : 'icon-check-empty',
+                $T->isCancelled() ? 'cancelled' : '',
+                Format::htmlchars($T->getTitle()),
+                sprintf('<a href="tasks.php?id=%d">#%s</a>',
+                    $T->getId(), $T->getNumber())
+            );
+} ?>
+    </td>
+  </tr>
+</tbody></table>
+</div>
+<?php } ?>
+
+<?php
+// Hide `related tasks` when rendering in the ticket view, because the list
+// of tasks already shows the task sets in labeled chunks
+if (!$ticket && ($set = $task->set)
+    && ($related = $set->getTasks()->order_by('template__sort', 'id'))
+    && $related->exists(true)
+) { ?>
+<div style="margin-bottom:1em;">
+    <div style="margin-bottom:0.8em;font-size:110%">
+        <strong><?php echo __('Related Tasks'); ?></strong>:
+        <?php echo Format::htmlchars($set->getName()); ?>
+    </div>
+    <table class="list full-width" cellspacing="1" cellpadding="1">
+        <thead><tr>
+            <th style="width:12px"></th>
+            <th><?php echo __('Status'); ?></th>
+            <th style="width:45%"><?php echo __('Name'); ?></th>
+            <th><?php echo __('Started'); ?></th>
+            <th><?php echo __('Completed'); ?></th>
+            <th><?php echo __('Due Date'); ?></th>
+        </tr></thead>
+        <tbody>
+<?php
+$dbnow = Misc::dbtime();
+$getTimeNode = function($timestamp) use ($thisstaff, $dbnow) {
+    $relative = $thisstaff && 0 === strcmp($thisstaff->datetime_format, 'relative');
+    return sprintf('<time %s datetime="%s" title="%s">%s</time>',
+        $relative ? 'class="relative"' : '',
+        date(DateTime::W3C, Misc::db2gmtime($timestamp)),
+        Format::daydatetime($timestamp),
+        $relative ? Format::relativeTime($timestamp, $dbnow)
+            : Format::datetime($timestamp)
+    );
+};
+$display_level = function($items, $level=0) use ($task, $getTimeNode, &$display_level) {
+    foreach ($items as $id=>$info) {
+        list($T, $children) = $info;
+?>
+            <tr><td><?php echo ($T->id == $task->id)
+                    ? '<i class="icon-chevron-right"></i>'
+                    : ($T->isClosed() ? '<i class="faded icon-ok"></i>' : ''); ?></td>
+                <td><?php echo Format::htmlchars($T->getStatus()); ?></td>
+                <td><?php
+                for ($i=0; $i<$level; $i++) {
+                  echo '<span class="child indent"></span>';
+                }
+                echo sprintf(
+                    $T->id == $task->id ? '%2$s' : '<a href="tasks.php?id=%d">%s</a>',
+                    $T->getId(), Format::htmlchars($T->getTitle())); ?></td>
+                <td><?php echo $getTimeNode($T->started); ?></td>
+                <td><?php echo $getTimeNode($T->getCloseDate()); ?></td>
+                <td><?php echo $getTimeNode($T->getDueDate()); ?></td>
+            </tr>
+<?php
+        if ($children) {
+            $display_level($children, $level + 1);
+        }
+    }
+};
+$display_level($set->getTreeOrganizedTasks()); ?>
+        </tbody>
+    </table>
+</div>
+<?php
+} ?>
+
 <div id="task_thread_container">
     <div id="task_thread_content" class="tab_content">
      <?php
@@ -557,14 +661,14 @@ else
 <div id="task_response_options" class="<?php echo $ticket ? 'ticket_task_actions' : ''; ?> sticky bar stop actions">
     <ul class="tabs">
         <?php
-        if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
+        if ($role->hasPerm(TaskModel::PERM_REPLY) && $task->isStarted()) { ?>
         <li class="active"><a href="#task_reply"><?php echo __('Post Update');?></a></li>
-        <li><a href="#task_note"><?php echo __('Post Internal Note');?></a></li>
         <?php
         }?>
+        <li><a href="#task_note"><?php echo __('Post Internal Note');?></a></li>
     </ul>
     <?php
-    if ($role->hasPerm(TaskModel::PERM_REPLY)) { ?>
+    if ($role->hasPerm(TaskModel::PERM_REPLY) && $task->isStarted()) { ?>
     <form id="task_reply" class="tab_content spellcheck save"
         action="<?php echo $action; ?>"
         name="task_reply" method="post" enctype="multipart/form-data">
@@ -626,18 +730,27 @@ else
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task:status">
+<?php                       if ($task->isPending()) { ?>
+                            <option value="pending" selected="selected"><?php echo __('Pending'); ?></option>
+                            <option value="cancel"><?php echo __('Cancel'); ?></option>
+<?php                           if ($task->canStart()) { ?>
+                            <option value="start"><?php echo __('Start'); ?></option>
+<?php                           }
+                            }
+                            elseif ($task->isOpen()) { ?>
                             <option value="open" <?php
                                 echo $task->isOpen() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo __('Open'); ?></option>
-                            <?php
-                            if ($task->isClosed() || $canClose) {
-                                ?>
+<?php                       }
+                            if ($task->isClosed() || $canClose) { ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
-                                echo __('Closed'); ?></option>
-                            <?php
+                                echo _('Closed'); ?></option>
+<?php                           if ($task->isClosed()) { ?>
+                            <option value="open"><?php echo __('Reopen'); ?></option>
+<?php                           }
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo
@@ -686,18 +799,27 @@ else
                     <div><?php echo __('Status');?>
                         <span class="faded"> - </span>
                         <select  name="task:status">
+<?php                       if ($task->isPending()) { ?>
+                            <option value="pending" selected="selected"><?php echo __('Pending'); ?></option>
+                            <option value="cancel"><?php echo __('Cancel'); ?></option>
+<?php                           if ($task->canStart()) { ?>
+                            <option value="start"><?php echo __('Start'); ?></option>
+<?php                           }
+                            }
+                            elseif ($task->isOpen()) { ?>
                             <option value="open" <?php
-                                echo $task->isOpen() ?
+                                echo $task->isOpen() && !$task->isPending() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo __('Open'); ?></option>
-                            <?php
-                            if ($task->isClosed() || $canClose) {
-                                ?>
+<?php                       }
+                            elseif ($task->isClosed() || $canClose) { ?>
                             <option value="closed" <?php
                                 echo $task->isClosed() ?
                                 'selected="selected"': ''; ?>> <?php
                                 echo __('Closed'); ?></option>
-                            <?php
+<?php                           if ($task->isClosed()) { ?>
+                            <option value="open"><?php echo __('Reopen'); ?></option>
+<?php                           }
                             } ?>
                         </select>
                         &nbsp;<span class='error'><?php echo

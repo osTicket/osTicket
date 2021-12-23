@@ -98,11 +98,11 @@ var scp_prep = function() {
             var action = name;
             $('.dialog#confirm-action').undelegate('.confirm');
             $('.dialog#confirm-action').delegate('input.confirm', 'click.confirm', function(e) {
-                e.preventDefault();
                 $('.dialog#confirm-action').hide();
                 $.toggleOverlay(false);
                 $('input#action', formObj).val(action);
-                formObj.submit();
+                formObj.find(':submit').trigger('click');
+                e.preventDefault();
                 return false;
              });
             $.toggleOverlay(true);
@@ -161,8 +161,9 @@ var scp_prep = function() {
         }
     });
 
-    $('form.save, form:has(table.list)').submit(function() {
+    $('form.save, form:has(table.list)').submit(function(e) {
         $(window).unbind('beforeunload');
+        $('#loading').show();
         $.toggleOverlay(true);
         // Disable staff-side Post Reply/Open buttons to help prevent
         // duplicate POST

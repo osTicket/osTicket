@@ -2022,6 +2022,8 @@ class ThreadEvent extends VerySimpleModel {
     const RELEASED  = 'released';
     const CLOSED    = 'closed';
     const CREATED   = 'created';
+    const STARTED   = 'started';
+    const CANCELLED = 'cancelled';
     const COLLAB    = 'collab';
     const EDITED    = 'edited';
     const ERROR     = 'error';
@@ -2055,7 +2057,7 @@ class ThreadEvent extends VerySimpleModel {
     }
 
     function getIcon() {
-        $icons = array(
+        static $icons = array(
             'assigned'    => 'hand-right',
             'released'    => 'unlock',
             'collab'      => 'group',
@@ -2070,7 +2072,13 @@ class ThreadEvent extends VerySimpleModel {
             'merged'      => 'code-fork',
             'linked'      => 'link',
             'unlinked'    => 'unlink',
+            'started'     => 'level-up',
+            'cancelled' => 'stop',
         );
+
+        if (isset(static::$icon))
+            return static::$icon;
+
         return @$icons[$this->state] ?: 'chevron-sign-right';
     }
 
@@ -2325,7 +2333,8 @@ class ThreadEvents extends InstrumentedList {
      * $object - Object to log activity for
      * $state - State name of the activity (one of 'created', 'edited',
      *      'deleted', 'closed', 'reopened', 'error', 'collab', 'resent',
-     *      'assigned', 'released', 'transferred')
+     *      'assigned', 'released', 'transferred', 'started', 'other',
+     *      'cancelled')
      * $data - (array?) Details about the state change
      * $user - (string|User|Staff) user triggering the state change
      * $annul - (state) a corresponding state change that is annulled by
@@ -2656,6 +2665,24 @@ class TransferEvent extends ThreadEvent {
 
     function getDescription($mode=self::MODE_STAFF) {
         return $this->template(__('<b>{somebody}</b> transferred this to <strong>{dept}</strong> {timestamp}'), $mode);
+    }
+}
+
+class StartedEvent extends ThreadEvent {
+    static $icon = 'level-up';
+    static $state = 'started';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Started by <b>{somebody}</b> {timestamp}'));
+    }
+}
+
+class CancelledEvent extends ThreadEvent {
+    static $icon = 'stop';
+    static $state = 'cancelled';
+
+    function getDescription($mode=self::MODE_STAFF) {
+        return $this->template(__('Cancelled by <b>{somebody}</b> {timestamp}'));
     }
 }
 
