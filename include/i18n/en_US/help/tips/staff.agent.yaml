@@ -102,6 +102,28 @@ primary_role_on_assign:
         <span class="doc-desc-title">extended access</span> departments.
         Otherwise the agent will have view only access.
 
+max_page_size:
+    title: Maximum Page Size
+    content: >
+        Choose the number of items shown per page in the Ticket Queues in the
+        Staff Panel. Each Agent can also customize this number for their own
+        account under <span class="doc-desc-title">Profile</span>.
+
+auto_refresh_rate:
+    title: Auto Refresh Rate
+    content: >
+        Choose the default Tickets page refresh rate in minutes for this agent.<br/>
+        Each Agent can also customize the refresh rate for their own
+        account under <span class="doc-desc-title">Profile</span>.
+
+department_signature:
+    title: Department Signature
+    content: >
+        Signature is made available as a choice, for <span
+        class="doc-desc-opt">Public</span> Departments, on Agent Responses.<br/>
+        Each Agent can also customize the refresh rate for their own
+        account under <span class="doc-desc-title">Profile</span>.
+
 daylight_saving:
     title: Daylight Saving
     content: >

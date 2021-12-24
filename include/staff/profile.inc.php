@@ -484,8 +484,8 @@ if (($bks=Staff2FABackend::allRegistered())) {
         </tr>
         <tr>
             <td colspan="2">
-                <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $staff->signature; ?></textarea>
+                <textarea class="richtext" name="signature" cols="21"
+                    rows="5"><?php echo $staff->signature; ?></textarea>
             </td>
         </tr>
       </tbody>

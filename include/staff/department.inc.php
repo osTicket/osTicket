@@ -370,8 +370,8 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
+                <textarea class="richtext" name="signature" cols="21"
+                    rows="5"><?php echo $info['signature']; ?></textarea>
             </td>
         </tr>
     </tbody>

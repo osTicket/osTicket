@@ -229,6 +229,66 @@ if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend())
             <br/>
         </tr>
       </tbody>
+      <!-- ================================================ -->
+      <tbody>
+        <tr class="header">
+          <th colspan="2">
+            <?php echo __('Preferences'); ?>
+          </th>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Maximum Page size');?>:</td>
+            <td>
+                <select name="max_page_size">
+                    <option value="0">&mdash; <?php echo __('system default');?> &mdash;</option>
+                    <?php
+                    $pagelimit = $staff->max_page_size ?: $cfg->getPageSize();
+                    for ($i = 5; $i <= 50; $i += 5) {
+                        $sel=($pagelimit==$i)?'selected="selected"':'';
+                         echo sprintf('<option value="%d" %s>'.__('show %s records').'</option>',$i,$sel,$i);
+                    } ?>
+                </select> <?php echo __('per page.');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#max_page_size"></i>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Auto Refresh Rate');?>:</td>
+            <td>
+                <select name="auto_refresh_rate">
+                  <option value="0">&mdash; <?php echo __('Disabled');?> &mdash;</option>
+                  <?php
+                  $y=1;
+                   for($i=1; $i <=30; $i+=$y) {
+                     $sel=($staff->auto_refresh_rate==$i)?'selected="selected"':'';
+                     echo sprintf('<option value="%d" %s>%s</option>', $i, $sel,
+                        @sprintf(_N('Every minute', 'Every %d minutes', $i), $i));
+                     if($i>9)
+                        $y=2;
+                   } ?>
+                </select>
+                <em><?php echo __('(Tickets page refresh rate in minutes.)');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#auto_refresh_rate"></i></em>
+            </td>
+        </tr>
+        <tr>
+            <td width="180"><?php echo __('Default Signature');?>:</td>
+            <td>
+                <select name="default_signature_type">
+                  <option value="none" selected="selected">&mdash; <?php echo __('None');?> &mdash;</option>
+                  <?php
+                   $options=array('mine'=>__('My Signature'),'dept'=>sprintf(__('Department Signature (%s)'),
+                       __('if set' /* This is used in 'Department Signature (>if set<)' */)));
+                  foreach($options as $k=>$v) {
+                      echo sprintf('<option value="%s" %s>%s</option>',
+                                $k,($staff->default_signature_type==$k)?'selected="selected"':'',$v);
+                  }
+                  ?>
+                </select>
+                <em><?php echo __('(This can be selected when replying to a ticket)');?>
+                &nbsp;<i class="help-tip icon-question-sign" href="#department_signature"></i></em>
+            </td>
+        </tr>
+      </tbody>
     </table>
 
     <div style="padding:8px 3px; margin-top: 1.6em">
