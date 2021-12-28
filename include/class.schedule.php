@@ -1038,45 +1038,46 @@ class ScheduleEntry extends VerySimpleModel {
         return parent::save($refetch);
     }
 
-    static function getFrequencies() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$frequencies as $k=>$v)
-                static::$frequencies[$k] = __($v);
+    static function getFrequencies($translated = true) {
+        if ($translated) {
+            return array_map(function ($name) {
+                return __($name);
+            }, static::$frequencies);
         }
 
         return static::$frequencies;
     }
 
-    static function getDays() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$days as $k=>$v)
-                static::$days[$k] = __($v);
+    static function getDays($translated = true) {
+        if ($translated) {
+            return array_map(function ($name) {
+                return __($name);
+            }, static::$days);
         }
 
         return static::$days;
     }
 
-    static function getWeeks() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$weeks as $k=>$v)
-                static::$weeks[$k] = __($v);
+    static function getWeeks($translated = true) {
+        if ($translated) {
+            return array_map(function ($name) {
+                return __($name);
+            }, static::$weeks);
         }
 
         return static::$weeks;
     }
 
-    static function getMonths() {
-        static $translated = false;
-        if (!$translated) {
-            foreach (static::$months as $k=>$v)
-                static::$months[$k] = __($v);
+    static function getMonths($translated = true) {
+        if ($translated) {
+            return array_map(function ($name) {
+                return __($name);
+            }, static::$months);
         }
 
         return static::$months;
     }
+
     static function create($ht=false) {
         $inst = new static($ht);
         $inst->set('created', new SqlFunction('NOW'));
