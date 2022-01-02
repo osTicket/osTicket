@@ -797,14 +797,13 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function display() {
-
-        return $this->getValue();
         //TODO: Allow for display mode (edit, preview or both)
-        return sprintf('<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">%s</a>',
+        return sprintf('%s &nbsp;<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">
+                <i class="icon-info-sign"></i></a>',
+                $this->getValue(),
                 $this->getListId(),
-                $this->getId(),
-                $this->getValue()
+                $this->getId()
                 );
     }
 
@@ -827,6 +826,12 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         }
 
         return $this->save();
+    }
+
+    function save($refetch=false) {
+        $this->value = trim($this->value);
+
+        return parent::save($refetch);
     }
 
     function delete() {
@@ -1232,8 +1237,8 @@ implements CustomListItem, TemplateVariable, Searchable {
         return $this->get('id');
     }
 
-    function getName() {
-        return $this->get('name');
+    function getName($localize=true) {
+        return $localize ? $this->getLocalName() : $this->get('name');
     }
 
     function getState() {
@@ -1243,8 +1248,9 @@ implements CustomListItem, TemplateVariable, Searchable {
     function getValue() {
         return $this->getName();
     }
+
     function getLocalName() {
-        return $this->getLocal('value', $this->getName());
+        return $this->getLocal('value', $this->get('name'));
     }
 
     function getAbbrev() {
@@ -1436,15 +1442,7 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function display() {
-
-        return $this->getLocalName();
-
-        return sprintf('<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">%s</a>',
-                $this->getListId(),
-                $this->getId(),
-                $this->getLocalName()
-                );
+        return $this->getName();
     }
 
     function update($vars, &$errors) {

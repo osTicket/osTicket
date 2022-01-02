@@ -15,7 +15,7 @@ parse_str($_SERVER['QUERY_STRING'], $args);
 unset($args['id']);
 unset($args['a']);
 
-$refresh_url = $path . '?' . http_build_query($args);
+$refresh_url = htmlspecialchars($path) . '?' . http_build_query($args);
 
 $sort_options = array(
     'updated' =>            __('Most Recently Updated'),
@@ -246,8 +246,6 @@ $count = $tasks->count();
 $pageNav=new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tasks.php', $args);
 $tasks = $pageNav->paginate($tasks);
-
-TaskForm::ensureDynamicDataView();
 
 // Save the query to the session for exporting
 $_SESSION[':Q:tasks'] = $tasks;

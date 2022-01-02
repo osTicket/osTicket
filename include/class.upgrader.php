@@ -72,10 +72,17 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
-        if ($state == 'done') {
-            ModelMeta::flushModelCache();
-            $this->createUpgradedTicket();
-        }
+        if ($state == 'done')
+            $this->finalize();
+    }
+
+    function finalize() {
+        // Make sure cdata tables are created
+        DynamicForm::ensureDynamicDataViews();
+        // Flush the model cache
+        ModelMeta::flushModelCache();
+        // Create upgrade ticket
+        $this->createUpgradedTicket();
     }
 
     function createUpgradedTicket() {

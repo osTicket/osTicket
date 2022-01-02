@@ -3037,16 +3037,19 @@ class PriorityField extends ChoiceField {
     function to_php($value, $id=false) {
         if ($value instanceof Priority)
             return $value;
+
         if (is_array($id)) {
             reset($id);
             $id = key($id);
-        }
-        elseif (is_array($value))
+        } elseif (is_array($value)) {
             list($value, $id) = $value;
-        elseif ($id === false)
+        } elseif ($id === false && is_numeric($value))
             $id = $value;
 
-        return $this->getPriority($id);
+        if (is_numeric($id))
+            return $this->getPriority($id);
+
+        return $value;
     }
 
     function to_database($value) {
@@ -3243,6 +3246,15 @@ class DepartmentField extends ChoiceField {
          }
 
         return $choices;
+    }
+
+    function display($dept, &$styles=null) {
+        if (!is_numeric($dept) && is_string($dept))
+            return Format::htmlchars($dept);
+        elseif ($dept instanceof Dept)
+            return Format::htmlchars($dept->getName());
+
+        return parent::display($dept);
     }
 
     function parse($id) {
@@ -3465,7 +3477,15 @@ class AssigneeField extends ChoiceField {
 
     function to_php($value, $id=false) {
         if (is_string($value))
-            $value = JsonDataParser::parse($value);
+            $value = JsonDataParser::parse($value) ?: $value;
+
+        if (is_string($value) && strpos($value, ',')) {
+            $values = array();
+            list($key, $V) = array_map('trim', explode(',', $value));
+
+            $values[$key] = $V;
+            $value = $values;
+        }
 
         $type = '';
         if (is_array($id)) {
@@ -3477,8 +3497,11 @@ class AssigneeField extends ChoiceField {
         if (is_array($value)) {
             $type = key($value)[0];
             if (!$id)
-                $id = key($value)[1];
+                $id = substr(key($value), 1);
         }
+
+        if (!$type && is_numeric($value))
+            return Staff::lookup($value);
 
         switch ($type) {
         case 's':
@@ -4448,7 +4471,7 @@ class TextareaWidget extends Widget {
                 array_filter($attrs)); ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
-                echo Format::htmlchars($this->value, true);
+                echo Format::htmlchars($this->value, ($config['html']));
             ?></textarea>
         </span>
         <?php

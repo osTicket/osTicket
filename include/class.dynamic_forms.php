@@ -128,8 +128,16 @@ class DynamicForm extends VerySimpleModel {
         return $form;
     }
 
+    function hasFlag($flag) {
+        return (isset($this->flags) && ($this->flags & $flag) != 0);
+    }
+
+    function isDeleted() {
+        return $this->hasFlag(self::FLAG_DELETED);
+    }
+
     function isDeletable() {
-        return $this->flags & self::FLAG_DELETABLE;
+        return $this->hasFlag(self::FLAG_DELETABLE);
     }
 
     function setFlag($flag) {
@@ -283,14 +291,43 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
-    static function ensureDynamicDataView() {
+    static function rebuildDynamicDataViews() {
+        return self::ensureDynamicDataViews(true, true);
+    }
+
+    // ensure cdata tables exists
+    static function ensureDynamicDataViews($build=true, $force=false) {
+        $forms = ['TicketForm', 'TaskForm', 'UserForm', 'OrganizationForm'];
+        foreach ($forms as $form) {
+            if ($force && $build)
+                $form::dropDynamicDataView(false);
+            $form::ensureDynamicDataView($build);
+        }
+    }
+
+    static function ensureCdataTables($obj, $data) {
+        // Only perfrom check on real cron call, not autocrons triggered on
+        // agents activity.
+        if ($data['autocron'] === false)
+            self::ensureDynamicDataViews(true);
+    }
+
+    static function ensureDynamicDataView($build=false, $croak=true) {
 
         if (!($cdata=static::$cdata) || !$cdata['table'])
             return false;
 
         $sql = 'SHOW TABLES LIKE \''.$cdata['table'].'\'';
-        if (!db_num_rows(db_query($sql)))
-            return static::buildDynamicDataView($cdata);
+        // Return true if the cdata table exists
+        if (db_num_rows(db_query($sql)))
+            return true;
+
+        if (!$build && $croak)
+            die(sprintf('%s. %s.',
+                        __('Missing CDATA table'),
+                        __('Get technical support')));
+
+        return $build ? static::buildDynamicDataView($cdata) : false;
     }
 
     static function buildDynamicDataView($cdata) {
@@ -300,8 +337,17 @@ class DynamicForm extends VerySimpleModel {
         db_query($sql);
     }
 
-    static function dropDynamicDataView($table) {
-        db_query('DROP TABLE IF EXISTS `'.$table.'`');
+    static function dropDynamicDataView($rebuild=true) {
+
+        if (!($cdata=static::$cdata) || !$cdata['table'])
+            return false;
+
+        $sql = 'DROP TABLE IF EXISTS `'.$cdata['table'].'`';
+        if (!db_query($sql))
+            return false;
+
+        return  $rebuild ?  static::ensureDynamicDataView($rebuild, false) :
+            true;
     }
 
     static function updateDynamicDataView($answer, $data) {
@@ -332,8 +378,7 @@ class DynamicForm extends VerySimpleModel {
                     $cdata['object_id'],
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
-            return self::dropDynamicDataView($cdata['table']);
+        db_query($sql);
     }
 
     static function updateDynamicFormEntryAnswer($answer, $data) {
@@ -361,13 +406,13 @@ class DynamicForm extends VerySimpleModel {
 
         switch ($field->form->get('type')) {
         case 'T':
-            return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
+            return TicketForm::dropDynamicDataView();
         case 'A':
-            return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
+            return TaskForm::dropDynamicDataView();
         case 'U':
-            return UserForm::dropDynamicDataView(UserForm::$cdata['table']);
+            return UserForm::dropDynamicDataView();
         case 'O':
-            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata['table']);
+            return OrganizationForm::dropDynamicDataView();
         }
 
     }
@@ -531,6 +576,9 @@ Signal::connect('model.updated',
     'DynamicFormField',
     function($o, $d) { return isset($d['dirty'])
         && (isset($d['dirty']['name']) || isset($d['dirty']['type'])); });
+
+// Check to make sure cdata tables exists
+Signal::connect('cron', array('DynamicForm', 'ensureCdataTables'));
 
 Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
     $matches = array();
@@ -1167,6 +1215,23 @@ class DynamicFormEntry extends VerySimpleModel {
         }
         return $entries[$ticket_id];
     }
+
+    function forTask($id, $force=false) {
+        static $entries = array();
+        if (!isset($entries[$id]) || $force) {
+            $stuff = DynamicFormEntry::objects()->filter(array(
+                        'object_id' => $id,
+                        'object_type' => ObjectModel::OBJECT_TYPE_TASK
+                        ));
+            // If forced, don't cache the result
+            if ($force)
+                return $stuff;
+
+            $entries[$id] = &$stuff;
+        }
+        return $entries[$id];
+    }
+
     function setTicketId($ticket_id) {
         $this->object_type = 'T';
         $this->object_id = $ticket_id;

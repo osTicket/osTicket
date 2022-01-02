@@ -111,8 +111,8 @@ class Validator {
                     $this->errors[$k]=$field['error'];
                 break;
             case 'password':
-                if(strlen($this->input[$k])<5)
-                    $this->errors[$k]=$field['error'].' '.__('(Five characters min)');
+                if(strlen($this->input[$k])<6)
+                    $this->errors[$k]=$field['error'].' '.__('(Six characters min)');
                 break;
             case 'username':
                 $error = '';
@@ -220,8 +220,15 @@ class Validator {
     static function is_username($username, &$error='') {
         if (strlen($username)<2)
             $error = __('Username must have at least two (2) characters');
-        elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
+        elseif (is_numeric($username) || !preg_match('/^[\p{L}\d._-]+$/u', $username))
             $error = __('Username contains invalid characters');
+        return $error == '';
+    }
+
+    static  function is_userid($userid, &$error='') {
+        if (!self::is_username($userid)
+                    && !self::is_email($userid))
+            $error = __('Invalid User Id ');
         return $error == '';
     }
 
