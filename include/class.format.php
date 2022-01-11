@@ -930,8 +930,8 @@ class Format {
         $text = htmlentities($text, ENT_NOQUOTES, 'UTF-8');
 
         // removes entity suffixes, leaving only un-accented characters
-        $text = preg_replace('~&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);~', '$1', $text);
-        $text = preg_replace('~&([A-za-z]{2})(?:lig);~', '$1', $text);
+        $text = preg_replace('~&([A-Za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);~', '$1', $text);
+        $text = preg_replace('~&([A-Za-z]{2})(?:lig);~', '$1', $text);
 
         // replace non letter or digits by -
         $text = preg_replace('~[^\p{L}\p{N}]+~u', '-', $text);
