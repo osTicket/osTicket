@@ -2271,6 +2271,11 @@ time.faq {
     font-size: 1.1em;
 }
 
+div.redactor-styles, div.no-pjax, div.redactor-in, div.redactor-in-0 {
+	max-width: 100% !important;
+	overflow: unset !important;
+}
+
 .dialog#advanced-search {
     width:640px !important;
     height:360px;
