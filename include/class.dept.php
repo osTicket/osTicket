@@ -495,7 +495,7 @@ implements TemplateVariable, Searchable {
         $ht['assignment_flag'] = $this->getAssignmentFlag();
         $ht['disable_reopen_auto_assign'] =  $this->disableReopenAutoAssign();
         $ht['closed_auto_response'] = ConfigItem::getConfigsByNamespace('dept.' . $this->getId() ,'closed_auto_response')->ht['value'];
-        $ht['autoclose_grace_period'] = ConfigItem::getConfigsByNamespace('dept.' . $this->getId() ,'autoclose_grace_period')->ht['value'];
+        $ht['autoclose_grace_period'] = ConfigItem::getConfigsByNamespace('dept.' . $this->getId() ,'autoclose_grace_period')->ht['value']?:0;
         return $ht;
     }
 
@@ -874,18 +874,28 @@ implements TemplateVariable, Searchable {
         $this->group_membership = $vars['group_membership'];
         $this->ticket_auto_response = isset($vars['ticket_auto_response'])?$vars['ticket_auto_response']:1;
         $this->message_auto_response = isset($vars['message_auto_response'])?$vars['message_auto_response']:1;
-        $chelper = new OsticketConfig;
-        $chelper->section = 'dept.' . $this->getId();
-        $chelper->load();
-        if (isset($chelper->config['closed_auto_response'])) {
-            $chelper->update('closed_auto_response', isset($vars['closed_auto_response']) ? $vars['closed_auto_response'] : 1);
-        } else {
-            $chelper->set('closed_auto_response', isset($vars['closed_auto_response']) ? $vars['closed_auto_response'] : 1);
-        }
-        if (isset($chelper->config['autoclose_grace_period'])) {
-            $chelper->update('autoclose_grace_period', isset($vars['autoclose_grace_period']) ? $vars['autoclose_grace_period'] : 0);
-        } else {
-            $chelper->set('autoclose_grace_period', isset($vars['autoclose_grace_period']) ? $vars['autoclose_grace_period'] : 0);
+        if ($this->getId()) {
+            $chelper = new OsticketConfig;
+            $chelper->section = 'dept.' . $this->getId();
+            $chelper->load();
+            if (isset($chelper->config['closed_auto_response'])) {
+                $chelper->update('closed_auto_response', isset($vars['closed_auto_response']) ? $vars['closed_auto_response'] : 1);
+            } else {
+                $chelper->set('closed_auto_response', isset($vars['closed_auto_response']) ? $vars['closed_auto_response'] : 1);
+            }
+            if (isset($chelper->config['autoclose_grace_period'])) {
+                if (strlen($vars['autoclose_grace_period']) == 0) {
+                    $chelper->update('autoclose_grace_period','0');
+                } else {
+                    $chelper->update('autoclose_grace_period', isset($vars['autoclose_grace_period']) ? $vars['autoclose_grace_period'] : '0');
+                }
+            } else {
+                if (strlen($vars['autoclose_grace_period']) == 0) {
+                    $chelper->set('autoclose_grace_period','0');
+                } else {
+                    $chelper->set('autoclose_grace_period', isset($vars['autoclose_grace_period']) ? $vars['autoclose_grace_period'] : '0');
+                }
+            }
         }
         $this->flags = $vars['flags'] ?: 0;
 
@@ -940,6 +950,17 @@ implements TemplateVariable, Searchable {
             if ($wasnew) {
                 // The ID wasn't available until after the commit
                 $this->path = $this->getFullPath();
+
+                $chelper = new OsticketConfig;
+                $chelper->section = 'dept.' . $this->getId();
+                $chelper->load();
+                $chelper->set('closed_auto_response', isset($vars['closed_auto_response']) ? $vars['closed_auto_response'] : 1);
+                if (strlen($vars['autoclose_grace_period']) == 0) {
+                    $chelper->set('autoclose_grace_period','0');
+                } else {
+                    $chelper->set('autoclose_grace_period', isset($vars['autoclose_grace_period']) ? $vars['autoclose_grace_period'] : '0');
+                }
+
                 $this->save();
             }
             return true;
