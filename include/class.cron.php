@@ -28,6 +28,16 @@ class Cron {
     function TicketMonitor() {
         require_once(INCLUDE_DIR.'class.ticket.php');
         Ticket::checkOverdue(); //Make stale tickets overdue
+        global $cfg;
+        $depts=Dept::getDepartments();
+        $a = 0;
+        foreach($depts as $d) {
+            $b=ConfigItem::getConfigsByNamespace('dept.' . array_search($d,$depts),'autoclose_grace_period');
+            $a+=$b->ht['value']?$b->ht['value']:0;
+        }
+        if($a>0) {
+            Ticket::closeAnswered(); //Close answered tickets
+        }
         // Cleanup any expired locks
         require_once(INCLUDE_DIR.'class.lock.php');
         Lock::cleanup();
