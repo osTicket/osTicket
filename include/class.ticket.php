@@ -1528,6 +1528,7 @@ implements RestrictedAccess, Threadable, Searchable {
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
                     $t->deleteDrafts();
+                    $t->emailClosed();
                 };
                 break;
             case 'open':
@@ -4736,6 +4737,61 @@ implements RestrictedAccess, Threadable, Searchable {
         foreach ($overdue as $ticket)
             $ticket->markOverdue();
 
+    }
+
+    // Close Answered tickets based on Answered Ticket Auto-Close time from Agents > Departments screen
+    function closeAnswered() {
+        global $cfg;
+        $days  = 0;
+        $depts = Dept::getDepartments();
+
+        foreach( $depts as $deptmt )
+        {
+            $cgp_ind = array_search($deptmt,$depts);
+            $cgp     = ConfigItem::getConfigsByNamespace('dept.' . array_search($deptmt,$depts),'autoclose_grace_period');
+            $days    = $cgp->ht['value'] ? $cgp->ht['value'] : 0;
+            if($days != 0){
+                $pending = static::objects()
+                    ->filter(array(
+                        'isanswered' => 1,
+                        'status__state' => 'open',
+                        Q::any(array(
+                            Q::all(array(
+                                'dept_id__exact' =>$cgp_ind,
+                                'duedate__isnull' => true,
+                                'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::DAY($days)))
+                                )
+                            ))
+                        ))
+                    ->limit(100);
+
+                foreach ($pending as $ticket) {
+                    $ticket->setStatus('3', 'Ticket Closed by the SYSTEM after '.$days.' days of no activity.');
+                }
+            }
+        }
+    }
+
+    // Email closed tickets based on Closed Ticket Autoresponder setting from Agents > Departments screen
+    function emailClosed() {
+        global $thisstaff, $cfg;
+
+        $dept      = $this->getDept();
+        $signature = $dept->getSignature();
+        $poster    = $this->getName();
+
+        $variables = array (
+                    'signature' => $signature,
+                    'staff' => $thisstaff,
+                    'poster' => $poster,
+                    'recipient' => $this->getOwner());
+
+        if ((($email = $dept->getEmail() ) && ($tpl = $dept->getTemplate() ) && ($msg = $tpl->getClosedMsgTemplate() ) && ($dept->autoRespONClosedMessage() == 1) ) && $this->getStatusId() == 3) {
+            $msg = $this->replaceVars ( $msg->asArray (), $variables );
+            if ($cfg->stripQuotedReply() && ($tag = $cfg->getReplySeparator() ) )
+                $msg ['body'] = "<p style=\"display:none\">$tag<p>" . $msg ['body'];
+            $email->send ( $this->getEmail (), $msg ['subj'], $msg ['body']);
+        }
     }
 
     static function agentActions($agent, $options=array()) {
