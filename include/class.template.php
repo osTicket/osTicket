@@ -182,7 +182,7 @@ class EmailTemplateGroup {
         ),
     );
 
-    function __construct($id){
+    function __construct($id=0){
         $this->id=0;
         $this->load($id);
     }
@@ -419,8 +419,9 @@ class EmailTemplateGroup {
         return $num;
     }
 
-    function create($vars,&$errors) {
-        return EmailTemplateGroup::save(0,$vars,$errors);
+    static function create($vars,&$errors) {
+        $group = new static();
+        return $group->save(0,$vars,$errors);
     }
 
     function add($vars, &$errors) {
@@ -518,7 +519,7 @@ class EmailTemplate {
     var $ht;
     var $_group;
 
-    function __construct($id, $group=null){
+    function __construct($id=0, $group=null){
         $this->id=0;
         if ($id) $this->load($id);
         if ($group) $this->_group = $group;
@@ -676,8 +677,9 @@ class EmailTemplate {
         return null;
     }
 
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
+    static function create($vars, &$errors) {
+        $template = new static();
+        return $template->save(0, $vars, $errors);
     }
 
     function add($vars, &$errors) {

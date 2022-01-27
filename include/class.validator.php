@@ -165,6 +165,7 @@ class Validator {
          Validator::func(var..);  (nolint) ***/
     static function is_email($email, $list=false, $verify=false) {
         require_once PEAR_DIR . 'PEAR.php';
+        require_once INCLUDE_DIR . 'class.mailparse.php';
         if (!($mails = @Mail_Parse::parseAddressList($email)) || PEAR::isError($mails))
             return false;
 
