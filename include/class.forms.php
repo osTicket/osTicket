@@ -1881,10 +1881,10 @@ class ChoiceField extends FormField {
 
     function getKeys($value) {
         if (!is_array($value))
-            $value = $this->getChoice($value);
-        if (is_array($value))
-            return implode(', ', array_keys($value));
-        return (string) $value;
+            $choice = $this->getChoice($value);
+        if (is_array($choice))
+            return implode(',', [$value, $choice[$value]]);
+        return (string) $choice;
     }
 
     function asVar($value, $id=false) {
