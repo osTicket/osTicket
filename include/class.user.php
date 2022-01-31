@@ -354,6 +354,17 @@ implements TemplateVariable, Searchable {
             return $acct->getLanguage($flags);
     }
 
+    public function getUserApiEntity() {
+        //Add additional properties such as timezone,
+        //Change this to utilize the "osticket" way of doing so.  to_json() would work, but doesn't have enough properties.
+        return [
+            'id'  => $this->getId(),
+            'name' => Format::htmlchars($this->getName()),
+            'email' => (string) $this->getEmail(),
+            'phone' => (string) $this->getPhoneNumber()
+        ];
+    }
+
     function to_json() {
 
         $info = array(
