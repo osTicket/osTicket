@@ -919,7 +919,7 @@ class DynamicFormField extends VerySimpleModel {
                 /* `variable` is used for automation. Internally it's called `name` */
                 ), "name");
         }
-        if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
+        if ($this->get('name') && !preg_match('/^(?!\d)([[:alnum:]]|_|-)+$/u', $this->get('name')))
             $this->addError(__(
                 'Invalid character in variable name. Please use letters and numbers only.'
             ), 'name');

@@ -88,6 +88,7 @@ implements RestrictedAccess, Threadable, Searchable {
                     'ticket_id'  => 'TicketThread.object_id',
                     "'C'" => 'TicketThread.object_type',
                 ),
+                'searchable' => false,
                 'null' => true,
             ),
             'cdata' => array(
@@ -2085,7 +2086,7 @@ implements RestrictedAccess, Threadable, Searchable {
             && ($msg=$tpl->getAssignedAlertMsgTemplate())
         ) {
             $msg = $this->replaceVars($msg->asArray(),
-                array('comments' => $comments,
+                array('comments' => $comments ?: '',
                       'assignee' => $assignee,
                       'assigner' => $assigner
                 )

@@ -220,13 +220,20 @@ class Validator {
     static function is_username($username, &$error='') {
         if (strlen($username)<2)
             $error = __('Username must have at least two (2) characters');
-        elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
+        elseif (is_numeric($username) || !preg_match('/^[\p{L}\d._-]+$/u', $username))
             $error = __('Username contains invalid characters');
         return $error == '';
     }
 
+    static  function is_userid($userid, &$error='') {
+        if (!self::is_username($userid)
+                    && !self::is_email($userid))
+            $error = __('Invalid User Id ');
+        return $error == '';
+    }
+
     static function is_formula($text, &$error='') {
-        if (!preg_match('/^[^=\+@-].*$/s', $text))
+        if (!preg_match('/(^[^=\+@-].*$)|(^\+\d+$)/s', $text))
             $error = __('Content cannot start with the following characters: = - + @');
         return $error == '';
     }
