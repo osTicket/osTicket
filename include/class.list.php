@@ -722,7 +722,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     function setConfiguration($vars, &$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm($vars)->getFields() as $field) {
-            $config[$field->get('id')] = $field->to_php($field->getClean());
+            $config[$field->get('id')] = $field->to_database($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
 
@@ -797,13 +797,14 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function display() {
+
+        return $this->getValue();
         //TODO: Allow for display mode (edit, preview or both)
-        return sprintf('%s &nbsp;<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">
-                <i class="icon-info-sign"></i></a>',
-                $this->getValue(),
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
                 $this->getListId(),
-                $this->getId()
+                $this->getId(),
+                $this->getValue()
                 );
     }
 

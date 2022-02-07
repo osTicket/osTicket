@@ -291,7 +291,15 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
+    static function getNewInstance() {
+        return static::objects()
+                ->one()
+                ->instanciate();
+    }
+
     static function rebuildDynamicDataViews() {
+        // Flush the object cache
+        ModelInstanceManager::flushCache();
         return self::ensureDynamicDataViews(true, true);
     }
 
@@ -431,7 +439,7 @@ class DynamicForm extends VerySimpleModel {
     // @see http://code.google.com/p/flexviews/
     static function getDynamicDataViewFields($exclude) {
         $fields = array();
-        foreach (static::getInstance()->getFields() as $f) {
+        foreach (static::getNewInstance()->getFields() as $f) {
             if ($exclude && in_array($f->get('name'), $exclude))
                 continue;
 
@@ -485,13 +493,7 @@ class UserForm extends DynamicForm {
 
     static function getInstance() {
         if (!isset(static::$instance))
-            static::$instance = static::getUserForm()->instanciate();
-        return static::$instance;
-    }
-
-    static function getNewInstance() {
-        $o = static::objects()->one();
-        static::$instance = $o->instanciate();
+            static::$instance = self::getNewInstance();
         return static::$instance;
     }
 }
@@ -527,16 +529,9 @@ class TicketForm extends DynamicForm {
 
     static function getInstance() {
         if (!isset(static::$instance))
-            self::getNewInstance();
+            static::$instance = self::getNewInstance();
         return static::$instance;
     }
-
-    static function getNewInstance() {
-        $o = static::objects()->one();
-        static::$instance = $o->instanciate();
-        return static::$instance;
-    }
-
 }
 // Add fields from the standard ticket form to the ticket filterable fields
 Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
