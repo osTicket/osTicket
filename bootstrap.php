@@ -21,7 +21,7 @@ class Bootstrap {
         session_cache_limiter('nocache');
 
         #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
-        $error_reporting = E_ALL & ~E_NOTICE;
+        $error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
         if (defined('E_STRICT')) # 5.4.0
             $error_reporting &= ~E_STRICT;
         if (defined('E_DEPRECATED')) # 5.3.0
