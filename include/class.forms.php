@@ -3526,10 +3526,10 @@ class AssigneeField extends ChoiceField {
                 $name = $value->getName();
             }
 
-            return array(JsonDataEncoder::encode(array($key => $name)));
+            return JsonDataEncoder::encode(array($key => $name));
         }
         if (is_array($value)) {
-            return array(JsonDataEncoder::encode($value[0]));
+            return JsonDataEncoder::encode($value[0]);
         }
         return $value;
     }
@@ -3562,7 +3562,7 @@ class AssigneeField extends ChoiceField {
         // Compare old and new
         return ($old == $new)
             ? false
-            : array($old[0], $new[0]);
+            : array($old, $new);
     }
 
     function whatChanged($before, $after) {

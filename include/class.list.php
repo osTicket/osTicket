@@ -722,7 +722,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     function setConfiguration($vars, &$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm($vars)->getFields() as $field) {
-            $config[$field->get('id')] = $field->to_php($field->getClean());
+            $config[$field->get('id')] = $field->to_database($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
 
