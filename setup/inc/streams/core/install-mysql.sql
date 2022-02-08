@@ -485,7 +485,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `page_id` int(10) unsigned NOT NULL default '0',
   `sequence_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sort` int(10) unsigned NOT NULL default '0',
-  `topic` varchar(32) NOT NULL default '',
+  `topic` varchar(128) NOT NULL default '',
   `number_format` varchar(32) DEFAULT NULL,
   `notes` text,
   `created` datetime NOT NULL,
