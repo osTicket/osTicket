@@ -1,3 +1,18 @@
+osTicket v1.15.5
+================
+### Enhancements
+* redactor: Upgrade to version 3.5.2 (4e4f82e)
+* auth: Allow AuthBackends to auto-register Users (6836b17)
+
+### Improvements
+* issue: Khmer Language Flag (f878f14)
+* issue: Assignee Item Property (3cde88a)
+* issue: CDATA Rebuild Issue (9da3b5e)
+* issue: Plus Symbol (b0f143e)
+* issue: Plain-Text Canned Responses (19c03ca)
+* issue: Improved Validation for Variable Names (35c8ca8)
+* Revert "issue: List Item Properties On Mouseover" (5c91f64)
+
 osTicket v1.15.4
 ================
 ### Enhancements
