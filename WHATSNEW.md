@@ -1,3 +1,27 @@
+osTicket v1.16
+==============
+### Enhancements
+* PHP8: Static Method Lint Test (958a748)
+* Update MPDF (59dc587)
+
+### Improvements
+* prereqs: Update README.md (2767ad4)
+* upgrader: v1.16 Release (57347ab)
+* release: Prep Release (0905e7b)
+* php8: Temporarily Suppress Warnings (0afe2b2)
+* issue: PEAR each() (1eafd98)
+* issue: Further Fixes (03d203b)
+* issue: EmailDataParser (c4fc76c)
+* issue: Even More Fixes (998cd7d)
+* issue: Misc. Fixes (ec9c09d)
+* issue: Static to Non-Static (3bb36ff)
+* issue: create_function() (7668b71)
+* issue: Unparenthesized (64076e2)
+* issue: Undefined Key, Var, Prop (6974734)
+* issue: Undefined Function each() (e261a5f)
+* issue: Calling Non-Static Statically (a4ab19d)
+* Fix first problems with PHP 8 (ab77c0a, 29dcbd9, 6b3c7f9, 4d972b5, e63998e)
+
 osTicket v1.15.5
 ================
 ### Enhancements
