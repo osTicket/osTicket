@@ -35,7 +35,7 @@ class LocalCronApiController extends CronApiController {
         exit(1);
     }
         
-    function call() {
+    static function call() {
         $cron = new LocalCronApiController();
         $cron->run();
     }

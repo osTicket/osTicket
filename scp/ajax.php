@@ -313,7 +313,7 @@ $dispatcher = patterns('',
 Signal::send('ajax.scp', $dispatcher);
 
 # Call the respective function
-$rv = $dispatcher->resolve($ost->get_path_info());
+$rv = $dispatcher->resolve(Osticket::get_path_info());
 
 // Indicate JSON response content-type
 if (is_string($rv) && $rv[0] == '{')

@@ -105,7 +105,7 @@ class UrlMatcher {
         $f = array_filter(array_keys($this->matches), 'is_numeric');
         $this->matches = array_intersect_key($this->matches, array_flip($f));
 
-        if (@get_class($this->func) == "Dispatcher") {
+        if (is_object($this->func) && (@get_class($this->func) == "Dispatcher")) {
             # Trim the leading match off the $url and call the
             # sub-dispatcher. This will be the case for lines in the URL
             # file like

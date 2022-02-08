@@ -6,7 +6,7 @@ require_once(INCLUDE_DIR.'class.draft.php');
 
 class DraftAjaxAPI extends AjaxController {
 
-    function _createDraft($vars) {
+    static function _createDraft($vars) {
         if (false === ($vars['body'] = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => __("Draft body not found in request"),
@@ -22,7 +22,7 @@ class DraftAjaxAPI extends AjaxController {
         ));
     }
 
-    function _getDraft($draft) {
+    static function _getDraft($draft) {
         if (!$draft || !$draft instanceof Draft)
             Http::response(205, "Draft not found. Create one first");
 
@@ -35,7 +35,7 @@ class DraftAjaxAPI extends AjaxController {
         ));
     }
 
-    function _updateDraft($draft) {
+    static function _updateDraft($draft) {
         if (false === ($body = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => array(
@@ -50,7 +50,7 @@ class DraftAjaxAPI extends AjaxController {
         echo "{}";
     }
 
-    function _uploadInlineImage($draft) {
+    static function _uploadInlineImage($draft) {
         global $cfg;
 
         if (!isset($_POST['data']) && !isset($_FILES['file']))
@@ -376,7 +376,7 @@ class DraftAjaxAPI extends AjaxController {
         echo JsonDataEncoder::encode($files);
     }
 
-    function _findDraftBody($vars) {
+    static function _findDraftBody($vars) {
         if (isset($vars['name'])) {
             $parts = array();
             // Support nested `name`, like trans[lang]

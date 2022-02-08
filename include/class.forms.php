@@ -580,7 +580,7 @@ class FormField {
     static $more_types = array();
     static $uid = null;
 
-    function _uid() {
+    static function _uid() {
         return ++self::$uid;
     }
 
@@ -604,7 +604,7 @@ class FormField {
             foreach (static::$more_types as $group => $entries)
                 foreach ($entries as $c)
                     static::$types[$group] = array_merge(
-                            static::$types[$group] ?: array(), call_user_func($c));
+                            static::$types[$group] ?? array(), call_user_func($c));
 
             static::$more_types = array();
         }
@@ -1234,7 +1234,7 @@ class FormField {
      * the default value will be reflected in the returned configuration.
      */
     function getConfiguration() {
-        if (!$this->_config) {
+        if (!isset($this->_config)) {
             $this->_config = $this->get('configuration');
             if (is_string($this->_config))
                 $this->_config = JsonDataParser::parse($this->_config);
@@ -2058,18 +2058,19 @@ class ChoiceField extends FormField {
     function applyQuickFilter($query, $qf_value, $name=false) {
         global $thisstaff;
 
+        $field = new AssigneeChoiceField();
         //special assignment quick filters
         switch (true) {
             case ($qf_value == 'assigned'):
             case ($qf_value == '!assigned'):
-                $result = AssigneeChoiceField::getSearchQ($qf_value, $qf_value);
+                $result = $field->getSearchQ($qf_value, $qf_value);
                 return $query->filter($result);
             case (strpos($qf_value, 's') !== false):
             case (strpos($qf_value, 't') !== false):
             case ($qf_value == 'M'):
             case ($qf_value == 'T'):
                 $value = array($qf_value => $qf_value);
-                $result = AssigneeChoiceField::getSearchQ('includes', $value);
+                $result = $field->getSearchQ('includes', $value);
                 return $query->filter($result);
                 break;
         }
@@ -2207,7 +2208,7 @@ class DatetimeField extends FormField {
         return $this->max;
     }
 
-    function getPastPresentLabels() {
+    static function getPastPresentLabels() {
       return array(__('Create Date'), __('Reopen Date'),
                     __('Close Date'), __('Last Update'));
     }
@@ -2853,7 +2854,7 @@ class TopicField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -2961,7 +2962,7 @@ class SLAField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3077,7 +3078,7 @@ class PriorityField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3158,7 +3159,7 @@ class TimezoneField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3199,7 +3200,7 @@ class DepartmentField extends ChoiceField {
 
         $config = $this->getConfiguration();
         $staff = $config['staff'] ?: $thisstaff;
-        $selected = self::getWidget();
+        $selected = $this->getWidget();
         if($selected && $selected->value) {
           if(is_array($selected->value)) {
             foreach ($selected->value as $k => $v) {

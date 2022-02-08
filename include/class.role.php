@@ -184,7 +184,7 @@ class Role extends RoleModel {
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
 
-        return parent::save($refetch | $this->dirty);
+        return parent::save($refetch || $this->dirty);
     }
 
     function delete() {

@@ -71,7 +71,7 @@ class Draft extends VerySimpleModel {
             implode(' ', $attrs));
     }
 
-    function getAttachmentIds($body=false) {
+    static function getAttachmentIds($body=false) {
         $attachments = array();
         if (!$body)
             $body = $this->getBody();

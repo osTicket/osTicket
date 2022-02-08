@@ -148,7 +148,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                       $topics[$info['topic_id']] = $email->topic;
                       $warn = sprintf(__('%s selected must be active'), __('Help Topic'));
                     }
-                    while (list($id,$topic) = each($topics)) { ?>
+                    foreach ($topics as $id=>$topic) { ?>
                         <option value="<?php echo $id; ?>"<?php echo ($info['topic_id']==$id)?'selected':''; ?>><?php echo $topic; ?></option>
                     <?php
                     } ?>

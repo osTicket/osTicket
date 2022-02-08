@@ -380,8 +380,10 @@ class gettext_reader {
                   $this->get_plural_forms(), $matches))
               return 1;
 
-          $this->plural_expression = create_function('$n',
-              sprintf('return %s;', str_replace('n', '($n)', $matches[2])));
+          $this->plural_expression = function ($n) use ($matches) {
+              $var = str_replace('n', $n, $matches[2]);
+              return eval("return $var");
+          };
           $this->plural_total = (int) $matches[1];
       }
       $func = $this->plural_expression;
@@ -540,6 +542,7 @@ class FileReader {
 class Translation extends gettext_reader implements Serializable {
 
     var $charset;
+    var $encode;
 
     const META_HEADER = 0;
 
@@ -798,7 +801,7 @@ class TextDomain {
                 $locale, $m)
             ) {
 
-            if ($m['modifier']) {
+            if (isset($m['modifier'])) {
                 // TODO: Confirm if Crowdin uses the modifer flags
                 if ($m['country']) {
                     $locale_names[] = "{$m['lang']}_{$m['country']}@{$m['modifier']}";

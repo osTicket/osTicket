@@ -28,4 +28,4 @@ require_once INCLUDE_DIR.'/class.dispatcher.php';
 $dispatcher = new Dispatcher();
 
 Signal::send('ajax.client', $dispatcher);
-print $dispatcher->resolve($ost->get_path_info());
+print $dispatcher->resolve(Osticket::get_path_info());

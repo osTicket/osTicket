@@ -106,7 +106,7 @@ if (osTicket::is_ie())
     <?php include STAFFINC_DIR . "templates/sub-navigation.tmpl.php"; ?>
 
         <div id="content">
-        <?php if($errors['err']) { ?>
+        <?php if(isset($errors['err'])) { ?>
             <div id="msg_error"><?php echo $errors['err']; ?></div>
         <?php }elseif($msg) { ?>
             <div id="msg_notice"><?php echo $msg; ?></div>

@@ -207,7 +207,7 @@ class AttachmentFile extends VerySimpleModel {
     function getExternalDownloadUrl($options=array()) {
         global $cfg;
 
-        $download = self::getDownloadUrl($options);
+        $download = $this->getDownloadUrl($options);
         // Separate URL handle and args
         list($handle, $args) = explode('file.php?', $download);
 
@@ -284,7 +284,7 @@ class AttachmentFile extends VerySimpleModel {
         exit();
     }
 
-    function _getKeyAndHash($data=false, $file=false) {
+    static function _getKeyAndHash($data=false, $file=false) {
         if ($file) {
             $sha1 = base64_encode(sha1_file($data, true));
             $md5 = base64_encode(md5_file($data, true));
@@ -624,7 +624,7 @@ class AttachmentFile extends VerySimpleModel {
     /*
       Method formats http based $_FILE uploads - plus basic validation.
      */
-    function format($files) {
+    static function format($files) {
         global $ost;
 
         if(!$files || !is_array($files))

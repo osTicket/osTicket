@@ -52,11 +52,11 @@ class Banlist {
         return false;
     }
 
-    function includes($email) {
+    static function includes($email) {
         return self::getSystemBanList()->containsRule('email','equal',$email);
     }
 
-    function ensureSystemBanList() {
+    static function ensureSystemBanList() {
 
         if (!($id=Filter::getByName('SYSTEM BAN LIST')))
             $id=self::createSystemBanList();
@@ -64,7 +64,7 @@ class Banlist {
         return $id;
     }
 
-    function createSystemBanList() {
+    static function createSystemBanList() {
         # XXX: Filter::create should return the ID!!!
         $errors=array();
         return Filter::create(array(
@@ -80,7 +80,7 @@ class Banlist {
         ), $errors);
     }
 
-    function getSystemBanList() {
+    static function getSystemBanList() {
         return self::ensureSystemBanList();
     }
 

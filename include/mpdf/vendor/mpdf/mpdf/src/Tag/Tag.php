@@ -2,6 +2,8 @@
 
 namespace Mpdf\Tag;
 
+use Mpdf\Strict;
+
 use Mpdf\Cache;
 use Mpdf\Color\ColorConverter;
 use Mpdf\CssManager;
@@ -15,6 +17,9 @@ use Mpdf\TableOfContents;
 
 abstract class Tag
 {
+
+	use Strict;
+
 	/**
 	 * @var \Mpdf\Mpdf
 	 */
@@ -107,6 +112,12 @@ abstract class Tag
 	{
 		$tag = get_class($this);
 		return strtoupper(str_replace('Mpdf\Tag\\', '', $tag));
+	}
+
+	protected function getAlign($property)
+	{
+		$property = strtolower($property);
+		return array_key_exists($property, self::ALIGN) ? self::ALIGN[$property] : '';
 	}
 
 	abstract public function open($attr, &$ahtml, &$ihtml);

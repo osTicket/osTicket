@@ -225,7 +225,7 @@ class PipeApiController extends TicketApiController {
         exit($exitcode);
     }
 
-    function  process() {
+    static function process() {
         $pipe = new PipeApiController();
         if(($ticket=$pipe->processEmail()))
            return $pipe->response(201, $ticket->getNumber());

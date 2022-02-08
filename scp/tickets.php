@@ -32,7 +32,7 @@ $page='';
 $ticket = $user = null; //clean start.
 $redirect = false;
 //LOCKDOWN...See if the id provided is actually valid and if the user has access.
-if($_REQUEST['id'] || $_REQUEST['number']) {
+if(isset($_REQUEST['id']) || isset($_REQUEST['number'])) {
     if($_REQUEST['id'] && !($ticket=Ticket::lookup($_REQUEST['id'])))
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(array('number' => $_REQUEST['number']))))
@@ -104,7 +104,7 @@ if (!$ticket) {
 
     $queue_key = sprintf('::Q:%s', ObjectModel::OBJECT_TYPE_TICKET);
     $queue_id = $queue_id ?: @$_GET['queue'] ?: $_SESSION[$queue_key]
-        ?: $thisstaff->getDefaultTicketQueueId() ?: $cfg->getDefaultTicketQueueId();
+        ?? $thisstaff->getDefaultTicketQueueId() ?: $cfg->getDefaultTicketQueueId();
 
     // Recover advanced search, if requested
     if (isset($_SESSION['advsearch'])
@@ -120,7 +120,7 @@ if (!$ticket) {
         $queue = AdhocSearch::load($key);
     }
 
-    if ((int) $queue_id && !$queue)
+    if ((int) $queue_id && !isset($queue))
         $queue = SavedQueue::lookup($queue_id);
 
     if (!$queue && ($qid=$cfg->getDefaultTicketQueueId()))
@@ -495,7 +495,7 @@ if ($thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
                            'href'=>'tickets.php?a=open',
                            'iconclass'=>'newTicket',
                            'id' => 'new-ticket'),
-                        ($_REQUEST['a']=='open'));
+                        (isset($_REQUEST['a']) && $_REQUEST['a']=='open'));
 }
 
 
@@ -540,7 +540,7 @@ if($ticket) {
     }
 } else {
     $inc = 'templates/queue-tickets.tmpl.php';
-    if ($_REQUEST['a']=='open' &&
+    if ((isset($_REQUEST['a']) && $_REQUEST['a']=='open') &&
             $thisstaff->hasPerm(Ticket::PERM_CREATE, false)) {
         $inc = 'ticket-open.inc.php';
     } elseif ($queue) {
@@ -550,7 +550,7 @@ if($ticket) {
     }
 
     //set refresh rate if the user has it configured
-    if(!$_POST && !$_REQUEST['a'] && ($min=(int)$thisstaff->getRefreshRate())) {
+    if(!$_POST && !isset($_REQUEST['a']) && ($min=(int)$thisstaff->getRefreshRate())) {
         $js = "+function(){ var qq = setInterval(function() { if ($.refreshTicketView === undefined) return; clearInterval(qq); $.refreshTicketView({$min}*60000); }, 200); }();";
         $ost->addExtraHeader('<script type="text/javascript">'.$js.'</script>',
             $js);

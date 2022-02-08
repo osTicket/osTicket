@@ -240,7 +240,7 @@ class Internationalization {
                     'code' => $base,
                 );
                 $installed[strtolower($base)]['flag'] = strtolower(
-                    $langs[$code]['flag'] ?: $locale ?: $code
+                    ($langs[$code]['flag'] ?? $locale) ?: $code
                 );
             }
         }
@@ -382,7 +382,7 @@ class Internationalization {
                 return $lang;
 
         // Support the flag buttons for guests
-        if ((!$user || $user != $thisstaff) && $_SESSION['::lang'])
+        if ((!$user || $user != $thisstaff) && isset($_SESSION['::lang']))
             return $_SESSION['::lang'];
 
         return self::getDefaultLanguage();
@@ -465,11 +465,11 @@ class Internationalization {
         // Create formatter && cache
         $cache[$k] = $formatter = new IntlDateFormatter(
                 $options['locale'],
-                $options['daytype'] ?: null,
-                $options['timetype'] ?: null,
-                $options['timezone'] ?: null,
-                $options['calendar'] ?: IntlDateFormatter::GREGORIAN,
-                $options['pattern'] ?: null
+                $options['daytype'] ?? null,
+                $options['timetype'] ?? null,
+                $options['timezone'] ?? null,
+                $options['calendar'] ?? IntlDateFormatter::GREGORIAN,
+                $options['pattern'] ?? null
                 );
 
         return $formatter;

@@ -26,7 +26,8 @@ if (!Validator::check_acl('staff'))
     die(__('Access Denied'));
 
 /*Some more include defines specific to staff only */
-define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
+if (!defined('STAFFINC_DIR'))
+    define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
 define('SCP_DIR',str_replace('//','/',dirname(__FILE__).'/'));
 
 /* Define tag that included files can check */

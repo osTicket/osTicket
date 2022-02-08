@@ -154,7 +154,7 @@ class Protection
 	public function rc4($key, $text)
 	{
 		if ($this->lastRc4Key != $key) {
-			$k = str_repeat($key, 256 / strlen($key) + 1);
+			$k = str_repeat($key, round(256 / strlen($key)) + 1);
 			$rc4 = range(0, 255);
 			$j = 0;
 			for ($i = 0; $i < 256; $i++) {
@@ -270,7 +270,7 @@ class Protection
 			for ($i = 1; $i <= 19; ++$i) {
 				$key = '';
 				for ($j = 0; $j < $len; ++$j) {
-					$key .= chr(ord($owner_rc4_key{$j}) ^ $i);
+					$key .= chr(ord($owner_rc4_key[$j]) ^ $i);
 				}
 				$enc = $this->rc4($key, $enc);
 			}
@@ -288,7 +288,7 @@ class Protection
 			for ($i = 1; $i <= 19; ++$i) {
 				$key = '';
 				for ($j = 0; $j < $len; ++$j) {
-					$key .= chr(ord($this->encryptionKey{$j}) ^ $i);
+					$key .= chr(ord($this->encryptionKey[$j]) ^ $i);
 				}
 				$enc = $this->rc4($key, $enc);
 			}
@@ -352,7 +352,7 @@ class Protection
 			++$len;
 		}
 		for ($i = 0; $i < $len; $i += 2) {
-			$s .= chr(hexdec($hs{$i} . $hs{($i + 1)}));
+			$s .= chr(hexdec($hs[$i] . $hs[($i + 1)]));
 		}
 
 		return $s;

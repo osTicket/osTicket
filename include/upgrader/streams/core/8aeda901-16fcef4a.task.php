@@ -25,7 +25,7 @@ class CryptoMigrater extends MigrationTask {
       XXX: This is not a  good way of decrypting data - use to descrypt old
       data.
      */
-    function _decrypt($text, $salt) {
+    static function _decrypt($text, $salt) {
 
         if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt'))
             return $text;

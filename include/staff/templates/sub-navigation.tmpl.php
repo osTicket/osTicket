@@ -17,7 +17,7 @@ $info = $nav->getSubNavInfo();
                 $activeMenu = 'x';
             continue;
         }
-        if($item['droponly']) continue;
+        if(isset($item['droponly'])) continue;
         $class=$item['iconclass'];
         if ($activeMenu && $k+1==$activeMenu
                 or (!$activeMenu
@@ -32,7 +32,7 @@ $info = $nav->getSubNavInfo();
 
         //Extra attributes
         $attr = '';
-        if ($item['attr'])
+        if (isset($item['attr']))
             foreach ($item['attr'] as $name => $value)
                 $attr.=  sprintf("%s='%s' ", $name, $value);
 

@@ -16,7 +16,7 @@
 
 class Misc {
 
-	function randCode($len=8, $chars=false) {
+	static function randCode($len=8, $chars=false) {
         $chars = $chars ?: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_=';
 
         // Determine the number of bits we need
@@ -42,7 +42,7 @@ class Misc {
         return substr($output, 0, $len);
 	}
 
-    function __rand_seed($value=0) {
+    static function __rand_seed($value=0) {
         // Form a 32-bit figure for the random seed with the lower 16-bits
         // the microseconds of the current time, and the upper 16-bits from
         // received value
@@ -52,7 +52,7 @@ class Misc {
     }
 
     /* Helper used to generate ticket IDs */
-    function randNumber($len=6) {
+    static function randNumber($len=6) {
         $number = '';
         for ($i=0; $i<$len; $i++) {
             $min = ($i == 0) ? 1 : 0;
@@ -63,7 +63,7 @@ class Misc {
     }
 
     /* misc date helpers...this will go away once we move to php 5 */
-    function db2gmtime($var){
+    static function db2gmtime($var){
         static $dbtz;
         global $cfg;
 
@@ -83,7 +83,7 @@ class Misc {
     }
 
     // Take user's time and return GMT time.
-    function user2gmtime($timestamp=null, $user=null) {
+    static function user2gmtime($timestamp=null, $user=null) {
         global $cfg;
 
         $tz = new DateTimeZone($cfg->getTimezone($user));
@@ -103,7 +103,7 @@ class Misc {
     }
 
     //Take user time or gmtime and return db (mysql) time.
-    function dbtime($var=null){
+    static function dbtime($var=null){
         static $dbtz;
         global $cfg;
 
@@ -124,7 +124,7 @@ class Misc {
     }
 
     /*Helper get GM time based on timezone offset*/
-    function gmtime($time=false, $user=false) {
+    static function gmtime($time=false, $user=false) {
         global $cfg;
 
         $tz = new DateTimeZone($user ? $cfg->getDbTimezone($user) : 'UTC');
@@ -140,14 +140,14 @@ class Misc {
     }
 
     /* Needed because of PHP 4 support */
-    function micro_time() {
+    static function micro_time() {
         list($usec, $sec) = explode(" ", microtime());
 
         return ((float)$usec + (float)$sec);
     }
 
     // Date range for the period in a given time
-    function date_range($period, $time=false, $tz=null) {
+    static function date_range($period, $time=false, $tz=null) {
         $time = $time ?: self::gmtime();
         if (!($dt = Format::parseDateTime($time)))
             return null;
@@ -227,7 +227,7 @@ class Misc {
     }
 
     //Current page
-    function currentURL() {
+    static function currentURL() {
 
         $str = 'http';
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
@@ -249,7 +249,7 @@ class Misc {
         return $str;
     }
 
-    function realpath($path) {
+    static function realpath($path) {
         $rp = realpath($path);
         return $rp ? $rp : $path;
     }

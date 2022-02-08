@@ -165,7 +165,7 @@ extends VerySimpleModel {
         return ($this->use_replyto_email);
     }
 
-    function disableFilters($object) {
+    static function disableFilters($object) {
         switch (get_class($object)) {
             case 'Topic':
                 $object_id = 'topic_id';
@@ -207,7 +207,7 @@ extends VerySimpleModel {
                            'configuration__like' => sprintf('%%"%s":%s}', $object_id, $id)));
         foreach($actions as $fa) {
             // Put a flag on the filter
-            $fa->setFilterFlags(false, 'Filter::FLAG_DELETED_OBJECT', true);
+            FilterAction::setFilterFlags($fa, 'Filter::FLAG_DELETED_OBJECT', true);
             $fa->save();
 
             // Disable the filter
@@ -374,7 +374,7 @@ extends VerySimpleModel {
         return $keys;
     }
 
-    /* static */ function getSupportedMatchTypes() {
+    static function getSupportedMatchTypes() {
         return array(
             'equal'=>       __('Equal'),
             'not_equal'=>   __('Not Equal'),
@@ -404,7 +404,7 @@ extends VerySimpleModel {
         elseif(($filter=static::getByName($vars['name'])) && $filter->id!=$this->id)
             $errors['name'] = __('Name already in use');
 
-        if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
+        if(!$errors && !$this->validate_rules($vars,$errors) && !$errors['rules'])
             $errors['rules'] = __('Unable to validate rules as entered');
 
         $targets = self::getTargets();
@@ -475,7 +475,7 @@ extends VerySimpleModel {
     }
 
     /** static functions **/
-    function getTargets() {
+    static function getTargets() {
         return array(
                 'Any' => __('Any'),
                 'Web' => __('Web Forms'),
@@ -488,7 +488,7 @@ extends VerySimpleModel {
     }
 
     function validate_rules($vars,&$errors) {
-        $matches = array_keys(self::getSupportedMatchFields());
+        $matches = self::getSupportedMatchFields();
         $types = array_keys(self::getSupportedMatchTypes());
         $rules = array();
         foreach ($vars['rules'] as $i=>$rule) {
@@ -571,7 +571,7 @@ extends VerySimpleModel {
             return $filter;
     }
 
-    function validate_actions($vars, &$errors) {
+    static function validate_actions($vars, &$errors) {
         //allow the save if it is to set a filter flag
         if ($vars['pass'])
             return true;
@@ -967,7 +967,7 @@ class TicketFilter {
      * Normalize ticket source to supported filter target
      *
      */
-    function origin2target($origin) {
+    static function origin2target($origin) {
         $sources=array('web' => 'Web', 'email' => 'Email', 'phone' => 'Web', 'staff' => 'Web', 'api' => 'API');
 
         return $sources[strtolower($origin)];

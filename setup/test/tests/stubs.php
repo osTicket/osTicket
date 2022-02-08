@@ -99,7 +99,7 @@ class DateTimeZone {
 }
 
 class DateTimeImmutable {
-    function createFromMutable() {}
+    static function createFromMutable() {}
 }
 
 class Phar {
@@ -120,7 +120,7 @@ class ZipArchive {
 }
 
 class Spyc {
-    function YAMLLoad() {}
+    static function YAMLLoad() {}
 }
 
 class finfo {
@@ -129,8 +129,8 @@ class finfo {
 }
 
 class Locale {
-    function getDisplayName() {}
-    function acceptFromHttp() {}
+    static function getDisplayName() {}
+    static function acceptFromHttp() {}
 }
 class IntlBreakIterator {
     static function createWordInstance() {}
@@ -176,7 +176,7 @@ class IntlDateFormatter {
 }
 
 class ResourceBundle {
-    function getLocales() {}
+    static function getLocales() {}
 }
 
 class NumberFormatter {
@@ -212,12 +212,12 @@ class Crypt_AES {
 }
 
 class PEAR {
-    function isError() {}
+    static function isError() {}
     function mail() {}
 }
 
 class mail {
-    function factory() {}
+    static function factory() {}
     function connect() {}
     function disconnect() {}
 }
@@ -247,7 +247,7 @@ class SplFileObject {
 
 class AuditEntry {
     function getDataById() {}
-    function getTableInfo() {}
+    static function getTableInfo() {}
 }
 
 ?>

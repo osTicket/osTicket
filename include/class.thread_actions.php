@@ -49,7 +49,7 @@ class TEA_ShowEmailRecipients extends ThreadEntryAction {
     }
 
     private function trigger__get() {
-        $hdr = Mail_parse::splitHeaders(
+        $hdr = Mail_Parse::splitHeaders(
                 $this->entry->getEmailHeader(), true);
 
         $recipients = array();

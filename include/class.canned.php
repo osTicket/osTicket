@@ -261,7 +261,7 @@ extends VerySimpleModel {
         return $responses;
     }
 
-    function responsesByDeptId($deptId, $explicit=false) {
+    static function responsesByDeptId($deptId, $explicit=false) {
         return self::getCannedResponses($deptId, $explicit);
     }
 

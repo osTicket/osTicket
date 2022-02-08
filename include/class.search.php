@@ -55,7 +55,7 @@ abstract class SearchBackend {
         static::$registry[$backend::$id] = $backend;
     }
 
-    function getInstance($id) {
+    static function getInstance($id) {
         if (!isset(self::$registry[$id]))
             return null;
 
@@ -204,7 +204,7 @@ class SearchInterface {
         if (defined('SEARCH_BACKEND'))
             $bk = SearchBackend::getInstance(SEARCH_BACKEND);
 
-        if (!$bk && !($bk = SearchBackend::getInstance('mysql')))
+        if (!isset($bk) && !($bk = SearchBackend::getInstance('mysql')))
             // No backend registered or defined
             return false;
 
@@ -358,8 +358,9 @@ class MysqlSearchBackend extends SearchBackend {
 
         // Require the use of at least one operator and conform to the
         // boolean mode grammar
-        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
-            && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
+        $T = array();
+        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T)
+            && preg_match("`^{$BOOLEAN}$`u", $query, $T)
         ) {
             // If using boolean operators, search in boolean mode. This regex
             // will ensure proper placement of operators, whitespace, and quotes
@@ -793,7 +794,7 @@ class SavedQueue extends CustomQueue {
 
         if (!isset($this->_criteria)) {
             $this->getSettings();
-            $this->_criteria = $this->_settings['criteria'] ?: array();
+            $this->_criteria = $this->_settings['criteria'] ?? array();
         }
 
         $criteria = $this->_criteria;
@@ -1096,7 +1097,7 @@ extends SavedSearch {
         return $this->title ?: $this->describeCriteria();
     }
 
-    function load($key) {
+    static function load($key) {
         global $thisstaff;
 
         if (strpos($key, 'adhoc') === 0)

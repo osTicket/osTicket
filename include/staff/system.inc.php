@@ -68,7 +68,7 @@ $extensions = array(
 <?php
 $lv = $ost->getLatestVersion('core', MAJOR_VERSION);
 $tv = THIS_VERSION;
-$gv = GIT_VERSION == '$git' ? substr(@`git rev-parse HEAD`, 0, 7) : false ?: GIT_VERSION;
+$gv = (GIT_VERSION == '$git') ? substr(@`git rev-parse HEAD`, 0, 7) : (false ?: GIT_VERSION);
 if ($lv && $tv[0] == 'v' ? version_compare(THIS_VERSION, $lv, '>=') : $lv == $gv) { ?>
     — <span style="color:green"><i class="icon-check"></i> <?php echo __('Up to date'); ?></span>
 <?php

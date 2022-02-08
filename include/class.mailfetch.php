@@ -488,7 +488,7 @@ class MailFetcher {
             // Do not recurse into email (rfc822) attachments unless requested
             && (strtolower($ctype) !== 'message/rfc822' || $recurseIntoRfc822)
         ) {
-            while(list($i, $substruct) = each($struct->parts)) {
+            foreach ($struct->parts as $i=>$substruct) {
                 if ($partNumber)
                     $prefix = $partNumber . '.';
                 if ($result = $this->getPart($mid, $mimeType, $encoding,
@@ -909,7 +909,8 @@ class MailFetcher {
             //Report success if the email was absolutely rejected.
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 // Never process this email again!
-                ThreadEntry::logEmailHeaders(0, $vars['mid']);
+                $entry = new ThreadEntry();
+                $entry->logEmailHeaders(0, $vars['mid']);
                 return true;
             }
 
@@ -989,7 +990,7 @@ class MailFetcher {
 
        Static function called to initiate email polling
      */
-    function run() {
+    static function run() {
         global $ost;
 
         if(!$ost->getConfig()->isEmailPollingEnabled())

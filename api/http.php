@@ -32,5 +32,5 @@ $dispatcher = patterns('',
 Signal::send('api', $dispatcher);
 
 # Call the respective function
-print $dispatcher->resolve($ost->get_path_info());
+print $dispatcher->resolve(Osticket::get_path_info());
 ?>

@@ -27,7 +27,7 @@ class ObjectModel {
     const OBJECT_TYPE_STAFF        = 'S';
     const OBJECT_TYPE_CHILD_TICKET = 'C';
 
-    private function objects() {
+    private static function objects() {
         static $objects = false;
         if ($objects == false) {
             $objects = array(

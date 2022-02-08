@@ -103,7 +103,7 @@ class PluginConfig extends Config {
      * validation errors) prior to saving. Add an error to the errors list
      * or return boolean FALSE if the config commit should be aborted.
      */
-    function pre_save($config, &$errors) {
+    function pre_save(&$config, &$errors) {
         return true;
     }
 
@@ -171,9 +171,10 @@ class PluginManager {
             $info = static::getInfoForPath(
                 INCLUDE_DIR . $ht['install_path'], $ht['isphar']);
 
-            list($path, $class) = explode(':', $info['plugin']);
-            if (!$class)
-                $class = $path;
+            if (is_array($info) && isset($info['plugin']))
+                list($path, $class) = explode(':', $info['plugin']);
+            if (!isset($class))
+                $class = $path ?? null;
             elseif ($ht['isphar'])
                 @include_once('phar://' . INCLUDE_DIR . $ht['install_path']
                     . '/' . $path);
@@ -233,7 +234,7 @@ class PluginManager {
         return $plugins;
     }
 
-    function throwException($errno, $errstr) {
+    static function throwException($errno, $errstr) {
         throw new RuntimeException($errstr);
     }
 
@@ -310,7 +311,7 @@ class PluginManager {
         return static::$plugin_info[$install_path];
     }
 
-    function getInstance($path) {
+    static function getInstance($path) {
         static $instances = array();
         if (!isset($instances[$path])
                 && ($ps = static::allInstalled())

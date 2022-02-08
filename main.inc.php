@@ -59,7 +59,7 @@ $_REQUEST=Format::strip_slashes($_REQUEST);
 // extract system messages
 $errors = array();
 $msg=$warn=$sysnotice='';
-if ($_SESSION['::sysmsgs']) {
+if (isset($_SESSION['::sysmsgs'])) {
     extract($_SESSION['::sysmsgs']);
     unset($_SESSION['::sysmsgs']);
 }
