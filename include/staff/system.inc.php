@@ -194,7 +194,7 @@ if (!$lv) { ?>
             &mdash; <?php echo $manifest['Language']; ?>
         <?php } ?>
 <?php   if ($info['phar'])
-            Plugin::showVerificationBadge($info['path']); ?>
+            PluginManager::showVerificationBadge($info['path']); ?>
         </h3>
         <div><?php echo sprintf('<code>%s</code> — %s', $info['code'],
                 str_replace(ROOT_DIR, '', $info['path'])); ?>
