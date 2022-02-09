@@ -22,7 +22,7 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 8.0 (or greater)
+  * PHP version 8.0
   * mysqli extension for PHP
   * MySQL database version 5.5
 
