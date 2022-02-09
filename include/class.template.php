@@ -424,7 +424,7 @@ class EmailTemplateGroup {
         return $group->save(0,$vars,$errors);
     }
 
-    function add($vars, &$errors) {
+    static function add($vars, &$errors) {
         return self::lookup(self::create($vars, $errors));
     }
 
@@ -682,7 +682,7 @@ class EmailTemplate {
         return $template->save(0, $vars, $errors);
     }
 
-    function add($vars, &$errors) {
+    static function add($vars, &$errors) {
         $inst = self::lookup(self::create($vars, $errors));
 
         // Inline images (attached to the draft)
