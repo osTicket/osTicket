@@ -129,6 +129,11 @@ if ($_POST) {
 
 $page = 'plugins.inc.php';
 if ($plugin) {
+    // Warn if plugin is nolonger compatible
+    if (!$plugin->isCompatible())
+        $warn = sprintf('%s <b>%s v%s+</b>',
+                __('Plugin Requires'),
+                 'osTicket', $plugin->getosTicketVersion());
     $page = 'plugin.inc.php';
     if ($instance || $_REQUEST['a'] == 'add-instance')
         $page = 'plugin-instance.inc.php';

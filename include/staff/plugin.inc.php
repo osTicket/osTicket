@@ -39,7 +39,13 @@ $info= Format::htmlchars(($errors && $_POST) ? $_POST : array(), true);
             </tr>
             <tr>
                 <td width="180"><?php echo __('Version'); ?>:</td>
-                <td> <?php echo $plugin->getVersion(); ?></td>
+                <td> <?php echo $plugin->getVersion();
+                if (!$plugin->isCompatible())
+                   echo sprintf('<span style="padding-left:20px;color:red;">(%s
+                           v%s+ %s)</span>',
+                           'osTicket', $plugin->getosTicketVersion(), __('Required'));
+                ?>
+                </td>
             </tr>
             <tr>
                 <td width="180"><?php echo __('Installed'); ?>:</td>

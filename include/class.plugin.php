@@ -192,9 +192,12 @@ class PluginManager {
      * currently enabled.
      */
     function bootstrap() {
-        foreach ($this->allActive() as $p)
+        foreach ($this->allActive() as $p) {
+            if ($p->isCompatible())
+                continue;
             foreach($p->getActiveInstances() as $i)
                     $i->bootstrap();
+        }
     }
 
     /**
@@ -359,6 +362,9 @@ class PluginManager {
         if (!($info = $this->getInfoForPath(INCLUDE_DIR . $path, $is_phar)))
             return false;
 
+        if (isset($info['ost_version']) && !self::isCompatible($info['ost_version']))
+            return false;
+
         $vars = [
             'name' => $info['name'],
             'is_phar' => $is_phar,
@@ -376,6 +382,29 @@ class PluginManager {
         static::$plugin_list = array();
     }
 
+    /**
+     * Function: isCompatible
+     *
+     * Check if provided plugin (info) is compatible with the current version
+     * of osTicket.
+     *
+     * Compatibility is only checked aganist osTicket major version by
+     * default because full version is only available on packaged
+     * versions and not git repo clones.
+     *
+     */
+     static function isCompatible($version, $ost_version=null) {
+         // Assume compatible if specific osTicket version is not required.
+         if (!$version)
+             return true;
+
+         $matches = array();
+         if (!$ost_version
+                 && preg_match_all('/\./', $version, $matches, PREG_OFFSET_CAPTURE) == 2)
+             $version = substr($version, 0, $matches[0][1][1]);
+
+         return version_compare($ost_version ?: MAJOR_VERSION, $version, '>=');
+     }
 
     /**
      * Function: isVerified
@@ -572,6 +601,7 @@ class Plugin extends VerySimpleModel {
     function isActive() { return ($this->get('isactive')); }
     function isPhar() { return $this->get('isphar'); }
     function getVersion() { return $this->get('version', $this->info['version']); }
+    function getosTicketVersion() { return $this->info['ost_version']; }
     function getAuthor() { return $this->info['author']; }
     function getInstallDate() { return $this->get('installed'); }
     function getInstallPath() { return $this->get('install_path'); }
@@ -614,6 +644,13 @@ class Plugin extends VerySimpleModel {
                 $this->defunct = true;
         }
         return  $this->defunct;
+    }
+
+    function isCompatible() {
+        if (!($v=$this->getosTicketVersion()))
+            return true;
+
+        return PluginManager::isCompatible($v);
     }
 
     function update($vars, &$errors) {
