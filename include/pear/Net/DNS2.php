@@ -858,7 +858,8 @@ class Net_DNS2
             //
             if ($tcp_fallback == false) {
 
-                $ns = each($this->nameservers);
+                $ns = (empty($this->nameservers) || !is_array($this->nameservers))
+                        ? false : [key($this->nameservers), current($this->nameservers)];
                 if ($ns === false) {
 
                     throw new Net_DNS2_Exception(
