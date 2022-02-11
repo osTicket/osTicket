@@ -17,11 +17,11 @@
 require_once "class.filter.php";
 class Banlist {
 
-    function add($email,$submitter='') {
+    static function add($email,$submitter='') {
         return self::getSystemBanList()->addRule('email','equal',$email);
     }
 
-    function remove($email) {
+    static function remove($email) {
         return self::getSystemBanList()->removeRule('email','equal',$email);
     }
 
