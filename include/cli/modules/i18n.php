@@ -393,7 +393,7 @@ class i18n_Compiler extends Module {
     function __read_next_string($tokens) {
         $string = array();
 
-        while (list(,$T) = each($tokens)) {
+        foreach ($tokens as $x=>$T) {
             switch ($T[0]) {
                 case T_CONSTANT_ENCAPSED_STRING:
                     // Strip leading and trailing ' and " chars
@@ -468,7 +468,7 @@ class i18n_Compiler extends Module {
     }
 
     function __get_func_args($tokens, $args) {
-        while (list(,$T) = each($tokens)) {
+        foreach ($tokens as $x=>$T) {
             switch ($T[0]) {
             case T_WHITESPACE:
                 continue 2;
@@ -483,7 +483,7 @@ class i18n_Compiler extends Module {
     function __find_strings($tokens, $funcs, $parens=0) {
         $T_funcs = array();
         $funcdef = false;
-        while (list(,$T) = each($tokens)) {
+        foreach ($tokens as $x=>$T) {
             switch ($T[0]) {
             case T_STRING:
             case T_VARIABLE:

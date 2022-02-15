@@ -82,7 +82,7 @@ if ($topics = $thisstaff->getTopicNames()) {
     <select multiple="multiple" name="topics[]" class="multiselect"
         data-placeholder="<?php echo __('Help Topics'); ?>"
         id="help-topic-selection" style="width:350px;">
-    <?php while (list($topicId,$topic) = each($topics)) { ?>
+    <?php foreach ($topics as $topicId => $topic) { ?>
         <option value="<?php echo $topicId; ?>" <?php
             if (in_array($topicId, $info['topics'])) echo 'selected="selected"';
         ?>><?php echo $topic; ?></option>
