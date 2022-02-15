@@ -1,3 +1,11 @@
+osTicket v1.15.6
+================
+### Enhancements
+* i18n: Missing translations for the action buttons (823b5fb)
+
+### Improvements
+* issue: Required Custom Field User Registration (f4e693e)
+
 osTicket v1.15.5
 ================
 ### Enhancements
