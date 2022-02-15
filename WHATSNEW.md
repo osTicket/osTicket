@@ -1,3 +1,14 @@
+osTicket v1.16.1
+================
+### Improvements
+* issue: Remaining Deprecated each() (69db3a7)
+* issue: User sendUnlockEmail (13652db)
+* issue: Auth_SASL Non-Static (4378f77)
+* issue: Banlist Non-Static (96995e1)
+* issue: PHP Version Requirements 1.16.x (fdc0445)
+* issue: Email Templates Static (fb0b075)
+* issue: Status List getSortModes() (6d4650d)
+
 osTicket v1.16
 ==============
 ### Enhancements
