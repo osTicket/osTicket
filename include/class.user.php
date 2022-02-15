@@ -1212,11 +1212,11 @@ class UserAccount extends VerySimpleModel {
     }
 
     function sendResetEmail() {
-        return static::sendUnlockEmail('pwreset-client') === true;
+        return $this->sendUnlockEmail('pwreset-client') === true;
     }
 
     function sendConfirmEmail() {
-        return static::sendUnlockEmail('registration-client') === true;
+        return $this->sendUnlockEmail('registration-client') === true;
     }
 
     function setPassword($new) {
@@ -1225,7 +1225,7 @@ class UserAccount extends VerySimpleModel {
         Signal::send('auth.clean', $this->getUser());
     }
 
-    protected static function sendUnlockEmail($template) {
+    protected function sendUnlockEmail($template) {
         global $ost, $cfg;
 
         $token = Misc::randCode(48); // 290-bits
