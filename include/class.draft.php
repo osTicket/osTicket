@@ -73,8 +73,6 @@ class Draft extends VerySimpleModel {
 
     static function getAttachmentIds($body=false) {
         $attachments = array();
-        if (!$body)
-            $body = $this->getBody();
         $body = Format::localizeInlineImages($body);
         $matches = array();
         if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {
