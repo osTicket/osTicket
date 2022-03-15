@@ -680,7 +680,7 @@ class ResultSetExporter {
                 }
             }
             // Evalutate :: function call on target current
-            if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
+            if (($current && $func) && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
 
