@@ -2840,7 +2840,7 @@ class TextThreadEntryBody extends ThreadEntryBody {
     }
 
     function getClean() {
-        return Format::htmlchars(Format::html_balance(Format::stripEmptyLines(parent::getClean())));
+        return Format::htmlchars(Format::stripEmptyLines(parent::getClean()));
     }
 
     function prepend($what) {
