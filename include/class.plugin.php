@@ -251,7 +251,7 @@ class PluginManager {
      */
     static function allInfos() {
         foreach (glob(INCLUDE_DIR . 'plugins/*',
-                GLOB_NOSORT|GLOB_BRACE) as $p) {
+                GLOB_NOSORT) as $p) {
             $is_phar = false;
             if (substr($p, strlen($p) - 5) == '.phar'
                     && class_exists('Phar')
