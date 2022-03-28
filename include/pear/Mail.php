@@ -241,7 +241,6 @@ class Mail
     function parseRecipients($recipients)
     {
         include_once 'Mail/RFC822.php';
-        include_once INCLUDE_DIR.'class.mailparse.php';
 
         // if we're passed an array, assume addresses are valid and
         // implode them before parsing.
@@ -252,7 +251,8 @@ class Mail
         // Parse recipients, leaving out all personal info. This is
         // for smtp recipients, etc. All relevant personal information
         // should already be in the headers.
-        $addresses = Mail_Parse::parseAddressList($recipients, 'localhost', false);
+        $parser = new Mail_RFC822();
+        $addresses = $parser->parseAddressList($recipients, 'localhost', false);
 
         // If parseAddressList() returned a PEAR_Error object, just return it.
         if (is_a($addresses, 'PEAR_Error')) {
