@@ -317,7 +317,7 @@ if($ticket->isOverdue())
 <table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
         <td width="50%">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('Status');?>:</th>
                     <?php
@@ -376,7 +376,7 @@ if($ticket->isOverdue())
             </table>
         </td>
         <td width="50%" style="vertical-align:top">
-            <table border="0" cellspacing="" cellpadding="4" width="100%">
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('User'); ?>:</th>
                     <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
