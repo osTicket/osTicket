@@ -73,7 +73,7 @@ if($ticket->isClosed()) {
     echo sprintf('
             <tr>
                 <th>'.__('Closed').':</th>
-                <td>%s   <span class="faded">by %s</span></td>
+                <td>%s   <span class="faded">'.__('by').' %s</span></td>
             </tr>',
             Format::datetime($ticket->getCloseDate()),
             ($staff?$staff->getName():'staff')
