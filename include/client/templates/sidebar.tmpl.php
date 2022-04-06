@@ -12,12 +12,10 @@ $BUTTONS = isset($BUTTONS) ? $BUTTONS : true;
                 echo __('Open a New Ticket');?></a>
 </p>
 <?php } ?>
-<!--
 <p>
             <a href="view.php" style="display:block" class="green button"><?php
                 echo __('Check Ticket Status');?></a>
 </p>
-        -->
         </div>
 <?php } ?>
         <div class="content"><?php

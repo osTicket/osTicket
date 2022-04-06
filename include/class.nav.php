@@ -339,7 +339,6 @@ class UserNav {
             if ($cfg->getClientRegistrationMode() != 'disabled'
                     || !$cfg->isClientLoginRequired())
                 $navs['new']=array('desc'=>__('Open a New Ticket'),'href'=>'open.php','title'=>'');
-            /*
             if($user && $user->isValid()) {
                 if(!$user->isGuest()) {
                     $navs['tickets']=array('desc'=>sprintf(__('Tickets (%d)'),$user->getNumTickets($user->canSeeOrgTickets())),
@@ -353,7 +352,6 @@ class UserNav {
             } else {
                 $navs['status']=array('desc'=>__('Check Ticket Status'),'href'=>'view.php','title'=>'');
             }
-            */
             $this->navs=$navs;
         }
 
