@@ -55,7 +55,8 @@ class TicketsAjaxAPI extends AjaxController {
         global $ost;
         $hits = $ost->searcher->find($q, $hits, false);
 
-        if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
+        $T = array();
+        if (preg_match('/\d{2,}[^*]/', $q, $T)) {
             $hits = $this->lookupByNumber($limit, $visibility, $hits);
         }
         elseif (!count($hits) && preg_match('`\w$`u', $q)) {
