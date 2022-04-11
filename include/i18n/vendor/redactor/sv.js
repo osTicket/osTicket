@@ -43,12 +43,12 @@
         "optional": "valfritt",
         "unorderedlist": "Osorterad lista",
         "orderedlist": "Sorterad lista",
-        "outdent": "Minska indrag",
-        "indent": "Öka indrag",
+        "outdent": "Minska utdrag",
+        "indent": "Öka utdrag",
         "horizontalrule": "Linje",
-        "upload": "Ladda upp",
+        "upload": "Upload",
         "upload-label": "Släpp filer här eller klicka för att ladda upp",
-        "upload-change-label": "Släpp en ny bild för att ändra",
+        "upload-change-label": "Drop a new image to change",
         "accessibility-help-label": "Textredigerare",
         "caption": "Undertext",
         "bulletslist": "Punkter",
@@ -75,7 +75,7 @@
         "delete-table": "Ta bort tabell",
 
         /* Fullscreen plugin */
-        "fullscreen": "Helskärm",
+        "fullscreen": "Fullskärm",
 
         /* Font color plugin */
         "fontcolor": "Textfärg",
