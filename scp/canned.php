@@ -73,7 +73,7 @@ if ($_POST) {
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id']))) {
-                    $images = $draft->getAttachmentIds($_POST['response']);
+                    $images = Draft::getAttachmentIds($_POST['response']);
                     $canned->attachments->keepOnlyFileIds($images, true);
                 }
 
@@ -107,7 +107,7 @@ if ($_POST) {
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id'])))
                     $premade->attachments->upload(
-                        $draft->getAttachmentIds($_POST['response']), true);
+                        Draft::getAttachmentIds($_POST['response']), true);
 
                 // Delete this user's drafts for new canned-responses
                 Draft::deleteForNamespace('canned', $thisstaff->getId());
