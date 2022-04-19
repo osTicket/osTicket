@@ -467,7 +467,7 @@ class Email extends VerySimpleModel {
         return false;
     }
 
-    static function validateCredentials($username=null, $password=null, $id=null, &$errors, $smtp=false) {
+    static function validateCredentials(?string $username=null, ?string $password=null, ?int $id=null, &$errors, $smtp=false) {
         if (!$username)
             $errors[$smtp ? 'smtp_userid' : 'userid'] = __('Username missing');
 

@@ -2935,12 +2935,12 @@ implements RestrictedAccess, Threadable, Searchable {
         return true;
     }
 
-    function release($info=array(), &$errors) {
-        if ($info['sid'] && $info['tid'])
+    function release(?array $info=array(), &$errors) {
+        if (isset($info['sid']) && isset($info['tid']))
             return $this->unassign();
-        elseif ($info['sid'] && $this->setStaffId(0))
+        elseif (isset($info['sid']) && $this->setStaffId(0))
             return true;
-        elseif ($info['tid'] && $this->setTeamId(0))
+        elseif (isset($info['tid']) && $this->setTeamId(0))
             return true;
 
         return false;

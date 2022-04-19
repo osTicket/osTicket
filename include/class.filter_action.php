@@ -89,7 +89,7 @@ class FilterAction extends VerySimpleModel {
         return $this->_impl;
     }
 
-    static function setFilterFlags($actions=false, $flag, $bool) {
+    static function setFilterFlags(?object $actions=null, $flag, $bool) {
         $flag = constant($flag);
         if ($actions)
             foreach ($actions as $action)
