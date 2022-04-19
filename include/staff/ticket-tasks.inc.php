@@ -23,7 +23,7 @@ $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
         echo '<strong>'.$showing.'</strong>';
     } else {
         echo sprintf(__('%s does not have any tasks'), $ticket? __('This ticket') :
-                'System');
+                __('System'));
     }
    ?>
 </div>
