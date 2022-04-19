@@ -4348,6 +4348,8 @@ class TextboxWidget extends Widget {
                     if ($v)
                         $attrs['data-translate-tag'] =  '"'.$v.'"';
                     break;
+                case 'length':
+                    $k = 'maxlength';
                 case 'size':
                 case 'maxlength':
                     if ($v && is_numeric($v))
