@@ -225,10 +225,12 @@ class AdminAjaxAPI extends AjaxController {
             Http::response(403, 'Access denied');
 
         $sort = new QueueSort();
+        $errors = array();
         if ($_POST) {
+            $_POST['root'] = $root;
             $data_form = $sort->getDataConfigForm($_POST);
             if ($data_form->isValid()) {
-                $sort->update($data_form->getClean() + $_POST, $root);
+                $sort->update($data_form->getClean() + $_POST, $errors);
                 if ($sort->save())
                     Http::response(201, $this->encode(array(
                         'id' => $sort->getId(),
