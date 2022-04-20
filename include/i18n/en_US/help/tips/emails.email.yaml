@@ -93,7 +93,7 @@ mail_folder:
     title: Mail Folder
     content: >
         Enter the <span class="doc-desc-title">Folder</span> name that you
-        wish to fetch mail from. If left emtpy the system will fetch from the
+        wish to fetch mail from. If left empty the system will fetch from the
         INBOX.
 
 protocol:
