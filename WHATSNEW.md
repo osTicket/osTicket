@@ -1,3 +1,21 @@
+osTicket v1.15.7
+================
+### Enhancements
+* i18n: Bosnian Flag CSS (94f5e95)
+* i18n: Translatable Tooltip (e2be9e7)
+* i18n: No Tasks String (01016db)
+
+### Improvements
+* Use HTTPS version of Crowdin project (d52cc40, da1309a)
+* fix staff login redirect loop when system is offline (38b8f53)
+* oops: Banlist Created (f0ae76f)
+* issue: MaxLength Attribute (225eb7a)
+* Update ticket-tasks.inc.php (b063504)
+* Issue: Disabled/Archived Primary Dept (0b7c9c2)
+* issue: Sweden Capitalization (3cb05ad)
+* typo: Emtpy To Empty (9c858b8)
+* issue: Fixes Test Errors (34cf2f2)
+
 osTicket v1.15.6
 ================
 ### Enhancements
