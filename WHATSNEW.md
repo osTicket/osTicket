@@ -1,3 +1,28 @@
+osTicket v1.16.2
+================
+### Improvements
+* Issue: Topic->getHelpTopics() don't return localized names when $allData = true (a078a0f)
+* class.email: allow empty smtp_passwd when existing (0d0d8a1)
+* Fixes permission issue when registration mode ist disabled (dee6a13)
+* email: use correct e-mail formatting (7692637)
+* Fix HTML syntax in thread view (84913f5)
+* Fix slugify regex (f72691c)
+* issue: preg_match Pass By Reference (148a2e7)
+* issue: php_analyze each() (f627a5e)
+* issue: Deprecated Required Parameter (0d0ab46)
+* tests: UninitializedVars (60f6ad7)
+* tests: Validation Checks (91e7d30)
+* issue: QueueSort (92e820c)
+* issue: Task Export (baa46d3)
+* issue: PEAR Mail parseAddressList() (7130056)
+* issue: Filter Events (8c9b392)
+* issue: Last Message Data Source (d185e50)
+* issue: Undefined Constant GLOB_BRACE (0499b97)
+* Update edit.inc.php (8b5ea64)
+* Update ticket-preview.tmpl.php (e6f437c)
+* Update ticket-view.inc.php (84c4eb8)
+* issue: Nullable date() Timestamp (a77158b)
+
 osTicket v1.16.1
 ================
 ### Improvements
