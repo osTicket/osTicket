@@ -90,6 +90,8 @@ if(!$thisstaff->isAdmin()) {
 
     //Staff are not allowed to login in offline mode!!
     if(!$ost->isSystemOnline() || $ost->isUpgradePending()) {
+        //logout current user if system is offline
+        $thisstaff->logOut();
         staffLoginPage(__('System Offline'));
         exit;
     }

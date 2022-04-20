@@ -38,7 +38,7 @@ if ($cfg->isAvatarsEnabled() && $user)
                 )
             ); ?>
             <span style="max-width:500px" class="faded title truncate"><?php
-                echo $entry->title; ?></span>
+                echo $entry->title; ?>
             </span>
     </div>
     <div class="thread-body" id="thread-id-<?php echo $entry->getId(); ?>">

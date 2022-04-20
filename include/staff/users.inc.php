@@ -126,12 +126,12 @@ $users->order_by($order . $order_column);
                             <i class="icon-unlock icon-fixed-width"></i>
                             <?php echo __('Unlock'); ?></a></li>
                         <?php }
+                        } # end of registration-enabled
                         if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
                         <li class="danger"><a class="users-action" href="#delete">
                             <i class="icon-trash icon-fixed-width"></i>
                             <?php echo __('Delete'); ?></a></li>
-                        <?php }
-                        } # end of registration-enabled? ?>
+                        <?php } ?>
                     </ul>
                 </div>
             </div>

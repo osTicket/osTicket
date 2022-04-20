@@ -625,7 +625,7 @@ return array(
     ),
     "sv" => array(
         "name" => "Swedish",
-        "nativeName" => "svenska"
+        "nativeName" => "Svenska"
     ),
     "ta" => array(
         "name" => "Tamil",

@@ -67,7 +67,7 @@ class Email extends VerySimpleModel {
         if ($this->mail_encryption == 'SSL')
             $this->mail_proto .= "/".$this->mail_encryption;
 
-        $this->address=$this->name?($this->name.'<'.$this->email.'>'):$this->email;
+        $this->address=$this->name?($this->name.' <'.$this->email.'>'):$this->email;
     }
 
     function getEmail() {
@@ -295,7 +295,7 @@ class Email extends VerySimpleModel {
             $errors = self::validateCredentials($vars['userid'], $vars['passwd'], $id, $errors, false);
 
         if ($vars['smtp_active'] && $vars['smtp_auth'] && $vars['smtp_auth_creds'])
-            $errors = self::validateCredentials($vars['smtp_userid'], $vars['smtp_passwd'], null, $errors, true);
+            $errors = self::validateCredentials($vars['smtp_userid'], $vars['smtp_passwd'], $id, $errors, true);
 
         list($vars['mail_protocol'], $encryption) = explode('/', $vars['mail_proto']);
         $vars['mail_encryption'] = $encryption ?: 'NONE';

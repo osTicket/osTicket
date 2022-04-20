@@ -238,6 +238,7 @@ extends VerySimpleModel {
             $extra['notes'] = Format::sanitize($extra['notes']);
         $rule = array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule = new FilterRule($rule);
+        $rule->created = SqlFunction::NOW();
         $this->rules->add($rule);
         if ($rule->save())
             return true;
