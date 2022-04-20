@@ -262,7 +262,7 @@ if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend())
             <select name="dept_id" id="dept_id" data-quick-add="department">
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
-              if($depts = Dept::getPublicDepartments()) {
+              if($depts = Dept::getDepartments(array('activeonly' => true, 'publiconly' => true))) {
                 if($staff->dept_id && !array_key_exists($staff->dept_id, $depts))
                 {
                   $depts[$staff->dept_id] = $staff->dept;
@@ -277,6 +277,7 @@ if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend())
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
+            <div class="error"><?php echo $errors['dept_id']; ?></div>
             <?php
             if($warn) { ?>
                 &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
@@ -294,6 +295,7 @@ if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend())
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
+            <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
           <td>
             <label class="inline checkbox">
@@ -305,8 +307,6 @@ if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend())
                 <i class="icon-question-sign help-tip"
                     href="#primary_role_on_assign"></i>
             </label>
-
-            <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
         </tr>
       </tbody>
