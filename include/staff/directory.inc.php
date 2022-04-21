@@ -3,9 +3,12 @@ if(!defined('OSTSTAFFINC') || !$thisstaff || !$thisstaff->isStaff()) die('Access
 $qs = array();
 $agents = $thisstaff->getDeptAgents();
 
-// Sanitize 'order' param To Escape XSS
+// htmlchar 'order' param To Escape XSS
 if ($_REQUEST['order'])
-    $_REQUEST['order'] = Format::sanitize($_REQUEST['order']);
+    $_REQUEST['order'] = Format::htmlchars($_REQUEST['order']);
+// htmlchar 'sort' param To Escape XSS
+if ($_REQUEST['sort'])
+    $_REQUEST['sort'] = Format::htmlchars($_REQUEST['sort']);
 
 if($_REQUEST['q']) {
     $searchTerm=$_REQUEST['q'];
