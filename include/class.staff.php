@@ -1603,6 +1603,10 @@ extends AbstractForm {
     }
 
     function validate($clean) {
+        global $thisstaff;
+
+        if (isset($clean['current']) && !$thisstaff->cmp_passwd($clean['current']))
+            $this->getField('current')->addError(__('Current password is incorrect.'));
         if ($clean['passwd1'] != $clean['passwd2'])
             $this->getField('passwd1')->addError(__('Passwords do not match'));
     }
