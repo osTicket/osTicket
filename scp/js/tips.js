@@ -112,7 +112,7 @@ jQuery(function() {
             y_pos = pos.top - 8,
             x_pos = pos.left + elem.width() + 16,
             tip_arrow = $('<img>')
-                .attr('src', './images/tip_arrow.png')
+                /*.attr('src', './images/tip_arrow.png') // Cosmetic adjustment, the arrow also makes the tip popup overflow */
                 .addClass('tip_arrow'),
             tip_box = $('<div>')
                 .addClass('tip_box'),

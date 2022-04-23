@@ -1,0 +1,97 @@
+:root {
+	--gray-50: #fafafa;
+	--gray-100: #f5f5f5;
+	--gray-200: #eeeeee;
+	--gray-300: #e0e0e0;
+	--gray-400: #bdbdbd;
+	--gray-500: #9e9e9e;
+	--gray-600: #757575;
+	--gray-700: #616161;
+	--gray-800: #424242;
+	--gray-900: #212121;
+	
+	--accent-25: #f1f8fd;  /* added */
+	--accent-50: #e3f2fd;
+	--accent-100: #bbdefb;
+	--accent-200: #90caf9;
+	--accent-300: #64b5f6;
+	--accent-400: #42a5f5;
+	--accent-500: #2196f3;
+	--accent-600: #1e88e5;
+	--accent-700: #1976d2;
+	--accent-800: #1565c0;
+	--accent-800-shadow-a10: #1565c01a; /* added */
+	--accent-850: #1357ae; /* added */
+	--accent-900: #0d47a1;
+	--accent-1000: #023178; /* added */
+	--accent-a100: #82b1ff;
+	--accent-a200: #448aff;
+	--accent-a400: #2979ff;
+	--accent-a700: #2962ff;
+	
+	--sec-accent-50: #fff8e1;
+	--sec-accent-100: #ffecb3;
+	--sec-accent-200: #ffe082;
+	--sec-accent-300: #ffd54f;
+	--sec-accent-400: #ffca28;
+	--sec-accent-500: #ffc107;
+	--sec-accent-600: #ffb300;
+	--sec-accent-700: #ffa000;
+	--sec-accent-800: #ff8f00;
+	--sec-accent-900: #ff6f00;
+	--sec-accent-1000: #cc5800; /* added */
+	--sec-accent-a100: #ffe57f;
+	--sec-accent-a200: #ffd740;
+	--sec-accent-a400: #ffc400;
+	--sec-accent-a700: #ffab00;
+	
+	--black: #000;
+	--black-text: #000;
+	--black-shadow: #000;
+	--black-shadow-a03: rgba(0, 0, 0, 0.03);
+	--black-shadow-a05: rgba(0, 0, 0, 0.05);
+	--black-shadow-a07: rgba(0, 0, 0, 0.07);
+	--black-shadow-a10: rgba(0, 0, 0, 0.1);
+	--black-shadow-a20: rgba(0, 0, 0, 0.2);
+	--black-shadow-a30: rgba(0, 0, 0, 0.3);
+	--black-shadow-a40: rgba(0, 0, 0, 0.4);
+	--black-shadow-a50: rgba(0, 0, 0, 0.5);
+	--black-shadow-a60: rgba(0, 0, 0, 0.6);
+	--black-shadow-a70: rgba(0, 0, 0, 0.7);
+	--black-shadow-a80: rgba(0, 0, 0, 0.8);
+	--black-shadow-a90: rgba(0, 0, 0, 0.9);
+	
+	--white: #fff;
+	--white-text: #fff;
+	--white-shadow-a10: rgba(255, 255, 255, 0.1);
+	--white-shadow-a20: rgba(255, 255, 255, 0.2);
+	--white-shadow-a30: rgba(255, 255, 255, 0.3);
+	--white-shadow-a40: rgba(255, 255, 255, 0.4);
+	--white-shadow-a50: rgba(255, 255, 255, 0.5);
+	--white-shadow-a60: rgba(255, 255, 255, 0.6);
+	--white-shadow-a70: rgba(255, 255, 255, 0.7);
+	--white-shadow-a80: rgba(255, 255, 255, 0.8);
+	--white-shadow-a90: rgba(255, 255, 255, 0.9);
+	
+	--gray-shadow-a50: rgba(220, 220, 220, 0.5);
+	--red-shadow-a10: rgba(255, 0, 0, 0.1);
+	--red-shadow-a30: rgba(255, 0, 0, 0.3);
+	--red-shadow-a70: rgba(255, 0, 0, 0.7);
+	
+	--plain-red: #a00;
+	--plain-red-bg: #fff0f0;
+	--plain-green: #0a0;
+	--plain-green-bg: #e0ffe0;
+	--plain-blue: #00a;
+	--plain-blue-bg: #e0f0ff;
+	--plain-warning: var(--sec-accent-a400);
+	--plain-warning-bg: var(--sec-accent-50);
+	
+	--body-bg: var(--gray-300);
+	--body-text: var(--black);
+	--header-bg: var(--gray-200);
+	--subnav-bg: var(--gray-50);
+	--content-bg: var(--white);
+	--footer-bg: var(--gray-300);
+	--table-bg: var(--white);
+}

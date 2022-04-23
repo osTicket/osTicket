@@ -366,7 +366,7 @@ if ($_POST)
             </th>
         </tr>
         <tr>
-            <td colspan=2>
+            <td colspan="2" id="response">
             <?php
             if($cfg->isCannedResponseEnabled() && ($cannedResponses=Canned::getCannedResponses())) {
                 ?>
@@ -459,7 +459,7 @@ print $response_form->getField('attachments')->render();
             </th>
         </tr>
         <tr>
-            <td colspan=2>
+            <td colspan=2 id="note">
                 <textarea
                     class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                         ?> draft draft-delete"

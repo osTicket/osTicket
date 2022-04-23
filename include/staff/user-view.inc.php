@@ -5,13 +5,8 @@ $account = $user->getAccount();
 $org = $user->getOrganization();
 $extras = new ArrayObject();
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
-    <tr>
-        <td width="50%" class="has_bottom_border">
-             <h2><a href="users.php?id=<?php echo $user->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?></a></h2>
-        </td>
-        <td width="50%" class="right_align has_bottom_border">
+<div class="clear tixTitle">
+	<div class="pull-right flush-right">
 <?php if (($account && $account->isConfirmed())
     || $thisstaff->hasPerm(User::PERM_EDIT)) { ?>
             <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
@@ -70,15 +65,19 @@ $extras = new ArrayObject();
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
 <?php } ?>
-              </ul>
-            </div>
-        </td>
-    </tr>
-</table>
-<div class="avatar pull-left" style="margin: 10px; width: 80px;">
+		  </ul>
+		</div>
+	</div>
+	<h2>
+		<a href="users.php?id=<?php echo $user->getId(); ?>" title="Reload">
+			<i class="icon-refresh"></i> <?php echo Format::htmlchars($user->getName()); ?>
+		</a>
+	</h2>
+</div>
+<div class="avatar pull-left" style="margin: 5px 15px 5px 5px; width: 80px;">
     <?php echo $user->getAvatar(); ?>
 </div>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="830" border="0">
+<table class="ticket_info user_info ticket_content" cellspacing="0" cellpadding="0" width="830" border="0">
     <tr>
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">

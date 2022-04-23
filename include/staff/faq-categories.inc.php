@@ -2,6 +2,10 @@
 if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
 
 ?>
+<div class="pull-left">
+	<h2><?php echo __('Frequently Asked Questions');?></h2>
+</div>
+<div class="clear"></div>
 <form id="kbSearch" action="kb.php" method="get">
     <input type="hidden" name="a" value="search">
     <input type="hidden" name="cid" value="<?php echo Format::htmlchars($_REQUEST['cid']); ?>"/>
@@ -10,7 +14,8 @@ if(!defined('OSTSTAFFINC') || !$thisstaff) die('Access Denied');
     <div id="basic_search">
         <div class="attached input">
             <input id="query" type="text" size="20" name="q" autofocus
-                value="<?php echo Format::htmlchars($_REQUEST['q']); ?>">
+                value="<?php echo Format::htmlchars($_REQUEST['q']); ?>"
+				placeholder="Search FAQs...">
             <button class="attached button" id="searchSubmit" type="submit">
                 <i class="icon icon-search"></i>
             </button>
@@ -98,12 +103,6 @@ foreach ($topics as $T) {
 
     </div>
 </form>
-    <div class="has_bottom_border" style="margin-bottom:5px; padding-top:5px;">
-        <div class="pull-left">
-            <h2><?php echo __('Frequently Asked Questions');?></h2>
-        </div>
-        <div class="clear"></div>
-    </div>
 <div>
 <?php
 if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.

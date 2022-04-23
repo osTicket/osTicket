@@ -3,13 +3,13 @@ $report = new OverviewReport($_POST['start'], $_POST['period']);
 $plots = $report->getPlotData();
 
 ?>
-<script type="text/javascript" src="js/raphael-min.js"></script>
-<script type="text/javascript" src="js/g.raphael.js"></script>
-<script type="text/javascript" src="js/g.line-min.js"></script>
-<script type="text/javascript" src="js/g.dot-min.js"></script>
-<script type="text/javascript" src="js/dashboard.inc.js"></script>
+<script type="text/javascript" src="js/raphael-min.js?39ab0c5"></script>
+<script type="text/javascript" src="js/g.raphael.js?39ab0c5"></script>
+<script type="text/javascript" src="js/g.line-min.js?39ab0c5"></script>
+<script type="text/javascript" src="js/g.dot-min.js?39ab0c5"></script>
+<script type="text/javascript" src="js/dashboard.inc.js?39ab0c5"></script>
 
-<link rel="stylesheet" type="text/css" href="css/dashboard.css"/>
+<link rel="stylesheet" type="text/css" href="css/dashboard.css?39ab0c5"/>
 
 <form method="post" action="dashboard.php">
 <div id="basic_search">
@@ -51,17 +51,15 @@ $plots = $report->getPlotData();
     </div>
 </div>
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="pull-left flush-left">
-        <h2><?php echo __('Ticket Activity');
-            ?>&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
-    </div>
+<div class="pull-left flush-left">
+	<h2><?php echo __('Ticket Activity');
+		?>&nbsp;<i class="help-tip icon-question-sign" href="#ticket_activity"></i></h2>
 </div>
 <div class="clear"></div>
 <!-- Create a graph and fetch some data to create pretty dashboard -->
 <div style="position:relative">
     <div id="line-chart-here" style="height:300px"></div>
-    <div style="position:absolute;right:0;top:0" id="line-chart-legend"></div>
+    <div id="line-chart-legend"></div>
 </div>
 
 <hr/>

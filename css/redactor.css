@@ -1049,7 +1049,13 @@
     color: #007dff;
     border-bottom-color: #007dff; }
 
+
+#note .redactor-styles, #task_note .redactor-styles {
+	background-color: var(--sec-accent-50);
+}
 .redactor-styles {
+  max-width: 100%!important;
+  min-height: 200px!important;
   margin: 0;
   padding: 16px 18px;
   color: #333;

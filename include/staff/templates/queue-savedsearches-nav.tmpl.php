@@ -15,8 +15,8 @@ if ($queue && !$queue->parent_id && $queue->staff_id)
   if (!isset($_SESSION['advsearch']))
       $href = 'href="#" data-dialog="ajax.php/tickets/search"';
 ?>
-  <a class="Ticket" <?php echo $href; ?>><i class="icon-sort-down pull-right"></i><?php echo __('Search');
-  ?></a>
+  <a class="Ticket" <?php echo $href; ?>><i class="icon-angle-right pull-right"></i><span><?php echo __('Search');
+  ?><span></a>
   <div class="customQ-dropdown">
     <ul class="scroll-height">
       <!-- Start Dropdown and child queues -->

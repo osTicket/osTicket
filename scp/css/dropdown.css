@@ -5,7 +5,7 @@
 
 .action-dropdown, .noclick-dropdown {
   position: absolute;
-  z-index: 8;
+  z-index: 900;
   display: none;
   margin-top: 8px;
 }
@@ -15,10 +15,11 @@
   min-width: 140px;
   list-style: none;
   background: #FFF;
+  background: var(--white);
   border: solid 1px #DDD;
-  border: solid 1px rgba(0, 0, 0, 0.2);
+  border: solid 1px var(--black-shadow-a20);
   border-radius: 6px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px var(--black-shadow-a20);
   overflow: visible;
   padding: 4px 0;
   margin: 0;
@@ -32,6 +33,7 @@
 .action-dropdown ul li > a, .noclick-dropdown ul li > a {
   display: block;
   color: #555;
+  color: var(--gray-700);
   text-decoration: none;
   line-height: 18px;
   padding: 3px 10px;
@@ -47,13 +49,15 @@
 .action-dropdown ul li.active > a:hover, 
 .noclick-dropdown ul li > a:hover, 
 .noclick-dropdown ul li.active > a:hover {
-  background-color: #08C;
+  background-color: #536DFE;
   color: #FFF !important;
   cursor: pointer;
 }
 .action-dropdown ul li.active > a  {
-  background-color: rgba(0, 136, 204, 0.2);
-  color: #08C;
+  background-color: #C5CAE9;
+  background-color: var(--accent-100);
+  color: #536DFE;
+  color: var(--accent-a200);
 }
 .action-dropdown ul li.positive > a:hover, .customQ-dropdown ul li.positive > a:hover, .noclick-dropdown ul li.positive > a:hover {
   background-color: #02aa4c;
@@ -119,13 +123,8 @@
     margin-top: -1px;
     padding-top: 7px;
     display: inline-block;
-    border-left: 1px solid #ccc;
-}
-.action-button:hover i.icon-caret-down {
-    border-color: inherit;
 }
 a.action-button, .action-button a {
-  color: inherit;
   text-decoration: none;
 }
 .action-buttons {

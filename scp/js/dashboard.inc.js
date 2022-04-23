@@ -21,7 +21,6 @@
             $('<span>').append(e)
                 .attr({'class':'label','style':'margin-left:0.5em'})
                 .appendTo($('#line-chart-legend'));
-            $('<br>').appendTo('#line-chart-legend');
             times.push(smtimes);
             plots.push(json.plots[e]);
             // Keep track of max value from any plot

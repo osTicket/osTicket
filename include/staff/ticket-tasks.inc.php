@@ -157,7 +157,10 @@ if ($count) { ?>
 $(function() {
 
     $(document).off('click.taskv');
-    $(document).on('click.taskv', 'tbody.tasks a, a#reload-task', function(e) {
+    $(document).on('click.taskv', 'tbody.tasks a', function(e) {
+		// Exclude links in Related Tickets tab, as it would result in a broken link.
+		if($(this).hasClass('Ticket')) return; 
+		
         e.preventDefault();
         e.stopImmediatePropagation();
         if ($(this).attr('href').length > 1) {
