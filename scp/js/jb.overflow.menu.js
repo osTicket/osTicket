@@ -30,7 +30,7 @@
  */
 
 (function( $, undefined ) { 
-/*! The funcion is unnecessary since there is a subnav sidebar. Hence added a return. */
+/*! The function is unnecessary since there is a subnav sidebar. Hence added a return. */
 	return;
 /*! ------ */
 
