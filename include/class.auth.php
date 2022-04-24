@@ -538,6 +538,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             || !($authkey=$bk->getAuthKey($staff)))
             return false;
 
+        // Regenerate session id and refresh (avoid session fixation)
+        $staff->regenerateSession();
         //Log debug info.
         $ost->logDebug(_S('Agent Login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
@@ -563,9 +565,10 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $authsession['id'] = $staff->getId();
         $authsession['key'] =  $authkey;
         $authsession['2fa'] =  $auth2fa;
-
+        // Set session token
+        $staff->setSessionToken();
+        // Set Auth Key
         $staff->setAuthKey($authkey);
-        $staff->refreshSession(true); //set the hash.
         Signal::send('auth.login.succeeded', $staff);
 
         if ($bk->supportsInteractiveAuthentication())
@@ -755,15 +758,15 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 throw new AccessDenied(__('Account is administratively locked'));
         }
 
+        // Regenerate session id and refresh (avoid session fixation)
+        $user->regenerateSession();
         // Tag the user and associated ticket in the SESSION
         $this->setAuthKey($user, $bk, $authkey);
-
+        // Set Session Token
+        $user->setSessionToken();
         //The backend used decides the format of the auth key.
         // XXX: encrypt to hide the bk??
         $user->setAuthKey($authkey);
-
-        $user->refreshSession(true); //set the hash.
-
         //Log login info...
         $msg=sprintf(_S('%1$s (%2$s) logged in [%3$s]'
                 /* Tokens are <username>, <id>, and <ip> */),
