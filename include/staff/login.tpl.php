@@ -172,6 +172,6 @@ if (count($ext_bks)) { ?>
         #loginBox:after { background-color: white !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.12.1.custom.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.13.1.custom.min.js"></script>
 </body>
 </html>
