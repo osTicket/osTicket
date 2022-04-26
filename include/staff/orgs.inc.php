@@ -57,53 +57,47 @@ $_SESSION[':Q:orgs'] = $orgs;
 $orgs->values('id', 'name', 'created', 'updated');
 $orgs->order_by($order . $order_column);
 ?>
-<div id="basic_search">
-    <div style="min-height:25px;">
-        <form action="orgs.php" method="get">
-            <?php csrf_token(); ?>
-            <div class="attached input">
-            <input type="hidden" name="a" value="search">
-            <input type="search" class="basic-search" id="basic-org-search" name="query" autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>" autocomplete="off" autocorrect="off" autocapitalize="off">
-                <button type="submit" class="attached button"><i class="icon-search"></i>
-                </button>
-            <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
-            </div>
-        </form>
-    </div>
-</div>
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="sticky bar opaque">
-        <div class="content">
-            <div class="pull-left flush-left">
-                <h2><?php echo __('Organizations'); ?></h2>
-            </div>
-            <div class="pull-right">
-                <?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
-                <a class="green button action-button add-org"
-                   href="#">
-                    <i class="icon-plus-sign"></i>
-                    <?php echo __('Add Organization'); ?>
-                </a>
-                <?php }
-            if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
-                <span class="action-button" data-dropdown="#action-dropdown-more"
-                      style="/*DELME*/ vertical-align:top; margin-bottom:0">
-                    <i class="icon-caret-down pull-right"></i>
-                    <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
-                </span>
-                <div id="action-dropdown-more" class="action-dropdown anchor-right">
-                    <ul>
-                        <li class="danger"><a class="orgs-action" href="#delete">
-                            <i class="icon-trash icon-fixed-width"></i>
-                            <?php echo __('Delete'); ?></a></li>
-                    </ul>
-                </div>
-                <?php } ?>
-            </div>
-        </div>
-    </div>
+<div class="content">
+	<div class="pull-left flush-left">
+		<h2><?php echo __('Organizations'); ?></h2>
+	</div>
 </div>
 <div class="clear"></div>
+<div id="basic_search">
+	<form action="orgs.php" method="get">
+		<?php csrf_token(); ?>
+		<div class="attached input">
+		<input type="hidden" name="a" value="search">
+		<input type="search" class="basic-search" id="basic-org-search" name="query" autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query']); ?>" autocomplete="off" autocorrect="off" autocapitalize="off">
+			<button type="submit" class="attached button"><i class="icon-search"></i>
+			</button>
+		<!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
+		</div>
+	</form>
+	<div class="pull-right">
+		<?php if ($thisstaff->hasPerm(Organization::PERM_CREATE)) { ?>
+		<a class="green button action-button add-org"
+		   href="#">
+			<i class="icon-plus-sign"></i>
+			<?php echo __('Add Organization'); ?>
+		</a>
+		<?php }
+	if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
+		<span class="action-button" data-dropdown="#action-dropdown-more"
+			  style="/*DELME*/ vertical-align:top; margin-bottom:0">
+			<i class="icon-caret-down pull-right"></i>
+			<span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+		</span>
+		<div id="action-dropdown-more" class="action-dropdown anchor-right">
+			<ul>
+				<li class="danger"><a class="orgs-action" href="#delete">
+					<i class="icon-trash icon-fixed-width"></i>
+					<?php echo __('Delete'); ?></a></li>
+			</ul>
+		</div>
+		<?php } ?>
+	</div>
+</div>
 <?php
 $showing = $search ? __('Search Results').': ' : '';
 if ($orgs->exists(true))

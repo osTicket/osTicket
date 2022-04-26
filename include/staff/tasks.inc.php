@@ -279,14 +279,28 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
 
 
 ?>
+<div class="content">
+	<div class="pull-left flush-left">
+		<h2><a href="<?php echo $refresh_url; ?>"
+			title="<?php echo __('Refresh'); ?>"><?php echo
+			$results_type.$showing; ?></a></h2>
+	</div>
+	<div class="pull-right flush-right">
+	</div>
+</div>
+<div class="clear"></div>
 <!-- SEARCH FORM START -->
 <div id='basic_search'>
-  <div class="pull-right" style="height:25px">
-    <span class="valign-helper"></span>
-    <?php
-        require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
-    ?>
-   </div>
+	<div class="pull-right" style="height:25px">
+		<span class="valign-helper"></span>
+		<?php
+			if ($count)
+                echo Task::getAgentActions($thisstaff, array('status' => $status));
+		?>
+		<?php
+			require STAFFINC_DIR.'templates/tasks-queue-sort.tmpl.php';
+		?>
+	</div>
     <form action="tasks.php" method="get" onsubmit="javascript:
         $.pjax({
         url:$(this).attr('action') + '?' + $(this).serialize(),
@@ -299,31 +313,13 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
         <div class="attached input">
             <input type="text" class="basic-search" data-url="ajax.php/tasks/lookup" name="query"
                    autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
-                   autocomplete="off" autocorrect="off" autocapitalize="off">
+                   placeholder="Search tasks..." autocomplete="off" autocorrect="off" autocapitalize="off">
             <button type="submit" class="attached button"><i class="icon-search"></i>
             </button>
         </div>
     </form>
-
 </div>
 <!-- SEARCH FORM END -->
-<div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:5px;">
-<div class="sticky bar opaque">
-    <div class="content">
-        <div class="pull-left flush-left">
-            <h2><a href="<?php echo $refresh_url; ?>"
-                title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
-                $results_type.$showing; ?></a></h2>
-        </div>
-        <div class="pull-right flush-right">
-           <?php
-           if ($count)
-                echo Task::getAgentActions($thisstaff, array('status' => $status));
-            ?>
-        </div>
-    </div>
-</div>
 <div class="clear"></div>
 <form action="tasks.php" method="POST" name='tasks' id="tasks">
 <?php csrf_token(); ?>
@@ -414,7 +410,7 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
                     href="tickets.php?id=<?php echo $T['ticket__ticket_id']; ?>"
                     data-preview="#tickets/<?php echo $T['ticket__ticket_id']; ?>/preview"
                     ><?php echo $T['ticket__number']; ?></a></td>
-                <td align="center" nowrap><?php echo
+                <td nowrap><?php echo
                 Format::datetime($T[$date_col ?: 'created']); ?></td>
                 <td><a <?php if ($flag) { ?> class="Icon <?php echo $flag; ?>Ticket" title="<?php echo ucfirst($flag); ?> Ticket" <?php } ?>
                     href="tasks.php?id=<?php echo $T['id']; ?>"><?php
@@ -466,7 +462,6 @@ if ($thisstaff->hasPerm(Task::PERM_DELETE, false)) {
         echo '&nbsp;<i class="help-tip icon-question-sign" href="#export"></i></div>';
     } ?>
     </form>
-</div>
 
 <div style="display:none;" class="dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm');?></h3>

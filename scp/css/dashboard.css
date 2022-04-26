@@ -1,16 +1,17 @@
 #line-chart-here {
-    padding: 0.4em;
+    padding: 1.5em 1em 1em;
     margin-bottom: 1em;
     border-radius: 0.3em;
     border: 0.2em solid #ccc;
     background: rgb(246,248,249); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(246,248,249,1) 0%, rgba(229,235,238,1) 50%, rgba(215,222,227,1) 51%, rgba(245,247,249,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(246,248,249,1)), color-stop(50%,rgba(229,235,238,1)), color-stop(51%,rgba(215,222,227,1)), color-stop(100%,rgba(245,247,249,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(246,248,249,1) 0%,rgba(229,235,238,1) 50%,rgba(215,222,227,1) 51%,rgba(245,247,249,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(246,248,249,1) 0%,rgba(229,235,238,1) 50%,rgba(215,222,227,1) 51%,rgba(245,247,249,1) 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, rgba(246,248,249,1) 0%,rgba(229,235,238,1) 50%,rgba(215,222,227,1) 51%,rgba(245,247,249,1) 100%); /* IE10+ */
-    background: linear-gradient(top, rgba(246,248,249,1) 0%,rgba(229,235,238,1) 50%,rgba(215,222,227,1) 51%,rgba(245,247,249,1) 100%); /* W3C */
+    background: -moz-linear-gradient(top, var(--gray-100) 0%, var(--gray-200) 50%, var(--gray-300) 51%, var(--gray-200) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,var(--gray-100)), color-stop(50%,var(--gray-200)), color-stop(51%,var(--gray-300)), color-stop(100%,var(--gray-200))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, var(--gray-100) 0%,var(--gray-200) 50%,var(--gray-300) 51%,var(--gray-200) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, var(--gray-100) 0%,var(--gray-200) 50%,var(--gray-300) 51%,var(--gray-200) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, var(--gray-100) 0%,var(--gray-200) 50%,var(--gray-300) 51%,var(--gray-200) 100%); /* IE10+ */
+    background: linear-gradient(0deg, var(--gray-100) 0%,var(--gray-200) 50%,var(--gray-300) 51%,var(--gray-200) 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#f5f7f9',GradientType=0 ); /* IE6-9 */
+	overflow: hidden;
 }
 #line-chart-here tspan {
     font-family: Monaco, Calibri, Sans Serif;
@@ -19,6 +20,12 @@
 #line-chart-legend {
     margin: 0.6em;
     line-height: 140%;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+#line-chart-legend span {
+	display: inline-block;
 }
 span.label.disabled {
     opacity: 0.5;

@@ -27,10 +27,12 @@
 }
 .thread-body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px !important;
+  font-size: 13px!important;
   line-height: 1.428571429;
-  color: #333333;
-  background-color: #ffffff;
+  color: #333;
+  color: var(--gray-800);
+  background-color: #fff;
+  background-color: var(--white);
   margin: 0;
   padding: 0.9em;
   word-wrap: break-word;
@@ -397,7 +399,7 @@
 .thread-body dl,
 .thread-body blockquote,
 .thread-body pre {
-	font-size: 14px;
+	font-size: 13px;
 	line-height: 1.5rem;
 }
 

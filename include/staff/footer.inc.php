@@ -1,10 +1,12 @@
+</div> <!-- closing #content -->
+<div id="footer">
+	<?php echo __('Copyright &copy;') ?> 2006-<?php echo date('Y'); ?>&nbsp;<?php
+	echo Format::htmlchars((string) $ost->company ?: 'osTicket.com'); ?>&nbsp;<?php echo __('All Rights Reserved.'); ?>
 </div>
-</div>
+</div> <!-- closing .v_flex -->
+</div> <!-- closing .flex -->
+</div> <!-- closing #pjax-container -->
 <?php if (!isset($_SERVER['HTTP_X_PJAX'])) { ?>
-    <div id="footer">
-        <?php echo __('Copyright &copy;') ?> 2006-<?php echo date('Y'); ?>&nbsp;<?php
-        echo Format::htmlchars((string) $ost->company ?: 'osTicket.com'); ?>&nbsp;<?php echo __('All Rights Reserved.'); ?>
-    </div>
 <?php
 if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     <div>
@@ -14,8 +16,9 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
     </div>
 <?php
 } ?>
-</div>
 <div id="overlay"></div>
+</div> <!-- closing #wrapper -->
+</div> <!-- closing #container -->
 <div id="loading">
     <i class="icon-spinner icon-spin icon-3x pull-left icon-light"></i>
     <h1><?php echo __('Loading ...');?></h1>
@@ -57,7 +60,7 @@ if(is_object($thisstaff) && $thisstaff->isStaff()) { ?>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/jquery.dropdown.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="<?php echo ROOT_PATH; ?>scp/js/jb.overflow.menu.js"></script>
-<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/tooltip.css">
+<link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>scp/css/tooltip.css"/>
 <script type="text/javascript">
     getConfig().resolve(<?php
         include INCLUDE_DIR . 'ajax.config.php';

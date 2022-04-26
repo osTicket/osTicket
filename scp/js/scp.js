@@ -41,12 +41,42 @@ var scp_prep = function() {
       if ($(this).val())
         $(this).blur();
     });
+	
+	// Header agent menu dropdown
+	$('#outer_info_avatar').click(function () {
+		if ($(this).next('#info').css('display') == 'none') {
+			$(this).next('#info').show();
+		} else {
+			$(this).next('#info').hide();
+		}
+	});
+	
+	// Header nav dropdown (this dropdown shows up on narrow viewports)
+	$('#overflow_nav').click(function () {
+		if ($('#nav').first().css('display') == 'none') {
+			$('#nav').first().show();
+		} else {
+			$('#nav').first().hide();
+		}
+	});
+	
     $('table.list input:checkbox').bind('click, change', function() {
         $(this)
             .parents("tr:first")
             .toggleClass("highlight", this.checked);
-     });
-
+    });
+	
+	// Table Checkboxes - Allow checkbox change by clicking the containing table cell
+	$('.tablecheckbox').click(function () {
+	   $(this).find('input').prop("checked", !$(this).find('input').prop("checked"));
+	   $('table.list input:checkbox').trigger('change');
+	});
+	
+	// Table Checkboxes - avoid 'double change' of checkbox state in case of clicking directly on the checkbox
+	$('.tablecheckbox input[type=checkbox]').click(function (e) {
+		e.stopPropagation();
+	});
+	
     $('table.list input:checkbox:checked').trigger('change');
 
     $('#selectAll').click(function(e) {
@@ -413,6 +443,80 @@ var scp_prep = function() {
      $('ul.tabs li a[href="' + window.location.hash + '"]').trigger('click');
    }
 
+// ----- Subnav resizer
+	const subnav = document.querySelector('nav');
+	const $subnav = $('nav');
+	const subnav_resizer = document.getElementById('nav_resizer');
+	const $subnav_resizer_reset = $('#nav_resizer_reset');
+	const subnav_links = document.querySelectorAll('nav > ul > li > a');
+	let current_resizer;
+	subnav_resizer.addEventListener('mousedown', function(e) {
+		current_resizer = e.target;
+		let prevX = e.clientX;
+		window.addEventListener('mousemove', subnav_move);
+		window.addEventListener('mouseup', subnav_mouseup);
+		function subnav_move(e) {
+			const rect = subnav.getBoundingClientRect();
+			subnav.style.width = rect.width - (prevX - e.clientX)+'px';
+			prevX = e.clientX;
+			subnav_resize_responsive();
+		}
+		function subnav_mouseup(e) {
+			subnav_reset_responsive('mouseup');
+			window.removeEventListener('mousemove', subnav_move);
+			window.removeEventListener('mouseup', subnav_mouseup);
+			document.cookie = ('subnav_width='+subnav.offsetWidth+';max-age=15552000');
+		}
+	});
+	
+	// ----- Subnav reset button
+	$subnav_resizer_reset.click(function subnav_reset_button() {
+			$subnav.animate({width:205}, {easing: 'swing', duration:50});
+			setTimeout(function() {
+				subnav_resize_responsive();
+				subnav_reset_responsive('reset');
+				document.cookie = ('subnav_width='+subnav.offsetWidth+';max-age=15552000');
+			}, 60)
+	});
+	
+	// ----- Subnav resize responsive elements
+	function subnav_resize_responsive() {
+		for (let subnav_link of subnav_links) {
+			let subnav_span = subnav_link.querySelector('span');
+			if (subnav.offsetWidth <= 80) {
+				subnav.style.padding = '20px 10px 2px';
+				subnav_link.style.padding = '5px 0px 5px 35px';
+				subnav_link.style.textOverflow = 'clip';
+				subnav_link.style.backgroundPosition = '9px 50%';
+				if (subnav_span) subnav_span.style.visibility = '';
+			} else {
+				subnav.style.padding = '';
+				subnav_link.style.textOverflow = '';
+				subnav_link.style.backgroundPosition = '';
+				if (subnav_span) subnav_span.style.visibility = 'visible';
+			}
+			if (subnav.offsetWidth <= 150) {
+				subnav_link.style.padding = '5px 0px 5px 28px';
+			} else {
+				subnav_link.removeAttribute('style');
+			}
+		}
+	}
+	
+	function subnav_reset_responsive(e) {
+		if (e == 'page_load') {
+			if (subnav.offsetWidth != 55 && subnav.offsetWidth != 205) $subnav_resizer_reset.show();
+		} else {
+			(subnav.offsetWidth == 55 || subnav.offsetWidth == 205) ? $subnav_resizer_reset.fadeOut(200) : $subnav_resizer_reset.fadeIn(200);
+		}
+	}
+	
+	// ----- Subnav responsive elements on page load
+	subnav_resize_responsive();
+	subnav_reset_responsive('page_load');
+	
+	
+/* Sticky bar is not used, hence commented
    // Make sticky bars float on scroll
    // Thanks, https://stackoverflow.com/a/17166225/1025836
    $('div.sticky.bar:not(.stop)').each(function() {
@@ -477,6 +581,7 @@ var scp_prep = function() {
        }
     });
   });
+*/
 
   $('div.tab_content[id] div.error:not(:empty)').each(function() {
     var div = $(this).closest('.tab_content');
@@ -494,6 +599,7 @@ var scp_prep = function() {
     .on('focus', function() { $(this).parent().addClass('focus'); })
     .on('blur', function() { $(this).parent().removeClass('focus'); })
 
+/* Jboverflowmenu funcion is unnecessary since there is a subnav sidebar. Hence commented.
   $(function() {
     // whenever we hover over a menu item that has a submenu
     $('.subQ').on('mouseover', function() {
@@ -520,6 +626,7 @@ var scp_prep = function() {
       }
     });
   });
+*/
 
   // Auto fetch queue counts
   $(function() {

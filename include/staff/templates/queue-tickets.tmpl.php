@@ -130,99 +130,66 @@ $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
 
-<!-- SEARCH FORM START -->
-<div id='basic_search'>
-  <div class="pull-right" style="height:25px">
-    <span class="valign-helper"></span>
-    <?php
-    require 'queue-quickfilter.tmpl.php';
-    if ($queue->getSortOptions())
-        require 'queue-sort.tmpl.php';
-    ?>
-  </div>
-    <form action="tickets.php" method="get" onsubmit="javascript:
-  $.pjax({
-    url:$(this).attr('action') + '?' + $(this).serialize(),
-    container:'#pjax-container',
-    timeout: 2000
-  });
-return false;">
-    <input type="hidden" name="a" value="search">
-    <input type="hidden" name="search-type" value=""/>
-    <div class="attached input">
-      <input type="text" class="basic-search" data-url="ajax.php/tickets/lookup" name="query"
-        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'] ?? null, true); ?>"
-        autocomplete="off" autocorrect="off" autocapitalize="off">
-      <button type="submit" class="attached button"><i class="icon-search"></i>
-      </button>
-    </div>
-    <a href="#" onclick="javascript:
-        $.dialog('ajax.php/tickets/search', 201);"
-        >[<?php echo __('advanced'); ?>]</a>
-        <i class="help-tip icon-question-sign" href="#advanced"></i>
-    </form>
-</div>
-<!-- SEARCH FORM END -->
-
 <div class="clear"></div>
-<div style="margin-bottom:20px; padding-top:5px;">
-    <div class="sticky bar opaque">
-        <div class="content">
-            <div class="pull-left flush-left">
-                <h2><a href="<?php echo $refresh_url; ?>"
-                    title="<?php echo __('Refresh'); ?>"><i class="icon-refresh"></i> <?php echo
-                    $queue->getName(); ?></a>
-                    <?php
-                    if (($crit=$queue->getSupplementalCriteria()))
-                        echo sprintf('<i class="icon-filter"
-                                data-placement="bottom" data-toggle="tooltip"
-                                title="%s"></i>&nbsp;',
-                                Format::htmlchars($queue->describeCriteria($crit)));
-                    ?>
-                </h2>
-            </div>
-            <div class="configureQ">
-                <i class="icon-cog"></i>
-                <div class="noclick-dropdown anchor-left">
-                    <ul>
-                        <li>
-                            <a class="no-pjax" href="#"
-                              data-dialog="ajax.php/tickets/search/<?php echo
-                              urlencode($queue->getId()); ?>"><i
-                            class="icon-fixed-width icon-pencil"></i>
-                            <?php echo __('Edit'); ?></a>
-                        </li>
-                        <li>
-                            <a class="no-pjax" href="#"
-                              data-dialog="ajax.php/tickets/search/create?pid=<?php
-                              echo $queue->getId(); ?>"><i
-                            class="icon-fixed-width icon-plus-sign"></i>
-                            <?php echo __('Add Sub Queue'); ?></a>
-                        </li>
-<?php
-
-if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
-                        <li class="danger">
-                            <a class="no-pjax confirm-action" href="#"
-                                data-dialog="ajax.php/queue/<?php
-                                echo $queue->id; ?>/delete"><i
-                            class="icon-fixed-width icon-trash"></i>
-                            <?php echo __('Delete'); ?></a>
-                        </li>
-<?php } ?>
-                    </ul>
-                </div>
-            </div>
-
-          <div class="pull-right flush-right">
-            <?php
-            // TODO: Respect queue root and corresponding actions
-            if ($count) {
-                Ticket::agentActions($thisstaff, array('status' => $status ?? null));
-            }?>
-            </div>
-        </div>
-    </div>
+<div class="content">
+	<div class="pull-left flush-left">
+		<h2><a href="<?php echo $refresh_url; ?>"
+			  title="<?php echo __('Refresh'); ?>">
+			  <?php echo $queue->getName(); ?></a>
+			<?php
+			if (($crit=$queue->getSupplementalCriteria()))
+				echo sprintf('<i class="icon-filter"
+						data-placement="bottom" data-toggle="tooltip"
+						title="%s"></i>&nbsp;',
+						Format::htmlchars($queue->describeCriteria($crit)));
+			?>
+		</h2>
+	</div>
+	<div class="configureQ">
+		<i class="icon-cog"></i>
+		<div class="noclick-dropdown anchor-left">
+			<ul>
+				<li>
+					<a class="no-pjax" href="#"
+					  data-dialog="ajax.php/tickets/search/<?php echo
+					  urlencode($queue->getId()); ?>"><i
+					class="icon-fixed-width icon-pencil"></i>
+					<?php echo __('Edit'); ?></a>
+				</li>
+				<li>
+					<a class="no-pjax" href="#"
+					  data-dialog="ajax.php/tickets/search/create?pid=<?php
+					  echo $queue->getId(); ?>"><i
+					class="icon-fixed-width icon-plus-sign"></i>
+					<?php echo __('Add Sub Queue'); ?></a>
+				</li>
+				<?php if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
+				<li class="danger">
+					<a class="no-pjax confirm-action" href="#"
+						data-dialog="ajax.php/queue/<?php
+						echo $queue->id; ?>/delete"><i
+					class="icon-fixed-width icon-trash"></i>
+					<?php echo __('Delete'); ?></a>
+				</li>
+				<?php } ?>
+			</ul>
+		</div>
+	</div>
+	<div class="pull-right" id="tickets_sort">
+		<span class="valign-helper"></span>
+		<?php
+		require 'queue-quickfilter.tmpl.php';
+		if ($queue->getSortOptions())
+			require 'queue-sort.tmpl.php';
+		?>
+	</div>
+	<div class="pull-right flush-right">
+		<?php
+		// TODO: Respect queue root and corresponding actions
+		if ($count) {
+			Ticket::agentActions($thisstaff, array('status' => $status ?? null));
+		}?>
+	</div>
 </div>
 <div class="clear"></div>
 
@@ -262,8 +229,10 @@ foreach ($columns as $C) {
 foreach ($tickets as $T) {
     echo '<tr>';
     if ($canManageTickets) { ?>
-        <td><input type="checkbox" class="ckb" name="tids[]"
-            value="<?php echo $T['ticket_id']; ?>" /></td>
+        <td class="tablecheckbox">
+			<input type="checkbox" id="ckb" class="ckb" name="tids[]"
+				value="<?php echo $T['ticket_id']; ?>" />
+		</td>
 <?php
     }
     foreach ($columns as $C) {

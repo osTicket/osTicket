@@ -36,15 +36,6 @@ if (!$nextStatuses)
     return;
 ?>
 
-<span
-    class="action-button"
-    data-dropdown="#action-dropdown-statuses" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Change Status'); ?>">
-    <i class="icon-caret-down pull-right"></i>
-    <a class="tickets-action"
-        aria-label="<?php echo __('Change Status'); ?>"
-        href="#statuses"><i
-        class="icon-flag"></i></a>
-</span>
 <div id="action-dropdown-statuses"
     class="action-dropdown anchor-right">
     <ul>

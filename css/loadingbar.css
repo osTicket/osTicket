@@ -5,7 +5,7 @@
   left: -6px;
   width: 1%;
   height: 2px;
-  background: #ff9100;
+  background: #FF8F00;
   -moz-border-radius: 1px;
   -webkit-border-radius: 1px;
   border-radius: 1px;
@@ -45,17 +45,14 @@
 }
 
 #loadingbar dt {
-opacity: .6;
-width: 180px;
-right: -80px;
-clip: rect(-6px,90px,14px,-6px);
+	opacity: .6;
+	width: 50px;
+	right: 0px;
+	clip: rect(-6px,55px,14px,-6px);
 }
 
 #loadingbar dd {
-  opacity: .6;
-  width: 20px;
-  right: 0;
-  clip: rect(-6px,22px,14px,10px);
+	display: none;
 }
 
 #loadingbar dd, #loadingbar dt {

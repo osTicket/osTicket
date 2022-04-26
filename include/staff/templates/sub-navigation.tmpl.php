@@ -8,8 +8,13 @@ if ($activeMenu>0 && !isset($subnav[$activeMenu-1]))
 
 $info = $nav->getSubNavInfo();
 ?>
-<nav class="<?php echo @$info['class']; ?>" id="<?php echo $info['id']; ?>">
-  <ul id="sub_nav">
+<nav class="<?php echo @$info['class']; ?> noselect" id="<?php echo $info['id']; ?>" 
+ style="<?php if ($_COOKIE['subnav_width']) {
+			echo 'width:'.$_COOKIE['subnav_width'].'px;'; } ?>">
+
+<div id="nav_resizer"></div>
+<div id="nav_resizer_reset" title="Reset sidebar width"><i class="icon-refresh"></i></div>
+	<ul id="sub_nav">
 <?php
     foreach($subnav as $k=> $item) {
         if (is_callable($item)) {
@@ -36,9 +41,9 @@ $info = $nav->getSubNavInfo();
             foreach ($item['attr'] as $name => $value)
                 $attr.=  sprintf("%s='%s' ", $name, $value);
 
-        echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s" %s>%s</a></li>',
-                $class, $item['href'], $item['title'], $id, $attr, $item['desc']);
-    }
+		echo sprintf('<li><a class="%s" href="%s" title="%s" id="%s" %s><span>%s</span></a></li>',
+				$class, $item['href'], $item['title'], $id, $attr, $item['desc']);
+		}
 ?>
-  </ul>
+	</ul>
 </nav>

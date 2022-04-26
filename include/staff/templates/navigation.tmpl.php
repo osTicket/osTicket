@@ -7,7 +7,8 @@ if($nav && ($tabs=$nav->getTabs()) && is_array($tabs)){
             isset($tab['active']) ? 'active':'inactive',
             @$tab['class'] ?: '',
             $tab['href'],$tab['desc']);
-        if(!isset($tab['active']) && ($subnav=$nav->getSubMenu($name))){
+        /* This is unnecessary and obstructing since subnav side panel is permanently visible.
+		if(!isset($tab['active']) && ($subnav=$nav->getSubMenu($name))){
             echo "<ul>\n";
             foreach($subnav as $k => $item) {
                 if (isset($item['id']) && !($id=$item['id']))
@@ -23,6 +24,7 @@ if($nav && ($tabs=$nav->getTabs()) && is_array($tabs)){
             }
             echo "\n</ul>\n";
         }
+		*/
         echo "\n</li>\n";
     }
 } ?>

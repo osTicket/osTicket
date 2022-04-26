@@ -2,13 +2,8 @@
 if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path');
 
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
-    <tr>
-        <td width="50%" class="has_bottom_border">
-             <h2><a href="orgs.php?id=<?php echo $org->getId(); ?>"
-             title="Reload"><i class="icon-refresh"></i> <?php echo $org->getName(); ?></a></h2>
-        </td>
-        <td width="50%" class="right_align has_bottom_border">
+<div class="clear tixTitle">
+	<div class="pull-right flush-right">
 <?php if ($thisstaff->hasPerm(Organization::PERM_DELETE)) { ?>
             <a id="org-delete" class="red button action-button org-action"
             href="#orgs/<?php echo $org->getId(); ?>/delete"><i class="icon-trash"></i>
@@ -30,12 +25,16 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
 <?php } ?>
-              </ul>
-            </div>
-        </td>
-    </tr>
-</table>
-<table class="ticket_info" cellspacing="0" cellpadding="0" width="940" border="0">
+		  </ul>
+		</div>
+	</div>
+	<h2>
+		<a href="orgs.php?id=<?php echo $org->getId(); ?>" title="Reload">
+			<i class="icon-refresh"></i> <?php echo $org->getName(); ?>
+		 </a>
+	</h2>
+</div>
+<table class="ticket_info ticket_content" cellspacing="0" cellpadding="0" width="940" border="0">
     <tr>
         <td width="50%">
             <table border="0" cellspacing="" cellpadding="4" width="100%">

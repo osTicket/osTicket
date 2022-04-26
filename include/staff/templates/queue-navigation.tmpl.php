@@ -12,7 +12,7 @@ $selected = (!isset($_REQUEST['a'])  && $_REQUEST['queue'] == $this_queue->getId
 <li class="top-queue item <?php if ($child_selected) echo 'child active';
     elseif ($selected) echo 'active'; ?>">
   <a href="<?php echo $this_queue->getHref(); ?>"
-    class="Ticket"><i class="small icon-sort-down pull-right"></i><?php echo $this_queue->getName(); ?>
+    class="Ticket"><i class="icon-angle-right pull-right"></i><span><?php echo $this_queue->getName(); ?></span>
 <?php if ($cfg->showTopLevelTicketCounts()) { ?>
     <span id="queue-count-bucket" class="hidden">
       (<span class="queue-count"

@@ -29,7 +29,10 @@
  *  close - when the secondary menu is closed
  */
 
-(function( $, undefined ) {
+(function( $, undefined ) { 
+/*! The function is unnecessary since there is a subnav sidebar. Hence added a return. */
+	return;
+/*! ------ */
 
 $.widget( "jb.overflowmenu", {
     options: {
