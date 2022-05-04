@@ -1186,7 +1186,7 @@ class TicketsAjaxAPI extends AjaxController {
         case 'transfer':
             $inc = 'transfer.tmpl.php';
             $info[':action'] = '#tickets/mass/transfer';
-            $info[':title'] = sprintf('Transfer %s',
+            $info[':title'] = sprintf(__('Transfer %s'),
                     _N('selected ticket', 'selected tickets', $count));
             $form = TransferForm::instantiate($_POST);
             $form->hideDisabled();
