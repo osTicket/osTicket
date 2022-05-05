@@ -329,7 +329,8 @@ class Format {
             'balance' => $options['balance'],
             'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
             'tidy' => -1,
-            'deny_attribute' => 'id, formaction, on*',
+            'elements' => '*-form-input-button',
+            'deny_attribute' => 'id, formaction, action, on*',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
         );
@@ -338,7 +339,7 @@ class Format {
         if ($cfg)
             $whitelist = $cfg->getIframeWhitelist();
         if (!empty($whitelist)) {
-            $config['elements'] = '*+iframe';
+            $config['elements'] .= '+iframe';
             $config['spec'] = 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?('
                 .implode('|', $whitelist)
                 .')/?([^@]*)$`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
