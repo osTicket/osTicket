@@ -374,6 +374,7 @@ abstract class Plugin {
      * that inherits from PluginConfig. This is abstract and must be defined
      * by the plugin subclass.
      */
+    var $config = null;
     var $config_class = null;
     var $id;
     var $info;
@@ -480,11 +481,10 @@ abstract class Plugin {
     }
 
     function getConfig() {
-        static $config = null;
-        if ($config === null && $this->config_class)
-            $config = new $this->config_class($this->getId());
+        if ($this->config === null && $this->config_class)
+            $this->config = new $this->config_class($this->getId());
 
-        return $config;
+        return $this->config;
     }
 
     function source($what) {
