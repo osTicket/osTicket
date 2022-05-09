@@ -522,6 +522,19 @@ class osTicket {
     }
 
     /*
+     * get_base_url
+     *
+     * Get base url osTicket is installed on
+     * It Should match help desk url.
+     *
+     */
+    static function get_base_url() {
+        return sprintf('http%s://%s',
+                osTicket::is_https() ? 's' : '',
+                $_SERVER['HTTP_HOST'] . ROOT_PATH);
+    }
+
+    /*
      * get_client_ip
      *
      * Get client IP address from "Http_X-Forwarded-For" header by following a
@@ -634,7 +647,7 @@ class osTicket {
     }
 
     static function register_namespace($dirs) {
-        $dirs = is_array($dir) ? $dirs : [$dirs];
+        $dirs = is_array($dirs) ? $dirs : [$dirs];
         $loader = new UniversalClassLoader_osTicket();
         $loader->registerNamespaceFallbacks($dirs);
         $loader->register();
