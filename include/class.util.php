@@ -316,12 +316,29 @@ implements TemplateVariable {
 abstract class  ServiceRegistry {
     static protected $registry = array();
 
-    function getId() {
-         if (isset($this->config)
-                 && is_a($this->config, 'PluginConfig'))
-              return $this->config->getId();
+    public function __isset($property) {
+        return isset($this->$property);
+    }
 
-         return static::$id;
+    function getId() {
+        return static::$id;
+    }
+
+    /*
+     *  getBkId
+     *
+     *  Get service id used to register the service. Plugins adds a tag
+     *  making it possible to register multiple instances of the same
+     *  plugin.
+     *
+     */
+    function getBkId() {
+        $id = $this->getId();
+        if (isset($this->config)
+                && is_a($this->config, 'PluginConfig'))
+            $id =sprintf('%s.%s', $id, $this->config->getId());
+
+        return $id;
     }
 
     function getName() {

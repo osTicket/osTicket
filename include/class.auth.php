@@ -146,7 +146,7 @@ class ClientCreateRequest {
         );
         if ($bk->supportsInteractiveAuthentication())
             // User can only be authenticated against this backend
-            $defaults['backend'] = $bk::$id;
+            $defaults['backend'] = $bk->getBkId();
         if ($this_form->isValid(function($f) { return !$f->isVisibleToUsers(); })
                 && ($U = User::fromVars($this_form->getClean()))
                 && ($acct = ClientAccount::createForUser($U, $defaults))
@@ -177,7 +177,7 @@ class ClientCreateRequest {
 abstract class AuthenticationBackend extends ServiceRegistry {
     static $name;
     static $id;
-
+    protected  $config;
 
     static function register($class) {
         if (is_string($class) && class_exists($class))
@@ -187,7 +187,7 @@ abstract class AuthenticationBackend extends ServiceRegistry {
                 || !($class instanceof AuthenticationBackend))
             return false;
 
-        static::$registry[$class->getId()] = $class;
+        static::$registry[$class->getBkId()] = $class;
     }
 
     static function allRegistered() {
@@ -330,11 +330,11 @@ abstract class AuthenticationBackend extends ServiceRegistry {
         $backends = array();
         foreach (StaffAuthenticationBackend::allRegistered() as $bk)
             if ($bk instanceof AuthDirectorySearch)
-                $backends[$bk::$id] = $bk;
+                $backends[$bk->getBkId()] = $bk;
 
         foreach (UserAuthenticationBackend::allRegistered() as $bk)
             if ($bk instanceof AuthDirectorySearch)
-                $backends[$bk::$id] = $bk;
+                $backends[$bk->getBkId()] = $bk;
 
         return array_unique($backends);
     }
@@ -570,7 +570,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         }
 
         // Tag the authkey.
-        $authkey = $bk->getId().':'.$authkey;
+        $authkey = $bk->getBkId().':'.$authkey;
         // Now set session crap and lets roll baby!
         $authsession = &$_SESSION['_auth']['staff'];
         $authsession = array(); //clear.
@@ -677,7 +677,8 @@ abstract class ExternalStaffAuthenticationBackend
                 $this->getServiceName());
         ?>
         <a class="external-sign-in" title="<?php echo $service; ?>"
-                href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
+                href="login.php?do=ext&amp;bk=<?php echo
+                urlencode($this->getBkId()); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
             ?>" alt="<?php echo $service; ?>"/>
@@ -695,15 +696,17 @@ abstract class ExternalStaffAuthenticationBackend
     }
 
     function triggerAuth() {
+        $_SESSION['ext:bk:id'] = $this->getBkId();
+        // For legacy plugins prior to v1.17
         $_SESSION['ext:bk:class'] = get_class($this);
     }
 }
 Signal::connect('api', function($dispatcher) {
     $dispatcher->append(
         url('^/auth/ext$', function() {
-            if ($class = $_SESSION['ext:bk:class']) {
-                $bk = StaffAuthenticationBackend::getBackend($class::$id)
-                    ?: UserAuthenticationBackend::getBackend($class::$id);
+            if ($id = $_SESSION['ext:bk:id']) {
+                $bk = StaffAuthenticationBackend::getBackend($id)
+                    ?: UserAuthenticationBackend::getBackend($id);
                 if ($bk instanceof ExternalAuthentication)
                     $bk->triggerAuth();
             }
@@ -751,7 +754,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         global $ost;
 
         if (!$user || !$bk
-                || !$bk::$id //Must have ID
+                || !$bk->getBkId() //Must have ID
                 || !($authkey = $bk->getAuthKey($user)))
             return false;
 
@@ -796,7 +799,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $authkey = $key ?: $bk->getAuthKey($user);
 
         //Tag the authkey.
-        $authkey = $bk::$id.':'.$authkey;
+        $authkey = $bk->getBkId().':'.$authkey;
 
         //Set the session goodies
         $authsession = &$_SESSION['_auth']['user'];
@@ -882,10 +885,11 @@ abstract class ExternalUserAuthenticationBackend
 
         ?>
         <a class="external-sign-in" title="<?php echo $service; ?>"
-                href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
+                href="login.php?do=ext&amp;bk=<?php echo
+                urlencode($this->getBkId()); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
-            ?>" alt="<?php $service; ?>"/>
+            ?>" alt="<?php echo $service; ?>"/>
 <?php } else { ?>
             <div class="external-auth-box">
             <span class="external-auth-icon">
@@ -900,6 +904,8 @@ abstract class ExternalUserAuthenticationBackend
     }
 
     function triggerAuth() {
+        $_SESSION['ext:bk:id'] = $this->getBkId();
+        // Legacy for plugins prior to v1.17
         $_SESSION['ext:bk:class'] = get_class($this);
     }
 }

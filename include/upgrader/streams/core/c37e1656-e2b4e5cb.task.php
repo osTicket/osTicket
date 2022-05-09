@@ -33,35 +33,35 @@ class PluginMigration extends MigrationTask {
         $ost->plugins->bootstrap();
         // Staff auth backends
         foreach (StaffAuthenticationBackend::allRegistered() as $p) {
-            if ($p::$id && $p->getId() == $p::$id)
+            if ($p::$id && $p->getBkId() == $p::$id)
                 continue;
             Staff::objects()
                 ->filter(['backend' => $p::$id])
-                ->update(['backend' => $p->getId()]);
+                ->update(['backend' => $p->getBkId()]);
         }
         // User auth backends
         foreach (UserAuthenticationBackend::allRegistered() as $p) {
-            if ($p::$id && $p->getId() == $p::$id)
+            if ($p::$id && $p->getBkId() == $p::$id)
                 continue;
             UserAccount::objects()
                 ->filter(['backend' => $p::$id])
-                ->update(['backend' => $p->getId()]);
+                ->update(['backend' => $p->getBkId()]);
         }
         // 2fa backends
         foreach (Staff2FABackend::allRegistered() as $p) {
-            if ($p::$id && $p->getId() == $p::$id)
+            if ($p::$id && $p->getBkId() == $p::$id)
                 continue;
             ConfigItems::objects()
                 ->filter(['default_2fa' => $p::$id])
-                ->update(['default_2fa' => $p->getId()]);
+                ->update(['default_2fa' => $p->getBkId()]);
         }
         // Password Policies
         $config = $ost->getConfig();
         foreach (PasswordPolicy::allActivePolicies() as $p) {
             if ($config->get('agent_passwd_policy') == $p::$id)
-                $config->set('agent_passwd_policy', $p->getId());
+                $config->set('agent_passwd_policy', $p->getBkId());
             if ($config->get('client_passwd_policy') == $p::$id)
-                $config->set('client_passwd_policy', $p->getId());
+                $config->set('client_passwd_policy', $p->getBkId());
         }
     }
 }

@@ -55,8 +55,8 @@ echo sprintf(__(
                 <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
             <?php foreach (UserAuthenticationBackend::allRegistered() as $ab) {
                 if (!$ab->supportsInteractiveAuthentication()) continue; ?>
-                <option value="<?php echo $ab::$id; ?>" <?php
-                    if ($info['backend'] == $ab::$id)
+                <option value="<?php echo $ab->getBkId(); ?>" <?php
+                    if ($info['backend'] == $ab->getBkId())
                         echo 'selected="selected"'; ?>><?php
                     echo $ab->getName(); ?></option>
             <?php } ?>
