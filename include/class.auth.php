@@ -841,6 +841,8 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
             return false;
         elseif (!$user->getAccount())
             return false;
+        elseif ($user->getAccount()->isLocked())
+            return false;
 
         return new ClientSession(new EndUser($user));
     }
