@@ -193,10 +193,12 @@ class PluginManager {
      */
     function bootstrap() {
         foreach ($this->allActive() as $p) {
-            if ($p->isCompatible())
+            if (!$p->isCompatible())
                 continue;
             foreach($p->getActiveInstances() as $i)
                     $i->bootstrap();
+            // Clear any side loaded config
+            $p->config = null;
         }
     }
 
@@ -660,8 +662,9 @@ class Plugin extends VerySimpleModel {
     }
 
     function getConfig(PluginInstance $instance = null) {
-        if (!isset($this->config) && ($class=$this->config_class))
+        if ((!isset($this->config) || $instance) && ($class=$this->config_class))
             $this->config = new $class($instance);
+
         return $this->config;
     }
 
