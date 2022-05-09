@@ -588,6 +588,8 @@ class Plugin extends VerySimpleModel {
                 $path = 'phar://' . $path;
             $file = "$path/$file";
             if (file_exists($file)) {
+                // Register possible plugin namespace before init
+                osTicket::register_namespace(dirname($file).'/lib');
                 @include_once $file;
                 if (class_exists($class))
                     $this->_impl = $class::lookup($this->getId());

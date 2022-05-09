@@ -22,6 +22,8 @@ require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
 require_once(INCLUDE_DIR.'class.migrater.php');
 require_once(INCLUDE_DIR.'class.plugin.php');
 require_once INCLUDE_DIR . 'class.message.php';
+require_once(INCLUDE_DIR.'UniversalClassLoader.php');
+use Symfony\Component\ClassLoader\UniversalClassLoader_osTicket;
 
 define('LOG_WARN',LOG_WARNING);
 
@@ -631,7 +633,14 @@ class osTicket {
                 );
     }
 
-    /**** static functions ****/
+    static function register_namespace($dirs) {
+        $dirs = is_array($dir) ? $dirs : [$dirs];
+        $loader = new UniversalClassLoader_osTicket();
+        $loader->registerNamespaceFallbacks($dirs);
+        $loader->register();
+        return $loader;
+    }
+
     static function start() {
         // Prep basic translation support
         Internationalization::bootstrap();
