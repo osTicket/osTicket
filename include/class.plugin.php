@@ -199,6 +199,7 @@ class PluginManager {
         foreach ($this->allActive() as $p) {
             if (!$p->isCompatible())
                 continue;
+            $p->init();
             foreach($p->getActiveInstances() as $i)
                     $i->bootstrap();
             // Clear any side loaded config
@@ -561,10 +562,21 @@ class Plugin extends VerySimpleModel {
     var $form;
     var $defunct;
 
+    /**
+     * init
+     *
+     * Used to initialize the plugin as part of bootstrapping process
+     */
+
+    function init() {
+        //noop
+    }
+
     function __onload() {
         $this->info = PluginManager::getInfoForPath(INCLUDE_DIR.$this->ht['install_path'],
             $this->isPhar());
     }
+
 
 
     /*
