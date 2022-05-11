@@ -179,15 +179,15 @@ abstract class AuthenticationBackend extends ServiceRegistry {
     static $id;
     protected  $config;
 
-    static function register($class) {
-        if (is_string($class) && class_exists($class))
-            $class = new $class();
+    static function register($bk) {
+        if (is_string($bk) && class_exists($bk))
+            $bk = new $bk();
 
-        if (!is_object($class)
-                || !($class instanceof AuthenticationBackend))
+        if (!is_object($bk)
+                || !($bk instanceof AuthenticationBackend))
             return false;
 
-        static::$registry[$class->getBkId()] = $class;
+        static::$registry[$bk->getBkId()] = $bk;
     }
 
     static function allRegistered() {
@@ -211,11 +211,22 @@ abstract class AuthenticationBackend extends ServiceRegistry {
     }
 
     static function getBackend($id) {
-
         if ($id
                 && ($backends = static::allRegistered())
                 && isset($backends[$id]))
             return $backends[$id];
+    }
+
+    static function lookupBackend($id, $class=null) {
+        // Lookup both registries
+        if (!($bk = StaffAuthenticationBackend::getBackend($id)))
+            $bk = UserAuthenticationBackend::getBackend($id);
+
+        // See if specific type is requesred.
+        if ($class && !($bk instanceof $class))
+            return null;
+
+        return $bk;
     }
 
     static function getSearchDirectoryBackend($id) {
@@ -976,6 +987,7 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
  * Backend to monitor staff's failed login attempts
  */
 class StaffAuthStrikeBackend extends  AuthStrikeBackend {
+    static $id = "authstrike.staff";
 
     static function authTimeout() {
         global $ost;
@@ -1045,6 +1057,7 @@ StaffAuthenticationBackend::register('StaffAuthStrikeBackend');
  * Backend to monitor user's failed login attempts
  */
 class UserAuthStrikeBackend extends  AuthStrikeBackend {
+    static $id = "authstrike.user";
 
     static function authTimeout() {
         global $ost;
