@@ -1,3 +1,19 @@
+osTicket v1.16.3
+================
+### Improvements
+* installer: Help Topic Disabled Fields (81e99fe4)
+* Do not autocomplete new access fields of the (another) user (02633694)
+* issue: mPDF Table Print (38c0979e)
+* Make string localizable (4cc509b1, 612183ce)
+
+### Security
+* mpdf: Unregister PHAR (57721def)
+* issue: Form Elements & Attribute (45b6cf2e)
+* Security: Session Fixation (85a76f40)
+* security: Unvalidated Password Change (01a378f6)
+* xss: System Logs (334934ec)
+* xss: Agent Directory (a5c4d931)
+
 osTicket v1.16.2
 ================
 ### Improvements
