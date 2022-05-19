@@ -190,6 +190,10 @@ class Validator {
         return true;
     }
 
+    static function is_emailish($email) {
+        return (preg_match('/(.*@.{2,})|(.{2,}@.*)/', $email));
+    }
+
     static function is_numeric($number, &$error='') {
         if (!is_numeric($number))
             $error = __('Enter a Number');

@@ -87,10 +87,14 @@ if (!$ticket) {
         $wc = mb_str_wc($_GET['query']);
         if ($wc < 4) {
             $key = substr(md5($_GET['query']), -10);
-            $isEmail = Validator::is_email($_GET['query']);
-            if ($_GET['search-type'] == 'typeahead' || $isEmail) {
+            if ($_GET['search-type'] == 'typeahead'
+                    || Validator::is_emailish($_GET['query'])) {
                 // Use a faster index
-                $criteria = ['user__emails__address', 'equal', $_GET['query']];
+                $criteria = [
+                    'user__emails__address',
+                    Validator::is_valid_email($_GET['query']) ? 'equal' : 'contains',
+                    $_GET['query']
+                ];
             } else {
                 $criteria = [':keywords', null, $_GET['query']];
             }
