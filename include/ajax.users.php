@@ -74,16 +74,18 @@ class UsersAjaxAPI extends AjaxController {
                     return $this->search($type, $fulltext);
                 }
             } else {
-                $filter = Q::any(array(
-                    'emails__address__contains' => $q,
-                    'name__contains' => $q,
-                    'org__name__contains' => $q,
-                    'account__username__contains' => $q,
-                ));
-                if (UserForm::getInstance()->getField('phone'))
-                    $filter->add(array('cdata__phone__contains' => $q));
-
-                $users->filter($filter);
+                $base = clone $users;
+                $users->filter(array('name__contains' => $q));
+                $users->union($base->copy()->filter(array(
+                                'org__name__contains' => $q)), false);
+                $users->union($base->copy()->filter(array(
+                                'emails__address__contains' => $q)),  false);
+                $users->union($base->copy()->filter(array(
+                                'account__username__contains' => $q)), false);
+                if (UserForm::getInstance()->getField('phone')) {
+                      $users->union($base->copy()->filter(array(
+                                'cdata__phone__contains' => $q)), false);
+                }
             }
 
             // Omit already-imported remote users

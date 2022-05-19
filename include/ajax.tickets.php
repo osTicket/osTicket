@@ -59,6 +59,9 @@ class TicketsAjaxAPI extends AjaxController {
         if (preg_match('/\d{2,}[^*]/', $q, $T)) {
             $hits = $this->lookupByNumber($limit, $visibility, $hits);
         }
+        elseif (preg_match('/(.*@.{2,})|(.{2,}@.*)/', $q, $T)) {
+            $hits = $this->lookupByEmail($limit, $visibility, $hits);
+        }
         elseif (!count($hits) && preg_match('`\w$`u', $q)) {
             // Do wild-card fulltext search
             $_REQUEST['q'] = $q.'*';
@@ -139,6 +142,50 @@ class TicketsAjaxAPI extends AjaxController {
                 'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
                 'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
                 'matches'=>$_REQUEST['q']);
+        }
+        $tickets = array_values($tickets);
+
+        return $this->json_encode($tickets);
+    }
+
+    function lookupByEmail($limit=false, $visibility=false, $matches=false) {
+        global $thisstaff;
+
+        if (!$limit)
+            $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+
+        $tickets=array();
+        // Bail out of query is empty
+        if (!$_REQUEST['q'])
+            return $this->json_encode($tickets);
+
+        $q = trim($_REQUEST['q']);
+
+        if (!$visibility)
+            $visibility = $thisstaff->getTicketsVisibility();
+
+        $hits = Ticket::objects()
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
+            ->annotate(array(
+                'number' => new SqlCode('null'),
+                'tickets' => SqlAggregate::COUNT('ticket_id', true),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
+            ))
+            ->filter($visibility)
+            ->filter(array('user__default_email__address__contains' => $q))
+            ->order_by('user__default_email__address')
+            ->limit($limit);
+
+        if ($matches && is_a($matches, 'QuerySet'))
+            return $hits->union($matches);
+
+        foreach ($hits as $T) {
+            $count = $T['tickets'];
+            $email = $T['user__default_email__address'];
+            $tickets[$email] = array('email'=>$email, 'value'=>$email,
+                'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
         }
         $tickets = array_values($tickets);
 
