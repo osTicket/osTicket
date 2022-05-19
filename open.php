@@ -47,9 +47,9 @@ if ($_POST) {
         // Drop session-backed form data
         unset($_SESSION[':form-data']);
         //Logged in...simply view the newly created ticket.
-        if($thisclient && $thisclient->isValid()) {
-            session_regenerate_id();
-            session_write_close();
+        if ($thisclient && $thisclient->isValid()) {
+            // Regenerate session id
+            $thisclient->regenerateSession();
             @header('Location: tickets.php?id='.$ticket->getId());
         } else
             $ost->getCSRF()->rotate();

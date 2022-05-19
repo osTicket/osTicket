@@ -121,7 +121,7 @@ class osTicket {
         }
 
         $msg=sprintf(__('Invalid CSRF token [%1$s] on %2$s'),
-                Format::htmlchars($token), THISPAGE);
+                Format::htmlchars(Format::sanitize($token)), THISPAGE);
         $this->logWarning(__('Invalid CSRF Token').' '.$name, $msg, false);
 
         return false;
