@@ -612,6 +612,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         if (!($bk=static::getBackend($id)) //get the backend
                 || !($staff = $bk->validate($auth)) //Get AuthicatedUser
                 || !($staff instanceof Staff)
+                || !$staff->isActive()
                 || $staff->getId() != $_SESSION['_auth']['staff']['id'] // check ID
         )
             return null;
@@ -636,7 +637,9 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
 
     protected function validate($authkey) {
 
-        if (($staff = StaffSession::lookup($authkey)) && $staff->getId())
+        if (($staff = StaffSession::lookup($authkey))
+            && $staff->getId()
+            && $staff->isActive())
             return $staff;
     }
 }
@@ -831,6 +834,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 )
             return null;
 
+        if (($account=$user->getAccount()) && !$account->isActive())
+            return null;
+
         $user->setAuthKey($_SESSION['_auth']['user']['key']);
 
         return $user;
@@ -839,7 +845,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
     protected function validate($userid) {
         if (!($user = User::lookup($userid)))
             return false;
-        elseif (!$user->getAccount())
+        elseif (!($account=$user->getAccount()))
+            return false;
+        elseif (!$account->isActive())
             return false;
 
         return new ClientSession(new EndUser($user));

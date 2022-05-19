@@ -1122,6 +1122,10 @@ class UserAccount extends VerySimpleModel {
         return $this->getStatus()->isLocked();
     }
 
+    function isActive() {
+        return (!$this->isLocked() && $this->isConfirmed());
+    }
+
     function forcePasswdReset() {
         $this->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
         return $this->save();
