@@ -1,3 +1,20 @@
+osTicket v1.15.8
+================
+### Enhancements
+* issue: Check User Status (3a2f072d)
+* jquery: Update jQueryUI 1.13.1 (ed958d98)
+
+### Improvements
+* issue: Redactor Freezing (42525aca)
+
+### Security
+* mpdf: Unregister PHAR (57721def)
+* issue: Form Elements & Attribute (45b6cf2e)
+* Security: Session Fixation (85a76f40)
+* security: Unvalidated Password Change (01a378f6)
+* xss: System Logs (334934ec)
+* xss: Agent Directory (a5c4d931)
+
 osTicket v1.15.7
 ================
 ### Enhancements
