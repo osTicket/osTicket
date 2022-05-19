@@ -451,7 +451,7 @@ class TasksAjaxAPI extends AjaxController {
         case 'transfer':
             $inc = 'transfer.tmpl.php';
             $info[':action'] = '#tasks/mass/transfer';
-            $info[':title'] = sprintf('Transfer %s',
+            $info[':title'] = sprintf(__('Transfer %s'),
                     _N('selected task', 'selected tasks', $count));
             $form = TransferForm::instantiate($_POST);
             $form->hideDisabled();

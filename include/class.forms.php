@@ -5622,7 +5622,7 @@ class AssignmentForm extends Form {
                     'id'=>2, 'label'=>'', 'required'=>false,
                     'default'=>false,
                     'configuration'=>array(
-                        'desc' => 'Maintain referral access to current assignees')
+                        'desc' => __('Maintain referral access to current assignees'))
                     )
                 ),
             'comments' => new TextareaField(array(
