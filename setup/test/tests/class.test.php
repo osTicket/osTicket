@@ -17,7 +17,7 @@ class Test {
         '/include/mpdf/',
         '/js/select2.min.js',
         '/js/redactor.min.js',
-        '/js/jquery-ui-1.12.1.custom.min.js',
+        '/js/jquery-ui-1.13.1.custom.min.js',
         '/js/fabric.min.js',
 
         # Includes in the core-plugins project
