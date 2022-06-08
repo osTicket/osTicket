@@ -38,7 +38,8 @@ $qs = array();
 $status=null;
 
 $sortOptions=array('id'=>'number', 'subject'=>'cdata__subject',
-                    'status'=>'status__name', 'dept'=>'dept__name','date'=>'created');
+                    'status'=>'status__name', 'dept'=>'dept__name',
+                    'date'=>'created', 'closed'=>'closed');
 $orderWays=array('DESC'=>'-','ASC'=>'');
 //Sorting options...
 $order_by=$order=null;
@@ -133,7 +134,8 @@ $tickets->order_by($order.$order_by);
 $tickets->values(
     'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
-    'dept__name', 'dept__ispublic', 'user__default_email__address', 'user_id'
+    'dept__name', 'dept__ispublic', 'user__default_email__address', 'user_id',
+    'closed'
 );
 
 ?>
@@ -210,6 +212,11 @@ if ($closedTickets) {?>
             <th width="120">
                 <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Date')); ?>"><?php echo __('Create Date');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
+            <?php if ($settings['status'] == "closed") { ?>
+                <th width="120">
+                    <a href="tickets.php?sort=closed&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Closed')); ?>"><?php echo __('Closed Date');?>&nbsp;<i class="icon-sort"></i></a>
+                </th>
+            <?php } ?>
             <th width="100">
                 <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Status')); ?>"><?php echo __('Status');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
@@ -250,6 +257,9 @@ if ($closedTickets) {?>
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $ticketNumber; ?></a>
                 </td>
                 <td><?php echo Format::date($T['created']); ?></td>
+                <?php if ($settings['status'] == "closed") { ?>
+                    <td><?php echo Format::date($T['closed']); ?></td>
+                <?php } ?>
                 <td><?php echo $status; ?></td>
                 <td>
                   <?php if ($isCollab) {?>
