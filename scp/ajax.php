@@ -313,6 +313,10 @@ $dispatcher = patterns('',
         url_get('^condition/addProperty$', 'addConditionProperty'),
         url_get('^counts$', 'collectQueueCounts'),
         url('^(?P<id>\d+)/delete$', 'deleteQueue')
+    )),
+    url('^/email', patterns('ajax.email.php:EmailAjaxAPI',
+        url_post('^/(?P<id>\d+)/stash$', 'stashFormData'),
+        url('^/(?P<id>\d+)/auth/config/(?P<type>\w+)/(?P<auth>.+)$', 'configureAuth'),
     ))
 );
 
