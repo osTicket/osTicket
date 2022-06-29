@@ -63,7 +63,7 @@ if (($bks=StaffAuthenticationBackend::getExternal())) { ?>
     <hr/>
 </div><?php
     foreach ($bks as $bk) { ?>
-<div class="external-auth"><?php $bk->renderExternalLink(); ?></div><?php
+<div class="external-auth"><?php $bk->renderExternalLink(); ?></div><br/><?php
     }
 } ?>
 

@@ -312,6 +312,7 @@ input.submit:hover, input.submit:active {
 
 .external-auth {
     display:inline-block;
+    margin-bottom: 4px;
 }
 .external-auth + .external-auth {
     margin-top: 4px;
