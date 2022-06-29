@@ -125,6 +125,7 @@ class Bootstrap {
         define('SLA_TABLE', $prefix.'sla');
 
         define('EMAIL_TABLE',$prefix.'email');
+        define('EMAIL_ACCOUNT_TABLE', $prefix.'email_account');
         define('EMAIL_TEMPLATE_GRP_TABLE',$prefix.'email_template_group');
         define('EMAIL_TEMPLATE_TABLE',$prefix.'email_template');
 
@@ -216,8 +217,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.crypto.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
-        require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
-        require(INCLUDE_DIR.'class.mailer.php');
+        require_once(INCLUDE_DIR.'class.validator.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
         require_once INCLUDE_DIR.'class.queue.php';
@@ -342,7 +342,7 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 
 #Current version && schema signature (Changes from version to version)
 define('GIT_VERSION','$git');
-define('MAJOR_VERSION', '1.16');
+define('MAJOR_VERSION', '1.17');
 define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){

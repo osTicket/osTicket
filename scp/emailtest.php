@@ -77,17 +77,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <select name="email_id">
                     <option value="0">&mdash; <?php echo __('Select FROM Email');?> &mdash;</option>
                     <?php
-                    $sql='SELECT email_id,email,name,smtp_active FROM '.EMAIL_TABLE.' email ORDER by name';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$email,$name,$smtp)=db_fetch_row($res)){
-                            $selected=($info['email_id'] && $id==$info['email_id'])?'selected="selected"':'';
-                            if($name)
-                                $email=Format::htmlchars("$name <$email>");
-                            if($smtp)
-                                $email.=' ('.__('SMTP').')';
 
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$email);
-                        }
+                    $emails = Email::objects()->values_flat('email_id',
+                            'email', 'name', 'smtp__active')
+                    ->order_by('name');
+                    print $emails;
+                    foreach ($emails as $row) {
+                        list($id,$email,$name,$smtp) = $row;
+                        $selected = ($info['email_id'] && $id == $info['email_id']) ? 'selected="selected"' : '';
+                        if ($name)
+                            $email = Format::htmlchars("$name <$email>");
+                        if ($smtp)
+                            $email .= ' ('.__('SMTP').')';
+                        echo sprintf('<option value="%d" %s>%s</option>',
+                            $id, $selected, $email);
                     }
                     ?>
                 </select>
