@@ -87,13 +87,6 @@ if (($bks=StaffAuthenticationBackend::getExternal())) { ?>
 
     function attemptLoginAjax(e) {
         $('#loading').show();
-        var objectifyForm = function(formArray) { //serialize data function
-            var returnArray = {};
-            for (var i = 0; i < formArray.length; i++) {
-                returnArray[formArray[i]['name']] = formArray[i]['value'];
-            }
-            return returnArray;
-        };
         if ($.fn.effect) {
             // For some reason, JQuery-UI shake does not considere an element's
             // padding when shaking. Looks like it might be fixed in 1.12.
@@ -123,7 +116,7 @@ if (($bks=StaffAuthenticationBackend::getExternal())) { ?>
             };
         }
         var form = $(e.target),
-            data = objectifyForm(form.serializeArray())
+            data = $.objectifyForm(form.serializeArray())
         data.ajax = 1;
         $('button[type=submit]', form).attr('disabled', 'disabled');
         $.ajax({
