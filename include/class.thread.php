@@ -704,7 +704,7 @@ implements Searchable {
             // osTicket, the Mailer class can break it apart. If it came
             // from this help desk, the 'loopback' property will be set
             // to true.
-            $mid_info = Mailer::decodeMessageId($mid);
+            $mid_info = osTicket\Mail\Mailer::decodeMessageId($mid);
             if (!$mid_info || !$mid_info['loopback'])
                 continue;
             if (isset($mid_info['uid'])
@@ -890,7 +890,7 @@ implements TemplateVariable {
         // Mail sent by this system will have a predictable message-id
         // If this incoming mail matches the code, then it very likely
         // originated from this system and looped
-        $info = Mailer::decodeMessageId($mailinfo['mid']);
+        $info = osTicket\Mail\Mailer::decodeMessageId($mailinfo['mid']);
         if ($info && $info['loopback']) {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
@@ -1454,7 +1454,7 @@ implements TemplateVariable {
             // osTicket, the Mailer class can break it apart. If it came
             // from this help desk, the 'loopback' property will be set
             // to true.
-            $mid_info = Mailer::decodeMessageId($mid);
+            $mid_info = osTicket\Mail\Mailer::decodeMessageId($mid);
             if (!$mid_info || !$mid_info['loopback'])
                 continue;
             if (isset($mid_info['uid'])
@@ -1532,7 +1532,7 @@ implements TemplateVariable {
      * Find a thread entry from a message-id created from the
      * ::asMessageId() method.
      *
-     * *DEPRECATED* use Mailer::decodeMessageId() instead
+     * *DEPRECATED* use osTicket\Mail\Mailer::decodeMessageId() instead
      */
     function lookupByRefMessageId($mid, $from) {
         global $ost;
