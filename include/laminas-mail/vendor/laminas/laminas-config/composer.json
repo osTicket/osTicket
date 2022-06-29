@@ -1,0 +1,59 @@
+{
+    "name": "laminas/laminas-config",
+    "description": "provides a nested object property based user interface for accessing this configuration data within application code",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "config"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-config/",
+        "issues": "https://github.com/laminas/laminas-config/issues",
+        "source": "https://github.com/laminas/laminas-config",
+        "rss": "https://github.com/laminas/laminas-config/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.6-dev",
+            "dev-develop": "2.7-dev"
+        }
+    },
+    "require": {
+        "php": "^5.5 || ^7.0",
+        "laminas/laminas-stdlib": "^2.7 || ^3.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "fabpot/php-cs-fixer": "1.7.*",
+        "laminas/laminas-filter": "^2.6",
+        "laminas/laminas-i18n": "^2.5",
+        "laminas/laminas-json": "^2.6.1",
+        "laminas/laminas-servicemanager": "^2.7.5 || ^3.0.3",
+        "phpunit/phpunit": "~4.0"
+    },
+    "suggest": {
+        "laminas/laminas-filter": "Laminas\\Filter component",
+        "laminas/laminas-i18n": "Laminas\\I18n component",
+        "laminas/laminas-json": "Laminas\\Json to use the Json reader or writer classes",
+        "laminas/laminas-servicemanager": "Laminas\\ServiceManager for use with the Config Factory to retrieve reader and writer instances"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Config\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Config\\": "test/"
+        }
+    },
+    "replace": {
+        "zendframework/zend-config": "self.version"
+    }
+}

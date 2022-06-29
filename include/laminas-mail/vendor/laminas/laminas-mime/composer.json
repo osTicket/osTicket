@@ -1,0 +1,63 @@
+{
+    "name": "laminas/laminas-mime",
+    "description": "Create and parse MIME messages and parts",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "mime"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-mime/",
+        "issues": "https://github.com/laminas/laminas-mime/issues",
+        "source": "https://github.com/laminas/laminas-mime",
+        "rss": "https://github.com/laminas/laminas-mime/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.7.x-dev",
+            "dev-develop": "2.8.x-dev"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "laminas/laminas-stdlib": "^2.7 || ^3.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-mail": "^2.6",
+        "phpunit/phpunit": "^5.7.27 || ^6.5.14 || ^7.5.20"
+    },
+    "suggest": {
+        "laminas/laminas-mail": "Laminas\\Mail component"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Mime\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Mime\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-mime": "^2.7.2"
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "name": "laminas/laminas-coding-standard",
+    "description": "Laminas coding standard",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "coding standard"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-coding-standard/",
+        "issues": "https://github.com/laminas/laminas-coding-standard/issues",
+        "source": "https://github.com/laminas/laminas-coding-standard",
+        "rss": "https://github.com/laminas/laminas-coding-standard/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "laminas/laminas-zendframework-bridge": "^1.0",
+        "squizlabs/php_codesniffer": "^2.7"
+    },
+    "replace": {
+        "zendframework/zend-coding-standard": "self.version"
+    }
+}
