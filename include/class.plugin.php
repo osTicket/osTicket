@@ -10,13 +10,16 @@ require_once(INCLUDE_DIR.'/class.config.php');
 abstract class PluginConfig {
     var $instance;
     var $data;
+    var $config = [];
     var $defaults;
     var $form;
 
-    function __construct($instance=null) {
-
+    function __construct($instance=null, $defaults=[]) {
         $this->instance = $instance;
-        $this->config = $instance ? $this->decode($instance->getConfiguration()) : [];
+        $this->config = $instance ?
+            $this->decode($instance->getConfiguration()) : [];
+        if ($defaults && is_array($defaults))
+            $this->defaults = $defaults;
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name))
                 $this->config[$name] = $field->to_php($this->get($name));
