@@ -1,7 +1,7 @@
 <?php
-$info = $instance ? $instance->getInfo() : array();
+$info = $instance ? $instance->getInfo() : $plugin->getNewInstanceDefaults($_GET);
 $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $info, true);
-$form = $instance ? $instance->getForm() : $plugin->getConfigForm();
+$form = $instance ? $instance->getForm() : $plugin->getConfigForm($info);
 ?>
 <ul class="clean tabs" id="instance-tabs">
     <li class="<?php if (!$instance) echo 'active '; if (count($errors)) echo

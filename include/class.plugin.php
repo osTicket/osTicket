@@ -600,6 +600,27 @@ class Plugin extends VerySimpleModel {
         return false;
     }
 
+
+    /*
+     * getNewInstanceOptions
+     *
+     * Plugin can return new instance options if it supports different types
+     *  of instances.
+     */
+    public function getNewInstanceOptions() {
+        return false;
+    }
+
+    /*
+     * getNewInstanceDefaults
+     *
+     * Plugin can return new instance options if it supports different types
+     *  of instances.
+     */
+    public function getNewInstanceDefaults($options) {
+        return [];
+    }
+
     /*
      * getImpl
      *

@@ -1,28 +1,18 @@
 <?php
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$count = $plugin->getNumInstances();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$instances = $plugin->getNumInstances();
+$pageNav = new Pagenate($instances, $page, PAGE_LIMIT);
 $pageNav->setURL('plugins.php?id='.$plugin->getId().'&a=instances');
-
 // use dialog modal or page to add or configure an instance
 $modal = $plugin->useModalConfig();
 ?>
 <div style="margin: 5px 0">
     <div class="pull-right">
-        <a class="green button action-button <?php echo $modal ?
-        'instance-config' : ''; ?>"
-        href="<?php echo sprintf(
-                ($modal ?  '#plugins/%d/instances/add' : 'plugins.php?id=%d&a=add-instance#instances'),
-                $plugin->getId()); ?>"
-        >
-            <i class="icon-plus-sign"></i>
-            <?php echo __('Add New Instance'); ?>
-        </a>
         <?php
-        if ($count) { ?>
+        if ($instances) { ?>
         <span class="action-button pull-right" data-dropdown="#action-dropdown-more">
             <i class="icon-caret-down pull-right"></i>
-            <span ><i class="icon-cog"></i> <?php echo __('More');?></span>
+            <span ><i class="icon-cog"></i>&nbsp;<?php echo __('More');?></span>
         </span>
         <div id="action-dropdown-more" class="action-dropdown anchor-right">
             <ul>
@@ -38,13 +28,48 @@ $modal = $plugin->useModalConfig();
             </ul>
         </div>
         <?php
+        }
+        $newInstanceOptions = $plugin->getNewInstanceOptions();
+        if ($newInstanceOptions) {
+        ?>
+          <span class="green button action-button pull-right"
+           data-dropdown="#action-dropdown-add">
+             <i class="icon-caret-down pull-right"></i>
+             <span><i class="icon-plus-sign">&nbsp;<?php echo __('Add New Instance'); ?></i></span>
+          </span>
+          <div id="action-dropdown-add" class="action-dropdown anchor-right">
+            <ul>
+                <?php
+                foreach ($newInstanceOptions as $opt) { ?>
+                <li><a class="<?php echo $opt['class']; ?>"
+                    href="<?php echo $opt['href']; ?>">
+                    <i class="<?php echo $opt['icon'] ?: 'icon-plus-sign';
+                ?> icon-fixed-width"></i>&nbsp;
+                    <?php echo  $opt['name'];; ?></a></li>
+                <?php
+                } ?>
+            </ul>
+          </div>
+         <?php
+        } else {
+            $href = sprintf($modal
+                    ? '#plugins/%d/instances/add'
+                    :  'plugins.php?id=%d&a=add-instance#instances',
+                    $plugin->getId())
+            ?>
+            <a class="green button action-button <?php
+                echo $modal ?  'instance-config' : ''; ?>"
+                href="<?php echo $href; ?>" >
+                <i class="icon-plus-sign"></i> <?php echo __('Add New Instance'); ?>
+            </a>
+        <?php
         } ?>
     </div>
     <div class="clear"></div>
  </div>
 <div>
 <?php
-if ($count) { ?>
+if ($instances) { ?>
 <form id="plugin-instances-form" action="" method="POST">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="instances-actions" >
