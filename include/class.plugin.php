@@ -970,7 +970,11 @@ class PluginInstance extends VerySimpleModel {
     }
 
     function getConfiguration() {
-        return $this->get('config', []);
+        return $this->get('config', '{}');
+    }
+
+    function getSignature() {
+        return md5($this->getConfiguration());
     }
 
     function setConfiguration($form, &$errors) {
