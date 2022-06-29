@@ -76,11 +76,18 @@ abstract class PluginConfig {
      * Retreive a Form instance for the configurable options offered in
      * ::getOptions
      */
-    function getForm() {
+    function getForm($vars=[]) {
         if (!isset($this->form)) {
             $this->form = new SimpleForm($this->getOptions());
-            if ($_SERVER['REQUEST_METHOD'] != 'POST')
-                $this->form->data($this->getInfo());
+            // set data if any
+            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                // defaults + current info
+                $this->form->data(array_merge($vars ?: [],
+                            $this->getInfo()));
+            } elseif ($vars) {
+                 // set possible defaults
+                $this->form->data($vars);
+            }
         }
         return $this->form;
     }
