@@ -159,6 +159,78 @@ class ClientCreateRequest {
     }
 }
 
+
+/**
+ * Authorization backend
+ *
+ * Abstract service registry to provide authorization backends.
+ */
+abstract class OAuth2Backend extends ServiceRegistry {
+    static $name;
+    static $id;
+    protected  $config;
+
+    static function register($bk) {
+        if (is_string($bk) && class_exists($bk))
+            $bk = new $bk();
+
+        if (!is_object($bk)
+                || !($bk instanceof OAuth2Backend))
+            return false;
+
+        static::$registry[$bk->getId()] = $bk;
+    }
+
+    static function allRegistered() {
+        return self::getRegistry();
+    }
+
+    static function getBackend($id) {
+        if ($id && ($registry = static::allRegistered())
+                && isset($registry[$id]))
+            return $registry[$id];
+    }
+}
+
+abstract class OAuth2AuthorizationBackend  extends OAuth2Backend {
+    static protected $registry = array();
+
+    static function allRegistered() {
+        return array_merge(self::$registry, parent::allRegistered());
+    }
+
+    static function getBackend($id) {
+        if (($bk=parent::getBackend($id)))
+            return $bk;
+
+        // Overloaded backend load.
+        list($auth, $a, $i) = self::parseId($id);
+        if ($auth && ($bk=parent::getBackend($auth)))
+            return $bk;
+    }
+
+    static function parseId($id) {
+        return  preg_split('/(?(?<=oauth2):(?!\w+)|:)/', $id);
+    }
+
+    abstract function getConfigForm($configId);
+    abstract function triggerEmailAuth($id);
+    abstract function callback($resp, $ref);
+}
+
+abstract class OAuth2AuthenticationBackend  extends OAuth2Backend {
+    static protected $registry = array();
+
+    static function allRegistered() {
+        return array_merge(self::$registry, parent::allRegistered());
+    }
+
+    static function getBackend($id) {
+        if (($bk=parent::getBackend($id)))
+            return $bk;
+    }
+}
+
 /**
  * Authentication backend
  *
