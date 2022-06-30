@@ -677,6 +677,12 @@ class FormField {
     function errors() {
         return $this->_errors;
     }
+
+    function resetErrors() {
+        $this->_errors = [];
+        return !($this->_errors);
+    }
+
     function addError($message, $index=false) {
         if ($index)
             $this->_errors[$index] = $message;

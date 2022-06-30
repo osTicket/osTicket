@@ -13,6 +13,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+include_once INCLUDE_DIR.'class.controller.php';
+
 class API {
 
     var $id;

@@ -62,6 +62,10 @@ class Config {
         return $info;
     }
 
+    function toArray() {
+        return $this->getInfo();
+    }
+
     function get($key, $default=null) {
         if (isset($this->session) && isset($this->session[$key]))
             return $this->session[$key];
