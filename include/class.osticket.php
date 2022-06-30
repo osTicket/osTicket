@@ -316,11 +316,6 @@ class osTicket {
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
 
-        //Alert admin if enabled...
-        $alert = $alert && !$this->isUpgradePending();
-        if ($alert && $this->getConfig()->getLogLevel() >= $level)
-            $this->alertAdmin($title, $message);
-
         //Save log based on system log level settings.
         $sql='INSERT INTO '.SYSLOG_TABLE.' SET created=NOW(), updated=NOW() '
             .',title='.db_input(Format::sanitize($title, true))
@@ -329,6 +324,11 @@ class osTicket {
             .',ip_address='.db_input($_SERVER['REMOTE_ADDR']);
 
         db_query($sql, false);
+
+        // Alert admin if enabled...
+        $alert = $alert && !$this->isUpgradePending();
+        if ($alert && $this->getConfig()->getLogLevel() >= $level)
+            $this->alertAdmin($title, $message);
 
         return true;
     }
