@@ -33,20 +33,20 @@ class Mailer {
         if (($email instanceof \Email)
                 && ($smtp=$email->getSmtpAccount(false))
                 && $smtp->isActive()) {
-            $this->accounts[] = $smtp;
+            $this->accounts[$smtp->getId()] = $smtp;
         }
 
         if ($cfg
                 && ($smtp=$cfg->getDefaultMTA())
                 && $smtp->isActive()) {
-            $this->accounts[] = $smtp;
+            $this->accounts[$smtp->getId()] = $smtp;
             if ($smtp->allowSpoofing() || !$email)
                 $email = $smtp->getEmail();
         }
 
         if (!$email && $cfg && ($email=$cfg->getDefaultEmail())) {
             if (($smtp=$email->getSmtpAccount(false)) && $smtp->isActive())
-                $this->accounts[] = $smtp;
+                $this->accounts[$smtp->getId()] = $smtp;
         }
 
         $this->email = $email;
@@ -559,8 +559,11 @@ class Mailer {
                      return $messageId;
             } catch (\Exception $ex) {
                 $alert = _S("Unable to email via SMTP")
-                    .sprintf(":%1\$s:%2\$d\n\n%3\$s\n",
-                    $smtp->getHost(), $smtp->getPort(), $ex->getMessage());
+                    .sprintf(": %1\$s (%2\$s:%3\$d)\n\n%4\$s\n",
+                    $account->getEmail()->getEmail(),
+                    $account->getHost(),
+                    $account->getPort(),
+                    $ex->getMessage());
                 $this->logError($alert);
                 continue;
             }
