@@ -97,7 +97,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 ?>
                 </select>
                 &nbsp;
-                <span class="error">*&nbsp;<?php echo $errors['default_ticket_status_id']; ?></span>
+                <span class="error"><?php echo $errors['default_ticket_status_id']; ?></span>
                 <i class="help-tip icon-question-sign" href="#default_ticket_status"></i>
                 </span>
             </td>
@@ -113,7 +113,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     <?php
                     } ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
+                &nbsp;<span class="error"><?php echo $errors['default_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
              </td>
         </tr>
         <tr>
@@ -135,7 +135,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['default_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
+                &nbsp;<span class="error"><?php echo $errors['default_sla_id']; ?></span>  <i class="help-tip icon-question-sign" href="#default_sla"></i>
                 </span>
             </td>
         </tr>
@@ -192,7 +192,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td>
                 <input type="text" name="max_open_tickets" size=4 value="<?php echo $config['max_open_tickets']; ?>">
                 <?php echo __('per end user'); ?>
-                <span class="error">*&nbsp;<?php echo $errors['max_open_tickets']; ?></span>
+                <span class="error"><?php echo $errors['max_open_tickets']; ?></span>
                 <i class="help-tip icon-question-sign" href="#maximum_open_tickets"></i>
             </td>
         </tr>
@@ -201,7 +201,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
             <td>
                 <input type="checkbox" name="enable_captcha" <?php echo $config['enable_captcha']?'checked="checked"':''; ?>>
                 <?php echo __('Enable CAPTCHA on new web tickets.');?>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['enable_captcha']; ?></font>
+                &nbsp;<font class="error"><?php echo $errors['enable_captcha']; ?></font>
                 &nbsp;<i class="help-tip icon-question-sign" href="#human_verification"></i>
             </td>
         </tr>

@@ -94,7 +94,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                     }
                     ?>
                 </select>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email_id']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['email_id']; ?></span>
             </td>
         </tr>
         <tr>
@@ -104,7 +104,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
             <td>
                 <input type="text" size="60" name="email" value="<?php echo $info['email']; ?>"
                     autofocus>
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['email']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['email']; ?></span>
             </td>
         </tr>
         <tr>
@@ -113,13 +113,13 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
             </td>
             <td>
                 <input type="text" size="60" name="subj" value="<?php echo $info['subj']; ?>">
-                &nbsp;<span class="error">*&nbsp;<?php echo $errors['subj']; ?></span>
+                &nbsp;<span class="error"><?php echo $errors['subj']; ?></span>
             </td>
         </tr>
         <tr>
             <td colspan=2>
                 <div style="padding-top:0.5em;padding-bottom:0.5em">
-                <em><strong><?php echo __('Message');?></strong>: <?php echo __('email message to send.');?></em>&nbsp;<span class="error">*&nbsp;<?php echo $errors['message']; ?></span></div>
+                <em><strong><?php echo __('Message');?></strong>: <?php echo __('email message to send.');?></em>&nbsp;<span class="error"><?php echo $errors['message']; ?></span></div>
                 <textarea class="richtext draft draft-delete" name="body" cols="21"
                     rows="10" style="width: 90%;" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('email.diag', false, $info['body']);

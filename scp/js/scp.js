@@ -478,9 +478,10 @@ var scp_prep = function() {
     });
   });
 
-  $('div.tab_content[id] div.error:not(:empty)').each(function() {
+  $('div.tab_content[id] div.error:not(:empty), div.tab_content[id] font.error:not(:empty)').each(function() {
     var div = $(this).closest('.tab_content');
     $('a[href^="#'+div.attr('id')+'"]').parent().addClass('error');
+    $('a#'+div.attr('id')+'_tab').parent().addClass('error');
   });
 
   $('[data-toggle="tooltip"]').tooltip()
