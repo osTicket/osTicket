@@ -91,17 +91,20 @@ namespace osTicket\Mail {
         }
 
         public function setContentType($type=null) {
-            // Set Content-Type
-            $contentType = $type ?: 'text/plain';
-            if ($this->hasHtml)
-                $contentType = 'multipart/alternative';
-            if ($this->hasAttachments)
-                $contentType = 'multipart/related';
+            // We can only set content type for multipart message
+            if ($this->body->isMultiPart())  {
+                // Set Content-Type
+                $contentType = $type ?: 'text/plain';
+                if ($this->hasHtml)
+                    $contentType = 'multipart/alternative';
+                if ($this->hasAttachments)
+                    $contentType = 'multipart/related';
 
-           if (($header=$this->getHeaders()->get('Content-Type')))
-               $header->setType($contentType); #nolint
-           else
-               $this->addHeader('Content-Type', $contentType);
+               if (($header=$this->getHeaders()->get('Content-Type')))
+                   $header->setType($contentType); #nolint
+               else
+                   $this->addHeader('Content-Type', $contentType);
+            }
         }
 
         public function setBody($body=null) {
@@ -377,11 +380,11 @@ namespace osTicket\Mail {
 
             try {
                 parent::send($message);
-                return true;
             } catch (\Throwable $ex) {
                 $this->connected = false;
                 throw $ex;
             }
+            return true;
         }
     }
 
