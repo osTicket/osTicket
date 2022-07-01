@@ -250,4 +250,29 @@ class AuditEntry {
     static function getTableInfo() {}
 }
 
+class Smtp {
+    function _expect() {}
+    function _send() {}
+}
+
+class Imap {
+    function setFlags() {}
+}
+
+class Message {
+    function setSubject() {}
+}
+
+class MailBoxProtocolTrait {
+    function sendRequest() {}
+}
+
+class MailBoxStorageTrait {
+    function selectFolder() {}
+    function countMessages() {}
+    function getRawHeader() {}
+    function getRawContent() {}
+    function moveMessage() {}
+    function removeMessage() {}
+}
 ?>
