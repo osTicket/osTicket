@@ -384,7 +384,7 @@ class PluginManager {
 
         $vars = [
             'name' => $info['name'],
-            'is_phar' => $is_phar,
+            'isphar' => $is_phar,
             'version' => $info['version'] ?: '',
             'install_path' => $path
         ];
