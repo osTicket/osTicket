@@ -26,6 +26,15 @@ if (isset($errors['mailbox_auth'])) {
 		</span>
             </td>
         </tr>
+        <tr><td><?php echo __('Port Number'); ?></td>
+            <td><input type="text" name="mailbox_port" size=6 value="<?php
+            echo $info['mailbox_port'] ?: ''; ?>">
+		<span>
+            <i class="help-tip icon-question-sign" href="#host_and_port"></i>
+			&nbsp;<font class="error"><?php echo $errors['mailbox_port']; ?></font>
+		</span>
+            </td>
+        </tr>
         <tr><td><?php echo __('Mail Folder'); ?></td>
             <td>
                 <span>
@@ -34,15 +43,6 @@ if (isset($errors['mailbox_auth'])) {
                         <i class="help-tip icon-question-sign" href="#mailbox_folder"></i>
                         &nbsp;<font class="error"><?php echo $errors['mailbox_folder']; ?></font>
                 </span>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Port Number'); ?></td>
-            <td><input type="text" name="mailbox_port" size=6 value="<?php
-            echo $info['mailbox_port'] ?: ''; ?>">
-		<span>
-            <i class="help-tip icon-question-sign" href="#host_and_port"></i>
-			&nbsp;<font class="error"><?php echo $errors['mailbox_port']; ?></font>
-		</span>
             </td>
         </tr>
         <tr><td><?php echo __('Protocol'); ?></td>
@@ -77,7 +77,7 @@ if (isset($errors['mailbox_auth'])) {
                     ?>><?php echo $desc; ?></option>
 <?php } ?>
 			</select>
-                <i class="help-tip icon-question-sign" href="#mailbox_auth"></i>
+                <i class="help-tip icon-question-sign" href="#authentication"></i>
                 <a class="action-button auth_config" id="mailbox_auth_bk_config"
                 data-type="mailbox"
                 data-orig="<?php echo $info['mailbox_auth_bk'];?>"

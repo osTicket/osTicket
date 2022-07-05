@@ -54,7 +54,7 @@ if (isset($errors['smtp_auth'])) {
                     ?>><?php echo $desc; ?></option>
 <?php } ?>
             </select>
-                <i class="help-tip icon-question-sign" href="#smtp_auth"></i>
+                <i class="help-tip icon-question-sign" href="#authentication"></i>
                 <a class="action-button auth_config" id="smtp_auth_bk_config"
                 data-type="smtp"
                 data-orig="<?php echo $info['smtp_auth_bk'];?>"
