@@ -103,7 +103,9 @@ if($_POST){
         if ($bk=OAuth2AuthorizationBackend::getBackend($_GET['bk']))
             $bk->triggerEmailAuth($_GET['bk']);
     }
-    $errors['err'] = __('Unknown Auth Backend');
+    $errors['err'] = sprintf('%s: %s',
+            __('Unknown Authorization Backend'),
+            __('OAuth2 Plugin must be enabled'));
 }
 
 $page='emails.inc.php';

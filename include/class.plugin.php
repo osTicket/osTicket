@@ -206,12 +206,15 @@ class PluginManager {
      * currently enabled.
      */
     function bootstrap() {
-        foreach ($this->allActive() as $p) {
+        foreach ($this->allInstalled() as $p) {
             if (!$p->isCompatible())
                 continue;
+
             $p->init();
-            foreach($p->getActiveInstances() as $i)
+            if ($p->isActive()) {
+                foreach($p->getActiveInstances() as $i)
                     $i->bootstrap();
+            }
             // Clear any side loaded config
             $p->config = null;
         }
