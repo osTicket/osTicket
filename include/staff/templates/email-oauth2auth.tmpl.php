@@ -1,7 +1,8 @@
 <?php
 $token = null;
-if (($cred = $account->getCredentials()))
+if (($cred = $account->getCredentials('oauth2')))
     $token = $cred->getAccessToken();
+
 $info = $account->getOAuth2ConfigInfo();
 $info = Format::htmlchars(($errors && $_POST)
         ? array_merge($info, $_POST) : $info, true);
