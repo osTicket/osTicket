@@ -523,14 +523,16 @@ class EmailAccount extends VerySimpleModel {
 
     private function getBasicAuthConfigForm($vars, $auth=null) {
         $creds = $this->getCredentialsVars($auth) ?: [];
-        $vars = $vars ?: [
-            'username' => $creds['username'],
-            'passwd' => ($creds['password'])
-        ];
-        if (!isset($vars['username']) && $this->email)
+        if (!$vars &&  $creds) {
+            $vars = [
+                'username' => $creds['username'],
+                'passwd' => $creds['password'],
+            ];
+        } elseif (!$_POST && !isset($vars['username']) && $this->email)
             $vars['username'] = $this->email->getEmail();
-        if (!isset($vars['passwd']) && $_POST)
-            $vars['passwd'] = ($this->passwd);
+
+        if (!isset($vars['passwd']) && $_POST && $creds)
+            $vars['passwd'] = $creds['password'];
 
         return new BasicAuthConfigForm($vars);
     }
@@ -585,12 +587,14 @@ class EmailAccount extends VerySimpleModel {
 
     public function saveAuth($auth, $form, &$errors) {
         // Validate the form
-        $vars = $form->isValid() ? $form->getClean() : [];
+        if (!$form->isValid())
+            return false;
+        $vars = $form->getClean();
         list($type, $provider) = explode(':', $auth);
         switch ($type) {
             case 'basic':
                 // Set username and password
-                if ($vars && !$this->updateCredentials($auth, $vars, $errors))
+                if (!$vars || !$this->updateCredentials($auth, $vars, $errors))
                     $errors['err'] = sprintf('%s %s',
                             __('Error Saving'),
                             __('Authentication'));
@@ -1142,9 +1146,12 @@ class BasicAuthConfigForm extends AbstractForm {
             'passwd' => new PasswordField(array(
                 'label' => __('Password'),
                 'required' => true,
+                'validator' => 'noop',
                 'hint' => $passwdhint,
                 'configuration' => array(
                     'classes' => 'span12',
+                    'placeholder' =>  $passwdhint ?
+                    str_repeat('••••••••••••', 2) : __('Password'),
                 ),
             )),
         );
