@@ -699,15 +699,17 @@ class Plugin extends VerySimpleModel {
         elseif (!$this->isInstanceUnique($vars))
             $errors['name']= __('Name already in use');
         if ($form->isValid() && !$errors) {
-            $instance = [
+            // Basic info required to create instance
+            $info = [
                 'name' => $vars['name'],
                 'plugin_id' => $this->getId(),
-                'notes' => $vars['notes'],
-                'flags' => $vars['isactive'] ? 1 : 0];
-            if (($i=PluginInstance::create($instance))) {
-                $i->setConfiguration($form, $errors);
-                if ($i->save())
-                    return $i;
+                'flags' => 0];
+            if (($i=PluginInstance::create($info)) && $i->save()) {
+                // clear temp config
+                $this->config = null;
+                // update newly created instance...
+                $i->update($vars, $errors);
+                return $i;
             }
         }
 
