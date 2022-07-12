@@ -334,6 +334,7 @@ abstract class  ServiceRegistry {
      */
     function getBkId() {
         $id = $this->getId();
+        // FIXME: Abstract getting backend id cleanly
         if (isset($this->config)
                 && is_a($this->config, 'PluginConfig'))
             $id =sprintf('%s.%s', $id, $this->config->getId());

@@ -26,8 +26,8 @@ $form = $instance ? $instance->getForm() : $plugin->getConfigForm($info);
                 <td>
                     <input size="50" type="text" autofocus
                         name="name"
-                        value="<?php echo $info['name']; ?>"/>
-                    <span class="error">*<br/> <?php echo  $errors['name']; ?></span>
+                        value="<?php echo $info['name']; ?>"/><br/>
+                    <span class="error"><?php echo  $errors['name']; ?></span>
                 </td>
             </tr>
             <tr>

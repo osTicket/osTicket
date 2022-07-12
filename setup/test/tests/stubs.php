@@ -261,6 +261,7 @@ class Imap {
 
 class Message {
     function setSubject() {}
+    function isMultiPart() {}
 }
 
 class MailBoxProtocolTrait {

@@ -1587,12 +1587,12 @@ class PasswordField extends TextboxField {
         if (!$value)
             throw new FieldUnchanged();
         return Crypto::encrypt($value, $this->getMasterKey(),
-                $this->getSubkey());
+                $this->getSubKey());
     }
 
     function to_php($value) {
         return Crypto::decrypt($value, $this->getMasterKey(),
-                $this->getSubkey());
+                $this->getSubKey());
     }
 }
 
