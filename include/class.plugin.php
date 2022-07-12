@@ -7,22 +7,19 @@ require_once(INCLUDE_DIR.'/class.config.php');
  * Base class for plugin configs
  *
  */
-abstract class PluginConfig {
+abstract class PluginConfig extends Config {
     var $instance;
-    var $data;
     var $config = [];
-    var $defaults;
     var $form;
+    var $table = CONFIG_TABLE;
 
-    function __construct($instance=null, $defaults=[]) {
-        $this->instance = $instance;
-        $this->config = $instance ?
-            $this->decode($instance->getConfiguration()) : [];
-        if ($defaults && is_array($defaults))
-            $this->defaults = $defaults;
+    function __construct($namespace, $defaults=[]) {
+        // Use parent constructor to place configurable information into the
+        // central config table with $namespace
+        parent::__construct($namespace, $defaults);
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name))
-                $this->config[$name] = $field->to_php($this->get($name));
+                $this->config[$name]->value = $field->to_php($this->get($name));
             elseif ($default = $field->get('default'))
                 $this->defaults[$name] = $default;
         }
@@ -44,28 +41,12 @@ abstract class PluginConfig {
         return array();
     }
 
-    function getInfo() {
-        return array_merge($this->config, $this->defaults ?? []);
-    }
-
     function getInstance() {
         return $this->instance;
     }
 
-    function get($key, $default=null) {
-        if (isset($this->config[$key]))
-            return $this->config[$key];
-        if (isset($this->defaults[$key]))
-            return $this->defaults[$key];
-        return $default;
-    }
-
-    function exists($key) {
-        return ($this->get($key, null));
-    }
-
-    function set($key, $value) {
-        $this->config[$key] =  $value;
+    function setInstance(PluginInstance $i=null) {
+        $this->instance = $i;
     }
 
     function hasCustomConfig() {
@@ -93,7 +74,7 @@ abstract class PluginConfig {
     }
 
     /**
-     * to_db
+     * store
      *
      * Used in the POST request of the configuration process. The
      * ::getForm() method should be used to retrieve a configuration form
@@ -103,60 +84,33 @@ abstract class PluginConfig {
      * this field
      *
      * Parameters:
+     * form - plugin confirm form
      * errors - (OUT array) receives validation errors of the parsed
      *      configuration form
      *
-     * Returns:
-     *  json string
+     * returns (true | false)
+     *
      */
-    function to_db(SimpleForm $form = null, &$errors=array(), $encode=true) {
-        $f = $form ?: $this->getForm();
-        $commit = false;
-        if ($f->isValid()) {
-            $clean = $f->getClean();
-            $commit = $this->pre_save($clean, $errors);
-        }
-        $errors += $f->errors();
-        if ($commit && count($errors) === 0) {
-            $config = array();
-            foreach ($clean as $name => $val) {
-                $field = $f->getField($name);
-                try {
-                    $config[$name] = $field->to_database($val);
-                }
-                catch (FieldUnchanged $e) {
-                    $config[$name] = $this->get($name);
-                }
-            }
-            return $encode ? $this->encode($config) : $config;
-        }
+    function store(SimpleForm $form = null, &$errors=array()) {
+
+        if ($this->hasCustomConfig())
+            return $this->saveConfig($form, $errors);
+
+        $form = $form ?: $this->getForm();
+        if (($data=$form->to_db())
+                && $this->pre_save($data, $errors)
+                && count($errors) === 0)
+            return $this->updateAll($data);
+
         return false;
     }
 
     /**
-     * encode
-     *
-     * Used to encode and possibly encrypt config data to be stored in database
-     */
-    function encode($config) {
-        return JsonDataEncoder::encode($config);
-    }
-
-    /**
-     * decode
-     *
-     * Used to decode and possibly decrypt config data
-     */
-    function decode($config) {
-        if (is_string($config))
-            $config = JsonDataParser::parse($config);
-
-        return $config;
-    }
-
-    /**
      * Pre-save hook to check configuration for errors (other than obvious
-     * validation errors) prior to saving. Add an error to the errors list
+     * validation errors) prior to saving. Can be also used to encrypt the
+     * data if necessary.
+     *
+     * Add an error to the errors list
      * or return boolean FALSE if the config commit should be aborted.
      */
     function pre_save(&$config, &$errors) {
@@ -178,13 +132,13 @@ abstract class PluginConfig {
  *
  * Allows a plugin to specify custom configuration pages. If the
  * configuration cannot be suited by a single page, single form, then
- * the plugin can use the ::renderCustomConfig() method to trigger
- * rendering the page, and use ::saveCustomConfig() to trigger
+ * the plugin can use the ::renderConfig() method to trigger
+ * rendering the page, and use ::saveConfig() to trigger
  * validating and saving the custom configuration.
  */
 interface PluginCustomConfig {
-    function renderCustomConfig();
-    function saveCustomConfig();
+    function renderConfig();
+    function saveConfig();
 }
 
 class PluginManager {
@@ -209,8 +163,9 @@ class PluginManager {
         foreach ($this->allInstalled() as $p) {
             if (!$p->isCompatible())
                 continue;
-
+            // Init plugin even when disabled
             $p->init();
+            // If the plugin is active then boostrap active instances
             if ($p->isActive()) {
                 foreach($p->getActiveInstances() as $i)
                     $i->bootstrap();
@@ -714,9 +669,11 @@ class Plugin extends VerySimpleModel {
     }
 
     function getConfig(PluginInstance $instance = null) {
-        if ((!isset($this->config) || $instance) && ($class=$this->config_class))
-            $this->config = new $class($instance);
-
+        if (!isset($this->config) && ($class=$this->config_class)) {
+            $this->config = new $class($instance ?
+                    $instance->getNamespace() : null);
+            $this->config->setInstance($instance ?: null);
+        }
         return $this->config;
     }
 
@@ -905,6 +862,8 @@ class PluginInstance extends VerySimpleModel {
             ),
         ),
     );
+
+    // Plugin Config for the instance
     var $_config;
     var $_form;
     var $_data;
@@ -972,23 +931,22 @@ class PluginInstance extends VerySimpleModel {
         return $this->_form;
     }
 
-    function getConfiguration() {
-        return $this->get('config', '{}');
-    }
-
     function getSignature() {
         return md5($this->getConfiguration());
     }
 
-    function setConfiguration($form, &$errors) {
+    function getNamespace() {
+        return sprintf('plugin.%d.instance.%d',
+                $this->getPluginId(),
+                $this->getId() ?: 0);
+    }
 
-        $c=$this->getConfig();
-        if ($c->hasCustomConfig())
-            return $c->saveCustomConfig($errors);
+    function getConfiguration() {
+         return $this->getConfig()->getInfo();
+    }
 
-        if (($config=$c->to_db($form, $errors))
-                && is_string($config))
-            $this->config = $config;
+    function saveConfiguration($form, &$errors) {
+        return $this->getConfig()->store($form, $errors);
     }
 
     function getInfo() {
@@ -1010,14 +968,14 @@ class PluginInstance extends VerySimpleModel {
             $errors['name'] = __('Name already in-use');
 
         $form = $this->getForm($vars);
-        if ($form->isValid() && !$errors) {
+        if ($form->isValid()
+                && $this->saveConfiguration($form, $errors)
+                && !$errors) {
             $this->setFlag(self::FLAG_ENABLED, ($vars['isactive']));
-            $this->setConfiguration($form, $errors);
             $this->name = Format::htmlchars($vars['name']);
             $this->notes = Format::sanitize($vars['notes']);
             $this->updated = SqlFunction::NOW();
-            if (!$errors && $this->save())
-                return true;
+            return $this->save();
         }
         return false;
     }

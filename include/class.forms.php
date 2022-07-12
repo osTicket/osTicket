@@ -159,30 +159,53 @@ class Form {
         }
         return $this->_clean;
     }
+    /*
+     * Transform form data to database ready clean data.
+     *
+     */
+    function to_db($validate=true) {
+        if (!$this->isValid())
+            return false;
+
+        $data = [];
+        $clean = $this->getClean($validate);
+        foreach ($clean as $name => $val) {
+            if (!($f = $this->getField($name)))
+                continue;
+
+            try {
+                $data[$name] = $f->to_database($val);
+            } catch (FieldUnchanged $e) {
+                $data[$name] = $val;
+            }
+        }
+        return $data;
+    }
 
     /*
      * Process the form input and return clean data.
      *
-     * It's similar to getClean but forms downstream can use it to return
-     * database ready data.
+     * It's similar to to_db but forms downstream can use it to skip or add
+     * extra validations
+
      */
     function process($validate=true) {
-        return $this->getClean($validate);
+        return $this->to_db($validate);
     }
+
 
     function errors($formOnly=false) {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
 
     function addError($message, $index=false) {
-
         if ($index)
             $this->_errors[$index] = $message;
         else
             $this->_errors['form'][] = $message;
     }
 
-    function addErrors($errors=array()) {
+    function addErrors($errors=[]) {
         foreach ($errors as $k => $v) {
             if (($f=$this->getField($k)))
                 $f->addError($v);
