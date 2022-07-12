@@ -32,13 +32,11 @@ CREATE TABLE `%TABLE_PREFIX%email_account` (
   `last_error` datetime DEFAULT NULL,
   `last_activity` datetime DEFAULT NULL,
   `created` datetime NOT NULL,
-  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
   KEY `email_id` (`email_id`),
   KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
-
-
 
 UPDATE `%TABLE_PREFIX%config`
     SET `value` = 'f0d2e14d0d653b856be20ffeff46da32', updated = NOW()
