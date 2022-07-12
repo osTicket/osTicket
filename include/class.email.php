@@ -559,8 +559,10 @@ class EmailAccount extends VerySimpleModel {
 
     private function getConfig() {
         if (!isset($this->config))
-            $this->config = new Config(sprintf('email.%d.account.%d',
-                    $this->getEmailId(), $this->getId()));
+            $this->config = new EmailAccountConfig(
+                    sprintf('email.%d.account.%d',
+                        $this->getEmailId(),
+                        $this->getId()));
 
         return $this->config;
     }
@@ -663,16 +665,16 @@ class EmailAccount extends VerySimpleModel {
                 case 'none':
                     // No authentication required (open replay)
                     $cred = new osTicket\Mail\NoAuthCredentials([
-                            'username' => $this->email->getEmail()
-                            ]);
+                            'username' => $this->email->getEmail()]);
                     break;
                 case 'basic':
-                    if ($this->username && $this->passwd) {
+                    if (($c=$this->getConfig())
+                            && ($creds=$c->toArray())
+                            && $creds['username']
+                            && $creds['passwd']) {
                         $cred = new osTicket\Mail\BasicAuthCredentials([
-                                'username' => $this->username ?: null,
-                                'password' => $this->passwd
-                                ? Crypto::decrypt($this->passwd, SECRET_SALT, $this->username)
-                                : '' ]);
+                                'username' => $creds['username'],
+                                'password' => $creds['passwd']]);
                     }
                     break;
                 case 'oauth2':
@@ -688,7 +690,7 @@ class EmailAccount extends VerySimpleModel {
                                             $token->getRefreshToken(),
                                             $this->getBkId(), $errors))
                                     && isset($info['access_token'])) {
-                                if ($c->updateAll(array_merge($creds, $info)))
+                                if ($c->updateInfo(array_merge($creds, $info)))
                                     $cred = $class::init($c->toArray());
                             } elseif ($errors) {
                                 $errors['err']  = $errors['refresh_token']
@@ -725,11 +727,13 @@ class EmailAccount extends VerySimpleModel {
                 } elseif (!$vars['passwd'] && !$creds['password']) {
                      $errors['passwd'] = __('Password Required');
                 } elseif (!$errors) {
-                    // password change?
-                    $vars['passwd'] = $vars['passwd'] ?: $creds['password'];
-                    $this->username = $vars['username'];
-                    $this->passwd = Crypto::encrypt($vars['passwd'],
-                            SECRET_SALT, $vars['username']);;
+                    $info = ['username' => $vars['username'],
+                        'passwd'   => $vars['passwd'] ?: $creds['password']
+                    ];
+                    if (!$this->getConfig()->updateInfo($info))
+                        $errors['err'] = sprintf('%s: %s',
+                                Format::htmlchars($type),
+                                __('Error saving credentials'));
                 }
                 break;
             case 'oauth2':
@@ -743,7 +747,10 @@ class EmailAccount extends VerySimpleModel {
                 } else {
                     // TODO: encrypt tokens and add config hash
                     $vars['config_signature'] = $this->getConfigSignature();
-                    $this->getConfig()->updateAll($vars);
+                    if (!$this->getConfig()->updateInfo($vars))
+                        $errors['err'] = sprintf('%s: %s',
+                                 Format::htmlchars($type),
+                                 __('Error saving credentials'));
                 }
                 break;
             default:
@@ -1084,6 +1091,40 @@ class SmtpAccount extends EmailAccount {
     }
 }
 
+
+/*
+ * Email Config Store
+ *
+ * Extends base Config store so we can Encrypt / Decrypt secrets as needed
+ *
+ */
+class EmailAccountConfig extends Config {
+
+    public function getInfo() {
+        $info = parent::getInfo();
+        // Decrypt password
+        if (isset($info['passwd']) && isset($info['username'])) {
+            $info['passwd'] =  Crypto::decrypt($info['passwd'],
+                     SECRET_SALT,
+                     md5($info['username'].$this->getNamespace()));
+        }
+        return $info;
+    }
+
+    public function updateInfo($vars) {
+        // Encrypt info that needs to be encrypted
+        if (isset($vars['passwd']) && isset($vars['username'])) {
+            $vars['passwd'] =  Crypto::encrypt($vars['passwd'], SECRET_SALT,
+                    md5($vars['username'].$this->getNamespace()));
+        }
+        return parent::updateAll($vars);
+    }
+}
+
+/*
+ * Basic Authentication Configuration Form
+ *
+ */
 class BasicAuthConfigForm extends AbstractForm {
     function buildFields() {
         $passwdhint = '';
