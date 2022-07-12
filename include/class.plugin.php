@@ -117,13 +117,14 @@ abstract class PluginConfig extends Config {
         return true;
     }
 
+
     /**
      * Remove all configuration for this plugin -- used when the plugin is
      * uninstalled / deleted.
      * Plugin
      */
     function purge() {
-        return true;
+        return $this->destroy();
     }
 }
 
@@ -355,6 +356,7 @@ class PluginManager {
 
     static function clearCache() {
         static::$plugin_list = array();
+        static::$plugin_info = array();
     }
 
     /**
@@ -712,12 +714,12 @@ class Plugin extends VerySimpleModel {
                 return $i;
             }
         }
-
         return false;
     }
 
     function delete() {
-        $this->instances->delete();
+        foreach ($this->getInstances() as $i)
+            $i->delete();
         parent::delete();
     }
 
@@ -992,6 +994,11 @@ class PluginInstance extends VerySimpleModel {
                 // Side load this instance config
                 && ($plugin->getConfig($this)))
             return $plugin->bootstrap();
+    }
+
+    function delete() {
+        $this->getConfig()->purge();
+        parent::delete();
     }
 
     static function create($vars=false) {

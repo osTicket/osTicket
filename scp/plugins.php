@@ -77,8 +77,8 @@ if ($_POST) {
                         ));
                     break;
                 case 'delete':
-                    $instances->filter($criteria)
-                        ->delete();
+                    foreach ($instances->filter($criteria) as $i)
+                        $i->delete();
                     break;
                 default:
                      $errors['err'] = __('Unknown Action');
@@ -90,33 +90,24 @@ if ($_POST) {
             $errors['err'] = sprintf(__('You must select at least %s.'),
                 __('one plugin'));
         } else {
-            $count = count($_POST['ids']);
+            $plugins = Plugin::objects()->filter([
+                    'id__in' => array_values($_POST['ids'])]);
             switch(strtolower($_POST['a'])) {
             case 'enable':
-                foreach ($_POST['ids'] as $id) {
-                    if ($p = PluginManager::lookup((int) $id)) {
-                        if (!$p->enable())
-                            $errors['err'] = sprintf(
-                                __('Unable to enable %s'),
-                                $p->getName());
-                    }
-                }
+                $plugins->update(['isactive' => 1]);
                 break;
             case 'disable':
-                foreach ($_POST['ids'] as $id) {
-                    if ($p = PluginManager::lookup((int) $id)) {
-                        $p->disable();
-                    }
-                }
+                 $plugins->update(['isactive' => 0]);
                 break;
             case 'delete':
-                foreach ($_POST['ids'] as $id) {
-                    if ($p = PluginManager::lookup((int) $id)) {
-                        $p->uninstall($errors);
-                    }
-                }
+                foreach ($plugins as $p)
+                    $p->uninstall($errors);
                 break;
             }
+            // reset cached list
+            PluginManager::clearCache();
+            //Fixme: address sticky cache
+            Http::redirect('plugins.php');
         }
         break;
     case 'install':
