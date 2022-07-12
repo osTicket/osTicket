@@ -1568,6 +1568,15 @@ class PasswordField extends TextboxField {
             $this->set('validator', 'password');
     }
 
+    protected function getMasterKey() {
+        return SECRET_SALT;
+    }
+
+    protected function getSubKey() {
+        $config = $this->getConfiguration();
+        return $config['subkey'] ?: 'pwfield';
+    }
+
     function parse($value) {
         // Don't trim the value
         return $value;
@@ -1577,11 +1586,13 @@ class PasswordField extends TextboxField {
         // If not set in UI, don't save the empty value
         if (!$value)
             throw new FieldUnchanged();
-        return Crypto::encrypt($value, SECRET_SALT, 'pwfield');
+        return Crypto::encrypt($value, $this->getMasterKey(),
+                $this->getSubkey());
     }
 
     function to_php($value) {
-        return Crypto::decrypt($value, SECRET_SALT, 'pwfield');
+        return Crypto::decrypt($value, $this->getMasterKey(),
+                $this->getSubkey());
     }
 }
 
@@ -4447,7 +4458,7 @@ class PasswordWidget extends TextboxWidget {
 
     function render($mode=false, $extra=false) {
         $extra = array();
-        if ($this->field->value) {
+        if (isset($this->field->value)) {
             $extra['placeholder'] = '••••••••••••';
         }
         return parent::render($mode, $extra);
