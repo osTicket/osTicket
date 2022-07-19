@@ -8,20 +8,23 @@ require_once(INCLUDE_DIR.'/class.config.php');
  *
  */
 abstract class PluginConfig extends Config {
-    var $instance;
-    var $config = [];
-    var $form;
     var $table = CONFIG_TABLE;
+    var $instance;
+    var $form;
+    var $_config = [];
 
     function __construct($namespace, $defaults=[]) {
         // Use parent constructor to place configurable information into the
         // central config table with $namespace
         parent::__construct($namespace, $defaults);
+        // Cache decoded config
+        $this->_config = [];
         foreach ($this->getOptions() as $name => $field) {
-            if ($this->exists($name))
-                $this->config[$name]->value = $field->to_php($this->get($name));
-            elseif ($default = $field->get('default'))
-                $this->defaults[$name] = $default;
+            if ($this->exists($name)) {
+                $val = $this->get($name);
+                $this->_config[$name] = $field->to_php($val) ?: $val;
+            } elseif (($default = $field->get('default')))
+                $this->_config[$name] = $default;
         }
     }
 
@@ -37,8 +40,18 @@ abstract class PluginConfig extends Config {
             return $this->instance->getName();
     }
 
+    function get($key, $default=null) {
+        if (isset($this->_config[$key]))
+            return $this->_config[$key];
+        return parent::get($key, $default);
+    }
+
     function getOptions() {
         return array();
+    }
+
+    function getInfo() {
+        return array_merge(parent::getInfo(), $this->_config);
     }
 
     function getInstance() {
