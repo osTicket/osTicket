@@ -953,7 +953,7 @@ class PluginInstance extends VerySimpleModel {
     }
 
     function getSignature() {
-        return md5($this->getConfiguration());
+        return md5(json_encode(ksort($this->getConfiguration())));
     }
 
     function getNamespace() {
