@@ -125,11 +125,7 @@ class Email extends VerySimpleModel {
     }
 
     function getHashtable() {
-        $base = $this->ht;
-        if (0 && $this->getConfig())
-            $base += $this->getConfig();
-
-        return $base;
+        return $this->ht;
     }
 
     static function getSupportedAuthTypes() {
@@ -559,13 +555,15 @@ class EmailAccount extends VerySimpleModel {
         return $ht;
     }
 
+    private function getNamespace() {
+        return sprintf('email.%d.account.%d',
+                 $this->getEmailId(),
+                 $this->getId());
+    }
+
     private function getConfig() {
         if (!isset($this->config))
-            $this->config = new EmailAccountConfig(
-                    sprintf('email.%d.account.%d',
-                        $this->getEmailId(),
-                        $this->getId()));
-
+            $this->config = new EmailAccountConfig($this->getNamespace());
         return $this->config;
     }
 
@@ -654,7 +652,7 @@ class EmailAccount extends VerySimpleModel {
 
     public function getCredentials($auth=null, $refresh=false) {
         // Authentication doesn't match - it's getting reconfigured.
-        if ($auth && strcasecmp($this->getAuthBk(), $auth))
+        if ($auth && strncasecmp($this->getAuthBk(), $auth, strlen($auth)))
             return [];
 
         if (!isset($this->cred) || $refresh)  {
@@ -676,16 +674,39 @@ class EmailAccount extends VerySimpleModel {
                             && ($creds=$c->toArray())
                             && $creds['username']
                             && $creds['passwd']) {
+                        // Decrypt password
                         $cred = new osTicket\Mail\BasicAuthCredentials([
                                 'username' => $creds['username'],
-                                'password' => $creds['passwd']]);
+                                // Decrypt password
+                                'password' => Crypto::decrypt($creds['passwd'],
+                                    SECRET_SALT,
+                                    md5($creds['username'].$this->getNamespace()))
+                        ]);
                     }
                     break;
                 case 'oauth2':
                     if (($c=$this->getConfig()) && ($creds=$c->toArray())) {
+                        // Decrypt Access Token
+                        if ($creds['access_token']) {
+                            $creds['access_token'] = Crypto::decrypt(
+                                    $creds['access_token'],
+                                    SECRET_SALT,
+                                    md5($creds['resource_owner_email'].$this->getNamespace())
+                                    );
+                        }
+                         // Decrypt Referesh Token
+                        if ($creds['refresh_token']) {
+                            $creds['refresh_token'] = Crypto::decrypt(
+                                    $creds['refresh_token'],
+                                    SECRET_SALT,
+                                    md5($creds['resource_owner_email'].$this->getNamespace())
+                                    );
+                        }
                         $errors = [];
                         $class = 'osTicket\Mail\OAuth2AuthCredentials';
                         try {
+                            // Init credentials and see of we need to
+                            // refresh the token
                             if (($cred=$class::init($creds))
                                     && ($token=$cred->getToken())
                                     && ($refresh && $token->isExpired())
@@ -693,9 +714,13 @@ class EmailAccount extends VerySimpleModel {
                                     && ($info=$bk->refreshAccessToken( #nolint
                                             $token->getRefreshToken(),
                                             $this->getBkId(), $errors))
-                                    && isset($info['access_token'])) {
-                                if ($c->updateInfo(array_merge($creds, $info)))
-                                    $cred = $class::init($c->toArray());
+                                    && isset($info['access_token'])
+                                    && $this->updateCredentials($auth,
+                                        // Merge new access token with
+                                        // already decrypted creds
+                                        array_merge($creds, $info), $errors
+                                        )) {
+                                return $this->getCredentials($auth, $refresh);
                             } elseif ($errors) {
                                 $errors['err']  = $errors['refresh_token']
                                     ?: __('Referesh Token Expired');
@@ -731,8 +756,13 @@ class EmailAccount extends VerySimpleModel {
                 } elseif (!$vars['passwd'] && !$creds['password']) {
                      $errors['passwd'] = __('Password Required');
                 } elseif (!$errors) {
-                    $info = ['username' => $vars['username'],
-                        'passwd'   => $vars['passwd'] ?: $creds['password']
+                    $info = [
+                        // username
+                        'username' => $vars['username'],
+                        // Encrypt  password
+                        'passwd'   => Crypto::encrypt($vars['passwd'] ?:
+                                $creds['password'],  SECRET_SALT,
+                                 md5($info['username'].$this->getNamespace()))
                     ];
                     if (!$this->getConfig()->updateInfo($info))
                         $errors['err'] = sprintf('%s: %s',
@@ -749,7 +779,19 @@ class EmailAccount extends VerySimpleModel {
                         __('Resource Owner Required');
 
                 } else {
-                    // TODO: encrypt tokens and add config hash
+                    // Encrypt Access Token
+                    $vars['access_token'] = Crypto::encrypt(
+                            $vars['access_token'],
+                             SECRET_SALT,
+                             md5($vars['resource_owner_email'].$this->getNamespace()));
+                     // Encrypt Referesh Token
+                    if ($vars['refresh_token']) {
+                        $vars['refresh_token'] = Crypto::encrypt(
+                                $vars['refresh_token'],
+                                SECRET_SALT,
+                                md5($vars['resource_owner_email'].$this->getNamespace())
+                                );
+                    }
                     $vars['config_signature'] = $this->getConfigSignature();
                     if (!$this->getConfig()->updateInfo($vars))
                         $errors['err'] = sprintf('%s: %s',
@@ -1099,28 +1141,11 @@ class SmtpAccount extends EmailAccount {
 /*
  * Email Config Store
  *
- * Extends base Config store so we can Encrypt / Decrypt secrets as needed
+ * Extends base central config store
  *
  */
 class EmailAccountConfig extends Config {
-
-    public function getInfo() {
-        $info = parent::getInfo();
-        // Decrypt password
-        if (isset($info['passwd']) && isset($info['username'])) {
-            $info['passwd'] =  Crypto::decrypt($info['passwd'],
-                     SECRET_SALT,
-                     md5($info['username'].$this->getNamespace()));
-        }
-        return $info;
-    }
-
     public function updateInfo($vars) {
-        // Encrypt info that needs to be encrypted
-        if (isset($vars['passwd']) && isset($vars['username'])) {
-            $vars['passwd'] =  Crypto::encrypt($vars['passwd'], SECRET_SALT,
-                    md5($vars['username'].$this->getNamespace()));
-        }
         return parent::updateAll($vars);
     }
 }
