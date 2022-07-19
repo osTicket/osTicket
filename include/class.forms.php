@@ -1574,7 +1574,7 @@ class PasswordField extends TextboxField {
 
     protected function getSubKey() {
         $config = $this->getConfiguration();
-        return $config['subkey'] ?: 'pwfield';
+        return $config['key'] ?: 'pwfield';
     }
 
     function parse($value) {
@@ -4459,7 +4459,8 @@ class PasswordWidget extends TextboxWidget {
     function render($mode=false, $extra=false) {
         $extra = array();
         if (isset($this->field->value)) {
-            $extra['placeholder'] = '••••••••••••';
+            $extra['placeholder'] = str_repeat('•',
+                    strlen($this->field->value));
         }
         return parent::render($mode, $extra);
     }
