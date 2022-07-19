@@ -166,17 +166,17 @@ class Form {
     function to_db($validate=true) {
         if (!$this->isValid())
             return false;
-
         $data = [];
         $clean = $this->getClean($validate);
         foreach ($clean as $name => $val) {
             if (!($f = $this->getField($name)))
                 continue;
-
             try {
                 $data[$name] = $f->to_database($val);
             } catch (FieldUnchanged $e) {
-                $data[$name] = $val;
+                // Unset field if it's unchanged...mainly
+                // useful for Secret/PasswordField
+                unset($data[$name]);
             }
         }
         return $data;
