@@ -128,7 +128,7 @@ namespace osTicket\Mail {
             $auth = $accountOptions->getAuth();
             switch (true) {
                 case $auth instanceof BasicAuthCredentials:
-                    if (!$this->basicAuth($auth->getUsername(), $auth->getPassword))
+                    if (!$this->basicAuth($auth->getUsername(), $auth->getPassword()))
                         throw new Exception('cannot login, user or password wrong');
                     break;
                 case $auth instanceof OAuth2AuthCredentials:

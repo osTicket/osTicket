@@ -673,8 +673,8 @@ class EmailAccount extends VerySimpleModel {
                 case 'basic':
                     if (($c=$this->getConfig())
                             && ($creds=$c->toArray())
-                            && $creds['username']
-                            && $creds['passwd']) {
+                            && isset($creds['username'])
+                            && isset($creds['passwd'])) {
                         // Decrypt password
                         $cred = new osTicket\Mail\BasicAuthCredentials([
                                 'username' => $creds['username'],
@@ -763,7 +763,7 @@ class EmailAccount extends VerySimpleModel {
                         // Encrypt  password
                         'passwd'   => Crypto::encrypt($vars['passwd'] ?:
                                 $creds['password'],  SECRET_SALT,
-                                 md5($info['username'].$this->getNamespace()))
+                                 md5($vars['username'].$this->getNamespace()))
                     ];
                     if (!$this->getConfig()->updateInfo($info))
                         $errors['err'] = sprintf('%s: %s',
