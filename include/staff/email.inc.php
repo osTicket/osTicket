@@ -211,7 +211,6 @@ if ($email) { ?>
     include STAFFINC_DIR . 'templates/email-smtp.tmpl.php';
    ?>
 </div>
-<a href="#" target="_blank" id="extauth" ></a>
 <?php
 } ?>
 <p style="text-align:center;">
@@ -240,8 +239,7 @@ $(function() {
                             ?>/auth/config/'+type+'/'+target, 201, function (xhr) {
                         $(this).removeClass('save pending');
                         if (xhr.responseJSON && xhr.responseJSON.redirect)
-                            $('a#extauth').attr('href',
-                                    xhr.responseJSON.redirect).click();
+                            window.location.href = xhr.responseJSON.redirect;
                     },
                     {size:(target == 'basic') ? 'normal' : 'xl'}
                     );
