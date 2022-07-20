@@ -55,8 +55,9 @@ class TicketsAjaxAPI extends AjaxController {
         global $ost;
         $hits = $ost->searcher->find($q, $hits, false);
 
-        if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
-            $hits = $this->lookupByNumber($limit, $visibility, $hits);
+        if (Validator::is_alnumeric($q)
+                && preg_match('/\d{2,}[^*]/', $q, $T = array())) {
+            $hits = $this->lookupByNumber($limit, $visibility);
         }
         elseif (!count($hits) && preg_match('`\w$`u', $q)) {
             // Do wild-card fulltext search
