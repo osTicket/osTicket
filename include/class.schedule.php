@@ -1299,11 +1299,7 @@ extends AbstractForm {
 
         if ($errors) {
             // Replay any errors back on the form fields
-            foreach ($errors as $k => $error) {
-                if (($f=$this->getField($k)))
-                    $f->addError($error);
-            }
-
+            $this->addErrors($errors);
             return false;
         }
 

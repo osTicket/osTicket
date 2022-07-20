@@ -24,7 +24,8 @@ require_once (INCLUDE_DIR.'class.api.php');
  * call controller should inherit from this class in order to maintain
  * consistency.
  */
-class AjaxController extends ApiController {
+class AjaxController extends Controller {
+
     function staffOnly() {
         global $thisstaff;
         if(!$thisstaff || !$thisstaff->isValid()) {

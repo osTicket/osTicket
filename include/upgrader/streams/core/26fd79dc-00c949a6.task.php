@@ -112,7 +112,7 @@ class EventEnumRemoval extends MigrationTask {
     }
 
     function getQueueLength() {
-        return count($this->queue);
+        return count($this->queue ?: []);
     }
 
     function next() {

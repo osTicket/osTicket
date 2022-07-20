@@ -21,8 +21,8 @@ require_once INCLUDE_DIR.'class.signal.php';
 class Cron {
 
     static function MailFetcher() {
-        require_once(INCLUDE_DIR.'class.mailfetch.php');
-        MailFetcher::run(); //Fetch mail..frequency is limited by email account setting.
+        require_once(INCLUDE_DIR.'class.email.php');
+        osTicket\Mail\Fetcher::run(); //Fetch mail..frequency is limited by email account setting.
     }
 
     static function TicketMonitor() {

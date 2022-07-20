@@ -1,0 +1,60 @@
+{
+    "name": "laminas/laminas-stdlib",
+    "description": "SPL extensions, array utilities, error handlers, and more",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "stdlib"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-stdlib/",
+        "issues": "https://github.com/laminas/laminas-stdlib/issues",
+        "source": "https://github.com/laminas/laminas-stdlib",
+        "rss": "https://github.com/laminas/laminas-stdlib/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.2.x-dev",
+            "dev-develop": "3.3.x-dev"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "laminas/laminas-zendframework-bridge": "^1.0"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "phpbench/phpbench": "^0.13",
+        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Stdlib\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Stdlib\\": "test/",
+            "LaminasBench\\Stdlib\\": "benchmark/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-stdlib": "self.version"
+    }
+}

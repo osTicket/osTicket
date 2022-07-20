@@ -1,54 +1,63 @@
 <?php
-if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
+if (!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access Denied');
 $info = $qs = array();
-if($email && $_REQUEST['a']!='add'){
-    $title=__('Update Email Address');
-    $action='update';
-    $submit_text=__('Save Changes');
-    $info=$email->getInfo();
-    $info['id']=$email->getId();
-    if($info['mail_delete'])
-        $info['postfetch']='delete';
-    elseif($info['mail_archivefolder'])
-        $info['postfetch']='archive';
-    else
-        $info['postfetch']=''; //nothing.
-    if($info['userpass'])
-        $passwdtxt=__('To change password enter new password above.');
-
+if ($email && $_REQUEST['a'] != 'add'){
+    $title = __('Update Email Address');
+    $action = 'update';
+    $submit_text = __('Save Changes');
+    $info  = $email->getInfo();
+    $info['id'] = $email->getId();
     $qs += array('id' => $email->getId());
 }else {
-    $title=__('Add New Email Address');
-    $action='create';
-    $submit_text=__('Submit');
-    $info['ispublic']=isset($info['ispublic'])?$info['ispublic']:1;
-    $info['ticket_auto_response']=isset($info['ticket_auto_response'])?$info['ticket_auto_response']:1;
-    $info['message_auto_response']=isset($info['message_auto_response'])?$info['message_auto_response']:1;
-    if (!$info['mail_fetchfreq'])
-        $info['mail_fetchfreq'] = 5;
-    if (!$info['mail_fetchmax'])
-        $info['mail_fetchmax'] = 10;
-    if (!isset($info['smtp_auth']))
-        $info['smtp_auth'] = 1;
+    $title = __('Add New Email Address');
+    $action = 'create';
+    $submit_text = __('Submit');
+    $info['id'] =  0;
+    $info['ticket_auto_response'] = isset($info['ticket_auto_response']) ? $info['ticket_auto_response'] : 1;
+    $info['message_auto_response'] = isset($info['message_auto_response']) ? $info['message_auto_response'] : 1;
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
+$info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
 ?>
-<h2><?php echo $title; ?>
-    <?php if (isset($info['email'])) { ?><small>
-    — <?php echo $info['email']; ?></small>
-    <?php } ?>
+<h2  style="margin:0 0 10px 2px;"><?php
+    echo sprintf('<a href="emails.php">%s</a>',   __('Emails'));
+    if ($email) {
+        echo sprintf('<small> &mdash; <a href="emails.php?id=%d">%s</a></small>',
+        $email->getId(),
+        Format::htmlchars($email->getAddress()));
+    } else
+        echo "<small> &mdash; $title </small>";
+?>
 </h2>
+
 <form action="emails.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
  <?php csrf_token(); ?>
  <input type="hidden" name="do" value="<?php echo $action; ?>">
  <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
  <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
+ <ul class="tabs">
+    <li class="active"><a id="account_tab" href="#account"
+        ><i class="icon-envelope"></i>&nbsp <?php echo __('Account'); ?></a></li>
+   <?php
+   if ($email) { ?>
+    <li><a id="mailbox_tab" href="#mailbox"
+        ><i class="icon-inbox"></i>&nbsp;<?php echo __('Remote Mailbox');
+        ?></a></li>
+    <li><a id="smtp_tab" href="#smtp"
+        ><i class="icon-reply-all"></i>&nbsp;<?php echo sprintf('%s (%s)',
+                __('Outgoing'), __('SMTP'));
+        ?></a></li>
+    <?php
+   } ?>
+</ul>
+<div class="tab_content" id="account">
  <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
-                <em><strong><?php echo __('Email Information and Settings');?></strong></em>
+                <em><strong><?php echo __('Email Information and Settings');?></strong>:
+                <?php  echo __('Changing Email Address will invalidates set Credentials'); ?>
+                </em>
             </th>
         </tr>
     </thead>
@@ -159,9 +168,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
       <?php } ?>
 			<i class="help-tip icon-question-sign" href="#new_ticket_help_topic"></i>
 		</span>
-                <span class="error">
-			<?php echo $errors['topic_id']; ?>
-		</span>
+                <span class="error"> <?php echo $errors['topic_id']; ?> </span>
             </td>
         </tr>
         <tr>
@@ -173,196 +180,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <?php echo sprintf(__('<strong>Disable</strong> for %s'), __('this email')); ?>
                 </label>
                 <i class="help-tip icon-question-sign" href="#auto_response"></i>
-            </td>
-        </tr>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Email Login Information'); ?></strong>
-                &nbsp;<i class="help-tip icon-question-sign" href="#login_information"></i></em>
-            </th>
-        </tr>
-        <tr>
-            <td width="180">
-                <?php echo __('Username'); ?>
-            </td>
-            <td>
-                <input type="text" size="35" name="userid" value="<?php echo $info['userid']; ?>"
-                    autocomplete="off" autocorrect="off">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['userid']; ?>&nbsp;</span>
-                <i class="help-tip icon-question-sign" href="#userid"></i>
-            </td>
-        </tr>
-        <tr>
-            <td width="180">
-               <?php echo __('Password'); ?>
-            </td>
-            <td>
-                <input type="password" size="35" name="passwd" value="<?php echo $info['passwd']; ?>"
-                    autocomplete="new-password">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd']; ?>&nbsp;</span>
-                <br><em><?php echo $passwdtxt; ?></em>
-            </td>
-        </tr>
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Fetching Email via IMAP or POP'); ?></strong>
-                &nbsp;<i class="help-tip icon-question-sign" href="#mail_account"></i>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['mail']; ?></font></em>
-            </th>
-        </tr>
-        <tr>
-            <td><?php echo __('Status'); ?></td>
-            <td>
-                <label><input type="radio" name="mail_active"  value="1"   <?php echo $info['mail_active']?'checked="checked"':''; ?> />&nbsp;<?php echo __('Enable'); ?></label>
-                &nbsp;&nbsp;
-                <label><input type="radio" name="mail_active"  value="0"   <?php echo !$info['mail_active']?'checked="checked"':''; ?> />&nbsp;<?php echo __('Disable'); ?></label>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_active']; ?></font>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Hostname'); ?></td>
-            <td>
-		<span>
-			<input type="text" name="mail_host" size=35 value="<?php echo $info['mail_host']; ?>">
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_host']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
-		</span>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Mail Folder'); ?></td>
-            <td>
-                <span>
-                        <input type="text" name="mail_folder" size=20 value="<?php echo $info['mail_folder']; ?>"
-                            placeholder="INBOX">
-                        &nbsp;<font class="error">&nbsp;<?php echo $errors['mail_folder']; ?></font>
-                        <i class="help-tip icon-question-sign" href="#mail_folder"></i>
-                </span>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Port Number'); ?></td>
-            <td><input type="text" name="mail_port" size=6 value="<?php echo $info['mail_port']?$info['mail_port']:''; ?>">
-		<span>
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_port']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
-		</span>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Mail Box Protocol'); ?></td>
-            <td>
-		<span>
-			<select name="mail_proto">
-                <option value=''>&mdash; <?php echo __('Select protocol'); ?> &mdash;</option>
-<?php
-    foreach (MailFetcher::getSupportedProtos() as $proto=>$desc) { ?>
-                <option value="<?php echo $proto; ?>" <?php
-                    if ($info['mail_proto'] == $proto) echo 'selected="selected"';
-                    ?>><?php echo $desc; ?></option>
-<?php } ?>
-			</select>
-			<font class="error">&nbsp;<?php echo $errors['mail_protocol']; ?></font>
-			<i class="help-tip icon-question-sign" href="#protocol"></i>
-		</span>
-            </td>
-        </tr>
-
-        <tr><td><?php echo __('Fetch Frequency'); ?></td>
-            <td>
-		<span>
-            <input type="text" name="mail_fetchfreq" size=4 value="<?php echo $info['mail_fetchfreq']?$info['mail_fetchfreq']:''; ?>"> <?php echo __('minutes'); ?>
-			<i class="help-tip icon-question-sign" href="#fetch_frequency"></i>
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchfreq']; ?></font>
-		</span>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Emails Per Fetch'); ?></td>
-            <td>
-		<span>
-			<input type="text" name="mail_fetchmax" size=4 value="<?php echo
-            $info['mail_fetchmax']?$info['mail_fetchmax']:''; ?>">
-			<i class="help-tip icon-question-sign" href="#emails_per_fetch"></i>
-			&nbsp;<font class="error">&nbsp;<?php echo $errors['mail_fetchmax']; ?></font>
-		</span>
-            </td>
-        </tr>
-        <tr><td valign="top"><?php echo __('Fetched Emails');?></td>
-             <td>
-                <label><input type="radio" name="postfetch" value="archive" <?php echo ($info['postfetch']=='archive')? 'checked="checked"': ''; ?> >
-                <?php echo __('Move to folder'); ?>:
-                <input type="text" name="mail_archivefolder" size="20" value="<?php echo $info['mail_archivefolder']; ?>"/></label>
-                    &nbsp;<font class="error"><?php echo $errors['mail_archivefolder']; ?></font>
-                    <i class="help-tip icon-question-sign" href="#fetched_emails"></i>
-                <br/>
-                <label><input type="radio" name="postfetch" value="delete" <?php echo ($info['postfetch']=='delete')? 'checked="checked"': ''; ?> >
-                <?php echo __('Delete emails'); ?></label>
-                <br/>
-                <label><input type="radio" name="postfetch" value="" <?php echo (isset($info['postfetch']) && !$info['postfetch'])? 'checked="checked"': ''; ?> >
-                <?php echo __('Do nothing <em>(not recommended)</em>'); ?></label>
-              <br /><font class="error"><?php echo $errors['postfetch']; ?></font>
-            </td>
-        </tr>
-
-        <tr>
-            <th colspan="2">
-                <em><strong><?php echo __('Sending Email via SMTP'); ?></strong>
-                &nbsp;<i class="help-tip icon-question-sign" href="#smtp_settings"></i>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp']; ?></font></em>
-            </th>
-        </tr>
-        <tr><td><?php echo __('Status');?></td>
-            <td>
-                <label><input type="radio" name="smtp_active" value="1" <?php echo $info['smtp_active']?'checked':''; ?> />&nbsp;<?php echo __('Enable');?></label>
-                &nbsp;
-                <label><input type="radio" name="smtp_active" value="0" <?php echo !$info['smtp_active']?'checked':''; ?> />&nbsp;<?php echo __('Disable');?></label>
-                &nbsp;<font class="error">&nbsp;<?php echo $errors['smtp_active']; ?></font>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Hostname'); ?></td>
-            <td><input type="text" name="smtp_host" size=35 value="<?php echo $info['smtp_host']; ?>">
-                &nbsp;<font class="error"><?php echo $errors['smtp_host']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Port Number'); ?></td>
-            <td><input type="text" name="smtp_port" size=6 value="<?php echo $info['smtp_port']?$info['smtp_port']:''; ?>">
-                &nbsp;<font class="error"><?php echo $errors['smtp_port']; ?></font>
-			<i class="help-tip icon-question-sign" href="#host_and_port"></i>
-            </td>
-        </tr>
-        <tr><td><?php echo __('Authentication Required'); ?></td>
-            <td>
-
-                 <label><input type="radio" name="smtp_auth"  value="1"
-                     <?php echo $info['smtp_auth']?'checked':''; ?> /> <?php echo __('Yes'); ?></label>
-                 &nbsp;
-                 <label><input type="radio" name="smtp_auth"  value="0"
-                     <?php echo !$info['smtp_auth']?'checked':''; ?> /> <?php echo __('No'); ?></label>
-                 &nbsp;
-                 <label><input type="checkbox" name="smtp_auth_creds" value="1"
-                     <?php echo $info['smtp_auth_creds']?'checked':''; ?> /> <?php echo __('Use Separate Authentication'); ?></label>
-                       <i class="help-tip icon-question-sign" href="#smtp_auth_creds"></i>
-                <font class="error">&nbsp;<?php echo $errors['smtp_auth']; ?></font>
-            </td>
-        </tr>
-        <tr style="display:none;" class="smtp"><td><?php echo __('Username'); ?></td>
-            <td>
-                <input type="text" size="35" name="smtp_userid" value="<?php echo $info['smtp_userid']; ?>"
-                    autocomplete="off" autocorrect="off">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_userid']; ?>&nbsp;</span>
-            </td>
-        </tr>
-        <tr style="display:none;" class="smtp"><td><?php echo __('Password'); ?></td>
-            <td>
-                <input type="password" size="35" name="smtp_passwd" value="<?php echo $info['smtp_passwd']; ?>"
-                    autocomplete="new-password">
-                &nbsp;<span class="error">&nbsp;<?php echo $errors['smtp_passwd']; ?>&nbsp;</span>
-                <br><em><?php if ($info['smtp_userpass']) echo $passwdtxt; ?></em>
-            </td>
-        </tr>
-        <tr>
-            <td><?php echo __('Header Spoofing'); ?></td>
-            <td>
-                <label><input type="checkbox" name="smtp_spoofing" value="1" <?php echo $info['smtp_spoofing'] ?'checked="checked"':''; ?>>
-                <?php echo sprintf(__('Allow for %s'), __('this email')); ?></label>
-                <i class="help-tip icon-question-sign" href="#header_spoofing"></i>
             </td>
         </tr>
         <tr>
@@ -379,6 +196,23 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
         </tr>
     </tbody>
 </table>
+</div>
+<?php
+if ($email) { ?>
+<div class="tab_content" id="mailbox" style="display:none;">
+   <?php
+    $pjax_container = '#holidays';
+    include STAFFINC_DIR . 'templates/email-mailbox.tmpl.php';
+   ?>
+</div>
+<div class="tab_content" id="smtp" style="display:none;">
+   <?php
+    $pjax_container = '#smtp';
+    include STAFFINC_DIR . 'templates/email-smtp.tmpl.php';
+   ?>
+</div>
+<?php
+} ?>
 <p style="text-align:center;">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
     <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
@@ -386,22 +220,56 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 </p>
 </form>
 <script type="text/javascript">
-// SMTP Authentication Credentials
-$(document).ready(function(){
-    $('input[name=smtp_auth], input[name=smtp_auth_creds]').bind('change', function(){
-        // Toggle Auth Checkbox
-        if ($('input[name=smtp_auth]:checked').val() == 1) {
-            $('input[name=smtp_auth_creds]').removeAttr('disabled');
-        } else {
-            $('input[name=smtp_auth_creds]').attr('disabled', true);
+$(function() {
+    $('a.auth_config').on('click', function(e) {
+        var target = $(this).attr('href').substr(1, $(this).attr('href').length);
+        var type = $(this).data('type');
+        var form = $(this).closest('form');
+        if (target !== ''  && type) {
+            // Stash form before launching config dialog.
+            var action = 'ajax.php/email/<?php echo $info['id']; ?>/stash';
+            $.ajax({
+                url: action,
+                method: 'POST',
+                data: $.objectifyForm(form.serializeArray()),
+                cache: false,
+                success: function(json) {
+                    // Launch the auth config dialog
+                    $.dialog('ajax.php/email/<?php echo $info['id'];
+                            ?>/auth/config/'+type+'/'+target, 201, function (xhr) {
+                        $(this).removeClass('save pending');
+                        if (xhr.responseJSON && xhr.responseJSON.redirect)
+                            window.location.href = xhr.responseJSON.redirect;
+                    },
+                    {size:(target == 'basic') ? 'normal' : 'xl'}
+                    );
+                }
+            });
         }
-        // Toggle Auth Input Visibility
-        if ($('input[name=smtp_auth_creds]:checked').val() == 1
-              && $('input[name=smtp_auth]:checked').val() == 1)
-            $('.smtp').show();
-        else
-            $('.smtp').hide();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
     });
-    $('input[name=smtp_auth], input[name=smtp_auth_creds]').trigger('change');
+    $('select.emailauth').on('change', function() {
+        var selected = $(this).find('option:selected').val();
+        var $target = $('a#'+this.name+'_config');
+        $target.attr('href', '#'+selected).removeClass('save pending');
+        if (selected == '' || $.inArray(selected, ['none', 'mailbox']) != -1) {
+            $target.hide();
+        } else {
+            $target.show();
+            if ($target.data('orig') !== selected)
+                $target.addClass('save pending');
+        }
+    });
+    $('select#postfetch').on('change', function() {
+        var selected = $(this).find('option:selected').val();
+        var $target = $('span#archive_folder');
+        if (selected == 'archive') {
+           $target.show();
+        } else {
+           $target.hide();
+        }
+    });
 });
 </script>

@@ -2255,6 +2255,10 @@ time.faq {
     width:750px !important;
 }
 
+.dialog.size-xl {
+    width:940px !important;
+}
+
 .dialog #popup-loading {
     position:absolute;
     text-align:center;

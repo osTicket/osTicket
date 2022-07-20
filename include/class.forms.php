@@ -159,30 +159,53 @@ class Form {
         }
         return $this->_clean;
     }
+    /*
+     * Transform form data to database ready clean data.
+     *
+     */
+    function to_db($validate=true) {
+        if (!$this->isValid())
+            return false;
+        $data = [];
+        $clean = $this->getClean($validate);
+        foreach ($clean as $name => $val) {
+            if (!($f = $this->getField($name)))
+                continue;
+            try {
+                $data[$name] = $f->to_database($val);
+            } catch (FieldUnchanged $e) {
+                // Unset field if it's unchanged...mainly
+                // useful for Secret/PasswordField
+                unset($data[$name]);
+            }
+        }
+        return $data;
+    }
 
     /*
      * Process the form input and return clean data.
      *
-     * It's similar to getClean but forms downstream can use it to return
-     * database ready data.
+     * It's similar to to_db but forms downstream can use it to skip or add
+     * extra validations
+
      */
     function process($validate=true) {
-        return $this->getClean($validate);
+        return $this->to_db($validate);
     }
+
 
     function errors($formOnly=false) {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
 
     function addError($message, $index=false) {
-
         if ($index)
             $this->_errors[$index] = $message;
         else
             $this->_errors['form'][] = $message;
     }
 
-    function addErrors($errors=array()) {
+    function addErrors($errors=[]) {
         foreach ($errors as $k => $v) {
             if (($f=$this->getField($k)))
                 $f->addError($v);
@@ -677,6 +700,12 @@ class FormField {
     function errors() {
         return $this->_errors;
     }
+
+    function resetErrors() {
+        $this->_errors = [];
+        return !($this->_errors);
+    }
+
     function addError($message, $index=false) {
         if ($index)
             $this->_errors[$index] = $message;
@@ -1539,6 +1568,15 @@ class PasswordField extends TextboxField {
             $this->set('validator', 'password');
     }
 
+    protected function getMasterKey() {
+        return SECRET_SALT;
+    }
+
+    protected function getSubKey() {
+        $config = $this->getConfiguration();
+        return $config['key'] ?: 'pwfield';
+    }
+
     function parse($value) {
         // Don't trim the value
         return $value;
@@ -1548,11 +1586,13 @@ class PasswordField extends TextboxField {
         // If not set in UI, don't save the empty value
         if (!$value)
             throw new FieldUnchanged();
-        return Crypto::encrypt($value, SECRET_SALT, 'pwfield');
+        return Crypto::encrypt($value, $this->getMasterKey(),
+                $this->getSubKey());
     }
 
     function to_php($value) {
-        return Crypto::decrypt($value, SECRET_SALT, 'pwfield');
+        return Crypto::decrypt($value, $this->getMasterKey(),
+                $this->getSubKey());
     }
 }
 
@@ -4418,8 +4458,9 @@ class PasswordWidget extends TextboxWidget {
 
     function render($mode=false, $extra=false) {
         $extra = array();
-        if ($this->field->value) {
-            $extra['placeholder'] = '••••••••••••';
+        if (isset($this->field->value)) {
+            $extra['placeholder'] = str_repeat('•',
+                    strlen($this->field->value));
         }
         return parent::render($mode, $extra);
     }

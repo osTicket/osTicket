@@ -245,41 +245,17 @@ CREATE TABLE `%TABLE_PREFIX%draft` (
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email`;
 CREATE TABLE `%TABLE_PREFIX%email` (
-  `email_id` int(11) unsigned NOT NULL auto_increment,
-  `noautoresp` tinyint(1) unsigned NOT NULL default '0',
-  `priority_id` int(11) unsigned NOT NULL default '2',
-  `dept_id` int(11) unsigned NOT NULL default '0',
-  `topic_id` int(11) unsigned NOT NULL default '0',
-  `email` varchar(255) NOT NULL default '',
-  `name` varchar(255) NOT NULL default '',
-  `userid` varchar(255) NOT NULL,
-  `userpass` varchar(255) collate ascii_general_ci NOT NULL,
-  `mail_active` tinyint(1) NOT NULL default '0',
-  `mail_host` varchar(255) NOT NULL,
-  `mail_protocol` enum('POP','IMAP') NOT NULL default 'POP',
-  `mail_encryption` enum('NONE','SSL') NOT NULL,
-  `mail_folder` varchar(255) default NULL,
-  `mail_port` int(6) default NULL,
-  `mail_fetchfreq` tinyint(3) NOT NULL default '5',
-  `mail_fetchmax` tinyint(4) NOT NULL default '30',
-  `mail_archivefolder` varchar(255) default NULL,
-  `mail_delete` tinyint(1) NOT NULL default '0',
-  `mail_errors` tinyint(3) NOT NULL default '0',
-  `mail_lasterror` datetime default NULL,
-  `mail_lastfetch` datetime default NULL,
-  `smtp_active` tinyint(1) default '0',
-  `smtp_host` varchar(255) NOT NULL,
-  `smtp_port` int(6) default NULL,
-  `smtp_secure` tinyint(1) NOT NULL default '1',
-  `smtp_auth` tinyint(1) NOT NULL default '1',
-  `smtp_auth_creds` int(11) DEFAULT '0',
-  `smtp_userid` varchar(255) NOT NULL,
-  `smtp_userpass` varchar(255) CHARACTER SET ascii NOT NULL,
-  `smtp_spoofing` tinyint(1) unsigned NOT NULL default '0',
-  `notes` text,
+  `email_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `noautoresp` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `priority_id` int(11) unsigned NOT NULL DEFAULT 2,
+  `dept_id` int(11) unsigned NOT NULL DEFAULT 0,
+  `topic_id` int(11) unsigned NOT NULL DEFAULT 0,
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `notes` text DEFAULT NULL,
   `created` datetime NOT NULL,
   `updated` datetime NOT NULL,
-  PRIMARY KEY  (`email_id`),
+  PRIMARY KEY (`email_id`),
   UNIQUE KEY `email` (`email`),
   KEY `priority_id` (`priority_id`),
   KEY `dept_id` (`dept_id`)
@@ -288,20 +264,30 @@ CREATE TABLE `%TABLE_PREFIX%email` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%email_account`;
 CREATE TABLE `%TABLE_PREFIX%email_account` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT '1',
-  `protocol` varchar(64) NOT NULL DEFAULT '',
+  `email_id` int(11) unsigned NOT NULL,
+  `type` enum('mailbox','smtp') NOT NULL DEFAULT 'mailbox',
+  `auth_bk` varchar(128) NOT NULL,
+  `auth_id` varchar(16) DEFAULT NULL,
+  `active` tinyint(1) unsigned NOT NULL DEFAULT 0,
   `host` varchar(128) NOT NULL DEFAULT '',
   `port` int(11) NOT NULL,
-  `username` varchar(128) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `options` varchar(512) DEFAULT NULL,
-  `errors` int(11) unsigned DEFAULT NULL,
-  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
-  `lastconnect` timestamp NULL DEFAULT NULL,
-  `lasterror` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `folder` varchar(255) DEFAULT NULL,
+  `protocol` enum('IMAP','POP','SMTP','OTHER') NOT NULL DEFAULT 'OTHER',
+  `encryption` enum('NONE','AUTO','SSL') NOT NULL DEFAULT 'AUTO',
+  `fetchfreq` tinyint(3) unsigned NOT NULL DEFAULT 5,
+  `fetchmax` tinyint(4) unsigned DEFAULT 30,
+  `postfetch` enum('archive','delete','nothing') NOT NULL DEFAULT 'nothing',
+  `archivefolder` varchar(255) DEFAULT NULL,
+  `allow_spoofing` tinyint(1) unsigned DEFAULT 0,
+  `num_errors` int(11) unsigned NOT NULL DEFAULT 0,
+  `last_error_msg` tinytext DEFAULT NULL,
+  `last_error` datetime DEFAULT NULL,
+  `last_activity` datetime DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  KEY `email_id` (`email_id`),
+  KEY `type` (`type`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%filter`;
@@ -914,8 +900,23 @@ CREATE TABLE `%TABLE_PREFIX%plugin` (
   `isphar` tinyint(1) not null default 0,
   `isactive` tinyint(1) not null default 0,
   `version` varchar(64),
+  `notes` text DEFAULT NULL,
   `installed` datetime not null,
-  primary key (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `install_path` (`install_path`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%plugin_instance`;
+CREATE TABLE `%TABLE_PREFIX%plugin_instance` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `plugin_id` int(11) unsigned NOT NULL,
+  `flags` int(10) NOT NULL DEFAULT 0,
+  `name` varchar(128) NOT NULL DEFAULT '',
+  `notes` text DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `plugin_id` (`plugin_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%queue`;

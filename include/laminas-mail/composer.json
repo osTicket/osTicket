@@ -1,0 +1,75 @@
+{
+    "name": "laminas/laminas-mail",
+    "description": "Provides generalized functionality to compose and send both text and MIME-compliant multipart e-mail messages",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "mail"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "docs": "https://docs.laminas.dev/laminas-mail/",
+        "issues": "https://github.com/laminas/laminas-mail/issues",
+        "source": "https://github.com/laminas/laminas-mail",
+        "rss": "https://github.com/laminas/laminas-mail/releases.atom",
+        "chat": "https://laminas.dev/chat",
+        "forum": "https://discourse.laminas.dev"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.10.x-dev",
+            "dev-develop": "2.11.x-dev"
+        },
+        "laminas": {
+            "component": "Laminas\\Mail",
+            "config-provider": "Laminas\\Mail\\ConfigProvider"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "ext-iconv": "*",
+        "laminas/laminas-loader": "^2.5",
+        "laminas/laminas-mime": "^2.5",
+        "laminas/laminas-stdlib": "^2.7 || ^3.0",
+        "laminas/laminas-validator": "^2.10.2",
+        "laminas/laminas-zendframework-bridge": "^1.0",
+        "true/punycode": "^2.1"
+    },
+    "require-dev": {
+        "laminas/laminas-coding-standard": "~1.0.0",
+        "laminas/laminas-config": "^2.6",
+        "laminas/laminas-crypt": "^2.6 || ^3.0",
+        "laminas/laminas-servicemanager": "^2.7.10 || ^3.3.1",
+        "phpunit/phpunit": "^5.7.25 || ^6.4.4 || ^7.1.4"
+    },
+    "suggest": {
+        "laminas/laminas-crypt": "Crammd5 support in SMTP Auth",
+        "laminas/laminas-servicemanager": "^2.7.10 || ^3.3.1 when using SMTP to deliver messages"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\Mail\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\Mail\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    },
+    "replace": {
+        "zendframework/zend-mail": "^2.10.0"
+    }
+}

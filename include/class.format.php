@@ -107,6 +107,22 @@ class Format {
 			return $phone;
 	}
 
+    static function mask($str, $start = 0, $length = null, $mask="*") {
+        $mask = preg_replace("/\S/", $mask, $str);
+        if ($length)
+            $str = substr_replace($str, substr($mask, $start, $length), $start, $length);
+        else
+            $str = substr_replace ($str, substr($mask, $start), $start);
+
+        return $str;
+    }
+
+    static function shroud($str, $start=0, $length=null) {
+        $str = $length ? substr($str, 0, $length) : $str;
+        return self::mask($str, $start, $length);
+    }
+
+
     static function truncate($string,$len,$hard=false) {
 
         if(!$len || $len>strlen($string))

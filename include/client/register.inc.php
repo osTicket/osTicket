@@ -7,7 +7,7 @@ if (!isset($info['timezone']))
 if (isset($user) && $user instanceof ClientCreateRequest) {
     $bk = $user->getBackend();
     $info = array_merge($info, array(
-        'backend' => $bk::$id,
+        'backend' => $bk->getBkId(),
         'username' => $user->getUsername(),
     ));
 }
@@ -61,7 +61,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
         <input type="hidden" name="backend" value="<?php echo $info['backend']; ?>"/>
         <input type="hidden" name="username" value="<?php echo $info['username']; ?>"/>
 <?php foreach (UserAuthenticationBackend::allRegistered() as $bk) {
-    if ($bk::$id == $info['backend']) {
+    if ($bk->getBkId() == $info['backend']) {
         echo $bk->getName();
         break;
     }

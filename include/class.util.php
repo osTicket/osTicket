@@ -300,3 +300,61 @@ implements TemplateVariable {
         );
     }
 }
+
+
+
+
+/*
+ * ServiceRegistry
+ *
+ * An abscract class to implement basic functions and add ability to
+ * register service - collection of similar objects eng authentication
+ * backends.
+ *
+ * TODO: Consider using ListObject class - it's an overkill for now.
+ */
+abstract class  ServiceRegistry {
+    static protected $registry = array();
+
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
+    function getId() {
+        return static::$id;
+    }
+
+    /*
+     *  getBkId
+     *
+     *  Get service id used to register the service. Plugins adds a tag
+     *  making it possible to register multiple instances of the same
+     *  plugin.
+     *
+     */
+    function getBkId() {
+        $id = $this->getId();
+        // FIXME: Abstract getting backend id cleanly
+        if (isset($this->config)
+                && is_a($this->config, 'PluginConfig'))
+            $id =sprintf('%s.%s', $id, $this->config->getId());
+
+        return $id;
+    }
+
+    function getName() {
+        if (isset($this->config)
+                && is_a($this->config, 'PluginConfig'))
+             return $this->config->getName();
+
+        return static::$name;
+    }
+
+    static function register($obj) {
+         static::$registry[] = $obj;
+    }
+
+    static function getRegistry() {
+        return static::$registry;
+    }
+}

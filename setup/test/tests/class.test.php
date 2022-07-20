@@ -15,6 +15,7 @@ class Test {
         '/include/plugins/',
         '/include/h2o/',
         '/include/mpdf/',
+        '/include/laminas-mail/',
         '/js/select2.min.js',
         '/js/redactor.min.js',
         '/js/jquery-ui-1.13.1.custom.min.js',
