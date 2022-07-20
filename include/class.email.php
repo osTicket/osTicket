@@ -839,6 +839,16 @@ class EmailAccount extends VerySimpleModel {
         return parent::save($refetch || $this->dirty);
     }
 
+    function delete() {
+        // Destroy the Email config
+        $this->getConfig()->destroy();
+        // Delete the Plugin instance
+        if ($this->isOAuthAuth() && ($i=$this->getOAuth2Instance()))
+            $i->delete();
+        // Delete the EmailAccount
+        parent::delete();
+    }
+
     static function create($ht=false) {
         $i = new static($ht);
         $i->active = 0;
