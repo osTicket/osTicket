@@ -23,6 +23,8 @@ class Fetcher {
     function __construct(\MailboxAccount $account, $charset='UTF-8') {
         $this->account = $account;
         $this->mbox = $account->getMailBox();
+        if ($folder = $this->getFolder())
+            $this->mbox->selectFolder($folder);
     }
 
     function getEmailId() {
@@ -35,6 +37,10 @@ class Fetcher {
 
     function getMaxFetch() {
         return $this->account->getMaxFetch();
+    }
+
+    function getFolder() {
+        return $this->account->getFolder();
     }
 
     function getArchiveFolder() {
@@ -77,7 +83,7 @@ class Fetcher {
             // Okay, let's create the ticket now
             if ($api->processEmail($data)) {
                 // Mark the message as "Seen" (IMAP only)
-				$this->mbox->markAsSeen($i);
+                $this->mbox->markAsSeen($i);
                 // Attempt to move the message else attempt to delete
                 if((!$archiveFolder || !$this->mbox->moveMessage($i, $archiveFolder)) && $delete)
                     $this->mbox->removeMessage($i);
@@ -133,13 +139,11 @@ class Fetcher {
         $interval = new \SqlInterval('MINUTE', \SqlExpression::plus(new
                      \SqlCode('fetchfreq'), 0));
         $fetch_Q = \Q::any([
-                'last_activity' => 0,
+                'last_activity__isnull' => true,
                 new \Q(['last_activity__lte' => $now->minus($interval)])
         ]);
         $mailboxes = \MailBoxAccount::objects()
             ->filter(['active' => 1, $errors_Q, $fetch_Q]);
-
-        print $mailboxes;
 
         //Get max execution time so we can figure out how long we can fetch
         // take fetching emails.

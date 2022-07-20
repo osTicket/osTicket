@@ -19,6 +19,7 @@ include_once(INCLUDE_DIR.'class.mailer.php');
 include_once(INCLUDE_DIR.'class.oauth2.php');
 include_once(INCLUDE_DIR.'class.mailfetch.php');
 include_once(INCLUDE_DIR.'class.mailparse.php');
+include_once(INCLUDE_DIR.'api.tickets.php');
 
 class Email extends VerySimpleModel {
     static $meta = array(
@@ -883,7 +884,7 @@ class MailBoxAccount extends EmailAccount {
     }
 
     public function getArchiveFolder() {
-        if (strcasecmp($this->getProtocol(), 'imap') && $this->archivefolder)
+        if ((strcasecmp($this->getProtocol(), 'imap') == 0) && $this->archivefolder)
             return $this->archivefolder;
     }
 
