@@ -3130,7 +3130,7 @@ extends QueueColumnFilter {
     function filter($text, $row) {
         return sprintf(
             '<time class="relative" datetime="%s" title="%s">%s</time>',
-            date(DateTime::W3C, Misc::db2gmtime($text->value) ?: 0),
+            date(DateTime::W3C, strtotime(Misc::db2gmtime($text->value)) ?: 0),
             Format::daydatetime($text->value),
             Format::relativeTime(Misc::db2gmtime($text->value))
         );
