@@ -687,10 +687,10 @@ class Plugin extends VerySimpleModel {
         return $this->save(true);
     }
 
-    function getConfig(PluginInstance $instance = null) {
+    function getConfig(PluginInstance $instance = null, $defaults = []) {
         if (!isset($this->config) && ($class=$this->config_class)) {
             $this->config = new $class($instance ?
-                    $instance->getNamespace() : null);
+                    $instance->getNamespace() : null, $defaults);
             $this->config->setInstance($instance ?: null);
         }
         return $this->config;
@@ -698,7 +698,7 @@ class Plugin extends VerySimpleModel {
 
     function getConfigForm($vars=null) {
         if (!isset($this->form) || $vars)
-            $this->form = $this->getConfig()->getForm($vars);
+            $this->form = $this->getConfig(null, $vars)->getForm($vars);
 
         return $this->form;
     }
