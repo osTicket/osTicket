@@ -291,7 +291,11 @@ body {
 }
 #container {
   background: #fff;
-  width: 840px;
+  /* EDITED AV START */
+  /* width: 840px; */
+  width: 90%;
+  min-width: 840px;
+  /* EDITED AV END */
   margin: 0 auto;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
@@ -417,7 +421,10 @@ body {
 .front-page-button {
 }
 .main-content {
-  width: 565px;
+  /* EDITED AV START */
+  /* width: 565px; */
+  width: auto;
+  /* EDITED AV END */
 }
 #landing_page #new_ticket {
   margin-top: 40px;
@@ -796,6 +803,7 @@ label.required, span.required {
   border: 1px solid #aaa;
   border-left: none;
   border-bottom: none;
+  width: 100%;
 }
 #ticketTable caption {
   padding: 5px;
