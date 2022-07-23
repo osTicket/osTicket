@@ -653,7 +653,9 @@ class EmailAccount extends VerySimpleModel {
 
     public function getCredentials($auth=null, $refresh=false) {
         // Authentication doesn't match - it's getting reconfigured.
-        if ($auth && strncasecmp($this->getAuthBk(), $auth, strlen($auth)))
+        if ($auth
+                && strncasecmp($this->getAuthBk(), $auth, strlen($auth))
+                && strcasecmp($auth, 'none'))
             return [];
 
         if (!isset($this->cred) || $refresh)  {
