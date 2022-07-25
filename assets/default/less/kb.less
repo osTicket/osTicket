@@ -10,9 +10,8 @@
     margin:0;
     background:url(../images/kb_category_bg.png) bottom left repeat-x;
     border-bottom:1px solid #ddd;
+    display: block;
     h4 {
-      padding-bottom:3px;
-      margin-bottom:3px;
       span {
         color:#666;
       }
@@ -20,10 +19,7 @@
         font-size: 14px;
       }
     }
-  }
-
-  li {
-    i {
+    > i {
       display:block;
       width:32px;
       height:32px;
@@ -32,6 +28,45 @@
       background:url(../images/kb_large_folder.png) top left no-repeat;
     }
   }
+}
+
+.featured-category {
+  margin-top: 10px;
+  width: 49.7%;
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: top;
+}
+.category-name {
+  display: inline-block;
+  font-weight: 400;
+  font-size: 120%;
+}
+.featured-category i {
+  color: rgba(0,174,239, 0.8);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  vertical-align: middle;
+}
+.article-headline {
+  margin-left: 34px;
+}
+.rtl .article-headline {
+  margin-left: 0;
+  margin-right: 34px;
+}
+.article-teaser {
+  font-size: 90%;
+  line-height: 1.5em;
+  height: 3em;
+  overflow: hidden;
+}
+.article-title {
+  font-weight: 500;
+}
+.faq-content .article-title {
+  font-size: 17pt;
+  margin-top: 15px;
 }
 
 #kb-search {

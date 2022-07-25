@@ -124,9 +124,9 @@ a time {
 
 #error_bar { margin: 0; padding: 5px 10px 5px 36px; height: 16px; line-height: 16px; border: 1px solid #a00; background: url('../images/icons/error.png') 10px 50% no-repeat #fff0f0; }
 
-
 #container {
-    width:960px;
+    width:90%;
+    min-width:960px;
     margin:0 auto 20px auto;
 }
 
@@ -725,7 +725,6 @@ a time {
 .jb-overflowmenu {
     position: relative;
     height:35px;
-    width: 960px;
 }
 
 
@@ -1119,7 +1118,11 @@ table.dashboard-stats tbody:nth-child(2) tr:hover th {
     color:#000;
 }
 
-table { vertical-align:top; }
+table {
+    vertical-align:top;
+    width:100%;
+    height:100%;
+}
 
 table.list {
     clear:both;
@@ -1288,10 +1291,6 @@ a.print {
     border-bottom:1px solid #ddd;
     padding: 4px;
 }
-.form_table td:not(:empty) {
-    height: 20px;
-}
-
 table.fixed {
     table-layout: fixed;
     width: 100%;
@@ -1462,6 +1461,7 @@ h3.title > .sub-title {
 
 .ticket_info th {
     text-align:left;
+    width: 35%;
 }
 
 .ticket_info {
@@ -3260,7 +3260,7 @@ td.indented {
     background-color: #eee;
     background-color: rgba(0,0,0,0.1);
     position: absolute;
-    top: 0px;
+    top: 46px;
     right: 20px;
     padding: 8px 8px 5px;
     border-radius: 0 0 5px 5px;
