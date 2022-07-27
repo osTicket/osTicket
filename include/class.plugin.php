@@ -687,11 +687,21 @@ class Plugin extends VerySimpleModel {
         return $this->save(true);
     }
 
+    function getConfigClass() {
+        return $this->config_class;
+    }
+
     function getConfig(PluginInstance $instance = null, $defaults = []) {
-        if (!isset($this->config) && ($class=$this->config_class)) {
-            $this->config = new $class($instance ?
-                    $instance->getNamespace() : null, $defaults);
-            $this->config->setInstance($instance ?: null);
+        if ((!isset($this->config) || $instance)
+                && ($class=$this->getConfigClass())) {
+            // We cache instance config for side loading purposes on
+            // plugin instantace boostrapping
+            if ($instance)
+                // Config for an instance.
+                $this->config = $instance->getConfig($class, $defaults);
+            else
+                //  New instance config
+                $this->config = new $class(null, $defaults);
         }
         return $this->config;
     }
@@ -938,9 +948,12 @@ class PluginInstance extends VerySimpleModel {
         $this->setFlag(self::FLAG_ENABLED, $status);
     }
 
-    function getConfig() {
-        if (!isset($this->_config))
-            $this->_config = $this->getPlugin()->getConfig($this);
+    function getConfig($class=null, $defaults=[]) {
+        $class = $class ?: $this->getPlugin()->getConfigClass();
+        if (!isset($this->_config) && $class) {
+            $this->_config =  new $class($this->getNamespace(), $defaults);
+            $this->_config->setInstance($this);
+        }
 
         return $this->_config;
     }
