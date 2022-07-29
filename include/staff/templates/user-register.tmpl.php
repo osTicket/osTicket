@@ -68,8 +68,8 @@ echo sprintf(__(
                     <?php echo __('Username'); ?>:
                 </td>
                 <td>
-                    <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
-                    &nbsp;<span class="error">&nbsp;<?php echo $errors['username']; ?></span>
+                    <input type="text" size="35" name="username" value="<?php echo $info['username'] ? Format::htmlchars($info['username']) : $user->getEmail(); ?>">
+                    &nbsp;<span class="error">&nbsp;<?php echo Format::htmlchars($errors['username']); ?></span>
                 </td>
             </tr>
         </tbody>
