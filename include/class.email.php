@@ -512,10 +512,14 @@ class EmailAccount extends VerySimpleModel {
     private function getOAuth2ConfigForm($vars, $auth=null) {
         // Lookup OAuth2 backend & Get basic config form
          if (($bk=$this->getOAuth2Backend($auth)))
-             return $bk->getConfigForm(array_merge(
+             return $bk->getConfigForm(
+                     array_merge(
                          $this->getOAuth2ConfigDefaults(),
                          $vars ?: $bk->getDefaults() #nolint
-                         ), $this->getAuthId());
+                         ),
+                     !strcmp($auth, $this->getAuthBk())
+                     ? $this->getAuthId() : null
+                     );
     }
 
     private function getBasicAuthConfigForm($vars, $auth=null) {
@@ -600,7 +604,9 @@ class EmailAccount extends VerySimpleModel {
                 break;
             case 'oauth2':
                 // For OAuth we are simply saving configuration -
-                // credetials are saved later.
+                // credetials are saved post successful authorization
+                // redirect.
+
                 // Lookup OAuth backend
                 if (($bk=$this->getOAuth2Backend($auth))) {
                     // Merge form data, post vars and any defaults
