@@ -57,6 +57,13 @@ default_sla:
       - title: Create more SLA Plans
         href: /scp/slas.php
 
+default_ticket_queue:
+    title: Default Ticket Queue
+    content: >
+        Setting to determine the default queue for Agents upon log-in.
+        Agents can also set their default queue in their Profile tab to
+        override this setting.
+
 default_priority:
     title: Default Priority
     content: >
