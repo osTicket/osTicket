@@ -1,7 +1,12 @@
 <?php
 $token = null;
-if (($cred = $account->getCredentials('oauth2')))
+if (($cred = $account->getCredentials($auth)))
     $token = $cred->getAccessToken();
+// Warnings
+ if ($account->getAuthBk() && strcmp($auth, $account->getAuthBk()))
+    $warning = __('Changing Oauth2 provider will overwrite existing credentials');
+elseif ($account->getAuthBk())
+    $warning = __('Any changes on  will require re-authorization');
 
 $info = $account->getOAuth2ConfigInfo();
 $info = Format::htmlchars(($errors && $_POST)
@@ -90,9 +95,9 @@ if (isset($errors['err'])) {
     </div>
     <div id="idp" class="tab_content hidden" style="margin:2px;" >
     <?php
-        $warning = __('Any changes on  will require re-authorization');
+    if ($warning)
         echo sprintf('<p id="msg_warning">%s</p>', $warning);
-        echo $form->asTable();
+    echo $form->asTable();
     ?>
     </div>
     <?php
