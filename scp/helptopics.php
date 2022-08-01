@@ -65,7 +65,7 @@ if($_POST){
 
                 $activeTopics = Topic::getHelpTopics(false, false);
                 $allTopics = count(Topic::getAllHelpTopics());
-                $diff = array_intersect($_POST['ids'], array_keys($activeTopics));
+                $diff = is_array($_POST['ids']) ? array_intersect($_POST['ids'], array_keys($activeTopics)) : [];
 
                 switch(strtolower($_POST['a'])) {
                     case 'enable':
