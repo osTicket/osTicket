@@ -1,3 +1,8 @@
+osTicket v1.17-rc2
+==================
+### Improvements
+* Oauth2 / Modern Email Auth Latest Fixes (4da6fb07, 90ed880b, 72b2a249, 8a8c1a16, fa6cc040, 97a9b0af)
+
 osTicket v1.17-rc1
 ==================
 ### Enhancements
