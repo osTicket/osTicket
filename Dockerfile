@@ -3,9 +3,6 @@
 
 FROM php:7.4-apache
 
-# Maintainer
-MAINTAINER Patrick Hewes "patrick.hewes@unite.ly"
-
 ENV ADMIN_EMAIL='support@email.com'
 ENV DBHOST='database'
 ENV DBNAME='dbname'
@@ -33,9 +30,18 @@ COPY ./php.ini-development $PHP_INI_DIR/php.ini
 RUN rm -rf $OST_ROOT/*
 
 COPY . $OST_ROOT
+COPY start.sh /usr/local/bin/
 
 RUN rm -rf $OST_ROOT/setup
 
 RUN rm -f $OST_ROOT/php.ini-development
 
 RUN chmod 644 $OST_ROOT/include/ost-config.php
+
+ARG CRON_TASK="*/5 * * * * /usr/local/bin/php -c $PHP_INI_DIR/php.ini $OST_ROOT/api/cron.php"
+ARG CRON_FILE="${OST_ROOT}/crontab"
+RUN echo "${CRON_TASK}\n" >> $CRON_FILE
+RUN crontab -u www-data ${CRON_FILE}
+RUN rm ${CRON_FILE}
+
+CMD ["start.sh"]
