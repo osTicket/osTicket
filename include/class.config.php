@@ -31,14 +31,13 @@ class Config {
     var $defaults = array();                # List of default values
 
     function __construct($section=null, $defaults=array()) {
+        if ($defaults)
+            $this->defaults = $defaults;
         if ($section)
             $this->section = $section;
-
         if ($this->section === null)
             return false;
 
-        if ($defaults)
-            $this->defaults = $defaults;
 
         if (isset($_SESSION['cfg:'.$this->section]))
             $this->session = &$_SESSION['cfg:'.$this->section];

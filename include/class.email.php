@@ -512,10 +512,14 @@ class EmailAccount extends VerySimpleModel {
     private function getOAuth2ConfigForm($vars, $auth=null) {
         // Lookup OAuth2 backend & Get basic config form
          if (($bk=$this->getOAuth2Backend($auth)))
-             return $bk->getConfigForm(array_merge(
+             return $bk->getConfigForm(
+                     array_merge(
                          $this->getOAuth2ConfigDefaults(),
                          $vars ?: $bk->getDefaults() #nolint
-                         ), $this->getAuthId());
+                         ),
+                     !strcmp($auth, $this->getAuthBk())
+                     ? $this->getAuthId() : null
+                     );
     }
 
     private function getBasicAuthConfigForm($vars, $auth=null) {
@@ -600,7 +604,9 @@ class EmailAccount extends VerySimpleModel {
                 break;
             case 'oauth2':
                 // For OAuth we are simply saving configuration -
-                // credetials are saved later.
+                // credetials are saved post successful authorization
+                // redirect.
+
                 // Lookup OAuth backend
                 if (($bk=$this->getOAuth2Backend($auth))) {
                     // Merge form data, post vars and any defaults
@@ -653,17 +659,20 @@ class EmailAccount extends VerySimpleModel {
 
     public function getCredentials($auth=null, $refresh=false) {
         // Authentication doesn't match - it's getting reconfigured.
-        if ($auth && strncasecmp($this->getAuthBk(), $auth, strlen($auth)))
+        if ($auth
+                && strncasecmp($this->getAuthBk(), $auth, strlen($auth))
+                && strcasecmp($auth, 'none'))
             return [];
 
         if (!isset($this->cred) || $refresh)  {
-            $creds = array();
+            $cred = null;
             $auth = $auth ?: $this->getAuthBk();
             list($type, $provider) = explode(':', $auth);
             switch ($type) {
                 case 'mailbox':
-                    if (($mb=$this->email->getMailBoxAccount()))
-                        $cred = $mb->getCredentials(null, $refresh);
+                    if (($mb=$this->email->getMailBoxAccount())
+                            && $mb->getAuthBk())
+                        $cred = $mb->getCredentials($mb->getAuthBk(), $refresh);
                     break;
                 case 'none':
                     // No authentication required (open replay)
@@ -734,7 +743,8 @@ class EmailAccount extends VerySimpleModel {
                     }
                     break;
                 default:
-                    throw Exception(__('Unknown Credential Type'));
+                    throw new Exception(sprintf('%s: %s',
+                                $type, __('Unknown Credential Type')));
             }
             $this->cred = $cred;
         }
@@ -952,12 +962,8 @@ class MailBoxAccount extends EmailAccount {
                 $errors['mailbox_protocol'] = __('Select protocol');
             elseif (!in_array($vars['mailbox_protocol'], Email::mailboxProtocols()))
                 $errors['mailbox_protocol'] = __('Invalid protocol');
-            // Check to make sure authentication is configured
-            if (!$vars['mailbox_auth_bk']
-                    || in_array($vars['mailbox_auth_bk'], ['none', 'mailbox']))
+            if (!$vars['mailbox_auth_bk'])
                 $errors['mailbox_auth_bk'] = __('Select Authentication');
-            elseif (!($creds=$this->getFreshCredentials($vars['mailbox_auth_bk'])))
-                $errors['mailbox_auth_bk'] = __('Configure Authentication');
             if (!$vars['mailbox_fetchfreq'] || !is_numeric($vars['mailbox_fetchfreq']))
                 $errors['mailbox_fetchfreq'] = __('Fetch interval required');
             if (!$vars['mailbox_fetchmax'] || !is_numeric($vars['mailbox_fetchmax']))
@@ -977,6 +983,11 @@ class MailBoxAccount extends EmailAccount {
                         $vars['mailbox_archivefolder']))
                 $errors['mailbox_postfetch'] = __('Archive folder cannot be same as fetched folder (INBOX)');
         }
+
+        // Make sure authentication is configured if selection is made
+        if ($vars['mailbox_auth_bk']
+                && !($creds=$this->getFreshCredentials($vars['mailbox_auth_bk'])))
+            $errors['mailbox_auth_bk'] = __('Configure Authentication');
 
         if (!$errors) {
             $this->active = $vars['mailbox_active'] ? 1 : 0;
@@ -1105,12 +1116,16 @@ class SmtpAccount extends EmailAccount {
                 $_errors['smtp_port'] = __('Port required');
             if (!$vars['smtp_auth_bk'])
                 $_errors['smtp_auth_bk'] = __('Select Authentication');
-            elseif (!($creds=$this->getFreshCredentials($vars['smtp_auth_bk']))) {
+            elseif (!($creds=$this->getFreshCredentials($vars['smtp_auth_bk'])))
                 $_errors['smtp_auth_bk'] = ($vars['smtp_auth_bk'] == 'mailbox')
                     ? __('Configure Mailbox Authentication')
                     : __('Configure Authentication');
-            }
-        }
+        } elseif ($vars['smtp_auth_bk']
+                // We default to mailbox - so we're not going to check
+                // unless account is active, see above!
+                && strcasecmp($vars['smtp_auth_bk'], 'mailbox')
+                && !($creds=$this->getFreshCredentials($vars['smtp_auth_bk'])))
+            $_errors['smtp_auth_bk'] = __('Configure Authentication');
 
         if (!$_errors) {
             $this->active = $vars['smtp_active'] ? 1 : 0;
