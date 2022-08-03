@@ -691,7 +691,9 @@ class EmailDataParser {
                 }
             }
         }
-        $data['thread_entry_recipients']['to'] = array_unique($data['thread_entry_recipients']['to']);
+        $data['thread_entry_recipients']['to'] = isset($data['thread_entry_recipients']['to'])
+                ? array_unique($data['thread_entry_recipients']['to'])
+                : [];
 
         /*
          * In the event that the mail was delivered to the system although none of the system
