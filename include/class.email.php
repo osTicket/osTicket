@@ -617,10 +617,19 @@ class EmailAccount extends VerySimpleModel {
                     if ($this->getAuthId()
                             && ($i=$bk->getPluginInstance($this->getAuthId()))) {
                         $vars = array_merge($bk->getDefaults(), $vars); #nolint
-                        if (!$i->update($vars, $errors))
+                        if ($i->update($vars, $errors)) {
+                            // Disable account if backend is changed
+                            if (strcasecmp($this->auth_bk, $auth))
+                                $this->active = 0;
+                            // Auth backend can be changed on update
+                            $this->auth_bk = $auth;
+
+                            $this->save();
+                        } else {
                             $errors['err'] = sprintf('%s %s',
                                     __('Error Saving'),
-                                     __('Authentication'));
+                                    __('Authentication'));
+                        }
                     } else {
                         // Ask the backend to add OAuth2 instance for this account
                         if (($i=$bk->addPluginInstance($vars, $errors))) { #nolint
