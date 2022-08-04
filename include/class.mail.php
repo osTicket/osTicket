@@ -567,8 +567,12 @@ namespace osTicket\Mail {
             return $this->token;
         }
 
-        public function getAccessToken() {
-            return $this->getToken();
+        public function getAccessToken($signature=false) {
+           $token = $this->getToken();
+           // check signature if requested
+           return (!$signature
+                   || !strcmp($signature, $token->getConfigSignature()))
+               ? $token : null;
         }
 
         public function toArray() {

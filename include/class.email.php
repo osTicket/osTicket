@@ -437,15 +437,13 @@ class EmailAccount extends VerySimpleModel {
         if (!$this->isEnabled() || !$this->isOAuthAuth())
             return false;
 
-        // No credentials stored or token expired (referesh failed)
-        if (!($cred=$this->getFreshCredentials())
-                || !($token=$cred->getAccessToken())
-                || $token->isExpired())
-            return true;
+        return (!($cred=$this->getFreshCredentials())
+                // Get token with signature match - mismatch means config
+                // changed somehow
+                || !($token=$cred->getAccessToken($this->getConfigSignature()))
+                // Check if expired
+                || $token->isExpired());
 
-        // Signature mismatch - means config changed
-        return strcasecmp($token->getConfigSignature(),
-                $this->getConfigSignature());
     }
 
     public function getId() {
