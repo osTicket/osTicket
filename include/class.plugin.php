@@ -966,7 +966,12 @@ class PluginInstance extends VerySimpleModel {
     }
 
     function getSignature() {
-        return md5(json_encode(ksort($this->getConfiguration())));
+        // get Config
+        $config = $this->getConfiguration() ?: [];
+        // Key sort to normalize config - key order matters with md5
+        ksort($config);
+        // Json encode and md5
+        return md5(json_encode($config));
     }
 
     function getNamespace() {

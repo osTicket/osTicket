@@ -1,7 +1,7 @@
 <?php
 $token = null;
 if (($cred = $account->getCredentials($auth)))
-    $token = $cred->getAccessToken();
+    $token = $cred->getAccessToken($account->getConfigSignature());
 // Warnings
  if ($account->getAuthBk() && strcmp($auth, $account->getAuthBk()))
     $warning = __('Changing Oauth2 provider will overwrite existing credentials');

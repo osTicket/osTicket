@@ -21,11 +21,18 @@ class ConfigMigrater extends MigrationTask {
             .' WHERE username IS NOT NULL';
         if(($res=db_query($sql)) && db_num_rows($res)) {
             while($row = db_fetch_array($res)) {
-                 $c = new Config(sprintf('email.%d.account.%d',
-                            $row['email_id'], $row['id']));
+                $namespace = sprintf('email.%d.account.%d',
+                        $row['email_id'], $row['id']);
+                 $c = new Config($namespace);
+                 // Decrpt the password the old way so we can re-encrypt the
+                 // new way
+                 $row['passwd'] = Crypto::decrypt($row['passwd'],
+                         SECRET_SALT, $row['username']);
                  $c->updateAll([
                          'username' => $row['username'],
-                         'passwd'   => $row['passwd']
+                         'passwd'   => Crypto::encrypt($row['passwd'],
+                             SECRET_SALT,
+                             md5($row['username'].$namespace))
                  ]);
             }
         }

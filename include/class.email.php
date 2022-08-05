@@ -437,15 +437,13 @@ class EmailAccount extends VerySimpleModel {
         if (!$this->isEnabled() || !$this->isOAuthAuth())
             return false;
 
-        // No credentials stored or token expired (referesh failed)
-        if (!($cred=$this->getFreshCredentials())
-                || !($token=$cred->getAccessToken())
-                || $token->isExpired())
-            return true;
+        return (!($cred=$this->getFreshCredentials())
+                // Get token with signature match - mismatch means config
+                // changed somehow
+                || !($token=$cred->getAccessToken($this->getConfigSignature()))
+                // Check if expired
+                || $token->isExpired());
 
-        // Signature mismatch - means config changed
-        return strcasecmp($token->getConfigSignature(),
-                $this->getConfigSignature());
     }
 
     public function getId() {
@@ -617,10 +615,19 @@ class EmailAccount extends VerySimpleModel {
                     if ($this->getAuthId()
                             && ($i=$bk->getPluginInstance($this->getAuthId()))) {
                         $vars = array_merge($bk->getDefaults(), $vars); #nolint
-                        if (!$i->update($vars, $errors))
+                        if ($i->update($vars, $errors)) {
+                            // Disable account if backend is changed
+                            if (strcasecmp($this->auth_bk, $auth))
+                                $this->active = 0;
+                            // Auth backend can be changed on update
+                            $this->auth_bk = $auth;
+
+                            $this->save();
+                        } else {
                             $errors['err'] = sprintf('%s %s',
                                     __('Error Saving'),
-                                     __('Authentication'));
+                                    __('Authentication'));
+                        }
                     } else {
                         // Ask the backend to add OAuth2 instance for this account
                         if (($i=$bk->addPluginInstance($vars, $errors))) { #nolint
