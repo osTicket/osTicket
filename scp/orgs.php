@@ -72,9 +72,11 @@ if ($_POST) {
             $count = 0;
             switch (strtolower($_POST['do'])) {
             case 'delete':
-                foreach ($orgs as $O)
-                    if ($O->delete())
-                        $count++;
+                foreach ($orgs as $O) {
+                  if ($O->delete())
+                      $count++;
+                }
+
                 break;
 
             default:
@@ -118,7 +120,7 @@ if ($org) {
         } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':O:tickets'])) {
             $filename = sprintf('%s-tickets-%s.csv',
                     $org->getName(), strftime('%Y%m%d'));
-            if (!Export::saveTickets($query, $filename, 'csv'))
+            if (!Export::saveTickets($query, NULL, $filename, 'csv'))
                 $errors['err'] = __('Unable to dump query results.')
                     .' '.__('Internal error occurred');
         }

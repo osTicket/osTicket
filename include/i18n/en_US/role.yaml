@@ -19,8 +19,13 @@
   permissions: [
     ticket.create,
     ticket.edit,
+    ticket.merge,
+    ticket.link,
+    ticket.markanswered,
     ticket.assign,
+    ticket.release,
     ticket.transfer,
+    ticket.refer,
     ticket.reply,
     ticket.close,
     ticket.delete,
@@ -43,8 +48,12 @@
   permissions: [
     ticket.create,
     ticket.edit,
+    ticket.merge,
+    ticket.link,
     ticket.assign,
+    ticket.release,
     ticket.transfer,
+    ticket.refer,
     ticket.reply,
     ticket.close,
     task.create,
@@ -63,8 +72,12 @@
 
   permissions: [
     ticket.create,
+    ticket.merge,
+    ticket.link,
     ticket.assign,
+    ticket.release,
     ticket.transfer,
+    ticket.refer,
     ticket.reply
     task.create,
     task.assign,

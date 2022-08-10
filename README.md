@@ -1,6 +1,6 @@
 osTicket
 ========
-<a href="http://osticket.com"><img src="http://osticket.com/sites/default/files/osTicket.jpg"
+<a href="https://osticket.com"><img height="80px" width="80px" src="images/favicon.png"
 align="left" hspace="10" vspace="6"></a>
 
 **osTicket** is a widely-used open source support ticket system. It seamlessly
@@ -22,9 +22,9 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 5.4 or greater, 5.6 is recommended
+  * PHP version 8.0
   * mysqli extension for PHP
-  * MySQL database version 5.0 or greater
+  * MySQL database version 5.5
 
 ### Recommendations
   * gd, gettext, imap, json, mbstring, and xml extensions for PHP
@@ -62,7 +62,7 @@ osTicket codebase before embarking on an upgrade.
 
 To trigger the update process, fetch the osTicket tarball from either
 the osTicket [github](http://github.com/osTicket/osTicket/releases) page
-or from the [osTicket website](http://osticket.com). Extract the tarball
+or from the [osTicket website](https://osticket.com). Extract the tarball
 into the folder of your osTicket codebase. This can also be accomplished
 with the zip file, and a FTP client can of course be used to upload the new
 source code to your server.
@@ -88,10 +88,10 @@ View the UPGRADING.txt file for other todo items to complete your upgrade.
 
 Help
 ----
-Visit the [wiki](http://osticket.com/wiki/Home) or the
-[forum](http://osticket.com/forums/). And if you'd like professional help
+Visit the [Documentation](https://docs.osticket.com/) or the
+[forum](https://forum.osticket.com/). And if you'd like professional help
 managing your osTicket installation,
-[commercial support](http://osticket.com/support/) is available.
+[commercial support](https://osticket.com/support/) is available.
 
 Contributing
 ------------
@@ -104,15 +104,14 @@ conversation of integrating your new feature into osTicket.
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/osticket-official/localized.png)](http://i18n.osticket.com/project/osticket-official)
 
 The interface for osTicket is now completely translatable. Language packs
-are available on the [download page](http://osticket.com/download). If you
-do not see your language there, join the [Crowdin](http://i18n.osticket.com)
+are available on the [download page](https://osticket.com/download). If you
+do not see your language there, join the [Crowdin](https://crowdin.com/project/osticket-official)
 project and request to have your language added. Languages which reach 100%
 translated are are significantly reviewed will be made available on the
 osTicket download page.
 
-The software can also be translated in place in our [JIPT site]
-(http://jipt.i18n.osticket.com). Once you have a Crowdin account, login and
-translate the software in your browser!
+The software can also be translated in place in our [JIPT site](http://jipt.i18n.osticket.com).
+Once you have a Crowdin account, login and translate the software in your browser!
 
 Localizing strings in new code requires usage of a [few rules](setup/doc/i18n.md).
 

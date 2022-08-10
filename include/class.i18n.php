@@ -64,8 +64,14 @@ class Internationalization {
             'ticket_status.yaml' => 'TicketStatus::__create',
             // Role
             'role.yaml' =>          'Role::__create',
+            'event.yaml' =>         'Event::__create',
             'file.yaml' =>          'AttachmentFile::__create',
             'sequence.yaml' =>      'Sequence::__create',
+            'queue_column.yaml' =>  'QueueColumn::__create',
+            'queue_sort.yaml' =>    'QueueSort::__create',
+            'queue.yaml' =>         'CustomQueue::__create',
+            // Schedule
+            'schedule.yaml' =>      'Schedule::__create',
         );
 
         $errors = array();
@@ -120,7 +126,7 @@ class Internationalization {
                 'registration-staff', 'pwreset-staff', 'banner-staff',
                 'registration-client', 'pwreset-client', 'banner-client',
                 'registration-confirm', 'registration-thanks',
-                'access-link') as $type) {
+                'access-link', 'email2fa-staff') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;
@@ -234,7 +240,7 @@ class Internationalization {
                     'code' => $base,
                 );
                 $installed[strtolower($base)]['flag'] = strtolower(
-                    $langs[$code]['flag'] ?: $locale ?: $code
+                    ($langs[$code]['flag'] ?? $locale) ?: $code
                 );
             }
         }
@@ -376,10 +382,14 @@ class Internationalization {
                 return $lang;
 
         // Support the flag buttons for guests
-        if ((!$user || $user != $thisstaff) && $_SESSION['::lang'])
+        if ((!$user || $user != $thisstaff) && isset($_SESSION['::lang']))
             return $_SESSION['::lang'];
 
         return self::getDefaultLanguage();
+    }
+
+    static function getCurrentLanguageInfo($user=false) {
+        return static::getLanguageInfo(static::getCurrentLanguage($user));
     }
 
     static function getCurrentLocale($user=false) {
@@ -401,6 +411,30 @@ class Internationalization {
         return $locale;
     }
 
+    static function getCSVDelimiter($locale='') {
+
+        if (!$locale && extension_loaded('intl'))  // Prefer browser settings
+            $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+
+        // Detect delimeter from the current locale settings. For locales
+        // which use comma (,) as the decimal separator, the semicolon (;)
+        // should be used as the field separator
+        $delimiter = ',';
+        if (class_exists('NumberFormatter')) {
+            $nf = NumberFormatter::create($locale ?: self::getCurrentLocale(),
+                NumberFormatter::DECIMAL);
+            $s = $nf->getSymbol(NumberFormatter::DECIMAL_SEPARATOR_SYMBOL);
+            if ($s == ',')
+                $delimiter = ';';
+        } else {
+            $info = localeconv();
+            if ($info && $info['decimal_point'] == ',')
+                $delimiter = ';';
+
+        }
+
+        return $delimiter;
+    }
 
     //  getIntDateFormatter($options)
     //
@@ -431,11 +465,11 @@ class Internationalization {
         // Create formatter && cache
         $cache[$k] = $formatter = new IntlDateFormatter(
                 $options['locale'],
-                $options['daytype'] ?: null,
-                $options['timetype'] ?: null,
-                $options['timezone'] ?: null,
-                $options['calendar'] ?: IntlDateFormatter::GREGORIAN,
-                $options['pattern'] ?: null
+                $options['daytype'] ?? null,
+                $options['timetype'] ?? null,
+                $options['timezone'] ?? null,
+                $options['calendar'] ?? IntlDateFormatter::GREGORIAN,
+                $options['pattern'] ?? null
                 );
 
         return $formatter;
@@ -504,6 +538,7 @@ class Internationalization {
     static function sortKeyedList($list, $case=false) {
         global $cfg;
 
+        // XXX: Use current language
         if ($cfg && function_exists('collator_create')) {
             $coll = Collator::create($cfg->getPrimaryLanguage());
             if (!$case)

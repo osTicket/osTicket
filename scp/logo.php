@@ -23,20 +23,21 @@ define('DISABLE_SESSION', true);
 
 require_once('../main.inc.php');
 
+$ttl = 86400; // max-age
 if (isset($_GET['backdrop'])) {
     if (($backdrop = $ost->getConfig()->getStaffLoginBackdrop())) {
-        $backdrop->display();
+        $backdrop->display(false, $ttl);
         // ::display() will not return
     }
-    header("Cache-Control: private, max-age=86400");
+    header("Cache-Control: private, max-age=$ttl");
     header('Pragma: private');
     Http::redirect('images/login-headquarters.jpg');
 }
 elseif (($logo = $ost->getConfig()->getStaffLogo())) {
-    $logo->display();
+    $logo->display(false, $ttl);
 }
 
-header("Cache-Control: private, max-age=86400");
+header("Cache-Control: private, max-age=$ttl");
 header('Pragma: private');
 Http::redirect('images/ost-logo.png');
 

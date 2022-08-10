@@ -28,6 +28,8 @@ if($_POST) {
                 $pageId = $page->getId();
                 $_REQUEST['a'] = null;
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $page, $type);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
                 $errors['err']=sprintf('%s %s',
@@ -92,9 +94,11 @@ if($_POST) {
                                 _N('selected site page', 'selected site pages', $count));
                         break;
                     case 'delete':
-                        $i = Page::objects()
-                            ->filter(array('id__in'=>$_POST['ids']))
-                            ->delete();
+                        $i = 0;
+                        foreach (Page::objects()->filter(array('id__in'=>$_POST['ids'])) as $p) {
+                            if ($p->delete())
+                                $i++;
+                        }
 
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),

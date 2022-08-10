@@ -21,26 +21,40 @@
 include_once "JSON.php";
 
 class JsonDataParser {
-    function parse($stream) {
+    static function parse($stream, $tidy=false) {
         if (is_resource($stream)) {
             $contents = '';
             while (!feof($stream))
                 $contents .= fread($stream, 8192);
         } else
             $contents = $stream;
+
+        if ($contents && $tidy)
+            $contents = self::tidy($contents);
+
         return self::decode($contents);
     }
 
-    function decode($contents) {
-        if (function_exists("json_decode")) {
-            return json_decode($contents, true);
-        } else {
-            # Create associative arrays rather than 'objects'
-            $decoder = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-            return $decoder->decode($contents);
-        }
+    static function decode($contents, $assoc=true) {
+        if (function_exists("json_decode"))
+            return json_decode($contents, $assoc);
+
+        $decoder = new Services_JSON($assoc ? SERVICES_JSON_LOOSE_TYPE : 0);
+        return $decoder->decode($contents);
     }
-    function lastError() {
+
+    static function tidy($content) {
+
+        // Clean up doubly quoted JSON
+        $content = str_replace(
+                array(':"{', '}"', '\"'),
+                array(':{', '}', '"'),
+                $content);
+        // return trimmed content.
+        return trim($content);
+    }
+
+    static function lastError() {
         if (function_exists("json_last_error")) {
             $errors = array(
             JSON_ERROR_NONE => __('No errors'),
@@ -61,7 +75,7 @@ class JsonDataParser {
 }
 
 class JsonDataEncoder {
-    function encode($var) {
+    static function encode($var) {
         if (function_exists('json_encode'))
             return json_encode($var);
         else {

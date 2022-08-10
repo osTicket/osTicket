@@ -82,6 +82,8 @@ if($_POST){
                 $msg=sprintf(__('Successfully added %s.'),
                     mb_convert_case(__('a template set'), MB_CASE_TITLE));
                 $_REQUEST['a']=null;
+                $type = array('type' => 'created');
+                Signal::send('object.created', $new, $type);
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this message template')),
@@ -99,6 +101,11 @@ if($_POST){
                         $sql='UPDATE '.EMAIL_TEMPLATE_GRP_TABLE.' SET isactive=1 '
                             .' WHERE tpl_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())){
+                            foreach ($_POST['ids'] as $k=>$v) {
+                                $tmpl = EmailTemplateGroup::lookup($v);
+                                $type = array('type' => 'edited', 'status' => 'Enabled');
+                                Signal::send('object.edited', $tmpl, $type);
+                            }
                             if($num==$count)
                                 $msg = sprintf(__('Successfully enabled %s'),
                                     _N('selected template set', 'selected template sets', $count));
@@ -112,13 +119,21 @@ if($_POST){
                         break;
                     case 'disable':
                         $i=0;
+                        $templates = array();
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->disable())
+                            if(($t=EmailTemplateGroup::lookup($v)) && !$t->isInUse() && $t->disable()) {
+                                $templates[] = $t;
                                 $i++;
+                            }
                         }
-                        if($i && $i==$count)
+                        if($i && $i==$count) {
                             $msg = sprintf(__('Successfully disabled %s'),
                                 _N('selected template set', 'selected template sets', $count));
+                            foreach ($templates as $tmpl) {
+                                $type = array('type' => 'edited', 'status' => 'Disabled');
+                                Signal::send('object.edited', $tmpl, $type);
+                            }
+                        }
                         elseif($i)
                             $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $i, $count,
                                 _N('selected template set', 'selected template sets', $count))

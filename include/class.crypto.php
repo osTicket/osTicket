@@ -69,7 +69,7 @@ class Crypto {
      *      is only really useful for testing. The crypto library will be
      *      automatically selected based on the available PHP extensions.
      */
-    function encrypt($input, $key, $skey='encryption', $crypt=null) {
+    static function encrypt($input, $key, $skey='encryption', $crypt=null) {
 
         //Gets preffered crypto.
         if(!($crypto =  Crypto::get($crypt)))
@@ -97,14 +97,14 @@ class Crypto {
      * skey - (string_ sub key or namespace used originally for the
      *      encryption
      */
-    function decrypt($ciphertext, $key, $skey='encryption') {
+    static function decrypt($ciphertext, $key, $skey='encryption') {
 
         if(!$key || !$ciphertext || $ciphertext[0] != '$')
             return false;
 
         list(, $crypt, $ciphertext) = explode('$', $ciphertext, 3);
         //Get crypto....  based on crypt tag.
-        if(!$crypt || !($crypto=Crypto::get($crypt)) || !$crypto->exists())
+        if(!$crypt || !($crypto=Crypto::get($crypt)))
             return false;
 
         $crypto->setKeys($key, $skey);
@@ -112,7 +112,7 @@ class Crypto {
         return $crypto->decrypt(base64_decode($ciphertext));
     }
 
-    function get($crypt) {
+    static function get($crypt) {
 
         $cryptos = self::cryptos();
         if(!$cryptos || ($crypt && !isset($cryptos[$crypt])))
@@ -133,7 +133,7 @@ class Crypto {
      *  Returns list of supported cryptos
      *
      */
-    function cryptos() {
+    static function cryptos() {
 
         static $cryptos = false;
 
@@ -153,7 +153,7 @@ class Crypto {
         return $cryptos;
     }
 
-    function hash($string, $key) {
+    static function hash($string, $key) {
         $hash = new Crypt_Hash('sha512');
         $hash->setKey($key);
         return $hash->hash($string);
@@ -164,7 +164,7 @@ class Crypto {
       Credit: The routine borrows heavily from PHPSecLib's Crypt_Random
       package.
      */
-    function random($len) {
+    static function random($len) {
 
         if(CRYPT_IS_WINDOWS) {
             if (function_exists('openssl_random_pseudo_bytes')
@@ -221,8 +221,7 @@ class Crypto {
  * decrypt() which will perform the respective operations on the text
  * subjects using a specific library.
  */
-/* abstract */
-class CryptoAlgo {
+abstract class CryptoAlgo {
 
     var $master_key;
     var $sub_key;
@@ -300,8 +299,7 @@ class CryptoAlgo {
      * available and supported. This method is abstract and should be
      * defined in extension classes.
      */
-    /* abstract */
-    function exists() { return false; }
+    abstract static function exists();
 
 
 }
@@ -341,7 +339,7 @@ Class CryptoMcrypt extends CryptoAlgo {
        return ($c
                && $c['name']
                && $c['mode']
-               && $this->exists()
+               && self::exists()
                && mcrypt_module_open($c['name'], '', $c['mode'], '')
                );
     }
@@ -357,7 +355,7 @@ Class CryptoMcrypt extends CryptoAlgo {
      */
     function encrypt($text, $cid=0) {
 
-        if(!$this->exists()
+        if(!self::exists()
                 || !$text
                 || !($cipher=$this->getCipher($cid))
                 || !$cipher['cid'])
@@ -394,7 +392,7 @@ Class CryptoMcrypt extends CryptoAlgo {
      */
     function decrypt($ciphertext) {
 
-         if(!$this->exists()
+         if(!self::exists()
                  || !$ciphertext
                  || $ciphertext[0] != '$'
                  )
@@ -431,7 +429,7 @@ Class CryptoMcrypt extends CryptoAlgo {
          return $plaintext;
     }
 
-    function exists() {
+    static function exists() {
         return (extension_loaded('mcrypt')
                 && function_exists('mcrypt_module_open'));
     }
@@ -473,7 +471,7 @@ class CryptoOpenSSL extends CryptoAlgo {
 
         return ($c
                 && $c['method']
-                && $this->exists()
+                && self::exists()
                 && openssl_cipher_iv_length($c['method'])
                 );
     }
@@ -489,7 +487,7 @@ class CryptoOpenSSL extends CryptoAlgo {
      */
     function encrypt($text, $cid=0) {
 
-        if(!$this->exists()
+        if(!self::exists()
                 || !$text
                 || !($cipher=$this->getCipher($cid)))
             return false;
@@ -517,7 +515,7 @@ class CryptoOpenSSL extends CryptoAlgo {
     function decrypt($ciphertext) {
 
 
-        if(!$this->exists() || !$ciphertext || $ciphertext[0] != '$')
+        if(!self::exists() || !$ciphertext || $ciphertext[0] != '$')
             return false;
 
         list(, $cid, $ciphertext) = explode('$', $ciphertext, 3);
@@ -539,7 +537,7 @@ class CryptoOpenSSL extends CryptoAlgo {
         return $plaintext;
     }
 
-    function exists() {
+    static function exists() {
         return  (extension_loaded('openssl') && function_exists('openssl_cipher_iv_length'));
     }
 }
@@ -595,7 +593,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
 
     function encrypt($text, $cid=0) {
 
-        if(!$this->exists()
+        if(!self::exists()
                 || !$text
                 || !($cipher=$this->getCipher($cid))
                 || !($crypto=$this->getCrypto($cipher['cid']))
@@ -612,7 +610,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
 
     function decrypt($ciphertext) {
 
-        if(!$this->exists() || !$ciphertext || $ciphertext[0] != '$')
+        if(!self::exists() || !$ciphertext || $ciphertext[0] != '$')
             return false;
 
         list(, $cid, $ciphertext) = explode('$', $ciphertext, 3);
@@ -634,7 +632,7 @@ class CryptoPHPSecLib extends CryptoAlgo {
         return $crypto->decrypt($ciphertext);
     }
 
-    function exists() {
+    static function exists() {
         return  class_exists('Crypt_AES');
     }
 }

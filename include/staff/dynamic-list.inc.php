@@ -16,7 +16,7 @@ if ($list) {
     $newcount=4;
 }
 
-$info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info);
+$info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info, true);
 
 ?>
 <form action="" method="post" class="save">
@@ -86,7 +86,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
             <td width="180"><?php echo __('Sort Order'); ?>:</td>
             <td><select name="sort_mode">
                 <?php
-                $sortModes = $list ? $list->getSortModes() : DynamicList::getSortModes();
+                $sortModes = $list ? $list->getSortModes() : DynamicList::sortModes();
                 foreach ($sortModes as $key=>$desc) { ?>
                 <option value="<?php echo $key; ?>" <?php
                     if ($key == $info['sort_mode']) echo 'selected="selected"';

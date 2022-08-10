@@ -21,7 +21,7 @@ if($filter && $_REQUEST['a']!='add'){
     $info['rules'] = array();
     $qs += array('a' => $_REQUEST['a']);
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <form action="filters.php?<?php echo Http::build_query($qs); ?>" method="post" class="save">
     <?php csrf_token(); ?>
@@ -238,7 +238,21 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <?php
                 $existing = array();
                 if ($filter) { foreach ($filter->getActions() as $A) {
+                    $_warn = '';
                     $existing[] = $A->type;
+                    $config = JsonDataParser::parse($A->configuration);
+                    if($A->type == 'dept') {
+                      $errors['topic_id'] = '';
+                      $dept = Dept::lookup($config['dept_id']);
+                      if($dept && !$dept->isActive())
+                        $_warn = sprintf(__('%s must be active'), __('Department'));
+                    }
+                    elseif($A->type == 'topic') {
+                      $errors['dept_id'] = '';
+                      $topic = Topic::lookup($config['topic_id']);
+                      if($topic && !$topic->isActive())
+                        $_warn = sprintf(__('%s must be active'), __('Help Topic'));
+                    }
                 ?>
                 <tr style="background-color:white"><td><i class="icon-sort icon-large icon-muted"></i>
                     <?php echo $A->getImpl()->getName(); ?>:</td>
@@ -248,8 +262,11 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         // XXX: Drop this when the ORM supports proper caching
                         $form->isValid();
                         include STAFFINC_DIR . 'templates/dynamic-form-simple.tmpl.php';
-                        ?>
-                        <input type="hidden" name="actions[]" value="I<?php echo $A->getId(); ?>"/>
+                        if($_warn) {
+                            ?>&nbsp;<span class="error">*&nbsp;<?php echo $_warn; ?></span>
+                        <?php } ?>
+                        <input type="hidden" name="actions[]" value="<?php
+                            echo $A->getId() ? "I".$A->getId() : "N".$A->getImpl()->getType(); ?>"/>
                         <div class="pull-right" style="position:absolute;top:2px;right:2px;">
                             <a href="#" title="<?php echo __('clear'); ?>" onclick="javascript:
                                 if (!confirm(__('You sure?')))
@@ -290,6 +307,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                 <button id="new-action-btn" type="button" class="inline green button" onclick="javascript:
                     var dropdown = $('#new-action-select'), selected = dropdown.find(':selected');
                     dropdown.val('');
+                    if (selected.val() === '')
+                        return;
                     $('#dynamic-actions')
                       .append($('<tr></tr>')
                         .append($('<td></td>')

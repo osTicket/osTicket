@@ -41,6 +41,8 @@ if($_POST){
             if (($_sla->update($_POST, $errors))) {
                 $msg=sprintf(__('Successfully added %s.'),
                     __('a SLA plan'));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $_sla, $type);
                 $_REQUEST['a']=null;
             } elseif (!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
@@ -99,8 +101,9 @@ if($_POST){
                         foreach ($_POST['ids'] as $k => $v) {
                             if (($p=SLA::lookup($v))
                                 && $p->getId() != $cfg->getDefaultSLAId()
-                                && $p->delete())
-                                $i++;
+                                && $p->delete()) {
+                                    $i++;
+                                }
                         }
 
                         if($i && $i==$count)

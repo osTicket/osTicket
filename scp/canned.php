@@ -16,9 +16,17 @@
 require('staff.inc.php');
 include_once(INCLUDE_DIR.'class.canned.php');
 
+if ($thisstaff && $roles = $thisstaff->getRoles()) {
+    $cannedManage = array();
+    foreach ($roles as $r) {
+        if ($r->hasPerm(Canned::PERM_MANAGE, false))
+            $cannedManage[] = 1;
+    }
+}
+
 /* check permission */
 if(!$thisstaff
-        || !$thisstaff->getRole()->hasPerm(Canned::PERM_MANAGE, false)
+        || !in_array(1, $cannedManage)
         || !$cfg->isCannedResponseEnabled()) {
     header('Location: kb.php');
     exit;
@@ -37,6 +45,13 @@ $canned_form = new SimpleForm(array(
    )),
 ));
 
+// Set fields' attachments so exsting files stay put
+if ($canned
+    && $canned->attachments
+    && ($attachments = $canned_form->getField('attachments'))) {
+     $attachments->setAttachments($canned->attachments);
+}
+
 if ($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'update':
@@ -45,6 +60,9 @@ if ($_POST) {
             } elseif($canned->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this canned response'));
+
+                $type = array('type' => 'edited');
+                Signal::send('object.edited', $canned, $type);
 
                 //Delete removed attachments.
                 //XXX: files[] shouldn't be changed under any circumstances.
@@ -55,7 +73,7 @@ if ($_POST) {
                 // Attach inline attachments from the editor
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id']))) {
-                    $images = $draft->getAttachmentIds($_POST['response']);
+                    $images = Draft::getAttachmentIds($_POST['response']);
                     $canned->attachments->keepOnlyFileIds($images, true);
                 }
 
@@ -77,6 +95,8 @@ if ($_POST) {
             $premade = Canned::create();
             if ($premade->update($_POST,$errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['title']));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $premade, $type);
                 $_REQUEST['a']=null;
                 //Upload attachments
                 $keepers = $canned_form->getField('attachments')->getClean();
@@ -87,7 +107,7 @@ if ($_POST) {
                 if (isset($_POST['draft_id'])
                         && ($draft = Draft::lookup($_POST['draft_id'])))
                     $premade->attachments->upload(
-                        $draft->getAttachmentIds($_POST['response']), true);
+                        Draft::getAttachmentIds($_POST['response']), true);
 
                 // Delete this user's drafts for new canned-responses
                 Draft::deleteForNamespace('canned', $thisstaff->getId());

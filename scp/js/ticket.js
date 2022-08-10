@@ -156,7 +156,7 @@
     update: function(lock) {
       if (typeof lock != 'object' || lock.retry === true) {
         // Non-json response, or retry requested server-side
-        return this.retry(this.renew, this.activeAjax, false, lock);
+        return this.retry(this.renew, this.ajaxActive, false, lock);
       }
       if (!lock.id) {
         // Response did not include a lock id number
@@ -307,7 +307,7 @@ $.refreshTicketView = function(interval) {
         return;
 
       clearInterval(refresh);
-      $.pjax({url: document.location.href, container:'#pjax-container'});
+      $.pjax({url: document.location.href, container:'#pjax-container', timeout: 30000});
     }, interval);
     $(document).on('pjax:start', function() {
         clearInterval(refresh);

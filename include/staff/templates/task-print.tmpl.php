@@ -174,8 +174,7 @@ div.hr {
 </table>
 <!-- Custom Data -->
 <?php
-foreach (DynamicFormEntry::forObject($task->getId(),
-            ObjectModel::OBJECT_TYPE_TASK) as $form) {
+foreach (DynamicFormEntry::forTask($task->getId()) as $form) {
     // Skip core fields shown earlier on the view
     $answers = $form->getAnswers()->exclude(Q::any(array(
         'field__flags__hasbit' => DynamicFormField::FLAG_EXT_STORED,

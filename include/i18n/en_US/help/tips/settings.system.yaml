@@ -18,8 +18,7 @@ helpdesk_status:
     content: >
         If the status is changed to <span
         class="doc-desc-opt">Offline</span>, the client interface will be
-        disabled.  This does not however affect any normal Agent interaction
-        with the Agent Panel.
+        disabled.  Only Admins will be able to access the system.
 
 helpdesk_url:
     title: Helpdesk URL
@@ -41,6 +40,27 @@ default_department:
         <br/><br/>
         Ticket can be routed base on help topic, incoming email and ticket
         filter settings.
+
+default_schedule:
+    title: Default Schedule
+    content: >
+        Choose the default Schedule to be used by SLA when rendering tickets
+        Overdue.
+    links:
+      - title: Manage Schedules
+        href: /scp/schedules.php
+
+force_https:
+    title: Force HTTPS
+    content: >
+        This setting allows Admins to configure wether or not they want to Force
+        HTTPS system-wide. If enabled, any request that is using the HTTP protocol
+        will be redirected to the HTTPS protocol. Note, this will only work if you
+        have an SSL certificate installed and have HTTPS configured on the server.
+        <br/><br/>
+        <b>Note:</b><rb/>
+        This might affect remote piping scripts. Reference new scripts included in
+        <code>setup/scripts/</code> for updates.
 
 default_page_size:
     title: Default Page Size
@@ -92,6 +112,55 @@ collision_avoidance:
         on a ticket or task without any activity.
         <br><br>
         Enter <span class="doc-desc-opt">0</span> to disable the lockout feature.
+
+allow_iframes:
+    title: Allow System iFrame
+    content: >
+        Enter comma separated list of urls/domains for the system to be framed
+        in. If left empty, the system will default to 'self'. This accepts
+        domain wildcards, HTTP/HTTPS URL scheme, and port numbers.
+        <br><br>
+        <b>Example:</b>
+        <br>
+        https://domain.tld, sub.domain.tld:443, http://*.domain.tld
+    links:
+      - title: Syntax Information (host-source)
+        href: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors#Sources"
+
+acl:
+    title: ACL (Access Control List)
+    content: >
+        Enter a comma separated list of IP addresses to allow access to the system.
+        There are four options to choose which panel(s) to apply the ACL to.
+        <table border="1" cellpadding="2px" cellspacing="0" style="margin-top:7px"
+            ><tbody style="vertical-align:top;">
+            <tr><th>Apply To</th>
+                <th>Description</th></tr>
+            <tr><td>Disabled</td>
+                <td>Disables ACL altogether.</td></tr>
+            <tr><td>All</td>
+                <td>Applies ACL to all Panels. (ie. Client Portal, Staff Panel,
+                 Admin Panel)</td></tr>
+            <tr><td>Client Portal</td>
+                <td>Applies ACL to only Client Portal.</td></tr>
+            <tr><td>Staff Panel</td>
+                <td>Applies ACL to only Staff Panel and Admin Panel.</td></tr>
+        </tbody></table>
+
+embedded_domain_whitelist:
+    title: Embedded Domain Whitelist
+    content: >
+        Enter a comma separated list of domains to be whitelisted for iFrames used
+        in the system. Do not input <code>http(s)</code> or <code>www</code> with
+        the domain; only the domain name will be accepted. This is used when you
+        would like to embed content in the system (eg. YouTube video) via Client
+        Portal, Knowledgebase, etc. If you add an iFrame with a non-whitelisted
+        domain, the system will remove the iFrame automatically. By default the
+        system allows YouTube, Vimeo, DailyMotion, and Microsoft Stream.
+        <br><br>
+        <b>Example:</b>
+        <br>
+        domain.tld, sub.domain.tld
 
 # Date and time options
 date_time_options:

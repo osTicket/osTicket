@@ -25,12 +25,15 @@ class BaseError extends Exception {
         global $ost;
 
         parent::__construct(__($message));
-        $message = str_replace(ROOT_DIR, '(root)/', _S($message));
 
-        if ($ost && $ost->getConfig()->getLogLevel() == 3)
-            $message .= "\n\n" . $this->getBacktrace();
+        if ($ost) {
+            $message = str_replace(ROOT_DIR, '(root)/', _S($message));
 
-        $ost->logError($this->getTitle(), $message, static::$sendAlert);
+            if ($ost->getConfig()->getLogLevel() == 3)
+                $message .= "\n\n" . $this->getBacktrace();
+
+            $ost->logError($this->getTitle(), $message, static::$sendAlert);
+        }
     }
 
     function getTitle() {

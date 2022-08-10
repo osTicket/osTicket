@@ -1,6 +1,7 @@
 <?php
 $account = $user->getAccount();
 $access = (isset($info['_target']) && $info['_target'] == 'access');
+$org = $user->getOrganization();
 
 if (!$info['title'])
     $info['title'] = Format::htmlchars($user->getName());
@@ -52,10 +53,7 @@ if ($info['error']) {
                 <td width="180">
                     <?php echo __('Organization'); ?>:
                 </td>
-                <td>
-                    <input type="text" size="35" name="org" value="<?php echo $info['org']; ?>">
-                    &nbsp;<span class="error">&nbsp;<?php echo $errors['org']; ?></span>
-                </td>
+                <td><?php echo $org ? Format::htmlchars($org->getName()) : ''; ?></td>
             </tr>
         </tbody>
         <tbody>
@@ -92,7 +90,7 @@ if ($info['error']) {
                     <?php echo __('Username'); ?>:
                 </td>
                 <td>
-                    <input type="text" size="35" name="username" value="<?php echo $info['username']; ?>">
+                    <input type="text" size="35" name="username" value="<?php echo $info['username']; ?>" autocomplete="new-password">
                     <i class="help-tip icon-question-sign" data-title="<?php
                         echo __("Login via email"); ?>"
                     data-content="<?php echo sprintf('%s: %s',
@@ -106,7 +104,7 @@ if ($info['error']) {
                     <?php echo __('New Password'); ?>:
                 </td>
                 <td>
-                    <input type="password" size="35" name="passwd1" value="<?php echo $info['passwd1']; ?>">
+                    <input type="password" size="35" name="passwd1" value="<?php echo $info['passwd1']; ?>" autocomplete="new-password">
                     &nbsp;<span class="error">&nbsp;<?php echo
                     $errors['passwd1']; ?></span>
                 </td>
@@ -116,7 +114,7 @@ if ($info['error']) {
                    <?php echo __('Confirm Password'); ?>:
                 </td>
                 <td>
-                    <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>">
+                    <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>" autocomplete="new-password">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
                 </td>
             </tr>

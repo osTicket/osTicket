@@ -84,14 +84,21 @@ if ($_POST) {
                 switch (strtolower($_POST['a'])) {
                 case 'lock':
                     foreach ($users as $U)
-                        if (($acct = $U->getAccount()) && $acct->lock())
+                        if (($acct = $U->getAccount()) && $acct->lock()) {
+                            $type = array('type' => 'edited', 'key' => 'locked-flag');
+                            Signal::send('object.edited', $acct, $type);
                             $count++;
+                        }
+
                     break;
 
                 case 'unlock':
                     foreach ($users as $U)
-                        if (($acct = $U->getAccount()) && $acct->unlock())
+                        if (($acct = $U->getAccount()) && $acct->unlock()) {
+                            $type = array('type' => 'edited', 'key' => 'unlocked-flag');
+                            Signal::send('object.edited', $acct, $type);
                             $count++;
+                        }
                     break;
 
                 case 'delete':
@@ -108,12 +115,17 @@ if ($_POST) {
 
                 case 'reset':
                     foreach ($users as $U)
-                        if (($acct = $U->getAccount()) && $acct->sendResetEmail())
+                        if (($acct = $U->getAccount()) && $acct->sendResetEmail()) {
+                            $type = array('type' => 'edited', 'key' => 'pwreset-sent');
+                            Signal::send('object.edited', $acct, $type);
                             $count++;
+                        }
                     break;
 
                 case 'register':
                     foreach ($users as $U) {
+                        $type = array('type' => 'edited', 'key' => 'user-registered');
+                        Signal::send('object.edited', $U, $type);
                         if (($acct = $U->getAccount()) && $acct->sendConfirmEmail())
                             $count++;
                         elseif ($acct = UserAccount::register($U,
@@ -128,8 +140,11 @@ if ($_POST) {
                     if (!($org = Organization::lookup($_POST['org_id'])))
                         $errors['err'] = sprintf('%s - %s', __('Unknown action'), __('Get technical help!'));
                     foreach ($users as $U) {
-                        if ($U->setOrganization($org))
+                        if ($U->setOrganization($org)) {
+                            $type = array('type' => 'edited', 'key' => 'user-org');
+                            Signal::send('object.edited', $U, $type);
                             $count++;
+                        }
                     }
                     break;
 
@@ -184,7 +199,7 @@ if ($user ) {
         } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':U:tickets'])) {
             $filename = sprintf('%s-tickets-%s.csv',
                     $user->getName(), strftime('%Y%m%d'));
-            if (!Export::saveTickets($query, $filename, 'csv'))
+            if (!Export::saveTickets($query, '', $filename, 'csv'))
                 $errors['err'] = __('Unable to dump query results.')
                     .' '.__('Internal error occurred');
         }

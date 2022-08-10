@@ -1,0 +1,138 @@
+# Columns are not necessary and a default list is used if no columns are
+# specified.
+#
+# Fields:
+#   id:
+#   flags:      (unused)
+#   name:       Display name of the column
+#   primary:    Data source for the field
+#   secondary:  Backup data source / default text
+#   filter:     What the field should link to
+#     'link:ticket':    Ticket
+#     'link:user':      User
+#     'link:org':       Organization
+#     'link:ticketP':   Ticket with hover preview
+#   truncate:
+#     'wrap':   Fold words on multiple lines
+#   annotations:
+#     c:        Annotation class name
+#     p:        Placement
+#       'a':    After column text
+#       'b':    Before column text
+#       '<':    Float to start (left)
+#       '>':    Float to end (right)
+#   conditions:
+#     crit:     Criteria for the condiditon, in the form of [field, method, value]
+#     prop:     Array of CSS properties to apply to the field
+#       'font-weight':
+#       'font-style':
+#       ...
+#   extra:      (future use and for plugins)
+---
+- id: 1
+  name: "Ticket #"
+  primary: "number"
+  filter: "link:ticketP"
+  truncate: "wrap"
+  annotations: '[{"c":"TicketSourceDecoration","p":"b"}]'
+  conditions: '[{"crit":["isanswered","nset",null],"prop":{"font-weight":"bold"}}]'
+
+- id: 2
+  name: "Date Created"
+  primary: "created"
+  secondary: null
+  filter: "date:full"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 3
+  name: "Subject"
+  primary: "cdata__subject"
+  filter: "link:ticket"
+  truncate: "ellipsis"
+  annotations: '[{"c":"TicketThreadCount","p":">"},{"c":"ThreadAttachmentCount","p":"a"},{"c":"OverdueFlagDecoration","p":"<"},{"c":"LockDecoration","p":"<"}]'
+  conditions: '[{"crit":["isanswered","nset",null],"prop":{"font-weight":"bold"}}]'
+
+- id: 4
+  name: "User Name"
+  primary: "user__name"
+  truncate: "wrap"
+  annotations: '[{"c":"ThreadCollaboratorCount","p":">"}]'
+  conditions: "[]"
+
+- id: 5
+  name: "Priority"
+  primary: "cdata__priority"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 6
+  name: "Status"
+  primary: "status__id"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 7
+  name: "Close Date"
+  primary: "closed"
+  filter: "date:full"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 8
+  name: "Assignee"
+  primary: "assignee"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 9
+  name: "Due Date"
+  primary: "duedate"
+  secondary: "est_duedate"
+  filter: "date:human"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 10
+  name: "Last Updated"
+  primary: "lastupdate"
+  filter: "date:full"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 11
+  name: "Department"
+  primary: "dept_id"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 12
+  name: "Last Message"
+  primary: "thread__lastmessage"
+  filter: "date:human"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 13
+  name: "Last Response"
+  primary: "thread__lastresponse"
+  filter: "date:human"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"
+
+- id: 14
+  name: "Team"
+  primary: "team_id"
+  truncate: "wrap"
+  annotations: "[]"
+  conditions: "[]"

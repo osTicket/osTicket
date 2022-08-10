@@ -121,13 +121,23 @@ class DynamicForm extends VerySimpleModel {
         $fields = $this->getFields();
         $form = new SimpleForm($fields, $source, array(
             'title' => $this->getLocal('title'),
-            'instructions' => $this->getLocal('instructions'))
-        );
+            'instructions' => Format::htmldecode($this->getLocal('instructions')),
+            'id' => $this->getId(),
+            'type' => $this->type ?: null,
+        ));
         return $form;
     }
 
+    function hasFlag($flag) {
+        return (isset($this->flags) && ($this->flags & $flag) != 0);
+    }
+
+    function isDeleted() {
+        return $this->hasFlag(self::FLAG_DELETED);
+    }
+
     function isDeletable() {
-        return $this->flags & self::FLAG_DELETABLE;
+        return $this->hasFlag(self::FLAG_DELETABLE);
     }
 
     function setFlag($flag) {
@@ -155,8 +165,12 @@ class DynamicForm extends VerySimpleModel {
         $inst = DynamicFormEntry::create(
             array('form_id'=>$this->get('id'), 'sort'=>$sort)
         );
+
         if ($data)
             $inst->setSource($data);
+
+        $inst->_fields = $this->_fields ?: null;
+
         return $inst;
     }
 
@@ -180,7 +194,7 @@ class DynamicForm extends VerySimpleModel {
     function save($refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
-        if ($rv = parent::save($refetch | $this->dirty))
+        if ($rv = parent::save($refetch || $this->dirty))
             return $this->saveTranslations();
         return $rv;
     }
@@ -192,6 +206,8 @@ class DynamicForm extends VerySimpleModel {
 
         // Soft Delete: Mark the form as deleted.
         $this->setFlag(self::FLAG_DELETED);
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
         return $this->save();
     }
 
@@ -275,14 +291,51 @@ class DynamicForm extends VerySimpleModel {
         return true;
     }
 
-    static function ensureDynamicDataView() {
+    static function getNewInstance() {
+        return static::objects()
+                ->one()
+                ->instanciate();
+    }
+
+    static function rebuildDynamicDataViews() {
+        // Flush the object cache
+        ModelInstanceManager::flushCache();
+        return self::ensureDynamicDataViews(true, true);
+    }
+
+    // ensure cdata tables exists
+    static function ensureDynamicDataViews($build=true, $force=false) {
+        $forms = ['TicketForm', 'TaskForm', 'UserForm', 'OrganizationForm'];
+        foreach ($forms as $form) {
+            if ($force && $build)
+                $form::dropDynamicDataView(false);
+            $form::ensureDynamicDataView($build);
+        }
+    }
+
+    static function ensureCdataTables($obj, $data) {
+        // Only perfrom check on real cron call, not autocrons triggered on
+        // agents activity.
+        if ($data['autocron'] === false)
+            self::ensureDynamicDataViews(true);
+    }
+
+    static function ensureDynamicDataView($build=false, $croak=true) {
 
         if (!($cdata=static::$cdata) || !$cdata['table'])
             return false;
 
         $sql = 'SHOW TABLES LIKE \''.$cdata['table'].'\'';
-        if (!db_num_rows(db_query($sql)))
-            return static::buildDynamicDataView($cdata);
+        // Return true if the cdata table exists
+        if (db_num_rows(db_query($sql)))
+            return true;
+
+        if (!$build && $croak)
+            die(sprintf('%s. %s.',
+                        __('Missing CDATA table'),
+                        __('Get technical support')));
+
+        return $build ? static::buildDynamicDataView($cdata) : false;
     }
 
     static function buildDynamicDataView($cdata) {
@@ -292,8 +345,17 @@ class DynamicForm extends VerySimpleModel {
         db_query($sql);
     }
 
-    static function dropDynamicDataView($table) {
-        db_query('DROP TABLE IF EXISTS `'.$table.'`');
+    static function dropDynamicDataView($rebuild=true) {
+
+        if (!($cdata=static::$cdata) || !$cdata['table'])
+            return false;
+
+        $sql = 'DROP TABLE IF EXISTS `'.$cdata['table'].'`';
+        if (!db_query($sql))
+            return false;
+
+        return  $rebuild ?  static::ensureDynamicDataView($rebuild, false) :
+            true;
     }
 
     static function updateDynamicDataView($answer, $data) {
@@ -324,8 +386,7 @@ class DynamicForm extends VerySimpleModel {
                     $cdata['object_id'],
                     db_input($answer->getEntry()->get('object_id')))
             .' ON DUPLICATE KEY UPDATE '.$fields;
-        if (!db_query($sql))
-            return self::dropDynamicDataView($cdata['table']);
+        db_query($sql);
     }
 
     static function updateDynamicFormEntryAnswer($answer, $data) {
@@ -353,13 +414,13 @@ class DynamicForm extends VerySimpleModel {
 
         switch ($field->form->get('type')) {
         case 'T':
-            return TicketForm::dropDynamicDataView(TicketForm::$cdata['table']);
+            return TicketForm::dropDynamicDataView();
         case 'A':
-            return TaskForm::dropDynamicDataView(TaskForm::$cdata['table']);
+            return TaskForm::dropDynamicDataView();
         case 'U':
-            return UserForm::dropDynamicDataView(UserForm::$cdata['table']);
+            return UserForm::dropDynamicDataView();
         case 'O':
-            return OrganizationForm::dropDynamicDataView(OrganizationForm::$cdata['table']);
+            return OrganizationForm::dropDynamicDataView();
         }
 
     }
@@ -378,7 +439,7 @@ class DynamicForm extends VerySimpleModel {
     // @see http://code.google.com/p/flexviews/
     static function getDynamicDataViewFields($exclude) {
         $fields = array();
-        foreach (static::getInstance()->getFields() as $f) {
+        foreach (static::getNewInstance()->getFields() as $f) {
             if ($exclude && in_array($f->get('name'), $exclude))
                 continue;
 
@@ -432,13 +493,7 @@ class UserForm extends DynamicForm {
 
     static function getInstance() {
         if (!isset(static::$instance))
-            static::$instance = static::getUserForm()->instanciate();
-        return static::$instance;
-    }
-
-    static function getNewInstance() {
-        $o = static::objects()->one();
-        static::$instance = $o->instanciate();
+            static::$instance = self::getNewInstance();
         return static::$instance;
     }
 }
@@ -474,16 +529,9 @@ class TicketForm extends DynamicForm {
 
     static function getInstance() {
         if (!isset(static::$instance))
-            self::getNewInstance();
+            static::$instance = self::getNewInstance();
         return static::$instance;
     }
-
-    static function getNewInstance() {
-        $o = static::objects()->one();
-        static::$instance = $o->instanciate();
-        return static::$instance;
-    }
-
 }
 // Add fields from the standard ticket form to the ticket filterable fields
 Filter::addSupportedMatches(/* @trans */ 'Ticket Data', function() {
@@ -523,6 +571,9 @@ Signal::connect('model.updated',
     'DynamicFormField',
     function($o, $d) { return isset($d['dirty'])
         && (isset($d['dirty']['name']) || isset($d['dirty']['type'])); });
+
+// Check to make sure cdata tables exists
+Signal::connect('cron', array('DynamicForm', 'ensureCdataTables'));
 
 Filter::addSupportedMatches(/* trans */ 'Custom Forms', function() {
     $matches = array();
@@ -652,7 +703,7 @@ class DynamicFormField extends VerySimpleModel {
         // See if field impl. need to save or override anything
         $config = $this->getImpl()->to_config($config);
         $this->set('configuration', JsonDataEncoder::encode($config));
-        $this->set('hint', Format::sanitize($vars['hint']));
+        $this->set('hint', Format::sanitize($vars['hint']) ?: NULL);
 
         return true;
     }
@@ -743,7 +794,7 @@ class DynamicFormField extends VerySimpleModel {
      * flags which should be set on the new field to implement the
      * requirement / visibility mode.
      */
-    function allRequirementModes() {
+    static function allRequirementModes() {
         return array(
             'a' => array('desc' => __('Optional'),
                 'flags' => self::FLAG_CLIENT_VIEW | self::FLAG_AGENT_VIEW
@@ -839,6 +890,10 @@ class DynamicFormField extends VerySimpleModel {
             && $this->hasFlag(self::FLAG_CLIENT_VIEW);
     }
 
+    function addToQuery($query, $name=false) {
+        return $query->values($name ?: $this->get('name'));
+    }
+
     /**
      * Used when updating the form via the admin panel. This represents
      * validation on the form field template, not data entered into a form
@@ -859,7 +914,7 @@ class DynamicFormField extends VerySimpleModel {
                 /* `variable` is used for automation. Internally it's called `name` */
                 ), "name");
         }
-        if (preg_match('/[.{}\'"`; ]/u', $this->get('name')))
+        if ($this->get('name') && !preg_match('/^(?!\d)([[:alnum:]]|_|-)+$/u', $this->get('name')))
             $this->addError(__(
                 'Invalid character in variable name. Please use letters and numbers only.'
             ), 'name');
@@ -929,7 +984,7 @@ class DynamicFormEntry extends VerySimpleModel {
                 'constraint' => array('form_id' => 'DynamicForm.id'),
             ),
             'answers' => array(
-                'reverse' => 'DynamicFormEntryAnswer.entry'
+                'reverse' => 'DynamicFormEntryAnswer.entry',
             ),
         ),
     );
@@ -942,6 +997,9 @@ class DynamicFormEntry extends VerySimpleModel {
 
     function getId() {
         return $this->get('id');
+    }
+    function getFormId() {
+        return $this->form_id;
     }
 
     function getAnswers() {
@@ -994,7 +1052,9 @@ class DynamicFormEntry extends VerySimpleModel {
             $source = $source ?: $this->getSource();
             $options += array(
                 'title' => $this->getTitle(),
-                'instructions' => $this->getInstructions()
+                'instructions' => $this->getInstructions(),
+                'id' => $this->form_id,
+                'type' => $this->getDynamicForm()->type ?: null,
                 );
             $this->_form = new CustomForm($fields, $source, $options);
         }
@@ -1085,16 +1145,18 @@ class DynamicFormEntry extends VerySimpleModel {
         return !$this->_errors;
     }
 
-    function isValidForClient() {
-        $filter = function($f) {
-            return $f->isVisibleToUsers();
+    function isValidForClient($update=false) {
+        $filter = function($f) use($update) {
+            return $update ? $f->isEditableToUsers() :
+                $f->isVisibleToUsers();
         };
         return $this->isValid($filter);
     }
 
-    function isValidForStaff() {
-        $filter = function($f) {
-            return $f->isVisibleToStaff();
+    function isValidForStaff($update=false) {
+        $filter = function($f) use($update) {
+            return $update ? $f->isEditableToStaff() :
+                $f->isVisibleToStaff();
         };
         return $this->isValid($filter);
     }
@@ -1136,7 +1198,7 @@ class DynamicFormEntry extends VerySimpleModel {
         return $vars;
     }
 
-    function forTicket($ticket_id, $force=false) {
+    static function forTicket($ticket_id, $force=false) {
         static $entries = array();
         if (!isset($entries[$ticket_id]) || $force) {
             $stuff = DynamicFormEntry::objects()
@@ -1148,6 +1210,23 @@ class DynamicFormEntry extends VerySimpleModel {
         }
         return $entries[$ticket_id];
     }
+
+    function forTask($id, $force=false) {
+        static $entries = array();
+        if (!isset($entries[$id]) || $force) {
+            $stuff = DynamicFormEntry::objects()->filter(array(
+                        'object_id' => $id,
+                        'object_type' => ObjectModel::OBJECT_TYPE_TASK
+                        ));
+            // If forced, don't cache the result
+            if ($force)
+                return $stuff;
+
+            $entries[$id] = &$stuff;
+        }
+        return $entries[$id];
+    }
+
     function setTicketId($ticket_id) {
         $this->object_type = 'T';
         $this->object_id = $ticket_id;
@@ -1162,13 +1241,14 @@ class DynamicFormEntry extends VerySimpleModel {
         $this->object_id = $object_id;
     }
 
-    function forObject($object_id, $object_type) {
+    static function forObject($object_id, $object_type) {
         return DynamicFormEntry::objects()
             ->filter(array('object_id'=>$object_id, 'object_type'=>$object_type));
     }
 
-    function render($staff=true, $title=false, $options=array()) {
-        return $this->getForm()->render($staff, $title, $options);
+    function render($options=array()) {
+        $options += array('staff' => true);
+        return $this->getForm()->render($options);
     }
 
     function getChanges() {
@@ -1177,11 +1257,10 @@ class DynamicFormEntry extends VerySimpleModel {
             $field = $a->getField();
             if (!$field->hasData() || $field->isPresentationOnly())
                 continue;
-            $after = $field->to_database($field->getClean());
-            $before = $field->to_database($a->getValue());
-            if ($before == $after)
+            $changes = $field->getChanges();
+            if (!$changes)
                 continue;
-            $fields[$field->get('id')] = array($before, $after);
+            $fields[$field->get('id')] = $changes;
         }
         return $fields;
     }
@@ -1227,11 +1306,21 @@ class DynamicFormEntry extends VerySimpleModel {
     /**
      * Save the form entry and all associated answers.
      *
+     */
+
+    function save($refetch=false) {
+        return $this->saveAnswers(null, $refetch);
+    }
+
+    /**
+     * Save the form entry and all associated answers.
+     *
      * Returns:
      * (mixed) FALSE if updated failed, otherwise the number of dirty answers
      * which were save is returned (which may be ZERO).
      */
-    function save($refetch=false) {
+
+    function saveAnswers($isEditable=null, $refetch=false) {
         if (count($this->dirty))
             $this->set('updated', new SqlFunction('NOW'));
 
@@ -1241,12 +1330,12 @@ class DynamicFormEntry extends VerySimpleModel {
         $dirty = 0;
         foreach ($this->getAnswers() as $a) {
             $field = $a->getField();
-
             // Don't save answers for presentation-only fields or fields
-            // which are stored elsewhere
-            if (!$field->hasData() || !$field->isStorable()
-                || $field->isPresentationOnly()
-            ) {
+            // which are stored elsewhere or those which are not editable
+            if (!$field->hasData()
+                    || !$field->isStorable()
+                    || $field->isPresentationOnly()
+                    || ($isEditable && !$isEditable($field))) {
                 continue;
             }
             // Set the entry here so that $field->getClean() can use the
@@ -1255,7 +1344,18 @@ class DynamicFormEntry extends VerySimpleModel {
 
             try {
                 $field->setForm($this);
-                $val = $field->to_database($field->getClean());
+                //for form entry values of file upload fields, we want to save the value as
+                //json with the file id(s) and file name(s) of each file stored in the field
+                //so that they display correctly within tasks/tickets
+                if (get_class($field) == 'FileUploadField') {
+                    //use getChanges if getClean returns an empty array
+                    $fieldClean = $field->getClean() ?: $field->getChanges();
+                    if (is_array($fieldClean) && $fieldClean[0])
+                        $fieldClean = json_decode($fieldClean[0], true);
+                } else
+                    $fieldClean = $field->getClean();
+
+                $val = $field->to_database($fieldClean);
             }
             catch (FieldUnchanged $e) {
                 // Don't update the answer.
@@ -1704,7 +1804,7 @@ class SelectionField extends FormField {
         return $config;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!$this->_choices || $verbose) {
             $choices = array();
             foreach ($this->getList()->getItems() as $i)
@@ -1770,7 +1870,8 @@ class SelectionField extends FormField {
             // Add in the properties for all selected list items in sub
             // labeled by their field id
             foreach ($v as $id=>$L) {
-                if (!($li = DynamicListItem::lookup($id)))
+                if (!($li = DynamicListItem::lookup($id))
+                      || !$li->getListId())
                     continue;
                 foreach ($li->getFilterData() as $prop=>$value) {
                     if (!isset($data[$prop]))
@@ -1786,7 +1887,7 @@ class SelectionField extends FormField {
     function getSearchMethods() {
         return array(
             'set' =>        __('has a value'),
-            'notset' =>     __('does not have a value'),
+            'nset' =>     __('does not have a value'),
             'includes' =>   __('includes'),
             '!includes' =>  __('does not include'),
         );
@@ -1795,7 +1896,7 @@ class SelectionField extends FormField {
     function getSearchMethodWidgets() {
         return array(
             'set' => null,
-            'notset' => null,
+            'nset' => null,
             'includes' => array('ChoiceField', array(
                 'choices' => $this->getChoices(),
                 'configuration' => array('multiselect' => true),
@@ -1809,11 +1910,14 @@ class SelectionField extends FormField {
 
     function getSearchQ($method, $value, $name=false) {
         $name = $name ?: $this->get('name');
+        $val = $value;
+        if ($value && is_array($value))
+            $val = '"?'.implode('("|,|$)|"?', array_keys($value)).'("|,|$)';
         switch ($method) {
         case '!includes':
-            return Q::not(array("{$name}__intersect" => array_keys($value)));
+            return Q::not(array("{$name}__regex" => $val));
         case 'includes':
-            return new Q(array("{$name}__intersect" => array_keys($value)));
+            return new Q(array("{$name}__regex" => $val));
         default:
             return parent::getSearchQ($method, $value, $name);
         }

@@ -8,11 +8,19 @@ $selected_test = (isset($argv[1])) ? $argv[1] : false;
 require_once 'bootstrap.php';
 require_once "tests/class.test.php";
 
+//define constants for testing
+define('SECRET_SALT','%CONFIG-SIRI');
+define('TABLE_PREFIX', '%');
+Bootstrap::defineTables(TABLE_PREFIX);
+
 $root = get_osticket_root_path();
 $fails = array();
 
 require_once INCLUDE_DIR . 'class.i18n.php';
 Internationalization::bootstrap();
+
+require_once INCLUDE_DIR . 'class.signal.php';
+require_once INCLUDE_DIR . 'class.search.php';
 
 function show_fails() {
     global $fails, $root;
@@ -40,7 +48,7 @@ if (function_exists('pcntl_signal')) {
 foreach (glob_recursive(dirname(__file__)."/tests/test.*.php") as $t) {
     if (strpos($t,"class.") !== false)
         continue;
-    $class = (include $t);
+    $class = @(include $t);
     if (!is_string($class))
         continue;
     if($selected_test && ($class != $selected_test))

@@ -37,6 +37,8 @@ if($_POST){
             $team = Team::create();
             if (($team->update($_POST, $errors))){
                 $msg=sprintf(__('Successfully added %s.'),Format::htmlchars($_POST['team']));
+                $type = array('type' => 'created');
+                Signal::send('object.created', $team, $type);
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
                 $errors['err']=sprintf('%s %s',
@@ -96,8 +98,10 @@ if($_POST){
                         break;
                     case 'delete':
                         foreach($_POST['ids'] as $k=>$v) {
-                            if(($t=Team::lookup($v)) && $t->delete())
-                                $i++;
+                            if(($t=Team::lookup($v))) {
+                              $t->delete();
+                              $i++;
+                            }
                         }
                         if($i && $i==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),

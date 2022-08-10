@@ -112,16 +112,16 @@ class osTicket {
         return ($token && $this->getCSRF()->validateToken($token));
     }
 
-    function checkCSRFToken($name=false) {
+    function checkCSRFToken($name=false, $rotate=false) {
         $name = $name ?: $this->getCSRF()->getTokenName();
-        if(isset($_POST[$name]) && $this->validateCSRFToken($_POST[$name]))
+        $token = $_POST[$name] ?: $_SERVER['HTTP_X_CSRFTOKEN'];
+        if ($token && $this->validateCSRFToken($token)) {
+            if ($rotate) $this->getCSRF()->rotate();
             return true;
-
-        if(isset($_SERVER['HTTP_X_CSRFTOKEN']) && $this->validateCSRFToken($_SERVER['HTTP_X_CSRFTOKEN']))
-            return true;
+        }
 
         $msg=sprintf(__('Invalid CSRF token [%1$s] on %2$s'),
-                ($_POST[$name].''.$_SERVER['HTTP_X_CSRFTOKEN']), THISPAGE);
+                Format::htmlchars(Format::sanitize($token)), THISPAGE);
         $this->logWarning(__('Invalid CSRF Token').' '.$name, $msg, false);
 
         return false;
@@ -183,7 +183,7 @@ class osTicket {
     }
 
     function getError() {
-        return $this->system['err'];
+        return $this->system['err'] ?? null;
     }
 
     function setError($error) {
@@ -208,7 +208,7 @@ class osTicket {
 
 
     function getNotice() {
-        return $this->system['notice'];
+        return $this->system['notice'] ?? null;
     }
 
     function setNotice($notice) {
@@ -363,7 +363,7 @@ class osTicket {
         return db_input($this->get_var($index, $vars), $quote);
     }
 
-    function get_path_info() {
+    static function get_path_info() {
         if(isset($_SERVER['PATH_INFO']))
             return $_SERVER['PATH_INFO'];
 
@@ -436,7 +436,7 @@ class osTicket {
             switch ($info['v']) {
             case '1':
                 if ($major && $info['m'] && $info['m'] != $major)
-                    continue;
+                    continue 2;
                 if ($product == 'core' && GIT_VERSION == '$git')
                     return $info['c'];
                 return $info['V'];
@@ -599,7 +599,7 @@ class osTicket {
     /**
      * Returns TRUE if the request was made via HTTPS and false otherwise
      */
-    function is_https() {
+    static function is_https() {
 
         // Local server flags
         if (isset($_SERVER['HTTPS'])
@@ -609,6 +609,17 @@ class osTicket {
         // Check if SSL was terminated by a loadbalancer
         return (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
                 && !strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https'));
+    }
+
+    /**
+     * Returns TRUE if the current browser is IE and FALSE otherwise
+     */
+    static function is_ie() {
+        if (preg_match('/MSIE|Internet Explorer|Trident\/[\d]{1}\.[\d]{1,2}/',
+                $_SERVER['HTTP_USER_AGENT']))
+            return true;
+
+        return false;
     }
 
     /* returns true if script is being executed via commandline */
@@ -621,7 +632,7 @@ class osTicket {
     }
 
     /**** static functions ****/
-    function start() {
+    static function start() {
         // Prep basic translation support
         Internationalization::bootstrap();
 

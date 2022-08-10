@@ -67,7 +67,7 @@ class Email extends VerySimpleModel {
         if ($this->mail_encryption == 'SSL')
             $this->mail_proto .= "/".$this->mail_encryption;
 
-        $this->address=$this->name?($this->name.'<'.$this->email.'>'):$this->email;
+        $this->address=$this->name?($this->name.' <'.$this->email.'>'):$this->email;
     }
 
     function getEmail() {
@@ -112,13 +112,21 @@ class Email extends VerySimpleModel {
         return Crypto::decrypt($this->userpass, SECRET_SALT, $this->userid);
     }
 
+    function getSMTPPasswd() {
+        if (!$this->smtp_userpass)
+            return '';
+        return Crypto::decrypt($this->smtp_userpass, SECRET_SALT, $this->smtp_userid);
+    }
+
     function getHashtable() {
         return $this->ht;
     }
 
     function getInfo() {
         $base = $this->getHashtable();
-        $base['mail_proto'] = $this->mail_proto;
+        $base['mail_proto'] = $this->mail_protocol;
+        if ($this->mail_encryption != 'NONE')
+          $base['mail_proto'] .= "/{$this->mail_encryption}";
         return $base;
     }
 
@@ -136,6 +144,7 @@ class Email extends VerySimpleModel {
                 //osTicket specific
                 'email_id'  => $this->getId(), //Required for email routing to work.
                 'max_fetch' => $this->mail_fetchmax,
+                'folder' => $this->mail_folder,
                 'delete_mail' => $this->mail_delete,
                 'archive_folder' => $this->mail_archivefolder
         );
@@ -157,25 +166,28 @@ class Email extends VerySimpleModel {
     }
 
     function getSMTPInfo() {
+        $smtpcreds = $this->smtp_auth_creds;
+        $username = $smtpcreds ? $this->smtp_userid : $this->userid;
+        $passwd = $smtpcreds ? $this->smtp_userpass : $this->userpass;
 
         $info = array (
                 'host' => $this->smtp_host,
                 'port' => $this->smtp_port,
                 'auth' => (bool) $this->smtp_auth,
-                'username' => $this->userid,
-                'password' => Crypto::decrypt($this->userpass, SECRET_SALT, $this->userid)
+                'username' => $username,
+                'password' => Crypto::decrypt($passwd, SECRET_SALT, $username)
                 );
 
         return $info;
     }
 
-    function send($to, $subject, $message, $attachments=null, $options=null) {
+    function send($to, $subject, $message, $attachments=null, $options=null, $cc=array()) {
 
         $mailer = new Mailer($this);
         if($attachments)
             $mailer->addAttachments($attachments);
 
-        return $mailer->send($to, $subject, $message, $options);
+        return $mailer->send($to, $subject, $message, $options, $cc);
     }
 
     function sendAutoReply($to, $subject, $message, $attachments=null, $options=array()) {
@@ -196,6 +208,9 @@ class Email extends VerySimpleModel {
 
         if (!parent::delete())
             return false;
+
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
 
         Dept::objects()
             ->filter(array('email_id' => $this->getId()))
@@ -243,8 +258,10 @@ class Email extends VerySimpleModel {
 
         // very basic checks
         $vars['cpasswd']=$this->getPasswd(); //Current decrypted password.
+        $vars['smtp_cpasswd']=$this->getSMTPPasswd(); // Current decrypted SMTP password.
         $vars['name']=Format::striptags(trim($vars['name']));
         $vars['email']=trim($vars['email']);
+        $vars['mail_folder']=Format::striptags(trim($vars['mail_folder']));
 
         $id = isset($this->email_id) ? $this->getId() : 0;
         if($id && $id!=$vars['id'])
@@ -264,18 +281,21 @@ class Email extends VerySimpleModel {
         if(!$vars['name'])
             $errors['name']=__('Email name required');
 
-        if($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth'])) {
-            if(!$vars['userid'])
-                $errors['userid']=__('Username missing');
+        $dept = Dept::lookup($vars['dept_id']);
+        if($dept && !$dept->isActive())
+          $errors['dept_id'] = '';
 
-            if(!$id && !$vars['passwd'])
-                $errors['passwd']=__('Password required');
-            elseif($vars['passwd']
-                    && $vars['userid']
-                    && !Crypto::encrypt($vars['passwd'], SECRET_SALT, $vars['userid'])
-                    )
-                $errors['passwd'] = sprintf('%s - %s', __('Unable to encrypt password'), __('Get technical help!'));
-        }
+        $topic = Topic::lookup($vars['topic_id']);
+        if($topic && !$topic->isActive())
+          $errors['topic_id'] = '';
+
+        // Validate Credentials
+        if ($vars['mail_active'] || ($vars['smtp_active'] && $vars['smtp_auth']
+                && !$vars['smtp_auth_creds']))
+            $errors = self::validateCredentials($vars['userid'], $vars['passwd'], $id, $errors, false);
+
+        if ($vars['smtp_active'] && $vars['smtp_auth'] && $vars['smtp_auth_creds'])
+            $errors = self::validateCredentials($vars['smtp_userid'], $vars['smtp_passwd'], $id, $errors, true);
 
         list($vars['mail_protocol'], $encryption) = explode('/', $vars['mail_proto']);
         $vars['mail_encryption'] = $encryption ?: 'NONE';
@@ -294,6 +314,9 @@ class Email extends VerySimpleModel {
                 $errors['mail_fetchfreq']=__('Fetch interval required');
             if(!$vars['mail_fetchmax'] || !is_numeric($vars['mail_fetchmax']))
                 $errors['mail_fetchmax']=__('Maximum emails required');
+
+            if($vars['mail_protocol'] == 'POP' && !empty($vars['mail_folder']))
+                $errors['mail_folder'] = __('POP mail servers do not support folders');
 
             if(!isset($vars['postfetch']))
                 $errors['postfetch']=__('Indicate what to do with fetched emails');
@@ -337,6 +360,7 @@ class Email extends VerySimpleModel {
                     array(
                         'host'  => $vars['mail_host'],
                         'port'  => $vars['mail_port'],
+                        'folder' => $vars['mail_folder'],
                         'username'  => $vars['userid'],
                         'password'  => $passwd,
                         'protocol'  => $vars['mail_protocol'],
@@ -346,6 +370,10 @@ class Email extends VerySimpleModel {
                 //$errors['err']='Invalid login. Check '.Format::htmlchars($vars['mail_protocol']).' settings';
                 $errors['err']=sprintf(__('Invalid login. Check %s settings'),Format::htmlchars($vars['mail_protocol']));
                 $errors['mail']='<br>'.$fetcher->getLastError();
+            } elseif ($vars['mail_folder'] && !$fetcher->checkMailbox($vars['mail_folder'],true)) {
+                 $errors['mail_folder']=sprintf(__('Invalid or unknown mail folder! >> %s'),$fetcher->getLastError());
+                 if(!$errors['mail'])
+                     $errors['mail']=__('Invalid or unknown mail folder!');
             }elseif($vars['mail_archivefolder'] && !$fetcher->checkMailbox($vars['mail_archivefolder'],true)) {
                  //$errors['postfetch']='Invalid or unknown mail folder! >> '.$fetcher->getLastError().'';
                  $errors['postfetch']=sprintf(__('Invalid or unknown mail folder! >> %s'),$fetcher->getLastError());
@@ -354,14 +382,16 @@ class Email extends VerySimpleModel {
             }
         }
 
+        $smtppasswd = $vars['smtp_passwd'] ?: $vars['smtp_cpasswd'];
         if(!$errors && $vars['smtp_active']) { //Check SMTP login only.
+            $smtpcreds = $vars['smtp_auth_creds'];
             require_once 'Mail.php'; // PEAR Mail package
             $smtp = mail::factory('smtp',
                     array ('host' => $vars['smtp_host'],
                            'port' => $vars['smtp_port'],
                            'auth' => (bool) $vars['smtp_auth'],
-                           'username' =>$vars['userid'],
-                           'password' =>$passwd,
+                           'username' => $smtpcreds ? $vars['smtp_userid'] : $vars['userid'],
+                           'password' => $smtpcreds ? $smtppasswd : $passwd,
                            'timeout'  =>20,
                            'debug' => false,
                            ));
@@ -383,20 +413,23 @@ class Email extends VerySimpleModel {
         $this->dept_id = $vars['dept_id'];
         $this->priority_id = $vars['priority_id'];
         $this->topic_id = $vars['topic_id'];
-        $this->noautoresp = isset($vars['noautoresp'])?1:0;
+        $this->noautoresp = $vars['noautoresp'];
         $this->userid = $vars['userid'];
         $this->mail_active = $vars['mail_active'];
         $this->mail_host = $vars['mail_host'];
-        $this->mail_protocol = $vars['mail_protocol']?$vars['mail_protocol']:'POP';
+        $this->mail_folder = $vars['mail_folder'] ?: null;
+        $this->mail_protocol = $vars['mail_protocol'] ?: 'POP';
         $this->mail_encryption = $vars['mail_encryption'];
-        $this->mail_port = $vars['mail_port']?$vars['mail_port']:0;
-        $this->mail_fetchfreq = $vars['mail_fetchfreq']?$vars['mail_fetchfreq']:0;
-        $this->mail_fetchmax = $vars['mail_fetchmax']?$vars['mail_fetchmax']:0;
+        $this->mail_port = $vars['mail_port'] ?: 0;
+        $this->mail_fetchfreq = $vars['mail_fetchfreq'] ?: 0;
+        $this->mail_fetchmax = $vars['mail_fetchmax'] ?: 0;
         $this->smtp_active = $vars['smtp_active'];
         $this->smtp_host = $vars['smtp_host'];
-        $this->smtp_port = $vars['smtp_port']?$vars['smtp_port']:0;
+        $this->smtp_port = $vars['smtp_port'] ?: 0;
         $this->smtp_auth = $vars['smtp_auth'];
-        $this->smtp_spoofing = isset($vars['smtp_spoofing'])?1:0;
+        $this->smtp_auth_creds = isset($vars['smtp_auth_creds']) ? 1 : 0;
+        $this->smtp_userid = $vars['smtp_userid'];
+        $this->smtp_spoofing = $vars['smtp_spoofing'];
         $this->notes = Format::sanitize($vars['notes']);
 
         //Post fetch email handling...
@@ -416,6 +449,9 @@ class Email extends VerySimpleModel {
         if ($vars['passwd']) //New password - encrypt.
             $this->userpass = Crypto::encrypt($vars['passwd'],SECRET_SALT, $vars['userid']);
 
+        if ($vars['smtp_passwd']) // New SMTP password - encrypt.
+            $this->smtp_userpass = Crypto::encrypt($vars['smtp_passwd'], SECRET_SALT, $vars['smtp_userid']);
+
         if ($this->save())
             return true;
 
@@ -431,14 +467,33 @@ class Email extends VerySimpleModel {
         return false;
     }
 
+    static function validateCredentials(?string $username=null, ?string $password=null, ?int $id=null, &$errors, $smtp=false) {
+        if (!$username)
+            $errors[$smtp ? 'smtp_userid' : 'userid'] = __('Username missing');
+
+        if (!$id && !$password)
+            $errors[$smtp ? 'smtp_passwd' : 'passwd'] = __('Password Required');
+        elseif ($password && $username
+                && !Crypto::encrypt($password, SECRET_SALT, $username))
+            $errors[$smtp ? 'smtp_passwd' : 'passwd'] = sprintf('%s - %s', __('Unable to encrypt password'), __('Get technical help!'));
+
+        return $errors;
+    }
+
     static function getPermissions() {
         return self::$perms;
     }
 
-    static function getAddresses($options=array()) {
+    static function getAddresses($options=array(), $flat=true) {
         $objects = static::objects();
         if ($options['smtp'])
             $objects = $objects->filter(array('smtp_active'=>true));
+
+        if ($options['depts'])
+            $objects = $objects->filter(array('dept_id__in'=>$options['depts']));
+
+        if (!$flat)
+            return $objects;
 
         $addresses = array();
         foreach ($objects->values_flat('email_id', 'email') as $row) {

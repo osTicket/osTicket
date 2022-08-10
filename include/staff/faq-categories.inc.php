@@ -55,7 +55,7 @@ foreach ($categories as $C) {
                 <i class="icon-fixed-width <?php
                 if ($active) echo 'icon-hand-right'; ?>"></i>
                 <?php echo sprintf('%s (%d)',
-                    Format::htmlchars($C->getLocalName()),
+                    Format::htmlchars($C->getFullName()),
                     $C->faq_count); ?></a>
         </li> <?php
 } ?>
@@ -77,16 +77,21 @@ usort($topics, function($a, $b) {
     return strcmp($a->getFullName(), $b->getFullName());
 });
 array_unshift($topics, new Topic(array('id' => 0, 'topic' => __('All Topics'), 'faq_count' => $total)));
+if (!$thisstaff->hasPerm(Dept::PERM_DEPT))
+    $staffTopics = $thisstaff->getTopicNames(false);
+
 foreach ($topics as $T) {
-        $active = $_REQUEST['topicId'] == $T->getId(); ?>
-        <li <?php if ($active) echo 'class="active"'; ?>>
-            <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
-                <i class="icon-fixed-width <?php
-                if ($active) echo 'icon-hand-right'; ?>"></i>
-                <?php echo sprintf('%s (%d)',
-                    Format::htmlchars($T->getFullName()),
-                    $T->faq_count); ?></a>
-        </li> <?php
+        $active = $_REQUEST['topicId'] == $T->getId();
+        if (!$staffTopics || is_null($T->getId()) || ($staffTopics && array_key_exists($T->getId(), $staffTopics))) { ?>
+            <li <?php if ($active) echo 'class="active"'; ?>>
+                <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
+                    <i class="icon-fixed-width <?php
+                    if ($active) echo 'icon-hand-right'; ?>"></i>
+                    <?php echo sprintf('%s (%d)',
+                        Format::htmlchars($T->getFullName()),
+                        $T->faq_count); ?></a>
+            </li> <?php
+        }
 } ?>
             </ul>
         </div>
@@ -140,7 +145,9 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
     }
 } else { //Category Listing.
     $categories = Category::objects()
-        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')));
+        ->annotate(array('faq_count'=>SqlAggregate::COUNT('faqs')))
+        ->filter(array('category_pid__isnull' => true));
+
 
     if (count($categories)) {
         $categories->sort(function($a) { return $a->getLocalName(); });
@@ -150,11 +157,25 @@ if($_REQUEST['q'] || $_REQUEST['cid'] || $_REQUEST['topicId']) { //Search.
             echo sprintf('
                 <li>
                     <h4><a class="truncate" style="max-width:600px" href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></h4>
-                    %s
-                </li>',$C->getId(),$C->getLocalName(),$C->faq_count,
+                    %s ',
+                $C->getId(),$C->getLocalName(),$C->getNumFAQs(),
                 $C->getVisibilityDescription(),
                 Format::safe_html($C->getLocalDescriptionWithImages())
-            );
+                );
+                if ($C->children) {
+                    echo '<p/><div>';
+                    foreach ($C->children as $c) {
+                        echo sprintf('<div><i class="icon-folder-open-alt"></i>
+                                <a href="kb.php?cid=%d">%s (%d)</a> - <span>%s</span></div>',
+                                $c->getId(),
+                                $c->getLocalName(),
+                                $c->getNumFAQs(),
+                                $c->getVisibilityDescription()
+                                );
+                    }
+                    echo '</div>';
+                }
+            echo '</li>';
         }
         echo '</ul>';
     } else {

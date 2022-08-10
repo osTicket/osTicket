@@ -75,12 +75,12 @@ class AttachmentFile extends VerySimpleModel {
         return $this->type;
     }
 
-    function getBackend() {
-        return $this->bk;
+    function getMimeType() {
+        return $this->getType();
     }
 
-    function getMime() {
-        return $this->getType();
+    function getBackend() {
+        return $this->bk;
     }
 
     function getSize() {
@@ -93,6 +93,10 @@ class AttachmentFile extends VerySimpleModel {
 
     function getKey() {
         return $this->key;
+    }
+
+    function getAttrs() {
+        return $this->attrs;
     }
 
     function getSignature($cascade=false) {
@@ -109,9 +113,9 @@ class AttachmentFile extends VerySimpleModel {
         return FileStorageBackend::getInstance($this);
     }
 
-    function sendData($redirect=true, $disposition='inline') {
+    function sendData($redirect=true, $ttl=false, $disposition='inline') {
         $bk = $this->open();
-        if ($redirect && $bk->sendRedirectUrl($disposition))
+        if ($redirect && $bk->sendRedirectUrl($disposition, $ttl))
             return;
 
         @ini_set('zlib.output_compression', 'Off');
@@ -153,8 +157,8 @@ class AttachmentFile extends VerySimpleModel {
         Http::cacheable($this->getSignature(true), $this->lastModified(), $ttl);
     }
 
-    function display($scale=false) {
-        $this->makeCacheable();
+    function display($scale=false, $ttl=86400) {
+        $this->makeCacheable($ttl);
 
         if ($scale && extension_loaded('gd')) {
             $image = imagecreatefromstring($this->getData());
@@ -180,29 +184,48 @@ class AttachmentFile extends VerySimpleModel {
         }
         header('Content-Type: '.($this->getType()?$this->getType():'application/octet-stream'));
         header('Content-Length: '.$this->getSize());
+        header("Content-Security-Policy: default-src 'self'");
         $this->sendData();
         exit();
     }
 
-    function getDownloadUrl($minage=false, $disposition=false, $handler=false) {
-        // XXX: Drop this when AttachmentFile goes to ORM
+    function getDownloadUrl($options=array()) {
+        // Add attachment ref id if object type is set
+        if (isset($options['type'])
+                && !isset($options['id'])
+                && ($a=$this->attachments->findFirst(array(
+                            'type' => $options['type']))))
+            $options['id'] = $a->getId();
+
         return static::generateDownloadUrl($this->getId(),
-            strtolower($this->getKey()), $this->getSignature(), $minage,
-            $disposition, $handler);
+                strtolower($this->getKey()), $this->getSignature(),
+                $options);
     }
 
-    static function generateDownloadUrl($id, $key, $hash, $minage=false,
-        $disposition=false, $handler=false
-    ) {
-        // Expire at the nearest midnight, allowing at least 12 hours access
-        $minage = $minage ?: 43200;
-        $gmnow = Misc::gmtime() + $minage;
+    // Generates full download URL for external sources.
+    // e.g. https://domain.tld/file.php?args=123
+    function getExternalDownloadUrl($options=array()) {
+        global $cfg;
+
+        $download = $this->getDownloadUrl($options);
+        // Separate URL handle and args
+        list($handle, $args) = explode('file.php?', $download);
+
+        return (string) rtrim($cfg->getBaseUrl(), '/').'/file.php?'.$args;
+    }
+
+    static function generateDownloadUrl($id, $key, $hash, $options = array()) {
+
+        // Expire at the nearest midnight, allow at least12 hrs access
+        $minage = @$options['minage'] ?: 43200;
+        $gmnow = Misc::gmtime() +  $options['minage'];
         $expires = $gmnow + 86400 - ($gmnow % 86400);
 
         // Generate a signature based on secret content
         $signature = static::_genUrlSignature($id, $key, $hash, $expires);
 
-        $handler = $handler ?: ROOT_PATH . 'file.php';
+        // Handler / base url
+        $handler = @$options['handler'] ?: ROOT_PATH . 'file.php';
 
         // Return sanitized query string
         $args = array(
@@ -211,10 +234,13 @@ class AttachmentFile extends VerySimpleModel {
             'signature' => $signature,
         );
 
-        if ($disposition)
-            $args['disposition'] = $disposition;
+        if (isset($options['disposition']))
+            $args['disposition'] =  $options['disposition'];
 
-        return $handler . '?' . http_build_query($args);
+        if (isset($options['id']))
+            $args['id'] =  $options['id'];
+
+        return sprintf('%s?%s', $handler, http_build_query($args));
     }
 
     function verifySignature($signature, $expires) {
@@ -239,23 +265,26 @@ class AttachmentFile extends VerySimpleModel {
         return hash_hmac('sha1', implode("\n", $pieces), SECRET_SALT);
     }
 
-    function download($disposition=false, $expires=false) {
-        $disposition = $disposition ?: 'inline';
-        $bk = $this->open();
-        if ($bk->sendRedirectUrl($disposition))
-            return;
+    function download($name=false, $disposition=false, $expires=false) {
+        $thisstaff = StaffAuthenticationBackend::getUser();
+        $inline = ($thisstaff ? ($thisstaff->getImageAttachmentView() === 'inline') : false);
+        $disposition = ((($disposition && strcasecmp($disposition, 'inline') == 0)
+              || $inline)
+              && strpos($this->getType(), 'image/') !== false)
+            ? 'inline' : 'attachment';
         $ttl = ($expires) ? $expires - Misc::gmtime() : false;
+        $bk = $this->open();
+        if ($bk->sendRedirectUrl($disposition, $ttl))
+            return;
         $this->makeCacheable($ttl);
         $type = $this->getType() ?: 'application/octet-stream';
-        if (isset($_REQUEST['overridetype']))
-            $type = $_REQUEST['overridetype'];
-        Http::download($this->getName(), $type, null, 'inline');
+        Http::download($name ?: $this->getName(), $type, null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
     }
 
-    function _getKeyAndHash($data=false, $file=false) {
+    static function _getKeyAndHash($data=false, $file=false) {
         if ($file) {
             $sha1 = base64_encode(sha1_file($data, true));
             $md5 = base64_encode(md5_file($data, true));
@@ -364,12 +393,15 @@ class AttachmentFile extends VerySimpleModel {
                 $file['data'] = base64_decode($file['data']);
             }
         }
-        if (isset($file['data'])) {
+
+        if (!isset($file['data']) && isset($file['data_cbk'])
+                && is_callable($file['data_cbk'])) {
             // Allow a callback function to delay or avoid reading or
             // fetching ihe file contents
-            if (is_callable($file['data']))
-                $file['data'] = $file['data']();
+            $file['data'] = $file['data_cbk']();
+        }
 
+        if (isset($file['data'])) {
             list($key, $file['signature'])
                 = self::_getKeyAndHash($file['data']);
             if (!$file['key'])
@@ -457,6 +489,7 @@ class AttachmentFile extends VerySimpleModel {
         }
 
         $f->bk = $bk->getBkChar();
+        $f->attrs = $bk->getAttrs() ?: NULL;
 
         if (!isset($file['size'])) {
             if ($size = $bk->getSize())
@@ -540,6 +573,7 @@ class AttachmentFile extends VerySimpleModel {
         }
 
         $this->bk = $target->getBkChar();
+        $this->attrs = $target->getAttrs() ?: NULL;
         if (!$this->save())
             return false;
 
@@ -590,7 +624,7 @@ class AttachmentFile extends VerySimpleModel {
     /*
       Method formats http based $_FILE uploads - plus basic validation.
      */
-    function format($files) {
+    static function format($files) {
         global $ost;
 
         if(!$files || !is_array($files))
@@ -606,6 +640,8 @@ class AttachmentFile extends VerySimpleModel {
 
         //Basic validation.
         foreach($attachments as $i => &$file) {
+            $file['name'] = Format::sanitize($file['name']);
+
             //skip no file upload "error" - why PHP calls it an error is beyond me.
             if($file['error'] && $file['error']==UPLOAD_ERR_NO_FILE) {
                 unset($attachments[$i]);
@@ -635,7 +671,7 @@ class AttachmentFile extends VerySimpleModel {
             ->filter(array(
                 'attachments__object_id__isnull' => true,
                 'ft' => 'T',
-                'created__gt' => new DateTime('now -1 day'),
+                'created__lt' => SqlFunction::NOW()->minus(SqlInterval::DAY(1)),
             ));
 
         foreach ($files as $f) {
@@ -790,7 +826,7 @@ class FileStorageBackend {
      * false to indicate that the read() method should be used to retrieve
      * the data and broker it to the user agent.
      */
-    function sendRedirectUrl($disposition='inline') {
+    function sendRedirectUrl($disposition='inline', $ttl=false) {
         return false;
     }
 
@@ -830,6 +866,16 @@ class FileStorageBackend {
      * used instead of inspecting the contents using `strlen`.
      */
     function getSize() {
+        return false;
+    }
+
+    /**
+     * getAttrs
+     *
+     * Get backend storage attributes.
+     *
+     */
+    function getAttrs() {
         return false;
     }
 }
@@ -972,4 +1018,56 @@ class OneSixAttachments extends FileStorageBackend {
     }
 }
 FileStorageBackend::register('6', 'OneSixAttachments');
+
+// FileObject - wrapper for SplFileObject class
+class FileObject extends SplFileObject {
+
+    protected $_filename;
+
+    function __construct($file, $mode='r') {
+        parent::__construct($file, $mode);
+    }
+
+    /* This allows us to set REAL file name as opposed to basename of the
+     * FS file in question
+     */
+    function setFilename($filename) {
+        $this->_filename = $filename;
+    }
+
+    function getFilename() {
+        return $this->_filename ?: parent::getFilename();
+    }
+
+    /*
+     * Set mime type - well formated mime is expected.
+     */
+    function setMimeType($type) {
+        $this->_mimetype = $type;
+    }
+
+    function getMimeType() {
+        if (!isset($this->_mimetype)) {
+            // Try to to auto-detect mime type
+            $finfo = new finfo(FILEINFO_MIME);
+            $this->_mimetype = $finfo->buffer($this->getContents(),
+                    FILEINFO_MIME_TYPE);
+        }
+
+        return $this->_mimetype;
+    }
+
+    function getContents() {
+        $this->fseek(0);
+        return $this->fread($this->getSize());
+    }
+
+    /*
+     * XXX: Needed for mailer attachments interface
+     */
+    function getData() {
+        return $this->getContents();
+    }
+}
+
 ?>

@@ -146,7 +146,7 @@ class Spyc {
      * @return array
      * @param string $input Path of YAML file or string containing YAML
      */
-  function YAMLLoad($input) {
+  static function YAMLLoad($input) {
     $Spyc = new Spyc;
     return $Spyc->__load($input);
   }

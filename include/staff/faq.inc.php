@@ -4,7 +4,7 @@ if (!defined('OSTSCPINC') || !$thisstaff
     die('Access Denied');
 
 $info = $qs = array();
-if($faq){
+if($faq && $faq->getId()){
     $title=__('Update FAQ').': '.$faq->getQuestion();
     $action='update';
     $submit_text=__('Save Changes');
@@ -38,7 +38,7 @@ if($faq){
     }
 }
 //TODO: Add attachment support.
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 $qstr = Http::build_query($qs);
 ?>
 <form action="faq.php?<?php echo $qstr; ?>" method="post" class="save" enctype="multipart/form-data">
@@ -63,7 +63,7 @@ $qstr = Http::build_query($qs);
         <option value="<?php echo $C->getId(); ?>" <?php
             if ($C->getId() == $info['category_id']) echo 'selected="selected"';
             ?>><?php echo sprintf('%s (%s)',
-                $C->getName(),
+                Category::getNameById($C->getId()),
                 $C->isPublic() ? __('Public') : __('Private')
             ); ?></option>
 <?php } ?>
@@ -71,7 +71,7 @@ $qstr = Http::build_query($qs);
     <div class="error"><?php echo $errors['category_id']; ?></div>
 
 <?php
-if ($topics = Topic::getAllHelpTopics()) {
+if ($topics = $thisstaff->getTopicNames()) {
     if (!is_array(@$info['topics']))
         $info['topics'] = array();
 ?>
@@ -82,7 +82,7 @@ if ($topics = Topic::getAllHelpTopics()) {
     <select multiple="multiple" name="topics[]" class="multiselect"
         data-placeholder="<?php echo __('Help Topics'); ?>"
         id="help-topic-selection" style="width:350px;">
-    <?php while (list($topicId,$topic) = each($topics)) { ?>
+    <?php foreach ($topics as $topicId => $topic) { ?>
         <option value="<?php echo $topicId; ?>" <?php
             if (in_array($topicId, $info['topics'])) echo 'selected="selected"';
         ?>><?php echo $topic; ?></option>
@@ -250,7 +250,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
     </div>
     <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
 </div>
 
 <p style="text-align:center;">

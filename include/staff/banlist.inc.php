@@ -17,7 +17,7 @@ if($_REQUEST['q'] && strlen($_REQUEST['q'])>3) {
     $errors['q']=__('Term too short!');
 }
 
-$sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','created'=>'rule.updated');
+$sortOptions=array('email'=>'rule.val','status'=>'isactive','created'=>'rule.created','updated'=>'rule.updated');
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 $sort=($_REQUEST['sort'] && $sortOptions[strtolower($_REQUEST['sort'])])?strtolower($_REQUEST['sort']):'email';
 //Sorting options...
@@ -110,10 +110,10 @@ $query="$select $from $where ORDER BY $order_by LIMIT ".$pageNav->getStart().","
         <thead>
             <tr>
                 <th width="4%">&nbsp;</th>
-                <th width="56%"><a <?php echo $email_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
-                <th width="10%"><a  <?php echo $status_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Ban Status');?></a></th>
-                <th width="10%"><a <?php echo $created_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
-                <th width="20%"><a <?php echo $updated_sort; ?> href="staff.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
+                <th width="56%"><a <?php echo $email_sort; ?> href="banlist.php?<?php echo $qstr; ?>&sort=email"><?php echo __('Email Address');?></a></th>
+                <th width="10%"><a  <?php echo $status_sort; ?> href="banlist.php?<?php echo $qstr; ?>&sort=status"><?php echo __('Ban Status');?></a></th>
+                <th width="10%"><a <?php echo $created_sort; ?> href="banlist.php?<?php echo $qstr; ?>&sort=created"><?php echo __('Date Added');?></a></th>
+                <th width="20%"><a <?php echo $updated_sort; ?> href="banlist.php?<?php echo $qstr; ?>&sort=updated"><?php echo __('Last Updated');?></a></th>
             </tr>
         </thead>
         <tbody>

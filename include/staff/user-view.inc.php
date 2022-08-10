@@ -3,8 +3,7 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($user)) die('Invalid path'
 
 $account = $user->getAccount();
 $org = $user->getOrganization();
-
-
+$extras = new ArrayObject();
 ?>
 <table width="940" cellpadding="2" cellspacing="0" border="0">
     <tr>
@@ -71,7 +70,6 @@ $org = $user->getOrganization();
                     ><i class="icon-paste"></i>
                     <?php echo __('Manage Forms'); ?></a></li>
 <?php } ?>
-
               </ul>
             </div>
         </td>
@@ -151,6 +149,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
+    <?php Signal::send('usertab.audit', $user, $extras); ?>
 </ul>
 <div id="user-view-tabs_container">
     <div id="tickets" class="tab_content">
@@ -166,6 +165,7 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
     include STAFFINC_DIR . 'templates/notes.tmpl.php';
     ?>
     </div>
+    <?php Signal::send('user.audit', $user, $extras); ?>
 </div>
 <div class="hidden dialog" id="confirm-action">
     <h3><?php echo __('Please Confirm'); ?></h3>

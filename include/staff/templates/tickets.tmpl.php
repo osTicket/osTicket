@@ -4,7 +4,7 @@ parse_str($_SERVER['QUERY_STRING'], $args);
 $args['t'] = 'tickets';
 unset($args['p'], $args['_pjax']);
 
-$tickets = TicketModel::objects();
+$tickets = Ticket::objects();
 
 if ($user) {
     $filter = $tickets->copy()
@@ -24,21 +24,8 @@ if ($user) {
 $tickets->filter(array('ticket_id__in' => $filter));
 
 // Apply staff visibility
-if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING)) {
-    // -- Open and assigned to me
-    $visibility = array(
-        new Q(array('status__state'=>'open', 'staff_id' => $thisstaff->getId()))
-    );
-    // -- Routed to a department of mine
-    if (!$thisstaff->showAssignedOnly() && ($depts=$thisstaff->getDepts()))
-        $visibility[] = new Q(array('dept_id__in' => $depts));
-    // -- Open and assigned to a team of mine
-    if (($teams = $thisstaff->getTeams()) && count(array_filter($teams)))
-        $visibility[] = new Q(array(
-            'team_id__in' => array_filter($teams), 'status__state'=>'open'
-        ));
-    $tickets->filter(Q::any($visibility));
-}
+if (!$thisstaff->hasPerm(SearchBackend::PERM_EVERYTHING))
+    $tickets->filter($thisstaff->getTicketsVisibility());
 
 $tickets->constrain(array('lock' => array(
                 'lock__expire__gt' => SqlFunction::NOW())));
@@ -85,7 +72,7 @@ TicketForm::ensureDynamicDataView();
     if ($total) {
         echo '<strong>'.$pageNav->showing().'</strong>';
     } else {
-        echo sprintf(__('%s does not have any tickets'), $user? 'User' : 'Organization');
+        echo sprintf(__('%s does not have any tickets'), $user? __('User') : __('Organization'));
     }
    ?>
 </div>
@@ -224,12 +211,11 @@ if ($total) { ?>
 if ($total>0) {
     echo '<div>';
     echo __('Page').':'.$pageNav->getPageLinks('tickets', '#tickets').'&nbsp;';
-    echo sprintf('<a class="export-csv no-pjax" href="?%s">%s</a>',
-            Http::build_query(array(
-                    'id' => $user ? $user->getId(): $org->getId(),
-                    'a' => 'export',
-                    't' => 'tickets')),
-            __('Export'));
+    echo sprintf('<a href="#%s/%d/tickets/export" id="%s" class="no-pjax export">%s</a>',
+          $user ? 'users' : 'orgs',
+          $user ? $user->getId() : $org->getId(),
+          'queue-export',
+        __('Export'));
     echo '</div>';
 } ?>
 </form>

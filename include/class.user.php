@@ -16,8 +16,9 @@
 **********************************************************************/
 require_once INCLUDE_DIR . 'class.orm.php';
 require_once INCLUDE_DIR . 'class.util.php';
-require_once INCLUDE_DIR . 'class.organization.php';
 require_once INCLUDE_DIR . 'class.variable.php';
+require_once INCLUDE_DIR . 'class.search.php';
+require_once INCLUDE_DIR . 'class.organization.php';
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -33,6 +34,15 @@ class UserEmailModel extends VerySimpleModel {
     function __toString() {
         return (string) $this->address;
     }
+
+    static function getIdByEmail($email) {
+        $row = UserEmailModel::objects()
+            ->filter(array('address'=>$email))
+            ->values_flat('user_id')
+            ->first();
+
+        return $row ? $row[0] : 0;
+    }
 }
 
 class UserModel extends VerySimpleModel {
@@ -46,7 +56,7 @@ class UserModel extends VerySimpleModel {
             ),
             'tickets' => array(
                 'null' => true,
-                'reverse' => 'TicketModel.user',
+                'reverse' => 'Ticket.user',
             ),
             'account' => array(
                 'list' => false,
@@ -65,12 +75,12 @@ class UserModel extends VerySimpleModel {
                 'constraint' => array('id' => 'UserCdata.user_id'),
                 'null' => true,
             ),
-            'cdata_entry' => array(
+            'entries' => array(
                 'constraint' => array(
                     'id' => 'DynamicFormEntry.object_id',
                     "'U'" => 'DynamicFormEntry.object_type',
                 ),
-                'null' => true,
+                'list' => true,
             ),
         )
     );
@@ -148,6 +158,13 @@ class UserModel extends VerySimpleModel {
         return true;
     }
 
+    public function setFlag($flag, $val) {
+        if ($val)
+            $this->status |= $flag;
+        else
+            $this->status &= ~$flag;
+    }
+
     protected function hasStatus($flag) {
         return $this->get('status') & $flag !== 0;
     }
@@ -191,10 +208,14 @@ class UserCdata extends VerySimpleModel {
 }
 
 class User extends UserModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
+    var $_email;
     var $_entries;
     var $_forms;
+    var $_queue;
+
+
 
     static function fromVars($vars, $create=true, $update=false) {
         // Try and lookup by email address
@@ -230,6 +251,8 @@ implements TemplateVariable {
             catch (OrmException $e) {
                 return null;
             }
+            $type = array('type' => 'created');
+            Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
         }
         elseif ($update) {
@@ -248,7 +271,7 @@ implements TemplateVariable {
         //Validate the form
         $valid = true;
         $filter = function($f) use ($thisstaff) {
-            return !isset($thisstaff) || $f->isRequiredForStaff();
+            return !isset($thisstaff) || $f->isRequiredForStaff() || $f->isVisibleToStaff();
         };
         if (!$form->isValid($filter))
             $valid  = false;
@@ -265,13 +288,22 @@ implements TemplateVariable {
     }
 
     function getEmail() {
-        return new EmailAddress($this->default_email->address);
+
+        if (!isset($this->_email))
+            $this->_email = new EmailAddress(sprintf('"%s" <%s>',
+                    addcslashes($this->getName(), '"'),
+                    $this->default_email->address));
+
+        return $this->_email;
     }
 
-    function getAvatar() {
+    function getAvatar($size=null) {
         global $cfg;
         $source = $cfg->getClientAvatarSource();
-        return $source->getAvatar($this);
+        $avatar = $source->getAvatar($this);
+        if (isset($size))
+            $avatar->setSize($size);
+        return $avatar;
     }
 
     function getFullName() {
@@ -330,7 +362,7 @@ implements TemplateVariable {
                 'email' => (string) $this->getEmail(),
                 'phone' => (string) $this->getPhoneNumber());
 
-        return JsonDataEncoder::encode($info);
+        return Format::json_encode($info);
     }
 
     function __toString() {
@@ -362,6 +394,29 @@ implements TemplateVariable {
         return $base + $extra;
     }
 
+    static function getSearchableFields() {
+        $base = array();
+        $uform = UserForm::getUserForm();
+        $base = array();
+        foreach ($uform->getFields() as $F) {
+            $fname = $F->get('name') ?: ('field_'.$F->get('id'));
+            # XXX: email in the model corresponds to `emails__address` ORM path
+            if ($fname == 'email')
+                $fname = 'emails__address';
+            if (!$F->hasData() || $F->isPresentationOnly())
+                continue;
+            if (!$F->isStorable())
+                $base[$fname] = $F;
+            else
+                $base["cdata__{$fname}"] = $F;
+        }
+        return $base;
+    }
+
+    static function supportsCustomData() {
+        return true;
+    }
+
     function addDynamicData($data) {
         return $this->addForm(UserForm::objects()->one(), 1, $data);
     }
@@ -383,32 +438,36 @@ implements TemplateVariable {
     function getFilterData() {
         $vars = array();
         foreach ($this->getDynamicData() as $entry) {
+            $vars += $entry->getFilterData();
+
+            // Add in special `name` and `email` fields
             if ($entry->getDynamicForm()->get('type') != 'U')
                 continue;
-            $vars += $entry->getFilterData();
-            // Add in special `name` and `email` fields
+
             foreach (array('name', 'email') as $name) {
                 if ($f = $entry->getField($name))
                     $vars['field.'.$f->get('id')] =
                         $name == 'name' ? $this->getName() : $this->getEmail();
             }
         }
+
         return $vars;
     }
 
-    function getForms($data=null) {
+    function getForms($data=null, $cb=null) {
 
         if (!isset($this->_forms)) {
             $this->_forms = array();
+            $cb = $cb ?: function ($f) use($data) { return ($data); };
             foreach ($this->getDynamicData() as $entry) {
                 $entry->addMissingFields();
-                if(!$data
-                        && ($form = $entry->getDynamicForm())
+                if(($form = $entry->getDynamicForm())
                         && $form->get('type') == 'U' ) {
+
                     foreach ($entry->getFields() as $f) {
-                        if ($f->get('name') == 'name')
+                        if ($f->get('name') == 'name' && !$cb($f))
                             $f->value = $this->getFullName();
-                        elseif ($f->get('name') == 'email')
+                        elseif ($f->get('name') == 'email' && !$cb($f))
                             $f->value = $this->getEmail();
                     }
                 }
@@ -452,11 +511,11 @@ implements TemplateVariable {
             db_autocommit(false);
             $records = $importer->importCsv(UserForm::getUserForm()->getFields(), $defaults);
             foreach ($records as $data) {
-                if (!isset($data['email']) || !isset($data['name']))
+                if (!Validator::is_email($data['email']) || empty($data['name']))
                     throw new ImportError('Both `name` and `email` fields are required');
                 if (!($user = static::fromVars($data, true, true)))
                     throw new ImportError(sprintf(__('Unable to import user: %s'),
-                        print_r($data, true)));
+                        print_r(Format::htmlchars($data), true)));
                 $imported++;
             }
             db_autocommit(true);
@@ -468,23 +527,30 @@ implements TemplateVariable {
         return $imported;
     }
 
-    function importFromPost($stream, $extra=array()) {
+    static function importFromPost($stream, $extra=array()) {
+        if (!is_array($stream))
+            $stream = sprintf('name, email%s %s',PHP_EOL, $stream);
+
         return User::importCsv($stream, $extra);
     }
 
     function updateInfo($vars, &$errors, $staff=false) {
-
+        $isEditable = function ($f) use($staff) {
+            return ($staff ? $f->isEditableToStaff() :
+                    $f->isEditableToUsers());
+        };
         $valid = true;
-        $forms = $this->getForms($vars);
+        $forms = $this->getForms($vars, $isEditable);
         foreach ($forms as $entry) {
             $entry->setSource($vars);
-            if ($staff && !$entry->isValidForStaff())
+            if ($staff && !$entry->isValidForStaff(true))
                 $valid = false;
-            elseif (!$staff && !$entry->isValidForClient())
+            elseif (!$staff && !$entry->isValidForClient(true))
                 $valid = false;
             elseif ($entry->getDynamicForm()->get('type') == 'U'
                     && ($f=$entry->getField('email'))
-                    &&  $f->getClean()
+                    && $isEditable($f)
+                    && $f->getClean()
                     && ($u=User::lookup(array('emails__address'=>$f->getClean())))
                     && $u->id != $this->getId()) {
                 $valid = false;
@@ -501,24 +567,42 @@ implements TemplateVariable {
 
         // Save the entries
         foreach ($forms as $entry) {
+            $fields = $entry->getFields();
+            foreach ($fields as $field) {
+                $changes = $field->getChanges();
+                if ((is_array($changes) && $changes[0]) || $changes && !is_array($changes)) {
+                    $type = array('type' => 'edited', 'key' => $field->getLabel());
+                    Signal::send('object.edited', $this, $type);
+                }
+            }
+
             if ($entry->getDynamicForm()->get('type') == 'U') {
                 //  Name field
-                if (($name = $entry->getField('name'))) {
+                if (($name = $entry->getField('name')) && $isEditable($name) ) {
                     $name = $name->getClean();
                     if (is_array($name))
                         $name = implode(', ', $name);
+                    if ($this->name != $name) {
+                        $type = array('type' => 'edited', 'key' => 'Name');
+                        Signal::send('object.edited', $this, $type);
+                    }
                     $this->name = $name;
                 }
 
                 // Email address field
-                if (($email = $entry->getField('email'))) {
+                if (($email = $entry->getField('email'))
+                        && $isEditable($email)) {
+                    if ($this->default_email->address != $email->getClean()) {
+                        $type = array('type' => 'edited', 'key' => 'Email');
+                        Signal::send('object.edited', $this, $type);
+                    }
                     $this->default_email->address = $email->getClean();
                     $this->default_email->save();
                 }
             }
 
-            // DynamicFormEntry::save returns the number of answers updated
-            if ($entry->save()) {
+            // DynamicFormEntry::saveAnswers returns the number of answers updated
+            if ($entry->saveAnswers($isEditable)) {
                 $this->updated = SqlFunction::NOW();
             }
         }
@@ -558,7 +642,6 @@ implements TemplateVariable {
     }
 
     function delete() {
-
         // Refuse to delete a user with tickets
         if ($this->tickets->count())
             return false;
@@ -575,16 +658,19 @@ implements TemplateVariable {
             $entry->delete();
         }
 
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+
         // Delete user
         return parent::delete();
     }
 
     function deleteAllTickets() {
-        $deleted = TicketStatus::lookup(array('state' => 'deleted'));
+        $status_id = TicketStatus::lookup(array('state' => 'deleted'));
         foreach($this->tickets as $ticket) {
             if (!$T = Ticket::lookup($ticket->getId()))
                 continue;
-            if (!$T->setStatus($deleted))
+            if (!$T->setStatus($status_id))
                 return false;
         }
         $this->tickets->reset();
@@ -599,38 +685,107 @@ implements TemplateVariable {
         if ($user = static::lookup($id))
             return $user->getName();
     }
+
+    static function getLink($id) {
+        global $thisstaff;
+
+        if (!$id || !$thisstaff)
+            return false;
+
+        return ROOT_PATH . sprintf('scp/users.php?id=%s', $id);
+    }
+
+    function getTicketsQueue($collabs=true) {
+        global $thisstaff;
+
+        if (!$this->_queue) {
+            $email = $this->getDefaultEmailAddress();
+            $filter = [
+                ['user__id', 'equal', $this->getId()],
+            ];
+            if ($collabs)
+                $filter = [
+                    ['user__emails__address', 'equal', $email],
+                    ['thread__collaborators__user__emails__address', 'equal',  $email],
+                ];
+            $this->_queue = new AdhocSearch(array(
+                'id' => 'adhoc,uid'.$this->getId(),
+                'root' => 'T',
+                'staff_id' => $thisstaff->getId(),
+                'title' => $this->getName()
+            ));
+            $this->_queue->config = $filter;
+        }
+
+        return $this->_queue;
+    }
 }
 
 class EmailAddress
 implements TemplateVariable {
+    var $email;
     var $address;
+    protected $_info;
 
     function __construct($address) {
-        $this->address = $address;
+        $this->_info = self::parse($address);
+        $this->email = sprintf('%s@%s',
+                $this->getMailbox(),
+                $this->getDomain());
+
+        if ($this->getName())
+            $this->address = sprintf('"%s" <%s>',
+                    $this->getName(),
+                    $this->email);
     }
 
     function __toString() {
-        return (string) $this->address;
+        return (string) $this->email;
     }
 
     function getVar($what) {
-        require_once PEAR_DIR . 'Mail/RFC822.php';
-        require_once PEAR_DIR . 'PEAR.php';
-        if (!($mails = Mail_RFC822::parseAddressList($this->address)) || PEAR::isError($mails))
+
+        if (!$this->_info)
             return '';
 
-        if (count($mails) > 1)
-            return '';
-
-        $info = $mails[0];
         switch ($what) {
+        case 'host':
         case 'domain':
-            return $info->host;
+            return $this->_info->host;
         case 'personal':
-            return trim($info->personal, '"');
+            return trim($this->_info->personal, '"');
         case 'mailbox':
-            return $info->mailbox;
+            return $this->_info->mailbox;
         }
+    }
+
+    function getAddress() {
+        return $this->address ?: $this->email;
+    }
+
+    function getHost() {
+        return $this->getVar('host');
+    }
+
+    function getDomain() {
+        return $this->getHost();
+    }
+
+    function getName() {
+        return $this->getVar('personal');
+    }
+
+    function getMailbox() {
+        return $this->getVar('mailbox');
+    }
+
+    // Parse and email adddress (RFC822) into it's parts.
+    // @address - one address is expected
+    static function parse($address) {
+        require_once PEAR_DIR . 'PEAR.php';
+        if (($parts = Mail_Parse::parseAddressList($address))
+                && !PEAR::isError($parts))
+            return current($parts);
     }
 
     static function getVarScope() {
@@ -691,8 +846,22 @@ implements TemplateVariable {
         return $this->parts['middle'];
     }
 
+    function getFirstInitial() {
+        if ($this->parts['first'])
+            return mb_substr($this->parts['first'],0,1).'.';
+        return '';
+    }
+
     function getMiddleInitial() {
-        return mb_substr($this->parts['middle'],0,1).'.';
+        if ($this->parts['middle'])
+            return mb_substr($this->parts['middle'],0,1).'.';
+        return '';
+    }
+
+    function getLastInitial() {
+        if ($this->parts['last'])
+            return mb_substr($this->parts['last'],0,1).'.';
+        return '';
     }
 
     function getFormal() {
@@ -706,10 +875,9 @@ implements TemplateVariable {
     function getLegal() {
         $parts = array(
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
         );
-        if ($parts[1]) $parts[1] .= '.';
         return implode(' ', array_filter($parts));
     }
 
@@ -717,27 +885,27 @@ implements TemplateVariable {
         $parts = array(
             $this->parts['salutation'],
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
             $this->parts['suffix']
         );
-        if ($parts[2]) $parts[2] .= '.';
         return implode(' ', array_filter($parts));
     }
 
     function getLastFirst() {
         $name = $this->parts['last'].', '.$this->parts['first'];
+        $name = trim($name, ', ');
         if ($this->parts['suffix'])
             $name .= ', '.$this->parts['suffix'];
         return $name;
     }
 
     function getShort() {
-        return $this->parts['first'].' '.mb_substr($this->parts['last'],0,1).'.';
+        return $this->parts['first'].' '.$this->getLastInitial();
     }
 
     function getShortFormal() {
-        return mb_substr($this->parts['first'],0,1).'. '.$this->parts['last'];
+        return $this->getFirstInitial().' '.$this->parts['last'];
     }
 
     function getOriginal() {
@@ -756,6 +924,16 @@ implements TemplateVariable {
 
     function getName() {
         return $this;
+    }
+
+    function getNameFormats($user, $type) {
+      $nameFormats = array();
+
+      foreach (PersonsName::allFormats() as $format => $func) {
+          $nameFormats[$type . '.name.' . $format] = $user->getName()->$func[1]();
+      }
+
+      return $nameFormats;
     }
 
     function asVar() {
@@ -902,6 +1080,12 @@ class UserAccount extends VerySimpleModel {
         return $this->_status;
     }
 
+    function statusChanged($flag, $var) {
+        if (($this->hasStatus($flag) && !$var) ||
+            (!$this->hasStatus($flag) && $var))
+                return true;
+    }
+
     protected function hasStatus($flag) {
         return $this->getStatus()->check($flag);
     }
@@ -937,6 +1121,10 @@ class UserAccount extends VerySimpleModel {
         return $this->getStatus()->isLocked();
     }
 
+    function isActive() {
+        return (!$this->isLocked() && $this->isConfirmed());
+    }
+
     function forcePasswdReset() {
         $this->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
         return $this->save();
@@ -964,6 +1152,10 @@ class UserAccount extends VerySimpleModel {
 
     function getUser() {
         return $this->user;
+    }
+
+    function getUserName() {
+        return $this->getUser()->getName();
     }
 
     function getExtraAttr($attr=false, $default=null) {
@@ -1024,15 +1216,17 @@ class UserAccount extends VerySimpleModel {
     }
 
     function sendResetEmail() {
-        return static::sendUnlockEmail('pwreset-client') === true;
+        return $this->sendUnlockEmail('pwreset-client') === true;
     }
 
     function sendConfirmEmail() {
-        return static::sendUnlockEmail('registration-client') === true;
+        return $this->sendUnlockEmail('registration-client') === true;
     }
 
     function setPassword($new) {
         $this->set('passwd', Passwd::hash($new));
+        // Clean sessions
+        Signal::send('auth.clean', $this->getUser());
     }
 
     protected function sendUnlockEmail($template) {
@@ -1082,17 +1276,10 @@ class UserAccount extends VerySimpleModel {
     }
 
     /*
-     * This assumes the staff is doing the update
+     * Updates may be done by Staff or by the User if registration
+     * options are set to Public
      */
     function update($vars, &$errors) {
-        global $thisstaff;
-
-
-        if (!$thisstaff) {
-            $errors['err'] = __('Access denied');
-            return false;
-        }
-
         // TODO: Make sure the username is unique
 
         // Timezone selection is not required. System default is a valid
@@ -1102,10 +1289,13 @@ class UserAccount extends VerySimpleModel {
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = __('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = __('Must be at least 6 characters');
-            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = __('Passwords do not match');
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         // Make sure the username is not an email.
@@ -1115,12 +1305,28 @@ class UserAccount extends VerySimpleModel {
 
         if ($errors) return false;
 
+        //flags
+        $pwreset = $this->statusChanged(UserAccountStatus::REQUIRE_PASSWD_RESET, $vars['pwreset-flag']);
+        $locked = $this->statusChanged(UserAccountStatus::LOCKED, $vars['locked-flag']);
+        $forbidPwChange = $this->statusChanged(UserAccountStatus::FORBID_PASSWD_RESET, $vars['forbid-pwchange-flag']);
+
+        $info = $this->getInfo();
+        foreach ($vars as $key => $value) {
+            if (($key != 'id' && $info[$key] && $info[$key] != $value) || ($pwreset && $key == 'pwreset-flag' ||
+                    $locked && $key == 'locked-flag' || $forbidPwChange && $key == 'forbid-pwchange-flag')) {
+                $type = array('type' => 'edited', 'key' => $key);
+                Signal::send('object.edited', $this, $type);
+            }
+        }
+
         $this->set('timezone', $vars['timezone']);
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
             $this->setPassword($vars['passwd1']);
             $this->setStatus(UserAccountStatus::CONFIRMED);
+            $type = array('type' => 'edited', 'key' => 'password');
+            Signal::send('object.edited', $this, $type);
         }
 
         // Set flags
@@ -1131,8 +1337,14 @@ class UserAccount extends VerySimpleModel {
         ) as $ck=>$flag) {
             if ($vars[$ck])
                 $this->setStatus($flag);
-            else
+            else {
+                if (($pwreset && $ck == 'pwreset-flag') || ($locked && $ck == 'locked-flag') ||
+                    ($forbidPwChange && $ck == 'forbid-pwchange-flag')) {
+                        $type = array('type' => 'edited', 'key' => $ck);
+                        Signal::send('object.edited', $this, $type);
+                }
                 $this->clearStatus($flag);
+            }
         }
 
         return $this->save(true);
@@ -1148,10 +1360,10 @@ class UserAccount extends VerySimpleModel {
     }
 
     static function lookupByUsername($username) {
-        if (strpos($username, '@') !== false)
-            $user = static::lookup(array('user__emails__address'=>$username));
-        else
-            $user = static::lookup(array('username'=>$username));
+        if (Validator::is_email($username))
+            $user = static::lookup(array('user__emails__address' => $username));
+        elseif (Validator::is_userid($username))
+            $user = static::lookup(array('username' => $username));
 
         return $user;
     }
@@ -1166,10 +1378,15 @@ class UserAccount extends VerySimpleModel {
                 && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = 'Temporary password required';
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2'] = 'Passwords do not match';
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         if ($errors) return false;
@@ -1202,6 +1419,10 @@ class UserAccount extends VerySimpleModel {
             $account->sendConfirmEmail();
 
         return $account;
+    }
+
+    static function checkPassword($new, $current=null) {
+        osTicketClientAuthentication::checkPassword($new, $current);
     }
 
 }
@@ -1245,51 +1466,17 @@ class UserAccountStatus {
     }
 }
 
-
 /*
  *  Generic user list.
  */
-class UserList extends ListObject
-implements TemplateVariable {
+class UserList extends MailingList {
 
-    function __toString() {
-        return $this->getNames();
-    }
+   function add($user) {
+        if (!$user instanceof ITicketUser)
+            throw new InvalidArgumentException('User expected');
 
-    function getNames() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list [] = $user->getName();
-        }
-        return $list ? implode(', ', $list) : '';
-    }
-
-    function getFull() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list[] = sprintf("%s <%s>", $user->getName(), $user->getEmail());
-        }
-
-        return $list ? implode(', ', $list) : '';
-    }
-
-    function getEmails() {
-        $list = array();
-        foreach($this->storage as $user) {
-            if (is_object($user))
-                $list[] = $user->getEmail();
-        }
-        return $list ? implode(', ', $list) : '';
-    }
-
-    static function getVarScope() {
-        return array(
-            'names' => __('List of names'),
-            'emails' => __('List of email addresses'),
-            'full' => __('List of names and email addresses'),
-        );
+        return parent::add($user);
     }
 }
+
 ?>

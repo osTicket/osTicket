@@ -13,12 +13,12 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 require_once INCLUDE_DIR . 'class.sequence.php';
 require_once INCLUDE_DIR . 'class.filter.php';
+require_once INCLUDE_DIR . 'class.search.php';
 
 class Topic extends VerySimpleModel
-implements TemplateVariable {
+implements TemplateVariable, Searchable {
 
     static $meta = array(
         'table' => TOPIC_TABLE,
@@ -67,6 +67,8 @@ implements TemplateVariable {
     const FORM_USE_PARENT = 4294967295;
 
     const FLAG_CUSTOM_NUMBERS = 0x0001;
+    const FLAG_ACTIVE = 0x0002;
+    const FLAG_ARCHIVED = 0x0004;
 
     const SORT_ALPHA = 'a';
     const SORT_MANUAL = 'm';
@@ -89,6 +91,18 @@ implements TemplateVariable {
                 'class' => 'SLA', 'desc' => __('Service Level Agreement'),
             ),
         );
+    }
+
+    static function getSearchableFields() {
+        return array(
+            'topic' => new TextboxField(array(
+                'label' => __('Name'),
+            )),
+        );
+    }
+
+    static function supportsCustomData() {
+        return false;
     }
 
     function getId() {
@@ -117,11 +131,16 @@ implements TemplateVariable {
 
     static function getTopicName($id) {
         $names = static::getHelpTopics(false, true);
-        return $names[$id];
+        return is_numeric($id) && isset($names[$id]) ? $names[$id] : '';
     }
 
     function getDeptId() {
         return $this->dept_id;
+    }
+
+    function getDept() {
+
+        return $this->getDeptId() ? Dept::lookup($this->getDeptId()) : null;
     }
 
     function getSLAId() {
@@ -172,30 +191,21 @@ implements TemplateVariable {
         return $this->isActive();
     }
 
-    /**
-     * Determine if the help topic is currently enabled. The ancestry of
-     * this topic will be considered to see if any of the parents are
-     * disabled. If any are disabled, then this topic will be considered
-     * disabled.
-     *
-     * Parameters:
-     * $chain - array<id:bool> recusion chain used to detect loops. The
-     *      chain should be maintained and passed to a parent's ::isActive()
-     *      method. When consulting a parent, if the local topic ID is a key
-     *      in the chain, then this topic has already been considered, and
-     *      there is a loop in the ancestry
-     */
-    function isActive(array $chain=array()) {
-        if (!$this->isactive)
-            return false;
+    function isActive() {
+      return !!($this->flags & self::FLAG_ACTIVE);
+    }
 
-        if (!isset($chain[$this->getId()]) && ($p = $this->getParent())) {
-            $chain[$this->getId()] = true;
-            return $p->isActive($chain);
-        }
-        else {
-            return $this->isactive;
-        }
+    function getStatus() {
+      if($this->flags & self::FLAG_ACTIVE)
+        return 'Active';
+      elseif($this->flags & self::FLAG_ARCHIVED)
+        return 'Archived';
+      else
+        return 'Disabled';
+    }
+
+    function allowsReopen() {
+      return !($this->flags & self::FLAG_ARCHIVED);
     }
 
     function isPublic() {
@@ -209,6 +219,7 @@ implements TemplateVariable {
     function getInfo() {
         $base = $this->getHashtable();
         $base['custom-numbers'] = $this->hasFlag(self::FLAG_CUSTOM_NUMBERS);
+        $base['status'] = $this->getStatus();
         return $base;
     }
 
@@ -265,6 +276,9 @@ implements TemplateVariable {
                 'topic_id' => $this->getId()
             ))->delete();
             db_query('UPDATE '.TICKET_TABLE.' SET topic_id=0 WHERE topic_id='.db_input($this->getId()));
+
+            $type = array('type' => 'deleted');
+            Signal::send('object.deleted', $this, $type);
         }
 
         return true;
@@ -291,75 +305,98 @@ implements TemplateVariable {
         return $topic;
     }
 
-    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true) {
-        global $cfg;
-        static $topics, $names = array();
+    /**
+     * setFlag
+     *
+     * Utility method to set/unset flag bits
+     *
+     */
+    public function setFlag($flag, $val) {
 
-        // If localization is specifically requested, then rebuild the list.
-        if (!$names || $localize) {
-            $objects = self::objects()->values_flat(
-                'topic_id', 'topic_pid', 'ispublic', 'isactive', 'topic'
-            )
-            ->order_by('sort');
+        if ($val)
+            $this->flags |= $flag;
+        else
+            $this->flags &= ~$flag;
+    }
 
-            // Fetch information for all topics, in declared sort order
-            $topics = array();
-            foreach ($objects as $T) {
-                list($id, $pid, $pub, $act, $topic) = $T;
-                $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
-                    'disabled'=>!$act, 'topic'=>$topic);
-            }
+    static function getHelpTopics($publicOnly=false, $disabled=false, $localize=true, $whitelist=array(), $allData=false) {
+      global $cfg;
+      static $topics, $names = array();
 
-            $localize_this = function($id, $default) use ($localize) {
-                if (!$localize)
-                    return $default;
+      // If localization is specifically requested, then rebuild the list.
+      if (!$names || $localize) {
+          $objects = self::objects()->values_flat(
+              'topic_id', 'topic_pid', 'ispublic', 'flags', 'topic', 'dept_id'
+          )
+          ->order_by('sort');
 
-                $tag = _H("topic.name.{$id}");
-                $T = CustomDataTranslation::translate($tag);
-                return $T != $tag ? $T : $default;
-            };
+          // Fetch information for all topics, in declared sort order
+          $topics = array();
+          foreach ($objects as $T) {
+              list($id, $pid, $pub, $flags, $topic, $deptId) = $T;
 
-            // Resolve parent names
-            foreach ($topics as $id=>$info) {
-                $name = $localize_this($id, $info['topic']);
-                $loop = array($id=>true);
-                $parent = false;
-                while (($pid = $info['pid']) && ($info = $topics[$info['pid']])) {
-                    $name = sprintf('%s / %s', $localize_this($pid, $info['topic']),
-                        $name);
-                    if ($parent && $parent['disabled'])
-                        // Cascade disabled flag
-                        $topics[$id]['disabled'] = true;
-                    if (isset($loop[$info['pid']]))
-                        break;
-                    $loop[$info['pid']] = true;
-                    $parent = $info;
-                }
-                $names[$id] = $name;
-            }
-        }
+              $display = ($flags & self::FLAG_ACTIVE);
+              $topics[$id] = array('pid'=>$pid, 'public'=>$pub,
+                  'disabled'=>!$display, 'topic'=>$topic, 'dept_id'=>$deptId);
+          }
 
-        // Apply requested filters
-        $requested_names = array();
-        foreach ($names as $id=>$n) {
-            $info = $topics[$id];
-            if ($publicOnly && !$info['public'])
-                continue;
-            if (!$disabled && $info['disabled'])
-                continue;
-            if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
-                $n .= " - ".__("(disabled)");
-            $requested_names[$id] = $n;
-        }
+          $localize_this = function($id, $default) use ($localize) {
+              if (!$localize)
+                  return $default;
 
-        // If localization requested and the current locale is not the
-        // primary, the list may need to be sorted. Caching is ok here,
-        // because the locale is not going to be changed within a single
-        // request.
-        if ($localize && $cfg->getTopicSortMode() == self::SORT_ALPHA)
-            return Internationalization::sortKeyedList($requested_names);
+              $tag = _H("topic.name.{$id}");
+              $T = CustomDataTranslation::translate($tag);
+              return $T != $tag ? $T : $default;
+          };
 
-        return $requested_names;
+          // Resolve parent names
+          foreach ($topics as $id=>$info) {
+              $name = $localize_this($id, $info['topic']);
+              $loop = array($id=>true);
+              $parent = false;
+              while (($pid = $info['pid']) && ($info = $topics[$info['pid']])) {
+                  $name = sprintf('%s / %s', $localize_this($pid, $info['topic']),
+                      $name);
+                  if ($parent && $parent['disabled'])
+                      // Cascade disabled flag
+                      $topics[$id]['disabled'] = true;
+                  if (isset($loop[$info['pid']]))
+                      break;
+                  $loop[$info['pid']] = true;
+                  $parent = $info;
+              }
+              $names[$id] = $name;
+          }
+      }
+
+      // Apply requested filters
+      $requested_names = array();
+      $topicsClean = array();
+      foreach ($names as $id=>$n) {
+          $info = $topics[$id];
+          if ($publicOnly && !$info['public'])
+              continue;
+          //if topic is disabled + we're not getting all topics OR topic is not in whitelist
+          if ($info['disabled'] && (!$disabled || ($whitelist && !in_array($id, $whitelist))))
+              continue;
+          if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
+              $n .= " - ".__("(disabled)");
+          $requested_names[$id] = $n;
+          $topicsClean[$id] = $info;
+          $topicsClean[$id]['topic'] = $n;
+      }
+
+      if ($allData)
+        return $topicsClean;
+
+      // If localization requested and the current locale is not the
+      // primary, the list may need to be sorted. Caching is ok here,
+      // because the locale is not going to be changed within a single
+      // request.
+      if ($localize && $cfg->getTopicSortMode() == self::SORT_ALPHA)
+          return Internationalization::sortKeyedList($requested_names);
+
+      return $requested_names;
     }
 
     static function getPublicHelpTopics() {
@@ -401,6 +438,10 @@ implements TemplateVariable {
                 && (!isset($this->topic_id) || $tid!=$this->getId()))
             $errors['topic']=__('Topic already exists');
 
+          $dept = Dept::lookup($vars['dept_id']);
+          if($dept && !$dept->isActive())
+            $errors['dept_id'] = sprintf(__('%s selected must be active'), __('Department'));
+
         if (!is_numeric($vars['dept_id']))
             $errors['dept_id']=__('Department selection is required');
 
@@ -408,8 +449,29 @@ implements TemplateVariable {
             $errors['number_format'] =
                 'Ticket number format requires at least one hash character (#)';
 
+        if ($cfg) {
+            //Make sure at least 1 Topic is Public
+            $publicTopics = Topic::getHelpTopics(true);
+            if ((count($publicTopics) == 1) && array_key_exists($this->getId(), $publicTopics) && ($vars['ispublic'] == 0))
+                $errors['ispublic'] = __('At least one Topic must be Public');
+
+            //Make sure at least 1 Topic is Active
+            $activeTopics = Topic::getHelpTopics(false, false);
+            if ((count($activeTopics) == 1) && array_key_exists($this->getId(), $activeTopics) && ($vars['status'] != 'active'))
+                $errors['status'] = __('At least one Topic must be Active');
+        }
+
         if ($errors)
             return false;
+
+        $vars['noautoresp'] = isset($vars['noautoresp']) ? 1 : 0;
+
+        foreach ($vars as $key => $value) {
+            if ($key == 'status' && $this->getStatus() && strtolower($this->getStatus()) != $value && $this->topic) {
+                $type = array('type' => 'edited', 'status' => ucfirst($value));
+                Signal::send('object.edited', $this, $type);
+            }
+        }
 
         $this->topic = $vars['topic'];
         $this->topic_pid = $vars['topic_pid'] ?: 0;
@@ -418,13 +480,36 @@ implements TemplateVariable {
         $this->status_id = $vars['status_id'] ?: 0;
         $this->sla_id = $vars['sla_id'] ?: 0;
         $this->page_id = $vars['page_id'] ?: 0;
-        $this->isactive = !!$vars['isactive'];
-        $this->ispublic = !!$vars['ispublic'];
+        $this->isactive = $vars['isactive'];
+        $this->ispublic = $vars['ispublic'];
         $this->sequence_id = $vars['custom-numbers'] ? $vars['sequence_id'] : 0;
-        $this->number_format = $vars['custom-numbers'] ? $vars['number_format'] : '';
-        $this->flags = $vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : 0;
-        $this->noautoresp = !!$vars['noautoresp'];
+        $this->number_format = $vars['number_format'];
+        $this->setFlag(self::FLAG_CUSTOM_NUMBERS, ($vars['custom-numbers']));
+        $this->noautoresp = $vars['noautoresp'];
         $this->notes = Format::sanitize($vars['notes']);
+
+        $filter_actions = FilterAction::objects()->filter(array('type' => 'topic', 'configuration' => '{"topic_id":'. $this->getId().'}'));
+        if ($filter_actions && $vars['status'] == 'active')
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', false);
+        else
+          FilterAction::setFilterFlags($filter_actions, 'Filter::FLAG_INACTIVE_HT', true);
+
+        switch ($vars['status']) {
+          case 'active':
+            $this->setFlag(self::FLAG_ACTIVE, true);
+            $this->setFlag(self::FLAG_ARCHIVED, false);
+            break;
+
+          case 'disabled':
+            $this->setFlag(self::FLAG_ACTIVE, false);
+            $this->setFlag(self::FLAG_ARCHIVED, false);
+            break;
+
+          case 'archived':
+            $this->setFlag(self::FLAG_ACTIVE, false);
+            $this->setFlag(self::FLAG_ARCHIVED, true);
+            break;
+        }
 
         //Auto assign ID is overloaded...
         if ($vars['assign'] && $vars['assign'][0] == 's') {
@@ -466,11 +551,11 @@ implements TemplateVariable {
 
     function updateForms($vars, &$errors) {
         $find_disabled = function($form) use ($vars) {
-            $fields = $vars['fields'];
+            $fields = $vars['fields'] ?: null;
             $disabled = array();
             foreach ($form->fields->values_flat('id') as $row) {
                 list($id) = $row;
-                if (false === ($idx = array_search($id, $fields))) {
+                if (is_array($fields) && (false === ($idx = array_search($id, $fields)))) {
                     $disabled[] = $id;
                 }
             }

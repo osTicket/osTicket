@@ -23,7 +23,7 @@ require_once INCLUDE_DIR . 'class.avatar.php';
 
 try {
     $ra = new RandomAvatar($_GET['mode']);
-    $avatar = $ra->makeAvatar($_GET['uid']);
+    $avatar = $ra->makeAvatar($_GET['uid'], $_GET['size']);
 
     Http::response(200, false, 'image/png', false);
     Http::cacheable($_GET['uid'], false, 86400);

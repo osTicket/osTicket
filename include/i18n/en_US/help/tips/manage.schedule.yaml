@@ -1,0 +1,30 @@
+#
+# This is popup help messages for the Admin Panel -> Manage -> Schedules
+#
+# Fields:
+# title - Shown in bold at the top of the popover window
+# content - The body of the help popover
+# links - List of links shows below the content
+#   title - Link title
+#   href - href of link (links starting with / are translated to the
+#       helpdesk installation path)
+#
+# The key names such as 'helpdesk_name' should not be translated as they
+# must match the HTML #ids put into the page template.
+#
+---
+schedule:
+    title: Schedule Definition
+    content: >
+        <b>Name</b>: Unique name for the schedule.
+        <hr>
+        <b>Type</b>: Choose the type of Schedule. <span
+        class="doc-desc-title">Business Hours</span> defines the hours that are
+        included when calculating SLA hours, whereas <span
+        class="doc-desc-title">Holiday Hours</span> define hours that are excluded.
+        <hr>
+        <b>Timezone</b>: Choose the time zone for the schedule. It's recommended
+        that you leave it empty for a <span class="doc-desc-title">Floating</span> time zone.
+        <br><br>
+        Floating time zone allows for times to be relative to the effective time zone at the time of use.
+

@@ -34,7 +34,7 @@ elseif ($thisclient) {
                 $user_form = $f;
                 $user_form->getField('email')->configure('disabled', true);
             }
-        }    
+        }
     }
     // Existing client (with an account) updating profile
     else {
@@ -52,21 +52,30 @@ if ($user && $_POST) {
     if (!$errors && $user->updateInfo($_POST, $errors))
         Http::redirect('tickets.php');
 }
-
 elseif ($_POST) {
     $user_form = UserForm::getUserForm()->getForm($_POST);
     if ($thisclient) {
         $user_form->getField('email')->configure('disabled', true);
         $user_form->getField('email')->value = $thisclient->getEmail();
+        $_POST['email'] = $thisclient->getEmail();
     }
 
-    if (!$user_form->isValid(function($f) { return !$f->isVisibleToUsers(); }))
+    if (!$user_form->isValid(function($f) { return $f->isVisibleToUsers(); }))
         $errors['err'] = __('Incomplete client information');
     elseif (!$_POST['backend'] && !$_POST['passwd1'])
         $errors['passwd1'] = __('New password is required');
     elseif (!$_POST['backend'] && $_POST['passwd2'] != $_POST['passwd1'])
         $errors['passwd1'] = __('Passwords do not match');
+    else {
+        try {
+            UserAccount::checkPassword($_POST['passwd1']);
+        } catch (BadPassword $ex) {
+             $errors['passwd1'] = $ex->getMessage();
+        }
+    }
 
+    if ($errors)
+        $errors['err'] = $errors['err'] ?: __('Unable to register account. See messages below');
     // XXX: The email will always be in use already if a guest is logged in
     // and is registering for an account. Instead,
     elseif (($addr = $user_form->getField('email')->getClean())
@@ -77,12 +86,16 @@ elseif ($_POST) {
             '</strong></a>'));
         $errors['err'] = __('Unable to register account. See messages below');
     }
+    elseif (!$addr)
+        $errors['email'] = sprintf(__('%s is a required field'), $user_form->getField('email')->getLocal('label'));
+    elseif (!$user_form->getField('name')->getClean())
+        $errors['name'] = sprintf(__('%s is a required field'), $user_form->getField('name')->getLocal('label'));
+    // Registration for existing users
+    elseif ($addr && ($user = User::lookupByEmail($addr)) && !$user->updateInfo($_POST, $errors))
+      $errors['err'] = __('Unable to register account. See messages below');
     // Users created from ClientCreateRequest
     elseif (isset($_POST['backend']) && !($user = User::fromVars($user_form->getClean())))
         $errors['err'] = __('Unable to create local account. See messages below');
-    // Registration for existing users
-    elseif (!$user && !$thisclient && !($user = User::fromVars($user_form->getClean())))
-        $errors['err'] = __('Unable to register account. See messages below');
     // New users and users registering from a ticket access link
     elseif (!$user && !($user = $thisclient ?: User::fromForm($user_form)))
         $errors['err'] = __('Unable to register account. See messages below');
@@ -121,4 +134,3 @@ elseif ($_POST) {
 include(CLIENTINC_DIR.'header.inc.php');
 include(CLIENTINC_DIR.$inc);
 include(CLIENTINC_DIR.'footer.inc.php');
-

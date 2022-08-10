@@ -5,7 +5,7 @@ class CryptoMigrater extends MigrationTask {
     var $description = "Migrating encrypted password";
     var $status ='Making the world a better place!';
 
-    function run() {
+    function run($max_time) {
 
         $sql='SELECT email_id, userpass, userid FROM '.EMAIL_TABLE
             ." WHERE userpass <> ''";
@@ -25,7 +25,7 @@ class CryptoMigrater extends MigrationTask {
       XXX: This is not a  good way of decrypting data - use to descrypt old
       data.
      */
-    function _decrypt($text, $salt) {
+    static function _decrypt($text, $salt) {
 
         if(!function_exists('mcrypt_encrypt') || !function_exists('mcrypt_decrypt'))
             return $text;

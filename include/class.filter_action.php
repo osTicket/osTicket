@@ -7,6 +7,11 @@ class FilterAction extends VerySimpleModel {
         'table' => FILTER_ACTION_TABLE,
         'pk' => array('id'),
         'ordering' => array('sort'),
+        'joins' => array(
+            'filter' => array(
+                'constraint' => array('filter_id' => 'Filter.id'),
+            ),
+        ),
     );
 
     static $registry = array();
@@ -23,6 +28,11 @@ class FilterAction extends VerySimpleModel {
     function setFilter($filter) {
         $this->_filter = $filter;
     }
+
+    function getFilterId() {
+        return $this->filter_id;
+    }
+
     function getFilter() {
         return $this->_filter;
     }
@@ -41,15 +51,27 @@ class FilterAction extends VerySimpleModel {
         return $this->_config;
     }
 
-    function setConfiguration(&$errors=array(), $source=false) {
-        $config = array();
-        foreach ($this->getImpl()->getConfigurationForm($source ?: $_POST)
-                ->getFields() as $name=>$field) {
-            if (!$field->hasData())
-                continue;
+    function parseConfiguration($source, &$errors=array()) {
+      if (!$source)
+        return $this->getConfiguration();
+
+      $config = array();
+      foreach ($this->getImpl()->getConfigurationForm($source)
+              ->getFields() as $name=>$field) {
+          if (!$field->hasData())
+              continue;
+          if($field->to_php($field->getClean()))
             $config[$name] = $field->to_php($field->getClean());
-            $errors = array_merge($errors, $field->errors());
-        }
+          else
+            $config[$name] = $field->getClean();
+
+          $errors = array_merge($errors, $field->errors());
+      }
+      return $config;
+    }
+
+    function setConfiguration(&$errors=array(), $source=false) {
+        $config = $this->parseConfiguration($source ?: $_POST, $errors);
         if (count($errors) === 0)
             $this->set('configuration', JsonDataEncoder::encode($config));
         return count($errors) === 0;
@@ -57,12 +79,27 @@ class FilterAction extends VerySimpleModel {
 
     function getImpl() {
         if (!isset($this->_impl)) {
-            if (!($I = self::lookupByType($this->type, $this)))
+            //TODO: Figure out why $this->type gives an id
+            $existing = is_numeric($this->type) ? (self::lookup($this->type)) : $this;
+            if (!($I = self::lookupByType($existing->type, $existing)))
                 throw new Exception(sprintf(
                     '%s: No such filter action registered', $this->type));
             $this->_impl = $I;
         }
         return $this->_impl;
+    }
+
+    static function setFilterFlags(?object $actions=null, $flag, $bool) {
+        $flag = constant($flag);
+        if ($actions)
+            foreach ($actions as $action)
+                $action->setFilterFlag($flag, $bool);
+    }
+
+    function setFilterFlag($flag, $bool) {
+        $filter = Filter::lookup($this->filter_id);
+        if ($filter && ($filter->hasFlag($flag) != $bool))
+          $filter->setFlag($flag, $bool);
     }
 
     function apply(&$ticket, array $info) {
@@ -121,6 +158,10 @@ abstract class TriggerAction {
         if ($this->action)
             return $this->action->getConfiguration();
         return array();
+    }
+
+    function getEventDescription($action, $filterName) {
+        return null;
     }
 
     function getConfigurationForm($source=false) {
@@ -273,19 +314,46 @@ class FA_RouteDepartment extends TriggerAction {
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
-        if ($config['dept_id'])
+        if ($config['dept_id']) {
+          $dept = Dept::lookup($config['dept_id']);
+
+          if ($dept && $dept->isActive())
             $ticket['deptId'] = $config['dept_id'];
+        }
+    }
+
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['dept_id']) {
+            $dept = Dept::lookup($config['dept_id']);
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $dept ? $dept->getName() : false,
+                    'filter' => $filterName, 'type' => 'Department'));
+        }
+
+        return $info;
     }
 
     function getConfigurationOptions() {
+      $depts = Dept::getDepartments(null, true, false);
+
+      if ($this->action->type == 'dept') {
+        $dept_id = json_decode($this->action->configuration, true);
+        $dept = Dept::lookup($dept_id['dept_id']);
+        if ($dept && !$dept->isActive())
+          $depts[$dept->getId()] = $dept->getName();
+      }
+
         return array(
-            'dept_id' => new ChoiceField(array(
+                'dept_id' => new ChoiceField(array(
                 'configuration' => array(
                     'prompt' => __('Unchanged'),
                     'data' => array('quick-add' => 'department'),
                 ),
                 'choices' =>
-                    Dept::getDepartments() +
+                    $depts +
                     array(':new:' => '— '.__('Add New').' —'),
                 'validators' => function($self, $clean) {
                     if ($clean === ':new:')
@@ -305,6 +373,20 @@ class FA_AssignPriority extends TriggerAction {
         $config = $this->getConfiguration();
         if ($config['priority'])
             $ticket['priorityId'] = $config['priority'];
+    }
+
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['priority']) {
+            $priority = Priority::lookup($config['priority']);
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $priority ? $priority->getDesc() : false,
+                    'filter' => $filterName, 'type' => 'Priority'));
+        }
+
+        return $info;
     }
 
     function getConfigurationOptions() {
@@ -335,6 +417,21 @@ class FA_AssignSLA extends TriggerAction {
             $ticket['slaId'] = $config['sla_id'];
     }
 
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['sla_id']) {
+            $sla = SLA::lookup($config['sla_id']);
+
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $sla ? $sla->getName() : false,
+                    'filter' => $filterName, 'type' => 'SLA'));
+        }
+
+        return $info;
+    }
+
     function getConfigurationOptions() {
         $choices = SLA::getSLAs();
         return array(
@@ -355,6 +452,20 @@ class FA_AssignTeam extends TriggerAction {
         $config = $this->getConfiguration();
         if ($config['team_id'])
             $ticket['teamId'] = $config['team_id'];
+    }
+
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['team_id']) {
+            $team = Team::lookup($config['team_id']);
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $team ? $team->getName() : false,
+                    'filter' => $filterName, 'type' => 'Team'));
+        }
+
+        return $info;
     }
 
     function getConfigurationOptions() {
@@ -388,6 +499,20 @@ class FA_AssignAgent extends TriggerAction {
             $ticket['staffId'] = $config['staff_id'];
     }
 
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['staff_id']) {
+            $staff = Staff::lookup($config['staff_id']);
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $staff ? $staff->getName()->name : false,
+                    'filter' => $filterName, 'type' => 'Agent'));
+        }
+
+        return $info;
+    }
+
     function getConfigurationOptions() {
         $choices = Staff::getStaffMembers();
         return array(
@@ -406,12 +531,37 @@ class FA_AssignTopic extends TriggerAction {
 
     function apply(&$ticket, array $info) {
         $config = $this->getConfiguration();
-        if ($config['topic_id'])
+        if ($config['topic_id']) {
+          $topic = Topic::lookup($config['topic_id']);
+          if ($topic && $topic->isActive())
             $ticket['topicId'] = $config['topic_id'];
+        }
+    }
+
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['topic_id']) {
+            $topic = Topic::lookup($config['topic_id']);
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $topic ? $topic->getName() : false,
+                    'filter' => $filterName, 'type' => 'Topic'));
+        }
+
+        return $info;
     }
 
     function getConfigurationOptions() {
-        $choices = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+        $choices = Topic::getHelpTopics(false, false);
+
+        if ($this->action->type == 'topic') {
+          $topic_id = json_decode($this->action->configuration, true);
+          $topic = Topic::lookup($topic_id['topic_id']);
+          if ($topic && !$topic->isActive())
+            $choices[$topic->getId()] = $topic->getName();
+        }
+
         return array(
             'topic_id' => new ChoiceField(array(
                 'configuration' => array('prompt' => __('Unchanged')),
@@ -430,6 +580,20 @@ class FA_SetStatus extends TriggerAction {
         $config = $this->getConfiguration();
         if ($config['status_id'])
             $ticket['statusId'] = $config['status_id'];
+    }
+
+    function getEventDescription($action, $filterName) {
+        $config = $action->getConfiguration();
+        $info = array();
+
+        if ($config['status_id']) {
+            $status = Team::lookup($config['status_id']);
+            $info = array('type' => 'edited',
+                    'desc' => array('value' => $status ? $status->getName() : false,
+                    'filter' => $filterName, 'type' => 'Ticket Status'));
+        }
+
+        return $info;
     }
 
     function getConfigurationOptions() {
@@ -462,12 +626,19 @@ class FA_SendEmail extends TriggerAction {
     function apply(&$ticket, array $info) {
         global $ost;
 
+        if (!$ticket['ticket'])
+            return false;
+
         $config = $this->getConfiguration();
-        $info = array('subject' => $config['subject'],
-            'message' => $config['message']);
-        $info = $ost->replaceTemplateVariables(
-            $info, array('ticket' => $ticket)
+        $vars = array(
+            'url' => $ost->getConfig()->getBaseUrl(),
+            'ticket' => $ticket['ticket'],
+            'recipient' => $ticket['ticket']->getOwner(),
         );
+        $info = $ost->replaceTemplateVariables(array(
+            'subject' => $config['subject'],
+            'message' => $config['message'],
+        ), $vars);
 
         // Honor FROM address settings
         if (!$config['from'] || !($mailer = Email::lookup($config['from'])))
@@ -480,10 +651,9 @@ class FA_SendEmail extends TriggerAction {
         ));
         $to = $replacer->replaceVars($config['recipients']);
 
-        require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
 
-        if (!($mails = Mail_RFC822::parseAddressList($to)) || PEAR::isError($mails))
+        if (!($mails = Mail_Parse::parseAddressList($to)) || PEAR::isError($mails))
             return false;
 
         // Allow %{recipient} in the body
@@ -495,7 +665,6 @@ class FA_SendEmail extends TriggerAction {
             $I = $replacer->replaceVars($info);
             $mailer->send($recipient, $I['subject'], $I['message']);
         }
-
     }
 
     static function getVarScope() {
@@ -512,8 +681,9 @@ class FA_SendEmail extends TriggerAction {
     }
 
     function getConfigurationOptions() {
-        $choices = array('' => __('Default System Email'));
-        $choices += Email::getAddresses();
+        global $cfg;
+
+        $choices = Email::getAddresses();
 
         return array(
             'recipients' => new TextboxField(array(
@@ -522,7 +692,7 @@ class FA_SendEmail extends TriggerAction {
                     'size' => 80, 'length' => 1000,
                 ),
                 'validators' => function($self, $value) {
-                    if (!($mails = Mail_RFC822::parseAddressList($value)) || PEAR::isError($mails))
+                    if (!($mails = Mail_Parse::parseAddressList($value)) || PEAR::isError($mails))
                         $self->addError('Unable to parse address list. '
                             .'Use commas to separate addresses.');
 
@@ -559,7 +729,7 @@ class FA_SendEmail extends TriggerAction {
             'from' => new ChoiceField(array(
                 'label' => __('From Email'),
                 'choices' => $choices,
-                'default' => '',
+                'default' => $cfg->getDefaultEmail()->getId(),
             )),
         );
     }

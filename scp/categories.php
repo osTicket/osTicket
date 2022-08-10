@@ -41,12 +41,16 @@ if($_POST){
                     sprintf(__('Unable to update %s.'), __('this category')),
                     __('Correct any errors below and try again.'));
             }
+            $type = array('type' => 'edited');
+            Signal::send('object.edited', $category, $type);
             break;
         case 'create':
             $category = Category::create();
             if ($category->update($_POST, $errors)) {
                 $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
                 $_REQUEST['a']=null;
+                $type = array('type' => 'created');
+                Signal::send('object.created', $category, $type);
             } elseif(!$errors['err']) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this category')),
@@ -96,15 +100,23 @@ if($_POST){
                         }
                         break;
                     case 'delete':
-                        $i = Category::objects()->filter(array(
+                        $categories = Category::objects()->filter(array(
                             'category_id__in'=>$_POST['ids']
-                        ))->delete();
+                        ));
+                        foreach ($categories as $c) {
+                            if ($faqs = FAQ::objects()
+                                  ->filter(array('category_id'=>$c->getId()))) {
+                                      foreach ($faqs as $key => $faq)
+                                          $faq->delete();
+                                  }
+                              $c->delete();
+                        }
 
-                        if ($i==$count)
+                        if (count($categories)==$count)
                             $msg = sprintf(__('Successfully deleted %s.'),
                                 _N('selected category', 'selected categories', $count));
-                        elseif ($i > 0)
-                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
+                        elseif ($categories > 0)
+                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $categories, $count,
                                 _N('selected category', 'selected categories', $count));
                         elseif (!$errors['err'])
                             $errors['err'] = sprintf(__('Unable to delete %s.'),

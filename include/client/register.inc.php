@@ -27,7 +27,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <tbody>
 <?php
     $cf = $user_form ?: UserForm::getInstance();
-    $cf->render(false, false, array('mode' => 'create'));
+    $cf->render(array('staff' => false, 'mode' => 'create'));
 ?>
 <tr>
     <td colspan="2">
@@ -92,8 +92,8 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </table>
 <hr>
 <p style="text-align: center;">
-    <input type="submit" value="Register"/>
-    <input type="button" value="Cancel" onclick="javascript:
+    <input type="submit" value="<?php echo __('Register'); ?>"/>
+    <input type="button" value="<?php echo __('Cancel'); ?>" onclick="javascript:
         window.location.href='index.php';"/>
 </p>
 </form>

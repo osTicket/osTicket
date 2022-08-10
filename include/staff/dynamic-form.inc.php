@@ -28,7 +28,7 @@ if($form && $_REQUEST['a']!='add') {
     $submit_text=__('Add Form');
     $newcount=4;
 }
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
 ?>
 <form class="manage-form" action="<?php echo $url ?>" method="post" class="save">
@@ -191,7 +191,7 @@ if ($form && count($langs) > 1) { ?>
                 </font>
             </td>
             <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
-                if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
+                if (!$fi->isChangeable() || !$f->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
                         ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
                         foreach ($types as $type=>$nfo) {

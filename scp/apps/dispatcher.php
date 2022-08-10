@@ -29,7 +29,7 @@ if(!defined('INCLUDE_DIR'))	Http::response(500, 'Server configuration error');
 require_once INCLUDE_DIR.'/class.dispatcher.php';
 $dispatcher = new Dispatcher();
 
-$PI = $ost->get_path_info();
+$PI = Osticket::get_path_info();
 if (strpos(strtolower($PI), '/admin/') === 0) {
     require('admin.inc.php');
     $PI = substr($PI, 6);

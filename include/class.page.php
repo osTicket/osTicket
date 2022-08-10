@@ -57,7 +57,7 @@ class Page extends VerySimpleModel {
         return $this->name;
     }
     function getLocalName($lang=false) {
-        return $this->getLocal('name', $lang);
+        return $this->_getLocal('name', $lang);
     }
     function getNameAsSlug() {
         return urlencode(Format::slugify($this->name));
@@ -70,7 +70,7 @@ class Page extends VerySimpleModel {
         return $this->_getLocal('body', $lang);
     }
     function getBodyWithImages() {
-        return Format::viewableImages($this->getLocalBody());
+        return Format::viewableImages($this->getLocalBody(), ['type' => 'P']);
     }
 
     function _getLocal($what, $lang=false) {
@@ -154,9 +154,9 @@ class Page extends VerySimpleModel {
         if (!parent::delete())
             return false;
 
-        return Topic::objects()
-            ->filter(array('page_id'=>$this->getId()))
-            ->update(array('page_id'=>0));
+        $type = array('type' => 'deleted');
+        Signal::send('object.deleted', $this, $type);
+        return true;
     }
 
     function save($refetch=false) {
@@ -243,7 +243,6 @@ class Page extends VerySimpleModel {
     }
 
     function update($vars, &$errors, $allowempty=false) {
-
         //Cleanup.
         $vars['name']=Format::striptags(trim($vars['name']));
 
@@ -282,7 +281,7 @@ class Page extends VerySimpleModel {
 
         // Attach inline attachments from the editor
         $keepers = Draft::getAttachmentIds($vars['body']);
-        $keepers = array_map(function($i) { return $i['id']; }, $keepers);
+        $keepers = array_flip(array_map(function($i) { return $i['id']; }, $keepers));
         $this->attachments->keepOnlyFileIds($keepers, true);
 
         if ($rv)

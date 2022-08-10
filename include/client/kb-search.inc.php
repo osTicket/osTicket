@@ -34,7 +34,7 @@
             <div class="header"><?php echo __('Help Topics'); ?></div>
 <?php
 foreach (Topic::objects()
-    ->annotate(array('faqs_count'=>SqlAggregate::count('faqs')))
+    ->annotate(array('faqs_count'=>SqlAggregate::COUNT('faqs')))
     ->filter(array('faqs_count__gt'=>0))
     as $t) { ?>
         <div><a href="?topicId=<?php echo urlencode($t->getId()); ?>"
@@ -45,7 +45,8 @@ foreach (Topic::objects()
             <div class="header"><?php echo __('Categories'); ?></div>
 <?php
 foreach (Category::objects()
-    ->annotate(array('faqs_count'=>SqlAggregate::count('faqs')))
+    ->exclude(Q::any(array('ispublic'=>Category::VISIBILITY_PRIVATE)))
+    ->annotate(array('faqs_count'=>SqlAggregate::COUNT('faqs')))
     ->filter(array('faqs_count__gt'=>0))
     as $C) { ?>
         <div><a href="?cid=<?php echo urlencode($C->getId()); ?>"

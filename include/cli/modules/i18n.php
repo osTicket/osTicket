@@ -79,10 +79,9 @@ class i18n_Compiler extends Module {
             self::$crowdin_api_url);
 
         $args += array('key' => $this->key);
-        foreach ($args as &$a)
-            $a = urlencode($a);
-        unset($a);
-        $url .= '?' . Format::array_implode('=', '&', $args);
+        if ($branch = $this->getOption('branch', false))
+            $args += array('branch' => $branch);
+        $url .= '?' . Http::build_query($args);
 
         return $this->_http_get($url);
     }
@@ -189,7 +188,7 @@ class i18n_Compiler extends Module {
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
-            if (fnmatch('*/messages*.po', $info['name']) !== false) {
+            if (strpos($info['name'], '/messages.po') !== false) {
                 $po_file = $contents;
                 // Don't add the PO file as-is to the PHAR file
                 continue;
@@ -198,7 +197,8 @@ class i18n_Compiler extends Module {
                 // Skip files in (other) branches
                 continue;
             }
-            $phar->addFromString($info['name'], $contents);
+            $lname = $branch ? explode('/', $info['name'], 2)[1] : $info['name'];
+            $phar->addFromString($lname, $contents);
         }
 
         // TODO: Add i18n extras (like fonts)
@@ -210,22 +210,20 @@ class i18n_Compiler extends Module {
             $langs[] = $short;
         }
         foreach ($langs as $l) {
-            list($code, $js) = $this->_http_get(
-                sprintf('https://imperavi.com/download/redactor/langs/%s/',
-                    strtolower($l)));
-            if ($code == 200 && strlen($js) > 100) {
-                $phar->addFromString('js/redactor.js', $js);
+            if (file_exists(I18N_DIR . "vendor/redactor/{$lang}.js")) {
+                $phar->addFromString('js/redactor.js', file_get_contents(
+                    I18N_DIR . "vendor/redactor/{$lang}.js"));
                 break;
             }
         }
         if ($code != 200)
-            $this->stderr->write($lang . ": Unable to fetch Redactor language file\n");
+            $this->stderr->write($lang . ": Cannot find Redactor language file\n");
 
         // JQuery UI Datepicker
-        // http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-de.js
+        // https://github.com/jquery/jquery-ui/tree/master/ui/i18n
         foreach ($langs as $l) {
             list($code, $js) = $this->_http_get(
-                'http://jquery-ui.googlecode.com/svn/tags/latest/ui/i18n/jquery.ui.datepicker-'
+                'https://raw.githubusercontent.com/jquery/jquery-ui/master/ui/i18n/datepicker-'
                     .str_replace('_','-',$l).'.js');
             // If locale-specific version is not available, use the base
             // language version (de if de_CH is not available)
@@ -395,7 +393,7 @@ class i18n_Compiler extends Module {
     function __read_next_string($tokens) {
         $string = array();
 
-        while (list(,$T) = each($tokens)) {
+        foreach ($tokens as $x=>$T) {
             switch ($T[0]) {
                 case T_CONSTANT_ENCAPSED_STRING:
                     // Strip leading and trailing ' and " chars
@@ -418,7 +416,7 @@ class i18n_Compiler extends Module {
                     break;
                 case T_WHITESPACE:
                     // noop
-                    continue;
+                    continue 2;
                 case T_STRING_VARNAME:
                 case T_NUM_STRING:
                 case T_ENCAPSED_AND_WHITESPACE:
@@ -470,10 +468,10 @@ class i18n_Compiler extends Module {
     }
 
     function __get_func_args($tokens, $args) {
-        while (list(,$T) = each($tokens)) {
+        foreach ($tokens as $x=>$T) {
             switch ($T[0]) {
             case T_WHITESPACE:
-                continue;
+                continue 2;
             case '(':
                 return $this->__read_args($tokens, $args);
             default:
@@ -485,7 +483,7 @@ class i18n_Compiler extends Module {
     function __find_strings($tokens, $funcs, $parens=0) {
         $T_funcs = array();
         $funcdef = false;
-        while (list(,$T) = each($tokens)) {
+        foreach ($tokens as $x=>$T) {
             switch ($T[0]) {
             case T_STRING:
             case T_VARIABLE:
@@ -501,7 +499,7 @@ class i18n_Compiler extends Module {
                     break;
                 }
                 if (!isset($funcs[$T[1]]))
-                    continue;
+                    continue 2;
                 $constants = $funcs[$T[1]];
                 if ($info = $this->__get_func_args($tokens, $constants))
                     $T_funcs[] = $info;
@@ -520,7 +518,7 @@ class i18n_Compiler extends Module {
                         case '@trans':
                             $translate = true;
                         default:
-                            continue;
+                            continue 2;
                         }
                     }
                 }
@@ -637,7 +635,7 @@ class i18n_Compiler extends Module {
         );
         $root = realpath($options['root'] ?: ROOT_DIR);
         $domain = $options['domain'] ? '('.$options['domain'].')/' : '';
-        $files = Test::getAllScripts(true, $root);
+        $files = Test::getAllScripts("*.php", $root);
         $strings = array();
         foreach ($files as $f) {
             $F = str_replace($root.'/', $domain, $f);
@@ -673,7 +671,7 @@ class i18n_Compiler extends Module {
                     $this->stdout->write(sprintf(
                         "'%s' (%s) and '%s' (%s)\n",
                        $orig, $usage, $other_orig, $other_usage
-                    )); 
+                    ));
                 }
             }
         }

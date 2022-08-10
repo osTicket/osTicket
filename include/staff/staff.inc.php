@@ -19,6 +19,8 @@ if ($_REQUEST['a']=='add'){
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
     }
     $title=__('Add New Agent');
@@ -33,6 +35,8 @@ else {
     $info['id'] = $staff->getId();
     $qs += array('id' => $staff->getId());
 }
+
+$extras = new ArrayObject();
 ?>
 
 <form action="staff.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" autocomplete="off">
@@ -52,6 +56,7 @@ else {
     <li><a href="#access"><?php echo __('Access'); ?></a></li>
     <li><a href="#permissions"><?php echo __('Permissions'); ?></a></li>
     <li><a href="#teams"><?php echo __('Teams'); ?></a></li>
+    <?php Signal::send('agenttab.audit', $staff, $extras); ?>
   </ul>
 
   <div class="tab_content" id="account">
@@ -160,6 +165,35 @@ if (count($bks) > 1) {
         </tr>
 <?php
 } ?>
+<?php
+if ($bks=Staff2FABackend::allRegistered() && $current = $staff->get2FABackend()) {
+    $_config = $staff->getConfig();
+?>
+        <tr>
+          <td><?php echo __('Default 2FA'); ?>:</td>
+          <td>
+              <input type="text" size="40" style="width:300px"
+                name="default_2fa" disabled value="<?php echo $current->getName(); ?>" />
+            &nbsp;
+            <button type="button" id="reset-2fa" class="action-button" onclick="javascript:
+                if (confirm('<?php echo __('You sure?'); ?>')) {
+                    $.ajax({
+                        url: 'ajax.php/staff/'+<?php echo $staff->getId(); ?>+'/reset-2fa',
+                        type: 'POST',
+                        data: {'staffId':<?php echo $staff->getId(); ?>},
+                        success: function(data) {
+                            location.reload();
+                        }
+                    });
+                }
+                return false;">
+              <i class="icon-gear"></i> <?php echo __('Reset 2FA'); ?>
+            </button>
+            <i class="offset help-tip icon-question-sign" href="#reset2fa"></i>
+          </td>
+        </tr>
+<?php
+} ?>
       </tbody>
       <!-- ================================================ -->
       <tbody>
@@ -234,15 +268,26 @@ if (count($bks) > 1) {
             <select name="dept_id" id="dept_id" data-quick-add="department">
               <option value="0">&mdash; <?php echo __('Select Department');?> &mdash;</option>
               <?php
-              foreach (Dept::getDepartments() as $id=>$name) {
-                $sel=($staff->dept_id==$id)?'selected="selected"':'';
-                echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+              if($depts = Dept::getDepartments(array('activeonly' => true, 'publiconly' => true))) {
+                if($staff->dept_id && !array_key_exists($staff->dept_id, $depts))
+                {
+                  $depts[$staff->dept_id] = $staff->dept;
+                  $warn = sprintf(__('%s selected must be active'), __('Department'));
+                }
+                  foreach($depts as $id =>$name) {
+                    $sel=($staff->dept_id==$id)?'selected="selected"':'';
+                      echo sprintf('<option value="%d" %s>%s</option>',$id,$sel,$name);
+                  }
               }
               ?>
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_department"></i>
             <div class="error"><?php echo $errors['dept_id']; ?></div>
+            <?php
+            if($warn) { ?>
+                &nbsp;<span class="error">*&nbsp;<?php echo $warn; ?></span>
+            <?php } ?>
           </td>
           <td style="vertical-align:top">
             <select name="role_id" data-quick-add="role">
@@ -256,6 +301,7 @@ if (count($bks) > 1) {
               <option value="0" data-quick-add>&mdash; <?php echo __('Add New');?> &mdash;</option>
             </select>
             <i class="offset help-tip icon-question-sign" href="#primary_role"></i>
+            <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
           <td>
             <label class="inline checkbox">
@@ -267,8 +313,6 @@ if (count($bks) > 1) {
                 <i class="icon-question-sign help-tip"
                     href="#primary_role_on_assign"></i>
             </label>
-
-            <div class="error"><?php echo $errors['role_id']; ?></div>
           </td>
         </tr>
       </tbody>
@@ -438,6 +482,9 @@ foreach ($staff->teams as $TM) {
     </table>
   </div>
 
+  <!-- ============== Audits =================== -->
+<?php Signal::send('agent.audit', $staff, $extras); ?>
+
   <p style="text-align:center;">
       <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
       <input type="reset"  name="reset"  value="<?php echo __('Reset');?>">
@@ -534,6 +581,7 @@ foreach ($staff->dept_access as $dept_access) {
 }
 
 foreach ($staff->teams as $member) {
+  if (!$member->team) continue;
   echo sprintf('joinTeam(%d, %s, %d, %s);', $member->team_id,
     JsonDataEncoder::encode($member->team->getName()),
     $member->isAlertsEnabled(),

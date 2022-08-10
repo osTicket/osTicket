@@ -47,7 +47,7 @@ if($sort && $sortOptions[$sort])
     $order_by =$sortOptions[$sort];
 
 $order_by=$order_by ?: $sortOptions['date'];
-if ($_REQUEST['order'] && $orderWays[strtoupper($_REQUEST['order'])])
+if ($_REQUEST['order'] && !is_null($orderWays[strtoupper($_REQUEST['order'])]))
     $order = $orderWays[strtoupper($_REQUEST['order'])];
 else
     $order = $orderWays['DESC'];
@@ -77,7 +77,11 @@ if ($settings['status'])
 // unique values
 $visibility = $basic_filter->copy()
     ->values_flat('ticket_id')
-    ->filter(array('user_id' => $thisclient->getId()))
+    ->filter(array('user_id' => $thisclient->getId()));
+
+// Add visibility of Tickets where the User is a Collaborator if enabled
+if ($cfg->collaboratorTicketsVisibility())
+    $visibility = $visibility
     ->union($basic_filter->copy()
         ->values_flat('ticket_id')
         ->filter(array('thread__collaborators__user_id' => $thisclient->getId()))
@@ -129,7 +133,7 @@ $tickets->order_by($order.$order_by);
 $tickets->values(
     'ticket_id', 'number', 'created', 'isanswered', 'source', 'status_id',
     'status__state', 'status__name', 'cdata__subject', 'dept_id',
-    'dept__name', 'dept__ispublic', 'user__default_email__address'
+    'dept__name', 'dept__ispublic', 'user__default_email__address', 'user_id'
 );
 
 ?>
@@ -178,7 +182,7 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
     <i class="icon-file-alt"></i>
     <a class="state <?php if ($status == 'open') echo 'active'; ?>"
         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
-    <?php echo _P('ticket-status', 'Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
+    <?php echo __('Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
     </a>
     <?php if ($closedTickets) { ?>
     &nbsp;
@@ -201,19 +205,19 @@ if ($closedTickets) {?>
     <thead>
         <tr>
             <th nowrap>
-                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Ticket ID"><?php echo __('Ticket #');?></a>
+                <a href="tickets.php?sort=ID&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Ticket ID')); ?>"><?php echo __('Ticket #');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
             <th width="120">
-                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Date"><?php echo __('Create Date');?></a>
+                <a href="tickets.php?sort=date&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Date')); ?>"><?php echo __('Create Date');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
             <th width="100">
-                <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Status"><?php echo __('Status');?></a>
+                <a href="tickets.php?sort=status&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Status')); ?>"><?php echo __('Status');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
             <th width="320">
-                <a href="tickets.php?sort=subj&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Subject"><?php echo __('Subject');?></a>
+                <a href="tickets.php?sort=subject&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Subject')); ?>"><?php echo __('Subject');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
             <th width="120">
-                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="Sort By Department"><?php echo __('Department');?></a>
+                <a href="tickets.php?sort=dept&order=<?php echo $negorder; ?><?php echo $qstr; ?>" title="<?php echo sprintf('%s %s', __('Sort By'), __('Department')); ?>"><?php echo __('Department');?>&nbsp;<i class="icon-sort"></i></a>
             </th>
         </tr>
     </thead>
@@ -238,6 +242,7 @@ if ($closedTickets) {?>
                 $subject="<b>$subject</b>";
                 $ticketNumber="<b>$ticketNumber</b>";
             }
+            $thisclient->getId() != $T['user_id'] ? $isCollab = true : $isCollab = false;
             ?>
             <tr id="<?php echo $T['ticket_id']; ?>">
                 <td>
@@ -247,7 +252,11 @@ if ($closedTickets) {?>
                 <td><?php echo Format::date($T['created']); ?></td>
                 <td><?php echo $status; ?></td>
                 <td>
+                  <?php if ($isCollab) {?>
+                    <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><i class="icon-group"></i> <?php echo $subject; ?></div>
+                  <?php } else {?>
                     <div style="max-height: 1.2em; max-width: 320px;" class="link truncate" href="tickets.php?id=<?php echo $T['ticket_id']; ?>"><?php echo $subject; ?></div>
+                    <?php } ?>
                 </td>
                 <td><span class="truncate"><?php echo $dept; ?></span></td>
             </tr>

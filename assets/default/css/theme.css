@@ -113,7 +113,7 @@ fieldset {
 a, .link {
   color: #0072bc;
   text-decoration: none;
-  display: inline-block;
+  display: inline;
   margin-bottom: 1px;
 }
 a:hover, .link:hover {

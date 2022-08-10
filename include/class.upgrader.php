@@ -72,10 +72,17 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
-        if ($state == 'done') {
-            ModelMeta::flushModelCache();
-            $this->createUpgradedTicket();
-        }
+        if ($state == 'done')
+            $this->finalize();
+    }
+
+    function finalize() {
+        // Make sure cdata tables are created
+        DynamicForm::ensureDynamicDataViews();
+        // Flush the model cache
+        ModelMeta::flushModelCache();
+        // Create upgrade ticket
+        $this->createUpgradedTicket();
     }
 
     function createUpgradedTicket() {
@@ -361,6 +368,10 @@ class StreamUpgrader extends SetupWizard {
         $start_time = Misc::micro_time();
         if(!($max_time = ini_get('max_execution_time')))
             $max_time = 300; //Apache/IIS defaults.
+
+        // Drop any model meta cache to ensure model changes do not cause
+        // crashes
+        ModelMeta::flushModelCache();
 
         // Apply up to five patches at a time
         foreach (array_slice($patches, 0, 5) as $patch) {

@@ -21,7 +21,7 @@ class Bootstrap {
         session_cache_limiter('nocache');
 
         #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
-        $error_reporting = E_ALL & ~E_NOTICE;
+        $error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
         if (defined('E_STRICT')) # 5.4.0
             $error_reporting &= ~E_STRICT;
         if (defined('E_DEPRECATED')) # 5.3.0
@@ -49,7 +49,7 @@ class Bootstrap {
             $_SERVER['REMOTE_ADDR'] = '';
     }
 
-    function https() {
+    static function https() {
        return osTicket::is_https();
     }
 
@@ -92,15 +92,18 @@ class Bootstrap {
         define('THREAD_TABLE', $prefix.'thread');
         define('THREAD_ENTRY_TABLE', $prefix.'thread_entry');
         define('THREAD_ENTRY_EMAIL_TABLE', $prefix.'thread_entry_email');
+        define('THREAD_ENTRY_MERGE_TABLE', $prefix.'thread_entry_merge');
 
         define('LOCK_TABLE',$prefix.'lock');
 
         define('TICKET_TABLE',$prefix.'ticket');
         define('TICKET_CDATA_TABLE', $prefix.'ticket__cdata');
         define('THREAD_EVENT_TABLE',$prefix.'thread_event');
+        define('THREAD_REFERRAL_TABLE',$prefix.'thread_referral');
         define('THREAD_COLLABORATOR_TABLE', $prefix.'thread_collaborator');
         define('TICKET_STATUS_TABLE', $prefix.'ticket_status');
         define('TICKET_PRIORITY_TABLE',$prefix.'ticket_priority');
+        define('EVENT_TABLE',$prefix.'event');
 
         define('TASK_TABLE', $prefix.'task');
         define('TASK_CDATA_TABLE', $prefix.'task__cdata');
@@ -133,12 +136,21 @@ class Bootstrap {
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
         define('QUEUE_TABLE', $prefix.'queue');
+        define('COLUMN_TABLE', $prefix.'queue_column');
+        define('QUEUE_COLUMN_TABLE', $prefix.'queue_columns');
+        define('QUEUE_SORT_TABLE', $prefix.'queue_sort');
+        define('QUEUE_SORTING_TABLE', $prefix.'queue_sorts');
+        define('QUEUE_EXPORT_TABLE', $prefix.'queue_export');
+        define('QUEUE_CONFIG_TABLE', $prefix.'queue_config');
+
+        define('SCHEDULE_TABLE', $prefix.'schedule');
+        define('SCHEDULE_ENTRY_TABLE', $prefix.'schedule_entry');
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
     }
 
-    function loadConfig() {
+    static function loadConfig() {
         #load config info
         $configfile='';
         if(file_exists(INCLUDE_DIR.'ost-config.php')) //NEW config file v 1.6 stable ++
@@ -168,7 +180,7 @@ class Bootstrap {
         define('SESSION_TTL', 86400); // Default 24 hours
     }
 
-    function connect() {
+    static function connect() {
         #Connect to the DB && get configuration from database
         $ferror=null;
         $options = array();
@@ -189,7 +201,7 @@ class Bootstrap {
             self::croak($ferror);
     }
 
-    function loadCode() {
+    static function loadCode() {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
         require_once INCLUDE_DIR.'class.translation.php';
@@ -206,10 +218,10 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.mailer.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
-        require_once INCLUDE_DIR.'class.search.php';
+        require_once INCLUDE_DIR.'class.queue.php';
     }
 
-    function i18n_prep() {
+    static function i18n_prep() {
         ini_set('default_charset', 'utf-8');
         ini_set('output_encoding', 'utf-8');
 
@@ -286,9 +298,19 @@ class Bootstrap {
         }
         if (extension_loaded('iconv'))
             iconv_set_encoding('internal_encoding', 'UTF-8');
+
+        if (intval(phpversion()) < 7) {
+            function random_int($a, $b) {
+                return rand($a, $b);
+            }
+        }
+
+        function mb_str_wc($str) {
+            return count(preg_split('~[^\p{L}\p{N}\'].+~u', trim($str)));
+        }
     }
 
-    function croak($message) {
+    static function croak($message) {
         $msg = $message."\n\n".THISPAGE;
         Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
             sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
@@ -307,6 +329,9 @@ define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved out
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
 
+define('CLIENTINC_DIR',INCLUDE_DIR.'client/');
+define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
+
 define('UPGRADE_DIR', INCLUDE_DIR.'upgrader/');
 define('I18N_DIR', INCLUDE_DIR.'i18n/');
 define('CLI_DIR', INCLUDE_DIR.'cli/');
@@ -314,9 +339,9 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('THIS_VERSION','1.8-git'); //Shown on admin panel
 define('GIT_VERSION','$git');
-define('MAJOR_VERSION', '1.10');
+define('MAJOR_VERSION', '1.16');
+define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))

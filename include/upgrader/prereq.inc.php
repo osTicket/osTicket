@@ -15,12 +15,12 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
             <?php echo __('These items are necessary in order to run the latest version of osTicket.');?>
             <ul class="progress">
                 <li class="<?php echo $upgrader->check_php()?'yes':'no'; ?>">
-                <?php echo sprintf(__('%s or later'), 'PHP v5.4'); ?> - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
+                <?php echo sprintf(__('%s or later'), 'PHP v'.SetupWizard::getPHPVersion()); ?> - (<small><b><?php echo PHP_VERSION; ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql()?'yes':'no'; ?>">
-                <?php echo __('MySQLi extension for PHP'); ?>- (<small><b><?php
+                <?php echo __('MySQLi extension for PHP'); ?> - (<small><b><?php
                     echo extension_loaded('mysqli')?__('module loaded'):__('missing!'); ?></b></small>)</li>
                 <li class="<?php echo $upgrader->check_mysql_version()?'yes':'no'; ?>">
-                <?php echo sprintf(__('%s or later'), 'MySQL v5.0'); ?> - (<small><b><?php echo db_version(); ?></b></small>)</li>
+                <?php echo sprintf(__('%s or later'), 'MySQL v'.SetupWizard::getMySQLVersion()); ?> - (<small><b><?php echo db_version(); ?></b></small>)</li>
             </ul>
             <h3><?php echo __('Highly Recommended');?>:</h3>
             <?php echo __('We highly recommend that you follow the steps below.');?>
@@ -39,9 +39,9 @@ if(!defined('OSTSCPINC') || !$thisstaff || !$thisstaff->isAdmin()) die('Access D
     <div class="sidebar pull-right">
             <h3><?php echo __('Upgrade Tips');?></h3>
             <p>1. <?php echo __('Remember to back up your osTicket database');?></p>
-            <p>2. <?php echo sprintf(__('Refer to %1$s Upgrade Guide %2$s for the latest tips'), '<a href="http://osticket.com/wiki/Upgrade_and_Migration" target="_blank">', '</a>');?></p>
+            <p>2. <?php echo sprintf(__('Refer to %1$s Upgrade Guide %2$s for the latest tips'), '<a href="https://docs.osticket.com/en/latest/Getting%20Started/Upgrade%20and%20Migration.html" target="_blank">', '</a>');?></p>
             <p>3. <?php echo __('If you experience any problems, you can always restore your files/database backup.');?></p>
-            <p>4. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="http://osticket.com/support/" target="_blank">', '</a>');?></p>
+            <p>4. <?php echo sprintf(__('We can help. Feel free to %1$s contact us %2$s for professional help.'), '<a href="https://osticket.com/support/" target="_blank">', '</a>');?></p>
 
     </div>
     <div class="clear"></div>

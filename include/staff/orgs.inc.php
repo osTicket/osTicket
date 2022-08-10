@@ -18,7 +18,7 @@ if ($_REQUEST['query']) {
 
 $sortOptions = array(
         'name' => 'name',
-        'users' => 'users',
+        'users' => 'user_count',
         'create' => 'created',
         'update' => 'updated'
         );
@@ -169,7 +169,9 @@ else
 </table>
 <?php
 if ($total): //Show options..
-    echo sprintf('<div>&nbsp;%s: %s &nbsp; <a class="no-pjax"
+    echo '<div>';
+    echo '<span class="faded pull-right">'.$showing.'</span>';
+    echo sprintf('&nbsp;%s: %s &nbsp; <a class="no-pjax"
             href="orgs.php?a=export">%s</a></div>',
             __('Page'),
             $pageNav->getPageLinks(),
@@ -219,7 +221,11 @@ $(function() {
             $form.find('#selected-count').val(ids.length);
             $form.submit();
           };
-          $.confirm(__('You sure?')).then(submit);
+          $.confirm(__('You sure?')).then(function(promise) {
+            if (promise === false)
+              return false;
+            submit();
+          });
         }
         else if (!ids.length) {
             $.sysAlert(__('Oops'),

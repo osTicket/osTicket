@@ -16,8 +16,6 @@
 require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.email.php');
 include_once(INCLUDE_DIR.'class.csrf.php');
-$info=array();
-$info['subj']='osTicket test email';
 
 if($_POST){
     $errors=array();
@@ -31,12 +29,12 @@ if($_POST){
     if(!$_POST['subj'])
         $errors['subj']=__('Subject required');
 
-    if(!$_POST['message'])
-        $errors['message']=__('Message required');
+    if(!$_POST['body'])
+        $errors['body']=__('Message required');
 
     if(!$errors && $email){
         if($email->send($_POST['email'],$_POST['subj'],
-                Format::sanitize($_POST['message']),
+                Format::sanitize($_POST['body']),
                 null, array('reply-tag'=>false))) {
             $msg=Format::htmlchars(sprintf(__('Test email sent successfully to <%s>'),
                 $_POST['email']));
@@ -53,7 +51,9 @@ $ost->addExtraHeader('<meta name="tip-namespace" content="emails.diagnostic" />'
     "$('#content').data('tipNamespace', '".$tip_namespace."');");
 require(STAFFINC_DIR.'header.inc.php');
 
-$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
+$info=array();
+$info['subj']='osTicket test email';
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 ?>
 <form action="emailtest.php" method="post" class="save">
  <?php csrf_token(); ?>
@@ -117,10 +117,10 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
             <td colspan=2>
                 <div style="padding-top:0.5em;padding-bottom:0.5em">
                 <em><strong><?php echo __('Message');?></strong>: <?php echo __('email message to send.');?></em>&nbsp;<span class="error">*&nbsp;<?php echo $errors['message']; ?></span></div>
-                <textarea class="richtext draft draft-delete" name="message" cols="21"
+                <textarea class="richtext draft draft-delete" name="body" cols="21"
                     rows="10" style="width: 90%;" <?php
-    list($draft, $attrs) = Draft::getDraftAndDataAttrs('email.diag', false, $info['message']);
-    echo $attrs; ?>><?php echo $draft ?: $info['message'];
+    list($draft, $attrs) = Draft::getDraftAndDataAttrs('email.diag', false, $info['body']);
+    echo $attrs; ?>><?php echo $draft ?: $info['body'];
                  ?></textarea>
             </td>
         </tr>

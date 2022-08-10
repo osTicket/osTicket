@@ -21,8 +21,13 @@ require_once('../main.inc.php');
 
 if(!defined('INCLUDE_DIR')) die('Fatal error... invalid setting.');
 
+// Enforce ACL (if applicable)
+if (!Validator::check_acl('staff'))
+    die(__('Access Denied'));
+
 /*Some more include defines specific to staff only */
-define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
+if (!defined('STAFFINC_DIR'))
+    define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
 define('SCP_DIR',str_replace('//','/',dirname(__FILE__).'/'));
 
 /* Define tag that included files can check */
@@ -78,13 +83,15 @@ if (!$thisstaff || !$thisstaff->getId() || !$thisstaff->isValid()) {
 //2) if not super admin..check system status and group status
 if(!$thisstaff->isAdmin()) {
     //Check for disabled staff or group!
-    if (!$thisstaff->isactive()) {
+    if (!$thisstaff->isActive()) {
         staffLoginPage(__('Access Denied. Contact Admin'));
         exit;
     }
 
     //Staff are not allowed to login in offline mode!!
     if(!$ost->isSystemOnline() || $ost->isUpgradePending()) {
+        //logout current user if system is offline
+        $thisstaff->logOut();
         staffLoginPage(__('System Offline'));
         exit;
     }
@@ -131,6 +138,10 @@ if($thisstaff->forcePasswdChange() && !$exempt) {
     #      the request
     $sysnotice = __('Password change required to continue');
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
+    exit;
+} elseif ($thisstaff->force2faConfig() && !$exempt) {
+    $sysnotice = __('Two Factor Authentication configuration required to continue');
+    require('profile.php');
     exit;
 }
 $ost->setWarning($sysnotice);

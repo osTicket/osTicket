@@ -27,7 +27,7 @@ class ContentAjaxAPI extends AjaxController {
                     style="white-space:pre-line;">%s</p>
                     <hr><strong>%s:</strong> <em>%s</em> <strong>%s:</strong> <em>%s</em></div>',
                     $log->getTitle(),
-                    Format::display(str_replace(',',', ',$log->getText())),
+                    Format::display(str_replace(',',', ',Format::htmlchars($log->getText()))),
                     __('Log Date'),
                     Format::daydatetime($log->getCreateDate()),
                     __('IP Address'),
