@@ -1198,6 +1198,7 @@ class BasicAuthConfigForm extends AbstractForm {
                 'required' => true,
                 'label' => __('Username'),
                 'configuration' => array(
+                    'length' => 0,
                     'autofocus' => true,
                 ),
             )),
@@ -1207,6 +1208,7 @@ class BasicAuthConfigForm extends AbstractForm {
                 'validator' => 'noop',
                 'hint' => $passwdhint,
                 'configuration' => array(
+                    'length' => 0,
                     'classes' => 'span12',
                     'placeholder' =>  $passwdhint ?
                     str_repeat('••••••••••••', 2) : __('Password'),
