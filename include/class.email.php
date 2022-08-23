@@ -836,7 +836,7 @@ class EmailAccount extends VerySimpleModel {
         return false;
     }
 
-    public function logActivity($error= null, $now=null) {
+    public function logActivity($error=null, $now=null) {
         if (isset($error)) {
             $this->num_errors += 1;
             $this->last_error_msg = $error;
@@ -846,7 +846,7 @@ class EmailAccount extends VerySimpleModel {
             $this->last_error = null;
             $this->last_activity =  $now ?: SqlFunction::NOW();
         }
-        $this->save();
+        return $this->save();
     }
 
     function save($refetch=false) {
@@ -1044,7 +1044,11 @@ class MailBoxAccount extends EmailAccount {
     }
 
     public function logLastFetch($now=null) {
-        return $this->logActivity($now);
+        return $this->logActivity(null, $now);
+    }
+
+    private function logFetchError($error) {
+        return $this->logActivity($error ?: __('Mail Fetch Error'));
     }
 
     public function update($vars, &$errors) {
