@@ -366,6 +366,8 @@ class PluginManager {
         ];
         $p = Plugin::create($vars);
         if ($p->save(true)) {
+            // TODO: Trigger enable() for the plugin (for now)
+            $p->getImpl()->enable();
             static::clearCache();
             return $p;
         }
@@ -774,6 +776,10 @@ class Plugin extends VerySimpleModel {
      * FALSE if the uninstall operation should be aborted.
      */
     function pre_uninstall(&$errors) {
+        return true;
+    }
+
+    function enable() {
         return true;
     }
 
