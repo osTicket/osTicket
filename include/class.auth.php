@@ -178,7 +178,7 @@ abstract class OAuth2Backend extends ServiceRegistry {
                 || !($bk instanceof OAuth2Backend))
             return false;
 
-        static::$registry[$bk->getId()] = $bk;
+        static::$registry[$bk->getBkId()] = $bk;
     }
 
     static function allRegistered() {
@@ -330,7 +330,7 @@ abstract class AuthenticationBackend extends ServiceRegistry {
         foreach (static::allRegistered() as $bk) {
             if ($backends //Allowed backends
                     && $bk->supportsInteractiveAuthentication()
-                    && !in_array($bk->getId(), $backends))
+                    && !in_array($bk->getBkId(), $backends))
                 // User cannot be authenticated against this backend
                 continue;
 
@@ -589,7 +589,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         if (!($backends=self::getAllowedBackends($staff->getId())))
             return true;  //No restrictions
 
-        return in_array($bk->getId(), array_map('strtolower', $backends));
+        return in_array($bk->getBkId(), array_map('strtolower', $backends));
     }
 
     function getPasswordPolicies($user=null) {
