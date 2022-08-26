@@ -43,7 +43,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
       <i class="icon-user"></i> <?php echo __('Access'); ?></a></li>
 </ul>
 <div id="settings" class="tab_content">
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">
@@ -308,6 +308,26 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
         </tr>
         <tr>
             <td width="180">
+                <?php echo __('Closed Ticket');?>:
+            </td>
+            <td>
+                <span>
+                <input type="checkbox" name="closed_auto_response" value="0" <?php echo !$info['closed_auto_response']?'checked="checked"':''; ?> >  
+                <?php echo __('<strong>Disable</strong> for this Department'); ?>
+                <i class="help-tip icon-question-sign" href="#closed_auto_response"></i>
+                </span>
+            </td>
+        </tr>
+         <tr>
+            <td><?php echo __('Auto-Close Tickets After'); ?>:</td>  
+            <td>  
+                <input type="text" name="autoclose_grace_period" size=4 value="<?php echo $info['autoclose_grace_period']; ?>">&nbsp;Day(s)&nbsp;  
+                <font class="error"><?php echo $errors['autoclose_grace_period']; ?></font>  
+                <i class="help-tip icon-question-sign" href="#autoclose_grace_period"></i>  
+            </td>  
+        </tr>
+        <tr>
+            <td width="180">
                 <?php echo __('Auto-Response Email'); ?>:
             </td>
             <td>
@@ -370,8 +390,8 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
         </tr>
         <tr>
             <td colspan=2>
-                <textarea class="richtext no-bar" name="signature" cols="21"
-                    rows="5" style="width: 60%;"><?php echo $info['signature']; ?></textarea>
+                <textarea class="richtext" name="signature" cols="21"
+                    rows="5"><?php echo $info['signature']; ?></textarea>
             </td>
         </tr>
     </tbody>

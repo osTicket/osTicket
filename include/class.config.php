@@ -464,6 +464,10 @@ class OsticketConfig extends Config {
         return $this->get('max_page_size');
     }
 
+    function getPageWidth() {
+        return $this->get('max_page_width');
+    }
+
     function getGracePeriod() {
         return $this->get('overdue_grace_period');
     }
@@ -588,6 +592,10 @@ class OsticketConfig extends Config {
 
     function getClientNameFormat() {
         return $this->get('client_name_format');
+    }
+
+    function isRemoveStaffLoginLinkEnabled() {
+        return $this->get('remove_staff_login_link');
     }
 
     function getDefaultDeptId() {
@@ -987,6 +995,10 @@ class OsticketConfig extends Config {
         return ($this->get('ticket_alert_admin'));
     }
 
+    function alertSendIfAutoAssignedONNewTicket() {
+        return ($this->get('ticket_alert_send_if_auto_assigned'));
+    }
+
     function alertDeptManagerONNewTicket() {
         return ($this->get('ticket_alert_dept_manager'));
     }
@@ -1314,8 +1326,10 @@ class OsticketConfig extends Config {
             'default_dept_id'=>$vars['default_dept_id'],
             'force_https'=>$vars['force_https'] ? 'on' : '',
             'max_page_size'=>$vars['max_page_size'],
+            'max_page_width'=>$vars['max_page_width'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
+            'remove_staff_login_link' => isset($vars['remove_staff_login_link']) ? 1 : 0,
             'time_format'=>$vars['time_format'],
             'date_format'=>$vars['date_format'],
             'datetime_format'=>$vars['datetime_format'],
@@ -1701,6 +1715,7 @@ class OsticketConfig extends Config {
 
        if($vars['ticket_alert_active']
                 && (!isset($vars['ticket_alert_admin'])
+                    && !isset($vars['ticket_alert_send_if_auto_assigned'])
                     && !isset($vars['ticket_alert_dept_manager'])
                     && !isset($vars['ticket_alert_dept_members'])
                     && !isset($vars['ticket_alert_acct_manager']))) {
@@ -1747,6 +1762,7 @@ class OsticketConfig extends Config {
         return $this->updateAll(array(
             'ticket_alert_active'=>$vars['ticket_alert_active'],
             'ticket_alert_admin'=>isset($vars['ticket_alert_admin'])?1:0,
+            'ticket_alert_send_if_auto_assigned'=>isset($vars['ticket_alert_send_if_auto_assigned'])?1:0,
             'ticket_alert_dept_manager'=>isset($vars['ticket_alert_dept_manager'])?1:0,
             'ticket_alert_dept_members'=>isset($vars['ticket_alert_dept_members'])?1:0,
             'ticket_alert_acct_manager'=>isset($vars['ticket_alert_acct_manager'])?1:0,

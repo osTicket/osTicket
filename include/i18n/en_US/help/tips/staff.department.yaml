@@ -126,6 +126,20 @@ new_message:
         You may disable the Auto-Response sent to the User to confirm
         a newly posted message for tickets in this Department.
 
+closed_auto_response:
+    title: Closed Ticket Auto Response
+    content: >
+        You may disable the Auto-Response sent to the User when a ticket
+        is closed by this Department or automatically if the <strong>Auto-Close
+        Tickets After x Days</strong> is enabled below.
+
+autoclose_grace_period:
+    title: Auto-Close Answered Tickets After x Days
+    content: >
+        Enter the number of Days before an answered ticket will be Auto-Closed by the system.
+        <br><br>
+        Enter <span class="doc-desc-opt">0</span> to disable the Auto-Close feature.
+
 auto_response_email:
     title: Auto Response Email
     content: >

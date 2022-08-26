@@ -5,7 +5,7 @@ $account = $user->getAccount();
 $org = $user->getOrganization();
 $extras = new ArrayObject();
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="users.php?id=<?php echo $user->getId(); ?>"
@@ -128,7 +128,8 @@ if ($thisstaff->hasPerm(User::PERM_EDIT)) { ?>
                 <tr>
                     <th width="150"><?php echo __('Status'); ?>:</th>
                     <td> <span id="user-<?php echo $user->getId();
-                    ?>-status"><?php echo $user->getAccountStatus(); ?></span></td>
+                    ?>-status"><?php echo $user->getAccountStatus(); 
+                     echo (BanList::isbanned($user->getEmail()) == 1 ? '&nbsp;&nbsp;<font color="ff0000">(Banned)</font>' : ''); ?></span></td>
                 </tr>
                 <tr>
                     <th><?php echo __('Created'); ?>:</th>
