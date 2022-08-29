@@ -95,6 +95,8 @@ if (!$ticket) {
                     Validator::is_valid_email($_GET['query']) ? 'equal' : 'contains',
                     $_GET['query']
                 ];
+            } elseif (Validator::is_numeric($_GET['query'])) {
+                $criteria = ['number', 'contains', $_GET['query']];
             } else {
                 $criteria = [':keywords', null, $_GET['query']];
             }
