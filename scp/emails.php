@@ -20,14 +20,10 @@ $email=null;
 if ($_REQUEST['id']) {
     if (($email=Email::lookup((int) $_REQUEST['id']))) {
         // Get stashed errors or msg (if any)
-        $session = &$_SESSION[':email'][$email->getId()];
-        if (isset($session['errors']))
-            $errors = $session['errors'];
-        elseif (isset($session['msg']))
-            $msg = $session['msg'];
-        unset($session['errors'], $session['msg']);
+        if (!($errors=$email->restoreErrors()))
+            $msg = $email->restoreNotice() ?: null;
     } else {
-        $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('email'));
+        $errors['err'] = sprintf(__('%s: Unknown or invalid ID.'), __('email'));
     }
 }
 

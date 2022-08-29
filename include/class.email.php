@@ -73,15 +73,40 @@ class Email extends VerySimpleModel {
         return $this->getAddress();
     }
 
-    function stash($key, $data) {
+    //  TODO: move stash/restore to a  StashableTrait
+    function restore($key, $drop=true) {
+        if (($data = $this->stash($key, null)) && $drop)
+            $this->stash[$key] = null;
+        return $data;
+    }
+
+    function stash($key, $data=null) {
         if (!isset($this->stash))
             $this->stash = &$_SESSION[':email'][$this->getId()];
 
-        $this->stash[$key] = $data;
+        // If data is null then stash is being pop-ed
+        if (!isset($data) && $key && isset($this->stash[$key]))
+            return $this->stash[$key];
+
+        // stash data
+        if ($key && $data)
+            $this->stash[$key] = $data;
     }
 
     function stashFormData(array $data) {
         $this->stash('formdata', array_filter($data));
+    }
+
+    function restoreFormData($drop=true) {
+        return $this->restore('formdata', $drop) ?: [];
+    }
+
+    function restoreErrors($drop=true) {
+        return $this->restore('errors', $drop) ?: [];
+    }
+
+    function restoreNotice($drop=true) {
+        return $this->restore('notice', $drop);
     }
 
     function getEmail() {
@@ -165,6 +190,10 @@ class Email extends VerySimpleModel {
         // SMTP Account Info
         if (($smtp=$this->getSmtpAccount()))
             $info = array_merge($info, $smtp->getInfo());
+        // Restore stahed formdata (if any)
+        if ($_SERVER['REQUEST_METHOD'] == 'GET'
+                && ($data=$this->restoreFormData()))
+            $info = array_merge($info, $data);
 
         return $info;
     }
@@ -555,6 +584,11 @@ class EmailAccount extends VerySimpleModel {
             if (isset($this->ht[$var]))
                 $ht[$this->type.'_'.$var] = $this->ht[$var];
         }
+        // Add stashed info (if any)
+        if (($data=$this->email->restoreFormData(false)))
+            $ht = array_merge($ht, $data);
+
+
         return $ht;
     }
 
