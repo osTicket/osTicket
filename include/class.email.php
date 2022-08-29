@@ -668,7 +668,7 @@ class EmailAccount extends VerySimpleModel {
         // Authentication doesn't match - it's getting reconfigured.
         if ($auth
                 && strncasecmp($this->getAuthBk(), $auth, strlen($auth))
-                && strcasecmp($auth, 'none'))
+                && !in_array($auth, ['none', 'mailbox']))
             return [];
 
         if (!isset($this->cred) || $refresh)  {
