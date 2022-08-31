@@ -2960,7 +2960,12 @@ class MySqlCompiler extends SqlCompiler {
         $q->annotations = false;
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
-        $row = $exec->getRow();
+        try {
+            $row = $exec->getRow();
+        } catch (mysqli_sql_exception $e) {
+            throw new InconsistentModelException(
+                'Unable to prepare query: '.db_error().' '.$sql);
+        }
         return is_array($row) ? (int) $row[0] : null;
     }
 
