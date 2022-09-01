@@ -30,12 +30,11 @@
   name: SYSTEM BAN LIST #notrans
   notes: |
     Internal list for email banning. Do not remove
-
   rules:
     - isactive: 1
-      what: email #notrans
-      how: equal #notrans
-      val: test@example.com #notrans
+      w: email #notrans
+      h: equal #notrans
+      v: test@example.com #notrans
   actions:
     - sort: 1
       type: reject #notrans
