@@ -1862,7 +1862,10 @@ class ChoiceField extends FormField {
                 'id'=>1, 'label'=>__('Choices'), 'required'=>false, 'default'=>'',
                 'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change.</br><b>Note:</b> If you have more than two choices, use a List instead.'),
                 'validator'=>'choices',
-                'configuration'=>array('html'=>false)
+                'configuration'=>array(
+                    'html' => false,
+                    'disabled' => false,
+                    )
             )),
             'default' => new TextboxField(array(
                 'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
@@ -4646,6 +4649,8 @@ class ChoicesWidget extends Widget {
                 echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
             ?>
             data-placeholder="<?php echo Format::htmlchars($prompt); ?>"
+            <?php if ($config['disabled'])
+                echo ' disabled="disabled"'; ?>
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
             <?php if ($showdefault || (!$have_def && !$config['multiselect'])) { ?>
