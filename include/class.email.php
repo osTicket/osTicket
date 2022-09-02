@@ -655,9 +655,8 @@ class EmailAccount extends VerySimpleModel {
                                 $this->active = 0;
                             // Auth backend can be changed on update
                             $this->auth_bk = $auth;
-
                             $this->save();
-                        } else {
+                        } elseif (!isset($errors['err'])) {
                             $errors['err'] = sprintf('%s %s',
                                     __('Error Saving'),
                                     __('Authentication'));
