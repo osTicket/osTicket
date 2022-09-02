@@ -50,6 +50,17 @@ abstract class PluginConfig extends Config {
         return array();
     }
 
+    // getFields is same as getOptions but can be used downstream to filter
+    // or modify fields based on settings
+    function getFields() {
+        return $this->getOptions();
+    }
+
+    // Returns form options like title and notices as accepted by SimpleForm
+    function getFormOptions() {
+        return array();
+    }
+
     function getInfo() {
         return array_merge(parent::getInfo(), $this->_config);
     }
@@ -72,7 +83,8 @@ abstract class PluginConfig extends Config {
      */
     function getForm($vars=[]) {
         if (!isset($this->form)) {
-            $this->form = new SimpleForm($this->getOptions());
+            $this->form = new SimpleForm($this->getFields(),
+                    null, $this->getFormOptions());
             // set data if any
             if ($_SERVER['REQUEST_METHOD'] != 'POST') {
                 // defaults + current info

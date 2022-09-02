@@ -37,6 +37,11 @@ if (isset($options['entry']) && $options['mode'] == 'edit') { ?>
         <strong><?php echo Format::htmlchars($form->getTitle()); ?></strong>:
         <div><?php echo Format::display($form->getInstructions()); ?></div>
         </em>
+        <?php
+        if ($form->getNotice())
+            echo sprintf('<p id="msg_warning">%s</p>',
+                Format::htmlchars($form->getNotice()));
+        ?>
     </th></tr>
     <?php
     }

@@ -3,9 +3,8 @@ $info = $instance ? $instance->getInfo() : $plugin->getNewInstanceDefaults($_GET
 $info = Format::htmlchars(($errors && $_POST) ? array_merge($info, $_POST) : $info, true);
 $form = $instance ? $instance->getForm() : $plugin->getConfigForm($info);
 ?>
-<ul class="clean tabs" id="instance-tabs">
-    <li class="<?php if (!$instance) echo 'active '; if (count($errors)) echo
-    'error'; ?>"><a href="#instance">
+<ul class="clean tabs" id="instance-tabs"> <li class="<?php
+    if (!$instance) echo 'active '; ?> "><a href="#instance">
         <i class="icon-info-sign"></i> <?php echo __('Instance'); ?></a></li>
     <li <?php if ($instance) echo 'class="active"'; ?>><a href="#config">
         <i class="icon-cog"></i> <?php echo __('Config'); ?></a></li>
