@@ -906,6 +906,8 @@ class PluginInstance extends VerySimpleModel {
         ),
     );
 
+    // Config class that plugin can set.
+    private $config_class = null;
     // Plugin Config for the instance
     var $_config;
     var $_form;
@@ -960,13 +962,16 @@ class PluginInstance extends VerySimpleModel {
         $this->setFlag(self::FLAG_ENABLED, $status);
     }
 
+    private function getConfigClass() {
+        return $this->config_class ?: $this->getPlugin()->getConfigClass();
+    }
+
     function getConfig($class=null, $defaults=[]) {
-        $class = $class ?: $this->getPlugin()->getConfigClass();
+        $class = $class ?: $this->getConfigClass();
         if (!isset($this->_config) && $class) {
             $this->_config =  new $class($this->getNamespace(), $defaults);
             $this->_config->setInstance($this);
         }
-
         return $this->_config;
     }
 
