@@ -33,7 +33,7 @@ if ($_POST) {
          if ($instance && $instance->update($_POST, $errors))
              $msg = sprintf('%s %s',
                       __('Instance'),
-                      __('Added Successfully'));
+                      __('Updated Successfully'));
          elseif (!$errors['err'])
              $errors['err'] = sprintf(__('Unable to update %s.'),
                      __('Plugin Instance'));
