@@ -1226,11 +1226,15 @@ class EmailAccountConfig extends Config {
  *
  */
 class BasicAuthConfigForm extends AbstractForm {
-    function buildFields() {
-        $passwdhint = '';
-        if (isset($this->_source['passwd']) && $this->_source['passwd'])
-           $passwdhint = __('Enter a new password to change current one');
 
+    private function getPassword() {
+        if (isset($this->_source['passwd']) && $this->_source['passwd'])
+            return $this->_source['passwd'];
+        return false;
+    }
+
+    function buildFields() {
+        $password = $this->getPassword();
         return array(
             'username' => new TextboxField(array(
                 'required' => true,
@@ -1242,26 +1246,20 @@ class BasicAuthConfigForm extends AbstractForm {
             )),
             'passwd' => new PasswordField(array(
                 'label' => __('Password'),
-                'required' => true,
+                'required' => !$password,
                 'validator' => 'noop',
-                'hint' => $passwdhint,
+                'hint' => $password
+                    ? __('Enter a new password to change current one')
+                    : '',
                 'configuration' => array(
                     'length' => 0,
                     'classes' => 'span12',
-                    'placeholder' =>  $passwdhint ?
-                    str_repeat('••••••••••••', 2) : __('Password'),
+                    'placeholder' => $password
+                            ? str_repeat('•', strlen($password)*2)
+                            : __('Password'),
                 ),
             )),
         );
-    }
-
-    function isValid($include=false) {
-        $self = $this;
-        return parent::isValid(function ($f) use($self) {
-                return !(($f instanceof PasswordField)
-                        && isset($self->_source['passwd'])
-                        && $f->resetErrors());
-                });
     }
 }
 ?>
