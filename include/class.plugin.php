@@ -22,7 +22,7 @@ abstract class PluginConfig extends Config {
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name)) {
                 $val = $this->get($name);
-                $this->_config[$name] = $field->to_php($val) ?: $val;
+                $this->_config[$name] = $field->to_php($val);
             } elseif (($default = $field->get('default')))
                 $this->_config[$name] = $default;
         }
