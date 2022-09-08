@@ -710,7 +710,7 @@ class Plugin extends VerySimpleModel {
             // plugin instantace boostrapping
             if ($instance)
                 // Config for an instance.
-                $this->config = $instance->getConfig($class, $defaults);
+                $this->config = $instance->getConfig($defaults);
             else
                 //  New instance config
                 $this->config = new $class(null, $defaults);
@@ -962,12 +962,18 @@ class PluginInstance extends VerySimpleModel {
         $this->setFlag(self::FLAG_ENABLED, $status);
     }
 
-    private function getConfigClass() {
+    function setConfigClass($class) {
+        $this->config_class  = $class;
+        // Clear current config so it can be reloaded
+        $this->_config = null;
+    }
+
+    function getConfigClass() {
         return $this->config_class ?: $this->getPlugin()->getConfigClass();
     }
 
-    function getConfig($class=null, $defaults=[]) {
-        $class = $class ?: $this->getConfigClass();
+    function getConfig($defaults=[]) {
+        $class = $this->getConfigClass();
         if (!isset($this->_config) && $class) {
             $this->_config =  new $class($this->getNamespace(), $defaults);
             $this->_config->setInstance($this);
