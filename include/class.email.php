@@ -426,7 +426,7 @@ class EmailAccount extends VerySimpleModel {
     private $settings;
 
 
-    public function getAccountOptions($stashed=false) {
+    public function getAccountSetting($stashed=false) {
 
         if (!isset($this->settings)) {
             // Set properties to stashed form data (if any and requested)
@@ -437,7 +437,7 @@ class EmailAccount extends VerySimpleModel {
                         $this->{$p} = $info[$k];
                 }
             }
-            $this->settings = new osTicket\Mail\AccountOptions($this);
+            $this->settings = new osTicket\Mail\AccountSetting($this);
         }
         return $this->settings;
     }
@@ -629,7 +629,7 @@ class EmailAccount extends VerySimpleModel {
                 case 'basic':
                      $this->form = $this->getBasicAuthConfigForm($vars,
                              $auth);
-                     $setting =  $this->getAccountOptions(true);
+                     $setting =  $this->getAccountSetting(true);
                      if (!$setting  || !$setting->isValid())
                          $this->form->setNotice(
                                  __('Host, Port & Protocol Required'));
@@ -827,7 +827,7 @@ class EmailAccount extends VerySimpleModel {
                     $errors['username'] = __('Username Required');
                 } elseif (!$vars['passwd'] && !$creds['password']) {
                     $errors['passwd'] = __('Password Required');
-                } elseif (($setting=$this->getAccountOptions(true))
+                } elseif (($setting=$this->getAccountSetting(true))
                         && !$setting->isValid()) {
                     $errors['err'] = implode(', ', $setting->getErrors());
                 } elseif ($setting && !$errors) {
@@ -1005,15 +1005,15 @@ class MailBoxAccount extends EmailAccount {
     public function getMailBox(osTicket\Mail\AuthCredentials $cred=null) {
         if (!isset($this->mailbox) || $cred) {
             $this->cred = $cred ?: $this->getFreshCredentials();
-            $options = $this->getAccountOptions();
-            $options->setCredentials($this->cred);
+            $setting = $this->getAccountSetting();
+            $setting->setCredentials($this->cred);
             switch  (strtolower($this->getProtocol())) {
                 case 'imap':
-                    $mailbox = new osTicket\Mail\Imap($options);
+                    $mailbox = new osTicket\Mail\Imap($setting);
                     break;
                 case 'pop3':
                 case 'pop':
-                    $mailbox = new osTicket\Mail\Pop3($options);
+                    $mailbox = new osTicket\Mail\Pop3($setting);
                     break;
                 default:
                     throw new Exception('Unknown Mail protocol:
@@ -1191,9 +1191,9 @@ class SmtpAccount extends EmailAccount {
     public function getSmtp(osTicket\Mail\AuthCredentials $cred=null) {
         if (!isset($this->smtp) || $cred) {
             $this->cred = $cred ?: $this->getFreshCredentials();
-            $accountOptions = $this->getAccountOptions();
-            $accountOptions->setCredentials($this->cred);
-            $smtpOptions = new osTicket\Mail\SmtpOptions($accountOptions);
+            $setting = $this->getAccountSetting();
+            $setting->setCredentials($this->cred);
+            $smtpOptions = new osTicket\Mail\SmtpOptions($setting);
             $smtp = new osTicket\Mail\Smtp($smtpOptions);
             // Attempt to connect if Credentials are sent
             if ($cred) $smtp->connect();

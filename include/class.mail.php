@@ -118,14 +118,14 @@ namespace osTicket\Mail {
     use Laminas\Mail\Protocol\Imap as ImapProtocol;
     use Laminas\Mail\Protocol\Pop3 as Pop3Protocol;
     trait MailBoxProtocolTrait {
-        final public function init(AccountOptions $accountOptions) {
+        final public function init(AccountSetting $setting) {
             // Attempt to connect to the mail server
-            $connect = $accountOptions->getConnectionOptions();
+            $connect = $setting->getConnectionConfig();
             // Let's go Brandon
             parent::connect($connect['host'], $connect['port'],
                     $connect['ssl']);
             // Attempt authentication based on MailBoxAccount settings
-            $auth = $accountOptions->getAuth();
+            $auth = $setting->getAuthCredentials();
             switch (true) {
                 case $auth instanceof BasicAuthCredentials:
                     if (!$this->basicAuth($auth->getUsername(), $auth->getPassword()))
@@ -391,15 +391,15 @@ namespace osTicket\Mail {
     // SmtpOptions
     use Laminas\Mail\Transport\SmtpOptions as SmtpSettings;
     class SmtpOptions extends SmtpSettings {
-        public function __construct(AccountOptions $options) {
-            parent::__construct($this->buildOptions($options));
+        public function __construct(AccountSetting $setting) {
+            parent::__construct($this->buildOptions($setting));
         }
 
-        private function buildOptions(AccountOptions $options) {
+        private function buildOptions(AccountSetting $setting) {
             // Build out SmtpOptions options based on SmtpAccount Settings
             $config = [];
-            $connect = $options->getConnectionOptions();
-            $auth = $options->getAuth();
+            $connect = $setting->getConnectionConfig();
+            $auth = $setting->getAuthCredentials();
             switch (true) {
                 case $auth instanceof NoAuthCredentials:
                     // No Authentication - simply return host and port
@@ -580,11 +580,11 @@ namespace osTicket\Mail {
         }
     }
 
-    // osTicket/Mail/AccountOptions
-    class AccountOptions {
+    // osTicket/Mail/AccountSetting
+    class AccountSetting {
         private $account;
         private $creds;
-        private $connectOptions = [];
+        private $connection = [];
         private $errors = [];
 
         public function __construct(\EmailAccount $account) {
@@ -607,7 +607,7 @@ namespace osTicket\Mail {
                     $ssl = 'tls';
             }
 
-            $this->connectOptions = [
+            $this->connection = [
                 'host' => $host,
                 'port' => (int) $port,
                 'ssl' => $ssl,
@@ -620,23 +620,23 @@ namespace osTicket\Mail {
         }
 
         public function getName() {
-            return $this->connectOptions['name'];
+            return $this->connection['name'];
         }
 
         public function getHost() {
-            return $this->connectOptions['host'];
+            return $this->connection['host'];
         }
 
         public function getPort() {
-            return $this->connectOptions['port'];
+            return $this->connection['port'];
         }
 
         public function getSsl() {
-            return $this->connectOptions['ssl'];
+            return $this->connection['ssl'];
         }
 
         public function getProtocol() {
-            return $this->connectOptions['protocol'];
+            return $this->connection['protocol'];
         }
 
         public function setCredentials(AuthCredentials $creds) {
@@ -649,7 +649,7 @@ namespace osTicket\Mail {
             return $this->creds;
         }
 
-        public function getAuth() {
+        public function getAuthCredentials() {
             return $this->getCredentials();
         }
 
@@ -657,12 +657,12 @@ namespace osTicket\Mail {
             return $this->account;
         }
 
-        public function getConnectionOptions() {
-            return $this->connectOptions;
+        public function getConnectionConfig() {
+            return $this->connection;
         }
 
         public function asArray() {
-            return $this->connectOptions;
+            return $this->getConnectionConfig();
         }
 
         public function describe() {
@@ -677,7 +677,7 @@ namespace osTicket\Mail {
 
             if (!isset($this->errors)) {
                 $this->errors = [];
-                $info = $this->getConnectionOptions();
+                $info = $this->getConnectionConfig();
                 foreach (['host', 'port', 'protocol'] as $p ) {
                     if (!isset($info[$p]) || !$info[$p])
                         $this->errors[$p] = sprintf('%s %s',
