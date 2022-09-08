@@ -120,7 +120,7 @@ namespace osTicket\Mail {
     trait MailBoxProtocolTrait {
         final public function init(AccountOptions $accountOptions) {
             // Attempt to connect to the mail server
-            $connect = $accountOptions->getConnectioOptions();
+            $connect = $accountOptions->getConnectionOptions();
             // Let's go Brandon
             parent::connect($connect['host'], $connect['port'],
                     $connect['ssl']);
@@ -398,7 +398,7 @@ namespace osTicket\Mail {
         private function buildOptions(AccountOptions $options) {
             // Build out SmtpOptions options based on SmtpAccount Settings
             $config = [];
-            $connect = $options->getConnectioOptions();
+            $connect = $options->getConnectionOptions();
             $auth = $options->getAuth();
             switch (true) {
                 case $auth instanceof NoAuthCredentials:
@@ -583,16 +583,18 @@ namespace osTicket\Mail {
     // osTicket/Mail/AccountOptions
     class AccountOptions {
         private $account;
+        private $creds;
         private $connectOptions = [];
+        private $errors = [];
 
         public function __construct(\EmailAccount $account) {
             // Set the account
-            $this->account = $account;
+            $this->account = &$account;
             // Parse Connection Options
             // We allow scheme to hint for encryption for people using ssl or tls
             // on nonstandard ports.
             $host = $account->getHost();
-            $ssl = $account->getEncryption();
+            $ssl = null;
             $matches = [];
             if (preg_match('~^(ssl|tls)://(.*+)$~iu', $host, $matches))
                 list(, $host, $ssl) = $matches;
@@ -609,8 +611,12 @@ namespace osTicket\Mail {
                 'host' => $host,
                 'port' => (int) $port,
                 'ssl' => $ssl,
+                'protocol' => strtoupper($account->getProtocol()),
                 'name' => null
             ];
+
+            // Set errors to null to clear validation
+            $this->errors = null;
         }
 
         public function getName() {
@@ -629,8 +635,18 @@ namespace osTicket\Mail {
             return $this->connectOptions['ssl'];
         }
 
+        public function getProtocol() {
+            return $this->connectOptions['protocol'];
+        }
+
+        public function setCredentials(AuthCredentials $creds) {
+            $this->creds = $creds;
+        }
+
         public function getCredentials() {
-            return $this->account->getCredentials();
+            if (!isset($this->creds))
+                $this->creds = $this->account->getCredentials();
+            return $this->creds;
         }
 
         public function getAuth() {
@@ -641,8 +657,44 @@ namespace osTicket\Mail {
             return $this->account;
         }
 
-        public function getConnectioOptions() {
+        public function getConnectionOptions() {
             return $this->connectOptions;
+        }
+
+        public function asArray() {
+            return $this->connectOptions;
+        }
+
+        public function describe() {
+            return sprintf('%s//%s:%s/%s',
+                    $this->getSsl(),
+                    $this->getHost(),
+                    $this->getPort(),
+                    $this->getProtocol());
+        }
+
+        private function validate() {
+
+            if (!isset($this->errors)) {
+                $this->errors = [];
+                $info = $this->getConnectionOptions();
+                foreach (['host', 'port', 'protocol'] as $p ) {
+                    if (!isset($info[$p]) || !$info[$p])
+                        $this->errors[$p] = sprintf('%s %s',
+                                strtoupper($p), __('Required'));
+                }
+                // TODO: Validate hostname - for now we're punting to be
+                // validated at the protocol connection level
+            }
+            return !count($this->errors);
+        }
+
+        public function isValid() {
+            return $this->validate();
+        }
+
+        public function getErrors() {
+            return $this->errors;
         }
     }
 }
