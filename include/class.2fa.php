@@ -112,11 +112,11 @@ abstract class TwoFactorAuthenticationBackend extends ServiceRegistry {
                 || !($class instanceof TwoFactorAuthenticationBackend))
             return false;
 
-        static::$registry[$class->getId()] = $class;
+        static::$registry[$class->getBkId()] = $class;
     }
 
     static function allRegistered() {
-        return self::getRegistry();
+        return array_merge(self::$registry, parent::getRegistry());
     }
 
     static function getBackend($id) {
@@ -140,13 +140,18 @@ class ExpiredOTP extends Exception {}
  */
 abstract class Staff2FABackend extends TwoFactorAuthenticationBackend {
     static protected $registry = array();
+    static function allRegistered() {
+        return array_merge(self::$registry, parent::allRegistered());
+    }
     abstract function send($user);
     abstract function validate($form, $user);
 }
 
 abstract class User2FABackend extends TwoFactorAuthenticationBackend {
     static protected $registry = array();
-
+    static function allRegistered() {
+        return array_merge(self::$registry, parent::allRegistered());
+    }
     abstract function send($user);
     abstract function validate($form, $user);
 }
