@@ -667,12 +667,20 @@ class Translation extends gettext_reader implements Serializable {
     }
 
 
+    // Fix PHP 8.1.x Deprecation Warnings
+    // Serializable interface will be removed in PHP 9.x
     function serialize() {
-        return serialize(array($this->charset, $this->encode, $this->cache_translations));
+        return serialize($this->__serialize());
     }
     function unserialize($what) {
-        list($this->charset, $this->encode, $this->cache_translations)
-            = unserialize($what);
+        $this->__unserialize(unserialize($what));
+    }
+
+    function __serialize() {
+        return array($this->charset, $this->encode, $this->cache_translations);
+    }
+    function __unserialize($what) {
+        list($this->charset, $this->encode, $this->cache_translations) = $what;
         $this->short_circuit = ! $this->enable_cache
             = 0 < $this->cache_translations ? count($this->cache_translations) : 1;
     }

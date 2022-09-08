@@ -596,8 +596,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     function importFromPost($stuff, $extra=array()) {
         if (is_array($stuff) && !$stuff['error']) {
-            // Properly detect Macintosh style line endings
-            ini_set('auto_detect_line_endings', true);
             $stream = fopen($stuff['tmp_name'], 'r');
         }
         elseif ($stuff) {
