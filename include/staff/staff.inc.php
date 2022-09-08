@@ -150,7 +150,7 @@ if (($bks = StaffAuthenticationBackend::getInteractive())) {
                 ">
               <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
 <?php foreach ($bks as $ab) {
-                $id = $ab->getId(); ?>
+                $id = $ab->getBkId(); ?>
               <option value="<?php echo $id; ?>" <?php
                 if ($staff->backend == $id)
                   echo 'selected="selected"'; ?>><?php
