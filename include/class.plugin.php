@@ -22,7 +22,7 @@ abstract class PluginConfig extends Config {
         foreach ($this->getOptions() as $name => $field) {
             if ($this->exists($name)) {
                 $val = $this->get($name);
-                $this->_config[$name] = $field->to_php($val) ?: $val;
+                $this->_config[$name] = $field->to_php($val);
             } elseif (($default = $field->get('default')))
                 $this->_config[$name] = $default;
         }
@@ -50,6 +50,17 @@ abstract class PluginConfig extends Config {
         return array();
     }
 
+    // getFields is same as getOptions but can be used downstream to filter
+    // or modify fields based on settings
+    function getFields() {
+        return $this->getOptions();
+    }
+
+    // Returns form options like title and notices as accepted by SimpleForm
+    function getFormOptions() {
+        return array();
+    }
+
     function getInfo() {
         return array_merge(parent::getInfo(), $this->_config);
     }
@@ -72,7 +83,8 @@ abstract class PluginConfig extends Config {
      */
     function getForm($vars=[]) {
         if (!isset($this->form)) {
-            $this->form = new SimpleForm($this->getOptions());
+            $this->form = new SimpleForm($this->getFields(),
+                    null, $this->getFormOptions());
             // set data if any
             if ($_SERVER['REQUEST_METHOD'] != 'POST') {
                 // defaults + current info
@@ -700,7 +712,7 @@ class Plugin extends VerySimpleModel {
             // plugin instantace boostrapping
             if ($instance)
                 // Config for an instance.
-                $this->config = $instance->getConfig($class, $defaults);
+                $this->config = $instance->getConfig($defaults);
             else
                 //  New instance config
                 $this->config = new $class(null, $defaults);
@@ -900,6 +912,8 @@ class PluginInstance extends VerySimpleModel {
         ),
     );
 
+    // Config class that plugin can set.
+    private $config_class = null;
     // Plugin Config for the instance
     var $_config;
     var $_form;
@@ -954,13 +968,22 @@ class PluginInstance extends VerySimpleModel {
         $this->setFlag(self::FLAG_ENABLED, $status);
     }
 
-    function getConfig($class=null, $defaults=[]) {
-        $class = $class ?: $this->getPlugin()->getConfigClass();
+    function setConfigClass($class) {
+        $this->config_class  = $class;
+        // Clear current config so it can be reloaded
+        $this->_config = null;
+    }
+
+    function getConfigClass() {
+        return $this->config_class ?: $this->getPlugin()->getConfigClass();
+    }
+
+    function getConfig($defaults=[]) {
+        $class = $this->getConfigClass();
         if (!isset($this->_config) && $class) {
             $this->_config =  new $class($this->getNamespace(), $defaults);
             $this->_config->setInstance($this);
         }
-
         return $this->_config;
     }
 

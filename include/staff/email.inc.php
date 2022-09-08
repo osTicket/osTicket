@@ -237,9 +237,11 @@ $(function() {
                     // Launch the auth config dialog
                     $.dialog('ajax.php/email/<?php echo $info['id'];
                             ?>/auth/config/'+type+'/'+target, 201, function (xhr) {
-                        $(this).removeClass('save pending');
-                        if (xhr.responseJSON && xhr.responseJSON.redirect)
+                        $(this).removeClass('save pending').addClass('save success');
+                        if (xhr.responseJSON && xhr.responseJSON.redirect) {
+                            $(window).unbind('beforeunload');
                             window.location.href = xhr.responseJSON.redirect;
+                        }
                     },
                     {size:(target == 'basic') ? 'normal' : 'xl'}
                     );

@@ -118,14 +118,14 @@ namespace osTicket\Mail {
     use Laminas\Mail\Protocol\Imap as ImapProtocol;
     use Laminas\Mail\Protocol\Pop3 as Pop3Protocol;
     trait MailBoxProtocolTrait {
-        final public function init(AccountOptions $accountOptions) {
+        final public function init(AccountSetting $setting) {
             // Attempt to connect to the mail server
-            $connect = $accountOptions->getConnectioOptions();
+            $connect = $setting->getConnectionConfig();
             // Let's go Brandon
             parent::connect($connect['host'], $connect['port'],
                     $connect['ssl']);
             // Attempt authentication based on MailBoxAccount settings
-            $auth = $accountOptions->getAuth();
+            $auth = $setting->getAuthCredentials();
             switch (true) {
                 case $auth instanceof BasicAuthCredentials:
                     if (!$this->basicAuth($auth->getUsername(), $auth->getPassword()))
@@ -391,15 +391,15 @@ namespace osTicket\Mail {
     // SmtpOptions
     use Laminas\Mail\Transport\SmtpOptions as SmtpSettings;
     class SmtpOptions extends SmtpSettings {
-        public function __construct(AccountOptions $options) {
-            parent::__construct($this->buildOptions($options));
+        public function __construct(AccountSetting $setting) {
+            parent::__construct($this->buildOptions($setting));
         }
 
-        private function buildOptions(AccountOptions $options) {
+        private function buildOptions(AccountSetting $setting) {
             // Build out SmtpOptions options based on SmtpAccount Settings
             $config = [];
-            $connect = $options->getConnectioOptions();
-            $auth = $options->getAuth();
+            $connect = $setting->getConnectionConfig();
+            $auth = $setting->getAuthCredentials();
             switch (true) {
                 case $auth instanceof NoAuthCredentials:
                     // No Authentication - simply return host and port
@@ -580,19 +580,21 @@ namespace osTicket\Mail {
         }
     }
 
-    // osTicket/Mail/AccountOptions
-    class AccountOptions {
+    // osTicket/Mail/AccountSetting
+    class AccountSetting {
         private $account;
-        private $connectOptions = [];
+        private $creds;
+        private $connection = [];
+        private $errors = [];
 
         public function __construct(\EmailAccount $account) {
             // Set the account
-            $this->account = $account;
+            $this->account = &$account;
             // Parse Connection Options
             // We allow scheme to hint for encryption for people using ssl or tls
             // on nonstandard ports.
             $host = $account->getHost();
-            $ssl = $account->getEncryption();
+            $ssl = null;
             $matches = [];
             if (preg_match('~^(ssl|tls)://(.*+)$~iu', $host, $matches))
                 list(, $host, $ssl) = $matches;
@@ -605,35 +607,49 @@ namespace osTicket\Mail {
                     $ssl = 'tls';
             }
 
-            $this->connectOptions = [
+            $this->connection = [
                 'host' => $host,
                 'port' => (int) $port,
                 'ssl' => $ssl,
+                'protocol' => strtoupper($account->getProtocol()),
                 'name' => null
             ];
+
+            // Set errors to null to clear validation
+            $this->errors = null;
         }
 
         public function getName() {
-            return $this->connectOptions['name'];
+            return $this->connection['name'];
         }
 
         public function getHost() {
-            return $this->connectOptions['host'];
+            return $this->connection['host'];
         }
 
         public function getPort() {
-            return $this->connectOptions['port'];
+            return $this->connection['port'];
         }
 
         public function getSsl() {
-            return $this->connectOptions['ssl'];
+            return $this->connection['ssl'];
+        }
+
+        public function getProtocol() {
+            return $this->connection['protocol'];
+        }
+
+        public function setCredentials(AuthCredentials $creds) {
+            $this->creds = $creds;
         }
 
         public function getCredentials() {
-            return $this->account->getCredentials();
+            if (!isset($this->creds))
+                $this->creds = $this->account->getCredentials();
+            return $this->creds;
         }
 
-        public function getAuth() {
+        public function getAuthCredentials() {
             return $this->getCredentials();
         }
 
@@ -641,8 +657,44 @@ namespace osTicket\Mail {
             return $this->account;
         }
 
-        public function getConnectioOptions() {
-            return $this->connectOptions;
+        public function getConnectionConfig() {
+            return $this->connection;
+        }
+
+        public function asArray() {
+            return $this->getConnectionConfig();
+        }
+
+        public function describe() {
+            return sprintf('%s//%s:%s/%s',
+                    $this->getSsl(),
+                    $this->getHost(),
+                    $this->getPort(),
+                    $this->getProtocol());
+        }
+
+        private function validate() {
+
+            if (!isset($this->errors)) {
+                $this->errors = [];
+                $info = $this->getConnectionConfig();
+                foreach (['host', 'port', 'protocol'] as $p ) {
+                    if (!isset($info[$p]) || !$info[$p])
+                        $this->errors[$p] = sprintf('%s %s',
+                                strtoupper($p), __('Required'));
+                }
+                // TODO: Validate hostname - for now we're punting to be
+                // validated at the protocol connection level
+            }
+            return !count($this->errors);
+        }
+
+        public function isValid() {
+            return $this->validate();
+        }
+
+        public function getErrors() {
+            return $this->errors;
         }
     }
 }

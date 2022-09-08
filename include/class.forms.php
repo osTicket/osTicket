@@ -25,6 +25,7 @@ class Form {
     var $options = array();
     var $fields = array();
     var $title = '';
+    var $notice = '';
     var $instructions = '';
 
     var $validators = array();
@@ -39,6 +40,8 @@ class Form {
             $this->title = $options['title'];
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
+        if (isset($options['notice']))
+            $this->notice = $options['notice'];
         if (isset($options['id']))
             $this->id = $options['id'];
 
@@ -51,6 +54,10 @@ class Form {
     }
     function setId($id) {
         $this->id = $id;
+    }
+
+    function setNotice($notice) {
+        $this->notice = $notice;
     }
 
     function data($source) {
@@ -112,6 +119,7 @@ class Form {
     }
 
     function getTitle() { return $this->title; }
+    function getNotice() { return $this->notice; }
     function getInstructions() { return Format::htmldecode($this->instructions); }
     function getSource() { return $this->_source; }
     function setSource($source) { $this->_source = $source; }
@@ -225,6 +233,9 @@ class Form {
             $this->title = $options['title'];
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
+        if (isset($options['notice']))
+            $this->notice = $options['notice'];
+
         $form = $this;
         $template = $options['template'] ?: 'dynamic-form.tmpl.php';
         if (isset($options['staff']) && $options['staff'])
@@ -457,9 +468,14 @@ implements FormRenderer {
 ?>
       <table class="<?php echo 'grid form' ?>">
           <caption><?php echo Format::htmlchars($this->title ?: $form->getTitle()); ?>
-                  <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
-          </caption>
-          <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
+            <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
+            <?php
+            if ($form->getNotice())
+                echo sprintf('<div><small><p id="msg_warning">%s</p></small></div>',
+                        Format::htmlchars($form->getNotice()));
+            ?>
+        </caption>
+        <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
 <?php
       $row_size = 12;
       $cols = $row = 0;
@@ -1846,7 +1862,10 @@ class ChoiceField extends FormField {
                 'id'=>1, 'label'=>__('Choices'), 'required'=>false, 'default'=>'',
                 'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change.</br><b>Note:</b> If you have more than two choices, use a List instead.'),
                 'validator'=>'choices',
-                'configuration'=>array('html'=>false)
+                'configuration'=>array(
+                    'html' => false,
+                    'disabled' => false,
+                    )
             )),
             'default' => new TextboxField(array(
                 'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
@@ -4630,6 +4649,8 @@ class ChoicesWidget extends Widget {
                 echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
             ?>
             data-placeholder="<?php echo Format::htmlchars($prompt); ?>"
+            <?php if ($config['disabled'])
+                echo ' disabled="disabled"'; ?>
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
             <?php if ($showdefault || (!$have_def && !$config['multiselect'])) { ?>

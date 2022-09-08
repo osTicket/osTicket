@@ -597,7 +597,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getStaffPasswordPolicy())) {
             foreach ($policies as $P)
-                if ($policy == $P->getId())
+                if ($policy == $P->getBkId())
                     return array($P);
         }
 
