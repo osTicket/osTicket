@@ -166,7 +166,7 @@ class UrlMatcher {
 
         if (strpos($class, ":")) {
             list($file, $class) = explode(":", $class, 2);
-            include $file;
+            include_once $file;
         }
         return array($class, $func);
     }
