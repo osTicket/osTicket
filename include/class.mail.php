@@ -23,19 +23,45 @@ namespace osTicket\Mail {
     use Laminas\Mime\Part as MimePart;
 
     class  Message extends MailMessage {
+        // MimeMessage Parts
         private $mimeMessage = null;
+        // MimeMessage Content
+        private $mimeContent = null;
         // Charset
         private $charset = 'utf-8';
         // Internal flags used to set Content-Type
         private $hasHtml = false;
         private $hasAttachments = false;
-        private $hosInlineImages = false;
+        private $hasInlineImages = false;
 
-        public function getMimeMessage() {
+        public function hasAttachments() {
+            return $this->hasAttachments;
+        }
+
+        public function hasInlineImages() {
+            return $this->hasInlineImages;
+        }
+
+        public function hasHtml() {
+            return $this->hasHtml;
+        }
+        // Files either attached or inline
+        public function hasFiles() {
+            return ($this->hasAttachments() || $this->hasInlineImages());
+        }
+
+        public function getMimeMessageParts() {
             if  (!isset($this->mimeMessage))
                 $this->mimeMessage = new MimeMessage();
 
             return $this->mimeMessage;
+        }
+
+        public function getMimeMessageContent() {
+            if  (!isset($this->mimeContent))
+                $this->mimeContent = new ContentMimeMessage();
+
+            return $this->mimeContent;
         }
 
         public function addHeader($key, $value) {
@@ -48,7 +74,11 @@ namespace osTicket\Mail {
         }
 
         private function addMimePart(MimePart $part) {
-            $this->getMimeMessage()->addPart($part);
+            $this->getMimeMessageParts()->addPart($part);
+        }
+
+        private function addMimeContent(MimePart $part) {
+            $this->getMimeMessageContent()->addPart($part);
         }
 
         public function setTextBody($text, $encoding=false) {
@@ -56,8 +86,7 @@ namespace osTicket\Mail {
             $part->type = Mime::TYPE_TEXT;
             $part->charset = $this->charset;
             $part->encoding = $encoding ?: Mime::ENCODING_BASE64;
-            $this->addMimePart($part);
-            //$this->setContentType($alt ? 'multipart/alternative' : 'text/plain');
+            $this->addMimeContent($part);
         }
 
         public function setHtmlBody($html, $encoding=false) {
@@ -65,14 +94,16 @@ namespace osTicket\Mail {
             $part->type = Mime::TYPE_HTML;
             $part->charset = $this->charset;
             $part->encoding = $encoding ?: Mime::ENCODING_BASE64;
-            $this->addMimePart($part);
+            $this->addMimeContent($part);
             $this->hasHtml = true;
         }
 
         public function addInlineImage($id, $file) {
             $f = new MimePart($file->getData());
             $f->id = $id;
-            $f->type = $file->getMimeType();
+            $f->type = sprintf('%s; name="%s"',
+                    $file->getMimeType(),
+                    $file->getName());
             $f->filename = $file->getName();
             $f->disposition = Mime::DISPOSITION_INLINE;
             $f->encoding = Mime::ENCODING_BASE64;
@@ -90,16 +121,11 @@ namespace osTicket\Mail {
             $this->hasAttachments = true;
         }
 
-        public function setContentType($type=null) {
+        public function setContentType($contentType) {
             // We can only set content type for multipart message
-            if ($this->body->isMultiPart())  {
-                // Set Content-Type
-                $contentType = $type ?: 'text/plain';
-                if ($this->hasHtml)
-                    $contentType = 'multipart/alternative';
-                if ($this->hasAttachments)
-                    $contentType = 'multipart/related';
-
+            if (isset($this->body)
+                    &&  $this->body->isMultiPart()
+                    && $contentType)  {
                if (($header=$this->getHeaders()->get('Content-Type')))
                    $header->setType($contentType); #nolint
                else
@@ -108,9 +134,59 @@ namespace osTicket\Mail {
         }
 
         public function setBody($body=null) {
-            $body = $body ?: $this->getMimeMessage();
+            // We're ignoring $body param on purpose  - only added for
+            // upstream compatibility - local interfaces should use
+            // prepare() to set the body
+            $body = $this->getMimeMessageContent();
+            $contentType = $this->hasHtml()
+                ? Mime::MULTIPART_ALTERNATIVE
+                : Mime::Mime::TYPE_TEXT;
+            // if we have files (inline images or attachments)
+            if ($this->hasFiles()) {
+                // Content MimePart
+                $content = $body->getContentMimePart();
+                // Get attachments parts (inline and files)
+                $parts = $this->getMimeMessageParts()->getParts();
+                // prepend content part to files parts
+                array_unshift($parts, $content);
+                // Create a new Mime Message and set parts
+                $body = new MimeMessage();
+                $body->setParts($parts); #nolint
+                // We we only have inline images then content type is related
+                // otherwise it's mixed.
+                $contentType = $this->hasAttachments()
+                    ? Mime::MULTIPART_MIXED
+                    : Mime::MULTIPART_RELATED;
+            }
+            // Set body beaches
             parent::setBody($body);
-            $this->setContentType();
+            // Set the content type
+            $this->setContentType($contentType);
+        }
+
+        public function prepare() {
+            if (!isset($this->body))
+                $this->setBody();
+        }
+
+    }
+
+    // This is a wrapper class for Mime/Message that generates multipart
+    // alternative content when email is multipart
+    class ContentMimeMessage extends MimeMessage {
+        public function getContent() {
+            // unpack content parts to a content mime part
+            return $this->generateMessage(); #nolint
+        }
+
+        public function getContentMimePart($type=null) {
+            $part = new MimePart($this->getContent()); #nolint
+            $part->type = $type ?: Mime::MULTIPART_ALTERNATIVE;
+            // Set the alternate content boundary
+            $part->setBoundary($this->getMime()->boundary()); #nolint
+            // Clear the encoding
+            $part->encoding =  "";
+            return $part;
         }
     }
 
@@ -374,11 +450,9 @@ namespace osTicket\Mail {
         }
 
         public function sendMessage(Message $message) {
-            // Make sure the body is set
-            if (!isset($message->body))
-                $message->setBody();
-
             try {
+                // Make sure the body is set
+                $message->prepare();
                 parent::send($message);
             } catch (\Throwable $ex) {
                 $this->connected = false;
@@ -445,16 +519,15 @@ namespace osTicket\Mail {
         }
 
         public function sendMessage(Message $message) {
-            // Make sure the body is set
-            if (!isset($message->body))
-                $message->setBody();
-
             try {
+                // Make sure the body is set
+                $message->prepare();
                 parent::send($message);
                 return true;
             } catch (\Throwable $ex) {
                 throw $ex;
             }
+            return true;
         }
     }
 

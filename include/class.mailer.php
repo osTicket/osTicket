@@ -548,7 +548,7 @@ class Mailer {
         }
 
         // set Body & Content Type
-        $message->setBody($message->getMimeMessage());
+        $message->prepare();
 
         // Try possible SMTP Accounts - connections are cached per request
         // at the account level.
