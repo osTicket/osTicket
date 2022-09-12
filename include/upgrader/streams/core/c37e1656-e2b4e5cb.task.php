@@ -47,14 +47,6 @@ class PluginMigration extends MigrationTask {
                 ->filter(['backend' => $p::$id])
                 ->update(['backend' => $p->getBkId()]);
         }
-        // 2fa backends
-        foreach (Staff2FABackend::allRegistered() as $p) {
-            if ($p::$id && $p->getBkId() == $p::$id)
-                continue;
-            ConfigItems::objects()
-                ->filter(['default_2fa' => $p::$id])
-                ->update(['default_2fa' => $p->getBkId()]);
-        }
         // Password Policies
         $config = $ost->getConfig();
         foreach (PasswordPolicy::allActivePolicies() as $p) {

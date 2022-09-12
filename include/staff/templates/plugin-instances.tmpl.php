@@ -51,7 +51,7 @@ $modal = $plugin->useModalConfig();
             </ul>
           </div>
          <?php
-        } else {
+        } elseif ($plugin->canAddInstance()) {
             $href = sprintf($modal
                     ? '#plugins/%d/instances/add'
                     :  'plugins.php?id=%d&a=add-instance#instances',

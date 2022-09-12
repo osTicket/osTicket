@@ -593,6 +593,43 @@ class Plugin extends VerySimpleModel {
 
 
     /*
+     * canAddInstance
+     *
+     * Multi-instance plugins can add unlimited instances, otherwise only
+     * one plugin is allowed.
+     *
+     */
+    function canAddInstance() {
+
+        if (!$this->isMultiInstance()
+                && $this->getNumInstances())
+            return false;
+
+        // TODO: To be removed down the road. 2FA Plugi  doesn't support
+        // multiple instances at the moment due to how the plugin loads
+        // config info for versions <= 0.3
+        if (is_a($this, 'Auth2FAPlugin')
+                && $this->getVersion()  <= 0.3)
+            return false;
+
+        return true;
+    }
+
+
+    /*
+     *
+     * isMultiInstance
+     *
+     * Indicates if the plugin supports multiple instances
+     * Default is true unless overwritten downstream.
+     *
+     */
+
+    function isMultiInstance() {
+        return true;
+    }
+
+    /*
      * getNewInstanceOptions
      *
      * Plugin can return new instance options if it supports different types
