@@ -1,3 +1,15 @@
+osTicket v1.17-rc4
+==================
+### Enhancements
+* v1.17: Bug Fixes & Enhancements (bd300c44, ab9a8101, 3024d7f5, e705ff0f, 681bea08, bc154434, 246c1445, e4f594c2, 76bf7725, 4ee44d48, a7068668, 5e53b1a1, 481a0475, 2fa077ae, 13888292)
+
+### Improvements
+* mail: Mixed Mime Message with mixed multiparts (6de79a0b, c71ddade)
+* 2fa: Fix 2FA Backend Registry (f8f5d3dd, 2318714e)
+* issue: Dispatcher include_once (dab490dc)
+* plugins: Audit enable() (7796d60c)
+* issue: AuthenticationBackend getBkId() (29f01c09)
+
 osTicket v1.17-rc3
 ==================
 ### Improvements
