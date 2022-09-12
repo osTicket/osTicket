@@ -92,29 +92,29 @@ class Mailer {
         return $this->attachments;
     }
 
-    function addAttachment(Attachment $attachment) {
+    function addAttachment(\Attachment $attachment) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
         $this->attachments[] = $attachment;
     }
 
-    function addAttachmentFile(AttachmentFile $file) {
+    function addAttachmentFile(\AttachmentFile $file) {
         // XXX: This looks too assuming; however, the attachment processor
         // in the ::send() method seems hard coded to expect this format
         $this->attachments[] = $file;
     }
 
-    function addFileObject(FileObject $file) {
+    function addFileObject(\FileObject $file) {
         $this->attachments[] = $file;
     }
 
     function addAttachments($attachments) {
         foreach ($attachments as $a) {
-            if ($a instanceof Attachment)
+            if ($a instanceof \Attachment)
                 $this->addAttachment($a);
-            elseif ($a instanceof AttachmentFile)
+            elseif ($a instanceof \AttachmentFile)
                 $this->addAttachmentFile($a);
-            elseif ($a instanceof FileObject)
+            elseif ($a instanceof \FileObject)
                 $this->addFileObject($a);
         }
     }

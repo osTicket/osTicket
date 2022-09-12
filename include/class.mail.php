@@ -140,7 +140,7 @@ namespace osTicket\Mail {
             $body = $this->getMimeMessageContent();
             $contentType = $this->hasHtml()
                 ? Mime::MULTIPART_ALTERNATIVE
-                : Mime::Mime::TYPE_TEXT;
+                : Mime::TYPE_TEXT;
             // if we have files (inline images or attachments)
             if ($this->hasFiles()) {
                 // Content MimePart
