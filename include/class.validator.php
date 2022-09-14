@@ -196,6 +196,10 @@ class Validator {
         return $error == '';
     }
 
+    static function is_alnumeric($string) {
+        return (preg_match('/^[a-z_\-0-9]+$/i', $string) == 1);
+    }
+
     static function is_valid_email($email, &$error='') {
         global $cfg;
         // Default to FALSE for installation
