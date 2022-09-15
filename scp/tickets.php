@@ -95,6 +95,8 @@ if (!$ticket) {
                     Validator::is_valid_email($_GET['query']) ? 'equal' : 'contains',
                     $_GET['query']
                 ];
+            } elseif (Validator::is_numeric($_GET['query'])) {
+                $criteria = ['number', 'contains', $_GET['query']];
             } else {
                 $criteria = [':keywords', null, $_GET['query']];
             }
@@ -432,6 +434,8 @@ if($_POST && !$errors):
                         $response_form->setSource(array());
                         $response_form->getField('attachments')->reset();
                         $_SESSION[':form-data'] = null;
+                        // Regenerate Session ID
+                        $thisstaff->regenerateSession();
                     } elseif(!$errors['err']) {
                         // ensure that we retain the tid if ticket is created from thread
                         if ($_SESSION[':form-data']['ticketId'] || $_SESSION[':form-data']['taskId'])

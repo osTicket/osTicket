@@ -538,8 +538,6 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             || !($authkey=$bk->getAuthKey($staff)))
             return false;
 
-        // Regenerate session id and refresh (avoid session fixation)
-        $staff->regenerateSession();
         //Log debug info.
         $ost->logDebug(_S('Agent Login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
@@ -565,6 +563,8 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $authsession['id'] = $staff->getId();
         $authsession['key'] =  $authkey;
         $authsession['2fa'] =  $auth2fa;
+        // Set TIME_BOMB to regenerate the session 10 seconds after login
+        $_SESSION['TIME_BOMB'] = time() + 10;
         // Set session token
         $staff->setSessionToken();
         // Set Auth Key
@@ -758,8 +758,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 throw new AccessDenied(__('Account is administratively locked'));
         }
 
-        // Regenerate session id and refresh (avoid session fixation)
-        $user->regenerateSession();
         // Tag the user and associated ticket in the SESSION
         $this->setAuthKey($user, $bk, $authkey);
         // Set Session Token
@@ -776,6 +774,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $u = $user->getSessionUser()->getUser();
         $type = array('type' => 'login');
         Signal::send('person.login', $u, $type);
+
+        // Set TIME_BOMB to regenerate the session 10 seconds after login
+        $_SESSION['TIME_BOMB'] = time() + 10;
 
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();

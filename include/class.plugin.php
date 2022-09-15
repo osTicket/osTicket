@@ -193,20 +193,14 @@ class PluginManager {
                     = new $class($ht['id']);
             }
             else {
-                // Get instance without calling the constructor. Thanks
-                // http://stackoverflow.com/a/2556089
-                $a = unserialize(
-                    sprintf(
-                        'O:%d:"%s":0:{}',
-                        strlen($class), $class
-                    )
-                );
+                $reflection = new ReflectionClass($class);
+                $a = $reflection->newInstanceWithoutConstructor();
                 // Simulate __construct() and load()
                 $a->id = $ht['id'];
                 $a->ht = $ht;
                 $a->info = $info;
                 static::$plugin_list[$ht['install_path']] = &$a;
-                unset($a);
+                unset($a,$reflection);
             }
         }
         return static::$plugin_list;

@@ -82,7 +82,7 @@ class AttachmentMigrater extends MigrationTask {
         return $this->queue;
     }
 
-    function getQueueLength() { return count($this->queue); }
+    function getQueueLength() { return count($this->queue ?: []); }
     /**
      * Processes the next item on the work queue. Emits a JSON messages to
      * indicate current progress.
