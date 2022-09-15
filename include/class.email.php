@@ -985,6 +985,10 @@ class MailBoxAccount extends EmailAccount {
         return $this->folder;
     }
 
+    public function getHostInfo() {
+        return $this->getAccountSetting()->getHostInfo();
+    }
+
     public function getArchiveFolder() {
         if ((strcasecmp($this->getProtocol(), 'imap') == 0) && $this->archivefolder)
             return $this->archivefolder;

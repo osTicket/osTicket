@@ -101,8 +101,8 @@ class Fetcher {
 
         // Warn on excessive errors
         if ($errors > $msgs) {
-            $warn = sprintf(_S('Excessive errors processing emails for %1$s/%2$s. Please manually check the inbox.'),
-                    $this->getHost(), $this->getUsername());
+            $warn = sprintf(_S('Excessive errors processing emails for %1$s (%2$s). Please manually check the inbox.'),
+                    $this->mbox->getHostInfo(), $this->getEmailAddress());
             $this->log($warn);
         }
 
@@ -164,8 +164,7 @@ class Fetcher {
                     // XXX: Translate me
                     $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
                         "\n"._S('Email').": ".$mailbox->getEmail()->getAddress().
-                        "\n"._S('Host').": ".sprintf('%s:%d',
-                                $mailbox->getHost(), $mailbox->getPort()).
+                        "\n"._S('Host Info').": ".$mailbox->getHostInfo();
                         "\n"._S('Error').": ".$ex->getMessage().
                         "\n\n ".sprintf(_S('%1$d consecutive errors. Maximum of %2$d allowed'),
                                 $mailbox->getNumErrors(), $MAXERRORS).

@@ -559,10 +559,9 @@ class Mailer {
                      return $messageId;
             } catch (\Exception $ex) {
                 $alert = _S("Unable to email via SMTP")
-                    .sprintf(": %1\$s (%2\$s:%3\$d)\n\n%4\$s\n",
+                    .sprintf(": %1\$s (%2\$s)\n\n%4\$s\n",
                     $account->getEmail()->getEmail(),
-                    $account->getHost(),
-                    $account->getPort(),
+                    $account->getHostInfo(),
                     $ex->getMessage());
                 $this->logError($alert);
                 continue;
