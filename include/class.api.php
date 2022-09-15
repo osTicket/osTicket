@@ -197,19 +197,23 @@ class ApiController extends Controller {
      * work will be done for XML requests
      */
     function getRequest($format) {
-        global $ost;
-
         $input = osTicket::is_cli()?'php://stdin':'php://input';
-
         if (!($stream = @fopen($input, 'r')))
             $this->exerr(400, __("Unable to read request body"));
 
+        return $this->parseRequest($stream, $format);
+    }
+
+    function getEmailRequest() {
+        return $this->getRequest('email');
+    }
+
+    function parseRequest($stream, $format, $validate=true) {
         $parser = null;
         switch(strtolower($format)) {
             case 'xml':
                 if (!function_exists('xml_parser_create'))
                     $this->exerr(501, __('XML extension not supported'));
-
                 $parser = new ApiXmlDataParser();
                 break;
             case 'json':
@@ -219,22 +223,22 @@ class ApiController extends Controller {
                 $parser = new ApiEmailDataParser();
                 break;
             default:
-                $this->exerr(415, __('Unsupported data format'));
+                return $this->exerr(415, __('Unsupported data format'));
         }
 
         if (!($data = $parser->parse($stream)))
             $this->exerr(400, $parser->lastError());
 
         //Validate structure of the request.
-        $this->validate($data, $format, false);
+        if ($validate && $data)
+            $this->validate($data, $format, false);
 
         return $data;
     }
 
-    function getEmailRequest() {
-        return $this->getRequest('email');
+    function parseEmail($content) {
+        return $this->parseRequest($content, 'email', false);
     }
-
 
     /**
      * Structure to validate the request against -- must be overridden to be

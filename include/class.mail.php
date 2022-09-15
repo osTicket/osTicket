@@ -384,16 +384,25 @@ namespace osTicket\Mail {
         }
 
         /*
+         * getRawEmail
+         *
+         * Given message number - get full raw email (headers + content)
+         *
+         */
+        public function getRawEmail(int $i) {
+            return $this->getRawHeader($i) . $this->getRawContent($i);
+        }
+
+        /*
          * markAsSeen
          */
-         public function markAsSeen($i) {
-             // noop - storage that implement it should define it
-         }
+        public function markAsSeen($i) {
+            // noop - storage that implement it should define it
+        }
 
-         public function expunge() {
+        public function expunge() {
              // noop - only IMAP
-         }
-
+        }
     }
 
     // Imap

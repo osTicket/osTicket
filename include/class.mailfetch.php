@@ -17,8 +17,9 @@
 namespace osTicket\Mail;
 
 class Fetcher {
-    var $account;
-    var $mbox;
+    private $account;
+    private $mbox;
+    private $api;
 
     function __construct(\MailboxAccount $account, $charset='UTF-8') {
         $this->account = $account;
@@ -51,8 +52,26 @@ class Fetcher {
          return $this->account->canDeleteEmails();
     }
 
+    function getTicketsApi() {
+        if (!isset($this->api))
+            $this->api = new \TicketApiController();
+
+        return $this->api;
+    }
+
     function noop() {
         return ($this->mbox && $this->mbox->noop());
+    }
+
+    function createTicket(int $i) {
+        try {
+            return $this->getTicketsApi()->processEmail(
+                    $this->mbox->getRawEmail($i));
+        } catch (TicketDenied $ex) {
+            // If a ticket is denied we're going to report it as processed
+            // so it can be moved out of the inbox or deleted.
+            return true;
+        }
     }
 
     function processEmails() {
@@ -68,20 +87,8 @@ class Fetcher {
         $messageCount = $this->mbox->countMessages();
         $msgs = $errors = 0;
         for($i = $messageCount; $i > 0; $i--) { // Process messages in reverse.
-            // Fetch headers
-            $header = $this->mbox->getRawHeader($i);
-            // Fetch content
-            $content = $this->mbox->getRawContent($i);
-            // Create raw stream
-            $stream = $header . $content;
-            // Create new controller and parser
-            $api = new \TicketApiController();
-            $parser = new \EmailDataParser();
-            // Parse the stream
-            $data = $parser->parse($stream);
-            $data['source'] = 'Email';
             // Okay, let's create the ticket now
-            if ($api->processEmail($data)) {
+            if ($this->createTicket($i)) {
                 // Mark the message as "Seen" (IMAP only)
                 $this->mbox->markAsSeen($i);
                 // Attempt to move the message else attempt to delete
