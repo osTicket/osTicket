@@ -594,7 +594,10 @@ class Mailer {
         //NOTE: Admin alert override - don't email when having email trouble!
         $ost->logError(_S('Mailer Error'), $error, false);
     }
-
+    function logWarning($warn) {
+        global $ost;
+        $ost->logWarning(_S('Mailer Error'), $warn, false);
+    }
     /******* Static functions ************/
 
     //Emails using native php mail function - if DB connection doesn't exist.

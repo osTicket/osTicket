@@ -47,7 +47,7 @@ if($_POST) {
                         $field->set($f, $_POST["$f-$id"]);
                     }
                 }
-                if (in_array($field->get('name'), $names))
+                if (in_array(strtolower($field->get('name')), $names))
                     $field->addError(__('Field variable name is not unique'), 'name');
                 // Subject (Issue Summary) must always have data
                 if ($form->get('type') == 'T' && $field->get('name') == 'subject') {
@@ -56,7 +56,7 @@ if($_POST) {
                             'type');
                 }
                 if ($field->get('name'))
-                    $names[] = $field->get('name');
+                    $names[] = strtolower($field->get('name'));
                 if ($field->isValid())
                     $form_fields[] = $field;
                 else
@@ -120,12 +120,12 @@ if($_POST) {
             ));
             $field->setRequirementMode($_POST["visibility-new-$i"]);
             $form->fields->add($field);
-            if (in_array($field->get('name'), $names))
+            if (in_array(strtolower($field->get('name')), $names))
                 $field->addError(__('Field variable name is not unique'), 'name');
             if ($field->isValid()) {
                 $form_fields[] = $field;
-                if ($N = $field->get('name'))
-                    $names[] = $N;
+                if ($field->get('name'))
+                    $names[] = strtolower($field->get('name'));
             }
             else
                 $errors["new-$i"] = $field->errors();

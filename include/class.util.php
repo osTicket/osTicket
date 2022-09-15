@@ -215,12 +215,22 @@ implements ArrayAccess, Serializable {
         unset($this->storage[$offset]);
     }
 
-    // Serializable
+    // Fix PHP 8.1.x Deprecation Warnings
+    // Serializable interface will be removed in PHP 9.x
     function serialize() {
-        return serialize($this->storage);
+        return serialize($this->__serialize());
     }
+
     function unserialize($what) {
-        $this->storage = unserialize($what);
+        $this->__unserialize(unserialize($what));
+    }
+
+    // Serializable
+    function __serialize() {
+        return $this->storage;
+    }
+    function __unserialize($what) {
+        $this->storage = $what;
     }
 }
 

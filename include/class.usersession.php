@@ -116,8 +116,8 @@ class UserSession {
        session_id($new);
        session_start();
        $this->session_id  = $new;
-       // Make sure new session is not set to KAPUT
-       unset($_SESSION['KAPUT']);
+       // Make sure new session is not set to KAPUT and TIME_BOMB
+       unset($_SESSION['KAPUT'], $_SESSION['TIME_BOMB']);
        // Destroy ?
        if ($destroy) {
            // Destrory old session
@@ -161,8 +161,12 @@ trait UserSessionTrait {
     var $class = '';
 
     function refreshSession($force=false) {
-        $time = $this->session->getLastUpdate($this->token);
+        // If TIME_BOMB isset and less than the current time we need to regenerate
+        // session to help mitigate session fixation
+        if (isset($_SESSION['TIME_BOMB']) && ($_SESSION['TIME_BOMB'] < time()))
+            $this->regenerateSession();
         // Deadband session token updates to once / 30-seconds
+        $time = $this->session->getLastUpdate($this->token);
         if (!$force && time() - $time < 30)
             return;
 

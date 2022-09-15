@@ -38,8 +38,6 @@ class ListManager extends Module {
                 if (!$list)
                     $this->fail("List ID required for items import");
 
-                // Properly detect Macintosh style line endings
-                ini_set('auto_detect_line_endings', true);
                 if (!$options['file'])
                     $this->fail('CSV file to import list items from is required!');
                 elseif (!($this->stream = fopen($options['file'], 'rb')))

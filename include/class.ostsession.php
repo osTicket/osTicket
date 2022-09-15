@@ -72,7 +72,7 @@ class osTicketSession {
             $this->backend = new self::$backends['db']($this->ttl);
         }
 
-        if ($this->backend instanceof SessionBackend) {
+        if (!empty($this->id) && ($this->backend instanceof SessionBackend)) {
             // Set handlers.
             session_set_save_handler(
                 array($this->backend, 'open'),

@@ -1185,7 +1185,7 @@ class CustomQueue extends VerySimpleModel {
                 continue;
             }
 
-            $f->set('heading', $heading);
+            $f->set('heading', isset($fields[$key]['heading']) ? $fields[$key]['heading'] : $heading);
             $f->set('sort', array_search($key, $order)+1);
             unset($new[$key]);
         }
