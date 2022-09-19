@@ -813,7 +813,7 @@ namespace osTicket\Mail\Protocol\Smtp\Auth {
             if (!($xoauth2=$this->getAuthRequest()))
                 throw new Exception('XOAUTH2 Required');
             $this->_send('AUTH XOAUTH2');
-            $this->_expect(234);
+            $this->_expect(334);
             $this->_send($xoauth2);
             $this->_expect(235);
             $this->auth = true;
