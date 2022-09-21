@@ -329,7 +329,7 @@ namespace osTicket\Mail {
         private $folder;
         private $hostInfo;
 
-        private function init(\AccountSetting $setting) {
+        private function init(AccountSetting $setting) {
             $this->folder = $setting->getAccount()->getFolder();
             $this->hostInfo =  $setting->getHostInfo();
         }
