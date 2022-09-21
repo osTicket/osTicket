@@ -428,38 +428,36 @@ class Mailer {
                 $recipient = $recipient->getSessionUser();
             switch (true) {
                 case $recipient instanceof \EmailRecipient:
-                    $addr = sprintf('"%s" <%s>',
-                            $recipient->getName(),
-                            $recipient->getEmail());
+                    $email = $recipient->getEmail()->getEmail();
+                    $name =  (string) $recipient->getName();
                     switch ($recipient->getType()) {
                         case 'to':
-                            $message->addTo($addr);
+                            $message->addTo($email, $name);
                             break;
                         case 'cc':
-                            $message->addCc($addr);
+                            $message->addCc($email, $name);
                             break;
                         case 'bcc':
-                            $message->addBcc($addr);
+                            $message->addBcc($email, $name);
                             break;
                     }
                     break;
                 case $recipient instanceof \TicketOwner:
                 case $recipient instanceof \Staff:
-                    $message->addTo(sprintf('"%s" <%s>',
-                                $recipient->getName(),
-                                $recipient->getEmail()));
+                    $message->addTo($recipient->getEmail()->getEmail(),
+                            (string) $recipient->getName());
                     break;
                 case $recipient instanceof \Collaborator:
-                    $message->addCc(sprintf('"%s" <%s>',
-                                $recipient->getName(),
-                                $recipient->getEmail()));
+                    $message->addCc($recipient->getEmail()->getEmail(),
+                             (string) $recipient->getName());
                     break;
                 case $recipient instanceof \EmailAddress:
                     $message->addTo($recipient->getAddress());
                     break;
                 default:
                     // Assuming email address.
-                    $message->addTo($recipient);
+                    if (is_string($recipient))
+                        $message->addTo($recipient);
             }
         }
 

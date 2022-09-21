@@ -27,8 +27,11 @@ namespace osTicket\Mail {
         private $mimeMessage = null;
         // MimeMessage Content
         private $mimeContent = null;
-        // Charset
-        private $charset = 'utf-8';
+        // Default Charset
+        protected $charset = 'utf-8';
+        // Default Encoding (upstream is ASCII)
+        protected $encoding = 'utf-8';
+
         // Internal flags used to set Content-Type
         private $hasHtml = false;
         private $hasAttachments = false;
