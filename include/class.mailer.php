@@ -428,7 +428,7 @@ class Mailer {
                 $recipient = $recipient->getSessionUser();
             switch (true) {
                 case $recipient instanceof \EmailRecipient:
-                    $email = $recipient->getEmail()->getEmail();
+                    $email = (string) $recipient->getEmail()->getEmail();
                     $name =  (string) $recipient->getName();
                     switch ($recipient->getType()) {
                         case 'to':
@@ -556,12 +556,14 @@ class Mailer {
                         && $smtp->sendMessage($message))
                      return $messageId;
             } catch (\Exception $ex) {
-                $alert = _S("Unable to email via SMTP")
-                    .sprintf(": %1\$s (%2\$s)\n\n%4\$s\n",
-                    $account->getEmail()->getEmail(),
-                    $account->getHostInfo(),
-                    $ex->getMessage());
-                $this->logError($alert);
+                // Log the SMTP error
+                $this->logError(sprintf("%s1\$s: %2\$s (%3\$s)\n\n%4\$s\n",
+                        _S("Unable to email via SMTP"),
+                        $account->getEmail()->getEmail(),
+                        $account->getHostInfo(),
+                        $ex->getMessage()
+                    ));
+                // Try the next SMTP account
                 continue;
             }
         }
@@ -579,9 +581,10 @@ class Mailer {
             if ($sendmail->sendMessage($message))
                 return $messageId;
         } catch (\Exception $ex) {
-            $alert = _S("Unable to email via php mail function")
-                .sprintf("\n\n%1\$s\n", $ex->getMessage());
-            $this->logError($alert);
+            $this->logError(sprintf("%1\$s\n\n%2\$s\n",
+                        _S("Unable to email via php mail function"),
+                        $ex->getMessage()
+                ));
         }
         return false;
     }

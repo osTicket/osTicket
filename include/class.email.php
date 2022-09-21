@@ -442,6 +442,10 @@ class EmailAccount extends VerySimpleModel {
         return $this->settings;
     }
 
+    public function getHostInfo() {
+        return $this->getAccountSetting()->getHostInfo();
+    }
+
     public function getHost() {
         return $this->host;
     }
@@ -983,10 +987,6 @@ class MailBoxAccount extends EmailAccount {
 
     public function getFolder() {
         return $this->folder;
-    }
-
-    public function getHostInfo() {
-        return $this->getAccountSetting()->getHostInfo();
     }
 
     public function getArchiveFolder() {
