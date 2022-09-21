@@ -217,6 +217,10 @@ class PluginManager {
     }
 
     static function auditPlugin() {
+        global $ost;
+        if (!$ost || $ost->isUpgradePending())
+            return false;
+
         return self::getPluginByName('Help Desk Audit', true);
     }
 

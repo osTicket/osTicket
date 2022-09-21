@@ -27,7 +27,7 @@ class osTicketSession {
     var $id = '';
     var $backend;
 
-    function __construct($ttl=0){
+    function __construct($ttl=0, $checkdbversion=false){
         $this->ttl = $ttl ?: ini_get('session.gc_maxlifetime') ?: SESSION_TTL;
 
         // Set osTicket specific session name.
@@ -40,7 +40,8 @@ class osTicketSession {
         ini_set('session.gc_maxlifetime', $ttl);
 
         // Skip db version check if version is later than 1.7
-        if (!defined('MAJOR_VERSION') && OsticketConfig::getDBVersion())
+        if ((!defined('MAJOR_VERSION') || $checkdbversion)
+                && OsticketConfig::getDBVersion())
             return session_start();
 
         # Cookies
@@ -71,7 +72,7 @@ class osTicketSession {
             $this->backend = new self::$backends['db']($this->ttl);
         }
 
-        if (!empty($this->id) && ($this->backend instanceof SessionBackend)) {
+        if ($this->backend instanceof SessionBackend) {
             // Set handlers.
             session_set_save_handler(
                 array($this->backend, 'open'),
@@ -127,8 +128,8 @@ class osTicketSession {
     }
 
     /* ---------- static function ---------- */
-    static function start($ttl=0) {
-        return new static($ttl);
+    static function start($ttl=0, $checkdbversion=false) {
+        return new static($ttl, $checkdbversion);
     }
 }
 
