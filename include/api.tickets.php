@@ -140,9 +140,10 @@ class TicketApiController extends ApiController {
         $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
         # Return errors (?)
         if (count($errors)) {
-            if(isset($errors['errno']) && $errors['errno'] == 403)
-                return $this->exerr(403, __('Ticket denied'));
-            else
+            if(isset($errors['errno']) && $errors['errno'] == 403) {
+                $this->exerr(403, __('Ticket denied'));
+                throw TicketDenied(__('Ticket denied'));
+            } else
                 return $this->exerr(
                         400,
                         __("Unable to create new ticket: validation errors").":\n"
@@ -159,6 +160,8 @@ class TicketApiController extends ApiController {
 
         if (!$data)
             $data = $this->getEmailRequest();
+        elseif (!is_array($data))
+            $data = $this->parseEmail($data);
 
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
@@ -183,7 +186,15 @@ class TicketApiController extends ApiController {
         // All emails which do not appear to be part of an existing thread
         // will always create new "Tickets". All other objects will need to
         // be created via the web interface or the API
-        return $this->createTicket($data);
+        try {
+            return $this->createTicket($data);
+        } catch (TicketDenied $ex) {
+            // Log the mid so we don't process this email again!
+            $entry = new ThreadEntry();
+            $entry->logEmailHeaders(0, $data['mid']);
+            // rethrow the exception
+            throw $ex;
+        }
     }
 
 }
@@ -228,10 +239,14 @@ class PipeApiController extends TicketApiController {
     static function process() {
         $pipe = new PipeApiController();
         if(($ticket=$pipe->processEmail()))
-           return $pipe->response(201, $ticket->getNumber());
+           return $pipe->response(201,
+                   is_object($ticket) ? $ticket->getNumber() : $ticket);
 
         return $pipe->exerr(416, __('Request failed - retry again!'));
     }
 }
 
+class TicketDenied extends Exception {
+
+}
 ?>

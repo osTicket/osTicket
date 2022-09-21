@@ -224,14 +224,14 @@ namespace osTicket\Mail {
             return $this->login($username, $password);
         }
 
-        abstract public function __construct($accountOptions);
+        abstract public function __construct($accountSetting);
         abstract private function oauth2Auth(AccessToken $token);
     }
 
     class ImapMailboxProtocol extends ImapProtocol {
         use MailBoxProtocolTrait;
-         public function __construct($accountOptions) {
-             $this->init($accountOptions);
+         public function __construct($accountSetting) {
+             $this->init($accountSetting);
          }
 
          /*
@@ -270,8 +270,8 @@ namespace osTicket\Mail {
 
     class Pop3MailboxProtocol extends Pop3Protocol {
         use MailBoxProtocolTrait;
-         public function __construct($accountOptions) {
-             $this->init($accountOptions);
+         public function __construct($accountSetting) {
+             $this->init($accountSetting);
          }
 
          /*
@@ -324,9 +324,15 @@ namespace osTicket\Mail {
     use RecursiveIteratorIterator;
     trait MailBoxStorageTrait {
         private $folder;
+        private $hostInfo;
 
-        private function init(\MailBoxAccount $mailbox) {
-            $this->folder = $mailbox->getFolder();
+        private function init(\AccountSetting $setting) {
+            $this->folder = $setting->getAccount()->getFolder();
+            $this->hostInfo =  $setting->getHostInfo();
+        }
+
+        public function getHostInfo() {
+            return $this->hostInfo;
         }
 
         private function getFolder() {
@@ -378,16 +384,25 @@ namespace osTicket\Mail {
         }
 
         /*
+         * getRawEmail
+         *
+         * Given message number - get full raw email (headers + content)
+         *
+         */
+        public function getRawEmail(int $i) {
+            return $this->getRawHeader($i) . $this->getRawContent($i);
+        }
+
+        /*
          * markAsSeen
          */
-         public function markAsSeen($i) {
-             // noop - storage that implement it should define it
-         }
+        public function markAsSeen($i) {
+            // noop - storage that implement it should define it
+        }
 
-         public function expunge() {
+        public function expunge() {
              // noop - only IMAP
-         }
-
+        }
     }
 
     // Imap
@@ -396,10 +411,10 @@ namespace osTicket\Mail {
         use MailBoxStorageTrait;
         private $folders;
 
-        public function __construct($accountOptions) {
-            $protocol = new ImapMailBoxProtocol($accountOptions);
+        public function __construct($accountSetting) {
+            $protocol = new ImapMailBoxProtocol($accountSetting);
             parent::__construct($protocol);
-            $this->init($accountOptions->getAccount());
+            $this->init($accountSetting);
         }
 
         // Mark message as seen
@@ -417,10 +432,10 @@ namespace osTicket\Mail {
     class Pop3 extends Pop3Storage {
         use MailBoxStorageTrait;
 
-        public function __construct($accountOptions) {
-            $protocol = new Pop3MailboxProtocol($accountOptions);
+        public function __construct($accountSetting) {
+            $protocol = new Pop3MailboxProtocol($accountSetting);
             parent::__construct($protocol);
-            $this->init($accountOptions->getAccount());
+            $this->init($accountSetting);
         }
     }
 
@@ -734,13 +749,17 @@ namespace osTicket\Mail {
             return $this->connection;
         }
 
+        public function getHostInfo() {
+            return $this->describe();
+        }
+
         public function asArray() {
             return $this->getConnectionConfig();
         }
 
         public function describe() {
             return sprintf('%s//%s:%s/%s',
-                    $this->getSsl(),
+                    $this->getSsl() ?: 'none',
                     $this->getHost(),
                     $this->getPort(),
                     $this->getProtocol());
