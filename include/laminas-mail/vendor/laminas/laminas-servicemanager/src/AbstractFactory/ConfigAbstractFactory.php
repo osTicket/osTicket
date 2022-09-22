@@ -1,26 +1,28 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\AbstractFactory;
 
 use ArrayObject;
 use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
 use Laminas\ServiceManager\Factory\AbstractFactoryInterface;
+use Psr\Container\ContainerInterface;
+
+use function array_key_exists;
+use function array_map;
+use function array_values;
+use function is_array;
+use function json_encode;
 
 final class ConfigAbstractFactory implements AbstractFactoryInterface
 {
-
     /**
      * Factory can create the service if there is a key for it in the config
      *
      * {@inheritdoc}
      */
-    public function canCreate(\Interop\Container\ContainerInterface $container, $requestedName)
+    public function canCreate(ContainerInterface $container, $requestedName)
     {
         if (! $container->has('config')) {
             return false;
@@ -37,7 +39,7 @@ final class ConfigAbstractFactory implements AbstractFactoryInterface
     /**
      * {@inheritDoc}
      */
-    public function __invoke(\Interop\Container\ContainerInterface $container, $requestedName, array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         if (! $container->has('config')) {
             throw new ServiceNotCreatedException('Cannot find a config array in the container');
@@ -52,10 +54,10 @@ final class ConfigAbstractFactory implements AbstractFactoryInterface
             throw new ServiceNotCreatedException('Cannot find a `' . self::class . '` key in the config array');
         }
 
-
         $dependencies = $config[self::class];
 
-        if (! is_array($dependencies)
+        if (
+            ! is_array($dependencies)
             || ! array_key_exists($requestedName, $dependencies)
             || ! is_array($dependencies[$requestedName])
         ) {

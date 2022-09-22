@@ -1,30 +1,68 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mime for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mime/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mime/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mime;
+
+use function array_key_exists;
+use function get_class;
+use function gettype;
+use function is_object;
+use function is_resource;
+use function is_string;
+use function rewind;
+use function sprintf;
+use function stream_filter_append;
+use function stream_filter_remove;
+use function stream_get_contents;
+use function stream_get_meta_data;
+
+use const STREAM_FILTER_READ;
 
 /**
  * Class representing a MIME part.
  */
 class Part
 {
+    /** @var string */
     public $type = Mime::TYPE_OCTETSTREAM;
+
+    /** @var string */
     public $encoding = Mime::ENCODING_8BIT;
+
+    /** @var null|string */
     public $id;
+
+    /** @var null|string */
     public $disposition;
+
+    /** @var null|string */
     public $filename;
+
+    /** @var null|string */
     public $description;
+
+    /** @var null|string */
     public $charset;
+
+    /** @var null|string */
     public $boundary;
+
+    /** @var null|string */
     public $location;
+
+    /** @var null|string */
     public $language;
+
+    /**
+     * String or stream containing the content
+     *
+     * @var string|resource
+     */
     protected $content;
+
+    /** @var bool */
     protected $isStream = false;
+
+    /** @var array<array-key, resource> */
     protected $filters = [];
 
     /**
@@ -47,6 +85,7 @@ class Part
 
     /**
      * Set type
+     *
      * @param string $type
      * @return self
      */
@@ -58,6 +97,7 @@ class Part
 
     /**
      * Get type
+     *
      * @return string
      */
     public function getType()
@@ -67,6 +107,7 @@ class Part
 
     /**
      * Set encoding
+     *
      * @param string $encoding
      * @return self
      */
@@ -78,6 +119,7 @@ class Part
 
     /**
      * Get encoding
+     *
      * @return string
      */
     public function getEncoding()
@@ -87,6 +129,7 @@ class Part
 
     /**
      * Set id
+     *
      * @param string $id
      * @return self
      */
@@ -98,6 +141,7 @@ class Part
 
     /**
      * Get id
+     *
      * @return string
      */
     public function getId()
@@ -107,6 +151,7 @@ class Part
 
     /**
      * Set disposition
+     *
      * @param string $disposition
      * @return self
      */
@@ -118,6 +163,7 @@ class Part
 
     /**
      * Get disposition
+     *
      * @return string
      */
     public function getDisposition()
@@ -127,6 +173,7 @@ class Part
 
     /**
      * Set description
+     *
      * @param string $description
      * @return self
      */
@@ -138,6 +185,7 @@ class Part
 
     /**
      * Get description
+     *
      * @return string
      */
     public function getDescription()
@@ -147,6 +195,7 @@ class Part
 
     /**
      * Set filename
+     *
      * @param string $fileName
      * @return self
      */
@@ -158,6 +207,7 @@ class Part
 
     /**
      * Get filename
+     *
      * @return string
      */
     public function getFileName()
@@ -167,7 +217,8 @@ class Part
 
     /**
      * Set charset
-     * @param string $type
+     *
+     * @param string $charset
      * @return self
      */
     public function setCharset($charset)
@@ -178,6 +229,7 @@ class Part
 
     /**
      * Get charset
+     *
      * @return string
      */
     public function getCharset()
@@ -187,6 +239,7 @@ class Part
 
     /**
      * Set boundary
+     *
      * @param string $boundary
      * @return self
      */
@@ -198,6 +251,7 @@ class Part
 
     /**
      * Get boundary
+     *
      * @return string
      */
     public function getBoundary()
@@ -207,6 +261,7 @@ class Part
 
     /**
      * Set location
+     *
      * @param string $location
      * @return self
      */
@@ -218,6 +273,7 @@ class Part
 
     /**
      * Get location
+     *
      * @return string
      */
     public function getLocation()
@@ -227,6 +283,7 @@ class Part
 
     /**
      * Set language
+     *
      * @param string $language
      * @return self
      */
@@ -238,6 +295,7 @@ class Part
 
     /**
      * Get language
+     *
      * @return string
      */
     public function getLanguage()
@@ -247,6 +305,7 @@ class Part
 
     /**
      * Set content
+     *
      * @param mixed $content  String or Stream containing the content
      * @throws Exception\InvalidArgumentException
      * @return self
@@ -269,6 +328,7 @@ class Part
 
     /**
      * Set isStream
+     *
      * @param bool $isStream
      * @return self
      */
@@ -280,6 +340,7 @@ class Part
 
     /**
      * Get isStream
+     *
      * @return bool
      */
     public function getIsStream()
@@ -289,7 +350,8 @@ class Part
 
     /**
      * Set filters
-     * @param array $filters
+     *
+     * @param array<array-key, resource> $filters
      * @return self
      */
     public function setFilters($filters = [])
@@ -300,7 +362,8 @@ class Part
 
     /**
      * Get Filters
-     * @return array
+     *
+     * @return array<array-key, resource>
      */
     public function getFilters()
     {
@@ -320,13 +383,15 @@ class Part
         return $this->isStream;
     }
 
+    // phpcs:disable WebimpressCodingStandard.NamingConventions.ValidVariableName.NotCamelCaps
+
     /**
      * if this was created with a stream, return a filtered stream for
      * reading the content. very useful for large file attachments.
      *
      * @param string $EOL
      * @return resource
-     * @throws Exception\RuntimeException if not a stream or unable to append filter
+     * @throws Exception\RuntimeException If not a stream or unable to append filter.
      */
     public function getEncodedStream($EOL = Mime::LINEEND)
     {
@@ -340,13 +405,13 @@ class Part
                 if (array_key_exists(Mime::ENCODING_QUOTEDPRINTABLE, $this->filters)) {
                     stream_filter_remove($this->filters[Mime::ENCODING_QUOTEDPRINTABLE]);
                 }
-                $filter = stream_filter_append(
+                $filter                                        = stream_filter_append(
                     $this->content,
                     'convert.quoted-printable-encode',
                     STREAM_FILTER_READ,
                     [
                         'line-length'      => 76,
-                        'line-break-chars' => $EOL
+                        'line-break-chars' => $EOL,
                     ]
                 );
                 $this->filters[Mime::ENCODING_QUOTEDPRINTABLE] = $filter;
@@ -358,13 +423,13 @@ class Part
                 if (array_key_exists(Mime::ENCODING_BASE64, $this->filters)) {
                     stream_filter_remove($this->filters[Mime::ENCODING_BASE64]);
                 }
-                $filter = stream_filter_append(
+                $filter                               = stream_filter_append(
                     $this->content,
                     'convert.base64-encode',
                     STREAM_FILTER_READ,
                     [
                         'line-length'      => 76,
-                        'line-break-chars' => $EOL
+                        'line-break-chars' => $EOL,
                     ]
                 );
                 $this->filters[Mime::ENCODING_BASE64] = $filter;
@@ -401,6 +466,7 @@ class Part
 
     /**
      * Get the RAW unencoded content from this part
+     *
      * @return string
      */
     public function getRawContent()
@@ -439,7 +505,7 @@ class Part
         }
 
         if ($this->id) {
-            $headers[]  = ['Content-ID', '<' . $this->id . '>'];
+            $headers[] = ['Content-ID', '<' . $this->id . '>'];
         }
 
         if ($this->disposition) {

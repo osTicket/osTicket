@@ -1,65 +1,60 @@
-<?php
-
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
+<?php // phpcs:disable WebimpressCodingStandard.Formatting.Reference.UnexpectedSpace
 
 namespace Laminas\Validator;
 
 use Traversable;
 
+use function array_shift;
+use function func_get_args;
+use function is_array;
+use function iterator_to_array;
+
 class Bitwise extends AbstractValidator
 {
-    const OP_AND = 'and';
-    const OP_XOR = 'xor';
+    public const OP_AND = 'and';
+    public const OP_XOR = 'xor';
 
-    const NOT_AND        = 'notAnd';
-    const NOT_AND_STRICT = 'notAndStrict';
-    const NOT_XOR        = 'notXor';
+    public const NOT_AND        = 'notAnd';
+    public const NOT_AND_STRICT = 'notAndStrict';
+    public const NOT_XOR        = 'notXor';
+    public const NO_OP          = 'noOp';
 
-    /**
-     * @var integer
-     */
+    /** @var int */
     protected $control;
 
     /**
      * Validation failure message template definitions
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $messageTemplates = [
         self::NOT_AND        => "The input has no common bit set with '%control%'",
         self::NOT_AND_STRICT => "The input doesn't have the same bits set as '%control%'",
         self::NOT_XOR        => "The input has common bit set with '%control%'",
+        self::NO_OP          => "No operator was present to compare '%control%' against",
     ];
 
     /**
      * Additional variables available for validation failure messages
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $messageVariables = [
         'control' => 'control',
     ];
 
-    /**
-     * @var integer
-     */
+    /** @var null|int */
     protected $operator;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     protected $strict = false;
 
     /**
      * Sets validator options
      * Accepts the following option keys:
-     *   'control'  => integer
+     *   'control'  => int
      *   'operator' =>
-     *   'strict'   => boolean
+     *   'strict'   => bool
      *
      * @param array|Traversable $options
      */
@@ -101,7 +96,7 @@ class Bitwise extends AbstractValidator
     /**
      * Returns the operator parameter.
      *
-     * @return string
+     * @return null|int
      */
     public function getOperator()
     {
@@ -132,21 +127,38 @@ class Bitwise extends AbstractValidator
         if (self::OP_AND === $this->operator) {
             if ($this->strict) {
                 // All the bits set in value must be set in control
-                $this->error(self::NOT_AND_STRICT);
+                $result = ($this->control & $value) === $value;
 
-                return (bool) (($this->control & $value) == $value);
-            } else {
-                // At least one of the bits must be common between value and control
-                $this->error(self::NOT_AND);
+                if (! $result) {
+                    $this->error(self::NOT_AND_STRICT);
+                }
 
-                return (bool) ($this->control & $value);
+                return $result;
             }
-        } elseif (self::OP_XOR === $this->operator) {
-            $this->error(self::NOT_XOR);
 
-            return (bool) (($this->control ^ $value) === ($this->control | $value));
+            // At least one of the bits must be common between value and control
+            $result = (bool) ($this->control & $value);
+
+            if (! $result) {
+                $this->error(self::NOT_AND);
+            }
+
+            return $result;
         }
 
+        if (self::OP_XOR === $this->operator) {
+            // Parentheses are required due to order of operations with bitwise operations
+            // phpcs:ignore WebimpressCodingStandard.Formatting.RedundantParentheses.SingleEquality
+            $result = ($this->control ^ $value) === ($this->control | $value);
+
+            if (! $result) {
+                $this->error(self::NOT_XOR);
+            }
+
+            return $result;
+        }
+
+        $this->error(self::NO_OP);
         return false;
     }
 

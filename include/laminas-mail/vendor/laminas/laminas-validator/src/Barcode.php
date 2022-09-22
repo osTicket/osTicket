@@ -1,22 +1,30 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Traversable;
 
+use function array_key_exists;
+use function class_exists;
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_object;
+use function is_string;
+use function property_exists;
+use function sprintf;
+use function strtolower;
+use function substr;
+use function ucfirst;
+
 class Barcode extends AbstractValidator
 {
-    const INVALID        = 'barcodeInvalid';
-    const FAILED         = 'barcodeFailed';
-    const INVALID_CHARS  = 'barcodeInvalidChars';
-    const INVALID_LENGTH = 'barcodeInvalidLength';
+    public const INVALID        = 'barcodeInvalid';
+    public const FAILED         = 'barcodeFailed';
+    public const INVALID_CHARS  = 'barcodeInvalidChars';
+    public const INVALID_LENGTH = 'barcodeInvalidLength';
 
+    /** @var array<string, string> */
     protected $messageTemplates = [
         self::FAILED         => 'The input failed checksum validation',
         self::INVALID_CHARS  => 'The input contains invalid characters',
@@ -27,15 +35,16 @@ class Barcode extends AbstractValidator
     /**
      * Additional variables available for validation failure messages
      *
-     * @var array
+     * @var array<string, array<string, string>>
      */
     protected $messageVariables = [
         'length' => ['options' => 'length'],
     ];
 
+    /** @var array<string, mixed> */
     protected $options = [
-        'adapter'     => null,  // Barcode adapter Laminas\Validator\Barcode\AbstractAdapter
-        'options'     => null,  // Options for this adapter
+        'adapter'     => null, // Barcode adapter Laminas\Validator\Barcode\AbstractAdapter
+        'options'     => null, // Options for this adapter
         'length'      => null,
         'useChecksum' => null,
     ];
@@ -128,8 +137,8 @@ class Barcode extends AbstractValidator
     /**
      * Sets if checksum should be validated, if no value is given the actual setting is returned
      *
-     * @param  bool $checksum
-     * @return bool
+     * @param null|bool $checksum
+     * @return Barcode\AbstractAdapter|bool
      */
     public function useChecksum($checksum = null)
     {
@@ -157,7 +166,7 @@ class Barcode extends AbstractValidator
         $result                  = $adapter->hasValidLength($value);
         if (! $result) {
             if (is_array($this->options['length'])) {
-                $temp = $this->options['length'];
+                $temp                    = $this->options['length'];
                 $this->options['length'] = '';
                 foreach ($temp as $length) {
                     $this->options['length'] .= '/';

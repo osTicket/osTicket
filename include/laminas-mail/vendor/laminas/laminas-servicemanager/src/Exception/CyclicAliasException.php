@@ -1,26 +1,49 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Exception;
+
+use function array_filter;
+use function array_keys;
+use function array_map;
+use function array_values;
+use function implode;
+use function reset;
+use function serialize;
+use function sort;
+use function sprintf;
 
 class CyclicAliasException extends InvalidArgumentException
 {
     /**
+     * @param string   $alias conflicting alias key
      * @param string[] $aliases map of referenced services, indexed by alias name (string)
-     *
+     */
+    public static function fromCyclicAlias(string $alias, array $aliases): self
+    {
+        $cycle  = $alias;
+        $cursor = $alias;
+        while (isset($aliases[$cursor]) && $aliases[$cursor] !== $alias) {
+            $cursor = $aliases[$cursor];
+            $cycle .= ' -> ' . $cursor;
+        }
+        $cycle .= ' -> ' . $alias . "\n";
+
+        return new self(sprintf(
+            "A cycle was detected within the aliases definitions:\n%s",
+            $cycle
+        ));
+    }
+
+    /**
+     * @param string[] $aliases map of referenced services, indexed by alias name (string)
      * @return self
      */
     public static function fromAliasesMap(array $aliases)
     {
         $detectedCycles = array_filter(array_map(
-            function ($alias) use ($aliases) {
-                return self::getCycleFor($aliases, $alias);
-            },
+            static fn($alias) => self::getCycleFor($aliases, $alias),
             array_keys($aliases)
         ));
 
@@ -44,7 +67,6 @@ class CyclicAliasException extends InvalidArgumentException
      *
      * @param string[] $aliases
      * @param string   $alias
-     *
      * @return array|null
      */
     private static function getCycleFor(array $aliases, $alias)
@@ -58,8 +80,7 @@ class CyclicAliasException extends InvalidArgumentException
             }
 
             $cycleCandidate[$targetName] = true;
-
-            $targetName = $aliases[$targetName];
+            $targetName                  = $aliases[$targetName];
         }
 
         return null;
@@ -67,7 +88,6 @@ class CyclicAliasException extends InvalidArgumentException
 
     /**
      * @param string[] $aliases
-     *
      * @return string
      */
     private static function printReferencesMap(array $aliases)
@@ -83,18 +103,17 @@ class CyclicAliasException extends InvalidArgumentException
 
     /**
      * @param string[][] $detectedCycles
-     *
      * @return string
      */
     private static function printCycles(array $detectedCycles)
     {
-        return "[\n" . implode("\n", array_map([__CLASS__, 'printCycle'], $detectedCycles)) . "\n]";
+        return "[\n" . implode("\n", array_map([self::class, 'printCycle'], $detectedCycles)) . "\n]";
     }
 
     /**
      * @param string[] $detectedCycle
-     *
      * @return string
+     * @phpcsSuppress SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedMethod
      */
     private static function printCycle(array $detectedCycle)
     {
@@ -104,9 +123,7 @@ class CyclicAliasException extends InvalidArgumentException
         return implode(
             ' => ',
             array_map(
-                function ($cycle) {
-                    return '"' . $cycle . '"';
-                },
+                static fn($cycle): string => '"' . $cycle . '"',
                 $fullCycle
             )
         );
@@ -114,7 +131,6 @@ class CyclicAliasException extends InvalidArgumentException
 
     /**
      * @param bool[][] $detectedCycles
-     *
      * @return bool[][] de-duplicated
      */
     private static function deDuplicateDetectedCycles(array $detectedCycles)
@@ -126,11 +142,9 @@ class CyclicAliasException extends InvalidArgumentException
 
             sort($cycleAliases);
 
-            $hash = serialize(array_values($cycleAliases));
+            $hash = serialize($cycleAliases);
 
-            $detectedCyclesByHash[$hash] = isset($detectedCyclesByHash[$hash])
-                ? $detectedCyclesByHash[$hash]
-                : $detectedCycle;
+            $detectedCyclesByHash[$hash] ??= $detectedCycle;
         }
 
         return array_values($detectedCyclesByHash);

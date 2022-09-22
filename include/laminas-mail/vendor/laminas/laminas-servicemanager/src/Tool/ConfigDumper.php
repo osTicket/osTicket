@@ -1,23 +1,33 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Tool;
 
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\AbstractFactory\ConfigAbstractFactory;
 use Laminas\ServiceManager\Exception\InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionParameter;
 use Traversable;
 
+use function array_filter;
+use function array_key_exists;
+use function class_exists;
+use function date;
+use function gettype;
+use function implode;
+use function interface_exists;
+use function is_array;
+use function is_int;
+use function is_string;
+use function sprintf;
+use function str_repeat;
+use function var_export;
+
 class ConfigDumper
 {
-    const CONFIG_TEMPLATE = <<<EOC
+    public const CONFIG_TEMPLATE = <<<EOC
 <?php
 
 /**
@@ -28,15 +38,9 @@ class ConfigDumper
 return %s;
 EOC;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ?ContainerInterface $container;
 
-    /**
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(?ContainerInterface $container = null)
     {
         $this->container = $container;
     }
@@ -46,7 +50,7 @@ EOC;
      * @param string $className
      * @param bool $ignoreUnresolved
      * @return array
-     * @throws InvalidArgumentException for invalid $className
+     * @throws InvalidArgumentException For invalid $className.
      */
     public function createDependencyConfig(array $config, $className, $ignoreUnresolved = false)
     {
@@ -67,9 +71,7 @@ EOC;
         $constructorArguments = $reflectionClass->getConstructor()->getParameters();
         $constructorArguments = array_filter(
             $constructorArguments,
-            function (ReflectionParameter $argument) {
-                return ! $argument->isOptional();
-            }
+            static fn(ReflectionParameter $argument): bool => ! $argument->isOptional()
         );
 
         // has no required parameters, treat it as an invokable
@@ -80,8 +82,10 @@ EOC;
         $classConfig = [];
 
         foreach ($constructorArguments as $constructorArgument) {
-            $argumentType = $constructorArgument->getClass();
-            if (is_null($argumentType)) {
+            $type         = $constructorArgument->getType();
+            $argumentType = null !== $type && ! $type->isBuiltin() ? $type->getName() : null;
+
+            if ($argumentType === null) {
                 if ($ignoreUnresolved) {
                     // don't throw an exception, just return the previous config
                     return $config;
@@ -96,9 +100,8 @@ EOC;
                     $constructorArgument->getName()
                 ));
             }
-            $argumentName = $argumentType->getName();
-            $config = $this->createDependencyConfig($config, $argumentName, $ignoreUnresolved);
-            $classConfig[] = $argumentName;
+            $config        = $this->createDependencyConfig($config, $argumentType, $ignoreUnresolved);
+            $classConfig[] = $argumentType;
         }
 
         $config[ConfigAbstractFactory::class][$className] = $classConfig;
@@ -107,8 +110,8 @@ EOC;
     }
 
     /**
-     * @param $className
-     * @throws InvalidArgumentException if class name is not a string or does
+     * @param string $className
+     * @throws InvalidArgumentException If class name is not a string or does
      *     not exist.
      */
     private function validateClassName($className)
@@ -136,7 +139,7 @@ EOC;
     /**
      * @param array $config
      * @return array
-     * @throws InvalidArgumentException if ConfigAbstractFactory configuration
+     * @throws InvalidArgumentException If ConfigAbstractFactory configuration
      *     value is not an array.
      */
     public function createFactoryMappingsFromConfig(array $config)
@@ -168,7 +171,8 @@ EOC;
     {
         $this->validateClassName($className);
 
-        if (array_key_exists('service_manager', $config)
+        if (
+            array_key_exists('service_manager', $config)
             && array_key_exists('factories', $config['service_manager'])
             && array_key_exists($className, $config['service_manager']['factories'])
         ) {
@@ -188,7 +192,7 @@ EOC;
         $prepared = $this->prepareConfig($config);
         return sprintf(
             self::CONFIG_TEMPLATE,
-            get_class($this),
+            static::class,
             date('Y-m-d H:i:s'),
             $prepared
         );
@@ -201,10 +205,10 @@ EOC;
      */
     private function prepareConfig($config, $indentLevel = 1)
     {
-        $indent = str_repeat(' ', $indentLevel * 4);
+        $indent  = str_repeat(' ', $indentLevel * 4);
         $entries = [];
         foreach ($config as $key => $value) {
-            $key = $this->createConfigKey($key);
+            $key       = $this->createConfigKey($key);
             $entries[] = sprintf(
                 '%s%s%s,',
                 $indent,

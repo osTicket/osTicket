@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-math for the canonical source repository
- * @copyright https://github.com/laminas/laminas-math/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-math/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Math\BigInteger\Adapter;
 
 use Laminas\Math\BigInteger\Exception;
@@ -47,8 +41,17 @@ class Gmp implements AdapterInterface
         set_error_handler(function () {
  /* Do nothing */
         }, \E_WARNING);
-        $res = gmp_init($sign . $operand, $base);
+
+        try {
+            $res = gmp_init($sign . $operand, $base);
+        } catch (\TypeError $e) {
+            $res = false;
+        } catch (\ValueError $e) {
+            $res = false;
+        }
+
         restore_error_handler();
+
         if ($res === false) {
             return false;
         }

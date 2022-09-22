@@ -1,0 +1,32 @@
+﻿<?xml version="1.0"?>
+<ruleset
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="./vendor/squizlabs/php_codesniffer/phpcs.xsd">
+
+    <arg name="basepath" value="."/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+
+    <!-- Show progress -->
+    <arg value="p"/>
+
+    <!-- Paths to check -->
+    <file>src</file>
+    <file>test</file>
+    <exclude-pattern>*/TestAsset/*</exclude-pattern>
+    <exclude-pattern>*/_files/*</exclude-pattern>
+
+    <!-- Include all rules from Laminas Coding Standard -->
+    <rule ref="LaminasCodingStandard"/>
+
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>/src/Exception/*</exclude-pattern>
+        <exclude-pattern>/src/SplAutoloader.php</exclude-pattern>
+        <exclude-pattern>/src/AutoloaderFactory.php</exclude-pattern>
+        <exclude-pattern>/src/ClassMapAutoloader.php</exclude-pattern>
+        <exclude-pattern>/src/ModuleAutoloader.php</exclude-pattern>
+        <exclude-pattern>/src/StandardAutoloader.php</exclude-pattern>
+    </rule>
+</ruleset>

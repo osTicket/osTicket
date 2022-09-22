@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Psr\Http\Client\ClientExceptionInterface;
@@ -22,41 +16,46 @@ use function substr;
 
 final class UndisclosedPassword extends AbstractValidator
 {
-    private const HIBP_API_URI = 'https://api.pwnedpasswords.com';
-    private const HIBP_API_REQUEST_TIMEOUT = 300;
-    private const HIBP_CLIENT_USER_AGENT_STRING = 'laminas-validator';
-    private const HIBP_CLIENT_ACCEPT_HEADER = 'application/vnd.haveibeenpwned.v2+json';
+    // phpcs:disable SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedConstant
+
+    private const HIBP_API_URI                       = 'https://api.pwnedpasswords.com';
+    private const HIBP_API_REQUEST_TIMEOUT           = 300;
+    private const HIBP_CLIENT_USER_AGENT_STRING      = 'laminas-validator';
+    private const HIBP_CLIENT_ACCEPT_HEADER          = 'application/vnd.haveibeenpwned.v2+json';
     private const HIBP_K_ANONYMITY_HASH_RANGE_LENGTH = 5;
-    private const HIBP_K_ANONYMITY_HASH_RANGE_BASE = 0;
-    private const SHA1_STRING_LENGTH = 40;
+    private const HIBP_K_ANONYMITY_HASH_RANGE_BASE   = 0;
+    private const SHA1_STRING_LENGTH                 = 40;
+
+    // phpcs:enable
 
     private const PASSWORD_BREACHED = 'passwordBreached';
-    private const NOT_A_STRING = 'wrongInput';
+    private const NOT_A_STRING      = 'wrongInput';
 
+    // phpcs:disable Generic.Files.LineLength.TooLong
+
+    /** @var array<string, string> */
     protected $messageTemplates = [
-        self::PASSWORD_BREACHED =>
-            'The provided password was found in previous breaches, please create another password',
-        self::NOT_A_STRING => 'The provided password is not a string, please provide a correct password',
+        self::PASSWORD_BREACHED => 'The provided password was found in previous breaches, please create another password',
+        self::NOT_A_STRING      => 'The provided password is not a string, please provide a correct password',
     ];
 
-    /** @var ClientInterface */
-    private $httpClient;
+    // phpcs:enable
+    private ClientInterface $httpClient;
 
-    /** @var RequestFactoryInterface */
-    private $makeHttpRequest;
+    private RequestFactoryInterface $makeHttpRequest;
 
     public function __construct(ClientInterface $httpClient, RequestFactoryInterface $makeHttpRequest)
     {
         parent::__construct();
 
-        $this->httpClient = $httpClient;
+        $this->httpClient      = $httpClient;
         $this->makeHttpRequest = $makeHttpRequest;
     }
 
     /**
      * @inheritDoc
      */
-    public function isValid($value) : bool
+    public function isValid($value): bool
     {
         if (! is_string($value)) {
             $this->error(self::NOT_A_STRING);
@@ -71,11 +70,11 @@ final class UndisclosedPassword extends AbstractValidator
         return true;
     }
 
-    private function isPwnedPassword(string $password) : bool
+    private function isPwnedPassword(string $password): bool
     {
-        $sha1Hash = $this->hashPassword($password);
+        $sha1Hash  = $this->hashPassword($password);
         $rangeHash = $this->getRangeHash($sha1Hash);
-        $hashList = $this->retrieveHashList($rangeHash);
+        $hashList  = $this->retrieveHashList($rangeHash);
 
         return $this->hashInResponse($sha1Hash, $hashList);
     }
@@ -84,7 +83,7 @@ final class UndisclosedPassword extends AbstractValidator
      * We use a SHA1 hashed password for checking it against
      * the breached data set of HIBP.
      */
-    private function hashPassword(string $password) : string
+    private function hashPassword(string $password): string
     {
         $hashedPassword = sha1($password);
 
@@ -97,7 +96,7 @@ final class UndisclosedPassword extends AbstractValidator
      *
      * @see https://www.troyhunt.com/enhancing-pwned-passwords-privacy-by-exclusively-supporting-anonymity/
      */
-    private function getRangeHash(string $passwordHash) : string
+    private function getRangeHash(string $passwordHash): string
     {
         return substr($passwordHash, self::HIBP_K_ANONYMITY_HASH_RANGE_BASE, self::HIBP_K_ANONYMITY_HASH_RANGE_LENGTH);
     }
@@ -109,7 +108,7 @@ final class UndisclosedPassword extends AbstractValidator
      *
      * @throws ClientExceptionInterface
      */
-    private function retrieveHashList(string $passwordRange) : string
+    private function retrieveHashList(string $passwordRange): string
     {
         $request = $this->makeHttpRequest->createRequest(
             'GET',
@@ -123,11 +122,11 @@ final class UndisclosedPassword extends AbstractValidator
     /**
      * Checks if the password is in the response from HIBP
      */
-    private function hashInResponse(string $sha1Hash, string $resultStream) : bool
+    private function hashInResponse(string $sha1Hash, string $resultStream): bool
     {
-        $data = explode("\r\n", $resultStream);
+        $data   = explode("\r\n", $resultStream);
         $hashes = array_filter($data, static function ($value) use ($sha1Hash) {
-            [$hash, $count] = explode(':', $value);
+            [$hash] = explode(':', $value);
 
             return strcmp($hash, substr($sha1Hash, self::HIBP_K_ANONYMITY_HASH_RANGE_LENGTH)) === 0;
         });

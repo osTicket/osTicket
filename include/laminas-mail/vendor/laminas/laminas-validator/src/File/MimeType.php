@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Stdlib\ArrayUtils;
@@ -13,6 +7,29 @@ use Laminas\Stdlib\ErrorHandler;
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
 use Traversable;
+
+use function array_key_exists;
+use function array_keys;
+use function array_merge;
+use function array_unique;
+use function class_exists;
+use function explode;
+use function finfo_file;
+use function finfo_open;
+use function getenv;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_file;
+use function is_int;
+use function is_readable;
+use function is_string;
+use function sprintf;
+use function trim;
+
+use const E_NOTICE;
+use const E_WARNING;
+use const FILEINFO_MIME_TYPE;
 
 /**
  * Validator for the mime type of a file
@@ -22,32 +39,27 @@ class MimeType extends AbstractValidator
     use FileInformationTrait;
 
     /**#@+
+     *
      * @const Error type constants
      */
-    const FALSE_TYPE   = 'fileMimeTypeFalse';
-    const NOT_DETECTED = 'fileMimeTypeNotDetected';
-    const NOT_READABLE = 'fileMimeTypeNotReadable';
+    public const FALSE_TYPE   = 'fileMimeTypeFalse';
+    public const NOT_DETECTED = 'fileMimeTypeNotDetected';
+    public const NOT_READABLE = 'fileMimeTypeNotReadable';
     /**#@-*/
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::FALSE_TYPE   => "File has an incorrect mimetype of '%type%'",
         self::NOT_DETECTED => 'The mimetype could not be detected from the file',
         self::NOT_READABLE => 'File is not readable or does not exist',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageVariables = [
         'type' => 'type',
     ];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type;
 
     /**
@@ -59,6 +71,7 @@ class MimeType extends AbstractValidator
 
     /**
      * If no environment variable 'MAGIC' is set, try and autodiscover it based on common locations
+     *
      * @var array
      */
     protected $magicFiles = [
@@ -79,10 +92,10 @@ class MimeType extends AbstractValidator
      * @var array
      */
     protected $options = [
-        'enableHeaderCheck' => false,  // Allow header check
-        'disableMagicFile'  => false,  // Disable usage of magicfile
-        'magicFile'         => null,   // Magicfile to use
-        'mimeType'          => null,   // Mimetype to allow
+        'enableHeaderCheck' => false, // Allow header check
+        'disableMagicFile'  => false, // Disable usage of magicfile
+        'magicFile'         => null, // Magicfile to use
+        'mimeType'          => null, // Mimetype to allow
     ];
 
     /**
@@ -177,7 +190,7 @@ class MimeType extends AbstractValidator
      * if false, the default MAGIC file from PHP will be used
      *
      * @param  string $file
-     * @throws Exception\RuntimeException When finfo can not read the magicfile
+     * @throws Exception\RuntimeException When finfo can not read the magicfile.
      * @throws Exception\InvalidArgumentException
      * @throws Exception\InvalidMagicMimeFileException
      * @return $this Provides fluid interface
@@ -216,8 +229,8 @@ class MimeType extends AbstractValidator
     /**
      * Disables usage of MagicFile
      *
-     * @param $disable boolean False disables usage of magic file
-     * @return $this Provides fluid interface
+     * @param bool $disable False disables usage of magic file; true enables it.
+     * @return self Provides fluid interface
      */
     public function disableMagicFile($disable)
     {
@@ -263,6 +276,7 @@ class MimeType extends AbstractValidator
      *
      * @param  bool $asArray Returns the values as array, when false a concatenated string is returned
      * @return string|array
+     * @psalm-return ($asArray is true ? list<string> : string)
      */
     public function getMimeType($asArray = false)
     {

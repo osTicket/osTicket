@@ -1,16 +1,25 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
 use Psr\Http\Message\UploadedFileInterface;
+
+use function basename;
+use function is_array;
+use function is_file;
+use function is_string;
+use function is_uploaded_file;
+
+use const UPLOAD_ERR_CANT_WRITE;
+use const UPLOAD_ERR_EXTENSION;
+use const UPLOAD_ERR_FORM_SIZE;
+use const UPLOAD_ERR_INI_SIZE;
+use const UPLOAD_ERR_NO_FILE;
+use const UPLOAD_ERR_NO_TMP_DIR;
+use const UPLOAD_ERR_OK;
+use const UPLOAD_ERR_PARTIAL;
 
 /**
  * Validator for the maximum size of a file up to a max of 2GB
@@ -20,20 +29,18 @@ class UploadFile extends AbstractValidator
     /**
      * @const string Error constants
      */
-    const INI_SIZE       = 'fileUploadFileErrorIniSize';
-    const FORM_SIZE      = 'fileUploadFileErrorFormSize';
-    const PARTIAL        = 'fileUploadFileErrorPartial';
-    const NO_FILE        = 'fileUploadFileErrorNoFile';
-    const NO_TMP_DIR     = 'fileUploadFileErrorNoTmpDir';
-    const CANT_WRITE     = 'fileUploadFileErrorCantWrite';
-    const EXTENSION      = 'fileUploadFileErrorExtension';
-    const ATTACK         = 'fileUploadFileErrorAttack';
-    const FILE_NOT_FOUND = 'fileUploadFileErrorFileNotFound';
-    const UNKNOWN        = 'fileUploadFileErrorUnknown';
+    public const INI_SIZE       = 'fileUploadFileErrorIniSize';
+    public const FORM_SIZE      = 'fileUploadFileErrorFormSize';
+    public const PARTIAL        = 'fileUploadFileErrorPartial';
+    public const NO_FILE        = 'fileUploadFileErrorNoFile';
+    public const NO_TMP_DIR     = 'fileUploadFileErrorNoTmpDir';
+    public const CANT_WRITE     = 'fileUploadFileErrorCantWrite';
+    public const EXTENSION      = 'fileUploadFileErrorExtension';
+    public const ATTACK         = 'fileUploadFileErrorAttack';
+    public const FILE_NOT_FOUND = 'fileUploadFileErrorFileNotFound';
+    public const UNKNOWN        = 'fileUploadFileErrorUnknown';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::INI_SIZE       => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
         self::FORM_SIZE      => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was '

@@ -1,52 +1,56 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-loader for the canonical source repository
- * @copyright https://github.com/laminas/laminas-loader/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-loader/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Loader;
 
 // Grab SplAutoloader interface
 require_once __DIR__ . '/SplAutoloader.php';
 
 use GlobIterator;
+use InvalidArgumentException;
 use Phar;
 use PharFileInfo;
 use SplFileInfo;
 use Traversable;
+use function array_map;
+use function class_exists;
+use function count;
+use function extension_loaded;
+use function getcwd;
+use function gettype;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_string;
+use function pathinfo;
+use function preg_match;
+use function realpath;
+use function rtrim;
+use function spl_autoload_register;
+use function spl_autoload_unregister;
+use function sprintf;
+use function str_replace;
+use function strpos;
+use function substr;
+use const DIRECTORY_SEPARATOR;
 
 class ModuleAutoloader implements SplAutoloader
 {
-    /**
-     * @var array An array of module paths to scan
-     */
+    /** @var array An array of module paths to scan */
     protected $paths = [];
 
-    /**
-     * @var array An array of modulename => path
-     */
+    /** @var array An array of modulename => path */
     protected $explicitPaths = [];
 
-    /**
-     * @var array An array of namespaceName => namespacePath
-     */
+    /** @var array An array of namespaceName => namespacePath */
     protected $namespacedPaths = [];
 
-    /**
-     * @var string Will contain the absolute phar:// path to the executable when packaged as phar file
-     */
+    /** @var string Will contain the absolute phar:// path to the executable when packaged as phar file */
     protected $pharBasePath = "";
 
-    /**
-     * @var array An array of supported phar extensions (filled on constructor)
-     */
+    /** @var array An array of supported phar extensions (filled on constructor) */
     protected $pharExtensions = [];
 
-    /**
-     * @var array An array of module classes to their containing files
-     */
+    /** @var array An array of module classes to their containing files */
     protected $moduleClassMap = [];
 
     /**
@@ -59,7 +63,7 @@ class ModuleAutoloader implements SplAutoloader
     public function __construct($options = null)
     {
         if (extension_loaded('phar')) {
-            $this->pharBasePath = Phar::running(true);
+            $this->pharBasePath   = Phar::running(true);
             $this->pharExtensions = [
                 'phar',
                 'phar.tar',
@@ -130,7 +134,7 @@ class ModuleAutoloader implements SplAutoloader
     /**
      * Autoload a class
      *
-     * @param   $class
+     * @param   string $class
      * @return  mixed
      *          False [if unable to load $class]
      *          get_class($class) [if $class is successfully loaded]
@@ -167,7 +171,7 @@ class ModuleAutoloader implements SplAutoloader
                 }
 
                 $moduleNameBuffer = str_replace($namespace . "\\", "", $moduleName);
-                $path .= DIRECTORY_SEPARATOR . $moduleNameBuffer . DIRECTORY_SEPARATOR;
+                $path            .= DIRECTORY_SEPARATOR . $moduleNameBuffer . DIRECTORY_SEPARATOR;
 
                 $classLoaded = $this->loadModuleFromDir($path, $class);
                 if ($classLoaded) {
@@ -181,7 +185,7 @@ class ModuleAutoloader implements SplAutoloader
             }
         }
 
-        $moduleClassPath   = str_replace('\\', DIRECTORY_SEPARATOR, $moduleName);
+        $moduleClassPath = str_replace('\\', DIRECTORY_SEPARATOR, $moduleName);
 
         $pharSuffixPattern = null;
         if ($this->pharExtensions) {
@@ -189,9 +193,9 @@ class ModuleAutoloader implements SplAutoloader
         }
 
         foreach ($this->paths as $path) {
-            $path = $path . $moduleClassPath;
+            $path .= $moduleClassPath;
 
-            if ($path == '.' || substr($path, 0, 2) == './' || substr($path, 0, 2) == '.\\') {
+            if ($path === '.' || substr($path, 0, 2) === './' || substr($path, 0, 2) === '.\\') {
                 if (! $basePath = $this->pharBasePath) {
                     $basePath = realpath('.');
                 }
@@ -248,7 +252,7 @@ class ModuleAutoloader implements SplAutoloader
             $file = new SplFileInfo($modulePath);
         }
 
-        if (($file->isReadable() && $file->isFile())) {
+        if ($file->isReadable() && $file->isFile()) {
             // Found directory with Module.php in it
             $absModulePath = $this->pharBasePath ? (string) $file : $file->getRealPath();
             require_once $absModulePath;
@@ -272,7 +276,7 @@ class ModuleAutoloader implements SplAutoloader
     protected function loadModuleFromPhar($pharPath, $class)
     {
         $pharPath = static::normalizePath($pharPath, false);
-        $file = new SplFileInfo($pharPath);
+        $file     = new SplFileInfo($pharPath);
         if (! $file->isReadable() || ! $file->isFile()) {
             return false;
         }
@@ -291,7 +295,7 @@ class ModuleAutoloader implements SplAutoloader
 
         // Phase 1: Not executable phar, no stub, or stub did not provide Module class; try Module.php directly
         $moduleClassFile = 'phar://' . $fileRealPath . '/Module.php';
-        $moduleFile = new SplFileInfo($moduleClassFile);
+        $moduleFile      = new SplFileInfo($moduleClassFile);
         if ($moduleFile->isReadable() && $moduleFile->isFile()) {
             require_once $moduleClassFile;
             if (class_exists($class)) {
@@ -303,9 +307,9 @@ class ModuleAutoloader implements SplAutoloader
         // Phase 2: Check for nested module directory within archive
         // Checks for /path/to/MyModule.tar/MyModule/Module.php
         // (shell-integrated zip/tar utilities wrap directories like this)
-        $pharBaseName = $this->pharFileToModuleName($fileRealPath);
-        $moduleClassFile = 'phar://' . $fileRealPath . '/' . $pharBaseName  . '/Module.php';
-        $moduleFile = new SplFileInfo($moduleClassFile);
+        $pharBaseName    = $this->pharFileToModuleName($fileRealPath);
+        $moduleClassFile = 'phar://' . $fileRealPath . '/' . $pharBaseName . '/Module.php';
+        $moduleFile      = new SplFileInfo($moduleClassFile);
         if ($moduleFile->isReadable() && $moduleFile->isFile()) {
             require_once $moduleClassFile;
             if (class_exists($class)) {
@@ -341,7 +345,7 @@ class ModuleAutoloader implements SplAutoloader
      * registerPaths
      *
      * @param  array|Traversable $paths
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return ModuleAutoloader
      */
     public function registerPaths($paths)
@@ -371,7 +375,7 @@ class ModuleAutoloader implements SplAutoloader
      *
      * @param  string $path
      * @param  bool|string $moduleName
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return ModuleAutoloader
      */
     public function registerPath($path, $moduleName = false)

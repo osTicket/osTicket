@@ -1,38 +1,37 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
+
+use function strtolower;
 
 /**
  * @todo       Add accessors for setting date from DateTime, Laminas\Date, or a string
  */
 class Date implements HeaderInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $value;
 
+    /**
+     * @param string $headerLine
+     * @return static
+     */
     public static function fromString($headerLine)
     {
-        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
-        $value = HeaderWrap::mimeDecodeValue($value);
+        [$name, $value] = GenericHeader::splitHeaderLine($headerLine);
+        $value          = HeaderWrap::mimeDecodeValue($value);
 
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'date') {
             throw new Exception\InvalidArgumentException('Invalid header line for Date string');
         }
 
-        $header = new static($value);
-
-        return $header;
+        return new static($value);
     }
 
+    /**
+     * @param string $value
+     */
     public function __construct($value)
     {
         if (! HeaderValue::isValid($value)) {
@@ -41,27 +40,43 @@ class Date implements HeaderInterface
         $this->value = $value;
     }
 
+    /**
+     * @return string
+     */
     public function getFieldName()
     {
         return 'Date';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
     {
         return $this->value;
     }
 
+    /**
+     * @param string $encoding
+     * @return self
+     */
     public function setEncoding($encoding)
     {
         // This header must be always in US-ASCII
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEncoding()
     {
         return 'ASCII';
     }
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         return 'Date: ' . $this->getFieldValue();

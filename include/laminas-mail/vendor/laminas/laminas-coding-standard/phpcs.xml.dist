@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="PHPCS Coding Standards for LaminasCodingStandard"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
+    <description>The coding standard for LaminasCodingStandard itself.</description>
+
+    <arg name="basepath" value="."/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+
+    <file>src</file>
+
+    <rule ref="LaminasCodingStandard"/>
+</ruleset>

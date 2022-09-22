@@ -1,14 +1,14 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-stdlib for the canonical source repository
- * @copyright https://github.com/laminas/laminas-stdlib/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-stdlib/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\Stdlib;
 
 use ArrayObject as PhpArrayObject;
+use ReturnTypeWillChange;
+
+use function http_build_query;
+use function parse_str;
 
 class Parameters extends PhpArrayObject implements ParametersInterface
 {
@@ -20,7 +20,7 @@ class Parameters extends PhpArrayObject implements ParametersInterface
      *
      * @param  array $values
      */
-    public function __construct(array $values = null)
+    public function __construct(?array $values = null)
     {
         if (null === $values) {
             $values = [];
@@ -80,12 +80,14 @@ class Parameters extends PhpArrayObject implements ParametersInterface
      * @param  string $name
      * @return mixed
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($name)
     {
         if ($this->offsetExists($name)) {
             return parent::offsetGet($name);
         }
-        return;
+
+        return null;
     }
 
     /**

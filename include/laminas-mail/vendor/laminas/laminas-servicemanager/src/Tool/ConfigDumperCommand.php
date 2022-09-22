@@ -1,25 +1,50 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Tool;
 
 use Laminas\ServiceManager\Exception;
 use Laminas\Stdlib\ConsoleHelper;
 
+use function array_shift;
+use function class_exists;
+use function dirname;
+use function file_exists;
+use function file_put_contents;
+use function in_array;
+use function is_array;
+use function is_writable;
+use function sprintf;
+
+use const STDERR;
+use const STDOUT;
+
+/**
+ * @psalm-type HelpObject = object{
+ *     command: string
+ * }
+ * @psalm-type ErrorObject = object{
+ *     command: string,
+ *     message: string
+ * }
+ * @psalm-type ArgumentObject = object{
+ *     command: string,
+ *     configFile: string,
+ *     config: array<array-key, mixed>,
+ *     class: string,
+ *     ignoreUnresolved: bool
+ * }
+ */
 class ConfigDumperCommand
 {
-    const COMMAND_DUMP = 'dump';
-    const COMMAND_ERROR = 'error';
-    const COMMAND_HELP = 'help';
+    public const COMMAND_DUMP  = 'dump';
+    public const COMMAND_ERROR = 'error';
+    public const COMMAND_HELP  = 'help';
 
-    const DEFAULT_SCRIPT_NAME = __CLASS__;
+    public const DEFAULT_SCRIPT_NAME = self::class;
 
-    const HELP_TEMPLATE = <<< EOH
+    public const HELP_TEMPLATE = <<<EOH
 <info>Usage:</info>
 
   %s [-h|--help|help] [-i|--ignore-unresolved] <configFile> <className>
@@ -41,23 +66,17 @@ and injects it with ConfigAbstractFactory dependency configuration for
 the provided class name, writing the changes back to the file.
 EOH;
 
-    /**
-     * @var ConsoleHelper
-     */
-    private $helper;
+    private ConsoleHelper $helper;
 
-    /**
-     * @var string
-     */
-    private $scriptName;
+    private string $scriptName;
 
     /**
      * @param string $scriptName
      */
-    public function __construct($scriptName = self::DEFAULT_SCRIPT_NAME, ConsoleHelper $helper = null)
+    public function __construct($scriptName = self::DEFAULT_SCRIPT_NAME, ?ConsoleHelper $helper = null)
     {
         $this->scriptName = $scriptName;
-        $this->helper = $helper ?: new ConsoleHelper();
+        $this->helper     = $helper ?: new ConsoleHelper();
     }
 
     /**
@@ -110,11 +129,11 @@ EOH;
 
     /**
      * @param array $args
-     * @return \stdClass
+     * @return object
      */
     private function parseArgs(array $args)
     {
-        if (! count($args)) {
+        if (! $args) {
             return $this->createHelpArgument();
         }
 
@@ -127,10 +146,10 @@ EOH;
         $ignoreUnresolved = false;
         if (in_array($arg1, ['-i', '--ignore-unresolved'], true)) {
             $ignoreUnresolved = true;
-            $arg1 = array_shift($args);
+            $arg1             = array_shift($args);
         }
 
-        if (! count($args)) {
+        if (! $args) {
             return $this->createErrorArgument('Missing class name');
         }
 
@@ -192,7 +211,7 @@ EOH;
      * @param array $config Parsed configuration.
      * @param string $class Name of class to reflect.
      * @param bool $ignoreUnresolved If to ignore classes with unresolved direct dependencies.
-     * @return \stdClass
+     * @return ArgumentObject
      */
     private function createArguments($command, $configFile, $config, $class, $ignoreUnresolved)
     {
@@ -207,7 +226,7 @@ EOH;
 
     /**
      * @param string $message
-     * @return \stdClass
+     * @return ErrorObject
      */
     private function createErrorArgument($message)
     {
@@ -218,7 +237,7 @@ EOH;
     }
 
     /**
-     * @return \stdClass
+     * @return HelpObject
      */
     private function createHelpArgument()
     {

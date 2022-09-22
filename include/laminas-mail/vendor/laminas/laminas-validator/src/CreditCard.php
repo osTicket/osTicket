@@ -1,15 +1,27 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
+use Exception;
 use Laminas\Stdlib\ArrayUtils;
+use Laminas\Validator\Exception\InvalidArgumentException;
 use Traversable;
+
+use function array_key_exists;
+use function array_keys;
+use function array_shift;
+use function constant;
+use function ctype_digit;
+use function defined;
+use function floor;
+use function func_get_args;
+use function in_array;
+use function is_array;
+use function is_callable;
+use function is_string;
+use function strlen;
+use function strpos;
+use function strtoupper;
 
 class CreditCard extends AbstractValidator
 {
@@ -18,27 +30,27 @@ class CreditCard extends AbstractValidator
      *
      * @var string
      */
-    const ALL              = 'All';
-    const AMERICAN_EXPRESS = 'American_Express';
-    const UNIONPAY         = 'Unionpay';
-    const DINERS_CLUB      = 'Diners_Club';
-    const DINERS_CLUB_US   = 'Diners_Club_US';
-    const DISCOVER         = 'Discover';
-    const JCB              = 'JCB';
-    const LASER            = 'Laser';
-    const MAESTRO          = 'Maestro';
-    const MASTERCARD       = 'Mastercard';
-    const SOLO             = 'Solo';
-    const VISA             = 'Visa';
-    const MIR              = 'Mir';
+    public const ALL              = 'All';
+    public const AMERICAN_EXPRESS = 'American_Express';
+    public const UNIONPAY         = 'Unionpay';
+    public const DINERS_CLUB      = 'Diners_Club';
+    public const DINERS_CLUB_US   = 'Diners_Club_US';
+    public const DISCOVER         = 'Discover';
+    public const JCB              = 'JCB';
+    public const LASER            = 'Laser';
+    public const MAESTRO          = 'Maestro';
+    public const MASTERCARD       = 'Mastercard';
+    public const SOLO             = 'Solo';
+    public const VISA             = 'Visa';
+    public const MIR              = 'Mir';
 
-    const CHECKSUM       = 'creditcardChecksum';
-    const CONTENT        = 'creditcardContent';
-    const INVALID        = 'creditcardInvalid';
-    const LENGTH         = 'creditcardLength';
-    const PREFIX         = 'creditcardPrefix';
-    const SERVICE        = 'creditcardService';
-    const SERVICEFAILURE = 'creditcardServiceFailure';
+    public const CHECKSUM       = 'creditcardChecksum';
+    public const CONTENT        = 'creditcardContent';
+    public const INVALID        = 'creditcardInvalid';
+    public const LENGTH         = 'creditcardLength';
+    public const PREFIX         = 'creditcardPrefix';
+    public const SERVICE        = 'creditcardService';
+    public const SERVICEFAILURE = 'creditcardServiceFailure';
 
     /**
      * Validation failure message template definitions
@@ -104,25 +116,116 @@ class CreditCard extends AbstractValidator
         self::AMERICAN_EXPRESS => ['34', '37'],
         self::DINERS_CLUB      => ['300', '301', '302', '303', '304', '305', '36'],
         self::DINERS_CLUB_US   => ['54', '55'],
-        self::DISCOVER         => ['6011', '622126', '622127', '622128', '622129', '62213',
-                                        '62214', '62215', '62216', '62217', '62218', '62219',
-                                        '6222', '6223', '6224', '6225', '6226', '6227', '6228',
-                                        '62290', '62291', '622920', '622921', '622922', '622923',
-                                        '622924', '622925', '644', '645', '646', '647', '648',
-                                        '649', '65'],
+        self::DISCOVER         => [
+            '6011',
+            '622126',
+            '622127',
+            '622128',
+            '622129',
+            '62213',
+            '62214',
+            '62215',
+            '62216',
+            '62217',
+            '62218',
+            '62219',
+            '6222',
+            '6223',
+            '6224',
+            '6225',
+            '6226',
+            '6227',
+            '6228',
+            '62290',
+            '62291',
+            '622920',
+            '622921',
+            '622922',
+            '622923',
+            '622924',
+            '622925',
+            '644',
+            '645',
+            '646',
+            '647',
+            '648',
+            '649',
+            '65',
+        ],
         self::JCB              => ['1800', '2131', '3528', '3529', '353', '354', '355', '356', '357', '358'],
         self::LASER            => ['6304', '6706', '6771', '6709'],
-        self::MAESTRO          => ['5018', '5020', '5038', '6304', '6759', '6761', '6762', '6763',
-                                        '6764', '6765', '6766', '6772'],
-        self::MASTERCARD       => ['2221', '2222', '2223', '2224', '2225', '2226', '2227', '2228', '2229',
-                                        '223', '224', '225', '226', '227', '228', '229',
-                                        '23', '24', '25', '26', '271', '2720',
-                                        '51', '52', '53', '54', '55'],
+        self::MAESTRO          => [
+            '5018',
+            '5020',
+            '5038',
+            '6304',
+            '6759',
+            '6761',
+            '6762',
+            '6763',
+            '6764',
+            '6765',
+            '6766',
+            '6772',
+        ],
+        self::MASTERCARD       => [
+            '2221',
+            '2222',
+            '2223',
+            '2224',
+            '2225',
+            '2226',
+            '2227',
+            '2228',
+            '2229',
+            '223',
+            '224',
+            '225',
+            '226',
+            '227',
+            '228',
+            '229',
+            '23',
+            '24',
+            '25',
+            '26',
+            '271',
+            '2720',
+            '51',
+            '52',
+            '53',
+            '54',
+            '55',
+        ],
         self::SOLO             => ['6334', '6767'],
-        self::UNIONPAY         => ['622126', '622127', '622128', '622129', '62213', '62214',
-                                        '62215', '62216', '62217', '62218', '62219', '6222', '6223',
-                                        '6224', '6225', '6226', '6227', '6228', '62290', '62291',
-                                        '622920', '622921', '622922', '622923', '622924', '622925'],
+        self::UNIONPAY         => [
+            '622126',
+            '622127',
+            '622128',
+            '622129',
+            '62213',
+            '62214',
+            '62215',
+            '62216',
+            '62217',
+            '62218',
+            '62219',
+            '6222',
+            '6223',
+            '6224',
+            '6225',
+            '6226',
+            '6227',
+            '6228',
+            '62290',
+            '62291',
+            '622920',
+            '622921',
+            '622922',
+            '622923',
+            '622924',
+            '622925',
+        ],
         self::VISA             => ['4'],
         self::MIR              => ['2200', '2201', '2202', '2203', '2204'],
     ];
@@ -133,8 +236,8 @@ class CreditCard extends AbstractValidator
      * @var array
      */
     protected $options = [
-        'service' => null,     // Service callback for additional validation
-        'type'    => [],  // CCIs which are accepted by validation
+        'service' => null, // Service callback for additional validation
+        'type'    => [], // CCIs which are accepted by validation
     ];
 
     /**
@@ -147,7 +250,7 @@ class CreditCard extends AbstractValidator
         if ($options instanceof Traversable) {
             $options = ArrayUtils::iteratorToArray($options);
         } elseif (! is_array($options)) {
-            $options = func_get_args();
+            $options      = func_get_args();
             $temp['type'] = array_shift($options);
             if (! empty($options)) {
                 $temp['service'] = array_shift($options);
@@ -206,7 +309,7 @@ class CreditCard extends AbstractValidator
         }
 
         foreach ($type as $typ) {
-            if ($typ == self::ALL) {
+            if ($typ === self::ALL) {
                 $this->options['type'] = array_keys($this->cardLength);
                 continue;
             }
@@ -240,12 +343,12 @@ class CreditCard extends AbstractValidator
      *
      * @param  callable $service
      * @return $this
-     * @throws Exception\InvalidArgumentException on invalid service callback
+     * @throws InvalidArgumentException On invalid service callback.
      */
     public function setService($service)
     {
         if (! is_callable($service)) {
-            throw new Exception\InvalidArgumentException('Invalid callback given');
+            throw new InvalidArgumentException('Invalid callback given');
         }
 
         $this->options['service'] = $service;
@@ -278,7 +381,7 @@ class CreditCard extends AbstractValidator
         $foundl = false;
         foreach ($types as $type) {
             foreach ($this->cardType[$type] as $prefix) {
-                if (0 === strpos($value, $prefix)) {
+                if (0 === strpos($value, (string) $prefix)) {
                     $foundp = true;
                     if (in_array($length, $this->cardLength[$type])) {
                         $foundl = true;
@@ -288,12 +391,12 @@ class CreditCard extends AbstractValidator
             }
         }
 
-        if ($foundp == false) {
+        if ($foundp === false) {
             $this->error(self::PREFIX, $value);
             return false;
         }
 
-        if ($foundl == false) {
+        if ($foundl === false) {
             $this->error(self::LENGTH, $value);
             return false;
         }
@@ -302,12 +405,13 @@ class CreditCard extends AbstractValidator
         $weight = 2;
 
         for ($i = $length - 2; $i >= 0; $i--) {
-            $digit = $weight * $value[$i];
-            $sum += floor($digit / 10) + $digit % 10;
+            $digit  = $weight * $value[$i];
+            $sum   += floor($digit / 10) + $digit % 10;
             $weight = $weight % 2 + 1;
         }
 
-        if ((10 - $sum % 10) % 10 != $value[$length - 1]) {
+        $checksum = (10 - $sum % 10) % 10;
+        if ((string) $checksum !== $value[$length - 1]) {
             $this->error(self::CHECKSUM, $value);
             return false;
         }
@@ -321,7 +425,7 @@ class CreditCard extends AbstractValidator
                     $this->error(self::SERVICE, $value);
                     return false;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error(self::SERVICEFAILURE, $value);
                 return false;
             }

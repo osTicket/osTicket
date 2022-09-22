@@ -1,18 +1,12 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-zendframework-bridge for the canonical source repository
- * @copyright https://github.com/laminas/laminas-zendframework-bridge/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-zendframework-bridge/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\ZendFrameworkBridge;
+
+use RuntimeException;
 
 use function array_intersect_key;
 use function array_key_exists;
 use function array_pop;
-use function array_push;
-use function count;
 use function in_array;
 use function is_array;
 use function is_callable;
@@ -35,7 +29,10 @@ class ConfigPostProcessor
         'zf-apigility'    => 'api-tools',
     ];
 
-    /** @var Replacements */
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor Initialized during call to the only public method __invoke()
+     * @var Replacements
+     */
     private $replacements;
 
     /** @var callable[] */
@@ -43,8 +40,6 @@ class ConfigPostProcessor
 
     public function __construct()
     {
-        $this->replacements = new Replacements();
-
         /* Define the rulesets for replacements.
          *
          * Each ruleset has the following signature:
@@ -76,7 +71,7 @@ class ConfigPostProcessor
             function ($value, array $keys) {
                 $key = array_pop($keys);
                 // Only worried about a top-level "router" key.
-                return $key === 'router' && count($keys) === 0 && is_array($value)
+                return $key === 'router' && $keys === [] && is_array($value)
                     ? [$this, 'noopReplacement']
                     : null;
             },
@@ -90,8 +85,8 @@ class ConfigPostProcessor
 
             // Array values
             function ($value, array $keys) {
-                return 0 !== count($keys) && is_array($value)
-                    ? [$this, '__invoke']
+                return $keys !== [] && is_array($value)
+                    ? [$this, 'processConfig']
                     : null;
             },
         ];
@@ -104,45 +99,8 @@ class ConfigPostProcessor
      */
     public function __invoke(array $config, array $keys = [])
     {
-        $rewritten = [];
-
-        foreach ($config as $key => $value) {
-            // Determine new key from replacements
-            $newKey = is_string($key) ? $this->replace($key, $keys) : $key;
-
-            // Keep original values with original key, if the key has changed, but only at the top-level.
-            if (empty($keys) && $newKey !== $key) {
-                $rewritten[$key] = $value;
-            }
-
-            // Perform value replacements, if any
-            $newValue = $this->replace($value, $keys, $newKey);
-
-            // Key does not already exist and/or is not an array value
-            if (! array_key_exists($newKey, $rewritten) || ! is_array($rewritten[$newKey])) {
-                // Do not overwrite existing values with null values
-                $rewritten[$newKey] = array_key_exists($newKey, $rewritten) && null === $newValue
-                    ? $rewritten[$newKey]
-                    : $newValue;
-                continue;
-            }
-
-            // New value is null; nothing to do.
-            if (null === $newValue) {
-                continue;
-            }
-
-            // Key already exists as an array value, but $value is not an array
-            if (! is_array($newValue)) {
-                $rewritten[$newKey][] = $newValue;
-                continue;
-            }
-
-            // Key already exists as an array value, and $value is also an array
-            $rewritten[$newKey] = static::merge($rewritten[$newKey], $newValue);
-        }
-
-        return $rewritten;
+        $this->replacements = $this->initializeReplacements($config);
+        return $this->processConfig($config, $keys);
     }
 
     /**
@@ -159,7 +117,7 @@ class ConfigPostProcessor
     {
         // Add new key to the list of keys.
         // We do not need to remove it later, as we are working on a copy of the array.
-        array_push($keys, $key);
+        $keys[] = $key;
 
         // Identify rewrite strategy and perform replacements
         $rewriteRule = $this->replacementRuleMatch($value, $keys);
@@ -268,7 +226,7 @@ class ConfigPostProcessor
                 continue;
             }
 
-            $config[$key] = is_array($data) ? $this->__invoke($data, [$key]) :  $data;
+            $config[$key] = is_array($data) ? $this->processConfig($data, [$key]) :  $data;
         }
 
         return $config;
@@ -412,7 +370,7 @@ class ConfigPostProcessor
             }
 
             $replacedService = $this->replacements->replace($service);
-            $serviceInstance = is_array($serviceInstance) ? $this->__invoke($serviceInstance) : $serviceInstance;
+            $serviceInstance = is_array($serviceInstance) ? $this->processConfig($serviceInstance) : $serviceInstance;
 
             $config['services'][$replacedService] = $serviceInstance;
 
@@ -430,5 +388,86 @@ class ConfigPostProcessor
         }
 
         return $config;
+    }
+
+    private function initializeReplacements(array $config): Replacements
+    {
+        $replacements = $config['laminas-zendframework-bridge']['replacements'] ?? [];
+        if (! is_array($replacements)) {
+            throw new RuntimeException(sprintf(
+                'Invalid laminas-zendframework-bridge.replacements configuration;'
+                . ' value MUST be an array; received %s',
+                is_object($replacements) ? get_class($replacements) : gettype($replacements)
+            ));
+        }
+
+        foreach ($replacements as $lookup => $replacement) {
+            if (
+                ! is_string($lookup)
+                || ! is_string($replacement)
+                || preg_match('/^\s*$/', $lookup)
+                || preg_match('/^\s*$/', $replacement)
+            ) {
+                throw new RuntimeException(
+                    'Invalid lookup or replacement in laminas-zendframework-bridge.replacements configuration;'
+                    . ' all keys and values MUST be non-empty strings.'
+                );
+            }
+        }
+
+        return new Replacements($replacements);
+    }
+
+    /**
+     * @param string[] $keys Hierarchy of keys, for determining location in
+     *     nested configuration.
+     */
+    private function processConfig(array $config, array $keys = []): array
+    {
+        $rewritten = [];
+
+        foreach ($config as $key => $value) {
+            // Do not rewrite configuration for the bridge
+            if ($key === 'laminas-zendframework-bridge') {
+                $rewritten[$key] = $value;
+                continue;
+            }
+
+            // Determine new key from replacements
+            $newKey = is_string($key) ? $this->replace($key, $keys) : $key;
+
+            // Keep original values with original key, if the key has changed, but only at the top-level.
+            if (empty($keys) && $newKey !== $key) {
+                $rewritten[$key] = $value;
+            }
+
+            // Perform value replacements, if any
+            $newValue = $this->replace($value, $keys, $newKey);
+
+            // Key does not already exist and/or is not an array value
+            if (!array_key_exists($newKey, $rewritten) || !is_array($rewritten[$newKey])) {
+                // Do not overwrite existing values with null values
+                $rewritten[$newKey] = array_key_exists($newKey, $rewritten) && null === $newValue
+                    ? $rewritten[$newKey]
+                    : $newValue;
+                continue;
+            }
+
+            // New value is null; nothing to do.
+            if (null === $newValue) {
+                continue;
+            }
+
+            // Key already exists as an array value, but $value is not an array
+            if (!is_array($newValue)) {
+                $rewritten[$newKey][] = $newValue;
+                continue;
+            }
+
+            // Key already exists as an array value, and $value is also an array
+            $rewritten[$newKey] = static::merge($rewritten[$newKey], $newValue);
+        }
+
+        return $rewritten;
     }
 }

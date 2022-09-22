@@ -18,19 +18,12 @@
     "config": {
         "sort-packages": true
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.6.x-dev",
-            "dev-develop": "2.7.x-dev"
-        }
-    },
     "require": {
-        "php": "^5.6 || ^7.0",
-        "laminas/laminas-zendframework-bridge": "^1.0"
+        "php": "^7.3 || ~8.0.0 || ~8.1.0"
     },
     "require-dev": {
-        "laminas/laminas-coding-standard": "~1.0.0",
-        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.4"
+        "laminas/laminas-coding-standard": "~2.2.1",
+        "phpunit/phpunit": "^9.3"
     },
     "autoload": {
         "psr-4": {
@@ -52,7 +45,7 @@
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     },
-    "replace": {
-        "zendframework/zend-loader": "self.version"
+    "conflict": {
+        "zendframework/zend-loader": "*"
     }
 }

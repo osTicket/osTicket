@@ -1,23 +1,27 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Traversable;
 
+use function bindec;
+use function hexdec;
+use function ip2long;
+use function is_string;
+use function long2ip;
+use function preg_match;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function substr;
+use function substr_count;
+
 class Ip extends AbstractValidator
 {
-    const INVALID        = 'ipInvalid';
-    const NOT_IP_ADDRESS = 'notIpAddress';
+    public const INVALID        = 'ipInvalid';
+    public const NOT_IP_ADDRESS = 'notIpAddress';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageTemplates = [
         self::INVALID        => 'Invalid type given. String expected',
         self::NOT_IP_ADDRESS => 'The input does not appear to be a valid IP address',
@@ -79,7 +83,8 @@ class Ip extends AbstractValidator
                 }
             }
 
-            if (($this->options['allowipv6'] && $this->validateIPv6($value)) ||
+            if (
+                ($this->options['allowipv6'] && $this->validateIPv6($value)) ||
                 ($this->options['allowipvfuture'] && $this->validateIPvFuture($value))
             ) {
                 return true;
@@ -116,20 +121,19 @@ class Ip extends AbstractValidator
             return false;
         }
 
-        return $value == long2ip($ip2long);
+        return $value === long2ip($ip2long);
     }
 
     /**
      * Validates an IPv6 address
      *
-     * @param  string $value Value to check against
-     * @return bool True when $value is a valid ipv6 address
-     *                 False otherwise
+     * @param string $value Value to check against
+     * @return bool|int True when $value is a valid ipv6 address False otherwise
      */
     protected function validateIPv6($value)
     {
         if (strlen($value) < 3) {
-            return $value == '::';
+            return $value === '::';
         }
 
         if (strpos($value, '.')) {
@@ -151,7 +155,7 @@ class Ip extends AbstractValidator
         }
 
         // special case with ending or starting double colon
-        if ($colonCount == 8) {
+        if ($colonCount === 8) {
             return preg_match('/\A(?:::)?(?:[a-f0-9]{1,4}:){6}[a-f0-9]{1,4}(?:::)?\z/i', $value);
         }
 
@@ -184,6 +188,6 @@ class Ip extends AbstractValidator
          * "As such, implementations must not provide the version flag for the
          *  existing IPv4 and IPv6 literal address forms described below."
          */
-        return $result && $matches[1] != 4 && $matches[1] != 6;
+        return $result && $matches[1] !== '4' && $matches[1] !== '6';
     }
 }

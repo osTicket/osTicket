@@ -1,17 +1,13 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Factory;
 
-use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
 use Laminas\ServiceManager\Exception\ServiceNotCreatedException;
 use Laminas\ServiceManager\Exception\ServiceNotFoundException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * Delegator factory interface.
@@ -26,15 +22,13 @@ interface DelegatorFactoryInterface
     /**
      * A factory that creates delegates of a given service
      *
-     * @param  ContainerInterface $container
      * @param  string             $name
-     * @param  callable           $callback
+     * @psalm-param callable():mixed $callback
      * @param  null|array         $options
      * @return object
-     * @throws ServiceNotFoundException if unable to resolve the service.
-     * @throws ServiceNotCreatedException if an exception is raised when
-     *     creating a service.
-     * @throws ContainerException if any other error occurs
+     * @throws ServiceNotFoundException If unable to resolve the service.
+     * @throws ServiceNotCreatedException If an exception is raised when creating a service.
+     * @throws ContainerExceptionInterface If any other error occurs.
      */
-    public function __invoke(ContainerInterface $container, $name, callable $callback, array $options = null);
+    public function __invoke(ContainerInterface $container, $name, callable $callback, ?array $options = null);
 }

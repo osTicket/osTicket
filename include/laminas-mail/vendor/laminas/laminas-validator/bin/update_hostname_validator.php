@@ -25,6 +25,7 @@ if (! is_writable(LAMINAS_HOSTNAME_VALIDATOR_FILE)) {
     exit(1);
 }
 
+/** @psalm-var list<string> $newFileContent */
 $newFileContent   = [];    // new file content
 $insertDone       = false; // becomes 'true' when we find start of $validTlds declaration
 $insertFinish     = false; // becomes 'true' when we find end of $validTlds declaration
@@ -142,7 +143,7 @@ function getVersionFromString($prefix, $string)
  * Extract new Valid TLDs from a string containing one per line.
  *
  * @param string $string
- * @return array
+ * @return list<string>
  */
 function getNewValidTlds($string)
 {

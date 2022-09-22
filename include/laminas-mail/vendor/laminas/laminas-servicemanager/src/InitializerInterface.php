@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager;
 
@@ -17,7 +13,7 @@ namespace Laminas\ServiceManager;
  *
  * - rename the method `initialize()` to `__invoke()`, and:
  *   - rename the `$serviceLocator` argument to `$container`, and change the
- *     typehint to `Interop\Container\ContainerInterface`
+ *     typehint to `Psr\Container\ContainerInterface`
  *   - swap the order of the arguments (so that `$instance` comes second)
  * - create an `initialize()` method as defined in this interface, and have it
  *   proxy to `__invoke()`, passing the arguments in the new order.
@@ -33,8 +29,7 @@ interface InitializerInterface extends Initializer\InitializerInterface
     /**
      * Initialize
      *
-     * @param $instance
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param mixed $instance
      * @return mixed
      */
     public function initialize($instance, ServiceLocatorInterface $serviceLocator);

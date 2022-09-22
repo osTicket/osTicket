@@ -1,25 +1,34 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Tool;
 
 use Laminas\ServiceManager\Exception;
 use Laminas\Stdlib\ConsoleHelper;
 
+use function array_shift;
+use function assert;
+use function class_exists;
+use function in_array;
+use function is_string;
+use function sprintf;
+
+use const STDERR;
+use const STDOUT;
+
+/**
+ * @psalm-type ArgumentObject = object{command:string, class:null|string, message:null|string}
+ */
 class FactoryCreatorCommand
 {
-    const COMMAND_DUMP = 'dump';
-    const COMMAND_ERROR = 'error';
-    const COMMAND_HELP = 'help';
+    public const COMMAND_DUMP  = 'dump';
+    public const COMMAND_ERROR = 'error';
+    public const COMMAND_HELP  = 'help';
 
-    const DEFAULT_SCRIPT_NAME = __CLASS__;
+    public const DEFAULT_SCRIPT_NAME = self::class;
 
-    const HELP_TEMPLATE = <<< EOH
+    public const HELP_TEMPLATE = <<<EOH
 <info>Usage:</info>
 
   %s [-h|--help|help] <className>
@@ -34,24 +43,17 @@ Generates to STDOUT a factory for creating the specified class; this may then
 be added to your application, and configured as a factory for the class.
 EOH;
 
-    /**
-     * @var ConsoleHelper
-     */
-    private $helper;
+    private ConsoleHelper $helper;
 
-    /**
-     * @var string
-     */
-    private $scriptName;
+    private string $scriptName;
 
     /**
      * @param string $scriptName
-     * @param ConsoleHelper $helper
      */
-    public function __construct($scriptName = self::DEFAULT_SCRIPT_NAME, ConsoleHelper $helper = null)
+    public function __construct($scriptName = self::DEFAULT_SCRIPT_NAME, ?ConsoleHelper $helper = null)
     {
         $this->scriptName = $scriptName;
-        $this->helper = $helper ?: new ConsoleHelper();
+        $this->helper     = $helper ?: new ConsoleHelper();
     }
 
     /**
@@ -67,6 +69,7 @@ EOH;
                 $this->help();
                 return 0;
             case self::COMMAND_ERROR:
+                assert(is_string($arguments->message));
                 $this->helper->writeErrorMessage($arguments->message);
                 $this->help(STDERR);
                 return 1;
@@ -77,6 +80,7 @@ EOH;
         }
 
         $generator = new FactoryCreator();
+        assert(is_string($arguments->class));
         try {
             $factory = $generator->createFactory($arguments->class);
         } catch (Exception\InvalidArgumentException $e) {
@@ -95,11 +99,11 @@ EOH;
 
     /**
      * @param array $args
-     * @return \stdClass
+     * @return ArgumentObject
      */
     private function parseArgs(array $args)
     {
-        if (! count($args)) {
+        if (! $args) {
             return $this->createArguments(self::COMMAND_HELP);
         }
 
@@ -137,7 +141,7 @@ EOH;
      * @param string $command
      * @param string|null $class Name of class to reflect.
      * @param string|null $error Error message, if any.
-     * @return \stdClass
+     * @return ArgumentObject
      */
     private function createArguments($command, $class = null, $error = null)
     {

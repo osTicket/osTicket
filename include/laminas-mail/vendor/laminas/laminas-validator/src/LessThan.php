@@ -1,20 +1,19 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Laminas\Stdlib\ArrayUtils;
 use Traversable;
 
+use function array_key_exists;
+use function array_shift;
+use function func_get_args;
+use function is_array;
+
 class LessThan extends AbstractValidator
 {
-    const NOT_LESS           = 'notLessThan';
-    const NOT_LESS_INCLUSIVE = 'notLessThanInclusive';
+    public const NOT_LESS           = 'notLessThan';
+    public const NOT_LESS_INCLUSIVE = 'notLessThanInclusive';
 
     /**
      * Validation failure message template definitions
@@ -64,7 +63,7 @@ class LessThan extends AbstractValidator
             $options = ArrayUtils::iteratorToArray($options);
         }
         if (! is_array($options)) {
-            $options = func_get_args();
+            $options     = func_get_args();
             $temp['max'] = array_shift($options);
 
             if (! empty($options)) {

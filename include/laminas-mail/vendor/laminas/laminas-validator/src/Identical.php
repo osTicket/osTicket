@@ -1,28 +1,35 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use ArrayAccess;
 use Laminas\Stdlib\ArrayUtils;
 use Traversable;
 
+use function array_key_exists;
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_int;
+use function is_object;
+use function is_string;
+use function key;
+use function sprintf;
+use function var_export;
+
 class Identical extends AbstractValidator
 {
     /**
      * Error codes
+     *
      * @const string
      */
-    const NOT_SAME      = 'notSame';
-    const MISSING_TOKEN = 'missingToken';
+    public const NOT_SAME      = 'notSame';
+    public const MISSING_TOKEN = 'missingToken';
 
     /**
      * Error messages
+     *
      * @var array
      */
     protected $messageTemplates = [
@@ -30,20 +37,25 @@ class Identical extends AbstractValidator
         self::MISSING_TOKEN => 'No token was provided to match against',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageVariables = [
         'token' => 'tokenString',
     ];
 
     /**
      * Original token against which to validate
-     * @var string
+     *
+     * @var null|string
      */
     protected $tokenString;
+
+    /** @var null|string */
     protected $token;
-    protected $strict  = true;
+
+    /** @var bool */
+    protected $strict = true;
+
+    /** @var bool */
     protected $literal = false;
 
     /**
@@ -146,8 +158,8 @@ class Identical extends AbstractValidator
      * matches that token.
      *
      * @param  mixed $value
-     * @param  array|ArrayAccess $context
-     * @throws Exception\InvalidArgumentException If context is not array or ArrayObject
+     * @param  null|array|ArrayAccess $context
+     * @throws Exception\InvalidArgumentException If context is not array or ArrayObject.
      * @return bool
      */
     public function isValid($value, $context = null)
@@ -178,7 +190,11 @@ class Identical extends AbstractValidator
 
             // if $token is an array it means the above loop didn't went all the way down to the leaf,
             // so the $token structure doesn't match the $context structure
-            if (is_array($token) || ! isset($context[$token])) {
+            if (
+                is_array($token)
+                || (! is_int($token) && ! is_string($token))
+                || ! isset($context[$token])
+            ) {
                 $token = $this->getToken();
             } else {
                 $token = $context[$token];
@@ -191,7 +207,11 @@ class Identical extends AbstractValidator
         }
 
         $strict = $this->getStrict();
-        if (($strict && ($value !== $token)) || (! $strict && ($value != $token))) {
+        if (
+            ($strict && ($value !== $token))
+            // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedNotEqualOperator
+            || (! $strict && ($value != $token))
+        ) {
             $this->error(self::NOT_SAME);
             return false;
         }

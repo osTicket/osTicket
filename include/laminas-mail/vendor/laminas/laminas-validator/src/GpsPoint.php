@@ -1,26 +1,24 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
+
+use function explode;
+use function preg_match;
+use function preg_match_all;
+use function preg_replace;
+use function str_replace;
+use function strpos;
 
 final class GpsPoint extends AbstractValidator
 {
+    public const OUT_OF_BOUNDS         = 'gpsPointOutOfBounds';
+    public const CONVERT_ERROR         = 'gpsPointConvertError';
+    public const INCOMPLETE_COORDINATE = 'gpsPointIncompleteCoordinate';
 
-    const OUT_OF_BOUNDS = 'gpsPointOutOfBounds';
-    const CONVERT_ERROR = 'gpsPointConvertError';
-    const INCOMPLETE_COORDINATE = 'gpsPointIncompleteCoordinate';
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageTemplates = [
-        'gpsPointOutOfBounds' => '%value% is out of Bounds.',
-        'gpsPointConvertError' => '%value% can not converted into a Decimal Degree Value.',
+        'gpsPointOutOfBounds'          => '%value% is out of Bounds.',
+        'gpsPointConvertError'         => '%value% can not converted into a Decimal Degree Value.',
         'gpsPointIncompleteCoordinate' => '%value% did not provided a complete Coordinate',
     ];
 
@@ -33,16 +31,16 @@ final class GpsPoint extends AbstractValidator
      *
      * @param  mixed $value
      * @return bool
-     * @throws Exception\RuntimeException If validation of $value is impossible
+     * @throws Exception\RuntimeException If validation of $value is impossible.
      */
     public function isValid($value)
     {
         if (strpos($value, ',') === false) {
-            $this->error(GpsPoint::INCOMPLETE_COORDINATE, $value);
+            $this->error(self::INCOMPLETE_COORDINATE, $value);
             return false;
         }
 
-        list($lat, $long) = explode(',', $value);
+        [$lat, $long] = explode(',', $value);
 
         if ($this->isValidCoordinate($lat, 90.0000) && $this->isValidCoordinate($long, 180.000)) {
             return true;
@@ -53,10 +51,8 @@ final class GpsPoint extends AbstractValidator
 
     /**
      * @param string $value
-     * @param $maxBoundary
-     * @return bool
      */
-    private function isValidCoordinate($value, $maxBoundary)
+    private function isValidCoordinate($value, float $maxBoundary): bool
     {
         $this->value = $value;
 
@@ -72,7 +68,7 @@ final class GpsPoint extends AbstractValidator
             return false;
         }
 
-        $doubleLatitude = (double)$value;
+        $doubleLatitude = (double) $value;
 
         if ($doubleLatitude <= $maxBoundary && $doubleLatitude >= $maxBoundary * -1) {
             return true;
@@ -84,29 +80,26 @@ final class GpsPoint extends AbstractValidator
 
     /**
      * Determines if the give value is a Degrees Minutes Second Definition
-     *
-     * @param $value
-     * @return bool
      */
-    private function isDMSValue($value)
+    private function isDMSValue(string $value): bool
     {
         return preg_match('/([°\'"]+[NESW])/', $value) > 0;
     }
 
     /**
      * @param string $value
-     * @return bool|string
+     * @return false|float
      */
     private function convertValue($value)
     {
         $matches = [];
-        $result = preg_match_all('/(\d{1,3})°(\d{1,2})\'(\d{1,2}[\.\d]{0,6})"[NESW]/i', $value, $matches);
+        $result  = preg_match_all('/(\d{1,3})°(\d{1,2})\'(\d{1,2}[\.\d]{0,6})"[NESW]/i', $value, $matches);
 
         if ($result === false || $result === 0) {
             return false;
         }
 
-        return $matches[1][0] + $matches[2][0] / 60 + ((double)$matches[3][0]) / 3600;
+        return $matches[1][0] + $matches[2][0] / 60 + ((double) $matches[3][0]) / 3600;
     }
 
     /**

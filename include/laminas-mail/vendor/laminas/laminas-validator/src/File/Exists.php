@@ -1,15 +1,21 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
+use Traversable;
+
+use function array_key_exists;
+use function array_unique;
+use function explode;
+use function file_exists;
+use function implode;
+use function is_array;
+use function is_string;
+use function trim;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Validator which checks if the file already exists in the directory
@@ -21,11 +27,9 @@ class Exists extends AbstractValidator
     /**
      * @const string Error constants
      */
-    const DOES_NOT_EXIST = 'fileExistsDoesNotExist';
+    public const DOES_NOT_EXIST = 'fileExistsDoesNotExist';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::DOES_NOT_EXIST => 'File does not exist',
     ];
@@ -36,12 +40,10 @@ class Exists extends AbstractValidator
      * @var array
      */
     protected $options = [
-        'directory' => null,  // internal list of directories
+        'directory' => null, // internal list of directories
     ];
 
-    /**
-     * @var array Error message template variables
-     */
+    /** @var array Error message template variables */
     protected $messageVariables = [
         'directory' => ['options' => 'directory'],
     ];
@@ -49,7 +51,7 @@ class Exists extends AbstractValidator
     /**
      * Sets validator options
      *
-     * @param  string|array|\Traversable $options
+     * @param string|array|Traversable $options
      */
     public function __construct($options = null)
     {
@@ -84,8 +86,8 @@ class Exists extends AbstractValidator
     /**
      * Sets the file directory which will be checked
      *
-     * @param  string|array $directory The directories to validate
-     * @return Extension Provides a fluent interface
+     * @param string|array $directory The directories to validate
+     * @return self Provides a fluent interface
      */
     public function setDirectory($directory)
     {
@@ -97,8 +99,8 @@ class Exists extends AbstractValidator
     /**
      * Adds the file directory which will be checked
      *
-     * @param  string|array $directory The directory to add for validation
-     * @return Extension Provides a fluent interface
+     * @param string|array $directory The directory to add for validation
+     * @return self Provides a fluent interface
      * @throws Exception\InvalidArgumentException
      */
     public function addDirectory($directory)
@@ -149,7 +151,7 @@ class Exists extends AbstractValidator
 
         $this->setValue($fileInfo['filename']);
 
-        $check = false;
+        $check       = false;
         $directories = $this->getDirectory(true);
         if (! isset($directories)) {
             $check = true;

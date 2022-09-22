@@ -1,14 +1,32 @@
-<?php
-
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
+<?php // phpcs:disable Generic.Files.LineLength.TooLong
 
 namespace Laminas\Validator;
 
 use Laminas\Stdlib\StringUtils;
+
+use function array_key_exists;
+use function array_pop;
+use function array_shift;
+use function chr;
+use function count;
+use function end;
+use function explode;
+use function func_get_args;
+use function implode;
+use function in_array;
+use function intval;
+use function is_array;
+use function is_string;
+use function ord;
+use function preg_match;
+use function prev;
+use function reset;
+use function strlen;
+use function strpos;
+use function strrpos;
+use function strtolower;
+use function strtoupper;
+use function substr;
 
 /**
  * Please note there are two standalone test scripts for testing IDN characters due to problems
@@ -22,22 +40,19 @@ use Laminas\Stdlib\StringUtils;
  */
 class Hostname extends AbstractValidator
 {
-    const CANNOT_DECODE_PUNYCODE  = 'hostnameCannotDecodePunycode';
-    const INVALID                 = 'hostnameInvalid';
-    const INVALID_DASH            = 'hostnameDashCharacter';
-    const INVALID_HOSTNAME        = 'hostnameInvalidHostname';
-    const INVALID_HOSTNAME_SCHEMA = 'hostnameInvalidHostnameSchema';
-    const INVALID_LOCAL_NAME      = 'hostnameInvalidLocalName';
-    const INVALID_URI             = 'hostnameInvalidUri';
-    const IP_ADDRESS_NOT_ALLOWED  = 'hostnameIpAddressNotAllowed';
-    const LOCAL_NAME_NOT_ALLOWED  = 'hostnameLocalNameNotAllowed';
-    const UNDECIPHERABLE_TLD      = 'hostnameUndecipherableTld';
-    const UNKNOWN_TLD             = 'hostnameUnknownTld';
+    public const CANNOT_DECODE_PUNYCODE  = 'hostnameCannotDecodePunycode';
+    public const INVALID                 = 'hostnameInvalid';
+    public const INVALID_DASH            = 'hostnameDashCharacter';
+    public const INVALID_HOSTNAME        = 'hostnameInvalidHostname';
+    public const INVALID_HOSTNAME_SCHEMA = 'hostnameInvalidHostnameSchema';
+    public const INVALID_LOCAL_NAME      = 'hostnameInvalidLocalName';
+    public const INVALID_URI             = 'hostnameInvalidUri';
+    public const IP_ADDRESS_NOT_ALLOWED  = 'hostnameIpAddressNotAllowed';
+    public const LOCAL_NAME_NOT_ALLOWED  = 'hostnameLocalNameNotAllowed';
+    public const UNDECIPHERABLE_TLD      = 'hostnameUndecipherableTld';
+    public const UNKNOWN_TLD             = 'hostnameUnknownTld';
 
-    // @codingStandardsIgnoreStart
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageTemplates = [
         self::CANNOT_DECODE_PUNYCODE  => "The input appears to be a DNS hostname but the given punycode notation cannot be decoded",
         self::INVALID                 => "Invalid type given. String expected",
@@ -51,28 +66,26 @@ class Hostname extends AbstractValidator
         self::UNDECIPHERABLE_TLD      => "The input appears to be a DNS hostname but cannot extract TLD part",
         self::UNKNOWN_TLD             => "The input appears to be a DNS hostname but cannot match TLD against known list",
     ];
-    // @codingStandardsIgnoreEnd
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageVariables = [
         'tld' => 'tld',
     ];
 
-    const ALLOW_DNS   = 1;  // Allows Internet domain names (e.g., example.com)
-    const ALLOW_IP    = 2;  // Allows IP addresses
-    const ALLOW_LOCAL = 4;  // Allows local network names (e.g., localhost, www.localdomain)
-    const ALLOW_URI   = 8;  // Allows URI hostnames
-    const ALLOW_ALL   = 15;  // Allows all types of hostnames
+    public const ALLOW_DNS   = 1;  // Allows Internet domain names (e.g., example.com)
+    public const ALLOW_IP    = 2;  // Allows IP addresses
+    public const ALLOW_LOCAL = 4;  // Allows local network names (e.g., localhost, www.localdomain)
+    public const ALLOW_URI   = 8;  // Allows URI hostnames
+    public const ALLOW_ALL   = 15;  // Allows all types of hostnames
 
     /**
      * Array of valid top-level-domains
-     * IanaVersion 2020033100
+     * IanaVersion 2022072400
      *
      * @see ftp://data.iana.org/TLD/tlds-alpha-by-domain.txt  List of all TLDs by domain
      * @see http://www.iana.org/domains/root/db/ Official list of supported TLDs
-     * @var array
+     *
+     * @var string[]
      */
     protected $validTlds = [
         'aaa',
@@ -101,7 +114,6 @@ class Hostname extends AbstractValidator
         'aero',
         'aetna',
         'af',
-        'afamilycompany',
         'afl',
         'africa',
         'ag',
@@ -109,7 +121,6 @@ class Hostname extends AbstractValidator
         'agency',
         'ai',
         'aig',
-        'aigo',
         'airbus',
         'airforce',
         'airtel',
@@ -124,6 +135,7 @@ class Hostname extends AbstractValidator
         'alsace',
         'alstom',
         'am',
+        'amazon',
         'americanexpress',
         'americanfamily',
         'amex',
@@ -253,7 +265,6 @@ class Hostname extends AbstractValidator
         'brussels',
         'bs',
         'bt',
-        'budapest',
         'bugatti',
         'build',
         'builders',
@@ -288,7 +299,6 @@ class Hostname extends AbstractValidator
         'cars',
         'casa',
         'case',
-        'caseih',
         'cash',
         'casino',
         'cat',
@@ -300,7 +310,6 @@ class Hostname extends AbstractValidator
         'cbs',
         'cc',
         'cd',
-        'ceb',
         'center',
         'ceo',
         'cern',
@@ -379,7 +388,6 @@ class Hostname extends AbstractValidator
         'crs',
         'cruise',
         'cruises',
-        'csc',
         'cu',
         'cuisinella',
         'cv',
@@ -438,7 +446,6 @@ class Hostname extends AbstractValidator
         'drive',
         'dtv',
         'dubai',
-        'duck',
         'dunlop',
         'dupont',
         'durban',
@@ -468,7 +475,6 @@ class Hostname extends AbstractValidator
         'es',
         'esq',
         'estate',
-        'esurance',
         'et',
         'etisalat',
         'eu',
@@ -539,7 +545,6 @@ class Hostname extends AbstractValidator
         'frontier',
         'ftr',
         'fujitsu',
-        'fujixerox',
         'fun',
         'fund',
         'furniture',
@@ -574,7 +579,6 @@ class Hostname extends AbstractValidator
         'gives',
         'giving',
         'gl',
-        'glade',
         'glass',
         'gle',
         'global',
@@ -690,7 +694,6 @@ class Hostname extends AbstractValidator
         'insurance',
         'insure',
         'int',
-        'intel',
         'international',
         'intuit',
         'investments',
@@ -706,11 +709,9 @@ class Hostname extends AbstractValidator
         'it',
         'itau',
         'itv',
-        'iveco',
         'jaguar',
         'java',
         'jcb',
-        'jcp',
         'je',
         'jeep',
         'jetzt',
@@ -741,6 +742,7 @@ class Hostname extends AbstractValidator
         'kh',
         'ki',
         'kia',
+        'kids',
         'kim',
         'kinder',
         'kindle',
@@ -803,7 +805,6 @@ class Hostname extends AbstractValidator
         'lipsy',
         'live',
         'living',
-        'lixil',
         'lk',
         'llc',
         'llp',
@@ -826,7 +827,6 @@ class Hostname extends AbstractValidator
         'ltda',
         'lu',
         'lundbeck',
-        'lupin',
         'luxe',
         'luxury',
         'lv',
@@ -862,7 +862,6 @@ class Hostname extends AbstractValidator
         'men',
         'menu',
         'merckmsd',
-        'metlife',
         'mg',
         'mh',
         'miami',
@@ -906,6 +905,7 @@ class Hostname extends AbstractValidator
         'mtr',
         'mu',
         'museum',
+        'music',
         'mutual',
         'mv',
         'mw',
@@ -916,7 +916,6 @@ class Hostname extends AbstractValidator
         'nab',
         'nagoya',
         'name',
-        'nationwide',
         'natura',
         'navy',
         'nba',
@@ -929,7 +928,6 @@ class Hostname extends AbstractValidator
         'network',
         'neustar',
         'new',
-        'newholland',
         'news',
         'next',
         'nextdirect',
@@ -964,7 +962,6 @@ class Hostname extends AbstractValidator
         'nz',
         'obi',
         'observer',
-        'off',
         'office',
         'okinawa',
         'olayan',
@@ -977,7 +974,6 @@ class Hostname extends AbstractValidator
         'ong',
         'onl',
         'online',
-        'onyourside',
         'ooo',
         'open',
         'oracle',
@@ -1064,10 +1060,8 @@ class Hostname extends AbstractValidator
         'qpon',
         'quebec',
         'quest',
-        'qvc',
         'racing',
         'radio',
-        'raid',
         're',
         'read',
         'realestate',
@@ -1096,11 +1090,9 @@ class Hostname extends AbstractValidator
         'rich',
         'richardli',
         'ricoh',
-        'rightathome',
         'ril',
         'rio',
         'rip',
-        'rmit',
         'ro',
         'rocher',
         'rocks',
@@ -1146,8 +1138,6 @@ class Hostname extends AbstractValidator
         'schule',
         'schwarz',
         'science',
-        'scjohnson',
-        'scor',
         'scot',
         'sd',
         'se',
@@ -1179,7 +1169,6 @@ class Hostname extends AbstractValidator
         'shouji',
         'show',
         'showtime',
-        'shriram',
         'si',
         'silk',
         'sina',
@@ -1209,10 +1198,10 @@ class Hostname extends AbstractValidator
         'song',
         'sony',
         'soy',
+        'spa',
         'space',
         'sport',
         'spot',
-        'spreadbetting',
         'sr',
         'srl',
         'ss',
@@ -1241,12 +1230,10 @@ class Hostname extends AbstractValidator
         'suzuki',
         'sv',
         'swatch',
-        'swiftcover',
         'swiss',
         'sx',
         'sy',
         'sydney',
-        'symantec',
         'systems',
         'sz',
         'tab',
@@ -1421,12 +1408,12 @@ class Hostname extends AbstractValidator
         '在线',
         '한국',
         'ଭାରତ',
-        '大众汽车',
         '点看',
         'คอม',
         'ভাৰত',
         'ভারত',
         '八卦',
+        'ישראל',
         'موقع',
         'বাংলা',
         '公益',
@@ -1452,6 +1439,7 @@ class Hostname extends AbstractValidator
         'орг',
         'नेट',
         'ストア',
+        'アマゾン',
         '삼성',
         'சிங்கப்பூர்',
         '商标',
@@ -1462,7 +1450,6 @@ class Hostname extends AbstractValidator
         'ею',
         'ポイント',
         '新闻',
-        '工行',
         '家電',
         'كوم',
         '中文网',
@@ -1488,12 +1475,12 @@ class Hostname extends AbstractValidator
         'ком',
         'укр',
         '香港',
+        '亚马逊',
         '诺基亚',
         '食品',
         '飞利浦',
         '台湾',
         '台灣',
-        '手表',
         '手机',
         'мон',
         'الجزائر',
@@ -1534,7 +1521,6 @@ class Hostname extends AbstractValidator
         '招聘',
         'рус',
         'рф',
-        '珠宝',
         'تونس',
         '大拿',
         'ລາວ',
@@ -1591,9 +1577,9 @@ class Hostname extends AbstractValidator
         'zw',
     ];
 
-    // @codingStandardsIgnoreStart
     /**
      * Array for valid Idns
+     *
      * @see http://www.iana.org/domains/idn-tables/ Official list of supported IDN Chars
      * (.AC) Ascension Island http://www.nic.ac/pdf/AC-IDN-Policy.pdf
      * (.AR) Argentina http://www.nic.ar/faqidn.html
@@ -1644,75 +1630,84 @@ class Hostname extends AbstractValidator
      * (.VE) Venice http://www.iana.org/domains/idn-tables/tables/ve_es_1.0.html
      * (.VN) Vietnam http://www.vnnic.vn/english/5-6-300-2-2-04-20071115.htm#1.%20Introduction
      *
-     * @var array
+     * @var array<string, string|array<int, string>>
      */
     protected $validIdns = [
-        'AC'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćĉċčďđēėęěĝġģĥħīįĵķĺļľŀłńņňŋőœŕŗřśŝşšţťŧūŭůűųŵŷźżž]{1,63}$/iu'],
-        'AR'  => [1 => '/^[\x{002d}0-9a-zà-ãç-êìíñ-õü]{1,63}$/iu'],
-        'AS'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĵķĸĺļľłńņňŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźż]{1,63}$/iu'],
-        'AT'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿœšž]{1,63}$/iu'],
-        'BIZ' => 'Hostname/Biz.php',
-        'BR'  => [1 => '/^[\x{002d}0-9a-zà-ãçéíó-õúü]{1,63}$/iu'],
-        'BV'  => [1 => '/^[\x{002d}0-9a-zàáä-éêñ-ôöøüčđńŋšŧž]{1,63}$/iu'],
-        'CAT' => [1 => '/^[\x{002d}0-9a-z·àç-éíïòóúü]{1,63}$/iu'],
-        'CH'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿœ]{1,63}$/iu'],
-        'CL'  => [1 => '/^[\x{002d}0-9a-záéíñóúü]{1,63}$/iu'],
-        'CN'  => 'Hostname/Cn.php',
-        'COM' => 'Hostname/Com.php',
-        'DE'  => [1 => '/^[\x{002d}0-9a-záàăâåäãąāæćĉčċçďđéèĕêěëėęēğĝġģĥħíìĭîïĩįīıĵķĺľļłńňñņŋóòŏôöőõøōœĸŕřŗśŝšşßťţŧúùŭûůüűũųūŵýŷÿźžżðþ]{1,63}$/iu'],
-        'DK'  => [1 => '/^[\x{002d}0-9a-zäåæéöøü]{1,63}$/iu'],
-        'EE'  => [1 => '/^[\x{002d}0-9a-zäõöüšž]{1,63}$/iu'],
-        'ES'  => [1 => '/^[\x{002d}0-9a-zàáçèéíïñòóúü·]{1,63}$/iu'],
-        'EU'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿ]{1,63}$/iu',
+        'AC'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćĉċčďđēėęěĝġģĥħīįĵķĺļľŀłńņňŋőœŕŗřśŝşšţťŧūŭůűųŵŷźżž]{1,63}$/iu'],
+        'AR'       => [1 => '/^[\x{002d}0-9a-zà-ãç-êìíñ-õü]{1,63}$/iu'],
+        'AS'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĵķĸĺļľłńņňŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźż]{1,63}$/iu'],
+        'AT'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿœšž]{1,63}$/iu'],
+        'BIZ'      => 'Hostname/Biz.php',
+        'BR'       => [1 => '/^[\x{002d}0-9a-zà-ãçéíó-õúü]{1,63}$/iu'],
+        'BV'       => [1 => '/^[\x{002d}0-9a-zàáä-éêñ-ôöøüčđńŋšŧž]{1,63}$/iu'],
+        'CAT'      => [1 => '/^[\x{002d}0-9a-z·àç-éíïòóúü]{1,63}$/iu'],
+        'CH'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿœ]{1,63}$/iu'],
+        'CL'       => [1 => '/^[\x{002d}0-9a-záéíñóúü]{1,63}$/iu'],
+        'CN'       => 'Hostname/Cn.php',
+        'COM'      => 'Hostname/Com.php',
+        'DE'       => [1 => '/^[\x{002d}0-9a-záàăâåäãąāæćĉčċçďđéèĕêěëėęēğĝġģĥħíìĭîïĩįīıĵķĺľļłńňñņŋóòŏôöőõøōœĸŕřŗśŝšşßťţŧúùŭûůüűũųūŵýŷÿźžżðþ]{1,63}$/iu'],
+        'DK'       => [1 => '/^[\x{002d}0-9a-zäåæéöøü]{1,63}$/iu'],
+        'EE'       => [1 => '/^[\x{002d}0-9a-zäõöüšž]{1,63}$/iu'],
+        'ES'       => [1 => '/^[\x{002d}0-9a-zàáçèéíïñòóúü·]{1,63}$/iu'],
+        'EU'       => [
+            1 => '/^[\x{002d}0-9a-zà-öø-ÿ]{1,63}$/iu',
             2 => '/^[\x{002d}0-9a-zāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĵķĺļľŀłńņňŉŋōŏőœŕŗřśŝšťŧũūŭůűųŵŷźżž]{1,63}$/iu',
             3 => '/^[\x{002d}0-9a-zșț]{1,63}$/iu',
             4 => '/^[\x{002d}0-9a-zΐάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ]{1,63}$/iu',
             5 => '/^[\x{002d}0-9a-zабвгдежзийклмнопрстуфхцчшщъыьэюя]{1,63}$/iu',
-            6 => '/^[\x{002d}0-9a-zἀ-ἇἐ-ἕἠ-ἧἰ-ἷὀ-ὅὐ-ὗὠ-ὧὰ-ὼώᾀ-ᾇᾐ-ᾗᾠ-ᾧᾰ-ᾴᾶᾷῂῃῄῆῇῐ-ῒΐῖῗῠ-ῧῲῳῴῶῷ]{1,63}$/iu'],
-        'FI'  => [1 => '/^[\x{002d}0-9a-zäåö]{1,63}$/iu'],
-        'GR'  => [1 => '/^[\x{002d}0-9a-zΆΈΉΊΌΎ-ΡΣ-ώἀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼῂῃῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲῳῴῶ-ῼ]{1,63}$/iu'],
-        'HK'  => 'Hostname/Cn.php',
-        'HR'  => [1 => '/^[\x{002d}0-9a-zžćčđš]{1,63}$/iu'],
-        'HU'  => [1 => '/^[\x{002d}0-9a-záéíóöúüőű]{1,63}$/iu'],
-        'IL'  => [1 => '/^[\x{002d}0-9\x{05D0}-\x{05EA}]{1,63}$/iu',
-            2 => '/^[\x{002d}0-9a-z]{1,63}$/i'],
-        'INFO' => [1 => '/^[\x{002d}0-9a-zäåæéöøü]{1,63}$/iu',
+            6 => '/^[\x{002d}0-9a-zἀ-ἇἐ-ἕἠ-ἧἰ-ἷὀ-ὅὐ-ὗὠ-ὧὰ-ὼώᾀ-ᾇᾐ-ᾗᾠ-ᾧᾰ-ᾴᾶᾷῂῃῄῆῇῐ-ῒΐῖῗῠ-ῧῲῳῴῶῷ]{1,63}$/iu',
+        ],
+        'FI'       => [1 => '/^[\x{002d}0-9a-zäåö]{1,63}$/iu'],
+        'GR'       => [1 => '/^[\x{002d}0-9a-zΆΈΉΊΌΎ-ΡΣ-ώἀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼῂῃῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲῳῴῶ-ῼ]{1,63}$/iu'],
+        'HK'       => 'Hostname/Cn.php',
+        'HR'       => [1 => '/^[\x{002d}0-9a-zžćčđš]{1,63}$/iu'],
+        'HU'       => [1 => '/^[\x{002d}0-9a-záéíóöúüőű]{1,63}$/iu'],
+        'IL'       => [
+            1 => '/^[\x{002d}0-9\x{05D0}-\x{05EA}]{1,63}$/iu',
+            2 => '/^[\x{002d}0-9a-z]{1,63}$/i',
+        ],
+        'INFO'     => [
+            1 => '/^[\x{002d}0-9a-zäåæéöøü]{1,63}$/iu',
             2 => '/^[\x{002d}0-9a-záéíóöúüőű]{1,63}$/iu',
             3 => '/^[\x{002d}0-9a-záæéíðóöúýþ]{1,63}$/iu',
             4 => '/^[\x{AC00}-\x{D7A3}]{1,17}$/iu',
             5 => '/^[\x{002d}0-9a-zāčēģīķļņōŗšūž]{1,63}$/iu',
             6 => '/^[\x{002d}0-9a-ząčėęįšūųž]{1,63}$/iu',
             7 => '/^[\x{002d}0-9a-zóąćęłńśźż]{1,63}$/iu',
-            8 => '/^[\x{002d}0-9a-záéíñóúü]{1,63}$/iu'],
-        'IO'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿăąāćĉčċďđĕěėęēğĝġģĥħĭĩįīıĵķĺľļłńňņŋŏőōœĸŕřŗśŝšşťţŧŭůűũųūŵŷźžż]{1,63}$/iu'],
-        'IS'  => [1 => '/^[\x{002d}0-9a-záéýúíóþæöð]{1,63}$/iu'],
-        'IT'  => [1 => '/^[\x{002d}0-9a-zàâäèéêëìîïòôöùûüæœçÿß-]{1,63}$/iu'],
-        'JP'  => 'Hostname/Jp.php',
-        'KR'  => [1 => '/^[\x{AC00}-\x{D7A3}]{1,17}$/iu'],
-        'LI'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿœ]{1,63}$/iu'],
-        'LT'  => [1 => '/^[\x{002d}0-9ąčęėįšųūž]{1,63}$/iu'],
-        'MD'  => [1 => '/^[\x{002d}0-9ăâîşţ]{1,63}$/iu'],
-        'MUSEUM' => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćċčďđēėęěğġģħīįıķĺļľłńņňŋōőœŕŗřśşšţťŧūůűųŵŷźżžǎǐǒǔ\x{01E5}\x{01E7}\x{01E9}\x{01EF}ə\x{0292}ẁẃẅỳ]{1,63}$/iu'],
-        'NET' => 'Hostname/Com.php',
-        'NO'  => [1 => '/^[\x{002d}0-9a-zàáä-éêñ-ôöøüčđńŋšŧž]{1,63}$/iu'],
-        'NU'  => 'Hostname/Com.php',
-        'ORG' => [1 => '/^[\x{002d}0-9a-záéíñóúü]{1,63}$/iu',
+            8 => '/^[\x{002d}0-9a-záéíñóúü]{1,63}$/iu',
+        ],
+        'IO'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿăąāćĉčċďđĕěėęēğĝġģĥħĭĩįīıĵķĺľļłńňņŋŏőōœĸŕřŗśŝšşťţŧŭůűũųūŵŷźžż]{1,63}$/iu'],
+        'IS'       => [1 => '/^[\x{002d}0-9a-záéýúíóþæöð]{1,63}$/iu'],
+        'IT'       => [1 => '/^[\x{002d}0-9a-zàâäèéêëìîïòôöùûüæœçÿß-]{1,63}$/iu'],
+        'JP'       => 'Hostname/Jp.php',
+        'KR'       => [1 => '/^[\x{AC00}-\x{D7A3}]{1,17}$/iu'],
+        'LI'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿœ]{1,63}$/iu'],
+        'LT'       => [1 => '/^[\x{002d}0-9ąčęėįšųūž]{1,63}$/iu'],
+        'MD'       => [1 => '/^[\x{002d}0-9ăâîşţ]{1,63}$/iu'],
+        'MUSEUM'   => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćċčďđēėęěğġģħīįıķĺļľłńņňŋōőœŕŗřśşšţťŧūůűųŵŷźżžǎǐǒǔ\x{01E5}\x{01E7}\x{01E9}\x{01EF}ə\x{0292}ẁẃẅỳ]{1,63}$/iu'],
+        'NET'      => 'Hostname/Com.php',
+        'NO'       => [1 => '/^[\x{002d}0-9a-zàáä-éêñ-ôöøüčđńŋšŧž]{1,63}$/iu'],
+        'NU'       => 'Hostname/Com.php',
+        'ORG'      => [
+            1 => '/^[\x{002d}0-9a-záéíñóúü]{1,63}$/iu',
             2 => '/^[\x{002d}0-9a-zóąćęłńśźż]{1,63}$/iu',
             3 => '/^[\x{002d}0-9a-záäåæéëíðóöøúüýþ]{1,63}$/iu',
             4 => '/^[\x{002d}0-9a-záéíóöúüőű]{1,63}$/iu',
             5 => '/^[\x{002d}0-9a-ząčėęįšūųž]{1,63}$/iu',
             6 => '/^[\x{AC00}-\x{D7A3}]{1,17}$/iu',
-            7 => '/^[\x{002d}0-9a-zāčēģīķļņōŗšūž]{1,63}$/iu'],
-        'PE'  => [1 => '/^[\x{002d}0-9a-zñáéíóúü]{1,63}$/iu'],
-        'PL'  => [1 => '/^[\x{002d}0-9a-zāčēģīķļņōŗšūž]{1,63}$/iu',
-            2 => '/^[\x{002d}а-ик-ш\x{0450}ѓѕјљњќџ]{1,63}$/iu',
-            3 => '/^[\x{002d}0-9a-zâîăşţ]{1,63}$/iu',
-            4 => '/^[\x{002d}0-9а-яё\x{04C2}]{1,63}$/iu',
-            5 => '/^[\x{002d}0-9a-zàáâèéêìíîòóôùúûċġħż]{1,63}$/iu',
-            6 => '/^[\x{002d}0-9a-zàäåæéêòóôöøü]{1,63}$/iu',
-            7 => '/^[\x{002d}0-9a-zóąćęłńśźż]{1,63}$/iu',
-            8 => '/^[\x{002d}0-9a-zàáâãçéêíòóôõúü]{1,63}$/iu',
-            9 => '/^[\x{002d}0-9a-zâîăşţ]{1,63}$/iu',
+            7 => '/^[\x{002d}0-9a-zāčēģīķļņōŗšūž]{1,63}$/iu',
+        ],
+        'PE'       => [1 => '/^[\x{002d}0-9a-zñáéíóúü]{1,63}$/iu'],
+        'PL'       => [
+            1  => '/^[\x{002d}0-9a-zāčēģīķļņōŗšūž]{1,63}$/iu',
+            2  => '/^[\x{002d}а-ик-ш\x{0450}ѓѕјљњќџ]{1,63}$/iu',
+            3  => '/^[\x{002d}0-9a-zâîăşţ]{1,63}$/iu',
+            4  => '/^[\x{002d}0-9а-яё\x{04C2}]{1,63}$/iu',
+            5  => '/^[\x{002d}0-9a-zàáâèéêìíîòóôùúûċġħż]{1,63}$/iu',
+            6  => '/^[\x{002d}0-9a-zàäåæéêòóôöøü]{1,63}$/iu',
+            7  => '/^[\x{002d}0-9a-zóąćęłńśźż]{1,63}$/iu',
+            8  => '/^[\x{002d}0-9a-zàáâãçéêíòóôõúü]{1,63}$/iu',
+            9  => '/^[\x{002d}0-9a-zâîăşţ]{1,63}$/iu',
             10 => '/^[\x{002d}0-9a-záäéíóôúýčďĺľňŕšťž]{1,63}$/iu',
             11 => '/^[\x{002d}0-9a-zçë]{1,63}$/iu',
             12 => '/^[\x{002d}0-9а-ик-шђјљњћџ]{1,63}$/iu',
@@ -1736,73 +1731,76 @@ class Hostname extends AbstractValidator
             30 => '/^[\x{002d}0-9a-záäåæéëíðóöøúüýþ]{1,63}$/iu',
             31 => '/^[\x{002d}0-9a-zàâæçèéêëîïñôùûüÿœ]{1,63}$/iu',
             32 => '/^[\x{002d}0-9а-щъыьэюяёєіїґ]{1,63}$/iu',
-            33 => '/^[\x{002d}0-9א-ת]{1,63}$/iu'],
-        'PR'  => [1 => '/^[\x{002d}0-9a-záéíóúñäëïüöâêîôûàèùæçœãõ]{1,63}$/iu'],
-        'PT'  => [1 => '/^[\x{002d}0-9a-záàâãçéêíóôõú]{1,63}$/iu'],
-        'RS'  => [1 => '/^[\x{002d}0-9a-zßáâäçéëíîóôöúüýăąćčďđęěĺľłńňőŕřśşšţťůűźżž]{1,63}$/iu'],
-        'RU'  => [1 => '/^[\x{002d}0-9а-яё]{1,63}$/iu'],
-        'SA'  => [1 => '/^[\x{002d}.0-9\x{0621}-\x{063A}\x{0641}-\x{064A}\x{0660}-\x{0669}]{1,63}$/iu'],
-        'SE'  => [1 => '/^[\x{002d}0-9a-zäåéöü]{1,63}$/iu'],
-        'SH'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿăąāćĉčċďđĕěėęēğĝġģĥħĭĩįīıĵķĺľļłńňņŋŏőōœĸŕřŗśŝšşťţŧŭůűũųūŵŷźžż]{1,63}$/iu'],
-        'SI'  => [
+            33 => '/^[\x{002d}0-9א-ת]{1,63}$/iu',
+        ],
+        'PR'       => [1 => '/^[\x{002d}0-9a-záéíóúñäëïüöâêîôûàèùæçœãõ]{1,63}$/iu'],
+        'PT'       => [1 => '/^[\x{002d}0-9a-záàâãçéêíóôõú]{1,63}$/iu'],
+        'RS'       => [1 => '/^[\x{002d}0-9a-zßáâäçéëíîóôöúüýăąćčďđęěĺľłńňőŕřśşšţťůűźżž]{1,63}$/iu'],
+        'RU'       => [1 => '/^[\x{002d}0-9а-яё]{1,63}$/iu'],
+        'SA'       => [1 => '/^[\x{002d}.0-9\x{0621}-\x{063A}\x{0641}-\x{064A}\x{0660}-\x{0669}]{1,63}$/iu'],
+        'SE'       => [1 => '/^[\x{002d}0-9a-zäåéöü]{1,63}$/iu'],
+        'SH'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿăąāćĉčċďđĕěėęēğĝġģĥħĭĩįīıĵķĺľļłńňņŋŏőōœĸŕřŗśŝšşťţŧŭůűũųūŵŷźžż]{1,63}$/iu'],
+        'SI'       => [
             1 => '/^[\x{002d}0-9a-zà-öø-ÿ]{1,63}$/iu',
             2 => '/^[\x{002d}0-9a-zāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĵķĺļľŀłńņňŉŋōŏőœŕŗřśŝšťŧũūŭůűųŵŷźżž]{1,63}$/iu',
-            3 => '/^[\x{002d}0-9a-zșț]{1,63}$/iu'],
-        'SJ'  => [1 => '/^[\x{002d}0-9a-zàáä-éêñ-ôöøüčđńŋšŧž]{1,63}$/iu'],
-        'TH'  => [1 => '/^[\x{002d}0-9a-z\x{0E01}-\x{0E3A}\x{0E40}-\x{0E4D}\x{0E50}-\x{0E59}]{1,63}$/iu'],
-        'TM'  => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćĉċčďđēėęěĝġģĥħīįĵķĺļľŀłńņňŋőœŕŗřśŝşšţťŧūŭůűųŵŷźżž]{1,63}$/iu'],
-        'TW'  => 'Hostname/Cn.php',
-        'TR'  => [1 => '/^[\x{002d}0-9a-zğıüşöç]{1,63}$/iu'],
-        'UA'  => [1 => '/^[\x{002d}0-9a-zабвгдежзийклмнопрстуфхцчшщъыьэюяѐёђѓєѕіїјљњћќѝўџґӂʼ]{1,63}$/iu'],
-        'VE'  => [1 => '/^[\x{002d}0-9a-záéíóúüñ]{1,63}$/iu'],
-        'VN'  => [1 => '/^[ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯư\x{1EA0}-\x{1EF9}]{1,63}$/iu'],
-        'мон' => [1 => '/^[\x{002d}0-9\x{0430}-\x{044F}]{1,63}$/iu'],
-        'срб' => [1 => '/^[\x{002d}0-9а-ик-шђјљњћџ]{1,63}$/iu'],
-        'сайт' => [1 => '/^[\x{002d}0-9а-яёіїѝйўґг]{1,63}$/iu'],
-        'онлайн' => [1 => '/^[\x{002d}0-9а-яёіїѝйўґг]{1,63}$/iu'],
-        '中国' => 'Hostname/Cn.php',
-        '中國' => 'Hostname/Cn.php',
-        'ලංකා' => [1 => '/^[\x{0d80}-\x{0dff}]{1,63}$/iu'],
-        '香港' => 'Hostname/Cn.php',
-        '台湾' => 'Hostname/Cn.php',
-        '台灣' => 'Hostname/Cn.php',
+            3 => '/^[\x{002d}0-9a-zșț]{1,63}$/iu',
+        ],
+        'SJ'       => [1 => '/^[\x{002d}0-9a-zàáä-éêñ-ôöøüčđńŋšŧž]{1,63}$/iu'],
+        'TH'       => [1 => '/^[\x{002d}0-9a-z\x{0E01}-\x{0E3A}\x{0E40}-\x{0E4D}\x{0E50}-\x{0E59}]{1,63}$/iu'],
+        'TM'       => [1 => '/^[\x{002d}0-9a-zà-öø-ÿāăąćĉċčďđēėęěĝġģĥħīįĵķĺļľŀłńņňŋőœŕŗřśŝşšţťŧūŭůűųŵŷźżž]{1,63}$/iu'],
+        'TW'       => 'Hostname/Cn.php',
+        'TR'       => [1 => '/^[\x{002d}0-9a-zğıüşöç]{1,63}$/iu'],
+        'UA'       => [1 => '/^[\x{002d}0-9a-zабвгдежзийклмнопрстуфхцчшщъыьэюяѐёђѓєѕіїјљњћќѝўџґӂʼ]{1,63}$/iu'],
+        'VE'       => [1 => '/^[\x{002d}0-9a-záéíóúüñ]{1,63}$/iu'],
+        'VN'       => [1 => '/^[ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯư\x{1EA0}-\x{1EF9}]{1,63}$/iu'],
+        'мон'      => [1 => '/^[\x{002d}0-9\x{0430}-\x{044F}]{1,63}$/iu'],
+        'срб'      => [1 => '/^[\x{002d}0-9а-ик-шђјљњћџ]{1,63}$/iu'],
+        'сайт'     => [1 => '/^[\x{002d}0-9а-яёіїѝйўґг]{1,63}$/iu'],
+        'онлайн'   => [1 => '/^[\x{002d}0-9а-яёіїѝйўґг]{1,63}$/iu'],
+        '中国'       => 'Hostname/Cn.php',
+        '中國'       => 'Hostname/Cn.php',
+        'ලංකා'     => [1 => '/^[\x{0d80}-\x{0dff}]{1,63}$/iu'],
+        '香港'       => 'Hostname/Cn.php',
+        '台湾'       => 'Hostname/Cn.php',
+        '台灣'       => 'Hostname/Cn.php',
         'امارات'   => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
-        'الاردن'    => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
+        'الاردن'   => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
         'السعودية' => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
-        'ไทย' => [1 => '/^[\x{002d}0-9a-z\x{0E01}-\x{0E3A}\x{0E40}-\x{0E4D}\x{0E50}-\x{0E59}]{1,63}$/iu'],
-        'рф' => [1 => '/^[\x{002d}0-9а-яё]{1,63}$/iu'],
-        'تونس' => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
-        'مصر' => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
-        'இலங்கை' => [1 => '/^[\x{0b80}-\x{0bff}]{1,63}$/iu'],
-        'فلسطين' => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
-        'شبكة'  => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
+        'ไทย'      => [1 => '/^[\x{002d}0-9a-z\x{0E01}-\x{0E3A}\x{0E40}-\x{0E4D}\x{0E50}-\x{0E59}]{1,63}$/iu'],
+        'рф'       => [1 => '/^[\x{002d}0-9а-яё]{1,63}$/iu'],
+        'تونس'     => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
+        'مصر'      => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
+        'இலங்கை'   => [1 => '/^[\x{0b80}-\x{0bff}]{1,63}$/iu'],
+        'فلسطين'   => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
+        'شبكة'     => [1 => '/^[\x{0621}-\x{0624}\x{0626}-\x{063A}\x{0641}\x{0642}\x{0644}-\x{0648}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06CC}\x{06F0}-\x{06F9}]{1,30}$/iu'],
     ];
-    // @codingStandardsIgnoreEnd
 
+    /** @var array<string, array<int, int>> */
     protected $idnLength = [
-        'BIZ' => [5 => 17, 11 => 15, 12 => 20],
-        'CN'  => [1 => 20],
-        'COM' => [3 => 17, 5 => 20],
-        'HK'  => [1 => 15],
-        'INFO' => [4 => 17],
-        'KR'  => [1 => 17],
-        'NET' => [3 => 17, 5 => 20],
-        'ORG' => [6 => 17],
-        'TW'  => [1 => 20],
-        'امارات' => [1 => 30],
-        'الاردن' => [1 => 30],
+        'BIZ'      => [5 => 17, 11 => 15, 12 => 20],
+        'CN'       => [1 => 20],
+        'COM'      => [3 => 17, 5 => 20],
+        'HK'       => [1 => 15],
+        'INFO'     => [4 => 17],
+        'KR'       => [1 => 17],
+        'NET'      => [3 => 17, 5 => 20],
+        'ORG'      => [6 => 17],
+        'TW'       => [1 => 20],
+        'امارات'   => [1 => 30],
+        'الاردن'   => [1 => 30],
         'السعودية' => [1 => 30],
-        'تونس' => [1 => 30],
-        'مصر' => [1 => 30],
-        'فلسطين' => [1 => 30],
-        'شبكة' => [1 => 30],
-        '中国' => [1 => 20],
-        '中國' => [1 => 20],
-        '香港' => [1 => 20],
-        '台湾' => [1 => 20],
-        '台灣' => [1 => 20],
+        'تونس'     => [1 => 30],
+        'مصر'      => [1 => 30],
+        'فلسطين'   => [1 => 30],
+        'شبكة'     => [1 => 30],
+        '中国'       => [1 => 20],
+        '中國'       => [1 => 20],
+        '香港'       => [1 => 20],
+        '台湾'       => [1 => 20],
+        '台灣'       => [1 => 20],
     ];
 
+    /** @var null|false|string */
     protected $tld;
 
     /**
@@ -1812,24 +1810,29 @@ class Hostname extends AbstractValidator
      */
     protected $options = [
         'allow'       => self::ALLOW_DNS, // Allow these hostnames
-        'useIdnCheck' => true,  // Check IDN domains
-        'useTldCheck' => true,  // Check TLD elements
-        'ipValidator' => null,  // IP validator to use
+        'useIdnCheck' => true, // Check IDN domains
+        'useTldCheck' => true, // Check TLD elements
+        'ipValidator' => null, // IP validator to use
     ];
+
+    // phpcs:disable Squiz.Commenting.FunctionComment.ExtraParamComment
 
     /**
      * Sets validator options.
      *
+     * @see http://www.iana.org/cctld/specifications-policies-cctlds-01apr02.htm  Technical Specifications for ccTLDs
+     *
+     * @param array $options    OPTIONAL Array of validator options; see Hostname::$options
      * @param int  $allow       OPTIONAL Set what types of hostname to allow (default ALLOW_DNS)
      * @param bool $useIdnCheck OPTIONAL Set whether IDN domains are validated (default true)
      * @param bool $useTldCheck Set whether the TLD element of a hostname is validated (default true)
      * @param Ip   $ipValidator OPTIONAL
-     * @see http://www.iana.org/cctld/specifications-policies-cctlds-01apr02.htm  Technical Specifications for ccTLDs
      */
     public function __construct($options = [])
     {
+        // phpcs:enable
         if (! is_array($options)) {
-            $options = func_get_args();
+            $options       = func_get_args();
             $temp['allow'] = array_shift($options);
             if (! empty($options)) {
                 $temp['useIdnCheck'] = array_shift($options);
@@ -1864,11 +1867,10 @@ class Hostname extends AbstractValidator
     }
 
     /**
-     *
      * @param Ip $ipValidator OPTIONAL
-     * @return Hostname;
+     * @return self
      */
-    public function setIpValidator(Ip $ipValidator = null)
+    public function setIpValidator(?Ip $ipValidator = null)
     {
         if ($ipValidator === null) {
             $ipValidator = new Ip();
@@ -1965,7 +1967,8 @@ class Hostname extends AbstractValidator
 
         $this->setValue($value);
         // Check input against IP address schema
-        if (((preg_match('/^[0-9.]*$/', $value) && strpos($value, '.') !== false)
+        if (
+            ((preg_match('/^[0-9.]*$/', $value) && strpos($value, '.') !== false)
                 || (preg_match('/^[0-9a-f:.]*$/i', $value) && strpos($value, ':') !== false))
             && $this->getIpValidator()->setTranslator($this->getTranslator())->isValid($value)
         ) {
@@ -1975,6 +1978,14 @@ class Hostname extends AbstractValidator
             }
 
             return true;
+        }
+
+        // Handle Regex compilation failure that may happen on .biz domain with has @ character, eg: tapi4457@hsoqvf.biz
+        // Technically, hostname with '@' character is invalid, so mark as invalid immediately
+        // @see https://github.com/laminas/laminas-validator/issues/8
+        if (strpos($value, '@') !== false) {
+            $this->error(self::INVALID_HOSTNAME);
+            return false;
         }
 
         // Local hostnames are allowed to be partial (ending '.')
@@ -1992,7 +2003,8 @@ class Hostname extends AbstractValidator
         $domainParts = explode('.', $value);
 
         // Prevent partial IP V4 addresses (ending '.')
-        if (count($domainParts) == 4 && preg_match('/^[0-9.a-e:.]*$/i', $value)
+        if (
+            count($domainParts) === 4 && preg_match('/^[0-9.a-e:.]*$/i', $value)
             && $this->getIpValidator()->setTranslator($this->getTranslator())->isValid($value)
         ) {
             $this->error(self::INVALID_LOCAL_NAME);
@@ -2001,7 +2013,8 @@ class Hostname extends AbstractValidator
         $utf8StrWrapper = StringUtils::getWrapper('UTF-8');
 
         // Check input against DNS hostname schema
-        if (count($domainParts) > 1
+        if (
+            count($domainParts) > 1
             && $utf8StrWrapper->strlen($value) >= 4
             && $utf8StrWrapper->strlen($value) <= 254
         ) {
@@ -2010,7 +2023,8 @@ class Hostname extends AbstractValidator
             do {
                 // First check TLD
                 $matches = [];
-                if (preg_match('/([^.]{2,63})$/u', end($domainParts), $matches)
+                if (
+                    preg_match('/([^.]{2,63})$/u', end($domainParts), $matches)
                     || (array_key_exists(end($domainParts), $this->validIdns))
                 ) {
                     reset($domainParts);
@@ -2034,8 +2048,10 @@ class Hostname extends AbstractValidator
                     // Match TLD against known list
                     $removedTld = false;
                     if ($this->getTldCheck()) {
-                        if (! in_array(strtolower($this->tld), $this->validTlds)
-                            && ! in_array($this->tld, $this->validTlds)) {
+                        if (
+                            ! in_array(strtolower($this->tld), $this->validTlds)
+                            && ! in_array($this->tld, $this->validTlds)
+                        ) {
                             $this->error(self::UNKNOWN_TLD);
                             $status = false;
                             break;
@@ -2062,7 +2078,7 @@ class Hostname extends AbstractValidator
                     }
 
                     // Check each hostname part
-                    $check = 0;
+                    $check          = 0;
                     $lastDomainPart = end($domainParts);
                     if (! $removedTld) {
                         $lastDomainPart = prev($domainParts);
@@ -2084,10 +2100,11 @@ class Hostname extends AbstractValidator
                         }
 
                         // Check dash (-) does not start, end or appear in 3rd and 4th positions
-                        if ($utf8StrWrapper->strpos($domainPart, '-') === 0
+                        if (
+                            $utf8StrWrapper->strpos($domainPart, '-') === 0
                             || ($utf8StrWrapper->strlen($domainPart) > 2
-                                && $utf8StrWrapper->strpos($domainPart, '-', 2) == 2
-                                && $utf8StrWrapper->strpos($domainPart, '-', 3) == 3
+                                && $utf8StrWrapper->strpos($domainPart, '-', 2) === 2
+                                && $utf8StrWrapper->strpos($domainPart, '-', 3) === 3
                             )
                             || $utf8StrWrapper->substr($domainPart, -1) === '-'
                         ) {
@@ -2097,14 +2114,15 @@ class Hostname extends AbstractValidator
                         }
 
                         // Check each domain part
-                        $checked = false;
-                        $isSubDomain = $domainPart != $lastDomainPart;
+                        $checked        = false;
+                        $isSubDomain    = $domainPart !== $lastDomainPart;
                         $partRegexChars = $isSubDomain ? ['/^[a-z0-9_\x2d]{1,63}$/i'] + $regexChars : $regexChars;
                         foreach ($partRegexChars as $regexKey => $regexChar) {
                             $status = preg_match($regexChar, $domainPart);
                             if ($status > 0) {
                                 $length = 63;
-                                if (array_key_exists($this->tld, $this->idnLength)
+                                if (
+                                    array_key_exists($this->tld, $this->idnLength)
                                     && array_key_exists($regexKey, $this->idnLength[$this->tld])
                                 ) {
                                     $length = $this->idnLength[$this->tld];
@@ -2157,7 +2175,7 @@ class Hostname extends AbstractValidator
 
         // Check input against local network name schema; last chance to pass validation
         $regexLocal = '/^(([a-zA-Z0-9\x2d]{1,63}\x2e)*[a-zA-Z0-9\x2d]{1,63}[\x2e]{0,1}){1,254}$/';
-        $status = preg_match($regexLocal, $value);
+        $status     = preg_match($regexLocal, $value);
 
         // If the input passes as a local network name, and local network names are allowed, then the
         // hostname passes validation
@@ -2194,7 +2212,7 @@ class Hostname extends AbstractValidator
             return false;
         }
 
-        $decoded = [];
+        $decoded   = [];
         $separator = strrpos($encoded, '-');
         if ($separator > 0) {
             for ($x = 0; $x < $separator; ++$x) {
@@ -2212,16 +2230,16 @@ class Hostname extends AbstractValidator
         $index = 0;
         $char  = 0x80;
 
-        for ($indexe = ($separator) ? ($separator + 1) : 0; $indexe < $lengthe; ++$lengthd) {
+        for ($indexe = $separator ? $separator + 1 : 0; $indexe < $lengthe; ++$lengthd) {
             for ($oldIndex = $index, $pos = 1, $key = 36; 1; $key += 36) {
                 $hex   = ord($encoded[$indexe++]);
-                $digit = ($hex - 48 < 10) ? $hex - 22
-                       : (($hex - 65 < 26) ? $hex - 65
-                       : (($hex - 97 < 26) ? $hex - 97
+                $digit = $hex - 48 < 10 ? $hex - 22
+                       : ($hex - 65 < 26 ? $hex - 65
+                       : ($hex - 97 < 26 ? $hex - 97
                        : 36));
 
                 $index += $digit * $pos;
-                $tag    = ($key <= $base) ? 1 : (($key >= $base + 26) ? 26 : ($key - $base));
+                $tag    = $key <= $base ? 1 : ($key >= $base + 26 ? 26 : $key - $base);
                 if ($digit < $tag) {
                     break;
                 }
@@ -2229,8 +2247,8 @@ class Hostname extends AbstractValidator
                 $pos = (int) ($pos * (36 - $tag));
             }
 
-            $delta   = intval($init ? (($index - $oldIndex) / 700) : (($index - $oldIndex) / 2));
-            $delta  += intval($delta / ($lengthd + 1));
+            $delta  = intval($init ? ($index - $oldIndex) / 700 : ($index - $oldIndex) / 2);
+            $delta += intval($delta / ($lengthd + 1));
             for ($key = 0; $delta > 910 / 2; $key += 36) {
                 $delta = intval($delta / 35);
             }
@@ -2238,10 +2256,10 @@ class Hostname extends AbstractValidator
             $base   = intval($key + 36 * $delta / ($delta + 38));
             $init   = false;
             $char  += (int) ($index / ($lengthd + 1));
-            $index %= ($lengthd + 1);
+            $index %= $lengthd + 1;
             if ($lengthd > 0) {
                 for ($i = $lengthd; $i > $index; $i--) {
-                    $decoded[$i] = $decoded[($i - 1)];
+                    $decoded[$i] = $decoded[$i - 1];
                 }
             }
 
@@ -2252,14 +2270,14 @@ class Hostname extends AbstractValidator
         foreach ($decoded as $key => $value) {
             if ($value < 128) {
                 $decoded[$key] = chr($value);
-            } elseif ($value < (1 << 11)) {
+            } elseif ($value < 1 << 11) {
                 $decoded[$key]  = chr(192 + ($value >> 6));
                 $decoded[$key] .= chr(128 + ($value & 63));
-            } elseif ($value < (1 << 16)) {
+            } elseif ($value < 1 << 16) {
                 $decoded[$key]  = chr(224 + ($value >> 12));
                 $decoded[$key] .= chr(128 + (($value >> 6) & 63));
                 $decoded[$key] .= chr(128 + ($value & 63));
-            } elseif ($value < (1 << 21)) {
+            } elseif ($value < 1 << 21) {
                 $decoded[$key]  = chr(240 + ($value >> 18));
                 $decoded[$key] .= chr(128 + (($value >> 12) & 63));
                 $decoded[$key] .= chr(128 + (($value >> 6) & 63));

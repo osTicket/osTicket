@@ -1,22 +1,24 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
+
+use function explode;
+use function implode;
+use function strpos;
 
 /**
  * Generic class for Headers with multiple occurs in the same message
  */
 class GenericMultiHeader extends GenericHeader implements MultipleHeadersInterface
 {
+    /**
+     * @param string $headerLine
+     * @return array|GenericHeader|GenericMultiHeader|static
+     */
     public static function fromString($headerLine)
     {
-        list($fieldName, $fieldValue) = GenericHeader::splitHeaderLine($headerLine);
-        $fieldValue = HeaderWrap::mimeDecodeValue($fieldValue);
+        [$fieldName, $fieldValue] = GenericHeader::splitHeaderLine($headerLine);
+        $fieldValue               = HeaderWrap::mimeDecodeValue($fieldValue);
 
         if (strpos($fieldValue, ',')) {
             $headers = [];

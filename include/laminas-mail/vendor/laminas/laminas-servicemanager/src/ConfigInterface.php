@@ -1,13 +1,56 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager;
 
+use ArrayAccess;
+use Psr\Container\ContainerInterface;
+
+/**
+ * @see ContainerInterface
+ * @see ArrayAccess
+ *
+ * @psalm-type AbstractFactoriesConfigurationType = array<
+ *      array-key,
+ *      (class-string<Factory\AbstractFactoryInterface>|Factory\AbstractFactoryInterface)
+ * >
+ * @psalm-type DelegatorsConfigurationType = array<
+ *      string,
+ *      array<
+ *          array-key,
+ *          (class-string<Factory\DelegatorFactoryInterface>|Factory\DelegatorFactoryInterface)
+ *          |callable(ContainerInterface,string,callable():object,array<mixed>|null):object
+ *      >
+ * >
+ * @psalm-type FactoriesConfigurationType = array<
+ *      string,
+ *      (class-string<Factory\FactoryInterface>|Factory\FactoryInterface)
+ *      |callable(ContainerInterface,string,array<mixed>|null):object
+ * >
+ * @psalm-type InitializersConfigurationType = array<
+ *      array-key,
+ *      (class-string<Initializer\InitializerInterface>|Initializer\InitializerInterface)
+ *      |callable(ContainerInterface,object):void
+ * >
+ * @psalm-type LazyServicesConfigurationType = array{
+ *      class_map?:array<string,class-string>,
+ *      proxies_namespace?:non-empty-string,
+ *      proxies_target_dir?:non-empty-string,
+ *      write_proxy_files?:bool
+ * }
+ * @psalm-type ServiceManagerConfigurationType = array{
+ *     abstract_factories?: AbstractFactoriesConfigurationType,
+ *     aliases?: array<string,string>,
+ *     delegators?: DelegatorsConfigurationType,
+ *     factories?: FactoriesConfigurationType,
+ *     initializers?: InitializersConfigurationType,
+ *     invokables?: array<string,string>,
+ *     lazy_services?: LazyServicesConfigurationType,
+ *     services?: array<string,object|array>,
+ *     shared?:array<string,bool>
+ * }
+ */
 interface ConfigInterface
 {
     /**
@@ -17,7 +60,6 @@ interface ConfigInterface
      * local properties) and pass it to a ServiceManager's withConfig() method,
      * returning a new instance.
      *
-     * @param ServiceManager $serviceManager
      * @return ServiceManager
      */
     public function configureServiceManager(ServiceManager $serviceManager);
@@ -42,6 +84,7 @@ interface ConfigInterface
      * a service manager or plugin manager, or pass to its `withConfig()` method.
      *
      * @return array
+     * @psalm-return ServiceManagerConfigurationType
      */
     public function toArray();
 }

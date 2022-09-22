@@ -1,40 +1,43 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
+use Traversable;
+
+use function array_key_exists;
+use function array_shift;
+use function count;
+use function dirname;
+use function func_get_args;
+use function func_num_args;
+use function is_array;
+use function is_numeric;
+use function is_string;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Validator for counting all given files
- *
  */
 class Count extends AbstractValidator
 {
     /**#@+
+     *
      * @const string Error constants
      */
-    const TOO_MANY = 'fileCountTooMany';
-    const TOO_FEW  = 'fileCountTooFew';
+    public const TOO_MANY = 'fileCountTooMany';
+    public const TOO_FEW  = 'fileCountTooFew';
     /**#@-*/
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::TOO_MANY => "Too many files, maximum '%max%' are allowed but '%count%' are given",
         self::TOO_FEW  => "Too few files, minimum '%min%' are expected but '%count%' are given",
     ];
 
-    /**
-     * @var array Error message template variables
-     */
+    /** @var array Error message template variables */
     protected $messageVariables = [
         'min'   => ['options' => 'min'],
         'max'   => ['options' => 'max'],
@@ -50,6 +53,7 @@ class Count extends AbstractValidator
 
     /**
      * Internal file array
+     *
      * @var array
      */
     protected $files;
@@ -60,8 +64,8 @@ class Count extends AbstractValidator
      * @var array
      */
     protected $options = [
-        'min' => null,  // Minimum file count, if null there is no minimum file count
-        'max' => null,  // Maximum file count, if null there is no maximum file count
+        'min' => null, // Minimum file count, if null there is no minimum file count
+        'max' => null, // Maximum file count, if null there is no maximum file count
     ];
 
     /**
@@ -75,12 +79,12 @@ class Count extends AbstractValidator
      * 'min': Minimum filecount
      * 'max': Maximum filecount
      *
-     * @param  int|array|\Traversable $options Options for the adapter
+     * @param int|array|Traversable $options Options for the adapter
      */
     public function __construct($options = null)
     {
         if (1 < func_num_args()) {
-            $args = func_get_args();
+            $args    = func_get_args();
             $options = [
                 'min' => array_shift($args),
                 'max' => array_shift($args),
@@ -109,7 +113,7 @@ class Count extends AbstractValidator
      *
      * @param  int|array $min The minimum file count
      * @return $this Provides a fluent interface
-     * @throws Exception\InvalidArgumentException When min is greater than max
+     * @throws Exception\InvalidArgumentException When min is greater than max.
      */
     public function setMin($min)
     {
@@ -147,7 +151,7 @@ class Count extends AbstractValidator
      *
      * @param  int|array $max The maximum file count
      * @return $this Provides a fluent interface
-     * @throws Exception\InvalidArgumentException When max is smaller than min
+     * @throws Exception\InvalidArgumentException When max is smaller than min.
      */
     public function setMax($max)
     {

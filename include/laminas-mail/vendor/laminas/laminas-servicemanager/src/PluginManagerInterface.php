@@ -1,31 +1,30 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager;
 
-use Interop\Container\Exception\ContainerException;
 use Laminas\ServiceManager\Exception\InvalidServiceException;
+use Psr\Container\ContainerExceptionInterface;
 
 /**
  * Interface for a plugin manager
  *
  * A plugin manager is a specialized service locator used to create homogeneous objects
+ *
+ * @template InstanceType
  */
 interface PluginManagerInterface extends ServiceLocatorInterface
 {
     /**
      * Validate an instance
      *
-     * @param  object $instance
+     * @param  mixed $instance
      * @return void
      * @throws InvalidServiceException If created instance does not respect the
-     *     constraint on type imposed by the plugin manager
-     * @throws ContainerException if any other error occurs
+     *     constraint on type imposed by the plugin manager.
+     * @throws ContainerExceptionInterface If any other error occurs.
+     * @psalm-assert InstanceType $instance
      */
     public function validate($instance);
 }

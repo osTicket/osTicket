@@ -1,43 +1,59 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Tool;
 
 use Laminas\ServiceManager\Exception\InvalidArgumentException;
+use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionParameter;
 
+use function array_filter;
+use function array_map;
+use function array_merge;
+use function array_shift;
+use function count;
+use function implode;
+use function preg_replace;
+use function sort;
+use function sprintf;
+use function str_repeat;
+use function strrpos;
+use function substr;
+
 class FactoryCreator
 {
-    const FACTORY_TEMPLATE = <<<'EOT'
-<?php
+    public const FACTORY_TEMPLATE = <<<'EOT'
+        <?php
 
-namespace %s;
+        declare(strict_types=1);
 
-use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\FactoryInterface;
-use %s;
+        namespace %s;
 
-class %sFactory implements FactoryInterface
-{
-    /**
-     * @param ContainerInterface $container
-     * @param string $requestedName
-     * @param null|array $options
-     * @return %s
-     */
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
-    {
-        return new %s(%s);
-    }
-}
+        %s
 
-EOT;
+        class %sFactory implements FactoryInterface
+        {
+            /**
+             * @param ContainerInterface $container
+             * @param string $requestedName
+             * @param null|array $options
+             * @return %s
+             */
+            public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+            {
+                return new %s(%s);
+            }
+        }
+
+        EOT;
+
+    private const IMPORT_ALWAYS = [
+        FactoryInterface::class,
+        ContainerInterface::class,
+    ];
 
     /**
      * @param string $className
@@ -49,8 +65,8 @@ EOT;
 
         return sprintf(
             self::FACTORY_TEMPLATE,
-            str_replace('\\' . $class, '', $className),
-            $className,
+            preg_replace('/\\\\' . $class . '$/', '', $className),
+            $this->createImportStatements($className),
             $class,
             $class,
             $class,
@@ -58,14 +74,9 @@ EOT;
         );
     }
 
-    /**
-     * @param $className
-     * @return string
-     */
-    private function getClassName($className)
+    private function getClassName(string $className): string
     {
-        $class = substr($className, strrpos($className, '\\') + 1);
-        return $class;
+        return substr($className, strrpos($className, '\\') + 1);
     }
 
     /**
@@ -76,7 +87,7 @@ EOT;
     {
         $reflectionClass = new ReflectionClass($className);
 
-        if (! $reflectionClass || ! $reflectionClass->getConstructor()) {
+        if (! $reflectionClass->getConstructor()) {
             return [];
         }
 
@@ -88,12 +99,15 @@ EOT;
 
         $constructorParameters = array_filter(
             $constructorParameters,
-            function (ReflectionParameter $argument) {
+            function (ReflectionParameter $argument): bool {
                 if ($argument->isOptional()) {
                     return false;
                 }
 
-                if (null === $argument->getClass()) {
+                $type  = $argument->getType();
+                $class = null !== $type && ! $type->isBuiltin() ? $type->getName() : null;
+
+                if (null === $class) {
                     throw new InvalidArgumentException(sprintf(
                         'Cannot identify type for constructor argument "%s"; '
                         . 'no type hint, or non-class/interface type hint',
@@ -109,8 +123,9 @@ EOT;
             return [];
         }
 
-        return array_map(function (ReflectionParameter $parameter) {
-            return $parameter->getClass()->getName();
+        return array_map(function (ReflectionParameter $parameter): ?string {
+            $type = $parameter->getType();
+            return null !== $type && ! $type->isBuiltin() ? $type->getName() : null;
         }, $constructorParameters);
     }
 
@@ -120,9 +135,8 @@ EOT;
      */
     private function createArgumentString($className)
     {
-        $arguments = array_map(function ($dependency) {
-            return sprintf('$container->get(\\%s::class)', $dependency);
-        }, $this->getConstructorParameters($className));
+        $arguments = array_map(fn(string $dependency): string
+            => sprintf('$container->get(\\%s::class)', $dependency), $this->getConstructorParameters($className));
 
         switch (count($arguments)) {
             case 0:
@@ -131,7 +145,7 @@ EOT;
                 return array_shift($arguments);
             default:
                 $argumentPad = str_repeat(' ', 12);
-                $closePad = str_repeat(' ', 8);
+                $closePad    = str_repeat(' ', 8);
                 return sprintf(
                     "\n%s%s\n%s",
                     $argumentPad,
@@ -139,5 +153,12 @@ EOT;
                     $closePad
                 );
         }
+    }
+
+    private function createImportStatements(string $className): string
+    {
+        $imports = array_merge(self::IMPORT_ALWAYS, [$className]);
+        sort($imports);
+        return implode("\n", array_map(static fn(string $import): string => sprintf('use %s;', $import), $imports));
     }
 }

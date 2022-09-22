@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager;
 
@@ -17,7 +13,7 @@ namespace Laminas\ServiceManager;
  *
  * - rename the method `createDelegatorWithName()` to `__invoke()`, and:
  *   - rename the `$serviceLocator` argument to `$container`, and change the
- *     typehint to `Interop\Container\ContainerInterface`
+ *     typehint to `Psr\Container\ContainerInterface`
  *   - merge the `$name` and `$requestedName` arguments
  *   - add the `callable` typehint to the `$callback` argument
  *   - add the optional `array $options = null` argument as a final argument
@@ -39,7 +35,6 @@ interface DelegatorFactoryInterface extends Factory\DelegatorFactoryInterface
      * @param string                  $name           the normalized service name
      * @param string                  $requestedName  the requested service name
      * @param callable                $callback       the callback that is responsible for creating the service
-     *
      * @return mixed
      */
     public function createDelegatorWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName, $callback);

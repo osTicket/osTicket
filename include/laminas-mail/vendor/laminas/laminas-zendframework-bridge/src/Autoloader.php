@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-zendframework-bridge for the canonical source repository
- * @copyright https://github.com/laminas/laminas-zendframework-bridge/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-zendframework-bridge/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\ZendFrameworkBridge;
 
 use ArrayObject;
@@ -17,6 +11,7 @@ use function class_alias;
 use function class_exists;
 use function explode;
 use function file_exists;
+use function getenv;
 use function interface_exists;
 use function spl_autoload_register;
 use function strlen;
@@ -29,6 +24,9 @@ use function trait_exists;
  */
 class Autoloader
 {
+    private const UPSTREAM_COMPOSER_VENDOR_DIRECTORY = __DIR__ . '/../../..';
+    private const LOCAL_COMPOSER_VENDOR_DIRECTORY = __DIR__ . '/../vendor';
+
     /**
      * Attach autoloaders for managing legacy ZF artifacts.
      *
@@ -43,14 +41,20 @@ class Autoloader
      *
      * - The second is _appended_ in order to create aliases for legacy
      *   classes.
+     * @return void
      */
     public static function load()
     {
         $loaded = new ArrayObject([]);
+        $classLoader = self::getClassLoader();
+
+        if ($classLoader === null) {
+            return;
+        }
 
         spl_autoload_register(self::createPrependAutoloader(
             RewriteRules::namespaceReverse(),
-            self::getClassLoader(),
+            $classLoader,
             $loaded
         ), true, true);
 
@@ -60,33 +64,28 @@ class Autoloader
         ));
     }
 
-    /**
-     * @return ClassLoader
-     * @throws RuntimeException
-     */
-    private static function getClassLoader()
+    private static function getClassLoader(): ?ClassLoader
     {
-        if (file_exists(__DIR__ . '/../../../autoload.php')) {
-            return include __DIR__ . '/../../../autoload.php';
+        $composerVendorDirectory = getenv('COMPOSER_VENDOR_DIR');
+        if (is_string($composerVendorDirectory)) {
+            return self::getClassLoaderFromVendorDirectory($composerVendorDirectory);
         }
 
-        if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-            return include __DIR__ . '/../vendor/autoload.php';
-        }
-
-        throw new RuntimeException('Cannot detect composer autoload. Please run composer install');
+        return self::getClassLoaderFromVendorDirectory(self::UPSTREAM_COMPOSER_VENDOR_DIRECTORY)
+            ?? self::getClassLoaderFromVendorDirectory(self::LOCAL_COMPOSER_VENDOR_DIRECTORY);
     }
 
     /**
-     * @return callable
+     * @param array<string,string> $namespaces
+     * @return callable(string): void
      */
     private static function createPrependAutoloader(array $namespaces, ClassLoader $classLoader, ArrayObject $loaded)
     {
         /**
-         * @param  string $class Class name to autoload
+         * @param string $class Class name to autoload
          * @return void
          */
-        return static function ($class) use ($namespaces, $classLoader, $loaded) {
+        return static function ($class) use ($namespaces, $classLoader, $loaded): void {
             if (isset($loaded[$class])) {
                 return;
             }
@@ -118,7 +117,8 @@ class Autoloader
     }
 
     /**
-     * @return callable
+     * @param array<string,string> $namespaces
+     * @return callable(string): void
      */
     private static function createAppendAutoloader(array $namespaces, ArrayObject $loaded)
     {
@@ -132,6 +132,7 @@ class Autoloader
             if ($segments[0] === 'ZendService' && isset($segments[1])) {
                 $segments[0] .= '\\' . $segments[1];
                 unset($segments[1]);
+                /** @psalm-suppress RedundantFunctionCall */
                 $segments = array_values($segments);
             }
 
@@ -164,5 +165,21 @@ class Autoloader
                 class_alias($alias, $class);
             }
         };
+    }
+
+    private static function getClassLoaderFromVendorDirectory(string $composerVendorDirectory): ?ClassLoader
+    {
+        $filename = rtrim($composerVendorDirectory, '/') . '/autoload.php';
+        if (!file_exists($filename)) {
+            return null;
+        }
+
+        /** @psalm-suppress MixedAssignment */
+        $loader = include $filename;
+        if (!$loader instanceof ClassLoader) {
+            return null;
+        }
+
+        return $loader;
     }
 }

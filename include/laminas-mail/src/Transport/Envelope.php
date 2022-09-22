@@ -1,25 +1,15 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Transport;
 
 use Laminas\Stdlib\AbstractOptions;
 
 class Envelope extends AbstractOptions
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $from;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $to;
 
     /**

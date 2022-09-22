@@ -1,28 +1,56 @@
 {
     "name": "laminas/laminas-coding-standard",
-    "description": "Laminas coding standard",
-    "license": "BSD-3-Clause",
+    "type": "phpcodesniffer-standard",
+    "description": "Laminas Coding Standard",
     "keywords": [
         "laminas",
         "coding standard"
     ],
     "homepage": "https://laminas.dev",
-    "support": {
-        "docs": "https://docs.laminas.dev/laminas-coding-standard/",
-        "issues": "https://github.com/laminas/laminas-coding-standard/issues",
-        "source": "https://github.com/laminas/laminas-coding-standard",
-        "rss": "https://github.com/laminas/laminas-coding-standard/releases.atom",
-        "chat": "https://laminas.dev/chat",
-        "forum": "https://discourse.laminas.dev"
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+        "slevomat/coding-standard": "^7.0",
+        "squizlabs/php_codesniffer": "^3.6",
+        "webimpress/coding-standard": "^1.2"
+    },
+    "conflict": {
+        "phpstan/phpdoc-parser": ">=1.6.0"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     },
-    "require": {
-        "laminas/laminas-zendframework-bridge": "^1.0",
-        "squizlabs/php_codesniffer": "^2.7"
+    "autoload": {
+        "psr-4": {
+            "LaminasCodingStandard\\": "src/LaminasCodingStandard/"
+        }
     },
-    "replace": {
-        "zendframework/zend-coding-standard": "self.version"
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasCodingStandardTest\\": "test/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@test-prepare",
+            "@test-fix",
+            "@test-diff"
+        ],
+        "create-report": "phpcs $(find test/fixable/* | sort) --report=summary --report-file=test/expected-report.txt",
+        "test-diff": "diff test/fix test/fixed",
+        "test-fix": "phpcbf test/fix > /dev/null || true",
+        "test-prepare": "rm -rf test/fix/; cp -R test/fixable/ test/fix/;"
+    },
+    "support": {
+        "issues": "https://github.com/laminas/laminas-coding-standard/issues",
+        "forum": "https://discourse.laminas.dev",
+        "chat": "https://laminas.dev/chat",
+        "source": "https://github.com/laminas/laminas-coding-standard",
+        "docs": "https://docs.laminas.dev/laminas-coding-standard/",
+        "rss": "https://github.com/laminas/laminas-coding-standard/releases.atom"
     }
 }

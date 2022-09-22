@@ -1,18 +1,17 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Proxy;
 
-use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Exception;
 use Laminas\ServiceManager\Factory\DelegatorFactoryInterface;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
+use ProxyManager\Proxy\VirtualProxyInterface;
+use Psr\Container\ContainerInterface;
+
+use function sprintf;
 
 /**
  * Delegator factory responsible of instantiating lazy loading value holder proxies of
@@ -22,20 +21,14 @@ use ProxyManager\Proxy\LazyLoadingInterface;
  */
 final class LazyServiceFactory implements DelegatorFactoryInterface
 {
-    /**
-     * @var \ProxyManager\Factory\LazyLoadingValueHolderFactory
-     */
-    private $proxyFactory;
+    private LazyLoadingValueHolderFactory $proxyFactory;
+
+    /** @var array<string, class-string> map of service names to class names */
+    private array $servicesMap;
 
     /**
-     * @var string[] map of service names to class names
-     */
-    private $servicesMap;
-
-    /**
-     * @param LazyLoadingValueHolderFactory $proxyFactory
-     * @param string[]                      $servicesMap  a map of service names to class names of their
-     *                                                    respective classes
+     * @param array<string, class-string> $servicesMap A map of service names to
+     *     class names of their respective classes
      */
     public function __construct(LazyLoadingValueHolderFactory $proxyFactory, array $servicesMap)
     {
@@ -46,9 +39,10 @@ final class LazyServiceFactory implements DelegatorFactoryInterface
     /**
      * {@inheritDoc}
      *
-     * @return \ProxyManager\Proxy\VirtualProxyInterface
+     * @param string $name
+     * @return VirtualProxyInterface
      */
-    public function __invoke(ContainerInterface $container, $name, callable $callback, array $options = null)
+    public function __invoke(ContainerInterface $container, $name, callable $callback, ?array $options = null)
     {
         if (isset($this->servicesMap[$name])) {
             $initializer = function (&$wrappedInstance, LazyLoadingInterface $proxy) use ($callback) {

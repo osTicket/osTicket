@@ -1,12 +1,11 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
+
+use function array_keys;
+use function array_unique;
+use function hash_file;
+use function is_readable;
 
 /**
  * Validator for the crc32 hash of given files
@@ -18,13 +17,11 @@ class Crc32 extends Hash
     /**
      * @const string Error constants
      */
-    const DOES_NOT_MATCH = 'fileCrc32DoesNotMatch';
-    const NOT_DETECTED   = 'fileCrc32NotDetected';
-    const NOT_FOUND      = 'fileCrc32NotFound';
+    public const DOES_NOT_MATCH = 'fileCrc32DoesNotMatch';
+    public const NOT_DETECTED   = 'fileCrc32NotDetected';
+    public const NOT_FOUND      = 'fileCrc32NotFound';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::DOES_NOT_MATCH => 'File does not match the given crc32 hashes',
         self::NOT_DETECTED   => 'A crc32 hash could not be evaluated for the given file',

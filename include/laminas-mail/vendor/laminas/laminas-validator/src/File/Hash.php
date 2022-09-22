@@ -1,15 +1,26 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
+
+use function array_key_exists;
+use function array_unique;
+use function array_values;
+use function func_get_arg;
+use function func_num_args;
+use function get_class;
+use function gettype;
+use function hash_algos;
+use function hash_file;
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_readable;
+use function is_scalar;
+use function is_string;
+use function sprintf;
 
 /**
  * Validator for the hash of given files
@@ -21,13 +32,11 @@ class Hash extends AbstractValidator
     /**
      * @const string Error constants
      */
-    const DOES_NOT_MATCH = 'fileHashDoesNotMatch';
-    const NOT_DETECTED   = 'fileHashHashNotDetected';
-    const NOT_FOUND      = 'fileHashNotFound';
+    public const DOES_NOT_MATCH = 'fileHashDoesNotMatch';
+    public const NOT_DETECTED   = 'fileHashHashNotDetected';
+    public const NOT_FOUND      = 'fileHashNotFound';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::DOES_NOT_MATCH => 'File does not match the given hashes',
         self::NOT_DETECTED   => 'A hash could not be evaluated for the given file',
@@ -51,8 +60,10 @@ class Hash extends AbstractValidator
      */
     public function __construct($options = null)
     {
-        if (is_scalar($options) ||
-            (is_array($options) && ! array_key_exists('hash', $options))) {
+        if (
+            is_scalar($options) ||
+            (is_array($options) && ! array_key_exists('hash', $options))
+        ) {
             $options = ['hash' => $options];
         }
 

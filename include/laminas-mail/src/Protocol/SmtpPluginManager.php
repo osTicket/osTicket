@@ -1,27 +1,38 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol;
 
 use Laminas\ServiceManager\AbstractPluginManager;
+use Laminas\ServiceManager\ConfigInterface;
 use Laminas\ServiceManager\Exception\InvalidServiceException;
 use Laminas\ServiceManager\Factory\InvokableFactory;
+use Zend\Mail\Protocol\Smtp\Auth\Crammd5;
+use Zend\Mail\Protocol\Smtp\Auth\Login;
+use Zend\Mail\Protocol\Smtp\Auth\Plain;
+
+use function gettype;
+use function is_object;
+use function sprintf;
 
 /**
  * Plugin manager implementation for SMTP extensions.
  *
  * Enforces that SMTP extensions retrieved are instances of Smtp. Additionally,
  * it registers a number of default extensions available.
+ *
+ * @link ConfigInterface
+ *
+ * @psalm-import-type FactoriesConfigurationType from ConfigInterface
+ *
+ * @template InstanceType of Smtp
+ * @extends AbstractPluginManager<InstanceType>
  */
 class SmtpPluginManager extends AbstractPluginManager
 {
     /**
      * Service aliases
+     *
+     * @var array<array-key, class-string>
      */
     protected $aliases = [
         'crammd5' => Smtp\Auth\Crammd5::class,
@@ -38,22 +49,22 @@ class SmtpPluginManager extends AbstractPluginManager
         'SMTP'    => Smtp::class,
 
         // Legacy Zend Framework aliases
-        \Zend\Mail\Protocol\Smtp\Auth\Crammd5::class => Smtp\Auth\Crammd5::class,
-        \Zend\Mail\Protocol\Smtp\Auth\Login::class => Smtp\Auth\Login::class,
-        \Zend\Mail\Protocol\Smtp\Auth\Plain::class => Smtp\Auth\Plain::class,
+        Crammd5::class                  => Smtp\Auth\Crammd5::class,
+        Login::class                    => Smtp\Auth\Login::class,
+        Plain::class                    => Smtp\Auth\Plain::class,
         \Zend\Mail\Protocol\Smtp::class => Smtp::class,
 
         // v2 normalized FQCNs
         'zendmailprotocolsmtpauthcrammd5' => Smtp\Auth\Crammd5::class,
-        'zendmailprotocolsmtpauthlogin' => Smtp\Auth\Login::class,
-        'zendmailprotocolsmtpauthplain' => Smtp\Auth\Plain::class,
-        'zendmailprotocolsmtp' => Smtp::class,
+        'zendmailprotocolsmtpauthlogin'   => Smtp\Auth\Login::class,
+        'zendmailprotocolsmtpauthplain'   => Smtp\Auth\Plain::class,
+        'zendmailprotocolsmtp'            => Smtp::class,
     ];
 
     /**
      * Service factories
      *
-     * @var array
+     * @var FactoriesConfigurationType
      */
     protected $factories = [
         Smtp\Auth\Crammd5::class => InvokableFactory::class,
@@ -62,7 +73,6 @@ class SmtpPluginManager extends AbstractPluginManager
         Smtp::class              => InvokableFactory::class,
 
         // v2 normalized service names
-
         'laminasmailprotocolsmtpauthcrammd5' => InvokableFactory::class,
         'laminasmailprotocolsmtpauthlogin'   => InvokableFactory::class,
         'laminasmailprotocolsmtpauthplain'   => InvokableFactory::class,
@@ -79,16 +89,15 @@ class SmtpPluginManager extends AbstractPluginManager
     /**
      * Validate a retrieved plugin instance (v3).
      *
-     * @param object $plugin
-     * @throws InvalidServiceException
+     * {@inheritDoc}
      */
-    public function validate($plugin)
+    public function validate($instance)
     {
-        if (! $plugin instanceof $this->instanceOf) {
+        if (! $instance instanceof $this->instanceOf) {
             throw new InvalidServiceException(sprintf(
                 'Plugin of type %s is invalid; must extend %s',
-                (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
-                Smtp::class
+                is_object($instance) ? $instance::class : gettype($instance),
+                $this->instanceOf
             ));
         }
     }

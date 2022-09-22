@@ -1,20 +1,19 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Laminas\Stdlib\ArrayUtils;
 use Traversable;
 
+use function array_key_exists;
+use function array_shift;
+use function func_get_args;
+use function is_array;
+
 class GreaterThan extends AbstractValidator
 {
-    const NOT_GREATER           = 'notGreaterThan';
-    const NOT_GREATER_INCLUSIVE = 'notGreaterThanInclusive';
+    public const NOT_GREATER           = 'notGreaterThan';
+    public const NOT_GREATER_INCLUSIVE = 'notGreaterThanInclusive';
 
     /**
      * Validation failure message template definitions
@@ -22,13 +21,11 @@ class GreaterThan extends AbstractValidator
      * @var array
      */
     protected $messageTemplates = [
-        self::NOT_GREATER => "The input is not greater than '%min%'",
+        self::NOT_GREATER           => "The input is not greater than '%min%'",
         self::NOT_GREATER_INCLUSIVE => "The input is not greater than or equal to '%min%'",
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageVariables = [
         'min' => 'min',
     ];
@@ -62,7 +59,7 @@ class GreaterThan extends AbstractValidator
             $options = ArrayUtils::iteratorToArray($options);
         }
         if (! is_array($options)) {
-            $options = func_get_args();
+            $options     = func_get_args();
             $temp['min'] = array_shift($options);
 
             if (! empty($options)) {

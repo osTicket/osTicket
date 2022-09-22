@@ -1,31 +1,34 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use DateTimeZone;
 
+use function array_key_exists;
+use function array_search;
+use function get_class;
+use function gettype;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_object;
+use function is_string;
+use function sprintf;
+
 class Timezone extends AbstractValidator
 {
-    const INVALID                       = 'invalidTimezone';
-    const INVALID_TIMEZONE_LOCATION     = 'invalidTimezoneLocation';
-    const INVALID_TIMEZONE_ABBREVIATION = 'invalidTimezoneAbbreviation';
+    public const INVALID                       = 'invalidTimezone';
+    public const INVALID_TIMEZONE_LOCATION     = 'invalidTimezoneLocation';
+    public const INVALID_TIMEZONE_ABBREVIATION = 'invalidTimezoneAbbreviation';
 
-    const LOCATION      = 0b01;
-    const ABBREVIATION  = 0b10;
-    const ALL           = 0b11;
+    public const LOCATION     = 0b01;
+    public const ABBREVIATION = 0b10;
+    public const ALL          = 0b11;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $constants = [
-        self::LOCATION       => 'location',
-        self::ABBREVIATION   => 'abbreviation',
+        self::LOCATION     => 'location',
+        self::ABBREVIATION => 'abbreviation',
     ];
 
     /**
@@ -38,9 +41,7 @@ class Timezone extends AbstractValidator
         self::ABBREVIATION,
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageTemplates = [
         self::INVALID                       => 'Invalid timezone given.',
         self::INVALID_TIMEZONE_LOCATION     => 'Invalid timezone location given.',
@@ -78,8 +79,8 @@ class Timezone extends AbstractValidator
     /**
      * Set the types
      *
-     * @param  int|array $type
-     *
+     * @param int|array $type
+     * @return void
      * @throws Exception\InvalidArgumentException
      */
     public function setType($type = null)
@@ -116,8 +117,8 @@ class Timezone extends AbstractValidator
 
         switch (true) {
             // Check in locations and abbreviations
-            case (($type & self::LOCATION) && ($type & self::ABBREVIATION)):
-                $abbrs = DateTimeZone::listAbbreviations();
+            case ($type & self::LOCATION) && ($type & self::ABBREVIATION):
+                $abbrs     = DateTimeZone::listAbbreviations();
                 $locations = DateTimeZone::listIdentifiers();
 
                 if (! array_key_exists($value, $abbrs) && ! in_array($value, $locations)) {
@@ -127,7 +128,7 @@ class Timezone extends AbstractValidator
                 break;
 
             // Check only in locations
-            case ($type & self::LOCATION):
+            case $type & self::LOCATION:
                 $locations = DateTimeZone::listIdentifiers();
 
                 if (! in_array($value, $locations)) {
@@ -137,7 +138,7 @@ class Timezone extends AbstractValidator
                 break;
 
             // Check only in abbreviations
-            case ($type & self::ABBREVIATION):
+            case $type & self::ABBREVIATION:
                 $abbrs = DateTimeZone::listAbbreviations();
 
                 if (! array_key_exists($value, $abbrs)) {
@@ -152,8 +153,7 @@ class Timezone extends AbstractValidator
 
     /**
      * @param array|int|string $type
-     *
-     * @return int
+     * @return float|int
      */
     protected function calculateTypeValue($type)
     {
@@ -163,7 +163,7 @@ class Timezone extends AbstractValidator
         foreach ($types as $value) {
             if (is_int($value)) {
                 $detected |= $value;
-            } elseif (false !== ($position = array_search($value, $this->constants))) {
+            } elseif (false !== array_search($value, $this->constants)) {
                 $detected |= array_search($value, $this->constants);
             }
         }
