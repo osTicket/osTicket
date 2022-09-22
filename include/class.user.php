@@ -740,7 +740,7 @@ implements TemplateVariable {
     }
 
     function __toString() {
-        return (string) $this->email;
+        return (string) $this->getAddress();
     }
 
     function getVar($what) {
@@ -760,7 +760,11 @@ implements TemplateVariable {
     }
 
     function getAddress() {
-        return $this->address ?: $this->email;
+        return $this->address ?: $this->getEmail();
+    }
+
+    function getEmail() {
+        return $this->email;
     }
 
     function getHost() {
