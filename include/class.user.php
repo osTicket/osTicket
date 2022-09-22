@@ -737,6 +737,8 @@ implements TemplateVariable {
             $this->address = sprintf('"%s" <%s>',
                     $this->getName(),
                     $this->email);
+        else
+             $this->address =  $this->email;
     }
 
     function __toString() {
@@ -745,7 +747,7 @@ implements TemplateVariable {
 
     function getVar($what) {
 
-        if (!$this->_info)
+        if (!isset($this->_info))
             return '';
 
         switch ($what) {

@@ -426,38 +426,48 @@ class Mailer {
         foreach ($recipients as $recipient) {
             if ($recipient instanceof \ClientSession)
                 $recipient = $recipient->getSessionUser();
-            switch (true) {
-                case $recipient instanceof \EmailRecipient:
-                    $email = (string) $recipient->getEmail()->getEmail();
-                    $name =  (string) $recipient->getName();
-                    switch ($recipient->getType()) {
-                        case 'to':
-                            $message->addTo($email, $name);
-                            break;
-                        case 'cc':
-                            $message->addCc($email, $name);
-                            break;
-                        case 'bcc':
-                            $message->addBcc($email, $name);
-                            break;
-                    }
-                    break;
-                case $recipient instanceof \TicketOwner:
-                case $recipient instanceof \Staff:
-                    $message->addTo($recipient->getEmail()->getEmail(),
-                            (string) $recipient->getName());
-                    break;
-                case $recipient instanceof \Collaborator:
-                    $message->addCc($recipient->getEmail()->getEmail(),
-                             (string) $recipient->getName());
-                    break;
-                case $recipient instanceof \EmailAddress:
-                    $message->addTo($recipient->getAddress());
-                    break;
-                default:
-                    // Assuming email address.
-                    if (is_string($recipient))
-                        $message->addTo($recipient);
+            try {
+                switch (true) {
+                    case $recipient instanceof \EmailRecipient:
+                        $email = (string) $recipient->getEmail()->getEmail();
+                        $name =  (string) $recipient->getName();
+                        switch ($recipient->getType()) {
+                            case 'to':
+                                $message->addTo($email, $name);
+                                break;
+                            case 'cc':
+                                $message->addCc($email, $name);
+                                break;
+                            case 'bcc':
+                                $message->addBcc($email, $name);
+                                break;
+                        }
+                        break;
+                    case $recipient instanceof \TicketOwner:
+                    case $recipient instanceof \Staff:
+                        $message->addTo($recipient->getEmail()->getEmail(),
+                                (string) $recipient->getName());
+                        break;
+                    case $recipient instanceof \Collaborator:
+                        $message->addCc($recipient->getEmail()->getEmail(),
+                                 (string) $recipient->getName());
+                        break;
+                    case $recipient instanceof \EmailAddress:
+                        $message->addTo($recipient->getAddress());
+                        break;
+                    default:
+                        // Assuming email address.
+                        if (is_string($recipient))
+                            $message->addTo($recipient);
+                }
+            } catch(\Exception $ex) {
+                $this->logWarning(sprintf("%s1\$s: %2\$s\n\n%3\$s\n",
+                        _S("Unable to add email recipient"),
+                        ($recipient instanceof EmailContact)
+                            ? $recipient->getEmailAddress()
+                            : (string) $recipient,
+                        $ex->getMessage()
+                    ));
             }
         }
 
@@ -589,16 +599,31 @@ class Mailer {
         return false;
     }
 
+    function log($msg, $type='warning') {
+        global $ost;
+
+        if (!$ost || !$msg)
+            return;
+
+        // No email alerts on email errors
+        switch ($type) {
+            case 'error':
+                return $ost->logError(_S('Mailer Error'), $msg, false);
+                break;
+            case 'warning':
+            default:
+                return $ost->logWarning(_S('Mailer Error'), $msg, false);
+        }
+        return false;
+    }
+
     function logError($error) {
-        global $ost;
-        //NOTE: Admin alert override - don't email when having email trouble!
-        $ost->logError(_S('Mailer Error'), $error, false);
+        return $this->log($error, 'error');
     }
-    function logWarning($warn) {
-        global $ost;
-        $ost->logWarning(_S('Mailer Error'), $warn, false);
+
+    function logWarning($warning) {
+        return $this->log($warning, 'warning');
     }
-    /******* Static functions ************/
 
     //Emails using native php mail function - if DB connection doesn't exist.
     //Don't use this function if you can help it.
