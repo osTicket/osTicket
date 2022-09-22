@@ -576,9 +576,11 @@ class Plugin extends VerySimpleModel {
     function __onload() {
         $this->info = PluginManager::getInfoForPath(INCLUDE_DIR.$this->ht['install_path'],
             $this->isPhar());
+        // Auto upgrade / downgrade plugins on-load - if we have version
+        // mismatch. See upgrade routine for more information
+        if ($this->info['version'] && $this->getVersion() != $this->info['verion'])
+            $this->upgrade();
     }
-
-
 
     /*
      * useModalConfig
@@ -799,6 +801,35 @@ class Plugin extends VerySimpleModel {
         foreach ($this->getInstances() as $i)
             $i->delete();
         parent::delete();
+    }
+
+    /**
+     * upgrade
+     *
+     * Plugins can implement upgrade / downgrade process downsteam as needed.
+     *
+     */
+    function upgrade(&$errors=[]) {
+        if ($this->pre_upgrade($errors) === false)
+            return false;
+
+        // For now we're just updating the version if we have a mismatch
+        // The true version is what is packaged with the plugin
+        if ($this->getVersion() != $this->info['version'])
+            $this->version = $this->info['version'];
+
+        $this->save();
+        return true;
+    }
+
+    /**
+     * pre_upgrade
+     *
+     * Hook function to veto the upgrade request. Return boolean
+     * FALSE if the upgrade operation should be aborted.
+     */
+    function pre_upgrade(&$errors) {
+        return true;
     }
 
     /**
