@@ -204,7 +204,7 @@ class Sequence extends VerySimpleModel {
         return parent::__get($what);
     }
 
-    public static function __create($data) {
+    static function __create($data) {
         $instance = new self($data);
         $instance->save();
         return $instance;
