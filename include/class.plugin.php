@@ -596,25 +596,35 @@ class Plugin extends VerySimpleModel {
      * canAddInstance
      *
      * Multi-instance plugins can add unlimited instances, otherwise only
-     * one plugin is allowed.
+     * one plugin instance is allowed.
      *
      */
     function canAddInstance() {
-
         if (!$this->isMultiInstance()
                 && $this->getNumInstances())
             return false;
 
-        // TODO: To be removed down the road. 2FA Plugi  doesn't support
-        // multiple instances at the moment due to how the plugin loads
-        // config info for versions <= 0.3
-        if (is_a($this, 'Auth2FAPlugin')
-                && $this->getVersion()  <= 0.3)
-            return false;
+        // Some Plugins DO Not or SHOULDN'T support multiple instances due
+        // design issues or simply because of the fact that it doesn't make
+        // sense to do so.
 
+        // TODO: The Black List is to be removed down the road once plugins
+        // are forced to declare core osTicket version and if it supports
+        // multiple instances.
+        $blackList =[
+            // 2FA Plugin up to v0.3 cannot handle multiple instances
+            'Auth2FAPlugin' => 0.3,
+            // It doesn't make sense for Audit Plugin to have
+            // multiple instances
+            'AuditPlugin' => '*'
+        ];
+        foreach ($blackList as $c => $v) {
+            if (is_a($this, $c) && ($v == '*' || $this->getVersion() <= $v))
+                return false;
+        }
+        // Yes, let's make instances - Genesis 9:7
         return true;
     }
-
 
     /*
      *
