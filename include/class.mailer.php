@@ -445,15 +445,16 @@ class Mailer {
                         break;
                     case $recipient instanceof \TicketOwner:
                     case $recipient instanceof \Staff:
-                        $message->addTo($recipient->getEmail()->getEmail(),
+                        $message->addTo((string) $recipient->getEmail(),
                                 (string) $recipient->getName());
                         break;
                     case $recipient instanceof \Collaborator:
-                        $message->addCc($recipient->getEmail()->getEmail(),
+                        $message->addCc((string) $recipient->getEmail(),
                                  (string) $recipient->getName());
                         break;
                     case $recipient instanceof \EmailAddress:
-                        $message->addTo($recipient->getAddress());
+                        $message->addTo((string) $recipient->getEmail(),
+                                (string) $recipient->getName());
                         break;
                     default:
                         // Assuming email address.

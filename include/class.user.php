@@ -742,7 +742,7 @@ implements TemplateVariable {
     }
 
     function __toString() {
-        return (string) $this->getAddress();
+        return (string) $this->email;
     }
 
     function getVar($what) {
