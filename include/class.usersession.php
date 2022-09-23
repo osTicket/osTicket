@@ -160,24 +160,23 @@ trait UserSessionTrait {
     // User class
     var $class = '';
 
-    function refreshSession($force=false) {
+    function refreshSession($refreshRate=60): void {
         // If TIME_BOMB isset and less than the current time we need to regenerate
         // session to help mitigate session fixation
         if (isset($_SESSION['TIME_BOMB']) && ($_SESSION['TIME_BOMB'] < time()))
             $this->regenerateSession();
         // Deadband session token updates to once / 30-seconds
-        $time = $this->session->getLastUpdate($this->token);
-        if (!$force && time() - $time < 30)
-            return;
-
-        $this->token = $this->getSessionToken();
-        osTicketSession::renewCookie($time, $this->maxidletime);
+        $updated = $this->session->getLastUpdate($this->token);
+        if ($updated + $refreshRate < time()) {
+            $this->token = $this->getSessionToken();
+            osTicketSession::renewCookie($updated, $this->maxidletime);
+        }
     }
 
     function regenerateSession($destroy=false) {
         $this->session->regenerateSession($destroy);
         // Set cookie for the new session id.
-        $this->refreshSession(true);
+        $this->refreshSession(-1);
     }
 
     function getSession() {
@@ -192,6 +191,7 @@ trait UserSessionTrait {
         // Assign memory to token variable
         $this->token = &$_SESSION[':token'][$this->class];
         // Set token
+        $token = $token ?: $this->token;
         $this->token = $token ?: $this->getSessionToken();
     }
 
