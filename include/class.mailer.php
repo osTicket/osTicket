@@ -18,6 +18,7 @@
 namespace osTicket\Mail;
 
 class Mailer {
+    private $from = null;
     var $email = null;
     var $accounts = [];
 
@@ -35,18 +36,18 @@ class Mailer {
                 && $smtp->isActive()) {
             $this->accounts[$smtp->getId()] = $smtp;
         }
-
-        if ($cfg
-                && ($smtp=$cfg->getDefaultMTA())
-                && $smtp->isActive()) {
-            $this->accounts[$smtp->getId()] = $smtp;
-            if ($smtp->allowSpoofing() || !$email)
-                $email = $smtp->getEmail();
-        }
-
-        if (!$email && $cfg && ($email=$cfg->getDefaultEmail())) {
-            if (($smtp=$email->getSmtpAccount(false)) && $smtp->isActive())
+        if ($cfg)  {
+            // Get Default MTA  (SMTP)
+            if (($smtp=$cfg->getDefaultMTA()) && $smtp->isActive()) {
                 $this->accounts[$smtp->getId()] = $smtp;
+                // If email is not set then use Default MTA
+                if (!$email)
+                    $email = $smtp->getEmail();
+            } elseif (!$email && $cfg && ($email=$cfg->getDefaultEmail())) {
+                // as last resort we will send  via Default Email
+                if (($smtp=$email->getSmtpAccount(false)) && $smtp->isActive())
+                    $this->accounts[$smtp->getId()] = $smtp;
+            }
         }
 
         $this->email = $email;
@@ -71,20 +72,36 @@ class Mailer {
     }
 
     /* FROM Address */
-    function setFromAddress($from) {
-        $this->ht['from'] = $from;
+    function setFromAddress($from=null, $name=null) {
+        if ($from instanceof \EmailAddress)
+            $this->from = $from;
+        elseif (\Validator::is_email($from)) {
+            $this->from = new \EmailAddress(
+                    sprintf('"%s" <%s>', $name ?: '', $from));
+        } elseif (is_string($from))
+            $this->from = new \EmailAddress($from);
+        elseif (($email=$this->getEmail())) {
+            // we're assuming from was null or unexpected monster
+            $address = sprintf('"%s" <%s>',
+                    $name ?: $email->getName(),
+                    $email->getEmail());
+            $this->from = new \EmailAddress($address);
+        }
     }
 
     function getFromAddress($options=array()) {
+        if (!isset($this->from))
+            $this->setFromAddress(null, $options['from_name'] ?: null);
 
-        if (!$this->ht['from'] && ($email=$this->getEmail())) {
-            if (($name = $options['from_name'] ?: $email->getName()))
-                $this->ht['from'] =sprintf('"%s" <%s>', $name, $email->getEmail());
-            else
-                $this->ht['from'] =sprintf('<%s>', $email->getEmail());
-        }
+        return $this->from;
+    }
 
-        return $this->ht['from'];
+    function getFromName() {
+        return $this->getFromAddress()->getName();
+    }
+
+    function getFromEmail() {
+        return $this->getFromAddress()->getEmail();
     }
 
     /* attachments */
@@ -323,8 +340,10 @@ class Mailer {
 
          // Create new ostTicket/Mail/Message object
         $message = new Message();
-        // Set basic headers
-        $message->addFrom($this->getFromAddress($options));
+        // Set From Address
+        $from = $this->getFromAddress($options);
+        $message->setFrom($from->getEmail(), $from->getName());
+        // Set Subject
         $message->setSubject($subject);
 
         $headers = array (
@@ -426,38 +445,49 @@ class Mailer {
         foreach ($recipients as $recipient) {
             if ($recipient instanceof \ClientSession)
                 $recipient = $recipient->getSessionUser();
-            switch (true) {
-                case $recipient instanceof \EmailRecipient:
-                    $email = (string) $recipient->getEmail()->getEmail();
-                    $name =  (string) $recipient->getName();
-                    switch ($recipient->getType()) {
-                        case 'to':
-                            $message->addTo($email, $name);
-                            break;
-                        case 'cc':
-                            $message->addCc($email, $name);
-                            break;
-                        case 'bcc':
-                            $message->addBcc($email, $name);
-                            break;
-                    }
-                    break;
-                case $recipient instanceof \TicketOwner:
-                case $recipient instanceof \Staff:
-                    $message->addTo($recipient->getEmail()->getEmail(),
-                            (string) $recipient->getName());
-                    break;
-                case $recipient instanceof \Collaborator:
-                    $message->addCc($recipient->getEmail()->getEmail(),
-                             (string) $recipient->getName());
-                    break;
-                case $recipient instanceof \EmailAddress:
-                    $message->addTo($recipient->getAddress());
-                    break;
-                default:
-                    // Assuming email address.
-                    if (is_string($recipient))
-                        $message->addTo($recipient);
+            try {
+                switch (true) {
+                    case $recipient instanceof \EmailRecipient:
+                        $email = (string) $recipient->getEmail()->getEmail();
+                        $name =  (string) $recipient->getName();
+                        switch ($recipient->getType()) {
+                            case 'to':
+                                $message->addTo($email, $name);
+                                break;
+                            case 'cc':
+                                $message->addCc($email, $name);
+                                break;
+                            case 'bcc':
+                                $message->addBcc($email, $name);
+                                break;
+                        }
+                        break;
+                    case $recipient instanceof \TicketOwner:
+                    case $recipient instanceof \Staff:
+                        $message->addTo((string) $recipient->getEmail(),
+                                (string) $recipient->getName());
+                        break;
+                    case $recipient instanceof \Collaborator:
+                        $message->addCc((string) $recipient->getEmail(),
+                                 (string) $recipient->getName());
+                        break;
+                    case $recipient instanceof \EmailAddress:
+                        $message->addTo((string) $recipient->getEmail(),
+                                (string) $recipient->getName());
+                        break;
+                    default:
+                        // Assuming email address.
+                        if (is_string($recipient))
+                            $message->addTo($recipient);
+                }
+            } catch(\Exception $ex) {
+                $this->logWarning(sprintf("%s1\$s: %2\$s\n\n%3\$s\n",
+                        _S("Unable to add email recipient"),
+                        ($recipient instanceof EmailContact)
+                            ? $recipient->getEmailAddress()
+                            : (string) $recipient,
+                        $ex->getMessage()
+                    ));
             }
         }
 
@@ -496,7 +526,7 @@ class Mailer {
         if ($isHtml && $cfg && $cfg->isRichTextEnabled()) {
             // Pick a domain compatible with pear Mail_Mime
             $matches = array();
-            if (preg_match('#(@[0-9a-zA-Z\-\.]+)#', $this->getFromAddress(), $matches)) {
+            if (preg_match('#(@[0-9a-zA-Z\-\.]+)#', (string) $this->getFromAddress(), $matches)) {
                 $domain = $matches[1];
             } else {
                 $domain = '@localhost';
@@ -545,13 +575,17 @@ class Mailer {
             }
         }
 
-        // set Body & Content Type
-        $message->prepare();
-
         // Try possible SMTP Accounts - connections are cached per request
         // at the account level.
         foreach ($this->getSmtpAccounts() ?: [] as $account) {
             try {
+                // Overwrite FROM Address if the account doesn't allow spoofing
+                if (!$account->allowSpoofing())
+                    $message->setFrom(
+                            // get Account Email
+                            (string) $account->getEmail()->getEmail(),
+                            // Try to keep the name if available
+                            $this->getFromName() ?: $account->getName());
                 if (($smtp=$account->getSmtpConnection())
                         && $smtp->sendMessage($message))
                      return $messageId;
@@ -572,8 +606,8 @@ class Mailer {
         $args =  [];
         if (isset($options['from_address']))
             $args[] = '-f '.$options['from_address'];
-        elseif ($this->getEmail())
-            $args = ['-f '.$this->getEmail()->getEmail()];
+        elseif (($from=$this->getFromAddress()))
+            $args = ['-f '.$from->getEmail()];
 
         try {
             // ostTicket/Mail/Sendmail transport
@@ -589,22 +623,37 @@ class Mailer {
         return false;
     }
 
+    function log($msg, $type='warning') {
+        global $ost;
+
+        if (!$ost || !$msg)
+            return;
+
+        // No email alerts on email errors
+        switch ($type) {
+            case 'error':
+                return $ost->logError(_S('Mailer Error'), $msg, false);
+                break;
+            case 'warning':
+            default:
+                return $ost->logWarning(_S('Mailer Error'), $msg, false);
+        }
+        return false;
+    }
+
     function logError($error) {
-        global $ost;
-        //NOTE: Admin alert override - don't email when having email trouble!
-        $ost->logError(_S('Mailer Error'), $error, false);
+        return $this->log($error, 'error');
     }
-    function logWarning($warn) {
-        global $ost;
-        $ost->logWarning(_S('Mailer Error'), $warn, false);
+
+    function logWarning($warning) {
+        return $this->log($warning, 'warning');
     }
-    /******* Static functions ************/
 
     //Emails using native php mail function - if DB connection doesn't exist.
     //Don't use this function if you can help it.
-    static function sendmail($to, $subject, $message, $from, $options=null) {
+    static function sendmail($to, $subject, $message, $from=null, $options=null) {
         $mailer = new Mailer(null, array('notice'=>true, 'nobounce'=>true));
-        $mailer->setFromAddress($from);
+        $mailer->setFromAddress($from, $options['from_name'] ?: null);
         return $mailer->send($to, $subject, $message, $options);
     }
 }

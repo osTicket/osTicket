@@ -151,6 +151,19 @@ implements EmailContact, ITicketUser, TemplateVariable {
         return $this->user->getId();
     }
 
+    function getEmailAddress() {
+        $emailaddr =  (string) $this->getEmail();
+        if (($name=$this->getName()))
+            $emailaddr = sprintf('"%s" <%s>',
+                    (string) $name,
+                    $emailaddr);
+        return $emailaddr;
+    }
+
+    function __toString() {
+        return $this->getEmailAddress();
+    }
+
     abstract function getTicketId();
     abstract function getTicket();
 }

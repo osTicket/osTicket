@@ -8,6 +8,7 @@ interface EmailContact {
     function getUserId();
     function getName();
     function getEmail();
+    function getEmailAddress();
 }
 
 
@@ -15,6 +16,7 @@ class EmailRecipient
 implements EmailContact {
     protected $contact;
     protected $type;
+    protected $address;
 
     function __construct(EmailContact $contact, $type='to') {
         $this->contact = $contact;
@@ -37,6 +39,16 @@ implements EmailContact {
         return $this->contact->getEmail();
     }
 
+    function getEmailAddress() {
+        if (!isset($this->address)) {
+            $this->address =  (string) $this->getEmail();
+            if (($name=$this->getName()))
+                $this->address = sprintf('"%s" <%s>',
+                        (string) $name, $this->address);
+        }
+        return $this->address;
+    }
+
     function getName() {
         return $this->contact->getName();
     }
@@ -44,6 +56,11 @@ implements EmailContact {
     function getType() {
         return $this->type;
     }
+
+    function __toString() {
+        return (string) $this->getEmailAddress();
+    }
+
 }
 
 abstract class BaseList
