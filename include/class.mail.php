@@ -688,7 +688,7 @@ namespace osTicket\Mail {
             $ssl = null;
             $matches = [];
             if (preg_match('~^(ssl|tls)://(.*+)$~iu', $host, $matches))
-                list(, $host, $ssl) = $matches;
+                list(, $ssl, $host) = $matches;
             // Set ssl or tls on based on standard ports
             $port = $account->getPort();
             if (!$ssl && $port) {
