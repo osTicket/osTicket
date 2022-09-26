@@ -100,7 +100,7 @@ if ($_POST)
                       }
                         foreach($topics as $id =>$name) {
                             echo sprintf('<option value="%d" %s>%s</option>',
-                                    $id, ($info['topicId']==$id)?'selected="selected"':'',$name);
+                                    $id, ($info['topicId']==$id)?'selected="selected"':'',TOPIC::getTopicName($id));
                         }
                     }
                     ?>
