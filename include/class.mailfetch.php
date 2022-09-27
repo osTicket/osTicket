@@ -71,6 +71,8 @@ class Fetcher {
             // If a ticket is denied we're going to report it as processed
             // so it can be moved out of the inbox or deleted.
             return true;
+        } catch (\Throwable $t) {
+            return false;
         }
     }
 
@@ -165,7 +167,7 @@ class Fetcher {
                 break;
             try {
                 $mailbox->fetchEmails();
-            } catch (Exception $ex) {
+            } catch (\Exception $ex) {
                 if ($mailbox->getNumErrors() >= $MAXERRORS && $ost) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
                     // XXX: Translate me
