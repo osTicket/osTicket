@@ -2964,7 +2964,7 @@ class MySqlCompiler extends SqlCompiler {
             $row = $exec->getRow();
         } catch (mysqli_sql_exception $e) {
             throw new InconsistentModelException(
-                'Unable to prepare query: '.db_error().' '.$sql);
+                'Unable to prepare query: '.db_error().' '.$exec->sql);
         }
         return is_array($row) ? (int) $row[0] : null;
     }
