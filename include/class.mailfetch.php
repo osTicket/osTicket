@@ -67,7 +67,7 @@ class Fetcher {
         try {
             return $this->getTicketsApi()->processEmail(
                     $this->mbox->getRawEmail($i));
-        } catch (TicketDenied $ex) {
+        } catch (\TicketDenied $ex) {
             // If a ticket is denied we're going to report it as processed
             // so it can be moved out of the inbox or deleted.
             return true;
