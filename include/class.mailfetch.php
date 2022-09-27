@@ -152,6 +152,7 @@ class Fetcher {
         $mailboxes = \MailBoxAccount::objects()
             ->filter(['active' => 1, $errors_Q, $fetch_Q]);
 
+        $mailboxes->order_by('last_activity');
         //Get max execution time so we can figure out how long we can fetch
         // take fetching emails.
         if (!($max_time = ini_get('max_execution_time')))
