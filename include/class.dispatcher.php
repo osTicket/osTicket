@@ -67,7 +67,7 @@ class Dispatcher {
             $file = dirname($bt[0]["file"]) . "/" . $file;
         }
         if ($lazy) return new Dispatcher($file);
-        else return (include $file);
+        else return (include_once $file);
     }
     /**
      * The include_urls() method will create a new Dispatcher and set the
@@ -75,7 +75,7 @@ class Dispatcher {
      * dispatcher is first accessed, the file will be loaded.
      */
     function lazy_load() {
-        $this->extend(include $this->file);
+        $this->extend(include_once $this->file);
         $this->file=false;
     }
 }
@@ -160,7 +160,7 @@ class UrlMatcher {
 
         if (strpos($class, ":")) {
             list($file, $class) = explode(":", $class, 2);
-            include $file;
+            include_once $file;
         }
         return array($class, $func);
     }
