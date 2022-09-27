@@ -124,6 +124,13 @@ namespace osTicket\Mail {
             $this->hasAttachments = true;
         }
 
+        public function setFrom($emailOrAddressList, $name=null) {
+            // We're resetting the body here when FROM address changes - e.g
+            // after failed send attempt while trying multiple SMTP accounts
+            unset($this->body);
+            return parent::setFrom($emailOrAddressList, $name);
+        }
+
         public function setContentType($contentType) {
             // We can only set content type for multipart message
             if (isset($this->body)
@@ -761,7 +768,7 @@ namespace osTicket\Mail {
         }
 
         public function describe() {
-            return sprintf('%s//%s:%s/%s',
+            return sprintf('%s://%s:%s/%s',
                     $this->getSsl() ?: 'none',
                     $this->getHost(),
                     $this->getPort(),
