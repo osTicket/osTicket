@@ -477,9 +477,11 @@ class AttachmentFile extends VerySimpleModel {
                 elseif ($bk->write($file['data']) && $bk->flush()) {
                     $succeeded = true; break;
                 }
-            }
-            catch (Exception $e) {
+            } catch (Throwable $t) {
                 // Try next backend
+                // Backends can throw an exception or error.
+                // TODO: Log any exceptions and errors for debugging
+                // purposes.
             }
             // Fallthrough to default backend if different?
         }
