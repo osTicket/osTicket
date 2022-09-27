@@ -550,10 +550,17 @@ class Mailer {
                         $file = \AttachmentFile::lookup($match[1]);
                     if (!$file)
                         return $match[0];
-                    $message->addInlineImage($match[1].$domain, $file);
-                    // Don't re-attach the image below
-                    unset($self->attachments[$file->getId()]);
-                    return $match[0].$domain;
+                    try {
+                        $message->addInlineImage($match[1].$domain, $file);
+                        // Don't re-attach the image below
+                        unset($self->attachments[$file->getId()]);
+                        return $match[0].$domain;
+                    }  catch(\Exception $ex) {
+                         $self->logWarning(sprintf("%1\$s:%2\$s\n\n%3\$s\n",
+                                     _S("Unable to retrieve email inline image"),
+                                     $match[1].$domain,
+                                     $ex->getMessage()));
+                    }
                 }, $body);
             // Add an HTML body
             $message->setHtmlBody($body);
@@ -571,7 +578,15 @@ class Mailer {
                     $filename = $file->getFilename();
                 } else
                     continue;
-                $message->addAttachment($file, $filename);
+
+                try {
+                    $message->addAttachment($file, $filename);
+                } catch(\Exception $ex) {
+                    $this->logWarning(sprintf("%1\$s:%2\$s\n\n%3\$s\n",
+                                     _S("Unable to retrieve email attachment"),
+                                     $filename,
+                                     $ex->getMessage()));
+                }
             }
         }
 
@@ -591,7 +606,7 @@ class Mailer {
                      return $messageId;
             } catch (\Exception $ex) {
                 // Log the SMTP error
-                $this->logError(sprintf("%s1\$s: %2\$s (%3\$s)\n\n%4\$s\n",
+                $this->logError(sprintf("%1\$s: %2\$s (%3\$s)\n\n%4\$s\n",
                         _S("Unable to email via SMTP"),
                         $account->getEmail()->getEmail(),
                         $account->getHostInfo(),
@@ -636,7 +651,7 @@ class Mailer {
                 break;
             case 'warning':
             default:
-                return $ost->logWarning(_S('Mailer Error'), $msg, false);
+                return $ost->logWarning(_S('Mailer Warning'), $msg, false);
         }
         return false;
     }
