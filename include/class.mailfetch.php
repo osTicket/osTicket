@@ -67,10 +67,12 @@ class Fetcher {
         try {
             return $this->getTicketsApi()->processEmail(
                     $this->mbox->getRawEmail($i));
-        } catch (TicketDenied $ex) {
+        } catch (\TicketDenied $ex) {
             // If a ticket is denied we're going to report it as processed
             // so it can be moved out of the inbox or deleted.
             return true;
+        } catch (\Throwable $t) {
+            return false;
         }
     }
 
@@ -152,6 +154,7 @@ class Fetcher {
         $mailboxes = \MailBoxAccount::objects()
             ->filter(['active' => 1, $errors_Q, $fetch_Q]);
 
+        $mailboxes->order_by('last_activity');
         //Get max execution time so we can figure out how long we can fetch
         // take fetching emails.
         if (!($max_time = ini_get('max_execution_time')))
@@ -165,14 +168,14 @@ class Fetcher {
                 break;
             try {
                 $mailbox->fetchEmails();
-            } catch (Exception $ex) {
+            } catch (\Throwable $t) {
                 if ($mailbox->getNumErrors() >= $MAXERRORS && $ost) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
                     // XXX: Translate me
                     $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
                         "\n"._S('Email').": ".$mailbox->getEmail()->getAddress().
                         "\n"._S('Host Info').": ".$mailbox->getHostInfo();
-                        "\n"._S('Error').": ".$ex->getMessage().
+                        "\n"._S('Error').": ".$t->getMessage().
                         "\n\n ".sprintf(_S('%1$d consecutive errors. Maximum of %2$d allowed'),
                                 $mailbox->getNumErrors(), $MAXERRORS).
                         "\n\n ".sprintf(_S('This could be connection issues related to the mail server. Next delayed login attempt in aprox. %d minutes'), $TIMEOUT);

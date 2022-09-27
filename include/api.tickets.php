@@ -142,7 +142,7 @@ class TicketApiController extends ApiController {
         if (count($errors)) {
             if(isset($errors['errno']) && $errors['errno'] == 403) {
                 $this->exerr(403, __('Ticket denied'));
-                throw TicketDenied(__('Ticket denied'));
+                throw new TicketDenied(__('Ticket denied'));
             } else
                 return $this->exerr(
                         400,
