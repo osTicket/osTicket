@@ -618,7 +618,10 @@ class Plugin extends VerySimpleModel {
             'Auth2FAPlugin' => 0.3,
             // It doesn't make sense for Audit Plugin to have
             // multiple instances
-            'AuditPlugin' => '*'
+            'AuditPlugin' => '*',
+            // File storage plugins don't currently support multiple instances
+            'S3StoragePlugin' => '*',
+            'FsStoragePlugin' => '*',
         ];
         foreach ($blackList as $c => $v) {
             if (is_a($this, $c) && ($v == '*' || $this->getVersion() <= $v))
