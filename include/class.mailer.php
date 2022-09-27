@@ -597,9 +597,9 @@ class Mailer {
                         $account->getHostInfo(),
                         $ex->getMessage()
                     ));
-                // Try the next SMTP account
-                continue;
             }
+            // Reset FROM address
+            $message->setFrom($this->getFromEmail(), $this->getFromName());
         }
 
         //No SMTP or it failed....use php's native mail function.
