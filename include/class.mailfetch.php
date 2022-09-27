@@ -168,14 +168,14 @@ class Fetcher {
                 break;
             try {
                 $mailbox->fetchEmails();
-            } catch (\Exception $ex) {
+            } catch (\Throwable $t) {
                 if ($mailbox->getNumErrors() >= $MAXERRORS && $ost) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
                     // XXX: Translate me
                     $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
                         "\n"._S('Email').": ".$mailbox->getEmail()->getAddress().
                         "\n"._S('Host Info').": ".$mailbox->getHostInfo();
-                        "\n"._S('Error').": ".$ex->getMessage().
+                        "\n"._S('Error').": ".$t->getMessage().
                         "\n\n ".sprintf(_S('%1$d consecutive errors. Maximum of %2$d allowed'),
                                 $mailbox->getNumErrors(), $MAXERRORS).
                         "\n\n ".sprintf(_S('This could be connection issues related to the mail server. Next delayed login attempt in aprox. %d minutes'), $TIMEOUT);

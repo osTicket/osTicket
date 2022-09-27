@@ -1030,14 +1030,15 @@ class MailBoxAccount extends EmailAccount {
 
     public function fetchEmails() {
         try {
-            $fetcher = new osTicket\Mail\Fetcher($this);
-            $num = $fetcher->processEmails();
             $this->logLastFetch();
-            return $num;
-        } catch (Exception $ex) {
-            $this->logFetchError($ex->getMessage());
-           // rethrow the exception so caller can handle it
-            throw $ex;
+            $fetcher = new osTicket\Mail\Fetcher($this);
+            return $fetcher->processEmails();
+        } catch (Throwable $t) {
+            // May throw an Exception or Error
+            // Log the message
+            $this->logFetchError($t->getMessage());
+           // rethrow the throwable so caller can handle it
+            throw $t;
         }
         return 0;
     }
