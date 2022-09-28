@@ -160,8 +160,8 @@ class AttachmentFile extends VerySimpleModel {
     function display($scale=false, $ttl=86400) {
         $this->makeCacheable($ttl);
 
-        if ($scale && extension_loaded('gd')) {
-            $image = imagecreatefromstring($this->getData());
+        if ($scale && extension_loaded('gd')
+                && ($image = imagecreatefromstring($this->getData()))) {
             $width = imagesx($image);
             if ($scale <= $width) {
                 $height = imagesy($image);
