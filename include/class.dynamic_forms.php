@@ -1034,6 +1034,10 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->form->getInstructions();
     }
 
+    function getNotice() {
+        return  $this->form->getNotice();
+    }
+
     function getDynamicForm() {
         return $this->form;
     }
