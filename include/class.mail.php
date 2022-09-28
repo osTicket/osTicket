@@ -363,8 +363,7 @@ namespace osTicket\Mail {
         public function hasFolder($folder, $rootFolder = null) {
             $folders = $this->getFolders($rootFolder);
             if (is_array($folders)
-                    && in_array(strtolower($folder),
-                        array_map('strtolower', $folders)))
+                    && in_array(strtolower($folder), $folders))
                 return true;
 
             // Try selecting the folder.
@@ -387,7 +386,7 @@ namespace osTicket\Mail {
                 foreach ($folders as $name => $folder) {
                     if (!$folder->isSelectable()) #nolint
                         continue;
-                    $this->folders[] =  $folder->getGlobalName(); #nolint
+                    $this->folders[] =  strtolower($folder->getGlobalName()); #nolint
                 }
             }
             return $this->folders;
@@ -401,6 +400,32 @@ namespace osTicket\Mail {
          */
         public function getRawEmail(int $i) {
             return $this->getRawHeader($i) . $this->getRawContent($i);
+        }
+
+        /*
+         * move an existing message to a folder
+         *
+         */
+        public function moveMessage($id, $folder) {
+            try {
+                return parent::moveMessage($id, $folder);
+            } catch (\Throwable $t) {
+                // noop
+            }
+            return false;
+        }
+
+        /*
+         * Remove a message from server.
+         *
+         */
+        public function removeMessage($i) {
+            try {
+                return parent::removeMessage($i);
+            } catch (\Throwable $t) {
+                // noop
+            }
+            return false;
         }
 
         /*
@@ -429,7 +454,11 @@ namespace osTicket\Mail {
 
         // Mark message as seen
         public function markAsSeen($i) {
-            $this->setFlags($i, [Storage::FLAG_SEEN]);
+            try {
+                return $this->setFlags($i, [Storage::FLAG_SEEN]);
+            } catch (\Throwable $t) {
+                return false;
+            }
         }
 
         // Expunge mailbox
