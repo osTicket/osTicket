@@ -71,9 +71,15 @@ class Fetcher {
             // If a ticket is denied we're going to report it as processed
             // so it can be moved out of the inbox or deleted.
             return true;
+        } catch (\EmailParseError $ex) {
+            // Log the parse error + headers as a warning
+            $this->log(sprintf("%s\n\n%s",
+                        $ex->getMessage(),
+                        $this->mbox->getRawHeader($i)));
         } catch (\Throwable $t) {
-            return false;
+            //noop
         }
+        return false;
     }
 
     function processEmails() {

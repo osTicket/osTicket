@@ -226,8 +226,10 @@ class ApiController extends Controller {
                 return $this->exerr(415, __('Unsupported data format'));
         }
 
-        if (!($data = $parser->parse($stream)))
+        if (!($data = $parser->parse($stream))) {
             $this->exerr(400, $parser->lastError());
+            throw new Exception($parser->lastError());
+        }
 
         //Validate structure of the request.
         if ($validate && $data)

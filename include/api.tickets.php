@@ -158,10 +158,14 @@ class TicketApiController extends ApiController {
 
     function processEmail($data=false) {
 
-        if (!$data)
-            $data = $this->getEmailRequest();
-        elseif (!is_array($data))
-            $data = $this->parseEmail($data);
+        try {
+            if (!$data)
+                $data = $this->getEmailRequest();
+            elseif (!is_array($data))
+                $data = $this->parseEmail($data);
+        } catch (Exception $ex)  {
+            throw new EmailParseError($ex->getMessage());
+        }
 
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
@@ -246,7 +250,7 @@ class PipeApiController extends TicketApiController {
     }
 }
 
-class TicketDenied extends Exception {
+class TicketDenied extends Exception {}
+class EmailParseError extends Exception {}
 
-}
 ?>
