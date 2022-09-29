@@ -186,6 +186,10 @@ function url_post($regex, $func, $args=false) {
     return url($regex, $func, $args, "POST");
 }
 
+function url_put($regex, $func, $args=false) {
+    return url($regex, $func, $args, "PUT");
+}
+
 function url_get($regex, $func, $args=false) {
     return url($regex, $func, $args, "GET");
 }
