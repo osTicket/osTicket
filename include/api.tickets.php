@@ -141,8 +141,16 @@ class TicketApiController extends ApiController {
         # Return errors (?)
         if (count($errors)) {
             if(isset($errors['errno']) && $errors['errno'] == 403) {
-                $this->exerr(403, __('Ticket denied'));
-                throw new TicketDenied(__('Ticket denied'));
+                // If CLI then throw a TicketDenied Exception. Mail Fetcher
+                // will handle logging the message as needed
+                if (PHP_SAPI == 'cli') {
+                    $msg = sprintf("%s: %s\n\n%s",
+                            __('Ticket denied'),
+                            $data['email'],
+                            $errors['err']);
+                    throw new TicketDenied($msg);
+                }
+                return $this->exerr(403,  __('Ticket denied'));
             } else
                 return $this->exerr(
                         400,
