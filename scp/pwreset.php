@@ -42,15 +42,11 @@ if($_POST) {
             $userid = (string) $_POST['userid'];
             if (Validator::is_userid($userid)
                     && ($staff=Staff::lookup($userid))) {
-                if (!$staff->hasPassword()) {
-                    if ($staff->sendResetEmail('registration-staff', false) !== false)
-                        $msg = __('Registration email sent successfully.');
-                    else
-                        $msg = __('Unable to reset password. Contact your administrator');
-                }
-                elseif (!$staff->sendResetEmail()) {
+                if (!$staff->hasPassword()
+                        || (($bk=$staff->getAuthBackend()) && !($bk instanceof osTicketStaffAuthentication)))
+                    $msg = __('Unable to reset password. Contact your administrator');
+                elseif (!$staff->sendResetEmail())
                     $tpl = 'pwreset.sent.php';
-                }
             }
             else
                 $tpl = 'pwreset.sent.php';
