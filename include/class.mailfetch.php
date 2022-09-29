@@ -32,6 +32,10 @@ class Fetcher {
         return $this->account->getEmailId();
     }
 
+    function getEmail() {
+        return $this->account->getEmail();
+    }
+
     function getEmailAddress() {
         return $this->account->getEmail()->getAddress();
     }
@@ -111,7 +115,7 @@ class Fetcher {
         // Warn on excessive errors
         if ($errors > $msgs) {
             $warn = sprintf(_S('Excessive errors processing emails for %1$s (%2$s). Please manually check the inbox.'),
-                    $this->mbox->getHostInfo(), $this->getEmailAddress());
+                    $this->mbox->getHostInfo(), $this->getEmail());
             $this->log($warn);
         }
 
@@ -151,10 +155,11 @@ class Fetcher {
                 'last_activity__isnull' => true,
                 new \Q(['last_activity__lte' => $now->minus($interval)])
         ]);
-        $mailboxes = \MailBoxAccount::objects()
-            ->filter(['active' => 1, $errors_Q, $fetch_Q]);
 
-        $mailboxes->order_by('last_activity');
+        $mailboxes = \MailBoxAccount::objects()
+            ->filter(['active' => 1, $errors_Q, $fetch_Q])
+            ->order_by('last_activity');
+
         //Get max execution time so we can figure out how long we can fetch
         // take fetching emails.
         if (!($max_time = ini_get('max_execution_time')))

@@ -304,10 +304,7 @@ class ApiController extends Controller {
             $msg.="\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
         $ost->logWarning(__('API Error')." ($code)", $msg, false);
 
-        if (PHP_SAPI == 'cli') {
-            fwrite(STDERR, "({$code}) $error\n");
-        }
-        else {
+        if (PHP_SAPI != 'cli') {
             $this->response($code, $error); //Responder should exit...
         }
         return false;
