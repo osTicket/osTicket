@@ -104,7 +104,7 @@ if (!$ticket) {
             $queue_id = "adhoc,{$key}";
         } else {
             $errors['err'] = sprintf(
-                    __('Search term cannot have more than %d keywords', 4));
+                    __('Search term cannot have more than %d keywords'), 4);
         }
     }
 

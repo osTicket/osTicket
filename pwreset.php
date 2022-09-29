@@ -21,6 +21,9 @@ if($_POST) {
                 if (!$acct->isPasswdResetEnabled()) {
                     $banner = __('Password reset is not enabled for your account. Contact your administrator');
                 }
+                elseif (!$acct->hasPassword()
+                        || (($bk=$acct->backend) && ($bk !== 'local')))
+                    $banner = __('Unable to reset password. Contact your administrator');
                 elseif ($acct->sendResetEmail()) {
                     $inc = 'pwreset.sent.php';
                 }
