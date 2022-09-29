@@ -610,9 +610,16 @@ class AttachmentFile extends VerySimpleModel {
     static function lookupByHash($hash) {
         if (isset(static::$keyCache[$hash]))
             return static::$keyCache[$hash];
-
         // Cache a negative lookup if no such file exists
-        return parent::lookup(array('key' => $hash));
+        try {
+            return parent::lookup(array('key' => $hash));
+        } catch (ObjectNotUnique $e) {
+            // TODO: Figure out why key collission might be happening AND
+            // make key (hash) unique field in the file table as a
+            // protection measure. For now we're returning null to avoid possible wrong file
+            // being displayed.
+            return null;
+        }
     }
 
     static function lookup($id) {
