@@ -607,8 +607,13 @@ class Plugin extends VerySimpleModel {
      *
      */
     function canAddInstance() {
-        if (!$this->isMultiInstance()
-                && $this->getNumInstances())
+
+        // No instances yet
+        if (!$this->getNumInstances())
+            return true;
+
+        // We have at least one instance already.
+        if (!$this->isMultiInstance())
             return false;
 
         // Some Plugins DO Not or SHOULDN'T support multiple instances due
