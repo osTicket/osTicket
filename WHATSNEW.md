@@ -1,3 +1,28 @@
+osTicket v1.17
+==============
+### Enhancements
+* email: Set Default Email Message Encoding to UTF-8 (4656cf4c, 8954f05b)
+* plugins: Multi-Instance Blacklist (56077516)
+* mailer: Reset FROM Address when SMTP fails (75605a3f)
+* Issue: File Storage Plugins Blacklist (1ba8d37a)
+* mail: Catch Possible Exceptions and Errors (81d5cb35)
+
+### Improvements
+* Update class.mail.php (d5545b4e)
+* Mail Fetcher Fixes (1eebcd66, 3decbe78)
+* 1.17.x Bug Fixes (6c2ecad2, 5d799ecd, 21e3a407)
+* plugins: Make Plugins Upgradeable Again! (80bcc191)
+* mailer: Skip Invalid Email Recipients (046f4327, 551f7864, d7d37c4c)
+* issue: Wrong Variable Order (12a4cb09)
+* mailer: Skip Missing Attachment Files (2218aaca)
+* fetcher: TicketDenied Exception + Throwable (58f64e65, 79209144, e027dcc4, be178da5)
+* files: Catch possible Storage Backends Errors (e685636e)
+* fetcher: Fail Safely on Email Parse Error (459520e8)
+* forms: Add getNotice func. to DynamicFormEntry (6e54e810)
+* bug: Users Password Policy (ebfc1d89)
+* v1.17 Misc. Fixes (d149ea0d)
+* plugins: Make Plugin Base Class Play Nice (7b26f665, 5787f9ae, 3163972b)
+
 osTicket v1.17-rc4
 ==================
 ### Enhancements
