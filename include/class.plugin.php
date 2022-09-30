@@ -118,15 +118,20 @@ abstract class PluginConfig extends Config {
      */
     function store(SimpleForm $form = null, &$errors=array()) {
 
-        if ($this->hasCustomConfig())
-            return $this->saveConfig($form, $errors);
+        try {
+            if ($this->hasCustomConfig())
+                return $this->saveConfig($form, $errors);
 
-        $form = $form ?: $this->getForm();
-        if (($data=$form->to_db())
-                && $this->pre_save($data, $errors)
-                && count($errors) === 0)
-            return $this->updateAll($data);
-
+            $form = $form ?: $this->getForm();
+            if (($clean=$form->getClean())
+                    && $this->pre_save($clean, $errors)
+                    && count($errors) === 0
+                    && ($data=$form->to_db($clean)))
+                return $this->updateAll($data);
+        } catch (Throwable $t) {
+            if  (!isset($errors['err']))
+                $errors['err'] = $t->getMessage();
+        }
         return false;
     }
 
@@ -602,8 +607,13 @@ class Plugin extends VerySimpleModel {
      *
      */
     function canAddInstance() {
-        if (!$this->isMultiInstance()
-                && $this->getNumInstances())
+
+        // No instances yet
+        if (!$this->getNumInstances())
+            return true;
+
+        // We have at least one instance already.
+        if (!$this->isMultiInstance())
             return false;
 
         // Some Plugins DO Not or SHOULDN'T support multiple instances due
@@ -629,6 +639,17 @@ class Plugin extends VerySimpleModel {
         }
         // Yes, let's make instances - Genesis 9:7
         return true;
+    }
+
+   /*
+    * Get Namespace of the instance otherwise return plugin's namespace
+    *
+    */
+    function getNamespace() {
+        if (($c=$this->getConfig()) && ($i=$c->getInstance()))
+            return $i->getNamespace();
+
+        return sprintf('plugin.%d', $this->getId());
     }
 
     /*
