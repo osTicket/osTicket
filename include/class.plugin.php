@@ -118,15 +118,20 @@ abstract class PluginConfig extends Config {
      */
     function store(SimpleForm $form = null, &$errors=array()) {
 
-        if ($this->hasCustomConfig())
-            return $this->saveConfig($form, $errors);
+        try {
+            if ($this->hasCustomConfig())
+                return $this->saveConfig($form, $errors);
 
-        $form = $form ?: $this->getForm();
-        if (($data=$form->to_db())
-                && $this->pre_save($data, $errors)
-                && count($errors) === 0)
-            return $this->updateAll($data);
-
+            $form = $form ?: $this->getForm();
+            if (($clean=$form->getClean())
+                    && $this->pre_save($clean, $errors)
+                    && count($errors) === 0
+                    && ($data=$form->to_db($clean)))
+                return $this->updateAll($data);
+        } catch (Throwable $t) {
+            if  (!isset($errors['err']))
+                $errors['err'] = $t->getMessage();
+        }
         return false;
     }
 

@@ -171,11 +171,12 @@ class Form {
      * Transform form data to database ready clean data.
      *
      */
-    function to_db($validate=true) {
-        if (!$this->isValid())
+    function to_db($clean=null, $validate=true) {
+        if (!$clean
+                && !$this->isValid()
+                && !($clean=$this->getClean($validate)))
             return false;
         $data = [];
-        $clean = $this->getClean($validate);
         foreach ($clean as $name => $val) {
             if (!($f = $this->getField($name)))
                 continue;
