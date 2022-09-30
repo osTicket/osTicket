@@ -641,6 +641,17 @@ class Plugin extends VerySimpleModel {
         return true;
     }
 
+   /*
+    * Get Namespace of the instance otherwise return plugin's namespace
+    *
+    */
+    function getNamespace() {
+        if (($c=$this->getConfig()) && ($i=$c->getInstance()))
+            return $i->getNamespace();
+
+        return sprintf('plugin.%d', $this->getId());
+    }
+
     /*
      *
      * isMultiInstance
