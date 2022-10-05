@@ -235,7 +235,7 @@ namespace osTicket\Mail {
         }
 
         abstract public function __construct($accountSetting);
-        abstract private function oauth2Auth(AccessToken $token);
+        abstract protected function oauth2Auth(AccessToken $token);
     }
 
     class ImapMailboxProtocol extends ImapProtocol {
@@ -326,6 +326,14 @@ namespace osTicket\Mail {
              return trim($result);
          }
 
+         public function login($user, $password, $tryApop = true) {
+             try {
+                parent::login($user, $password, $tryApop);
+                return true;
+             } catch (\Throwable $e) {
+                 throw new Exception(__('cannot login, user or password wrong'));
+             }
+         }
     }
 
     // MailBoxStorageTrait
