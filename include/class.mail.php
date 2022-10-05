@@ -331,7 +331,7 @@ namespace osTicket\Mail {
                 parent::login($user, $password, $tryApop);
                 return true;
              } catch (\Throwable $e) {
-                 throw new Exception(__('cannot login, user or password wrong'));
+                 throw new Exception(__('login failed').': '.$e->getMessage());
              }
          }
     }
