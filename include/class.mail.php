@@ -21,6 +21,7 @@ namespace osTicket\Mail {
     use Laminas\Mime\Message as MimeMessage;
     use Laminas\Mime\Mime;
     use Laminas\Mime\Part as MimePart;
+    use Laminas\Mail\Header;
 
     class  Message extends MailMessage {
         // MimeMessage Parts
@@ -67,8 +68,11 @@ namespace osTicket\Mail {
             return $this->mimeContent;
         }
 
-        public function addHeader($key, $value) {
-            return $this->getHeaders()->addHeaderLine($key, $value);
+        public function addHeader($header, $value=null) {
+            if (isset($value))
+                $this->getHeaders()->addHeaderLine($header, $value);
+            else
+                $this->getHeaders()->addHeader($header);
         }
 
         public function addHeaders(array $headers)  {
@@ -122,6 +126,24 @@ namespace osTicket\Mail {
             $f->encoding = Mime::ENCODING_BASE64;
             $this->addMimePart($f);
             $this->hasAttachments = true;
+        }
+
+        // Expects a  valid date e.g date('r')
+        public function setDate(string $date) {
+            $d = new Header\Date($date);
+            // Laminas auto adds Date upstream when any header is added
+            // We're clearing it here to we back that-date up like it's
+            // 99 & 2000 ~ Juvenile
+            $this->clearHeaderByName('date');
+            $this->addHeader($d);
+        }
+
+        // Please use this method to set Message-Id otherwise it will be
+        // utf-8 endcoded and results is an invalid email & bounces
+        public function setMessageId(string $id) {
+            $mid = new Header\MessageId();
+            $mid->setId($id);
+            $this->addHeader($mid);
         }
 
         public function setFrom($emailOrAddressList, $name=null) {

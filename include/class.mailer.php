@@ -337,20 +337,19 @@ class Mailer {
 
         $messageId = $this->getMessageId($recipients, $options);
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
+        $from = $this->getFromAddress($options);
 
          // Create new ostTicket/Mail/Message object
         $message = new Message();
+        // Set our custom Message-Id
+        $message->setMessageId($messageId);
         // Set From Address
-        $from = $this->getFromAddress($options);
         $message->setFrom($from->getEmail(), $from->getName());
         // Set Subject
         $message->setSubject($subject);
 
-        $headers = array (
-            'Date'=> date('D, d M Y H:i:s O'),
-            'Message-ID' => "<{$messageId}>",
-            'X-Mailer' =>'osTicket Mailer',
-        );
+        // Collect Generic Headers
+        $headers = ['X-Mailer' =>'osTicket Mailer'];
 
         // Add in the options passed to the constructor
         $options = ($options ?: array()) + $this->options;
