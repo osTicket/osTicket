@@ -337,20 +337,19 @@ class Mailer {
 
         $messageId = $this->getMessageId($recipients, $options);
         $subject = preg_replace("/(\r\n|\r|\n)/s",'', trim($subject));
+        $from = $this->getFromAddress($options);
 
          // Create new ostTicket/Mail/Message object
         $message = new Message();
+        // Set our custom Message-Id
+        $message->setMessageId($messageId);
         // Set From Address
-        $from = $this->getFromAddress($options);
         $message->setFrom($from->getEmail(), $from->getName());
         // Set Subject
         $message->setSubject($subject);
 
-        $headers = array (
-            'Date'=> date('D, d M Y H:i:s O'),
-            'Message-ID' => "<{$messageId}>",
-            'X-Mailer' =>'osTicket Mailer',
-        );
+        // Collect Generic Headers
+        $headers = ['X-Mailer' =>'osTicket Mailer'];
 
         // Add in the options passed to the constructor
         $options = ($options ?: array()) + $this->options;
@@ -400,10 +399,9 @@ class Mailer {
 
         // Return-Path
         if (isset($options['nobounce']) && $options['nobounce'])
-            $headers['Return-Path'] = '<>';
+            $message->setReturnPath('<>');
         elseif ($this->getEmail() instanceof \Email)
-            $headers['Return-Path'] = sprintf('<%s>',
-                    $this->getEmail()->getEmail());
+            $message->setReturnPath($this->getEmail()->getEmail());
 
         // Bulk.
         if (isset($options['bulk']) && $options['bulk'])
@@ -425,16 +423,11 @@ class Mailer {
                     'Auto-Submitted' => 'auto-generated');
         // In-Reply-To
         if (isset($options['inreplyto']) && $options['inreplyto'])
-            $headers += array('In-Reply-To' => $options['inreplyto']);
+            $message->addInReplyTo($options['inreplyto']);
 
         // References
-        if (isset($options['references']) && $options['references']) {
-            if (is_array($options['references']))
-                $headers += array('References' =>
-                    implode(' ', $options['references']));
-            else
-                $headers += array('References' => $options['references']);
-        }
+        if (isset($options['references']) && $options['references'])
+            $message->addReferences($options['references']);
 
         // Add Headers
         $message->addHeaders($headers);
@@ -617,12 +610,12 @@ class Mailer {
             $message->setFrom($this->getFromEmail(), $this->getFromName());
         }
 
-        //No SMTP or it failed....use php's native mail function.
+        //No SMTP or it failed....use Sendmail transport (PHP mail())
         $args =  [];
         if (isset($options['from_address']))
-            $args[] = '-f '.$options['from_address'];
+            $message->setSender($options['from_address']);
         elseif (($from=$this->getFromAddress()))
-            $args = ['-f '.$from->getEmail()];
+            $message->setSender($from->getEmail(), $from->getName());
 
         try {
             // ostTicket/Mail/Sendmail transport
