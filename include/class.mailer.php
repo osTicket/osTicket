@@ -610,12 +610,12 @@ class Mailer {
             $message->setFrom($this->getFromEmail(), $this->getFromName());
         }
 
-        //No SMTP or it failed....use php's native mail function.
+        //No SMTP or it failed....use Sendmail transport (PHP mail())
         $args =  [];
         if (isset($options['from_address']))
-            $args[] = '-f '.$options['from_address'];
+            $message->setSender($options['from_address']);
         elseif (($from=$this->getFromAddress()))
-            $args = ['-f '.$from->getEmail()];
+            $message->setSender($from->getEmail(), $from->getName());
 
         try {
             // ostTicket/Mail/Sendmail transport

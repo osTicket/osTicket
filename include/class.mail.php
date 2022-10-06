@@ -187,6 +187,20 @@ namespace osTicket\Mail {
             }
         }
 
+        // Set Message Sender is useful for SendMail transport, its basically -f
+        // parameter in the mail() interface
+        public function setSender($email, $name=null) {
+            try {
+                // Exception is thrown on invalid email address
+                $header = new Header\Sender();
+                $header->setAddress($email, $name); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Silently ignore invalid email sender defaults to FROM
+                // addresses
+            }
+        }
+
         public function setFrom($emailOrAddressList, $name=null) {
             // We're resetting the body here when FROM address changes - e.g
             // after failed send attempt while trying multiple SMTP accounts
