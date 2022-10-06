@@ -423,7 +423,7 @@ class Mailer {
                     'Auto-Submitted' => 'auto-generated');
         // In-Reply-To
         if (isset($options['inreplyto']) && $options['inreplyto'])
-            $headers += array('In-Reply-To' => $options['inreplyto']);
+            $message->addInReplyTo($options['inreplyto']);
 
         // References
         if (isset($options['references']) && $options['references'])

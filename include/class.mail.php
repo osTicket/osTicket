@@ -163,10 +163,21 @@ namespace osTicket\Mail {
             }
         }
 
+        public function addInReplyTo($inReplyTo) {
+             if (!is_array($inReplyTo))
+                $inReplyTo = explode(' ', $inReplyTo);
+            try {
+                $header = new Header\InReplyTo();
+                $header->setIds($inReplyTo); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Mshenzi
+            }
+        }
+
         public function addReferences($references) {
             if (!is_array($references))
                 $references = explode(' ', $references);
-
             try {
                 $header = new Header\References();
                 $header->setIds($references); #nolint
