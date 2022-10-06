@@ -135,7 +135,7 @@ namespace osTicket\Mail {
             // Laminas auto adds Date upstream when any header is added
             // We're clearing it here to we back that-date up like it's
             // 99 & 2000 ~ Juvenile
-            $this->getHeaders()->removeHeader($d::$type);
+            $this->getHeaders()->removeHeader('date');
             $this->addHeader($d);
         }
 
