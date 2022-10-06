@@ -22,6 +22,7 @@ namespace osTicket\Mail {
     use Laminas\Mime\Mime;
     use Laminas\Mime\Part as MimePart;
     use Laminas\Mail\Header;
+    use osTicket\Mail\Header\ReturnPath;
 
     class  Message extends MailMessage {
         // MimeMessage Parts
@@ -134,7 +135,7 @@ namespace osTicket\Mail {
             // Laminas auto adds Date upstream when any header is added
             // We're clearing it here to we back that-date up like it's
             // 99 & 2000 ~ Juvenile
-            $this->clearHeaderByName('date');
+            $this->getHeaders()->removeHeader($d::$type);
             $this->addHeader($d);
         }
 
@@ -144,6 +145,22 @@ namespace osTicket\Mail {
             $mid = new Header\MessageId();
             $mid->setId($id);
             $this->addHeader($mid);
+        }
+
+        // Valid email address required or no return "<>" tag
+        public function setReturnPath($email) {
+            try {
+                // Exception is thrown on invalid email address
+                $header = new ReturnPath();
+                $header->addAddress($email);
+                $this->getHeaders()->removeHeader($header->getType());
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // It's not email - perhaps it's a tag?
+                if (!strcmp($email, '<>'))
+                    $this->addHeader($header->getFieldName(), $email);
+                // Silently dropping the invalid path
+            }
         }
 
         public function setFrom($emailOrAddressList, $name=null) {
@@ -897,6 +914,30 @@ namespace osTicket\Mail\Protocol\Smtp\Auth {
             $this->_send($xoauth2);
             $this->_expect(235);
             $this->auth = true;
+        }
+    }
+}
+
+namespace osTicket\Mail\Header {
+    use Laminas\Mail\Header\AbstractAddressList;
+    use Laminas\Mail\Header\HeaderInterface;
+    use Laminas\Mail\Address;
+
+    class ReturnPath extends AbstractAddressList {
+        protected $fieldName = 'Return-Path';
+        protected static $type = 'return-path';
+
+        public function addAddress($email) {
+            $this->getAddressList()->add(new Address($email)); #nolint
+        }
+
+        public function getFieldValue($format = HeaderInterface::FORMAT_RAW) {
+            // We're simply intercepting Value here to add <> to the email
+            return sprintf('<%s>', parent::getFieldValue($format));
+        }
+
+        public function getType() {
+            return self::$type;
         }
     }
 }

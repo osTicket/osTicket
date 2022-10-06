@@ -399,10 +399,9 @@ class Mailer {
 
         // Return-Path
         if (isset($options['nobounce']) && $options['nobounce'])
-            $headers['Return-Path'] = '<>';
+            $message->setReturnPath('<>');
         elseif ($this->getEmail() instanceof \Email)
-            $headers['Return-Path'] = sprintf('<%s>',
-                    $this->getEmail()->getEmail());
+            $message->setReturnPath($this->getEmail()->getEmail());
 
         // Bulk.
         if (isset($options['bulk']) && $options['bulk'])
