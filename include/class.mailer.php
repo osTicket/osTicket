@@ -426,13 +426,8 @@ class Mailer {
             $headers += array('In-Reply-To' => $options['inreplyto']);
 
         // References
-        if (isset($options['references']) && $options['references']) {
-            if (is_array($options['references']))
-                $headers += array('References' =>
-                    implode(' ', $options['references']));
-            else
-                $headers += array('References' => $options['references']);
-        }
+        if (isset($options['references']) && $options['references'])
+            $message->addReferences($options['references']);
 
         // Add Headers
         $message->addHeaders($headers);

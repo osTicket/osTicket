@@ -163,6 +163,19 @@ namespace osTicket\Mail {
             }
         }
 
+        public function addReferences($references) {
+            if (!is_array($references))
+                $references = explode(' ', $references);
+
+            try {
+                $header = new Header\References();
+                $header->setIds($references); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Mshenzi
+            }
+        }
+
         public function setFrom($emailOrAddressList, $name=null) {
             // We're resetting the body here when FROM address changes - e.g
             // after failed send attempt while trying multiple SMTP accounts
