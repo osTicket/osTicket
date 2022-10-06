@@ -21,6 +21,8 @@ namespace osTicket\Mail {
     use Laminas\Mime\Message as MimeMessage;
     use Laminas\Mime\Mime;
     use Laminas\Mime\Part as MimePart;
+    use Laminas\Mail\Header;
+    use osTicket\Mail\Header\ReturnPath;
 
     class  Message extends MailMessage {
         // MimeMessage Parts
@@ -67,8 +69,11 @@ namespace osTicket\Mail {
             return $this->mimeContent;
         }
 
-        public function addHeader($key, $value) {
-            return $this->getHeaders()->addHeaderLine($key, $value);
+        public function addHeader($header, $value=null) {
+            if (isset($value))
+                $this->getHeaders()->addHeaderLine($header, $value);
+            else
+                $this->getHeaders()->addHeader($header);
         }
 
         public function addHeaders(array $headers)  {
@@ -122,6 +127,78 @@ namespace osTicket\Mail {
             $f->encoding = Mime::ENCODING_BASE64;
             $this->addMimePart($f);
             $this->hasAttachments = true;
+        }
+
+        // Expects a  valid date e.g date('r')
+        public function setDate(string $date) {
+            $d = new Header\Date($date);
+            // Laminas auto adds Date upstream when any header is added
+            // We're clearing it here to we back that-date up like it's
+            // 99 & 2000 ~ Juvenile
+            $this->getHeaders()->removeHeader('date');
+            $this->addHeader($d);
+        }
+
+        // Please use this method to set Message-Id otherwise it will be
+        // utf-8 endcoded and results is an invalid email & bounces
+        public function setMessageId(string $id) {
+            $mid = new Header\MessageId();
+            $mid->setId($id);
+            $this->addHeader($mid);
+        }
+
+        // Valid email address required or no return "<>" tag
+        public function setReturnPath($email) {
+            try {
+                // Exception is thrown on invalid email address
+                $header = new ReturnPath();
+                $header->addAddress($email);
+                $this->getHeaders()->removeHeader($header->getType());
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // It's not email - perhaps it's a tag?
+                if (!strcmp($email, '<>'))
+                    $this->addHeader($header->getFieldName(), $email);
+                // Silently dropping the invalid path
+            }
+        }
+
+        public function addInReplyTo($inReplyTo) {
+             if (!is_array($inReplyTo))
+                $inReplyTo = explode(' ', $inReplyTo);
+            try {
+                $header = new Header\InReplyTo();
+                $header->setIds($inReplyTo); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Mshenzi
+            }
+        }
+
+        public function addReferences($references) {
+            if (!is_array($references))
+                $references = explode(' ', $references);
+            try {
+                $header = new Header\References();
+                $header->setIds($references); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Mshenzi
+            }
+        }
+
+        // Set Message Sender is useful for SendMail transport, its basically -f
+        // parameter in the mail() interface
+        public function setSender($email, $name=null) {
+            try {
+                // Exception is thrown on invalid email address
+                $header = new Header\Sender();
+                $header->setAddress($email, $name); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Silently ignore invalid email sender defaults to FROM
+                // addresses
+            }
         }
 
         public function setFrom($emailOrAddressList, $name=null) {
@@ -235,7 +312,7 @@ namespace osTicket\Mail {
         }
 
         abstract public function __construct($accountSetting);
-        abstract private function oauth2Auth(AccessToken $token);
+        abstract protected function oauth2Auth(AccessToken $token);
     }
 
     class ImapMailboxProtocol extends ImapProtocol {
@@ -326,6 +403,14 @@ namespace osTicket\Mail {
              return trim($result);
          }
 
+         public function login($user, $password, $tryApop = true) {
+             try {
+                parent::login($user, $password, $tryApop);
+                return true;
+             } catch (\Throwable $e) {
+                 throw new Exception(__('login failed').': '.$e->getMessage());
+             }
+         }
     }
 
     // MailBoxStorageTrait
@@ -875,6 +960,30 @@ namespace osTicket\Mail\Protocol\Smtp\Auth {
             $this->_send($xoauth2);
             $this->_expect(235);
             $this->auth = true;
+        }
+    }
+}
+
+namespace osTicket\Mail\Header {
+    use Laminas\Mail\Header\AbstractAddressList;
+    use Laminas\Mail\Header\HeaderInterface;
+    use Laminas\Mail\Address;
+
+    class ReturnPath extends AbstractAddressList {
+        protected $fieldName = 'Return-Path';
+        protected static $type = 'return-path';
+
+        public function addAddress($email) {
+            $this->getAddressList()->add(new Address($email)); #nolint
+        }
+
+        public function getFieldValue($format = HeaderInterface::FORMAT_RAW) {
+            // We're simply intercepting Value here to add <> to the email
+            return sprintf('<%s>', parent::getFieldValue($format));
+        }
+
+        public function getType() {
+            return self::$type;
         }
     }
 }
