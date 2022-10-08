@@ -25,8 +25,10 @@ namespace osTicket\Mail {
     use osTicket\Mail\Header\ReturnPath;
 
     class  Message extends MailMessage {
+        // Message Id (mid)
+        private $mid;
         // MimeMessage Parts
-        private $mimeMessage = null;
+        private $mimeParts = null;
         // MimeMessage Content
         private $mimeContent = null;
         // Default Charset
@@ -55,11 +57,18 @@ namespace osTicket\Mail {
             return ($this->hasAttachments() || $this->hasInlineImages());
         }
 
-        public function getMimeMessageParts() {
-            if  (!isset($this->mimeMessage))
-                $this->mimeMessage = new MimeMessage();
+        public function getId() {
+             if (!isset($this->mid)
+                     &&  ($header=$this->getHeader('message-id')))
+                 $this->mid = $header->getId();
+             return $this->mid;
+        }
 
-            return $this->mimeMessage;
+        public function getMimeMessageParts() {
+            if  (!isset($this->mimeParts))
+                $this->mimeParts = new MimeMessage();
+
+            return $this->mimeParts;
         }
 
         public function getMimeMessageContent() {
@@ -67,6 +76,10 @@ namespace osTicket\Mail {
                 $this->mimeContent = new ContentMimeMessage();
 
             return $this->mimeContent;
+        }
+
+        public function getHeader(string $name) {
+            return $this->getHeaders()->getHeader($name);
         }
 
         public function addHeader($header, $value=null) {
@@ -142,9 +155,18 @@ namespace osTicket\Mail {
         // Please use this method to set Message-Id otherwise it will be
         // utf-8 endcoded and results is an invalid email & bounces
         public function setMessageId(string $id) {
-            $mid = new Header\MessageId();
-            $mid->setId($id);
-            $this->addHeader($mid);
+            try {
+                $header = new Header\MessageId();
+                $header->setId($id);
+                $this->addHeader($header);
+                $this->mid = $header->getId();
+            } catch (\Throwable $t)  {
+                // Ignore invalid mid. Upstream will generate one
+            }
+        }
+
+        public function getMessageId() {
+            return $this->getId();
         }
 
         // Valid email address required or no return "<>" tag

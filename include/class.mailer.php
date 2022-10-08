@@ -604,7 +604,7 @@ class Mailer {
                 // Attempt to send the Message.
                 if (($smtp=$smtpAccount->getSmtpConnection())
                         && $smtp->sendMessage($message))
-                     return $messageId;
+                     return $message->getId();
             } catch (\Exception $ex) {
                 // Log the SMTP error
                 $this->logError(sprintf("%1\$s: %2\$s (%3\$s)\n\n%4\$s\n",
@@ -635,7 +635,7 @@ class Mailer {
             $args = [];
             $sendmail =  new  Sendmail($args);
             if ($sendmail->sendMessage($message))
-                return $messageId;
+                return $message->getId();
         } catch (\Exception $ex) {
             $this->logError(sprintf("%1\$s\n\n%2\$s\n",
                         _S("Unable to email via Sendmail"),
