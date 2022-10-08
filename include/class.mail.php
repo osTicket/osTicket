@@ -201,11 +201,19 @@ namespace osTicket\Mail {
             }
         }
 
-        public function setFrom($emailOrAddressList, $name=null) {
+        public function setFrom($email, $name=null) {
             // We're resetting the body here when FROM address changes - e.g
             // after failed send attempt while trying multiple SMTP accounts
             unset($this->body);
-            return parent::setFrom($emailOrAddressList, $name);
+            return parent::setFrom($email, $name);
+        }
+
+        // This is used to set FROM & and clear Sender to a new Email Address
+        public function setOriginator($email, $name=null) {
+            // Set the FROM  Header
+            $this->setFrom($email, $name);
+            // Remove Sender Header
+            $this->getHeaders()->removeHeader('sender');
         }
 
         public function setContentType($contentType) {
