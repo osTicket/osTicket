@@ -806,13 +806,20 @@ namespace osTicket\Mail {
             // We allow scheme to hint for encryption for people using ssl or tls
             // on nonstandard ports.
             $host = $account->getHost();
+            $port = (int) $account->getPort();
             $ssl = null;
             $matches = [];
-            if (preg_match('~^(ssl|tls)://(.*+)$~iu', $host, $matches))
+            if (preg_match('~^(ssl|tls|plain)://(.*+)$~iu',
+                        strtolower($host), $matches)) {
                 list(, $ssl, $host) = $matches;
-            // Set ssl or tls on based on standard ports
-            $port = $account->getPort();
-            if (!$ssl && $port) {
+                // Clear ssl when "plain" connection is being forced without
+                // using port number as the indicator!
+                $ssl = strcmp($ssl, 'plain') ? $ssl : null;
+                // Why would someone use a standard encryption based port
+                // for unencrypted connection is beyond me - but apparently
+                // it's a thing!!
+            } elseif (!$ssl && $port) {
+                // Set ssl or tls on based on standard ports
                 if (in_array($port, [465, 993, 995]))
                     $ssl = 'ssl';
                 elseif (in_array($port, [587]))
@@ -821,7 +828,7 @@ namespace osTicket\Mail {
 
             $this->connection = [
                 'host' => $host,
-                'port' => (int) $port,
+                'port' => $port,
                 'ssl' => $ssl,
                 'protocol' => strtoupper($account->getProtocol()),
                 'name' => null
@@ -883,7 +890,7 @@ namespace osTicket\Mail {
 
         public function describe() {
             return sprintf('%s://%s:%s/%s',
-                    $this->getSsl() ?: 'none',
+                    $this->getSsl() ?: 'plain',
                     $this->getHost(),
                     $this->getPort(),
                     $this->getProtocol());
