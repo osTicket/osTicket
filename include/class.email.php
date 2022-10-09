@@ -471,10 +471,17 @@ class EmailAccount extends VerySimpleModel {
     }
 
     public function isActive() {
-        return $this->active;
+        return ($this->active  && $this->hasCredentials());
     }
 
+    // **** Don't use it  ****
+    // This routine is depricated and will be removed in the future - OAuth2
+    // Plugin uses it to check if the email accout has auth2 backend.
     public function isEnabled() {
+        return $this->isOAuthAuth();
+    }
+
+    public function isAuthBackendEnabled() {
         return $this->isOAuthAuth()
             ? (($i=$this->getOAuth2Instance()) && $i->isEnabled())
             : true;
@@ -482,7 +489,7 @@ class EmailAccount extends VerySimpleModel {
 
     public function shouldAuthorize() {
         // check status and make sure it's oauth
-        if (!$this->isEnabled() || !$this->isOAuthAuth())
+        if (!$this->isAuthBackendEnabled() || !$this->isOAuthAuth())
             return false;
 
         return (!($cred=$this->getFreshCredentials())
@@ -708,6 +715,10 @@ class EmailAccount extends VerySimpleModel {
 
     public function logError($error) {
         return $this->logActivity($error);
+    }
+
+    public function hasCredentials() {
+        return ($this->getFreshCredentials());
     }
 
     private function getCredentialsVars($auth=null) {
