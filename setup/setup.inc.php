@@ -14,38 +14,18 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-#inits - error reporting.
-$error_reporting = E_ALL & ~E_NOTICE;
-if (defined('E_STRICT')) # 5.4.0
-    $error_reporting &= ~E_STRICT;
-if (defined('E_DEPRECATED')) # 5.3.0
-    $error_reporting &= ~(E_DEPRECATED | E_USER_DEPRECATED);
-
-error_reporting($error_reporting);
-ini_set('magic_quotes_gpc', 0);
-ini_set('session.use_trans_sid', 0);
-ini_set('session.cache_limiter', 'nocache');
-ini_set('display_errors',1); //We want the user to see errors during install process.
-ini_set('display_startup_errors',1);
-
-#Disable Globals if enabled
-if(ini_get('register_globals')) {
-    ini_set('register_globals',0);
-    foreach($_REQUEST as $key=>$val)
-        if(isset($$key))
-            unset($$key);
+#define constants.
+define('SETUPINC',true);
+require_once(dirname(__file__).'/../bootstrap.php');
+# start session if we don't have one active already
+if (session_status() === PHP_SESSION_NONE) {
+  Bootstrap::init();
+  session_start();
 }
 
 #clear global vars
 $errors=array();
 $msg='';
-
-#define constants.
-define('SETUPINC',true);
-require('../bootstrap.php');
-
-#start session
-session_start();
 
 define('URL',rtrim((Bootstrap::https()?'https':'http').'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']),'setup'));
 
