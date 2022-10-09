@@ -15,14 +15,10 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
-// Don't update the session for inline image fetches
-if (!function_exists('noop')) { function noop() {} }
-session_set_save_handler('noop','noop','noop','noop','noop','noop');
-define('DISABLE_SESSION', true);
-
+// Disable updating session data - false still starts the session but data
+// write is ignored.
+define('DISABLE_SESSION', false);
 require_once('../main.inc.php');
-
 $ttl = 86400; // max-age
 if (isset($_GET['backdrop'])) {
     if (($backdrop = $ost->getConfig()->getStaffLoginBackdrop())) {

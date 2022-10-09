@@ -18,6 +18,7 @@ class osTicketSession {
     static $backends = array(
         'db'        => 'DbSessionBackend',
         'memcache'  => 'MemcacheSessionBackend',
+        'noop'      => 'NoopSessionBackend',
         'system'    => 'FallbackSessionBackend',
     );
 
@@ -57,12 +58,15 @@ class osTicketSession {
         session_set_cookie_params($ttl, ROOT_PATH, $domain,
             osTicket::is_https(), true);
 
-        if (!defined('SESSION_BACKEND'))
-            define('SESSION_BACKEND', 'db');
-
-        try {
+        // Determine Session Backend to use
+        $bk = 'db';
+        if (defined('DISABLE_SESSION'))
+            $bk = 'noop';
+        elseif (defined('SESSION_BACKEND'))
             $bk = SESSION_BACKEND;
-            if (!class_exists(self::$backends[$bk]))
+        try {
+            if (!isset(self::$backends[$bk])
+                    || !class_exists(self::$backends[$bk]))
                 $bk = 'db';
             $this->backend = new self::$backends[$bk]($this->ttl);
         }
@@ -133,7 +137,7 @@ class osTicketSession {
     }
 }
 
-abstract class SessionBackend {
+abstract class SessionBackend  implements SessionHandlerInterface {
     var $isnew = false;
     var $ttl;
 
@@ -339,6 +343,24 @@ extends SessionBackend {
 
     function gc($maxlife) {
         // Memcache does this automatically
+    }
+}
+
+class NoopSessionBackend extends SessionBackend {
+    public function read($id) {
+        return "";
+    }
+
+    public function update($id, $data) {
+        return true;
+    }
+
+    public function destroy($id) {
+        return true;
+    }
+
+    public function gc($maxlife) {
+        return true;
     }
 }
 
