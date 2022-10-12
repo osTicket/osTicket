@@ -286,7 +286,7 @@ namespace osTicket\Mail {
             $connect = $setting->getConnectionConfig();
             // Let's go Brandon
             parent::connect($connect['host'], $connect['port'],
-                    $connect['ssl']);
+                    $connect['ssl'], true);
             // Attempt authentication based on MailBoxAccount settings
             $auth = $setting->getAuthCredentials();
             switch (true) {
