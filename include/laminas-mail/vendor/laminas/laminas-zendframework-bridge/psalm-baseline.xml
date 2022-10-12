@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.21.0@d8bec4c7aaee111a532daec32fb09de5687053d1">
+  <file src="config/replacements.php">
+    <DuplicateArrayKey occurrences="3">
+      <code>'ZendAcl' =&gt; 'LaminasAcl'</code>
+      <code>'ZendRbac' =&gt; 'LaminasRbac'</code>
+      <code>'ZendRouter' =&gt; 'LaminasRouter'</code>
+    </DuplicateArrayKey>
+  </file>
+  <file src="src/Autoloader.php">
+    <MixedArgumentTypeCoercion occurrences="2">
+      <code>RewriteRules::namespaceReverse()</code>
+      <code>RewriteRules::namespaceRewrite()</code>
+    </MixedArgumentTypeCoercion>
+  </file>
+  <file src="src/ConfigPostProcessor.php">
+    <InvalidArgument occurrences="1">
+      <code>$keys</code>
+    </InvalidArgument>
+    <MissingClosureParamType occurrences="4">
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MissingClosureParamType>
+    <MissingClosureReturnType occurrences="4">
+      <code>function ($value) {</code>
+      <code>function ($value) {</code>
+      <code>function ($value, array $keys) {</code>
+      <code>function ($value, array $keys) {</code>
+    </MissingClosureReturnType>
+    <MissingReturnType occurrences="3">
+      <code>replaceDependencyConfiguration</code>
+      <code>replaceDependencyFactories</code>
+      <code>replaceDependencyServices</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="5">
+      <code>$config</code>
+      <code>$newKey</code>
+      <code>$newKey</code>
+      <code>$newKey</code>
+      <code>$target</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1"/>
+    <MixedArrayAssignment occurrences="4">
+      <code>$config[$key]</code>
+      <code>$config['aliases'][$alias]</code>
+      <code>$config['aliases'][$service]</code>
+      <code>$config['aliases'][$service]</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="7">
+      <code>$aliases[$name]</code>
+      <code>$config[$key]</code>
+      <code>$keys[$key]</code>
+      <code>$rewritten[$newKey]</code>
+      <code>$rewritten[$newKey]</code>
+      <code>$rewritten[$newKey]</code>
+      <code>$this-&gt;exactReplacements[$value]</code>
+    </MixedArrayOffset>
+    <MixedArrayTypeCoercion occurrences="1">
+      <code>$aliases[$name]</code>
+    </MixedArrayTypeCoercion>
+    <MixedAssignment occurrences="26">
+      <code>$a[$key]</code>
+      <code>$a[$key]</code>
+      <code>$a[]</code>
+      <code>$config</code>
+      <code>$config</code>
+      <code>$config[$key]</code>
+      <code>$config['factories'][$replacedService]</code>
+      <code>$config['services'][$replacedService]</code>
+      <code>$data</code>
+      <code>$factory</code>
+      <code>$factory</code>
+      <code>$key</code>
+      <code>$key</code>
+      <code>$name</code>
+      <code>$newKey</code>
+      <code>$notIn[]</code>
+      <code>$result</code>
+      <code>$rewritten[$key]</code>
+      <code>$rewritten[$key]</code>
+      <code>$rewritten[$newKey]</code>
+      <code>$rewritten[$newKey][]</code>
+      <code>$serviceInstance</code>
+      <code>$serviceInstance</code>
+      <code>$target</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Module.php">
+    <MissingReturnType occurrences="2">
+      <code>init</code>
+      <code>onMergeConfig</code>
+    </MissingReturnType>
+    <UndefinedDocblockClass occurrences="2">
+      <code>ModuleEvent</code>
+      <code>ModuleManager</code>
+    </UndefinedDocblockClass>
+  </file>
+  <file src="src/Replacements.php">
+    <MixedArgument occurrences="2">
+      <code>$replacement</code>
+      <code>$replacement</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="3">
+      <code>$original</code>
+      <code>$original</code>
+      <code>$original</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="1">
+      <code>$replacement</code>
+    </MixedAssignment>
+    <MixedPropertyTypeCoercion occurrences="3">
+      <code>$this-&gt;replacements</code>
+      <code>$this-&gt;replacements</code>
+    </MixedPropertyTypeCoercion>
+  </file>
+  <file src="test/AutoloaderTest.php">
+    <InvalidStringClass occurrences="1">
+      <code>new $legacy()</code>
+    </InvalidStringClass>
+    <MissingReturnType occurrences="3">
+      <code>testLegacyClassIsAliasToLaminas</code>
+      <code>testReverseAliasCreated</code>
+      <code>testTypeHint</code>
+    </MissingReturnType>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>testLegacyClassIsAliasToLaminas</code>
+    </PossiblyInvalidArgument>
+  </file>
+  <file src="test/ConfigPostProcessorTest.php">
+    <MissingReturnType occurrences="4">
+      <code>invalidServiceManagerConfiguration</code>
+      <code>testRewritesNestedKeys</code>
+      <code>testServiceManagerServiceInstancesCanBeHandled</code>
+      <code>testWillSkipInvalidConfigurations</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$config</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$config</code>
+      <code>$expected</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>iterable</code>
+    </MixedInferredReturnType>
+    <UnresolvableInclude occurrences="2">
+      <code>require $configLocation</code>
+      <code>require $expectedResultLocation</code>
+    </UnresolvableInclude>
+  </file>
+  <file src="test/ModuleTest.php">
+    <InvalidArgument occurrences="2">
+      <code>$event</code>
+      <code>$moduleManager</code>
+    </InvalidArgument>
+    <MissingReturnType occurrences="2">
+      <code>testInitRegistersListenerWithEventManager</code>
+      <code>testOnMergeConfigProcessesAndReplacesConfigurationPulledFromListener</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>$config</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="2">
+      <code>$config</code>
+      <code>$expected</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>iterable</code>
+    </MixedInferredReturnType>
+    <UnresolvableInclude occurrences="2">
+      <code>require $configFile</code>
+      <code>require $expectationsFile</code>
+    </UnresolvableInclude>
+  </file>
+  <file src="test/ReplacementsTest.php">
+    <MissingReturnType occurrences="1">
+      <code>testEdgeCases</code>
+    </MissingReturnType>
+    <MixedInferredReturnType occurrences="1">
+      <code>iterable</code>
+    </MixedInferredReturnType>
+  </file>
+</files>
