@@ -285,6 +285,7 @@ namespace osTicket\Mail {
             // Attempt to connect to the mail server
             $connect = $setting->getConnectionConfig();
             // Let's go Brandon
+            $this->setNoValidateCert(true); // disable certificate validation
             parent::connect($connect['host'], $connect['port'],
                     $connect['ssl']);
             // Attempt authentication based on MailBoxAccount settings
@@ -823,7 +824,6 @@ namespace osTicket\Mail {
                 'host' => $host,
                 'port' => (int) $port,
                 'ssl' => $ssl,
-                'novalidatecert' => true,
                 'protocol' => strtoupper($account->getProtocol()),
                 'name' => null
             ];
