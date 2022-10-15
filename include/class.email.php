@@ -1199,6 +1199,10 @@ class SmtpAccount extends EmailAccount {
             $setting = $this->getAccountSetting();
             $setting->setCredentials($this->cred);
             $smtpOptions = new osTicket\Mail\SmtpOptions($setting);
+            // set timeout to 5 minutes to prevent quitting connection from mail server before we will do it
+            // this would raise an RuntimeException from laminas-mail
+            // see: https://docs.laminas.dev/laminas-mail/transport/smtp-authentication/#smtp-transport-usage-for-servers-with-reuse-time-limit
+            $smtpOptions->setConnectionTimeLimit(300);
             $smtp = new osTicket\Mail\Smtp($smtpOptions);
             // Attempt to connect if Credentials are sent
             if ($cred) $smtp->connect();
