@@ -374,7 +374,7 @@ $(function() {
                 'autoresize': !el.hasClass('no-bar') && !el.closest('.dialog').length,
                 'maxHeight': el.closest('.dialog').length ? selectedSize : false,
                 'minHeight': selectedSize,
-                'maxWidth': el.hasClass('fullscreen') ? '950px' : false,
+                'maxWidth': el.hasClass('fullscreen') ? '100%' : false,
                 'focus': false,
                 'plugins': el.hasClass('no-bar')
                   ? ['imagemanager','definedlinks']
