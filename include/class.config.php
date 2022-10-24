@@ -77,7 +77,12 @@ class Config {
     }
 
     function exists($key) {
-        return $this->get($key, null) ? true : false;
+        if ((isset($this->session) && array_key_exists($key, $this->session))
+                || array_key_exists($key, $this->config)
+                || array_key_exists($key, $this->defaults))
+            return true;
+
+        return false;
     }
 
     function set($key, $value) {
