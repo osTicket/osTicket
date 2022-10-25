@@ -33,6 +33,8 @@ class Dispatcher {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_GET['_method']);
             unset($_GET['_method']);
         }
+        // Decode URL for accurate matching
+        $url = urldecode($url);
         foreach ($this->urls as $matcher) {
             if ($matcher->matches($url)) {
                 return $matcher->dispatch($url, $args);
