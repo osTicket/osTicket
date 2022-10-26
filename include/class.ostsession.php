@@ -16,21 +16,22 @@
 include_once INCLUDE_DIR.'class.session.php';
 
 class osTicketSession {
-    // Session Name
-    private static $name = 'OSTSESSID';
+    // Session SSID
+    private $name = 'OSTSESSID';
     // Session Backend instance
     private $backend;
     // Session default TTL
     private $ttl;
 
-    function __construct($ttl = SESSION_TTL, $checkdbversion = false) {
+    function __construct($name, $ttl = SESSION_TTL, $checkdbversion = false) {
+        // session name/ssid
+        if ($name && strcmp($this->name, $name))
+            $this->name = $name;
         // Session ttl cannot exceed php.ini maxlifetime setting
         $maxlife =  ini_get('session.gc_maxlifetime');
         $this->ttl = min($ttl ?: ($maxlife ?: SESSION_TTL), $maxlife);
-
-        // Set osTicket specific session name
-        // TODO: Make it configurable in ost-config.php
-        session_name(self::$name);
+        // Set osTicket specific session name/sessid
+        session_name($this->name);
         // Set Default cookie Params before we start the session
         session_set_cookie_params($this->ttl, ROOT_PATH, Http::domain(),
             osTicket::is_https(), true);
@@ -51,7 +52,7 @@ class osTicketSession {
             case 'memcache':
                 $bk = "$bk:MemcacheSessionStorageBackend";
                 break;
-            case 'memcache:database':
+            case 'memcache.database':
                 // memcache is primary while database is secondary
                 // Database doesn't store data when set as secondary, but
                 // very useful when session data is offloaded to memcache with
@@ -62,7 +63,7 @@ class osTicketSession {
                         'MemcacheSessionStorageBackend',
                         'DatabaseSessionStorageBackend');
                 break;
-            case 'database:memcache':
+            case 'database.memcache':
                 // database is primary while memcache is secondary
                 // This setup only makes sense if memcache is being used as
                 // backup backend
@@ -130,7 +131,7 @@ class osTicketSession {
             return $default;
 
         // Explode backend incase it's chained
-        list($bk, $secondary) = explode(':', SESSION_BACKEND);
+        list($bk, $secondary) = explode('.', SESSION_BACKEND);
         // Only recongnize supported primary backends
         switch (strtolower($bk)) {
             case 'memcache':
@@ -252,8 +253,8 @@ class osTicketSession {
         return $users;
     }
 
-    static function start($ttl=0, $checkdbversion=false) {
-        return new static($ttl, $checkdbversion);
+    static function start($name, $ttl=0, $checkdbversion=false) {
+        return new static($name, $ttl, $checkdbversion);
     }
 }
 
