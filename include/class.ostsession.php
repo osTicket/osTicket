@@ -275,13 +275,16 @@ class DatabaseSessionRecord extends VerySimpleModel
     }
 
     public function isValid() {
-        return true;
-        // Basic checks to make sure the session data is valid
-        // TODO: Throw specific exceptions so it can be handled downstream
+        // NOTE: We're not enforcing IP match here because it's a user space
+        // setting and checked elsewhere
+
+        // User Agent must remain same for the lifecycle of the session
         if (isset($this->user_agent)
                 && strcmp($_SERVER['HTTP_USER_AGENT'], $this->user_agent) !== 0)
             return false;
-        return true;
+
+        // Make sure id len is 32
+        return (strlen($this->getId()) == 32);
     }
 
     public function setId(string $id) {
