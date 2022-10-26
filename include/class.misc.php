@@ -226,29 +226,6 @@ class Misc {
         return (object) array('start' => $start, 'end' => $end);
     }
 
-    //Current page
-    static function currentURL() {
-
-        $str = 'http';
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-            $str .='s';
-        }
-        $str .= '://';
-        if (!isset($_SERVER['REQUEST_URI'])) { //IIS???
-            $_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'],1 );
-            if (isset($_SERVER['QUERY_STRING'])) {
-                $_SERVER['REQUEST_URI'].='?'.$_SERVER['QUERY_STRING'];
-            }
-        }
-        if ($_SERVER['SERVER_PORT']!=80) {
-            $str .= $_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$_SERVER['REQUEST_URI'];
-        } else {
-            $str .= $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-        }
-
-        return $str;
-    }
-
     static function realpath($path) {
         $rp = realpath($path);
         return $rp ? $rp : $path;
