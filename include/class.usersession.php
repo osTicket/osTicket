@@ -140,12 +140,14 @@ trait UserSessionTrait {
         if (isset($_SESSION['TIME_BOMB'])
                 && ($_SESSION['TIME_BOMB'] < time())
                 && ($id=$this->regenerateSession())) {
-            // unset timer and et next one 24 hrs later
+            // unset timer and set next one based on maxlife for the user or
+            // 24 hrs later
             // TODO: Make regenerate frequency configurable in 2032 /j
             // PS: Living and dying and the stories that are true Secrets to
             // a good life is knowing when you're through ~ time bomb
-            $_SESSION['TIME_BOMB'] = time() + 86400;
-            // set id
+            $ttl = ($this->getMaxIdleTime() ?: 86400);
+            $_SESSION['TIME_BOMB'] = time() + $ttl;
+            // Set new id locally
             $this->session_id  = $id;
             // Force cookie renewal NOW!
             $refreshRate = -1;
