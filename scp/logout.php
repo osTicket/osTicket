@@ -22,15 +22,9 @@ if(!$_GET['auth'] || !$ost->validateLinkToken($_GET['auth']))
 
 try {
     $thisstaff->logOut();
-
-    //Destroy session on logout.
-    // TODO: Stop doing this starting with 1.9 - separate session data per
-    // app/panel.
     session_unset();
-    session_destroy();
-
     osTicketSession::destroyCookie();
-
+    session_destroy();
     //Clear any ticket locks the staff has.
     Lock::removeStaffLocks($thisstaff->getId());
 }

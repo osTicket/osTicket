@@ -59,9 +59,7 @@ class osTicket {
         require_once(INCLUDE_DIR.'class.company.php');
         // Load the config
         $this->config = new OsticketConfig();
-        // Start session  (if not disabled)
-        if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
-            $this->session = osTicketSession::start(SESSION_TTL,
+        $this->session = osTicketSession::start(SESSION_TTL,
                     $this->isUpgradePending());
         // CSRF Token
         $this->csrf = new CSRF('__CSRFToken__');

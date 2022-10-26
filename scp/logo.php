@@ -15,9 +15,8 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-// Disable updating session data - false still starts the session but data
-// write is ignored.
-define('DISABLE_SESSION', false);
+// Use Noop Session Handler
+define('NOOP_SESSION', true);
 require_once('../main.inc.php');
 $ttl = 86400; // max-age
 if (isset($_GET['backdrop'])) {
