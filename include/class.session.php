@@ -125,27 +125,40 @@ namespace osTicket\Session {
     abstract class AbstractSessionHandler implements
         \SessionHandlerInterface,
         \SessionUpdateTimestampHandlerInterface {
-        private $options;
+        // Options
+        protected $options;
+        // Callback registry
+        private $callbacks;
+        // Flags
         private $isnew = false;
         private $isapi = false;
+        // maxlife & ttl
         private $ttl;
         private $maxlife;
-
         // Secondary backend
         protected $secondary = null;
 
         public function __construct($options = []) {
             // Set flags based on passed in options
             $this->options = $options;
+
             // Default TTL
             $this->ttl = $this->options['session_ttl'] ??
                 ini_get('session.gc_maxlifetime');
+
             // Dynamic maxlife (MLT)
             if (isset($this->options['session_maxlife']))
                 $this->maxlife = $this->options['session_maxlife'];
+
             // API Session Flag
             if (isset($this->options['api_session']))
                 $this->isapi = $this->options['api_session'];
+
+            // callbacks
+            if (isset($options['callbacks'])) {
+                $this->callbacks = $options['callbacks'];
+                unset($options['callbacks']);
+            }
 
             // Set Secondary Backend if any
             if (isset($options['secondary']))
@@ -185,6 +198,30 @@ namespace osTicket\Session {
         protected function isApiSession() {
             return ($this->isapi);
         }
+
+        /*
+         * onEvent
+         *
+         * Storage Backends that's interested in monitoring / reporting on
+         * events can implement this routine.
+         *
+         */
+        protected function onEvent($event) {
+            return false;
+        }
+
+        // Handles callback for registered event listeners
+        protected function callbackOn($event) {
+            if (!$this->callbacks
+                    || !isset($this->callbacks[$event]))
+                return false;
+
+            return (($collable=$this->callbacks[$event])
+                    &&  is_callable($collable))
+                ? call_user_func($collable, $this)
+                : false;
+        }
+
 
         /*
          * pre_save
@@ -238,10 +275,10 @@ namespace osTicket\Session {
         }
 
         public function write($id, $data) {
-            // Last chance session update
-            $i = new \ArrayObject(array('touched' => false));
-            \Signal::send('session.close', null, $i);
-            return $this->update($id, $i['touched'] ? session_encode() : $data);
+            // Last chance session update - returns true if update is done
+            if ($this->onEvent('close'))
+                $data = session_encode();
+            return $this->update($id, $data);
         }
 
         public function validateId($id) {
@@ -266,6 +303,10 @@ namespace osTicket\Session {
     abstract class AbstractSessionStorageBackend extends  AbstractSessionHandler {
         // Record we cache between read & update/write
         private $record;
+
+        protected function onEvent($event) {
+            return $this->callbackOn($event);
+        }
 
         public function getRecord($id, $autocreate = false) {
             if (!isset($this->record)
@@ -300,10 +341,6 @@ namespace osTicket\Session {
             if ($this->pre_save($record) === false)
                 return true; // record is being ignored
 
-            error_log("update id: $id -> ".$record->getId().' new?
-                    '.($record->isNew() ? 'YES': 'No'));
-            error_log('update data: '.$data);
-            error_log('record data: '.$record->getData());
             // Set id & data
             $record->setId($id);
             $record->setData($data);
@@ -452,13 +489,10 @@ namespace osTicket\Session {
                         break;
                 }
             }
-            error_log("Data: $id ($key) [".($data ? md5($data) : '').']');
-            error_log((new Exception())->getTraceAsString());
             return $data;
         }
 
         protected function set($id, $data) {
-            error_log('set: '.$id.' ['.($data ? md5($data) : '').'] ttl =>'.$this->getMaxlife());
             // Since memchache takes care of carbage collection internally
             // we want to make sure we set data to expire based on the session's
             // maxidletime (if available) otherwise it defailts to SESSION_TTL.
@@ -467,9 +501,8 @@ namespace osTicket\Session {
             foreach ($this->getServers() as $server) {
                 list($host, $port) = $server;
                 $this->memcache->pconnect($host, $port);
-                if (!$this->memcache->replace($key, $data, 0, $ttl));
-                   if (!$this->memcache->set($key, $data, 0, $ttl))
-                       error_log("Unable to write to $host:$port");
+                if (!$this->memcache->replace($key, $data, 0, $ttl))
+                    $this->memcache->set($key, $data, 0, $ttl);
             }
             // FIXME: Return false if we fail to write to at least one server
             return true;
@@ -506,11 +539,6 @@ namespace osTicket\Session {
      *
      */
     class NoopSessionStorageBackend extends AbstractSessionhandler {
-
-        protected function trackSessions() {
-            return false;
-        }
-
         public function read($id) {
             return "";
         }

@@ -88,6 +88,7 @@ class osTicketSession {
             // It indicates that the session is API session - which session
             // handler should handle as stateless for new sessions.
             'api_session' => defined('API_SESSION'),
+            'callbacks' => $this->getCallbacks($bk),
         ];
 
         // Set MaxLifeTime if defined. This is defined per user so it's
@@ -112,6 +113,22 @@ class osTicketSession {
 
         // Finally start the damn session.
         session_start();
+    }
+
+    // returns session callbacks we might be interested in monitoring
+    private function getCallbacks($bk) {
+        return [
+            // see onClose routine for details
+            'close' => [$this, 'onClose']
+        ];
+    }
+
+    // onClose - is used to signal those interested on changing session
+    // data, to do so,  before data is commited.
+    public function onClose($handler) {
+        $i = new ArrayObject(['touched' => false]);
+        Signal::send('session.close', null, $i);
+        return (bool) $i['touched'];
     }
 
     /*
