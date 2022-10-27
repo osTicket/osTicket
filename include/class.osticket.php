@@ -56,7 +56,7 @@ class osTicket {
         $this->config = new OsticketConfig();
 
         // Start Session
-        if (defined('SESSION_SESSID'))
+        if (!defined('SESSION_SESSID'))
             define('SESSION_SESSID', 'OSTSESSID');
         $this->session = osTicketSession::start(SESSION_SESSID, SESSION_TTL,
                     $this->isUpgradePending());
