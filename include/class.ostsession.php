@@ -236,6 +236,15 @@ class osTicketSession {
         return (bool) $backend->expire($id, $ttl);
     }
 
+    // Cleanup Expired Sessions
+    static function cleanup() {
+        // get active backend
+        if (!($backend=self::registered_backend()))
+            return false;
+
+        return (bool) $backend->cleanup();
+    }
+
     static function renewCookie($baseTime=false, $window=false) {
         $ttl = $window ?: SESSION_TTL;
         $expire = ($baseTime ?: time()) + $ttl;

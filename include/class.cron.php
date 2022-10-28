@@ -53,8 +53,7 @@ class Cron {
 
     static function CleanExpiredSessions() {
         require_once(INCLUDE_DIR.'class.ostsession.php');
-        $backend = new DbSessionBackend();
-        $backend->cleanup();
+        osTicketSession::cleanup();
     }
 
     static function CleanPwResets() {
