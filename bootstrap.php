@@ -45,6 +45,15 @@ class Bootstrap {
         }
         date_default_timezone_set('UTC');
 
+        if (!function_exists('exif_imagetype')) {
+            function exif_imagetype ($filename) {
+                if ((list($width,$height,$type,) = getimagesize($filename)) !== false)
+                    return $type;
+
+                return false;
+            }
+        }
+
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';
     }
