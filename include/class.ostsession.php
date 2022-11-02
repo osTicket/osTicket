@@ -38,6 +38,9 @@ class osTicketSession {
 
         // Set session cleanup time to match TTL
         ini_set('session.gc_maxlifetime', $ttl);
+        
+        // Set session to HttpOnly to prevent cookie hijacking attacks
+        ini_set('session.cookie_httponly', 'true');
 
         // Skip db version check if version is later than 1.7
         if ((!defined('MAJOR_VERSION') || $checkdbversion)
