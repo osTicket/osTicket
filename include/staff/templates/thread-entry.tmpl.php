@@ -16,7 +16,7 @@ if ($user && $cfg->isAvatarsEnabled())
 
 ?>
 <div class="thread-entry <?php
-    echo $entry->isSystem() ? 'system' : $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>">
+    echo $entry->isSystem() ? 'system' : $entryTypes[$entry->type]; ?> <?php if ($avatar) echo 'avatar'; ?>" style="position:relative">
 <?php if ($avatar) { ?>
     <span class="<?php echo ($entry->type == 'M') ? 'pull-right' : 'pull-left'; ?> avatar">
 <?php echo $avatar; ?>

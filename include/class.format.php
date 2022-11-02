@@ -319,8 +319,9 @@ class Format {
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
                   ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
                   ':data-cid="[^"]*":',         # drop image cid attributes
+                  '(position:[^!";]+;?)',
             ),
-            array('', '', '', '', '<html', '$4', '$2 $3', ''),
+            array('', '', '', '', '<html', '$4', '$2 $3', '', ''),
             $html);
 
         // HtmLawed specific config only
