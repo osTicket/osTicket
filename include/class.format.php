@@ -1006,7 +1006,7 @@ class Format {
 
     // Performs Unicode normalization (where possible) and splits words at
     // difficult word boundaries (for far eastern languages)
-    static function searchable($text, $lang=false) {
+    static function searchable($text, $lang=false, $length=false) {
         global $cfg;
 
         if (function_exists('normalizer_normalize')) {
@@ -1038,6 +1038,10 @@ class Format {
             // Drop leading and trailing whitespace
             $text = trim($text);
         }
+
+        if ($length && (str_word_count($text) > $length))
+            return null;
+
         return $text;
     }
 
