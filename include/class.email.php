@@ -981,6 +981,16 @@ class MailBoxAccount extends EmailAccount {
             ->filter(['type' => 'mailbox']);
     }
 
+    //TODO: Morhp MailBoxAccount to ImapMailBoxAccount
+    public function isImap() {
+        return (strcasecmp($this->getProtocol(), 'IMAP') === 0);
+    }
+
+     //TODO: Morhp MailBoxAccount to PopMailBoxAccount
+    public function isPop() {
+        return (strcasecmp($this->getProtocol(), 'POP') === 0);
+    }
+
     public function getProtocol() {
         return $this->protocol;
     }
@@ -989,9 +999,13 @@ class MailBoxAccount extends EmailAccount {
         return $this->folder;
     }
 
+    public function getFetchFolder() {
+        return $this->getFolder();
+    }
+
     public function getArchiveFolder() {
-        if ((strcasecmp($this->getProtocol(), 'imap') == 0) && $this->archivefolder)
-            return $this->archivefolder;
+        return ($this->isImap() && $this->archivefolder)
+            ? $this->archivefolder : null;
     }
 
     public function canDeleteEmails() {
@@ -1112,7 +1126,7 @@ class MailBoxAccount extends EmailAccount {
                                 !$mb->hasFolder($this->folder))
                             $errors['mailbox_folder'] = __('Unknown Folder');
                         if ($this->archivefolder
-                                && $this->protocol == 'IMAP'
+                                && $this->isImap()
                                 && !$mb->hasFolder($this->archivefolder)
                                 && !$mb->createFolder($this->archivefolder))
                             $errors['mailbox_archivefolder'] =

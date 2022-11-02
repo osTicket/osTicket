@@ -24,7 +24,7 @@ class Fetcher {
     function __construct(\MailboxAccount $account, $charset='UTF-8') {
         $this->account = $account;
         $this->mbox = $account->getMailBox();
-        if ($folder = $this->getFolder())
+        if (($folder = $this->getFetchFolder()))
             $this->mbox->selectFolder($folder);
     }
 
@@ -44,8 +44,8 @@ class Fetcher {
         return $this->account->getMaxFetch();
     }
 
-    function getFolder() {
-        return $this->account->getFolder();
+    function getFetchFolder() {
+        return $this->account->getFetchFolder();
     }
 
     function getArchiveFolder() {
@@ -91,7 +91,7 @@ class Fetcher {
 
     function processEmails() {
         // We need a connection
-        if(!$this->mbox)
+        if (!$this->mbox)
             return false;
 
         // Get basic fetch settings
