@@ -493,7 +493,8 @@ namespace osTicket\Mail {
          */
         public function moveMessage($id, $folder) {
             try {
-                return parent::moveMessage($id, $folder);
+                parent::moveMessage($id, $folder);
+                return true;
             } catch (\Throwable $t) {
                 // noop
             }

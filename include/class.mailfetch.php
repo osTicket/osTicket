@@ -77,13 +77,10 @@ class Fetcher {
             return true;
         } catch (\EmailParseError $ex) {
             // Log the parse error + headers as a warning
+            // TODO: Create a ticket anyhow and attached raw email as an
+            // attachment (.eml) if we can parse the header
             $this->logWarning(sprintf("%s\n\n%s",
                         $ex->getMessage(),
-                        $this->mbox->getRawHeader($i)));
-        } catch (\Throwable $t) {
-            // Log the ex + headers as a debug error
-            $this->logDebug(sprintf("%s\n\n%s",
-                        $t->getMessage(),
                         $this->mbox->getRawHeader($i)));
         }
         return false;
