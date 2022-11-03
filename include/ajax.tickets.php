@@ -1134,6 +1134,7 @@ class TicketsAjaxAPI extends AjaxController {
 
                         $depts = $tickets->values_flat('dept_id');
                     }
+                    //agents in depts $thisstaff can access
                     $members = $thisstaff->getDeptAgents(array('available' => true));
 
                     if ($depts) {
@@ -1211,6 +1212,9 @@ class TicketsAjaxAPI extends AjaxController {
                 $f->configure('prompt', $prompt);
 
             if ($_POST && $form->isValid()) {
+                // we need to clear this relation so we can create a fresh
+                // query that will get roles for all depts this agent can access
+                unset($thisstaff->ht['dept_access']);
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
                             // Make sure the agent is allowed to
