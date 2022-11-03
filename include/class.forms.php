@@ -2701,6 +2701,14 @@ class SectionBreakField extends FormField {
     function isBlockLevel() {
         return true;
     }
+
+    function isEditableToStaff() {
+        return $this->isVisibleToStaff();
+    }
+
+    function isEditableToUsers() {
+        return $this->isVisibleToUsers();
+    }
 }
 
 class ThreadEntryField extends FormField {
@@ -5336,6 +5344,14 @@ class FreeTextField extends FormField {
 
     function isBlockLevel() {
         return true;
+    }
+
+    function isEditableToStaff() {
+        return $this->isVisibleToStaff();
+    }
+
+    function isEditableToUsers() {
+        return $this->isVisibleToUsers();
     }
 
     /* utils */
