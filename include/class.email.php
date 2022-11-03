@@ -947,7 +947,7 @@ class EmailAccount extends VerySimpleModel {
 
     static function create($ht=false) {
         $i = new static($ht);
-        $i->active = 0;
+        $i->active = isset($ht['active']) ? $ht['active'] : 0;
         $i->created = SqlFunction::NOW();
         return $i;
     }
