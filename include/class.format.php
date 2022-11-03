@@ -319,8 +319,9 @@ class Format {
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
                   ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
                   ':data-cid="[^"]*":',         # drop image cid attributes
+                  '(position:[^!";]+;?)',
             ),
-            array('', '', '', '', '<html', '$4', '$2 $3', ''),
+            array('', '', '', '', '<html', '$4', '$2 $3', '', ''),
             $html);
 
         // HtmLawed specific config only
@@ -1005,7 +1006,7 @@ class Format {
 
     // Performs Unicode normalization (where possible) and splits words at
     // difficult word boundaries (for far eastern languages)
-    static function searchable($text, $lang=false) {
+    static function searchable($text, $lang=false, $length=false) {
         global $cfg;
 
         if (function_exists('normalizer_normalize')) {
@@ -1037,6 +1038,10 @@ class Format {
             // Drop leading and trailing whitespace
             $text = trim($text);
         }
+
+        if ($length && (str_word_count($text) > $length))
+            return null;
+
         return $text;
     }
 

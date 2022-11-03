@@ -1729,6 +1729,7 @@ class SelectionField extends FormField {
                         ?: __('Unknown or invalid input');
                 }
             } elseif ($config['typeahead']
+                    && $entry
                     && ($entered = $this->getWidget()->getEnteredValue())
                     && !in_array($entered, $entry)
                     && $entered != $entry) {

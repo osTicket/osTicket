@@ -208,6 +208,9 @@ class Mail_Parse {
         if (!($header = $this->struct->headers['from']))
             return null;
 
+        if ((strpos($header, '<') !== false) && (strpos($header, '>') === false))
+            $header = $header.'>';
+
         return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
