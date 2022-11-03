@@ -955,7 +955,7 @@ class ScheduleEntry extends VerySimpleModel {
                 // range at the moment - assuming ends on the same day.
                 $source['ends_at'] = $ends->format('h:i a');
                 if (($stops=$this->getStopsDatetime()))
-                    $source['stops_on'] = $stops->setTimestamp();
+                    $source['stops_on'] = $stops->getTimestamp();
 
                 // See if time spans all day.
                 if ($this->isFullDay())
