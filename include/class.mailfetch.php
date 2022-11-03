@@ -24,7 +24,7 @@ class Fetcher {
     function __construct(\MailboxAccount $account, $charset='UTF-8') {
         $this->account = $account;
         $this->mbox = $account->getMailBox();
-        if ($folder = $this->getFolder())
+        if (($folder = $this->getFetchFolder()))
             $this->mbox->selectFolder($folder);
     }
 
@@ -44,8 +44,8 @@ class Fetcher {
         return $this->account->getMaxFetch();
     }
 
-    function getFolder() {
-        return $this->account->getFolder();
+    function getFetchFolder() {
+        return $this->account->getFetchFolder();
     }
 
     function getArchiveFolder() {
@@ -77,18 +77,18 @@ class Fetcher {
             return true;
         } catch (\EmailParseError $ex) {
             // Log the parse error + headers as a warning
-            $this->log(sprintf("%s\n\n%s",
+            // TODO: Create a ticket anyhow and attached raw email as an
+            // attachment (.eml) if we can parse the header
+            $this->logWarning(sprintf("%s\n\n%s",
                         $ex->getMessage(),
                         $this->mbox->getRawHeader($i)));
-        } catch (\Throwable $t) {
-            //noop
         }
         return false;
     }
 
     function processEmails() {
         // We need a connection
-        if(!$this->mbox)
+        if (!$this->mbox)
             return false;
 
         // Get basic fetch settings
@@ -98,39 +98,60 @@ class Fetcher {
         // Get full message count
         $messageCount = $this->mbox->countMessages();
         $msgs = $errors = 0;
-        for($i = $messageCount; $i > 0; $i--) { // Process messages in reverse.
-            // Okay, let's create the ticket now
-            if ($this->createTicket($i)) {
-                // Mark the message as "Seen" (IMAP only)
-                $this->mbox->markAsSeen($i);
-                // Attempt to move the message else attempt to delete
-                if((!$archiveFolder || !$this->mbox->moveMessage($i, $archiveFolder)) && $delete)
-                    $this->mbox->removeMessage($i);
-
-                $msgs++;
-                $errors = 0; // We are only interested in consecutive errors.
-            } else {
+        for ($i = $messageCount; $i > 0; $i--) { // Process messages in reverse.
+            try {
+                // Okay, let's try to create a ticket
+                if ($this->createTicket($i)) {
+                    // Mark the message as "Seen" (IMAP only)
+                    $this->mbox->markAsSeen($i);
+                    // Attempt to move the message if archive folder is set or
+                    if ($archiveFolder)
+                        $this->mbox->moveMessage($i, $archiveFolder);
+                    elseif ($delete)  // else delete if deletion is desired
+                        $this->mbox->removeMessage($i);
+                    $msgs++;
+                    $errors = 0; // We are only interested in consecutive errors.
+                } else {
+                    $errors++;
+                }
+            } catch (\Throwable $t) {
+                // Generic Exceptions - log the message
                 $errors++;
+                $this->logDebug($t->getMessage());
             }
 
-            if($max && ($msgs>=$max || $errors>($max*0.8)))
+            if ($max && ($msgs >= $max || $errors > ($max*0.8)))
                 break;
         }
 		$this->mbox->expunge();
-
         // Warn on excessive errors
         if ($errors > $msgs) {
             $warn = sprintf(_S('Excessive errors processing emails for %1$s (%2$s). Please manually check the inbox.'),
                     $this->mbox->getHostInfo(), $this->getEmail());
-            $this->log($warn);
+            $this->logWarning($warn);
         }
-
         return $msgs;
     }
 
-    function log($error) {
+    private function logDebug($msg) {
+        $this->log($msg, LOG_DEBUG);
+    }
+
+    private function logWarning($msg) {
+        $this->log($msg, LOG_WARN);
+    }
+
+    private function log($msg, $level = LOG_WARN) {
         global $ost;
-        $ost->logWarning(_S('Mail Fetcher'), $error);
+        $subj = _S('Mail Fetcher');
+        switch ($level) {
+            case LOG_WARN:
+                $ost->logWarning($subj, $msg);
+                break;
+            case  LOG_DEBUG:
+            default:
+                $ost->logDebug($subj, $msg);
+        }
     }
 
     /*
