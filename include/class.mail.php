@@ -520,28 +520,21 @@ namespace osTicket\Mail {
         /*
          * move an existing message to a folder
          *
+         * Caller should catch possible exception
          */
-        public function moveMessage($id, $folder) {
-            try {
-                parent::moveMessage($id, $folder);
-                return true;
-            } catch (\Throwable $t) {
-                // noop
-            }
-            return false;
+        public function moveMessage($i, $folder) {
+            parent::moveMessage($i, $folder);
+            return true;
         }
 
         /*
          * Remove a message from server.
          *
+         * Caller should catch possible exception
          */
         public function removeMessage($i) {
-            try {
-                return parent::removeMessage($i);
-            } catch (\Throwable $t) {
-                // noop
-            }
-            return false;
+            parent::removeMessage($i);
+            return true;
         }
 
         /*
@@ -575,6 +568,27 @@ namespace osTicket\Mail {
             } catch (\Throwable $t) {
                 return false;
             }
+        }
+
+        /**
+         * Remove a message from server without expunging the mailbox
+         *
+         * Laminas Mail (upstream) auto expunges the mailbox on message
+         * removal or move (copy + remove) - which can cause major issues
+         * for us since we fetcher uses message sequence numbers to fetch
+         * messages / emails.
+         *
+         * We expunge the mailbox at the end if fetch session.
+         *
+         * TODO: Make PR upstream to support calling removeMessage with
+         * a boolean flag i.e removeMessage(int $id, bool $expunge = true)
+         *
+         */
+        public function removeMessage($i) {
+            if (! $this->protocol->store([Storage::FLAG_DELETED], $i, null, '+')) {
+                throw new Exception('cannot set deleted flag');
+            }
+            return true;
         }
 
         // Expunge mailbox
