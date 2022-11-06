@@ -100,19 +100,22 @@ class Fetcher {
         if (!($messageCount = $this->mbox->countMessages()))
             return 0;
 
-        // Create a range of message sequence numbers (msgno) to fetch
-        // taking max fetch into account
-        // TODO: Use message UIDs instead of numbers
-        $messages = range(1, min($max, $messageCount));
         // If the number of emails in the folder are more than Max Fetch
-        // then fetch in Reverse Order - this is necessary when fetched
-        // emails are not getting archived or deleted, which might lead to
-        // fetcher being stuck 4ever on processing old emails already
+        // then process the latest $max emails - this is necessary when
+        // fetched emails are not getting archived or deleted, which might
+        // lead to fetcher being stuck 4ever processing old emails already
         // fetched
-        if ($messageCount > $max)
-            rsort($messages, SORT_NUMERIC);
+        if ($messageCount > $max) {
+            // Latest $max messages
+            $messages = range($messageCount-$max, $messageCount);
+        } else {
+            // Create a range of message sequence numbers (msgno) to fetch
+            // starting from the oldest taking max fetch into account
+            $messages = range(1, min($max, $messageCount));
+        }
 
         $msgs = $errors = 0;
+        // TODO: Use message UIDs instead of ids
         foreach ($messages as $i) {
             try {
                 // Okay, let's try to create a ticket
