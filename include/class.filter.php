@@ -915,6 +915,7 @@ class TicketFilter {
         );
 
         foreach ($auto_headers as $header=>$find) {
+            $header = strtolower($header);
             if(!isset($headers[$header])) continue;
 
             $value = strtoupper($headers[$header]);
@@ -938,8 +939,7 @@ class TicketFilter {
     }
 
     static function isBounce($headers) {
-
-        if($headers && !is_array($headers))
+        if ($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $bounce_headers = array(
@@ -954,6 +954,7 @@ class TicketFilter {
         );
 
         foreach ($bounce_headers as $header => $find) {
+            $header = strtolower($header);
             if(!isset($headers[$header])) continue;
 
             @list($func, $searches, $pos, $neg) = $find;
