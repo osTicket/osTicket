@@ -615,7 +615,7 @@ class Mailer {
                     ));
             }
             // Attempt  Failed:  Reset FROM to original email and clear Sender
-            $message->setOrignator($this->getFromEmail(), $this->getFromName());
+            $message->setOriginator($this->getFromEmail(), $this->getFromName());
         }
 
         // No SMTP or it FAILED....use Sendmail transport (PHP mail())
