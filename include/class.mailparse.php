@@ -813,17 +813,20 @@ class EmailDataParser {
     }
 
     private function onParseError($parser) {
+        $error = sprintf('%s: [%s]',
+                __('Email parse failed'),
+                $parser->getError());
         if ($this->attachOnParseError()
                 && $parser
                 // Make sure we can get header info
                 && ($data=$parser->getHeaderInfo())) {
-            // Empty text thread entry body
-            $data['message'] = new TextThreadEntryBody('');
+            // Text thread entry body with the warning / error
+            $data['message'] = new TextThreadEntryBody($error);
             // Add Mime message as  an Attachment
             $data['attachments'][] = $parser->getMimeFile();
             return $data;
         }
-        return $this->err('Email parse failed ['.$parser->getError().']');
+        return $this->err($error);
     }
 
     private function err($error) {
