@@ -139,13 +139,16 @@ class Mail_Parse {
 
     function getMimeFile() {
         $file = [
-            'name' => sprintf('%s.eml', $this->getSubject()),
+            // Use subject if available otherwise use mid.
+            'name' => sprintf('%s.eml',
+                    $this->getSubject() ?: $this->getMessageId()),
             'type' => 'message/rfc822',
             'data' => $this->getMimeMessage(),
         ];
         // See if we have transfer encoding
         if (($encoding=$this->getHeaderEntry('content-transfer-encoding')))
             $file['encoding'] = $encoding;
+
         return $file;
     }
 
