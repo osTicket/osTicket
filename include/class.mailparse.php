@@ -36,16 +36,12 @@ class Mail_Parse {
     function __construct(&$mimeMessage, $charset=null){
 
         $this->mime_message = &$mimeMessage;
-
-        if($charset)
-            $this->charset = $charset;
-
         $this->include_bodies = true;
         $this->decode_headers = false;
         $this->decode_bodies = true;
 
         //Desired charset
-        if($charset)
+        if ($charset)
             $this->charset = $charset;
 
         $this->splitBodyHeader();
@@ -213,7 +209,7 @@ class Mail_Parse {
 
     function getHeaderEntry($name) {
         return $this->hasHeaders()
-            ? self::findHeaderEntry($this->headers, $name)
+            ? self::findHeaderEntry($this->getHeaders(), $name)
             : false;
     }
 
@@ -763,7 +759,7 @@ class EmailDataParser {
         'attachOnParseError' => true
     ];
     private $stream;
-    private $errors;
+    private $errors = [];
 
     function __construct($stream=null, array $options = []) {
         $this->stream = $stream;
@@ -783,7 +779,7 @@ class EmailDataParser {
         }
 
         $parser= new Mail_Parse($contents);
-        if (1 ||  !$parser->decode())
+        if (!$parser->decode())
             return $this->onParseError($parser);
 
         if (!($data = $parser->getHeaderInfo()))
@@ -830,12 +826,16 @@ class EmailDataParser {
     }
 
     private function err($error) {
-        $this->errors [] = $error;
-        return false;
+        // add error and return false
+        return ($this->addError($error) && false);
     }
 
     function getErrors() {
         return $this->errors;
+    }
+
+    function addError($error) {
+        $this->errors [] = $error;
     }
 
     function getError() {
