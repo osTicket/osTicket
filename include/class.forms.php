@@ -3972,7 +3972,11 @@ class FileUploadField extends FormField {
     }
 
     function getConfiguration() {
+        global $cfg;
+
         $config = parent::getConfiguration();
+        // If no size present default to system setting
+        $config['size'] ??= $cfg->getMaxFileSize();
         $_types = self::getFileTypes();
         $mimetypes = array();
         $extensions = array();
