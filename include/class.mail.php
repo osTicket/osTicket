@@ -639,9 +639,10 @@ namespace osTicket\Mail {
             parent::__construct($this->buildOptions($setting));
         }
 
+        // Build out SmtpOptions options based on SmtpAccount Settings
         private function buildOptions(AccountSetting $setting) {
-            // Build out SmtpOptions options based on SmtpAccount Settings
-            $config = [];
+            // Dont send 'QUIT' on __destruct()
+            $config = ['use_complete_quit' => false];
             $connect = $setting->getConnectionConfig();
             $auth = $setting->getAuthCredentials();
             switch (true) {
@@ -654,7 +655,7 @@ namespace osTicket\Mail {
                     ];
                     break;
                 case $auth instanceof BasicAuthCredentials:
-                    $config = [
+                    $config += [
                         'username' => $auth->getUsername(),
                         'password' => $auth->getPasswd(),
                         'ssl' => $connect['ssl'],
@@ -664,7 +665,7 @@ namespace osTicket\Mail {
                     $token = $auth->getAccessToken();
                     if ($token->hasExpired())
                         throw new Exception('Access Token is Expired');
-                    $config = [
+                    $config += [
                         'xoauth2' => $token->getAuthRequest(),
                         'ssl' => $connect['ssl'],
                     ];
@@ -677,6 +678,7 @@ namespace osTicket\Mail {
                 'host' => $connect['host'],
                 'port' => $connect['port'],
                 'name' => $connect['name'],
+                'connection_time_limit' => 300, # 5 minutes limit
                 'connection_class'  => $auth->getConnectionClass(),
                 'connection_config' => $config
             ];
