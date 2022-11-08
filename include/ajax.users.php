@@ -34,7 +34,7 @@ class UsersAjaxAPI extends AjaxController {
         if (!$_REQUEST['q'])
             return $this->json_encode($matches);
 
-        $q = $_REQUEST['q'];
+        $q = Format::sanitize($_REQUEST['q']);
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
         $users=array();
         $emails=array();
@@ -107,7 +107,7 @@ class UsersAjaxAPI extends AjaxController {
                 }
                 $name = Format::htmlchars(new UsersName($name));
                 $matches[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
-                    "id" => $id, "/bin/true" => $_REQUEST['q']);
+                    "id" => $id, "/bin/true" => $q);
             }
             usort($matches, function($a, $b) { return strcmp($a['name'], $b['name']); });
         }
