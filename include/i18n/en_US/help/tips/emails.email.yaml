@@ -94,8 +94,8 @@ host_and_port:
         then prefix the hostname with ssl:// or tls:// scheme to hint to
         supported encryption.
         <br/><br/>
-        To  force a plain connection even when using a standard encryption <span
-        class="doc-desc-titl">port</span> then use plain:// scheme.
+        To force a plain connection even when using a standard encryption <span
+        class="doc-desc-title">port</span> then use plain:// scheme.
 
 mailbox_folder:
     title: Mail Folder
