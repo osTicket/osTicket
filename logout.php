@@ -20,6 +20,6 @@ if ($thisclient && $_GET['auth'] && $ost->validateLinkToken($_GET['auth']))
    $thisclient->logOut();
 
 osTicketSession::destroyCookie();
-
+session_destroy();
 Http::redirect('index.php');
 ?>

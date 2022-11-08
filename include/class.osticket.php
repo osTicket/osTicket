@@ -28,7 +28,6 @@ use Symfony\Component\ClassLoader\UniversalClassLoader_osTicket;
 define('LOG_WARN',LOG_WARNING);
 
 class osTicket {
-
     var $loglevel=array(1=>'Error','Warning','Debug');
 
     //Page errors.
@@ -36,10 +35,6 @@ class osTicket {
 
     //System
     var $system;
-
-
-
-
     var $warning;
     var $message;
 
@@ -59,9 +54,11 @@ class osTicket {
         require_once(INCLUDE_DIR.'class.company.php');
         // Load the config
         $this->config = new OsticketConfig();
-        // Start session  (if not disabled)
-        if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
-            $this->session = osTicketSession::start(SESSION_TTL,
+
+        // Start Session
+        if (!defined('SESSION_SESSID'))
+            define('SESSION_SESSID', 'OSTSESSID');
+        $this->session = osTicketSession::start(SESSION_SESSID, SESSION_TTL,
                     $this->isUpgradePending());
         // CSRF Token
         $this->csrf = new CSRF('__CSRFToken__');

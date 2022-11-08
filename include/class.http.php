@@ -151,5 +151,16 @@ class Http {
 
         return http_build_query($vars, '', $separator);
     }
+
+    static function domain() {
+        $domain = null;
+        if (isset($_SERVER['HTTP_HOST'])
+                && strpos($_SERVER['HTTP_HOST'], '.') !== false
+                && !Validator::is_ip($_SERVER['HTTP_HOST']))
+            // Remote port specification, as it will make an invalid domain
+            list($domain) = explode(':', $_SERVER['HTTP_HOST']);
+
+        return $domain;
+    }
 }
 ?>
