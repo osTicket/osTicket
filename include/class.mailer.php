@@ -619,6 +619,7 @@ class Mailer {
 
         try {
             // ostTicket/Mail/Sendmail transport
+            $message->getHeaders()->removeHeader('Subject');
             $sendmail =  new  Sendmail($args);
             if ($sendmail->sendMessage($message))
                 return $messageId;
