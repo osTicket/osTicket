@@ -67,18 +67,22 @@ class Fetcher {
         return ($this->mbox && $this->mbox->noop());
     }
 
-    function createTicket(int $i) {
+    function processMessage(int $i) {
         try {
+            // Please note that the returned object could be anything from
+            // ticket, task to thread entry or a boolean.
+            // Don't let TicketApi call fool you!
             return $this->getTicketsApi()->processEmail(
                     $this->mbox->getRawEmail($i));
         } catch (\TicketDenied $ex) {
             // If a ticket is denied we're going to report it as processed
-            // so it can be moved out of the inbox or deleted.
+            // so it can be moved out of the Fetch Folder or Deleted based
+            // on the MailBox settings.
             return true;
         } catch (\EmailParseError $ex) {
-            // Log the parse error + headers as a warning
-            // TODO: Create a ticket anyhow and attached raw email as an
-            // attachment (.eml) if we can parse the header
+            // Upstream we try to create a ticket on email parse error - if
+            // it fails then that means we have invalid headers.
+            // For Debug purposes log the parse error + headers as a warning
             $this->logWarning(sprintf("%s\n\n%s",
                         $ex->getMessage(),
                         $this->mbox->getRawHeader($i)));
@@ -119,7 +123,7 @@ class Fetcher {
         foreach ($messages as $i) {
             try {
                 // Okay, let's try to create a ticket
-                if (($result=$this->createTicket($i))) {
+                if (($result=$this->processMessage($i))) {
                     // Mark the message as "Seen" (IMAP only)
                     $this->mbox->markAsSeen($i);
                     // Attempt to move the message if archive folder is set or
@@ -141,12 +145,24 @@ class Fetcher {
                 $this->logDebug($t->getMessage());
             }
         }
+
         // Expunge the mailbox
-		$this->mbox->expunge();
-        // Warn on excessive errors (errors more than tickets created)
+        $this->mbox->expunge();
+
+        // Warn on excessive errors - when errors are more than email
+        // processed successfully.
         if ($errors > $msgs) {
-            $warn = sprintf(_S('Excessive errors processing emails for %1$s (%2$s). Please manually check the inbox.'),
-                    $this->mbox->getHostInfo(), $this->getEmail());
+            $warn = sprintf("%s\n\n%s [%d/%d - %d/%d]",
+                    // Mailbox Info
+                    sprintf(_S('Excessive errors processing emails for %1$s (%2$s).'),
+                        $this->mbox->getHostInfo(), $this->getEmail()),
+                    // Fetch Folder
+                    sprintf('%s (%s)',
+                        _S('Please manually check the Fetch Folder'),
+                        $this->getFetchFolder()),
+                    // Counts - sort of cryptic but useful once we document
+                    // what it means
+                    $messageCount, $max, $msgs, $errors);
             $this->logWarning($warn);
         }
         return $msgs;
@@ -229,7 +245,8 @@ class Fetcher {
                 if ($mailbox->getNumErrors() >= $MAXERRORS && $ost) {
                     //We've reached the MAX consecutive errors...will attempt logins at delayed intervals
                     // XXX: Translate me
-                    $msg="\nosTicket is having trouble fetching emails from the following mail account: \n".
+                    $msg = sprintf("\n %s:\n",
+                            _S('osTicket is having trouble fetching emails from the following mail account')).
                         "\n"._S('Email').": ".$mailbox->getEmail()->getAddress().
                         "\n"._S('Host Info').": ".$mailbox->getHostInfo();
                         "\n"._S('Error').": ".$t->getMessage().

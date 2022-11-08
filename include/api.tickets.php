@@ -125,14 +125,14 @@ class TicketApiController extends ApiController {
 
     /* private helper functions */
 
-    function createTicket($data) {
+    function createTicket($data, $source = 'API') {
 
         # Pull off some meta-data
         $alert       = (bool) (isset($data['alert'])       ? $data['alert']       : true);
         $autorespond = (bool) (isset($data['autorespond']) ? $data['autorespond'] : true);
 
         # Assign default value to source if not defined, or defined as NULL
-        $data['source'] = isset($data['source']) ? $data['source'] : 'API';
+        $data['source'] = $data['source'] ?? $source;
 
         # Create the ticket with the data (attempt to anyway)
         $errors = array();
@@ -199,7 +199,7 @@ class TicketApiController extends ApiController {
         // will always create new "Tickets". All other objects will need to
         // be created via the web interface or the API
         try {
-            return $this->createTicket($data);
+            return $this->createTicket($data, 'Email');
         } catch (TicketDenied $ex) {
             // Log the mid so we don't process this email again!
             $entry = new ThreadEntry();
