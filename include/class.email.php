@@ -471,10 +471,17 @@ class EmailAccount extends VerySimpleModel {
     }
 
     public function isActive() {
-        return $this->active;
+        return ($this->active  && $this->hasCredentials());
     }
 
+    // **** Don't use it  ****
+    // This routine is depricated and will be removed in the future - OAuth2
+    // Plugin uses it to check if the email accout has auth2 backend.
     public function isEnabled() {
+        return $this->isOAuthAuth();
+    }
+
+    public function isAuthBackendEnabled() {
         return $this->isOAuthAuth()
             ? (($i=$this->getOAuth2Instance()) && $i->isEnabled())
             : true;
@@ -482,7 +489,7 @@ class EmailAccount extends VerySimpleModel {
 
     public function shouldAuthorize() {
         // check status and make sure it's oauth
-        if (!$this->isEnabled() || !$this->isOAuthAuth())
+        if (!$this->isAuthBackendEnabled() || !$this->isOAuthAuth())
             return false;
 
         return (!($cred=$this->getFreshCredentials())
@@ -710,6 +717,10 @@ class EmailAccount extends VerySimpleModel {
         return $this->logActivity($error);
     }
 
+    public function hasCredentials() {
+        return ($this->getFreshCredentials());
+    }
+
     private function getCredentialsVars($auth=null) {
         $vars = [];
         if (($cred = $this->getCredentials($auth)))
@@ -730,90 +741,193 @@ class EmailAccount extends VerySimpleModel {
             return [];
 
         if (!isset($this->cred) || $refresh)  {
-            $cred = null;
+            $this->cred = $cred = null;
             $auth = $auth ?: $this->getAuthBk();
             list($type, $provider) = explode(':', $auth);
-            switch ($type) {
-                case 'mailbox':
-                    if (($mb=$this->email->getMailBoxAccount())
-                            && $mb->getAuthBk())
-                        $cred = $mb->getCredentials($mb->getAuthBk(), $refresh);
-                    break;
-                case 'none':
-                    // No authentication required (open replay)
-                    $cred = new osTicket\Mail\NoAuthCredentials([
-                            'username' => $this->email->getEmail()]);
-                    break;
-                case 'basic':
-                    if (($c=$this->getConfig())
-                            && ($creds=$c->toArray())
-                            && isset($creds['username'])
-                            && isset($creds['passwd'])) {
-                        // Decrypt password
-                        $cred = new osTicket\Mail\BasicAuthCredentials([
-                                'username' => $creds['username'],
-                                // Decrypt password
-                                'password' => Crypto::decrypt($creds['passwd'],
-                                    SECRET_SALT,
-                                    md5($creds['username'].$this->getNamespace()))
-                        ]);
-                    }
-                    break;
-                case 'oauth2':
-                    if (($c=$this->getConfig()) && ($creds=$c->toArray())) {
-                        // Decrypt Access Token
-                        if ($creds['access_token']) {
-                            $creds['access_token'] = Crypto::decrypt(
-                                    $creds['access_token'],
-                                    SECRET_SALT,
-                                    md5($creds['resource_owner_email'].$this->getNamespace())
-                                    );
-                        }
-                         // Decrypt Referesh Token
-                        if ($creds['refresh_token']) {
-                            $creds['refresh_token'] = Crypto::decrypt(
-                                    $creds['refresh_token'],
-                                    SECRET_SALT,
-                                    md5($creds['resource_owner_email'].$this->getNamespace())
-                                    );
-                        }
-                        $errors = [];
-                        $class = 'osTicket\Mail\OAuth2AuthCredentials';
-                        try {
-                            // Init credentials and see of we need to
-                            // refresh the token
-                            if (($cred=$class::init($creds))
-                                    && ($token=$cred->getToken())
-                                    && ($refresh && $token->isExpired())
-                                    && ($bk=$this->getOAuth2Backend())
-                                    && ($info=$bk->refreshAccessToken( #nolint
-                                            $token->getRefreshToken(),
-                                            $this->getBkId(), $errors))
-                                    && isset($info['access_token'])
-                                    && $this->updateCredentials($auth,
-                                        // Merge new access token with
-                                        // already decrypted creds
-                                        array_merge($creds, $info), $errors
-                                        )) {
-                                return $this->getCredentials($auth, $refresh);
-                            } elseif ($errors) {
-                                $errors['err']  = $errors['refresh_token']
-                                    ?: __('Referesh Token Expired');
-                            }
-                        } catch (Exception $ex) {
-                            $errors['err']  = $ex->getMessage();
-                        }
-                        if (isset($errors['err']))
-                            $this->logError($errors['err']);
-                    }
-                    break;
-                default:
-                    throw new Exception(sprintf('%s: %s',
-                                $type, __('Unknown Credential Type')));
+            try {
+                switch ($type) {
+                    case 'mailbox':
+                        $cred = $this->getMailBoxCredentials($refresh);
+                        break;
+                    case 'none':
+                        // No authentication required (open replay)
+                        $cred = new osTicket\Mail\NoAuthCredentials([
+                                'username' => $this->email->getEmail()]);
+                        break;
+                    case 'basic':
+                        $cred = $this->getBasicAuthCredentials();
+                        break;
+                    case 'oauth2':
+                        $cred = $this->getOAuth2AuthCredentials($provider, $refresh);
+                        break;
+                    default:
+                        throw new Exception(sprintf('%s: %s',
+                                    $type, __('Unknown Credential Type')));
+                }
+                // Cache the credentials
+                $this->cred = $cred;
+            } catch (Exception $ex) {
+                // Log the error
+                $this->logError(sprintf('%s: %s',
+                            __('Credentials'), $ex->getMessage()
+                            ));
             }
-            $this->cred = $cred;
         }
         return $this->cred;
+    }
+
+    private function getMailBoxCredentials($refresh=false) {
+        if (($mb=$this->email->getMailBoxAccount())
+                && $mb->getAuthBk())
+            return $mb->getCredentials($mb->getAuthBk(), $refresh);
+    }
+
+    private function getBasicAuthCredentials() {
+        if (($c=$this->getConfig())
+                && ($creds=$c->toArray())
+                && isset($creds['username'])
+                && isset($creds['passwd'])) {
+            return  new osTicket\Mail\BasicAuthCredentials([
+                    'username' => $creds['username'],
+                    // Decrypt password
+                    'password' => Crypto::decrypt($creds['passwd'],
+                        SECRET_SALT,
+                        md5($creds['username'].$this->getNamespace()))
+            ]);
+        }
+    }
+
+    private function updateBasicAuthCredentials($vars, &$errors) {
+        // Get current credentials - we need to re-encrypt
+        // password as username might be changing
+        $creds = $this->getCredentialsVars('basic');
+        // password change?
+        if (!$vars['username']) {
+            $errors['username'] = __('Username Required');
+        } elseif (!$vars['passwd'] && !$creds['password']) {
+            $errors['passwd'] = __('Password Required');
+        } elseif (($setting=$this->getAccountSetting(true))
+                && !$setting->isValid()) {
+            $errors['err'] = implode(', ', $setting->getErrors());
+        } elseif ($setting && !$errors) {
+            // Validate the credentials
+            try {
+                $cred = new osTicket\Mail\BasicAuthCredentials([
+                        'username' => $vars['username'],
+                        'password' => $vars['passwd'] ?:
+                            $creds['password'],
+                ]);
+                if (!$this->validateCredentials($cred))
+                    $errors['err'] = __('Invalid Credentials');
+            } catch (Exception $ex) {
+                 $errors['err'] = $ex->getMessage();
+            }
+        }
+
+        if (!$errors) {
+            // Save credentials and get out of here.
+            $info = [
+                // username
+                'username' => $vars['username'],
+                // Encrypt  password
+                'passwd'   => Crypto::encrypt($vars['passwd'] ?:
+                        $creds['password'],  SECRET_SALT,
+                         md5($vars['username'].$this->getNamespace()))
+            ];
+
+            if (!$this->getConfig()->updateInfo($info))
+                $errors['err'] = sprintf('%s: %s',
+                        __('BasicAuth'),
+                        __('Error saving credentials'));
+        }
+        return !count($errors);
+    }
+
+    private function getOAuth2AuthCredentials($provider, $refresh=false) {
+        if (!($c=$this->getConfig()))
+            return false;
+
+        $creds=$c->toArray();
+        // Decrypt Access Token
+        if ($creds['access_token']) {
+            $creds['access_token'] = Crypto::decrypt(
+                    $creds['access_token'],
+                    SECRET_SALT,
+                    md5($creds['resource_owner_email'].$this->getNamespace())
+                    );
+        }
+
+        // Decrypt Referesh Token
+        if ($creds['refresh_token']) {
+            $creds['refresh_token'] = Crypto::decrypt(
+                    $creds['refresh_token'],
+                    SECRET_SALT,
+                    md5($creds['resource_owner_email'].$this->getNamespace())
+                    );
+        }
+
+        try {
+            // Init credentials and see of we need to
+            // refresh the token
+            $errors = [];
+            $auth = sprintf('oauth2:%s', $provider);
+            $class = 'osTicket\Mail\OAuth2AuthCredentials';
+            if (($cred=$class::init($creds))
+                    && ($token=$cred->getToken())
+                    && ($refresh && $token->isExpired())
+                    && ($bk=$this->getOAuth2Backend())
+                    && ($info=$bk->refreshAccessToken( #nolint
+                            $token->getRefreshToken(),
+                            $this->getBkId(), $errors))
+                    && isset($info['access_token'])
+                    && $this->updateCredentials($auth,
+                        // Merge new access token with
+                        // already decrypted creds
+                        array_merge($creds, $info), $errors
+                        )) {
+                    return $this->getCredentials($auth, $refresh);
+            } elseif ($errors) {
+                // Throw an exception with the error
+                throw new Exception($errors['refresh_token']
+                        ?? __('Referesh Token Expired'));
+            }
+        } catch (Exception $ex) {
+            // rethrow the exception including above.
+            throw $ex;
+        }
+        return $cred;
+    }
+
+    private function updateOAuth2AuthCredentials($provider, $vars, &$errors) {
+        if (!$vars['access_token']) {
+            $errors['access_token'] = __('Access Token Required');
+        } elseif (!$vars['resource_owner_email']
+                || !Validator::is_email($vars['resource_owner_email'])) {
+            $errors['resource_owner_email'] =
+                __('Resource Owner Required');
+
+        } elseif (!$errors) {
+            // Encrypt Access Token
+            $vars['access_token'] = Crypto::encrypt(
+                    $vars['access_token'],
+                     SECRET_SALT,
+                     md5($vars['resource_owner_email'].$this->getNamespace()));
+             // Encrypt Referesh Token
+            if ($vars['refresh_token']) {
+                $vars['refresh_token'] = Crypto::encrypt(
+                        $vars['refresh_token'],
+                        SECRET_SALT,
+                        md5($vars['resource_owner_email'].$this->getNamespace())
+                        );
+            }
+            $vars['config_signature'] = $this->getConfigSignature();
+            // TODO: Validate
+            if (!$this->getConfig()->updateInfo($vars))
+                $errors['err'] = sprintf('oauth2:%s - %s',
+                         Format::htmlchars($provider),
+                         __('Error saving credentials'));
+        }
+        return !count($errors);
     }
 
     public function updateCredentials($auth, $vars, &$errors) {
@@ -823,78 +937,12 @@ class EmailAccount extends VerySimpleModel {
         list($type, $provider) = explode(':', $auth);
         switch ($type) {
             case 'basic':
-                // Get current credentials - we need to re-encrypt
-                // password as username might be changing
-                $creds = $this->getCredentialsVars($auth);
-                // password change?
-                if (!$vars['username']) {
-                    $errors['username'] = __('Username Required');
-                } elseif (!$vars['passwd'] && !$creds['password']) {
-                    $errors['passwd'] = __('Password Required');
-                } elseif (($setting=$this->getAccountSetting(true))
-                        && !$setting->isValid()) {
-                    $errors['err'] = implode(', ', $setting->getErrors());
-                } elseif ($setting && !$errors) {
-                    // Validate the credentials
-                    try {
-                        $cred = new osTicket\Mail\BasicAuthCredentials([
-                                'username' => $vars['username'],
-                                'password' => $vars['passwd'] ?:
-                                    $creds['password'],
-                        ]);
-                        if (!$this->validateCredentials($cred))
-                            $errors['err'] = __('Invalid Credentials');
-                    } catch (Exception $ex) {
-                         $errors['err'] = $ex->getMessage();
-                    }
-                }
-
-                if (!$errors) {
-                    // Save credentials and get out of here.
-                    $info = [
-                        // username
-                        'username' => $vars['username'],
-                        // Encrypt  password
-                        'passwd'   => Crypto::encrypt($vars['passwd'] ?:
-                                $creds['password'],  SECRET_SALT,
-                                 md5($vars['username'].$this->getNamespace()))
-                    ];
-                    if ($this->getConfig()->updateInfo($info))
-                        $this->cred = null;
-                    else
-                        $errors['err'] = sprintf('%s: %s',
-                                Format::htmlchars($type),
-                                __('Error saving credentials'));
-                }
+                if (!($this->updateBasicAuthCredentials($vars, $errors)))
+                    return false;
                 break;
             case 'oauth2':
-                if (!$vars['access_token']) {
-                    $errors['access_token'] = __('Access Token Required');
-                } elseif (!$vars['resource_owner_email']
-                        || !Validator::is_email($vars['resource_owner_email'])) {
-                    $errors['resource_owner_email'] =
-                        __('Resource Owner Required');
-
-                } elseif (!$errors) {
-                    // Encrypt Access Token
-                    $vars['access_token'] = Crypto::encrypt(
-                            $vars['access_token'],
-                             SECRET_SALT,
-                             md5($vars['resource_owner_email'].$this->getNamespace()));
-                     // Encrypt Referesh Token
-                    if ($vars['refresh_token']) {
-                        $vars['refresh_token'] = Crypto::encrypt(
-                                $vars['refresh_token'],
-                                SECRET_SALT,
-                                md5($vars['resource_owner_email'].$this->getNamespace())
-                                );
-                    }
-                    $vars['config_signature'] = $this->getConfigSignature();
-                    if (!$this->getConfig()->updateInfo($vars))
-                        $errors['err'] = sprintf('%s: %s',
-                                 Format::htmlchars($type),
-                                 __('Error saving credentials'));
-                }
+                if (!($this->updateOAuth2AuthCredentials($provider, $vars, $errors)))
+                    return false;
                 break;
             default:
                  $errors['err'] =  sprintf('%s - %s',
@@ -905,6 +953,7 @@ class EmailAccount extends VerySimpleModel {
         if ($errors)
             return false;
 
+        // Save the auth backend
         $this->auth_bk = $auth;
         // Clear cached credentials
         $this->creds = null;
@@ -923,6 +972,7 @@ class EmailAccount extends VerySimpleModel {
         } else {
             $this->num_errors = 0;
             $this->last_error = null;
+            $this->last_error_msg = null;
             $this->last_activity =  $now ?: SqlFunction::NOW();
         }
         return $this->save();

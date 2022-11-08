@@ -214,9 +214,15 @@ class Fetcher {
         //Start time
         $start_time = \Misc::micro_time();
         foreach ($mailboxes as $mailbox) {
-            //Break if we're 80% into max execution time
+            // Check if the mailbox is active 4realz by getting credentials
+            if (!$mailbox->isActive())
+                continue;
+
+            // Break if we're 80% into max execution time
             if ((\Misc::micro_time()-$start_time) > ($max_time*0.80))
                 break;
+
+            // Try fetching emails
             try {
                 $mailbox->fetchEmails();
             } catch (\Throwable $t) {
