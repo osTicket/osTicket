@@ -25,7 +25,6 @@ class EmailAjaxAPI extends AjaxController {
         $info = $errors = [];
         if ($_POST && $account->saveAuth($auth, $form, $errors)) {
             if ($account->isOAuthAuth()
-                    && $account->isEnabled()
                     && $account->shouldAuthorize()) {
                  Http::response(201, JsonDataEncoder::encode([
                              'redirect' => sprintf('emails.php?id=%d&do=autho&bk=%s',
