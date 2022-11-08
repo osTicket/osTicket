@@ -407,6 +407,14 @@ class Format {
         return htmlspecialchars_decode($var, $flags);
     }
 
+    static function http_query_string(string $query, array $filter = null) {
+        $args = [];
+        parse_str($query, $args);
+        if ($filter && is_array($filter))
+            $args = array_diff_key($args, array_flip($filter));
+        return http_build_query($args);
+    }
+
     static function input($var) {
         return Format::htmlchars($var);
     }
