@@ -648,8 +648,9 @@ namespace osTicket\Mail {
                 case $auth instanceof NoAuthCredentials:
                     // No Authentication - simply return host and port
                     return [
-                        'host'      => $connect['host'],
-                        'port'      => $connect['port']
+                        'host' => $connect['host'],
+                        'port' => $connect['port'],
+                        'name' => $connect['name'],
                     ];
                     break;
                 case $auth instanceof BasicAuthCredentials:
@@ -673,8 +674,9 @@ namespace osTicket\Mail {
             }
 
             return [
-                'host'      => $connect['host'],
-                'port'      => $connect['port'],
+                'host' => $connect['host'],
+                'port' => $connect['port'],
+                'name' => $connect['name'],
                 'connection_class'  => $auth->getConnectionClass(),
                 'connection_config' => $config
             ];
@@ -857,12 +859,13 @@ namespace osTicket\Mail {
                     $ssl = 'tls';
             }
 
+            // Set the connection settings
             $this->connection = [
                 'host' => $host,
                 'port' => $port,
                 'ssl' => $ssl,
                 'protocol' => strtoupper($account->getProtocol()),
-                'name' => null
+                'name' => self::get_hostname(),
             ];
 
             // Set errors to null to clear validation
@@ -930,15 +933,17 @@ namespace osTicket\Mail {
         private function validate() {
 
             if (!isset($this->errors)) {
+                // Set errors to an array to to make sure don't
+                // unneccesarily validate valid info again.
                 $this->errors = [];
+                // We're simply making sure required info are set. True
+                // validation will happen at the protocol connection level
                 $info = $this->getConnectionConfig();
                 foreach (['host', 'port', 'protocol'] as $p ) {
                     if (!isset($info[$p]) || !$info[$p])
                         $this->errors[$p] = sprintf('%s %s',
                                 strtoupper($p), __('Required'));
                 }
-                // TODO: Validate hostname - for now we're punting to be
-                // validated at the protocol connection level
             }
             return !count($this->errors);
         }
@@ -949,6 +954,29 @@ namespace osTicket\Mail {
 
         public function getErrors() {
             return $this->errors;
+        }
+
+        /*
+         * get_hostname
+         *
+         * Please note that this is different from getHost above
+         *
+         * Here we're getting the hostname to use on HELO/EHLO when
+         * initiating an SMTP connection. It should be a valid hostname with
+         * valid reverse-lookup for better deliverability.
+         *
+         * Perhaps this can be a setting in the future but allowing users
+         * to set it to **anything** will results in more mail issues than just
+         * defaulting to what the OS tells us or localhost for that matter.
+         *
+         * For now, we're simply asking core osTicket to give us the OS hostname
+         * otherwise it will default to localhost which some mail servers frawns
+         * upon since it won't have a valid reverse-lookup.
+         *
+         */
+        private static function get_hostname() {
+            // We're simply returning what the OS is telling us!
+            return php_uname('n');
         }
     }
 }
