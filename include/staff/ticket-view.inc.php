@@ -397,9 +397,9 @@ if($ticket->isOverdue())
                         if ($user) { ?>
                             <a href="tickets.php?<?php echo Http::build_query(array(
                                 'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
-                            )); ?>" title="<?php echo __('Related Tickets'); ?>"
-                            data-dropdown="#action-dropdown-stats">
-                            (<b><?php echo $user->getNumTickets(); ?></b>)
+                            )); ?>" title="<?php echo __('Related Tickets');?>" 
+                            data-dropdown="#action-dropdown-stats" style="<?php if ($user->getNumOpenTickets() > 0) {echo "background-color: yellow; color: red;";}; ?>">
+							(<b><?php if ($user->getNumOpenTickets() > 0){echo $user->getNumOpenTickets(), " / ";}; echo $user->getNumTickets(); ?></b>)
                             </a>
                             <div id="action-dropdown-stats" class="action-dropdown anchor-right">
                                 <ul>
@@ -454,8 +454,8 @@ if($ticket->isOverdue())
                         <a href="tickets.php?<?php echo Http::build_query(array(
                             'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
                         )); ?>" title="<?php echo __('Related Tickets'); ?>"
-                        data-dropdown="#action-dropdown-org-stats">
-                        (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
+                        data-dropdown="#action-dropdown-org-stats" style="<?php if ($user->getNumOpenOrganizationTickets() > 0) {echo "background-color: yellow; color: red;";}; ?>">
+						(<b><?php if ($user->getNumOpenOrganizationTickets() > 0){echo $user->getNumOpenOrganizationTickets(), " / ";}; echo $user->getNumOrganizationTickets(); ?></b>)
                         </a>
                             <div id="action-dropdown-org-stats" class="action-dropdown anchor-right">
                                 <ul>
