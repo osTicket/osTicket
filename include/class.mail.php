@@ -25,8 +25,10 @@ namespace osTicket\Mail {
     use osTicket\Mail\Header\ReturnPath;
 
     class  Message extends MailMessage {
+        // Message Id (mid)
+        private $mid;
         // MimeMessage Parts
-        private $mimeMessage = null;
+        private $mimeParts = null;
         // MimeMessage Content
         private $mimeContent = null;
         // Default Charset
@@ -55,11 +57,18 @@ namespace osTicket\Mail {
             return ($this->hasAttachments() || $this->hasInlineImages());
         }
 
-        public function getMimeMessageParts() {
-            if  (!isset($this->mimeMessage))
-                $this->mimeMessage = new MimeMessage();
+        public function getId() {
+             if (!isset($this->mid)
+                     &&  ($header=$this->getHeader('message-id')))
+                 $this->mid = $header->getId();
+             return $this->mid;
+        }
 
-            return $this->mimeMessage;
+        public function getMimeMessageParts() {
+            if  (!isset($this->mimeParts))
+                $this->mimeParts = new MimeMessage();
+
+            return $this->mimeParts;
         }
 
         public function getMimeMessageContent() {
@@ -67,6 +76,10 @@ namespace osTicket\Mail {
                 $this->mimeContent = new ContentMimeMessage();
 
             return $this->mimeContent;
+        }
+
+        public function getHeader(string $name) {
+            return $this->getHeaders()->getHeader($name);
         }
 
         public function addHeader($header, $value=null) {
@@ -142,9 +155,18 @@ namespace osTicket\Mail {
         // Please use this method to set Message-Id otherwise it will be
         // utf-8 endcoded and results is an invalid email & bounces
         public function setMessageId(string $id) {
-            $mid = new Header\MessageId();
-            $mid->setId($id);
-            $this->addHeader($mid);
+            try {
+                $header = new Header\MessageId();
+                $header->setId($id);
+                $this->addHeader($header);
+                $this->mid = $header->getId();
+            } catch (\Throwable $t)  {
+                // Ignore invalid mid. Upstream will generate one
+            }
+        }
+
+        public function getMessageId() {
+            return $this->getId();
         }
 
         // Valid email address required or no return "<>" tag
@@ -201,11 +223,19 @@ namespace osTicket\Mail {
             }
         }
 
-        public function setFrom($emailOrAddressList, $name=null) {
+        public function setFrom($email, $name=null) {
             // We're resetting the body here when FROM address changes - e.g
             // after failed send attempt while trying multiple SMTP accounts
             unset($this->body);
-            return parent::setFrom($emailOrAddressList, $name);
+            return parent::setFrom($email, $name);
+        }
+
+        // This is used to set FROM & and clear Sender to a new Email Address
+        public function setOriginator($email, $name=null) {
+            // Set the FROM  Header
+            $this->setFrom($email, $name);
+            // Remove Sender Header
+            $this->getHeaders()->removeHeader('sender');
         }
 
         public function setContentType($contentType) {
@@ -619,8 +649,9 @@ namespace osTicket\Mail {
                 case $auth instanceof NoAuthCredentials:
                     // No Authentication - simply return host and port
                     return [
-                        'host'      => $connect['host'],
-                        'port'      => $connect['port']
+                        'host' => $connect['host'],
+                        'port' => $connect['port'],
+                        'name' => $connect['name'],
                     ];
                     break;
                 case $auth instanceof BasicAuthCredentials:
@@ -646,6 +677,7 @@ namespace osTicket\Mail {
             return [
                 'host' => $connect['host'],
                 'port' => $connect['port'],
+                'name' => $connect['name'],
                 'connection_time_limit' => 300, # 5 minutes limit
                 'connection_class'  => $auth->getConnectionClass(),
                 'connection_config' => $config
@@ -809,25 +841,33 @@ namespace osTicket\Mail {
             // We allow scheme to hint for encryption for people using ssl or tls
             // on nonstandard ports.
             $host = $account->getHost();
+            $port = (int) $account->getPort();
             $ssl = null;
             $matches = [];
-            if (preg_match('~^(ssl|tls)://(.*+)$~iu', $host, $matches))
+            if (preg_match('~^(ssl|tls|plain)://(.*+)$~iu',
+                        strtolower($host), $matches)) {
                 list(, $ssl, $host) = $matches;
-            // Set ssl or tls on based on standard ports
-            $port = $account->getPort();
-            if (!$ssl && $port) {
+                // Clear ssl when "plain" connection is being forced without
+                // using port number as the indicator!
+                $ssl = strcmp($ssl, 'plain') ? $ssl : null;
+                // Why would someone use a standard encryption based port
+                // for unencrypted connection is beyond me - but apparently
+                // it's a thing!!
+            } elseif (!$ssl && $port) {
+                // Set ssl or tls on based on standard ports
                 if (in_array($port, [465, 993, 995]))
                     $ssl = 'ssl';
                 elseif (in_array($port, [587]))
                     $ssl = 'tls';
             }
 
+            // Set the connection settings
             $this->connection = [
                 'host' => $host,
-                'port' => (int) $port,
+                'port' => $port,
                 'ssl' => $ssl,
                 'protocol' => strtoupper($account->getProtocol()),
-                'name' => null
+                'name' => self::get_hostname(),
             ];
 
             // Set errors to null to clear validation
@@ -886,7 +926,7 @@ namespace osTicket\Mail {
 
         public function describe() {
             return sprintf('%s://%s:%s/%s',
-                    $this->getSsl() ?: 'none',
+                    $this->getSsl() ?: 'plain',
                     $this->getHost(),
                     $this->getPort(),
                     $this->getProtocol());
@@ -895,15 +935,17 @@ namespace osTicket\Mail {
         private function validate() {
 
             if (!isset($this->errors)) {
+                // Set errors to an array to to make sure don't
+                // unneccesarily validate valid info again.
                 $this->errors = [];
+                // We're simply making sure required info are set. True
+                // validation will happen at the protocol connection level
                 $info = $this->getConnectionConfig();
                 foreach (['host', 'port', 'protocol'] as $p ) {
                     if (!isset($info[$p]) || !$info[$p])
                         $this->errors[$p] = sprintf('%s %s',
                                 strtoupper($p), __('Required'));
                 }
-                // TODO: Validate hostname - for now we're punting to be
-                // validated at the protocol connection level
             }
             return !count($this->errors);
         }
@@ -914,6 +956,29 @@ namespace osTicket\Mail {
 
         public function getErrors() {
             return $this->errors;
+        }
+
+        /*
+         * get_hostname
+         *
+         * Please note that this is different from getHost above
+         *
+         * Here we're getting the hostname to use on HELO/EHLO when
+         * initiating an SMTP connection. It should be a valid hostname with
+         * valid reverse-lookup for better deliverability.
+         *
+         * Perhaps this can be a setting in the future but allowing users
+         * to set it to **anything** will results in more mail issues than just
+         * defaulting to what the OS tells us or localhost for that matter.
+         *
+         * For now, we're simply asking core osTicket to give us the OS hostname
+         * otherwise it will default to localhost which some mail servers frawns
+         * upon since it won't have a valid reverse-lookup.
+         *
+         */
+        private static function get_hostname() {
+            // We're simply returning what the OS is telling us!
+            return php_uname('n');
         }
     }
 }
