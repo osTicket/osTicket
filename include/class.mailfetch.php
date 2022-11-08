@@ -93,21 +93,39 @@ class Fetcher {
 
         // Get basic fetch settings
         $archiveFolder = $this->getArchiveFolder();
-        $delete = $this->canDeleteEmails();
-        $max = $this->getMaxFetch();
-        // Get full message count
-        $messageCount = $this->mbox->countMessages();
+        $deleteFetched =  $this->canDeleteEmails();
+        $max = $this->getMaxFetch() ?: 30; // default to 30 if not set
+
+        // Get message count in the Fetch Folder
+        if (!($messageCount = $this->mbox->countMessages()))
+            return 0;
+
+        // If the number of emails in the folder are more than Max Fetch
+        // then process the latest $max emails - this is necessary when
+        // fetched emails are not getting archived or deleted, which might
+        // lead to fetcher being stuck 4ever processing old emails already
+        // fetched
+        if ($messageCount > $max) {
+            // Latest $max messages
+            $messages = range($messageCount-$max, $messageCount);
+        } else {
+            // Create a range of message sequence numbers (msgno) to fetch
+            // starting from the oldest taking max fetch into account
+            $messages = range(1, min($max, $messageCount));
+        }
+
         $msgs = $errors = 0;
-        for ($i = $messageCount; $i > 0; $i--) { // Process messages in reverse.
+        // TODO: Use message UIDs instead of ids
+        foreach ($messages as $i) {
             try {
                 // Okay, let's try to create a ticket
-                if ($this->createTicket($i)) {
+                if (($result=$this->createTicket($i))) {
                     // Mark the message as "Seen" (IMAP only)
                     $this->mbox->markAsSeen($i);
                     // Attempt to move the message if archive folder is set or
                     if ($archiveFolder)
                         $this->mbox->moveMessage($i, $archiveFolder);
-                    elseif ($delete)  // else delete if deletion is desired
+                    elseif ($deleteFetched)  // else delete if deletion is desired
                         $this->mbox->removeMessage($i);
                     $msgs++;
                     $errors = 0; // We are only interested in consecutive errors.
@@ -115,16 +133,17 @@ class Fetcher {
                     $errors++;
                 }
             } catch (\Throwable $t) {
-                // Generic Exceptions - log the message
-                $errors++;
+                // If we have result then exception happened after email
+                // processing and shouldn't count as an error
+                if (!$result)
+                    $errors++;
+                // log the exception as a debug message
                 $this->logDebug($t->getMessage());
             }
-
-            if ($max && ($msgs >= $max || $errors > ($max*0.8)))
-                break;
         }
+        // Expunge the mailbox
 		$this->mbox->expunge();
-        // Warn on excessive errors
+        // Warn on excessive errors (errors more than tickets created)
         if ($errors > $msgs) {
             $warn = sprintf(_S('Excessive errors processing emails for %1$s (%2$s). Please manually check the inbox.'),
                     $this->mbox->getHostInfo(), $this->getEmail());
