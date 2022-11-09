@@ -27,8 +27,9 @@ Bootstrap::i18n_prep();
 Bootstrap::loadCode();
 Bootstrap::connect();
 
-#Global override
+# Global Override when behind a proxy
 $_SERVER['REMOTE_ADDR'] = osTicket::get_client_ip();
+$_SERVER['SERVER_PORT'] = osTicket::get_client_port();
 
 if(!($ost=osTicket::start()) || !($cfg = $ost->getConfig()))
 Bootstrap::croak(__('Unable to load config info from DB.').' '.__('Get technical help!'));

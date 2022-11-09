@@ -116,7 +116,11 @@ function db_version() {
 }
 
 function db_timezone() {
-    return db_get_variable('system_time_zone', 'global');
+    $timezone = db_get_variable('time_zone', 'global');
+    if ($timezone == 'SYSTEM')
+        $timezone = db_get_variable('system_time_zone', 'global');
+
+    return $timezone;
 }
 
 function db_get_variable($variable, $type='session') {
