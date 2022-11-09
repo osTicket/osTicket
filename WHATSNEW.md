@@ -1,3 +1,29 @@
+osTicket v1.17.1
+================
+### Enhancements
+* mail: Add plain:// encryption scheme hint (7c1b97b3, 39d76258)
+
+### Improvements
+* mailer: Make Headers Valid Again (c08a8a8a, aaee6b0f, 00981554, 2223877c, 020fa0d3, 60c8c884)
+* POP3 Configration can not saved (b84547b0, ccd8445e)
+* fetcher: Errors Handling & Logging (384aad13, 22edf2b4, c92006e6)
+* upgrader: Email Account Status (aee25d69)
+* issue: Plugin Config Item Exists (fdf9e412)
+* mailer: Improvements & Enhancements (845e5008, 23a80592, 977cf9aa)
+* smtp: Use proper name when saying What's Up (HELO/EHLO) (b0e5ac83)
+* email: Make sure Email Account is Active 4realz! (5efd9f14, a9b57496)
+* Session++ (ced0ef4d, b943a955, b6b63c99, f58e1c5d, 47df2b44, e2e6c0f4, 9ab5b4f1, da667366, f2c01840, c2be4ebf, db913bd3)
+* setup: Use Bootstrap:ini() to initialize setup dir sessions (48e436f0)
+* issue: Plugin Config Item Exists (fdf9e412)
+* upgrader: Email Account Status (aee25d69)
+* fetcher: Errors Handling & Logging (384aad13, 22edf2b4, c92006e6)
+* fetcher: Mail Fetch Order (f1639d41, 24338c2b)
+* SMTP: Dont send 'QUIT' on __destruct() (dbeae227)
+* issue: MTA Typo (03eeb8e2)
+* sendmail: Strip "To" and "Subject" headers (ac3855a4)
+* Mail Parse Error Handling (320981df, 75c5cfe9, a4e36d39, ba2d31cd, 30ad9cd4, 678098d8, 46b7899b, f85f9036)
+* Issue/session revisited (49d91b05, 4fc5f5cc)
+
 osTicket v1.17
 ==============
 ### Enhancements
