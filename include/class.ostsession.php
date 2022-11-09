@@ -226,7 +226,7 @@ class osTicketSession {
      * it otherwise it should destroy it by calling this->destroy($id)
      */
     // Expire session - end is near mb!
-    static function expire($id, $ttl) {
+    static function expire($id, int $ttl) {
         // See if we have a backend to ask to expire the session - otherwise
         // we destroy session now!
         if (!($backend=self::registered_backend()))
@@ -234,6 +234,12 @@ class osTicketSession {
 
         // Expire session soonish (now() + $ttl) - end is near mb!
         return (bool) $backend->expire($id, $ttl);
+    }
+
+    // Aks the backend to destroy a session now
+    static function destroy($id) {
+        // Expire with ttl of 0 destroys the session
+        return (bool) self::expire($id, 0);
     }
 
     // Cleanup Expired Sessions
