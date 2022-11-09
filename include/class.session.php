@@ -362,6 +362,10 @@ namespace osTicket\Session {
         }
 
         public function expire($id, $ttl) {
+            // Destroy session record if expire is now.
+            if ($ttl == 0)
+                return $this->destroy($id);
+
             if (!$this->expireRecord($id, $ttl))
                 return false;
 

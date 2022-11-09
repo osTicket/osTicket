@@ -214,8 +214,6 @@ class osTicketSession {
         // Restart the new session
         session_start();
         // Return the new session id
-        $new = session_id();
-        error_log("regenerate: old($old) new($new)");
         return session_id();
     }
 
@@ -226,7 +224,7 @@ class osTicketSession {
      * it otherwise it should destroy it by calling this->destroy($id)
      */
     // Expire session - end is near mb!
-    static function expire($id, $ttl) {
+    static function expire($id, int $ttl) {
         // See if we have a backend to ask to expire the session - otherwise
         // we destroy session now!
         if (!($backend=self::registered_backend()))
@@ -234,6 +232,12 @@ class osTicketSession {
 
         // Expire session soonish (now() + $ttl) - end is near mb!
         return (bool) $backend->expire($id, $ttl);
+    }
+
+    // Aks the backend to destroy a session now
+    static function destroy($id) {
+        // Expire with ttl of 0 destroys the session
+        return (bool) self::expire($id, 0);
     }
 
     // Cleanup Expired Sessions
@@ -267,7 +271,7 @@ class osTicketSession {
     }
 
     static function get_online_users(int $seconds = 0) {
-        // Authoretative is lookup is DatabaseSessionRecords assuming
+        // Authoretative lookup is DatabaseSessionRecords assuming
         // database is the primary backend or secondary logger
         $records = DatabaseSessionRecord::active_sessions([
                 'lastseen' => $seconds,
@@ -471,13 +475,39 @@ class DatabaseSessionRecord extends VerySimpleModel
         ])->delete();
     }
 
+    static function user_sessions(int $id)  {
+        $criteria = ['user_id' => $id];
+        return self::active_sessions($criteria);
+    }
+
     static function active_sessions(array $criteria = []) {
+        $criteria['active'] = true;
+        return self::sessions($criteria);
+    }
+
+    static function expired_sessions(array $criteria = []) {
+        $criteria['active'] = false;
+        return self::sessions($criteria);
+    }
+
+    static function sessions(array $criteria = []) {
+        // now
         $now = SqlFunction::NOW();
-        // Active must not be expired
-        $filters = ['session_expire__gt' => $now];
+        // empty filters
+        $filters = [];
+        // Active or Expired
+        if (isset($criteria['active']) && $criteria['active']) {
+            // Active must not be expired
+            $filters = ['session_expire__gt' => $now];
+        } elseif (isset($criteria['active'])) {
+            // expired session if active is set to false
+            $filters = ['session_expire__lt' => $now];
+        }
 
         // Authenticated users have user_id set (only Agents at the moment)
-        if (isset($criteria['authenticated']) && $criteria['authenticated'])
+        if (isset($criteria['user_id']) && $criteria['user_id'])
+            $filters['user_id'] = $criteria['user_id'];
+        elseif (isset($criteria['authenticated']) && $criteria['authenticated'])
             $filters['user_id__gt'] = 0;
         elseif (isset($criteria['authenticated']))
             $filters['user_id'] = 0; // Guests only
