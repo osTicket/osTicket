@@ -214,8 +214,6 @@ class osTicketSession {
         // Restart the new session
         session_start();
         // Return the new session id
-        $new = session_id();
-        error_log("regenerate: old($old) new($new)");
         return session_id();
     }
 
@@ -273,7 +271,7 @@ class osTicketSession {
     }
 
     static function get_online_users(int $seconds = 0) {
-        // Authoretative is lookup is DatabaseSessionRecords assuming
+        // Authoretative lookup is DatabaseSessionRecords assuming
         // database is the primary backend or secondary logger
         $records = DatabaseSessionRecord::active_sessions([
                 'lastseen' => $seconds,
@@ -477,13 +475,39 @@ class DatabaseSessionRecord extends VerySimpleModel
         ])->delete();
     }
 
+    static function user_sessions(int $id)  {
+        $criteria = ['user_id' => $id];
+        return self::active_sessions($criteria);
+    }
+
     static function active_sessions(array $criteria = []) {
+        $criteria['active'] = true;
+        return self::sessions($criteria);
+    }
+
+    static function expired_sessions(array $criteria = []) {
+        $criteria['active'] = false;
+        return self::sessions($criteria);
+    }
+
+    static function sessions(array $criteria = []) {
+        // now
         $now = SqlFunction::NOW();
-        // Active must not be expired
-        $filters = ['session_expire__gt' => $now];
+        // empty filters
+        $filters = [];
+        // Active or Expired
+        if (isset($criteria['active']) && $criteria['active']) {
+            // Active must not be expired
+            $filters = ['session_expire__gt' => $now];
+        } elseif (isset($criteria['active'])) {
+            // expired session if active is set to false
+            $filters = ['session_expire__lt' => $now];
+        }
 
         // Authenticated users have user_id set (only Agents at the moment)
-        if (isset($criteria['authenticated']) && $criteria['authenticated'])
+        if (isset($criteria['user_id']) && $criteria['user_id'])
+            $filters['user_id'] = $criteria['user_id'];
+        elseif (isset($criteria['authenticated']) && $criteria['authenticated'])
             $filters['user_id__gt'] = 0;
         elseif (isset($criteria['authenticated']))
             $filters['user_id'] = 0; // Guests only
