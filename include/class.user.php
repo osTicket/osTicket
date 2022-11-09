@@ -1326,7 +1326,7 @@ class UserAccount extends VerySimpleModel {
         }
 
         $this->set('timezone', $vars['timezone']);
-        $this->set('username', $vars['username']);
+        $this->set('username', Format::sanitize($vars['username']));
 
         if ($vars['passwd1']) {
             $this->setPassword($vars['passwd1']);
@@ -1404,7 +1404,7 @@ class UserAccount extends VerySimpleModel {
         ));
 
         if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
-            $account->set('username', $vars['username']);
+            $account->set('username', Format::sanitize($vars['username']));
 
         if ($vars['passwd1'] && !$vars['sendemail']) {
             $account->set('passwd', Passwd::hash($vars['passwd1']));

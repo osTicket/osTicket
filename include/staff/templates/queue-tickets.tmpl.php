@@ -26,15 +26,11 @@ $columns = $queue->getColumns();
 
 // Figure out REFRESH url — which might not be accurate after posting a
 // response
-list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
-$args = array();
-parse_str($_SERVER['QUERY_STRING'], $args);
-
-// Remove commands from query
-unset($args['id']);
-if (isset($args['a']) && ($args['a'] !== 'search')) unset($args['a']);
-
-$refresh_url = $path . '?' . http_build_query($args);
+// Remove some variables from query string.
+$qsFilter = ['id'];
+if (isset($_REQUEST['a']) && ($_REQUEST['a'] !== 'search'))
+    $qsFilter[] = 'a';
+$refresh_url = Http::refresh_url($qsFilter);
 
 // Establish the selected or default sorting mechanism
 if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {

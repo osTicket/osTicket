@@ -497,7 +497,7 @@ class ClientAccount extends UserAccount {
         if ($vars['backend']) {
             $this->set('backend', $vars['backend']);
             if ($vars['username'])
-                $this->set('username', $vars['username']);
+                $this->set('username', Format::sanitize($vars['username']));
         }
 
         if ($vars['passwd1']) {

@@ -533,6 +533,25 @@ class osTicket {
     }
 
     /*
+     * get_client_port
+     *
+     * Get client PORT from "Http_X-Forwarded-PORT" if we have trusted
+     * proxies set.
+     * FIXME: Follow trusted proxies chain
+     *
+     */
+    static function get_client_port($header='HTTP_X_FORWARDED_PORT') {
+        $port = $_SERVER['SERVER_PORT'];
+        // We're just making sure we have Trusted Proxies
+        // FIXME: Validate
+        $proxies = self::getTrustedProxies();
+        if (isset($_SERVER[$header]) &&  $proxies)
+            $port = $_SERVER[$header];
+
+        return $port;
+    }
+
+    /*
      * get_client_ip
      *
      * Get client IP address from "Http_X-Forwarded-For" header by following a

@@ -50,6 +50,45 @@ osTicket v1.17-rc1
 ### Enhancements
 * Oauth2 / Modern Email Authentication Support (d99ff6e1-163c28b5)
 
+osTicket v1.16.4
+================
+### Enhancements
+* i18n: Default Ticket Queue (7a5dd0eb)
+* mailparse: thread_entry_recipients to (a82af698)
+* issue: Unique Variable Names (0dc5a02e)
+* php: 8.1 Support (22b599e3, c24ee575, dd2b9a43)
+* issue: Session Cookie Refresh (1630459a)
+
+### Improvements
+* oops: jQuery UI Images (822a05fe)
+* issue: Manually Sorted Topics (a80db8a7)
+* issue: Queue Export Headings (47449758)
+* installer: Checking Existing Install (a3f2e246)
+* Catch storage error when mailing ticket response (ca5932ac)
+* issue: Staff Ticket Open Session (4f3d3cff)
+* issue: External Auth Regenerate Session (83252260)
+* issue: Searching Numbers (e00003f6)
+* Replace hacky way with ReflectionClass (55f61390)
+* Issue: Installer YAML (6780f29e)
+* issue: Fix Upgrader Session Issues (311089a6)
+* issue: Undefined Variable ORM (4009881a)
+* v1.16: Misc Bug Fixes (4c0341e2)
+* issue: User/Agent Password Reset (d3de1599)
+* issue: imagesx Boolean (5d06ee46)
+* file: Possible Key Collision (21c71c6e)
+* cli: User Import (4c43e46f)
+* issue: Miscellaneous Fixes (50bc1a21, 5002bef9, e036fd9a, 35684189, 9c280b49, c2a15b64, 5e970061)
+* issue: urldecode Dispatcher (c00b8e87)
+* issue: Information and SectionBreak Fields On Edit (7b60c576)
+* issue: Favicons Login Headers (61655ec6)
+* issue: Schedules stops_on (e2dcbb69)
+* Issue: Agent Permission to Assign Tickets (b4732b05)
+* issue: File Upload Size (45f554ad)
+
+### Security
+* security: Username XSS (5213ff13)
+* security: Refresh URL (3702a4fb)
+
 osTicket v1.16.3
 ================
 ### Improvements
