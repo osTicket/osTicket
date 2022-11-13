@@ -446,6 +446,11 @@ class Mail_Parse {
                     && $part->headers['content-disposition']
                     && preg_match('/filename="([^"]+)"/', $part->headers['content-disposition'], $matches)) {
                 $filename = Format::mimedecode($matches[1], $this->charset);
+            } elseif (preg_match('/filename\*\d+=([^;]+);/', $part->headers['content-disposition']) === 1) {
+                $filename = '';
+                foreach ($part->d_parameters as $key=>$fname)
+                    if (strpos($key, 'filename*') !== false)
+                        $filename .= Format::decodeRfc5987($fname);
             } else {
                 // Not an attachment?
                 return false;
