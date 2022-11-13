@@ -237,7 +237,8 @@ class osTicket {
         if($email) {
             $email->sendAlert($to, $subject, $message, null, array('text'=>true, 'reply-tag'=>false));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
+            osTicket\Mail\Mailer::sendmail($to, $subject, $message,
+                     '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
