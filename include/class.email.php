@@ -1156,6 +1156,7 @@ class MailBoxAccount extends EmailAccount {
             $this->fetchmax = $vars['mailbox_fetchmax'] ?: 30;
             $this->postfetch =  $vars['mailbox_postfetch'];
             $this->last_activity = null;
+            $this->last_error_msg = null;
             $this->num_errors = 0;
             //Post fetch email handling...
             switch ($vars['mailbox_postfetch']) {
@@ -1300,6 +1301,7 @@ class SmtpAccount extends EmailAccount {
             $this->protocol = 'SMTP';
             $this->allow_spoofing = $vars['smtp_allow_spoofing'] ? 1 : 0;
             $this->last_activity = null;
+            $this->last_error_msg = null;
             $this->num_errors = 0;
             // If account is active then attempt to authenticate
             if ($this->active && $creds) {
