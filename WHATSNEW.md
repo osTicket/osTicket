@@ -1,3 +1,11 @@
+osTicket v1.17.2
+================
+### Improvements
+* Fix old reference to SessionData (cf8b8ce7)
+* Email Misc. Fixes (de620fe6, c19a5f03)
+* session: Memcache Max TTL (ea3e03d2)
+* mailer: Use Namespaced Mailer (133585f8)
+
 osTicket v1.17.1
 ================
 ### Enhancements
