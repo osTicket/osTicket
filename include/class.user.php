@@ -220,7 +220,11 @@ implements TemplateVariable, Searchable {
     static function fromVars($vars, $create=true, $update=false) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
-        if (!$user && $create) {
+        if (!$user
+                // can create user?
+                && $create
+                // Make sure at least email is valid
+                && Validator::is_email($vars['email'])) {
             $name = $vars['name'];
             if (is_array($name))
                 $name = implode(', ', $name);
@@ -254,8 +258,7 @@ implements TemplateVariable, Searchable {
             $type = array('type' => 'created');
             Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
-        }
-        elseif ($update) {
+        } elseif ($update && $user) {
             $errors = array();
             $user->updateInfo($vars, $errors, true);
         }

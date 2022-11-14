@@ -604,7 +604,7 @@ class osTicket {
         if (!$proxies)
             return false;
         // Wildcard set - trust all proxies
-        else if ($proxies == '*')
+        else if (in_array('*', $proxies))
             return true;
 
         return ($proxies && Validator::check_ip($ip, $proxies));

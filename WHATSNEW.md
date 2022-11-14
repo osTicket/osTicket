@@ -76,6 +76,15 @@ osTicket v1.17-rc1
 ### Enhancements
 * Oauth2 / Modern Email Authentication Support (d99ff6e1-163c28b5)
 
+osTicket v1.16.5
+================
+### Improvements
+* Fix trusted proxy wildcard check (04c0bb3a)
+* issue: Html Typo (50dfe931)
+* mailparse: Parse filenames with complex format (c8067212)
+* validator: Email Domain Verification (3c4a20a8)
+* user: Make sure User has a valid Email on create (55fbfcb5)
+
 osTicket v1.16.4
 ================
 ### Enhancements
