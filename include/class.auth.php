@@ -1594,7 +1594,7 @@ abstract class PasswordPolicy extends ServiceRegistry {
                 return false;
         }
 
-        return SessionData::objects()->filter($criteria)->delete();
+        return DatabaseSessionRecord::objects()->filter($criteria)->delete();
     }
 }
 Signal::connect('auth.clean', array('PasswordPolicy', 'cleanSessions'));
