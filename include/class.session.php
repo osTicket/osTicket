@@ -500,7 +500,8 @@ namespace osTicket\Session {
             // Since memchache takes care of carbage collection internally
             // we want to make sure we set data to expire based on the session's
             // maxidletime (if available) otherwise it defailts to SESSION_TTL.
-            $ttl = $this->getMaxlife();
+            // Memchache has a maximum ttl of 30 days
+            $ttl = min($this->getMaxlife(), 2592000);
             $key = $this->getKey($id);
             foreach ($this->getServers() as $server) {
                 list($host, $port) = $server;
