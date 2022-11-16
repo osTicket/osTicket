@@ -251,6 +251,12 @@ class OsticketConfig extends Config {
         'verify_email_addrs' => 1,
         'client_avatar' => 'gravatar.mm',
         'agent_avatar' => 'gravatar.mm',
+        'isclienttime' => 0,
+        'istickettime' => 0,
+        'isthreadtime' => 0,
+        'isthreadtimer' => 0,
+        'isthreadbill' => 0,
+        'isthreadbilldefault' => 0,
         'ticket_lock' => 2, // Lock on activity
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
@@ -300,6 +306,31 @@ class OsticketConfig extends Config {
         }
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
+    }
+
+    function isClientTime() {
+        // determines if Client Time View is on or not
+        return ($this->get('isclienttime'));
+    }
+
+    function isThreadTime() {
+        // determines if Ticket Time via Threads is Enabled
+        return ($this->get('isthreadtime'));
+    }
+
+    function isThreadTimer() {
+        // determines if Ticket Thread Timer is Enabled
+        return ($this->get('isthreadtimer'));
+    }
+
+    function isThreadBill() {
+        // determines if Ticket Thread Bill is Enabled
+        return ($this->get('isthreadbill'));
+    }
+
+    function isThreadBillDefault() {
+        // determines if Ticket Thread Bill is Default
+        return ($this->get('isthreadbilldefault'));
     }
 
     function isCannedResponseEnabled() {
@@ -1253,6 +1284,9 @@ class OsticketConfig extends Config {
             case 'kb':
                 return $this->updateKBSettings($vars, $errors);
                 break;
+            case 'tickettime':
+                return $this->updateTimeSettings($vars, $errors);
+                break;
             default:
                 $errors['err']=sprintf('%s - %s', __('Unknown setting option'), __('Get technical help!'));
         }
@@ -1707,6 +1741,18 @@ class OsticketConfig extends Config {
         ));
     }
 
+    function updateTimeSettings($vars, &$errors) {
+
+        if($errors) return false;
+
+        return $this->updateAll(array(
+            'isclienttime'=>isset($vars['isclienttime'])?1:0,
+            'isthreadtime'=>isset($vars['isthreadtime'])?1:0,
+            'isthreadtimer'=>isset($vars['isthreadtimer'])?1:0,
+            'isthreadbill'=>isset($vars['isthreadbill'])?1:0,
+            'isthreadbilldefault'=>isset($vars['isthreadbilldefault'])?1:0,
+        ));
+    }
 
     function updateAlertsSettings($vars, &$errors) {
 

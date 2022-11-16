@@ -382,6 +382,7 @@ implements Searchable {
 
     // Render thread
     function render($type=false, $options=array()) {
+        global $cfg;
 
         $mode = $options['mode'] ?: self::MODE_STAFF;
 
@@ -974,6 +975,45 @@ implements TemplateVariable {
         $this->body = (string) $body;
         return $this->save();
     }
+
+	static function validateTime($vars, &$errors) {
+		if ($vars['time_spent'] < 0)
+			$errors['time_spent'] = __("Time spent must be +ve");
+		if (! isset($vars['time_type']))
+			$errors['time_type'] = __("Please select a time type");
+	}
+	
+    function setTimeInvoice($time_invoice) {
+        global $cfg;
+        $this->time_invoice = (int) $time_invoice;
+        return $this->save();
+    }
+
+	function getTimeInvoice() {
+		return $this->time_invoice;
+	}
+
+	function getTimeSpent() {
+		return $this->time_spent;
+	}
+
+	function getTimeType() {
+		return $this->time_type;
+	}
+
+    function getTimeTypeName() {
+        $typetext = DynamicListItem::lookup($this->time_type);
+        return $typetext->value;
+    }
+
+	function getTimeBill() {
+		return $this->time_bill;
+	}
+
+	function setTimeBill($val) {
+		$this->time_bill = $val;
+		$this->save();
+	}
 
     function getMessage() {
         return $this->getBody();
@@ -1659,6 +1699,19 @@ implements TemplateVariable {
         // Ensure valid external images
         $body = Format::stripExternalImages($body);
 
+        $time_spent = $vars['time_spent'];
+        if ($time_spent && is_object($time_spent))
+            $time_spent = (float) $time_spent;
+        $time_type = $vars['time_type'];
+        if ($time_type && is_object($time_type))
+            $time_type = (int) $time_type;
+        $time_bill = $vars['time_bill'];
+        if ($time_bill && is_object($time_bill))
+            $time_bill = (int) $time_bill;
+        $time_invoice = $vars['time_invoice'];
+        if ($time_invoice && is_object($time_invoice))
+            $time_invoice = (int) $time_invoice;
+
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
@@ -1672,6 +1725,10 @@ implements TemplateVariable {
             'staff_id' => $vars['staffId'],
             'user_id' => $vars['userId'],
             'poster' => $poster,
+            'time_spent' => $time_spent,
+            'time_type' => $time_type,
+            'time_bill' => $time_bill,
+            'time_invoice' => $time_invoice,
             'source' => $vars['source'],
             'flags' => $vars['flags'] ?: 0,
         ));
@@ -2984,12 +3041,17 @@ class ResponseThreadEntry extends ThreadEntry {
     }
 
     static function add($vars, &$errors=array()) {
+		global $cfg;
 
         if (!$vars || !is_array($vars) || !$vars['threadId'])
             $errors['err'] = __('Missing or invalid data');
         elseif (!$vars['response'])
             $errors['response'] = __('Response content is required');
 
+		if ($cfg->isThreadTime()) {
+			ThreadEntry::validateTime($vars, $errors);
+
+		}
         if ($errors) return false;
 
         $vars['type'] = self::ENTRY_TYPE;

@@ -96,6 +96,12 @@ if($ticket->isOverdue())
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
                  <li title="PDF File"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1&events=1"><i
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes + Events'); ?></a>
+<?php if ($cfg->isThreadTime()) { ?>
+                 <li><a class="no-pjax" href="timebill.php?id=<?php echo $ticket->getId(); ?>&view=invoice"><i
+                 class="icon-file-alt"></i> <?php echo __('Time and Billing Invoice'); ?></a>
+                 <li><a class="no-pjax" href="timebill.php?id=<?php echo $ticket->getId(); ?>&view=time"><i
+                 class="icon-file-text-alt"></i> <?php echo __('Time Report'); ?></a>
+<?php } ?> 
                  <?php if (extension_loaded('zip')) { ?>
                  <li title="ZIP Archive"><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=zip&notes=1"><i
                  class="icon-folder-close-alt"></i> <?php echo __('Thread + Internal Notes + Attachments'); ?></a>
@@ -638,6 +644,12 @@ if($ticket->isOverdue())
                     <th nowrap><?php echo __('Last Response');?>:</th>
                     <td><?php echo Format::datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
+                <?php if ($cfg->isThreadTime()) { ?>
+                <tr>
+                    <th nowrap><?php echo __('Time Spent');?>:</th>
+                    <td><?php echo $ticket->getTimeSpent(); ?></td>
+                </tr>
+                <?php } ?>
             </table>
         </td>
     </tr>
@@ -1123,6 +1135,53 @@ if ($errors['err'] && isset($_POST['a'])) {
                     </select>
                 </td>
             </tr>
+            <?php if ($cfg->isThreadTime()) {
+            if($ticket->isOpen()) { ?>
+            <tr>
+                <td width="120">
+                    <label><strong><?php echo __('Time Spent');?>:</strong></label>
+                </td>
+                <td>
+                <?php
+                if ($errors['time_spent'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_spent']);
+				?>
+				<input type="text" id="time_spent" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (Minutes)
+                    <?php if ($cfg->isThreadTimer()) { ?>
+                    <i class="icon-play" title="Start / Resume timer"></i>
+                    <i class="icon-pause" title="Pause timer"></i>
+                    <i class="icon-undo" title="Reset timer to zero"></i>
+                    <?php } ?>
+				<span class="startTime"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="time_type"><strong>Time Type:</strong></label>
+                </td>
+                <td>
+                <?php
+                if ($errors['time_type'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_type']);
+				?>
+                    <select id="time_type" name="time_type">
+					<option selected disabled style="display:none">Please Select ...</option>
+                    <?php
+                    $list = DynamicList::lookup(['type' => 'time-type']);
+                    foreach ($list->getAllItems() as $item) { ?>
+                        <option value="<?php echo $item->getId(); ?>"
+						<?php if ($_POST['time_type'] == $item->getId()) echo "selected"; ?>
+						><?php echo $item->getValue(); ?></option>
+<?php               } ?>
+                    </select>
+                    <?php if ($cfg->isThreadBill()) { ?>
+                        &nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" <?php if ($cfg->isThreadBillDefault()) { echo 'checked=checked'; } ?>/> Billable?
+                    <?php } ?>
+                </td>
+            </tr>
+            <?php }} ?>
          </tbody>
         </table>
         <p  style="text-align:center;">
@@ -1213,6 +1272,53 @@ if ($errors['err'] && isset($_POST['a'])) {
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                 </td>
             </tr>
+            <?php if ($cfg->isThreadTime()) {
+            if($ticket->isOpen()) { ?>
+            <tr>
+                <td width="120">
+                    <label><strong><?php echo __('Time Spent');?>:</strong></label>
+                </td>
+                <td>
+                <?php
+                if ($errors['time_spent'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_spent']);
+				?>
+                    <input type="text" id="time_spent" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (Minutes)
+                    <?php if ($cfg->isThreadTimer()) { ?>
+                    <i class="icon-play" title="Start / Resume timer"></i>
+                    <i class="icon-pause" title="Pause timer"></i>
+                    <i class="icon-undo" title="Reset timer to zero"></i>
+                    <?php } ?>
+				<span class="startTime"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="time_type"><strong>Time Type:</strong></label>
+                </td>
+                <td>
+                <?php
+                if ($errors['time_type'])
+                    echo sprintf('<div class="error">%s</div>',$errors['time_type']);
+				?>
+				<select id="time_type" name="time_type">
+					<option selected disabled style="display:none">Please Select ...</option>
+                    <?php
+                    $list = DynamicList::lookup(['type' => 'time-type']);
+                    foreach ($list->getAllItems() as $item) { ?>
+                        <option value="<?php echo $item->getId(); ?>"
+						  <?php if ($_POST['time_type'] == $item->getId()) echo "selected"; ?>
+						><?php echo $item->getValue(); ?></option>
+<?php               } ?>
+                    </select>
+                    <?php if ($cfg->isThreadBill()) { ?>
+                        &nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" <?php if ($cfg->isThreadBillDefault()) { echo 'checked=checked'; } ?>/> Billable?
+                    <?php } ?>
+                </td>
+            </tr>
+            <?php }} ?>
         </table>
 
        <p style="text-align:center;">
@@ -1444,4 +1550,81 @@ function saveDraft() {
     if (redactor.opts.draftId)
         $('#response').redactor('plugin.draft.saveDraft');
 }
+// Strobe Technologies Ltd | START - Ticket Time Timer
+<?php if ($cfg->isThreadTimer()) { ?>
+// sets default value to 0 minutes if no POST value
+$('input[name=time_spent]').val( <?php echo $_POST['time_spent'] ?? 0; ?> );
+$('i.icon-play').hide();
+var timerOn = true;                        // var to store if the timer is on or off
+var timerStart=new Date();
+var timeSpent = 0;      // overall time
+var interval = 60000; // 60s
+
+$('.startTime').html("Timer started at "+timerStart);
+var startTime=timerStart.getTime();
+
+// callback for recording elapsed time
+var incTime = function () {
+	if (! timerOn) return;		// timer disabled for now
+
+	// calculate time spent since start
+	var now = new Date().getTime();
+	var elapsed = (now-startTime)/interval;
+	$('input[name=time_spent]').val(Math.round(timeSpent + elapsed));
+};
+// set up the callback
+setInterval(incTime, interval);
+
+// button click functions
+$('i.icon-undo').click(function() {
+    // reset - throw away recorded time and start again
+	timerStart=new Date();
+	startTime = timerStart.getTime();
+	timeSpent=0;
+    $('input[name=time_spent]').val(timeSpent);
+	$('.startTime').html("Timer reset at "+timerStart);
+
+    return false;
+});
+$('i.icon-play').click(function() {
+	// record when the timer was started
+	timerStart = new Date();
+	startTime = timerStart.getTime();
+	$('.startTime').html("Timer restarted at "+timerStart);
+	// start recording again
+    timerOn = true;
+
+	// toggle the icons
+    $('i.icon-play').hide();
+    $('i.icon-pause').show();
+
+    return false;
+});
+$('i.icon-pause').click(function() {
+	// turn off the timer callback
+	timerOn = false;
+	
+	// record when we did it
+	now = new Date();
+	$('.startTime').html("Timer paused at "+now);
+
+	// calculate time since the last "start" event and add to the time spent
+	elapsed = (now.getTime() - startTime) / interval;
+	timeSpent = timeSpent + elapsed;
+	$('input[name=time_spent]').val(Math.round(timeSpent));
+
+	// toggle the icons
+    $('i.icon-pause').hide();
+    $('i.icon-play').show();
+
+    return false;
+});
+<?php } ?>
+// Strobe Technologies Ltd | 22/06/2016 | END - Ticket Time Timer
 </script>
+<style>
+    i.icon-undo, i.icon-play, i.icon-pause {
+        cursor: pointer;
+        margin-left: 5px;
+    }
+</style>

@@ -1760,6 +1760,10 @@ class PhoneField extends FormField {
             $phone.=" x$ext";
         return $phone;
     }
+	function display($value) {
+		$v = $this->toString($value);
+		return '<a href="tel:'.$v.'">'.$value."</a>";
+	}
 }
 
 class BooleanField extends FormField {

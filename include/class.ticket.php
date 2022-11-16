@@ -535,6 +535,63 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->updated;
     }
 
+    function getTimeSpent(){
+		// exclude HIDDEN/GUARDED thread entries from this calculation
+		// edited threads get cloned and the old one is hidden
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $this->getId()])
+            ->values('thread__entries__time_type')
+			->exclude(array('thread__entries__flags__hasbit' => ThreadEntry::FLAG_HIDDEN | ThreadEntry::FLAG_GUARDED))
+            ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
+
+        $totals = 0;
+        foreach ($times as $T) {
+            $totals = $totals + $T['totaltime'];
+        }
+
+        return self::formatTime($totals);
+    }
+
+    static function formatTime($time) {
+        $hours = floor($time / 60);
+        $minutes = $time % 60;
+        $formatted = '';
+
+        if ($hours > 0) {
+            $formatted .= sprintf('%d %s', $hours, _N('Hour', 'Hours', $hours));
+        }
+        if ($minutes > 0) {
+            if ($formatted) $formatted .= ', ';
+            $formatted .= sprintf('%d %s', $minutes, _N('Minute', 'Minutes', $minutes));
+        }
+        return $formatted;
+    }
+
+    function getTimeTotalsByType($billable=true, $typeid=false) {
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $this->getId()])
+            ->values('thread__entries__time_type', 'totaltime')
+            ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
+
+        if ($typeid)
+            $times = $times->filter(['thread__entries__time_type' => $typeid]);
+        if ($billable)
+            $times = $times->filter(['thread__entries__time_bill' => 1]);
+
+        $totals = array();
+		// decode time_type to text value
+        foreach ($times as $T) {
+			$ttype = $T['thread__entries__time_type'];
+			if ($ttype == 0 || $T['totaltime'] == 0) 
+				continue;
+			else {
+				$type = DynamicListItem::lookup($ttype)->value;
+			}
+            $totals[$type] = $T['totaltime'];
+        }
+        return $totals;
+    }
+
     function getEffectiveDate() {
         return $this->lastupdate;
     }
@@ -4380,6 +4437,9 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
+        $vars['ticket'] = $ticket;
+        self::filterTicketData($origin, $vars,
+            array_merge(array($form), $topic_forms), $user, true);
 
         // Save the (common) dynamic form
         // Ensure we have a subject

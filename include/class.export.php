@@ -83,6 +83,12 @@ class Export {
                     ->aggregate(array('count' => SqlAggregate::COUNT('entries__id'))),
             ));
 
+        $tickets->annotate(array(
+            'time_spent' => TicketThread::objects()
+                ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))
+                ->aggregate(array('count' => SqlAggregate::SUM('entries__time_spent'))),
+        ));
+
         // Fetch staff information
         // FIXME: Adjust Staff model so it doesn't do extra queries
         foreach (Staff::objects() as $S)
@@ -898,18 +904,6 @@ class TicketZipExporter {
             $zip->addFromString("{$prefix}/{$att->getFilename()}",
                 $att->getFile()->getData());
         }
-
-        // Include custom fields attachments
-        foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
-            $answers = $form->getAnswers()->filter(
-                    array('field__type' => 'files'));
-            foreach ($answers as $answer) {
-                $field = $answer->getField();
-                foreach ($field->getAttachments() as $a)
-                    $zip->addFromString("{$prefix}/{$a->getFilename()}",
-                            $a->getFile()->getData());
-            }
-        }
     }
 
     function addTask($task, $zip, $prefix, $notes=true, $psize=null) {
@@ -934,17 +928,6 @@ class TicketZipExporter {
         foreach ($attachments as $att) {
             $zip->addFromString("{$prefix}/{$task->getNumber()}/{$att->getFilename()}",
                 $att->getFile()->getData());
-        }
-        // Include custom fields attachments
-        foreach (DynamicFormEntry::forTask($task->getId()) as $form) {
-            $answers = $form->getAnswers()->filter(
-                    array('field__type' => 'files'));
-            foreach ($answers as $answer) {
-                $field = $answer->getField();
-                foreach ($field->getAttachments() as $a)
-                    $zip->addFromString("{$prefix}/{$task->getNumber()}/{$a->getFilename()}",
-                            $a->getFile()->getData());
-            }
         }
     }
 

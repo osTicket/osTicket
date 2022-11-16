@@ -616,6 +616,7 @@ class CustomQueue extends VerySimpleModel {
                 'reopen_count' =>   __('Reopen Count'),
                 'attachment_count' => __('Attachment Count'),
                 'task_count' => __('Task Count'),
+                'time_spent' => __('Time Spent'),
                 ) + $cdata;
 
         return $fields;
@@ -2382,7 +2383,7 @@ extends VerySimpleModel {
             return '';
 
         $val = $f->to_php($f->from_query($row, $this->primary));
-        if (!is_string($val) || is_numeric($val))
+        if (!is_string($val))
             $val = $f->display($val);
 
         return $val;
@@ -3224,4 +3225,41 @@ extends AbstractForm {
             )),
         );
     }
+}
+
+class ThreadTimeSpentSum
+extends QueueColumnAnnotation {
+	static $icon = 'time';
+	static $qname = '_time_spent';
+	static $desc = /* @trans */ 'Time Spent';
+
+	// what we actually want is to add all the time up but grouped by time_type which
+	// can't be done as a single entry in the base query because we'd get back more than
+	// one row which would break *everything*
+	// Instead, let the base query run and then pull the data we need in the decorate fn
+	function annotate($query, $name=false) {
+		return $query;
+	}
+
+	function getDecoration($row, $text) {
+		// get sum of time spent by type
+        $times = Ticket::lookup($row['ticket_id'])->getTimeTotalsByType(false);
+
+		$totalTime = 0;
+		// format some output
+		foreach ($times as $ttype => $val) {
+			if ($val == 0) continue;
+			$summary .= $ttype . ": ". Ticket::formatTime($val)."<br>";
+			$totalTime += $val;
+		}
+		if ($totalTime == 0) return;
+		$summary .= "Total time: ".Ticket::formatTime($totalTime);
+		return sprintf('<span data-html="true" class="pull-right faded-more" '.
+				'data-toggle="tooltip" title="%s"><i class="icon-%s"></i></span>',
+			$summary, static::$icon);
+	}
+
+	function isVisible($row) {
+		return $row[static::$qname] > 0;
+	}
 }

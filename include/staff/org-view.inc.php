@@ -82,6 +82,8 @@ if(!defined('OSTSCPINC') || !$thisstaff || !is_object($org)) die('Invalid path')
     class="icon-list-alt"></i>&nbsp;<?php echo __('Tickets'); ?></a></li>
     <li><a href="#notes"><i
     class="icon-pushpin"></i>&nbsp;<?php echo __('Notes'); ?></a></li>
+    <li><a href="#billing"><i
+    class="icon-money"></i>&nbsp;<?php echo __('Billing'); ?></a></li>
 </ul>
 <div id="orgtabs_container">
 <div class="tab_content" id="users">
@@ -102,8 +104,19 @@ $create_note_url = 'orgs/'.$org->getId().'/note';
 include STAFFINC_DIR . 'templates/notes.tmpl.php';
 ?>
 </div>
+<div class="hidden tab_content" id="billing">
+    <form action="org_bill.php" method="get">
+        <h2><?php echo __('Enter Billing Information'); ?></h2>
+        <?php echo __('Start Date');?>: <input class="dp" id="startdate" name="startdate" value="<?php echo Format::htmlchars($info['startdate']); ?>" size="12" autocomplete="OFF" data-fixed="true">
+        <br />
+        <?php echo __('End Date');?>: <input class="dp" id="enddate" name="enddate" value="<?php echo Format::htmlchars($info['enddate']); ?>" size="12" autocomplete="OFF" data-fixed="true">
+        <br />
+        <input type="submit" name="submit" value="<?php echo _P('action-button', __('View report'));?>">
+        <?php echo '<input type="hidden" name="orgid" value="'.$org->getId().'">'; ?>
+    </form>
 </div>
 
+</div>
 <script type="text/javascript">
 $(function() {
     $(document).on('click', 'a.org-action', function(e) {
