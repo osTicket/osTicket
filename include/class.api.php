@@ -169,26 +169,49 @@ class API {
 
 class ApiController extends Controller {
 
-    var $apikey;
+    private $sapi;
+    private $key;
+
+    public function __construct($sapi = null) {
+        // Set API Interface the request is coming from
+        $this->sapi = $sapi ?: (osTicket::is_cli() ? 'cli' : 'http');
+    }
+
+    public function isCli() {
+        return (strcasecmp($this->sapi, 'cli') === 0);
+    }
+
+    private function getInputStream() {
+        return $this->isCli() ? 'php://stdin' : 'php://input';
+    }
+
+    protected function getRemoteAddr() {
+       return $_SERVER['REMOTE_ADDR'];
+    }
+
+    protected function getApiKey() {
+        return $_SERVER['HTTP_X_API_KEY'];
+    }
 
     function requireApiKey() {
-        # Validate the API key -- required to be sent via the X-API-Key
-        # header
-
-        if(!($key=$this->getApiKey()))
+        // Require a valid API key sent as X-API-Key HTTP header
+        // see getApiKey method.
+        if (!($key=$this->getKey()))
             return $this->exerr(401, __('Valid API key required'));
-        elseif (!$key->isActive() || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
+        elseif (!$key->isActive() || $key->getIPAddr() != $this->getRemoteAddr())
             return $this->exerr(401, __('API key not found/active or source IP not authorized'));
 
         return $key;
     }
 
-    function getApiKey() {
+    function getKey() {
+        // Lookup record using sent API Key && IP Addr
+        if (!$this->key
+                && ($key=$this->getApiKey())
+                && ($ip=$this->getRemoteAddr()))
+            $this->key = API::lookupByKey($key, $ip);
 
-        if (!$this->apikey && isset($_SERVER['HTTP_X_API_KEY']) && isset($_SERVER['REMOTE_ADDR']))
-            $this->apikey = API::lookupByKey($_SERVER['HTTP_X_API_KEY'], $_SERVER['REMOTE_ADDR']);
-
-        return $this->apikey;
+        return $this->key;
     }
 
     /**
@@ -197,15 +220,19 @@ class ApiController extends Controller {
      * work will be done for XML requests
      */
     function getRequest($format, $validate=true) {
-        $input = osTicket::is_cli()?'php://stdin':'php://input';
+        $input = $this->getInputStream();
         if (!($stream = @fopen($input, 'r')))
-            $this->exerr(400, __("Unable to read request body"));
+            $this->exerr(400, sprintf('%s (%s)',
+                        __("Unable to read request body"), $input));
 
         return $this->parseRequest($stream, $format, $validate);
     }
 
     function getEmailRequest() {
-        return $this->getRequest('email', false);
+        if (!($data=$this->getRequest('email', false)))
+            $this->exerr(400, __("Unable to read email request"));
+
+        return $data;
     }
 
     function parseRequest($stream, $format, $validate=true) {
@@ -213,7 +240,7 @@ class ApiController extends Controller {
         switch(strtolower($format)) {
             case 'xml':
                 if (!function_exists('xml_parser_create'))
-                    $this->exerr(501, __('XML extension not supported'));
+                    return $this->exerr(501, __('XML extension not supported'));
                 $parser = new ApiXmlDataParser();
                 break;
             case 'json':
@@ -228,7 +255,6 @@ class ApiController extends Controller {
 
         if (!($data = $parser->parse($stream))) {
             $this->exerr(400, $parser->lastError());
-            throw new Exception($parser->lastError());
         }
 
         //Validate structure of the request.
@@ -265,14 +291,11 @@ class ApiController extends Controller {
             } elseif (in_array($key, $structure)) {
                 continue;
             }
-            if ($strict)
-                return $this->exerr(400, sprintf(__("%s: Unexpected data received in API request"), "$prefix$key"));
-            else
-                $ost->logWarning(__('API Unexpected Data'),
-                    sprintf(__("%s: Unexpected data received in API request"), "$prefix$key"),
-                    false);
-        }
 
+            $error = sprintf(__("%s: Unexpected data received in API request"),
+                    "$prefix$key");
+            $this->onError(400, $error, __('Unexpected Data'), !$strict);
+        }
         return true;
     }
 
@@ -288,34 +311,66 @@ class ApiController extends Controller {
                 $strict);
     }
 
+    protected function debug($subj, $msg) {
+        return $this->log($subj, $msg, LOG_DEBUG);
+    }
+
+    protected function logError($subj, $msg, $fatal=false) {
+        // If error is not fatal then log it as a warning
+        return $this->log($subj, $msg, $fatal ? LOG_ERR : LOG_WARN);
+    }
+
+    protected function log($title, $msg, $level = LOG_WARN) {
+        global $ost;
+        switch ($level) {
+            case LOG_WARN:
+            case LOG_ERR:
+                // We are disabling email alerts on API errors / warnings
+                // due to potential abuse or loops that might cause email DOS
+                $ost->log($level, $title, $msg, false);
+                break;
+            case  LOG_DEBUG:
+            default:
+                $ost->logDebug($title, $msg);
+        }
+        return true;
+    }
+
     /**
      * API error & logging and response!
      *
+     * final - don not override downstream.
      */
+    final public function onError($code, $error, $title = null,
+            $logOnly = false) {
 
-    /* If possible - DO NOT - overwrite the method downstream */
-    function exerr($code, $error='') {
-        global $ost;
-
-        if($error && is_array($error))
+        // Unpack the errors to string if error is an array
+        if ($error && is_array($error))
             $error = Format::array_implode(": ", "\n", $error);
 
-        //Log the error as a warning - include api key if available.
+        // Log the error
         $msg = $error;
-        if($_SERVER['HTTP_X_API_KEY'])
-            $msg.="\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
-        $ost->logWarning(__('API Error')." ($code)", $msg, false);
+        // TODO: Only include API Key when in debug mode to avoid
+        // potentialialy leaking a valid key in system logs
+        if (($key=$this->getApiKey()))
+            $msg .= "\n[$key]\n";
 
-        if (PHP_SAPI != 'cli') {
-            $this->response($code, $error); //Responder should exit...
-        }
-        return false;
-    }
+        $title = sprintf('%s (%s)', $title ?: __('API Error'), $code);
+        $this->logError($title, $msg, $logOnly);
 
-    //Default response method - can be overwritten in subclasses.
-    function response($code, $resp) {
-        Http::response($code, $resp);
-        exit();
+        // If the error is not deemed fatal then simply return
+        if ($logOnly)
+            return;
+
+        // If the API Interface is CLI then throw a TicketApiError exception
+        // so the caller can handle the error gracefully.
+        // Note that we set the error code as well
+        if ($this->isCli())
+            throw new TicketApiError($error, $code);
+
+        // Respond and exit since HTTP endpoint requests
+        // are considered stateless
+        $this->response($code, $error);
     }
 }
 
