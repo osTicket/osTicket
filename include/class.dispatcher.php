@@ -62,7 +62,7 @@ class Dispatcher {
         /* allow inlining / chaining */ return $this;
     }
 
-    /* static */ function include_urls($file, $absolute=false, $lazy=true) {
+    static function include_urls($file, $absolute=false, $lazy=true) {
         if (!$absolute) {
             # Fetch the working path of the caller
             $bt = debug_backtrace();

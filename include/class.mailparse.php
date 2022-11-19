@@ -198,7 +198,6 @@ class Mail_Parse {
         return $array;
     }
 
-    /* static */
     static function findHeaderEntry($headers, $name, $allEntries=false) {
         if (!is_array($headers))
             $headers = self::splitHeaders($headers, $allEntries);

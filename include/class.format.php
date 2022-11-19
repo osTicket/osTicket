@@ -950,7 +950,6 @@ class Format {
     }
 
     // Thanks, http://stackoverflow.com/a/2955878/1025836
-    /* static */
     static function slugify($text) {
         // convert special characters to entities
         $text = htmlentities($text, ENT_NOQUOTES, 'UTF-8');

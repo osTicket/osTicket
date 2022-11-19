@@ -894,7 +894,6 @@ class TicketFilter {
      * X-Auto-Response-Supress is outlined here,
      *    http://msdn.microsoft.com/en-us/library/ee219609(v=exchg.80).aspx
      */
-    /* static */
     static function isAutoReply($headers) {
 
         if($headers && !is_array($headers))
