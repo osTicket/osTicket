@@ -72,7 +72,7 @@ $qfrom=' FROM '.SYSLOG_TABLE.' log ';
 $total=db_count("SELECT count(*) $qfrom $qwhere");
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 //pagenate
-$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
+$pageNav=new PageNate($total, $page, PAGE_LIMIT);
 $pageNav->setURL('logs.php',$qs);
 $qs += array('order' => ($order=='DESC' ? 'ASC' : 'DESC'));
 $qstr = '&amp;'. Http::build_query($qs);

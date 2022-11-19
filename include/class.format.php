@@ -1238,7 +1238,7 @@ extends FormattedLocalDate {
     function __toString() {
         global $cfg;
 
-        $timezone = new DatetimeZone($this->timezone ?:
+        $timezone = new DateTimeZone($this->timezone ?:
                 $cfg->getTimezone());
         $options = array(
                 'timezone'  => $timezone->getName(),

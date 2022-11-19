@@ -377,7 +377,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
         // Special fields
         switch ($fid) {
         case 'duedate':
-            return DateTimeField::init(array(
+            return DatetimeField::init(array(
                 'id' => $fid,
                 'name' => $fid,
                 'default' => Misc::db2gmtime($this->getDueDate()),

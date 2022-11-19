@@ -543,7 +543,7 @@ namespace osTicket\Session {
      * Use this session handler when you don't care about session data.
      *
      */
-    class NoopSessionStorageBackend extends AbstractSessionhandler {
+    class NoopSessionStorageBackend extends AbstractSessionHandler {
         public function read($id) {
             return "";
         }

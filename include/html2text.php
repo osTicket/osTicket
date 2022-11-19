@@ -27,7 +27,7 @@
 function convert_html_to_text($html, $width=74) {
 
     $html = fix_newlines($html);
-    $doc = new DOMDocument('1.0', 'utf-8');
+    $doc = new DomDocument('1.0', 'utf-8');
     if (strpos($html, '<?xml ') === false)
         $html = '<?xml encoding="utf-8"?>'.$html; # <?php (4vim)
     if (!@$doc->loadHTML($html))

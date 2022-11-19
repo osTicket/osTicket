@@ -22,7 +22,7 @@ require_once(INCLUDE_DIR.'class.page.php');
 
 // Determine the requested page
 // - Strip extension
-$slug = Format::slugify(Osticket::get_path_info());
+$slug = Format::slugify(osTicket::get_path_info());
 
 // Get the part before the first dash
 $first_word = explode('-', $slug);

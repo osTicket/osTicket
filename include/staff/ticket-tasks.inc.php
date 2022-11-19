@@ -12,7 +12,7 @@ $tasks->filter(array(
             'object_type' => 'T'));
 
 $count = $tasks->count();
-$pageNav = new Pagenate($count,1, 100000); //TODO: support ajax based pages
+$pageNav = new PageNate($count,1, 100000); //TODO: support ajax based pages
 $showing = $pageNav->showing().' '._N('task', 'tasks', $count);
 
 ?>

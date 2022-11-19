@@ -29,7 +29,7 @@ $order_by="$order_column $order ";
 
 $total=db_count('SELECT count(*) FROM '.EMAIL_TEMPLATE_GRP_TABLE.' tpl ');
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($total, $page, PAGE_LIMIT);
+$pageNav=new PageNate($total, $page, PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('templates.php', $qs);

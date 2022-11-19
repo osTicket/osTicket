@@ -1152,7 +1152,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
             $hint = sprintf(__('Setting a %s will override %s'),
                     __('Due Date'), __('SLA Plan'));
-            return DateTimeField::init(array(
+            return DatetimeField::init(array(
                 'id' => $fid,
                 'name' => $fid,
                 'default' => Misc::db2gmtime($this->getDueDate()),
@@ -1433,7 +1433,7 @@ implements RestrictedAccess, Threadable, Searchable {
             return true;
 
         $sla = null;
-        if ($slaId && !($sla = Sla::lookup($slaId)))
+        if ($slaId && !($sla = SLA::lookup($slaId)))
             return false;
 
         $this->sla = $sla;
@@ -4776,7 +4776,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // TODO: Create internal Form for internal fields
     static function duedateField($name, $default='', $hint='') {
-        return DateTimeField::init(array(
+        return DatetimeField::init(array(
             'id' => $name,
             'name' => $name,
             'default' => $default ?: false,

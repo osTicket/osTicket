@@ -37,7 +37,7 @@ if ($_POST) {
             $payload = is_array($message) ? $message
                 : array('message' => $message);
             $payload['status'] = (int) $code;
-            Http::response(200, JSONDataEncoder::encode($payload),
+            Http::response(200, JsonDataEncoder::encode($payload),
                 'application/json');
         }
         else {

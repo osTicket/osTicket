@@ -70,7 +70,7 @@ if ($filters)
 // paginate
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = $agents->count();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav = new PageNate($count, $page, PAGE_LIMIT);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('staff.php', $qs);
 $showing = $pageNav->showing().' '._N('agent', 'agents', $count);

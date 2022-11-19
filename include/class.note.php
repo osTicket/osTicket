@@ -82,7 +82,7 @@ class QuickNote extends QuickNoteModel {
 
     function save($refetch=false) {
         if (count($this->dirty))
-            $this->updated = new SQLFunction('NOW');
+            $this->updated = new SqlFunction('NOW');
         return parent::save($refetch);
     }
 }

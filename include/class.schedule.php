@@ -103,7 +103,7 @@ class Schedule extends VerySimpleModel {
     }
 
     function getDatetimeZone() {
-        return new DatetimeZone($this->getTimezone());
+        return new DateTimeZone($this->getTimezone());
     }
 
     function getCreated() {
@@ -636,7 +636,7 @@ class ScheduleEntry extends VerySimpleModel {
     }
 
     function getDatetimeZone() {
-        return new DatetimeZone($this->getTimezone());
+        return new DateTimeZone($this->getTimezone());
     }
 
     function diffTime(Datetime $date) {
@@ -684,7 +684,7 @@ class ScheduleEntry extends VerySimpleModel {
 
     function getStartsDatetime() {
         if (!isset($this->_starts))
-            $this->_starts = new Datetime(sprintf('%s %s',
+            $this->_starts = new DateTime(sprintf('%s %s',
                         $this->ht['starts_on'], $this->ht['starts_at']),
                         $this->getDatetimeZone());
 
@@ -697,7 +697,7 @@ class ScheduleEntry extends VerySimpleModel {
 
     function getEndsDatetime() {
         if (!isset($this->_ends))
-            $this->_ends = new Datetime(sprintf('%s %s',
+            $this->_ends = new DateTime(sprintf('%s %s',
                         $this->ht['ends_on'], $this->ht['ends_at']),
                     $this->getDatetimeZone());
 
@@ -711,7 +711,7 @@ class ScheduleEntry extends VerySimpleModel {
     function getStopsDatetime() {
         if (!isset($this->_stops)) {
             if ($this->ht['stops_on'])
-                $this->_stops = new Datetime($this->ht['stops_on'],
+                $this->_stops = new DateTime($this->ht['stops_on'],
                     $this->getDatetimeZone());
             elseif ($this->isOneTime())
                 $this->_stops = $this->getEndsDatetime();
