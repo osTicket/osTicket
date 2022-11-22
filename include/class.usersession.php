@@ -216,7 +216,7 @@ class ClientSession extends EndUser {
         parent::__construct($user);
         $this->class ='client';
         // XXX: Change the key to user-id
-        $this->session = new UserSession($user->getId());
+        $this->session = new UserSession($user->getUserId());
         $this->setSessionToken();
         $this->maxidletime = $cfg->getClientTimeout();
     }
