@@ -11,7 +11,7 @@ class CronApiController extends ApiController {
         $this->run();
     }
 
-    private function run() {
+    protected function run() {
         Cron::run();
         // TODO: Add elapsed time to the debug log
         $this->debug(__('Cron Job'),
@@ -22,7 +22,7 @@ class CronApiController extends ApiController {
 
 class LocalCronApiController extends CronApiController {
 
-    protected function isCli() {
+    public function isCli() {
         return true;
     }
 
