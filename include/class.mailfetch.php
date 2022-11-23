@@ -56,9 +56,17 @@ class Fetcher {
          return $this->account->canDeleteEmails();
     }
 
+
     function getTicketsApi() {
+        // We're forcing CLI interface - this is absolutely necessary since
+        // Email Fetching is considered a CLI operation regardless of how
+        // it's triggered (cron job / task or autocron)
+
+        // Please note that PHP_SAPI cannot be trusted for installations
+        // using php-fpm or php-cgi binaries for php CLI executable.
+
         if (!isset($this->api))
-            $this->api = new \TicketApiController();
+            $this->api = new \TicketApiController('cli');
 
         return $this->api;
     }
