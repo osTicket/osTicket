@@ -40,10 +40,15 @@ define('ADMIN_EMAIL','%ADMIN-EMAIL');
 # Mysql Login info
 #
 define('DBTYPE','mysql');
+#  DBHOST can have comma separated hosts (e.g db1:6033,db2:6033)
 define('DBHOST','%CONFIG-DBHOST');
 define('DBNAME','%CONFIG-DBNAME');
 define('DBUSER','%CONFIG-DBUSER');
 define('DBPASS','%CONFIG-DBPASS');
+
+# Database TCP/IP Connect Timeout (default: 3 seconds)
+# Timeout is important when DBHOST has multiple proxies to try
+# define('DBCONNECT_TIMEOUT', 3);
 
 # Table prefix
 define('TABLE_PREFIX','%CONFIG-PREFIX');
