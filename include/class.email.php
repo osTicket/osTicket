@@ -159,7 +159,7 @@ class Email extends VerySimpleModel {
         if (!isset($auths)) {
             $auths = [];
             // OAuth auth
-            foreach (Oauth2AuthorizationBackend::allRegistered() as $id => $bk)
+            foreach (OAuth2AuthorizationBackend::allRegistered() as $id => $bk)
                 $auths[$id] = $bk->getName();
             // Basic authentication
             $auths['basic'] = sprintf('%s (%s)',
@@ -539,7 +539,7 @@ class EmailAccount extends VerySimpleModel {
 
     private function getOAuth2Backend($auth=null) {
         $auth = $auth ?: $this->getAuthBk();
-        return Oauth2AuthorizationBackend::getBackend($auth);
+        return OAuth2AuthorizationBackend::getBackend($auth);
     }
 
     public function getOAuth2ConfigDefaults() {
