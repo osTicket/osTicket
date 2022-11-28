@@ -353,7 +353,7 @@ namespace osTicket\Session {
             try {
                 if (isset($this->secondary))
                     $this->secondary->saveRecord($record, true);
-            } catch (\Trowable $t) {
+            } catch (\Throwable $t) {
                 // Ignore any BS!
             }
             // clear cache
@@ -372,7 +372,7 @@ namespace osTicket\Session {
             try {
                 if (isset($this->secondary))
                     $this->secondary->expireRecord($id, $ttl);
-            } catch (\Trowable $t) {
+            } catch (\Throwable $t) {
                 // Ignore any BS!
             }
             return true;
@@ -385,7 +385,7 @@ namespace osTicket\Session {
             try {
                 if (isset($this->secondary))
                     $this->secondary->destroyRecord($id);
-            } catch (\Trowable $t) {
+            } catch (\Throwable $t) {
                 // Ignore any BS!
             }
             return true;
@@ -396,7 +396,7 @@ namespace osTicket\Session {
             try {
                 if (isset($this->secondary))
                     $this->secondary->cleanupExpiredRecords();
-            } catch (\Trowable $t) {
+            } catch (\Throwable $t) {
                 // Ignore any BS!
             }
             return true;
