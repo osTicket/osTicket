@@ -351,7 +351,7 @@ if($_POST && !$errors):
                 case 'banemail':
                     if (!$thisstaff->hasPerm(Email::PERM_BANLIST)) {
                         $errors['err']=__('Permission Denied. You are not allowed to ban emails');
-                    } elseif(BanList::includes($ticket->getEmail())) {
+                    } elseif(Banlist::includes($ticket->getEmail())) {
                         $errors['err']=__('Email already in banlist');
                     } elseif(Banlist::add($ticket->getEmail(),$thisstaff->getName())) {
                         $msg=sprintf(__('Email %s added to banlist'),$ticket->getEmail());
@@ -364,7 +364,7 @@ if($_POST && !$errors):
                         $errors['err'] = __('Permission Denied. You are not allowed to remove emails from banlist.');
                     } elseif(Banlist::remove($ticket->getEmail())) {
                         $msg = __('Email removed from banlist');
-                    } elseif(!BanList::includes($ticket->getEmail())) {
+                    } elseif(!Banlist::includes($ticket->getEmail())) {
                         $warn = __('Email is not in the banlist');
                     } else {
                         $errors['err']=sprintf('%s %s', __('Unable to remove the email from banlist.'), __('Please try again!'));
