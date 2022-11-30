@@ -31,7 +31,7 @@ class LocalCronApiController extends CronApiController {
         return 'CLI';
     }
 
-    protected function response($code, $response) {
+    public function response($code, $response) {
 
         if ($code == 200) //Success - exit silently.
             exit(0);
@@ -41,7 +41,7 @@ class LocalCronApiController extends CronApiController {
     }
 
     static function call() {
-        $cron = new LocalCronApiController();
+        $cron = new LocalCronApiController('cli');
         $cron->run();
     }
 }
