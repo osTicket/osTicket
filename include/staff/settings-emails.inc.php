@@ -150,7 +150,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                     $accounts = SmtpAccount::objects()->filter(['active' => 1]);
                     foreach ($accounts as $account) {
                         $id = $account->getId();
-                        $email = sprintf('%s &lt;%sl&gt;',
+                        $email = sprintf('%s &lt;%s&gt;',
                                 $account->email->getName(),
                                 $account->email->getEmail());
                         ?>

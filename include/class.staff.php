@@ -330,6 +330,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->email;
     }
 
+    function getEmailAddress() {
+        $emailaddr =  (string) $this->getEmail();
+        if (($name=$this->getName()))
+            $emailaddr = sprintf('"%s" <%s>',
+                    (string) $name,
+                    $emailaddr);
+        return $emailaddr;
+    }
+
     function getAvatar($size=null) {
         global $cfg;
         $source = $cfg->getStaffAvatarSource();

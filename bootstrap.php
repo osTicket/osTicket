@@ -45,6 +45,15 @@ class Bootstrap {
         }
         date_default_timezone_set('UTC');
 
+        if (!function_exists('exif_imagetype')) {
+            function exif_imagetype ($filename) {
+                if ((list($width,$height,$type,) = getimagesize($filename)) !== false)
+                    return $type;
+
+                return false;
+            }
+        }
+
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';
     }
@@ -314,7 +323,7 @@ class Bootstrap {
 
     static function croak($message) {
         $msg = $message."\n\n".THISPAGE;
-        Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
+        osTicket\Mail\Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
             sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
         Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
@@ -368,7 +377,7 @@ if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
 Bootstrap::init();
 
 #CURRENT EXECUTING SCRIPT.
-define('THISPAGE', Misc::currentURL());
+define('THISPAGE', Http::url());
 
 define('DEFAULT_MAX_FILE_UPLOADS', ini_get('max_file_uploads') ?: 5);
 define('DEFAULT_PRIORITY_ID', 1);

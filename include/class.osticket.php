@@ -28,7 +28,6 @@ use Symfony\Component\ClassLoader\UniversalClassLoader_osTicket;
 define('LOG_WARN',LOG_WARNING);
 
 class osTicket {
-
     var $loglevel=array(1=>'Error','Warning','Debug');
 
     //Page errors.
@@ -36,10 +35,6 @@ class osTicket {
 
     //System
     var $system;
-
-
-
-
     var $warning;
     var $message;
 
@@ -59,9 +54,11 @@ class osTicket {
         require_once(INCLUDE_DIR.'class.company.php');
         // Load the config
         $this->config = new OsticketConfig();
-        // Start session  (if not disabled)
-        if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
-            $this->session = osTicketSession::start(SESSION_TTL,
+
+        // Start Session
+        if (!defined('SESSION_SESSID'))
+            define('SESSION_SESSID', 'OSTSESSID');
+        $this->session = osTicketSession::start(SESSION_SESSID, SESSION_TTL,
                     $this->isUpgradePending());
         // CSRF Token
         $this->csrf = new CSRF('__CSRFToken__');
@@ -240,7 +237,8 @@ class osTicket {
         if($email) {
             $email->sendAlert($to, $subject, $message, null, array('text'=>true, 'reply-tag'=>false));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
+            osTicket\Mail\Mailer::sendmail($to, $subject, $message,
+                     '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
@@ -536,6 +534,25 @@ class osTicket {
     }
 
     /*
+     * get_client_port
+     *
+     * Get client PORT from "Http_X-Forwarded-PORT" if we have trusted
+     * proxies set.
+     * FIXME: Follow trusted proxies chain
+     *
+     */
+    static function get_client_port($header='HTTP_X_FORWARDED_PORT') {
+        $port = $_SERVER['SERVER_PORT'];
+        // We're just making sure we have Trusted Proxies
+        // FIXME: Validate
+        $proxies = self::getTrustedProxies();
+        if (isset($_SERVER[$header]) &&  $proxies)
+            $port = $_SERVER[$header];
+
+        return $port;
+    }
+
+    /*
      * get_client_ip
      *
      * Get client IP address from "Http_X-Forwarded-For" header by following a
@@ -587,7 +604,7 @@ class osTicket {
         if (!$proxies)
             return false;
         // Wildcard set - trust all proxies
-        else if ($proxies == '*')
+        else if (in_array('*', $proxies))
             return true;
 
         return ($proxies && Validator::check_ip($ip, $proxies));

@@ -36,8 +36,9 @@ define('SECRET_SALT','%CONFIG-SIRI');
 define('ADMIN_EMAIL','%ADMIN-EMAIL');
 
 # Database Options
-# ---------------------------------------------------
+# ====================================================
 # Mysql Login info
+#
 define('DBTYPE','mysql');
 define('DBHOST','%CONFIG-DBHOST');
 define('DBNAME','%CONFIG-DBNAME');
@@ -70,7 +71,7 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 
 #
 # Mail Options
-# ---------------------------------------------------
+# ===================================================
 # Option: MAIL_EOL (default: \n)
 #
 # Some mail setups do not handle emails with \r\n (CRLF) line endings for
@@ -92,7 +93,7 @@ define('TABLE_PREFIX','%CONFIG-PREFIX');
 
 #
 # HTTP Server Options
-# ---------------------------------------------------
+# ===================================================
 # Option: ROOT_PATH (default: <auto detect>, fallback: /)
 #
 # If you have a strange HTTP server configuration and osTicket cannot
@@ -139,23 +140,34 @@ define('TRUSTED_PROXIES', '');
 
 define('LOCAL_NETWORKS', '127.0.0.0/24');
 
-
 #
-# Session Storage Options
+# Session Options
+# ===================================================
+#
+# Session Name (SESSID)
 # ---------------------------------------------------
-# Option: SESSION_BACKEND (default: db)
+# Option: SESSION_SESSID (default: OSTSESID)
 #
-# osTicket supports Memcache as a session storage backend if the `memcache`
-# pecl extesion is installed. This also requires MEMCACHE_SERVERS to be
-# configured as well.
+# osTicket Session Name (SESSID) - used to set session cookie
+define('SESSION_SESSID', 'OSTSESSID');
+
+# Session Storage Backends
+# ---------------------------------------------------
+
+# Option: SESSION_BACKEND (default: database)
+#
+# Values: 'database' (default)
+#         'memcache' (Use Memcache servers)
+#         'memcache.database' (Memcache Primary, Database Secondary)
+#         'system' (use PHP settings as configured (not recommended!))
+#
+# osTicket supports Database by default as well as Memcache as a session
+# storage backend if the `memcache` pecl extesion is installed. This also
+# requires MEMCACHE_SERVERS to be configured as well.
 #
 # MEMCACHE_SERVERS can be defined as a comma-separated list of host:port
 # specifications. If more than one server is listed, the session is written
 # to all of the servers for redundancy.
-#
-# Values: 'db' (default)
-#         'memcache' (Use Memcache servers)
-#         'system' (use PHP settings as configured (not recommended!))
 #
 # define('SESSION_BACKEND', 'memcache');
 # define('MEMCACHE_SERVERS', 'server1:11211,server2:11211');

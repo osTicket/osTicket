@@ -1034,6 +1034,10 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->form->getInstructions();
     }
 
+    function getNotice() {
+        return  $this->form->getNotice();
+    }
+
     function getDynamicForm() {
         return $this->form;
     }
@@ -1729,6 +1733,7 @@ class SelectionField extends FormField {
                         ?: __('Unknown or invalid input');
                 }
             } elseif ($config['typeahead']
+                    && $entry
                     && ($entered = $this->getWidget()->getEnteredValue())
                     && !in_array($entered, $entry)
                     && $entered != $entry) {

@@ -23,33 +23,22 @@ abstract class Controller {
         return true;
     }
 
-    /**
-     *  error & logging and response!
-     *
-     */
-    function exerr($code, $error='') {
-        global $ost;
-
-        if ($error && is_array($error))
-            $error = Format::array_implode(": ", "\n", $error);
-
-        //Log the error as a warning - include api key if available.
-        $msg = $error;
-        if ($_SERVER['HTTP_X_API_KEY'])
-            $msg.="\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
-        $ost->logWarning(__('Error')." ($code)", $msg, false);
-
-        if (PHP_SAPI == 'cli') {
-            fwrite(STDERR, "({$code}) $error\n");
-        } else {
-            $this->response($code, $error); //Responder should exit...
-        }
-        return false;
+    // Wrapper for onFatalError
+    public function exerr($code, $error='') {
+        return $this->onFatalError($code, $error);
     }
 
-    //Default response method - can be overwritten in subclasses.
-    function response($code, $resp) {
-        Http::response($code, $resp);
+    public function onFatalError($code, $error) {
+        $this->onError($code, $error);
+        // On error should exit but we're making doubly sure
+        $this->response($code, $error);
         exit();
     }
+
+    protected function response($code, $response) {
+        Http::response($code, $response);
+        exit();
+    }
+
+    abstract function onError($code, $error, $title=null, $logOnly=false);
 }

@@ -168,7 +168,8 @@ class UserManager extends Module {
         default:
             $this->stderr->write('Unknown action!');
         }
-        @fclose($this->stream);
+        if (is_resource($this->stream))
+            @fclose($this->stream);
     }
 
     function getQuerySet($options, $requireOne=false) {

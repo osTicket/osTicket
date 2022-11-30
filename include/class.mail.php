@@ -21,10 +21,14 @@ namespace osTicket\Mail {
     use Laminas\Mime\Message as MimeMessage;
     use Laminas\Mime\Mime;
     use Laminas\Mime\Part as MimePart;
+    use Laminas\Mail\Header;
+    use osTicket\Mail\Header\ReturnPath;
 
     class  Message extends MailMessage {
+        // Message Id (mid)
+        private $mid;
         // MimeMessage Parts
-        private $mimeMessage = null;
+        private $mimeParts = null;
         // MimeMessage Content
         private $mimeContent = null;
         // Default Charset
@@ -53,11 +57,18 @@ namespace osTicket\Mail {
             return ($this->hasAttachments() || $this->hasInlineImages());
         }
 
-        public function getMimeMessageParts() {
-            if  (!isset($this->mimeMessage))
-                $this->mimeMessage = new MimeMessage();
+        public function getId() {
+             if (!isset($this->mid)
+                     &&  ($header=$this->getHeader('message-id')))
+                 $this->mid = $header->getId();
+             return $this->mid;
+        }
 
-            return $this->mimeMessage;
+        public function getMimeMessageParts() {
+            if  (!isset($this->mimeParts))
+                $this->mimeParts = new MimeMessage();
+
+            return $this->mimeParts;
         }
 
         public function getMimeMessageContent() {
@@ -67,8 +78,15 @@ namespace osTicket\Mail {
             return $this->mimeContent;
         }
 
-        public function addHeader($key, $value) {
-            return $this->getHeaders()->addHeaderLine($key, $value);
+        public function getHeader(string $name) {
+            return $this->getHeaders()->getHeader($name);
+        }
+
+        public function addHeader($header, $value=null) {
+            if (isset($value))
+                $this->getHeaders()->addHeaderLine($header, $value);
+            else
+                $this->getHeaders()->addHeader($header);
         }
 
         public function addHeaders(array $headers)  {
@@ -122,6 +140,102 @@ namespace osTicket\Mail {
             $f->encoding = Mime::ENCODING_BASE64;
             $this->addMimePart($f);
             $this->hasAttachments = true;
+        }
+
+        // Expects a  valid date e.g date('r')
+        public function setDate(string $date) {
+            $d = new Header\Date($date);
+            // Laminas auto adds Date upstream when any header is added
+            // We're clearing it here to we back that-date up like it's
+            // 99 & 2000 ~ Juvenile
+            $this->getHeaders()->removeHeader('date');
+            $this->addHeader($d);
+        }
+
+        // Please use this method to set Message-Id otherwise it will be
+        // utf-8 endcoded and results is an invalid email & bounces
+        public function setMessageId(string $id) {
+            try {
+                $header = new Header\MessageId();
+                $header->setId($id);
+                $this->addHeader($header);
+                $this->mid = $header->getId();
+            } catch (\Throwable $t)  {
+                // Ignore invalid mid. Upstream will generate one
+            }
+        }
+
+        public function getMessageId() {
+            return $this->getId();
+        }
+
+        // Valid email address required or no return "<>" tag
+        public function setReturnPath($email) {
+            try {
+                // Exception is thrown on invalid email address
+                $header = new ReturnPath();
+                $header->addAddress($email);
+                $this->getHeaders()->removeHeader($header->getType());
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // It's not email - perhaps it's a tag?
+                if (!strcmp($email, '<>'))
+                    $this->addHeader($header->getFieldName(), $email);
+                // Silently dropping the invalid path
+            }
+        }
+
+        public function addInReplyTo($inReplyTo) {
+             if (!is_array($inReplyTo))
+                $inReplyTo = explode(' ', $inReplyTo);
+            try {
+                $header = new Header\InReplyTo();
+                $header->setIds($inReplyTo); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Mshenzi
+            }
+        }
+
+        public function addReferences($references) {
+            if (!is_array($references))
+                $references = explode(' ', $references);
+            try {
+                $header = new Header\References();
+                $header->setIds($references); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Mshenzi
+            }
+        }
+
+        // Set Message Sender is useful for SendMail transport, its basically -f
+        // parameter in the mail() interface
+        public function setSender($email, $name=null) {
+            try {
+                // Exception is thrown on invalid email address
+                $header = new Header\Sender();
+                $header->setAddress($email, $name); #nolint
+                $this->addHeader($header);
+            } catch (\Throwable $t) {
+                // Silently ignore invalid email sender defaults to FROM
+                // addresses
+            }
+        }
+
+        public function setFrom($email, $name=null) {
+            // We're resetting the body here when FROM address changes - e.g
+            // after failed send attempt while trying multiple SMTP accounts
+            unset($this->body);
+            return parent::setFrom($email, $name);
+        }
+
+        // This is used to set FROM & and clear Sender to a new Email Address
+        public function setOriginator($email, $name=null) {
+            // Set the FROM  Header
+            $this->setFrom($email, $name);
+            // Remove Sender Header
+            $this->getHeaders()->removeHeader('sender');
         }
 
         public function setContentType($contentType) {
@@ -228,7 +342,7 @@ namespace osTicket\Mail {
         }
 
         abstract public function __construct($accountSetting);
-        abstract private function oauth2Auth(AccessToken $token);
+        abstract protected function oauth2Auth(AccessToken $token);
     }
 
     class ImapMailboxProtocol extends ImapProtocol {
@@ -319,6 +433,14 @@ namespace osTicket\Mail {
              return trim($result);
          }
 
+         public function login($user, $password, $tryApop = true) {
+             try {
+                parent::login($user, $password, $tryApop);
+                return true;
+             } catch (\Throwable $e) {
+                 throw new Exception(__('login failed').': '.$e->getMessage());
+             }
+         }
     }
 
     // MailBoxStorageTrait
@@ -356,8 +478,7 @@ namespace osTicket\Mail {
         public function hasFolder($folder, $rootFolder = null) {
             $folders = $this->getFolders($rootFolder);
             if (is_array($folders)
-                    && in_array(strtolower($folder),
-                        array_map('strtolower', $folders)))
+                    && in_array(strtolower($folder), $folders))
                 return true;
 
             // Try selecting the folder.
@@ -380,7 +501,7 @@ namespace osTicket\Mail {
                 foreach ($folders as $name => $folder) {
                     if (!$folder->isSelectable()) #nolint
                         continue;
-                    $this->folders[] =  $folder->getGlobalName(); #nolint
+                    $this->folders[] =  strtolower($folder->getGlobalName()); #nolint
                 }
             }
             return $this->folders;
@@ -394,6 +515,26 @@ namespace osTicket\Mail {
          */
         public function getRawEmail(int $i) {
             return $this->getRawHeader($i) . $this->getRawContent($i);
+        }
+
+        /*
+         * move an existing message to a folder
+         *
+         * Caller should catch possible exception
+         */
+        public function moveMessage($i, $folder) {
+            parent::moveMessage($i, $folder);
+            return true;
+        }
+
+        /*
+         * Remove a message from server.
+         *
+         * Caller should catch possible exception
+         */
+        public function removeMessage($i) {
+            parent::removeMessage($i);
+            return true;
         }
 
         /*
@@ -422,7 +563,32 @@ namespace osTicket\Mail {
 
         // Mark message as seen
         public function markAsSeen($i) {
-            $this->setFlags($i, [Storage::FLAG_SEEN]);
+            try {
+                return $this->setFlags($i, [Storage::FLAG_SEEN]);
+            } catch (\Throwable $t) {
+                return false;
+            }
+        }
+
+        /**
+         * Remove a message from server without expunging the mailbox
+         *
+         * Laminas Mail (upstream) auto expunges the mailbox on message
+         * removal or move (copy + remove) - which can cause major issues
+         * for us since we fetcher uses message sequence numbers to fetch
+         * messages / emails.
+         *
+         * We expunge the mailbox at the end if fetch session.
+         *
+         * TODO: Make PR upstream to support calling removeMessage with
+         * a boolean flag i.e removeMessage(int $id, bool $expunge = true)
+         *
+         */
+        public function removeMessage($i) {
+            if (! $this->protocol->store([Storage::FLAG_DELETED], $i, null, '+')) {
+                throw new Exception('cannot set deleted flag');
+            }
+            return true;
         }
 
         // Expunge mailbox
@@ -487,21 +653,23 @@ namespace osTicket\Mail {
             parent::__construct($this->buildOptions($setting));
         }
 
+        // Build out SmtpOptions options based on SmtpAccount Settings
         private function buildOptions(AccountSetting $setting) {
-            // Build out SmtpOptions options based on SmtpAccount Settings
-            $config = [];
+            // Dont send 'QUIT' on __destruct()
+            $config = ['use_complete_quit' => false];
             $connect = $setting->getConnectionConfig();
             $auth = $setting->getAuthCredentials();
             switch (true) {
                 case $auth instanceof NoAuthCredentials:
                     // No Authentication - simply return host and port
                     return [
-                        'host'      => $connect['host'],
-                        'port'      => $connect['port']
+                        'host' => $connect['host'],
+                        'port' => $connect['port'],
+                        'name' => $connect['name'],
                     ];
                     break;
                 case $auth instanceof BasicAuthCredentials:
-                    $config = [
+                    $config += [
                         'username' => $auth->getUsername(),
                         'password' => $auth->getPasswd(),
                         'ssl' => $connect['ssl'],
@@ -511,7 +679,7 @@ namespace osTicket\Mail {
                     $token = $auth->getAccessToken();
                     if ($token->hasExpired())
                         throw new Exception('Access Token is Expired');
-                    $config = [
+                    $config += [
                         'xoauth2' => $token->getAuthRequest(),
                         'ssl' => $connect['ssl'],
                     ];
@@ -521,8 +689,10 @@ namespace osTicket\Mail {
             }
 
             return [
-                'host'      => $connect['host'],
-                'port'      => $connect['port'],
+                'host' => $connect['host'],
+                'port' => $connect['port'],
+                'name' => $connect['name'],
+                'connection_time_limit' => 300, # 5 minutes limit
                 'connection_class'  => $auth->getConnectionClass(),
                 'connection_config' => $config
             ];
@@ -534,6 +704,29 @@ namespace osTicket\Mail {
     class Sendmail extends SendmailTransport {
         public function __construct($options) {
             parent::__construct($options);
+        }
+
+        /*
+         * prepareHeaders($message)
+         *
+         * This is a temp fix needed for Windows installs until we upgrade
+         * to the latest version of Laminas Mail which already has the fix -
+         * the version we use currently doesn't strip the headers on Windows.
+         *
+         * TODO: Remove once Laminas Mail is upgraded.
+         */
+        protected function prepareHeaders(Mail\Message $message) {
+            // Clone message just incase upstream needs the headers intact
+            $message = clone $message;
+            // Remove "to" and "subject" headers before headers are prepared
+            // and passed to MTA. It's necessary since the headers in question
+            // are set directly via PHP mail() function - leaving them results
+            // in duplicate headers.
+            $message->getHeaders()->removeHeader('To');
+            $message->getHeaders()->removeHeader('Subject');
+            // Ask upstream to prepare the headers - it checks for From
+            // address injection etc.
+            return parent::prepareHeaders($message);
         }
 
         public function sendMessage(Message $message) {
@@ -685,25 +878,33 @@ namespace osTicket\Mail {
             // We allow scheme to hint for encryption for people using ssl or tls
             // on nonstandard ports.
             $host = $account->getHost();
+            $port = (int) $account->getPort();
             $ssl = null;
             $matches = [];
-            if (preg_match('~^(ssl|tls)://(.*+)$~iu', $host, $matches))
-                list(, $host, $ssl) = $matches;
-            // Set ssl or tls on based on standard ports
-            $port = $account->getPort();
-            if (!$ssl && $port) {
+            if (preg_match('~^(ssl|tls|plain)://(.*+)$~iu',
+                        strtolower($host), $matches)) {
+                list(, $ssl, $host) = $matches;
+                // Clear ssl when "plain" connection is being forced without
+                // using port number as the indicator!
+                $ssl = strcmp($ssl, 'plain') ? $ssl : null;
+                // Why would someone use a standard encryption based port
+                // for unencrypted connection is beyond me - but apparently
+                // it's a thing!!
+            } elseif (!$ssl && $port) {
+                // Set ssl or tls on based on standard ports
                 if (in_array($port, [465, 993, 995]))
                     $ssl = 'ssl';
                 elseif (in_array($port, [587]))
                     $ssl = 'tls';
             }
 
+            // Set the connection settings
             $this->connection = [
                 'host' => $host,
-                'port' => (int) $port,
+                'port' => $port,
                 'ssl' => $ssl,
                 'protocol' => strtoupper($account->getProtocol()),
-                'name' => null
+                'name' => self::get_hostname(),
             ];
 
             // Set errors to null to clear validation
@@ -761,8 +962,8 @@ namespace osTicket\Mail {
         }
 
         public function describe() {
-            return sprintf('%s//%s:%s/%s',
-                    $this->getSsl() ?: 'none',
+            return sprintf('%s://%s:%s/%s',
+                    $this->getSsl() ?: 'plain',
                     $this->getHost(),
                     $this->getPort(),
                     $this->getProtocol());
@@ -771,15 +972,17 @@ namespace osTicket\Mail {
         private function validate() {
 
             if (!isset($this->errors)) {
+                // Set errors to an array to to make sure don't
+                // unneccesarily validate valid info again.
                 $this->errors = [];
+                // We're simply making sure required info are set. True
+                // validation will happen at the protocol connection level
                 $info = $this->getConnectionConfig();
                 foreach (['host', 'port', 'protocol'] as $p ) {
                     if (!isset($info[$p]) || !$info[$p])
                         $this->errors[$p] = sprintf('%s %s',
                                 strtoupper($p), __('Required'));
                 }
-                // TODO: Validate hostname - for now we're punting to be
-                // validated at the protocol connection level
             }
             return !count($this->errors);
         }
@@ -790,6 +993,29 @@ namespace osTicket\Mail {
 
         public function getErrors() {
             return $this->errors;
+        }
+
+        /*
+         * get_hostname
+         *
+         * Please note that this is different from getHost above
+         *
+         * Here we're getting the hostname to use on HELO/EHLO when
+         * initiating an SMTP connection. It should be a valid hostname with
+         * valid reverse-lookup for better deliverability.
+         *
+         * Perhaps this can be a setting in the future but allowing users
+         * to set it to **anything** will results in more mail issues than just
+         * defaulting to what the OS tells us or localhost for that matter.
+         *
+         * For now, we're simply asking core osTicket to give us the OS hostname
+         * otherwise it will default to localhost which some mail servers frawns
+         * upon since it won't have a valid reverse-lookup.
+         *
+         */
+        private static function get_hostname() {
+            // We're simply returning what the OS is telling us!
+            return php_uname('n');
         }
     }
 }
@@ -839,6 +1065,30 @@ namespace osTicket\Mail\Protocol\Smtp\Auth {
             $this->_send($xoauth2);
             $this->_expect(235);
             $this->auth = true;
+        }
+    }
+}
+
+namespace osTicket\Mail\Header {
+    use Laminas\Mail\Header\AbstractAddressList;
+    use Laminas\Mail\Header\HeaderInterface;
+    use Laminas\Mail\Address;
+
+    class ReturnPath extends AbstractAddressList {
+        protected $fieldName = 'Return-Path';
+        protected static $type = 'return-path';
+
+        public function addAddress($email) {
+            $this->getAddressList()->add(new Address($email)); #nolint
+        }
+
+        public function getFieldValue($format = HeaderInterface::FORMAT_RAW) {
+            // We're simply intercepting Value here to add <> to the email
+            return sprintf('<%s>', parent::getFieldValue($format));
+        }
+
+        public function getType() {
+            return self::$type;
         }
     }
 }
