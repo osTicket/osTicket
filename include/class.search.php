@@ -147,7 +147,7 @@ class SearchInterface {
 
         case $model instanceof User:
             $cdata = array();
-            foreach ($model->getDynamicData($false) as $e)
+            foreach ($model->getDynamicData(false) as $e)
                 foreach ($e->getAnswers() as $tag=>$a)
                     if ($tag != 'subject' && ($v = $a->getSearchable()))
                         $cdata[] = $v;
