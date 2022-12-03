@@ -516,6 +516,7 @@ class EmailTemplateGroup {
 class EmailTemplate {
 
     var $id;
+    var $attachments;
     var $ht;
     var $_group;
 

@@ -1162,6 +1162,7 @@ implements TemplateVariable {
 
     var $date;
     var $timezone;
+    var $user;
     var $datetime;
     var $fromdb;
     var $format;

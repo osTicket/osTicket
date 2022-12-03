@@ -629,7 +629,13 @@ class CsvExporter extends Exporter {
  * Given SQL query export results based on subclass.
  */
 class ResultSetExporter {
+
+    var $headers;
+    var $keys;
+    var $options;
     var $output;
+
+    var $_res;
 
     function __construct($sql, $headers, $options=array()) {
         $this->headers = array_values($headers);

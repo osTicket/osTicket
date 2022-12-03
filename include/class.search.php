@@ -245,6 +245,7 @@ class MysqlSearchBackend extends SearchBackend {
     var $max_batches = 60;
     var $_reindexed = 0;
     var $SEARCH_TABLE;
+    var $config;
 
     function __construct() {
         $this->SEARCH_TABLE = TABLE_PREFIX . '_search';

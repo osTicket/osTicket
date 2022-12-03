@@ -611,6 +611,7 @@ class DataTemplate {
     // Base folder for default data and templates
     var $base = I18N_DIR;
 
+    var $lang;
     var $filepath;
     var $data;
 
