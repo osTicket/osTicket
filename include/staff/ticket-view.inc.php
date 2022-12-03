@@ -379,7 +379,11 @@ if($ticket->isOverdue())
             <table border="0" cellspacing="0" cellpadding="4" width="100%">
                 <tr>
                     <th width="100"><?php echo __('User'); ?>:</th>
-                    <td><a href="#tickets/<?php echo $ticket->getId(); ?>/user"
+                    <td>
+                        <?php 
+                            Signal::send("user.link",$ticket, $user); 
+                        ?>
+                        <a href="#tickets/<?php echo $ticket->getId(); ?>/user"
                         onclick="javascript:
                             saveDraft();
                             $.userLookup('ajax.php/tickets/<?php echo $ticket->getId(); ?>/user',
@@ -444,6 +448,9 @@ if($ticket->isOverdue())
                     <th><?php echo __('Email'); ?>:</th>
                     <td>
                         <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
+                    <?php 
+                         Signal::send("email.link",$ticket, $user);
+                    ?>
                     </td>
                 </tr>
 <?php   if ($user->getOrganization()) { ?>

@@ -160,6 +160,7 @@ class osTicket {
     }
 
     function getExtraHeaders() {
+	Signal::send('osticket.extraheaders', $this, $this->headers);
         return $this->headers;
     }
     function getExtraPjax() {
