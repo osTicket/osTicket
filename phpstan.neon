@@ -1,0 +1,16 @@
+parameters:
+	level: 0
+	paths:
+		- .
+	excludePaths:
+		analyse:
+			- include/laminas-mail
+			- include/mpdf
+			- include/pear
+			- setup/test
+		analyseAndScan:
+			- .phpstan
+			- setup/test/tests/stubs.php
+	bootstrapFiles:
+		- bootstrap.php
+		- .phpstan/bootstrap.php
