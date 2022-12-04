@@ -75,13 +75,13 @@ class Fetcher {
         return ($this->mbox && $this->mbox->noop());
     }
 
-    function processMessage(int $i) {
+    function processMessage(int $i, array $defaults = []) {
         try {
             // Please note that the returned object could be anything from
             // ticket, task to thread entry or a boolean.
             // Don't let TicketApi call fool you!
             return $this->getTicketsApi()->processEmail(
-                    $this->mbox->getRawEmail($i));
+                    $this->mbox->getRawEmail($i), $defaults);
         } catch (\TicketDenied $ex) {
             // If a ticket is denied we're going to report it as processed
             // so it can be moved out of the Fetch Folder or Deleted based
@@ -126,12 +126,15 @@ class Fetcher {
             $messages = range(1, min($max, $messageCount));
         }
 
+        $defaults = [
+            'emailId' => $this->getEmailId()
+        ];
         $msgs = $errors = 0;
         // TODO: Use message UIDs instead of ids
         foreach ($messages as $i) {
             try {
                 // Okay, let's try to create a ticket
-                if (($result=$this->processMessage($i))) {
+                if (($result=$this->processMessage($i, $defaults))) {
                     // Mark the message as "Seen" (IMAP only)
                     $this->mbox->markAsSeen($i);
                     // Attempt to move the message if archive folder is set or
