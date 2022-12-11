@@ -10,24 +10,24 @@ $info=($_POST && $errors)?Format::htmlchars($_POST):$_SESSION['info'];
         <form action="install.php" method="post">
             <input type="hidden" name="s" value="subscribe">
                 <div class="row">
-                    <label><?php echo __('Full Name');?>:</label>
-                    <input type="text" name="name" size="30" value="<?php echo $info['name']; ?>">
+                    <label for="name"><?php echo __('Full Name');?>:</label>
+                    <input id="name" type="text" name="name" size="30" value="<?php echo $info['name']; ?>">
                     <font color="red"><?php echo $errors['name']; ?></font>
                 </div>
                 <div class="row">
-                    <label><?php echo __('Email Address');?>:</label>
-                    <input type="text" name="email" size="30" value="<?php echo $info['email']; ?>">
+                    <label for="email"><?php echo __('Email Address');?>:</label>
+                    <input id="email" type="text" name="email" size="30" value="<?php echo $info['email']; ?>">
                     <font color="red"><?php echo $errors['email']; ?></font>
                 </div>
                 <br>
                 <div class="row">
                     <strong><?php echo __("I'd like to receive the following notifications");?>: <font color="red"><?php echo $errors['notify']; ?></font></strong>
-                    <label style="width:500px">
-                        <input style="position:relative; top:4px; margin-right:10px"
+                    <label for="news" style="width:500px">
+                        <input id="news" style="position:relative; top:4px; margin-right:10px"
                             type="checkbox" name="news" value="1" <?php echo (!isset($info['news']) || $info['news'])?'checked="checked"':''; ?> >
                             <?php echo __('News &amp; Announcements');?></label>
-                    <label style="width:500px">
-                        <input style="position:relative; top:4px; margin-right:10px"
+                    <label for="alerts" style="width:500px">
+                        <input id="alerts" style="position:relative; top:4px; margin-right:10px"
                             type="checkbox" name="alerts" value="1" <?php echo (!isset($info['alerts']) || $info['alerts'])?'checked="checked"':''; ?>>
                             <?php echo __('Security Alerts');?></label>
                 </div>
