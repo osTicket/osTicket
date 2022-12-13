@@ -164,7 +164,7 @@ class TicketApiController extends ApiController {
 
         $error = sprintf('%s :%s',
                 _S('Unable to create new ticket'), $error);
-        return $this->exerr(500, $error, $title);
+        return $this->exerr($errors['errno'] ?: 500, $error, $title);
     }
 
     function processEmailRequest() {
