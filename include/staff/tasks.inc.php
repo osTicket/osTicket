@@ -153,7 +153,7 @@ $tasks->annotate(array(
 ));
 
 $tasks->values('id', 'number', 'created', 'staff_id', 'team_id',
-        'staff__firstname', 'staff__lastname', 'team__name',
+        'staff__firstname', 'staff__lastname', 'team__name', 'dept_id',
         'dept__name', 'cdata__title', 'flags', 'ticket__number', 'ticket__ticket_id');
 // Apply requested quick filter
 
