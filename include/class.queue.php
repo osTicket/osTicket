@@ -692,7 +692,7 @@ class CustomQueue extends VerySimpleModel {
         foreach (array(
             QueueColumn::placeholder(array(
                 "id" => 1,
-                "heading" => __("Number"),
+                "heading" => "Number",
                 "primary" => 'number',
                 "width" => 85,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -702,7 +702,7 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 2,
-                "heading" => __("Created"),
+                "heading" => "Created",
                 "primary" => 'created',
                 "filter" => 'date:full',
                 "truncate" =>'wrap',
@@ -711,7 +711,7 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 3,
-                "heading" => __("Subject"),
+                "heading" => "Subject",
                 "primary" => 'cdata__subject',
                 "width" => 250,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -722,21 +722,21 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 4,
-                "heading" => __("From"),
+                "heading" => "From",
                 "primary" => 'user__name',
                 "width" => 150,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 5,
-                "heading" => __("Priority"),
+                "heading" => "Priority",
                 "primary" => 'cdata__priority',
                 "width" => 120,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 8,
-                "heading" => __("Assignee"),
+                "heading" => "Assignee",
                 "primary" => 'assignee',
                 "width" => 100,
                 "bits" => QueueColumn::FLAG_SORTABLE,
