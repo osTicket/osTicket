@@ -1456,6 +1456,42 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     static function isNumberUnique($number) {
         return !self::lookupIdByNumber($number);
     }
+	
+    static function createFromCode($vars = false) {
+	global $cfg;
+	if (!is_array($vars)) return null;
+	$task = new static(array(
+            'flags' => self::ISOPEN,
+            'object_id' => $vars['object_id'],
+            'object_type' => $vars['object_type'],
+            'number' => $cfg->getNewTaskNumber(),
+            'created' => new SqlFunction('NOW'),
+            'updated' => new SqlFunction('NOW'),
+	    'dept_id' => $vars['dept_id'],
+        ));
+		
+	if (!$task->save(true))
+            return false;
+		
+	// Create a thread + message.
+        $thread = TaskThread::create($task);
+        $desc = $thread->addDescription($vars);
+        // Set the ORIGINAL_MESSAGE Flag if Description is added
+        if ($desc) {
+            $desc->setFlag(ThreadEntry::FLAG_ORIGINAL_MESSAGE);
+            $desc->save();
+        }
+		
+	$form = AssignmentForm::instantiate(array('assignee' => $vars['assignee']));
+
+        $task->assign($form, $_errors);
+		
+	$task->onNewTask();
+
+        Signal::send('task.created', $task);
+
+        return $task;
+    }
 
     static function create($vars=false) {
         global $thisstaff, $cfg;
