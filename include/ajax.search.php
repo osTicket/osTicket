@@ -312,8 +312,8 @@ class SearchAjaxAPI extends AjaxController {
                ':action' => sprintf('#queue/%s/delete', $queue->getId()),
                ':title' => sprintf('%s %s', __('Please Confirm'), __('Queue Deletion')),
                'warn' => __('Deleted Queues cannot be recovered'),
-               ':message' => sprintf(__('Are you sure you want to delete %s queue?'), $queue->getName()),
-               ':confirm' => __('Yes, Delete!')
+               ':message' => sprintf('Are you sure you want to delete %s queue?', $queue->getName()),
+               ':confirm' => 'Yes, Delete!'
                );
 
         include STAFFINC_DIR . 'templates/confirm.tmpl.php';
