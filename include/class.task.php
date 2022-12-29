@@ -587,7 +587,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
                 if ($t->ticket) {
                     $t->ticket->reopen();
                     $vars = array(
-                            'title' => sprintf('Task %s Reopened',
+                            'title' => sprintf(__('Task #%s reopened'),
                                 $t->getNumber()),
                             'note' => __('Task reopened')
                             );
@@ -614,7 +614,7 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
 
                 if ($t->ticket) {
                     $vars = array(
-                            'title' => sprintf('Task %s Closed',
+                            'title' => sprintf(__('Task #%s closed'),
                                 $t->getNumber()),
                             'note' => __('Task closed')
                             );
