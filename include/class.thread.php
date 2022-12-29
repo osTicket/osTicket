@@ -2545,7 +2545,7 @@ class EditEvent extends ThreadEvent {
             $desc = sprintf(__('%s set %s %s {timestamp}'),
                     '<b>' . $data['filter'] . '</b> Filter ',
                     __($data['type']),
-                    $data['value'] ? 'to <strong>' . $data['value'] . '</strong>' :  '');
+                    $data['value'] ? __('to').' <strong>' . $data['value'] . '</strong>' :  '');
             break;
         case isset($data['owner']):
             $desc = __('<b>{somebody}</b> changed ownership to {<User>data.owner} {timestamp}');
