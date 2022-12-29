@@ -92,7 +92,7 @@ if ($count) { ?>
                     Format::truncate($task->getAssigned(),40));
         }
 
-        $status = $task->isOpen() ? '<strong>open</strong>': 'closed';
+        $status = $task->isOpen() ? '<strong>'.__('Open').'</strong>': __('Closed');
 
         $title = Format::htmlchars(Format::truncate($task->getTitle(),40));
         $threadcount = $task->getThread() ?
