@@ -976,9 +976,10 @@ class CustomQueue extends VerySimpleModel {
                 $qs = $ost->searcher->find($value, $qs, false);
             }
             else {
+                $nullable = ($method === 'nset') ? false : null;
                 // XXX: Move getOrmPath to be more of a utility
                 // Ensure the special join is created to support custom data joins
-                $name = @static::getOrmPath($name, $qs);
+                $name = @static::getOrmPath($name, $qs, $nullable);
 
                 if (preg_match('/__answers!\d+__/', $name)) {
                     $qs->annotate(array($name => SqlAggregate::MAX($name)));
@@ -1466,7 +1467,7 @@ class CustomQueue extends VerySimpleModel {
         return $for_parent($pid);
     }
 
-    static function getOrmPath($name, $query=null) {
+    static function getOrmPath($name, $query=null, $nullable=null) {
         // Special case for custom data `__answers!id__value`. Only add the
         // join and constraint on the query the first pass, when the query
         // being mangled is received.
@@ -1481,6 +1482,10 @@ class CustomQueue extends VerySimpleModel {
             $root = $query->model;
             $meta = $root::getMeta()->getByPath($path[1]);
             $joins = $meta['joins'];
+            // If the method is 'nset' (ie. IS NULL) we want to force normal
+            // JOIN instead of LEFT JOIN to get proper results
+            if (isset($nullable))
+                $joins['answers']['null'] = $nullable;
             if (!isset($joins[$path[2]])) {
                 $meta->addJoin($path[2], $joins['answers']);
             }
