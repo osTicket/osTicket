@@ -2062,7 +2062,7 @@ implements RestrictedAccess, Threadable, Searchable {
         }
         $dept = $this->getDept();
         // See if we need to send alerts
-        if (!$alert || !$cfg->alertONAssignment() || !$dept->getNumMembersForAlerts())
+        if (!$alert || !$cfg->alertONAssignment())
             return true; //No alerts!
 
         if (!$dept
