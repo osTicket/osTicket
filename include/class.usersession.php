@@ -171,7 +171,7 @@ trait UserSessionTrait {
         // If ttl is 0 then session is destroyed immediatetly
         $_SESSION['TTD'] = time() + $ttl; // now + ttl
         if (($id=osTicketSession::regenerate($ttl)))
-            $this->session_id = $id;
+            $this->session->session_id = $id;
         // unset TTD on the new session - new life my boy!
         unset($_SESSION['TTD']);
         return $id;
