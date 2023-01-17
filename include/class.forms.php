@@ -4036,7 +4036,7 @@ class FileUploadField extends FormField {
         if (isset($this->attachments) && $this->attachments) {
             $this->attachments->keepOnlyFileIds($value);
         }
-        return JsonDataEncoder::encode($value);
+        return JsonDataEncoder::encode($value) ?? NULL;
     }
 
     function parse($value) {
