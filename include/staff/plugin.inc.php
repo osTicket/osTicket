@@ -24,7 +24,7 @@ $info= Format::htmlchars(($errors && $_POST) ? $_POST : array(), true);
         <input type="hidden" name="do" value="update">
         <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
         <input type="hidden" name="id" value="<?php echo $plugin->getId(); ?>">
-        <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
         <thead>
             <tr>
                 <th colspan="2">

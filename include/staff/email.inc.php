@@ -51,7 +51,7 @@ $info = Format::htmlchars(($errors && $_POST) ? $_POST : $info, true);
    } ?>
 </ul>
 <div class="tab_content" id="account">
- <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+ <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th colspan="2">

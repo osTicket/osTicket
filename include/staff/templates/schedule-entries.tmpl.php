@@ -36,7 +36,7 @@ $entries = $schedule->getEntries()
 <?php
 if ($count) { ?>
 <div>
-<table class="form_table fixed" width="940" border="0" cellspacing="0" cellpadding="2">
+<table class="form_table fixed" width="100%" border="0" cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th width="28" nowrap></th>

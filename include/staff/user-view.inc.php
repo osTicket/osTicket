@@ -5,7 +5,7 @@ $account = $user->getAccount();
 $org = $user->getOrganization();
 $extras = new ArrayObject();
 ?>
-<table width="940" cellpadding="2" cellspacing="0" border="0">
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
     <tr>
         <td width="50%" class="has_bottom_border">
              <h2><a href="users.php?id=<?php echo $user->getId(); ?>"

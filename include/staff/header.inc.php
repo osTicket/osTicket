@@ -61,7 +61,7 @@ if (osTicket::is_ie())
     ?>
 </head>
 <body>
-<div id="container">
+<div id="container" style="width:<?php echo $cfg->getConfigInfo()['max_page_width']; ?>">
     <?php
     if($ost->getError())
         echo sprintf('<div id="error_bar">%s</div>', $ost->getError());
