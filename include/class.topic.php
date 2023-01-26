@@ -404,7 +404,7 @@ implements TemplateVariable, Searchable {
           if ($publicOnly && !$info['public'])
               continue;
           // If the Help Topic is protected and we are an unauthenticated user ... ignore its listing
-          if (is_null($client))
+          if (is_null($client) && ($limitByOrganization === true || $primaryContactOnly === true))
               if ($info['orgpconly'] == 1 || $to_org_ids)
                   continue;
           // If topic is disabled + we're not getting all topics OR topic is not in whitelist

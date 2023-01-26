@@ -108,14 +108,20 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <?php echo __('Allowed Organizations');?>:
             </td>
             <td>
-                <select name="organizations[]" class="multi-select" multiple>
+                <select name="organizations[]" id="js-organizations-allow-list" class="multi-select" data-placeholder="<?php echo __('Select'); ?>" multiple="multiple">
                     <?php $allOrganizations = Organization::getAllOrganizations();
                     foreach ($allOrganizations as $id => $name) { ?>
-                        <option value="<?php echo $id; ?>" <?php echo (in_array($id,$topic_organization_ids))?'selected':''; ?>><?php echo $name; ?></option>
-                    <?php
+                        <option value="<?php echo $id; ?>"<?php echo (in_array($id,$topic_organization_ids))?'selected':''; ?>><?php echo $name; ?></option>
+                        <?php
                     } ?>
                 </select> <i class="help-tip icon-question-sign" href="#allowed_organizations"></i>
                 &nbsp;<span class="error">&nbsp;<?php echo $errors['pid']; ?></span>
+                <script type="text/javascript">
+                    $(function() {
+                        $("#js-organizations-allow-list")
+                            .select2({'minimumResultsForSearch':10, 'width': '300px'});
+                    });
+                </script>
             </td>
         </tr>
         <tr>
