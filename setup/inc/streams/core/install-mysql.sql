@@ -460,6 +460,7 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   `topic_id` int(11) unsigned NOT NULL auto_increment,
   `topic_pid` int(10) unsigned NOT NULL default '0',
   `ispublic` tinyint(1) unsigned NOT NULL default '1',
+  `orgpconly` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `noautoresp` tinyint(3) unsigned NOT NULL default '0',
   `flags` int(10) unsigned DEFAULT '0',
   `status_id` int(10) unsigned NOT NULL default '0',
@@ -484,6 +485,15 @@ CREATE TABLE `%TABLE_PREFIX%help_topic` (
   KEY `staff_id` (`staff_id`,`team_id`),
   KEY `sla_id` (`sla_id`),
   KEY `page_id` (`page_id`)
+) DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic_organization`;
+CREATE TABLE `%TABLE_PREFIX%help_topic_organization` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `topic_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `organization_id` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `topic-organization` (`topic_id`,`organization_id`)
 ) DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `%TABLE_PREFIX%help_topic_form`;

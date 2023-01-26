@@ -3685,6 +3685,11 @@ select {
     margin-bottom: 10px;
 }
 
+select.multi-select {
+    height:100px;
+    line-height:100px;
+}
+
 a.attachment {
     padding-left: 1.2em;
     display: block;
