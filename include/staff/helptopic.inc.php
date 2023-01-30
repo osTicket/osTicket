@@ -108,7 +108,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <?php echo __('Allowed Organizations');?>:
             </td>
             <td>
-                <select name="organizations[]" id="js-organizations-allow-list" class="multi-select" data-placeholder="<?php echo __('Select'); ?>" multiple="multiple">
+                <select name="organizations[]" id="js-organizations-allow-list" data-placeholder="<?php echo __('Select'); ?>" multiple="multiple">
                     <?php $allOrganizations = Organization::getAllOrganizations();
                     foreach ($allOrganizations as $id => $name) { ?>
                         <option value="<?php echo $id; ?>"<?php echo (in_array($id,$topic_organization_ids))?'selected':''; ?>><?php echo $name; ?></option>
