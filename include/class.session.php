@@ -310,6 +310,7 @@ namespace osTicket\Session {
 
         public function getRecord($id, $autocreate = false) {
             if (!isset($this->record)
+                    || !is_object($this->record)
                    // Mismatch here means new session id
                     || strcmp($id, $this->record->getId()))
                 $this->record = static::lookupRecord($id, $autocreate, $this);
