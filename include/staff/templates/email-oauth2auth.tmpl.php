@@ -14,6 +14,7 @@ $info = Format::htmlchars(($errors && $_POST)
         ? array_merge($info, $_POST) : $info, true);
 $action = sprintf('#email/%d/auth/config/%s/%s',
         $email->getId(), $type, $auth);
+$email = $account->getEmail()->email;
 ?>
 <h3><?php echo __('OAuth2 Authorization'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
@@ -51,20 +52,11 @@ if (isset($errors['err'])) {
         <thead>
             <tr>
                 <th colspan="2">
-                    <em><?php echo __('Name and Status'); ?></em>
+                    <em><?php echo __('General Settings'); ?></em>
                 </th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td width="180" class="required"><?php echo __('Name'); ?>:</td>
-                <td>
-                    <input size="50" type="text" autofocus
-                        name="name"
-                        value="<?php echo $info['name']; ?>"/>
-                    <span class="error">*<br/> <?php echo  $errors['name']; ?></span>
-                </td>
-            </tr>
             <tr>
                 <td width="180" class="required"><?php echo __('Status'); ?>:</td>
                 <td><select name="isactive">
@@ -75,6 +67,29 @@ if (isset($errors['err'])) {
                         ?>><?php echo $desc; ?></option>
                     <?php } ?>
                     </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="180" class="required"><?php echo __('Name'); ?>:</td>
+                <td>
+                    <input size="50" type="text" autofocus
+                        name="name"
+                        value="<?php echo $info['name']; ?>"/>
+                    <span class="error">*<br/> <?php echo  $errors['name']; ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td width="180"><b><?php echo __('Email Address'); ?>:</b></td>
+                <td>
+                    <input size="35" type="text" autofocus
+                        name="name"
+                        disabled="disabled"
+                        value="<?php echo $email; ?>"/>&nbsp;
+                    <input type="checkbox" name="strict_matching"
+                        <?php if ($info['strict_matching']) echo 'checked="checked"'; ?>>
+                    &nbsp;<?php echo __('Strict Matching'); ?>
+                    <i class="help-tip icon-question-sign" href="#strict_matching"></i>
+                    <span class="error"><br/> <?php echo $errors['name']; ?></span>
                 </td>
             </tr>
         </tbody>

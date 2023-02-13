@@ -487,6 +487,17 @@ class EmailAccount extends VerySimpleModel {
             : true;
     }
 
+    public function isStrict() {
+        return $this->getConfig()->getStrictMatching();
+    }
+
+    public function checkStrictMatching($token=null) {
+        $token ??= $this->getAccessToken();
+        return ($token && $token->isMatch(
+                $this->getEmail()->getEmail(),
+                $this->isStrict()));
+    }
+
     public function shouldAuthorize() {
         // check status and make sure it's oauth
         if (!$this->isAuthBackendEnabled() || !$this->isOAuthAuth())
@@ -497,7 +508,10 @@ class EmailAccount extends VerySimpleModel {
                 // changed somehow
                 || !($token=$cred->getAccessToken($this->getConfigSignature()))
                 // Check if expired
-                || $token->isExpired());
+                || $token->isExpired()
+                // If Strict Matching is enabled ensure the email matches
+                // the Resource Owner
+                || !$this->checkStrictMatching($token));
 
     }
 
@@ -537,6 +551,11 @@ class EmailAccount extends VerySimpleModel {
         return $this->email;
     }
 
+    public function getAccessToken() {
+        $cred = $this->getFreshCredentials();
+        return $cred ? $cred->getAccessToken($this->getConfigSignature()) : null;
+    }
+
     private function getOAuth2Backend($auth=null) {
         $auth = $auth ?: $this->getAuthBk();
         return Oauth2AuthorizationBackend::getBackend($auth);
@@ -550,6 +569,7 @@ class EmailAccount extends VerySimpleModel {
             'name' => sprintf('%s (%s)',
                     $email->getEmail(), $this->getType()),
             'isactive' => 1,
+            'strict_matching' => $this->isStrict(),
             'notes' => sprintf(
                     __('OAuth2 Authorization for %s'), $email->getEmail()),
         ];
@@ -624,7 +644,7 @@ class EmailAccount extends VerySimpleModel {
                  $this->getId());
     }
 
-    private function getConfig() {
+    protected function getConfig() {
         if (!isset($this->config))
             $this->config = new EmailAccountConfig($this->getNamespace());
         return $this->config;
@@ -688,6 +708,8 @@ class EmailAccount extends VerySimpleModel {
                             // Auth backend can be changed on update
                             $this->auth_bk = $auth;
                             $this->save();
+                            // Update Strict Matching
+                            $this->getConfig()->setStrictMatching($_POST['strict_matching'] ? 1 : 0);
                         } elseif (!isset($errors['err'])) {
                             $errors['err'] = sprintf('%s %s',
                                     __('Error Saving'),
@@ -1242,6 +1264,16 @@ class SmtpAccount extends EmailAccount {
             ->filter(['type' => 'smtp']);
     }
 
+    public function isMailboxAuth() {
+        return (strcasecmp($this->getAuthBk(), 'mailbox') === 0);
+    }
+
+    protected function getConfig() {
+        return $this->isMailboxAuth()
+                ? $this->getEmail()->getMailboxAccount()->getConfig()
+                : parent::getConfig();
+    }
+
     public function allowSpoofing() {
         return ($this->allow_spoofing);
     }
@@ -1295,6 +1327,9 @@ class SmtpAccount extends EmailAccount {
                 && !($creds=$this->getFreshCredentials($vars['smtp_auth_bk'])))
             $_errors['smtp_auth_bk'] = __('Configure Authentication');
 
+        if (($vars['smtp_auth_bk'] === 'mailbox') && !$this->checkStrictMatching())
+            $_errors['smtp_auth_bk'] = sprintf('%s and %s', __('Resource Owner'), __('Email Mismatch'));
+
         if (!$_errors) {
             $this->active = $vars['smtp_active'] ? 1 : 0;
             $this->host = $vars['smtp_host'];
@@ -1340,6 +1375,14 @@ class SmtpAccount extends EmailAccount {
  *
  */
 class EmailAccountConfig extends Config {
+    public function getStrictMatching() {
+        return $this->get('strict_matching', false);
+    }
+
+    public function setStrictMatching($mode) {
+        return $this->set('strict_matching', !!$mode);
+    }
+
     public function updateInfo($vars) {
         return parent::updateAll($vars);
     }
