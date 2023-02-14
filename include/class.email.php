@@ -536,7 +536,8 @@ class EmailAccount extends VerySimpleModel {
             $id = sprintf('%s:%d',
                 $this->getAuthBk(), $this->getId());
             if ($this->isOAuthAuth())
-                $id .= sprintf(':%d', $this->getAuthId());
+                $id .= sprintf(':%d:%b',
+                    $this->getAuthId(), $this->isStrict()); #TODO: Remove strict and delegate to email account
 
             $this->bkId = $id;
         }
