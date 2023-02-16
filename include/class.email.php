@@ -1394,10 +1394,16 @@ class SmtpAccount extends EmailAccount {
  *
  */
 class EmailAccountConfig extends Config {
+    /*
+     * Get strict matching (default: true)
+     */
     public function getStrictMatching() {
-        return $this->get('strict_matching', false);
+        return $this->get('strict_matching', true);
     }
 
+    /*
+     * Set strict matching
+     */
     public function setStrictMatching($mode) {
         return $this->set('strict_matching', !!$mode);
     }
