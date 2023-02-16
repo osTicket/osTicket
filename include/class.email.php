@@ -1276,10 +1276,17 @@ class SmtpAccount extends EmailAccount {
         return (strcasecmp($this->getAuthBk(), 'mailbox') === 0);
     }
 
+    /*
+     * Check if using mailbox auth and MailboxAccount exists if so
+     * return the MailboxAccount config, otherwise return it's own
+     * config
+     */
     protected function getConfig() {
-        return $this->isMailboxAuth()
-                ? $this->getEmail()->getMailboxAccount()->getConfig()
-                : parent::getConfig();
+        if ($this->isMailboxAuth()
+                && ($email=$this->getEmail())
+                && ($account=$email->getMailboxAccount()))
+            return $account->getConfig();
+        return parent::getConfig();
     }
 
     public function allowSpoofing() {
@@ -1335,7 +1342,11 @@ class SmtpAccount extends EmailAccount {
                 && !($creds=$this->getFreshCredentials($vars['smtp_auth_bk'])))
             $_errors['smtp_auth_bk'] = __('Configure Authentication');
 
-        if (($vars['smtp_auth_bk'] === 'mailbox') && !$this->checkStrictMatching())
+        // Check if set to active and using mailbox auth, if so check strict
+        // matching.
+        if ($vars['smtp_active'] == 1
+                && ($vars['smtp_auth_bk'] === 'mailbox')
+                && !$this->checkStrictMatching())
             $_errors['smtp_auth_bk'] = sprintf('%s and %s', __('Resource Owner'), __('Email Mismatch'));
 
         if (!$_errors) {
