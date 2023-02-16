@@ -983,6 +983,13 @@ class EmailAccount extends VerySimpleModel {
         return $this->save();
     }
 
+    /*
+     * Destory the account config
+     */
+    function destroyConfig() {
+        return $this->getConfig()->destroy();
+    }
+
     function update($vars, &$errors) {
         return false;
     }
@@ -1010,7 +1017,7 @@ class EmailAccount extends VerySimpleModel {
 
     function delete() {
         // Destroy the Email config
-        $this->getConfig()->destroy();
+        $this->destroyConfig();
         // Delete the Plugin instance
         if ($this->isOAuthAuth() && ($i=$this->getOAuth2Instance()))
             $i->delete();

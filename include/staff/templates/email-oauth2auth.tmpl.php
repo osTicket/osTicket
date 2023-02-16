@@ -123,7 +123,14 @@ if (isset($errors['err'])) {
                      __('Expired Access Token gets auto-refreshed on use'));
         }
         ?>
-        <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <a class="red button action-button pull-right" style="margin-bottom:8px;"
+            id="token-delete" data-toggle="tooltip"
+            href="<?php echo sprintf('#email/%d/auth/config/%s/delete', $email->getId(), $type); ?>"
+            title="Delete" data-original-title="Delete">
+                <i class="icon-trash"></i>&nbsp;<?php echo __('Delete Token'); ?>
+        </a>
+        <div class="clear"></div>
+        <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
         <thead>
             <tr>
                 <th colspan="2">
@@ -173,3 +180,21 @@ if (isset($errors['err'])) {
     </span>
 </p>
 </form>
+<script type="text/javascript">
+$(function() {
+    $('#oauth-tabs_container').on('click', 'a#token-delete', function(e) {
+        e.preventDefault();
+        if (confirm(__('Are you sure?'))) {
+            $.ajax({
+              url: 'ajax.php/' + $(this).attr('href').substr(1),
+              type: 'POST',
+              success: function(json) {
+                  $.toggleOverlay(false);
+                  $('#popup').hide();
+              }
+            });
+        }
+        return false;
+    });
+});
+</script>

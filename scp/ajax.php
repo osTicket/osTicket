@@ -316,6 +316,7 @@ $dispatcher = patterns('',
     )),
     url('^/email', patterns('ajax.email.php:EmailAjaxAPI',
         url_post('^/(?P<id>\d+)/stash$', 'stashFormData'),
+        url_post('^/(?P<id>\d+)/auth/config/(?P<type>\w+)/delete$', 'deleteToken'),
         url('^/(?P<id>\d+)/auth/config/(?P<type>\w+)/(?P<auth>.+)$', 'configureAuth'),
     ))
 );

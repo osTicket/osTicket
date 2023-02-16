@@ -39,4 +39,21 @@ class EmailAjaxAPI extends AjaxController {
         $template = sprintf('email-%sauth.tmpl.php', $authtype);
         include INCLUDE_DIR . "staff/templates/$template";
     }
+
+    /*
+     * Delete the OAuth2 token
+     */
+    function deleteToken($id, $type) {
+        // Check to make sure the email exists
+        if (!($email=Email::lookup($id)))
+            Http::response(404, 'Unknown Email');
+        // Get the authentication account
+        if (!($account=$email->getAuthAccount($type)))
+            Http::response(404, 'Unknown Authentication Type');
+        // Destory the account config which will delete the token
+        if ($account->destroyConfig())
+            Http::response(201, __('Token Deleted Successfully.'));
+        // Couldn't delete the Token
+        Http::response(404, 'Unable to delete token.');
+    }
 }
