@@ -30,24 +30,24 @@ $info= Format::htmlchars(($errors && $_POST) ? $_POST : array(), true);
                 $phpDep = $plugin->getPhpDependency();
 
                 if(!empty($phpDep)) {
-                        if(strpos($phpDep, ',') !==false) {
-                                // loop here and check each one.  If any fail report them back.
-                                $deps = explode(',',$phpDep);
-                                foreach ($deps as $dep) {
-                                        if(!extension_loaded($dep)) {
-                                                //TODO: combine all reports into a single log entry
-                                                $message = 'Required PHP Extension: '.$dep.' is not loaded!';
-                                                echo '<tr><td colspan="2"><span style="padding-left:20px;color:red;"> '.$message.'</span></td></tr>';
-                                                $ost->logError('Plugin: '.$plugin->getName(),$message, false);
-                                        }
+                    if(strpos($phpDep, ',') !==false) {
+                        // loop here and check each one.  If any fail report them back.
+                           $deps = explode(',',$phpDep);
+                           foreach ($deps as $dep) {
+                               if(!extension_loaded($dep)) {
+                                   //TODO: combine all reports into a single log entry
+                                   $message = 'Required PHP Extension: '.$dep.' is not loaded!';
+                                   echo '<tr><td colspan="2"><span style="padding-left:20px;color:red;"> '.$message.'</span></td></tr>';
+                                   $ost->logError('Plugin: '.$plugin->getName(),$message, false);
                                 }
-                        } else {
-                                if(!extension_loaded($phpDep)) {
-                                        $message = 'Required PHP Extension: '.$phpDep.' is not loaded!';
-                                        echo '<tr><td colspan="2"><span style="padding-left:20px;color:red;"> '.$message.'</span></td></tr>';
-                                        $ost->logError('Plugin: '.$plugin->getName(),$message, false);
-                                }
-                        }
+                             }
+                     } else {
+                         if(!extension_loaded($phpDep)) {
+                             $message = 'Required PHP Extension: '.$phpDep.' is not loaded!';
+                             echo '<tr><td colspan="2"><span style="padding-left:20px;color:red;"> '.$message.'</span></td></tr>';
+                             $ost->logError('Plugin: '.$plugin->getName(),$message, false);
+                         }
+                     }
                 } ?>
             <tr>
                 <th colspan="2">
