@@ -721,7 +721,8 @@ class Plugin extends VerySimpleModel {
     function getInstallDate() { return $this->get('installed'); }
     function getInstallPath() { return $this->get('install_path'); }
     function getNotes() { return $this->get('notes') ?: $this->info['description']; }
-
+    function getPhpDependency() { return $this->get('phpDependency', $this->info['phpDependency']); }
+    
     function getStatus() {
         return __($this->isActive() ? 'Active' : 'Disabled');
     }
