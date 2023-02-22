@@ -189,8 +189,17 @@ $(function() {
               url: 'ajax.php/' + $(this).attr('href').substr(1),
               type: 'POST',
               success: function(json) {
-                  $.toggleOverlay(false);
-                  $('#popup').hide();
+                  // Remove the Token tab completely
+                  $('#popup a[href="#token"]').parent().remove();
+                  $('#popup div#token').remove();
+                  // Add success banner
+                  $('#popup form').before('<div id="msg_notice">'+json+'</div>');
+                  // Load the IdP tab
+                  $('#popup a[href="#idp"]').click();
+              },
+              error: function(json) {
+                  // Add error banner
+                  $('#popup form').before('<div id="msg_error">'+json.responseText+'</div>');
               }
             });
         }
