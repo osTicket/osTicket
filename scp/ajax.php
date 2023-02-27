@@ -41,7 +41,7 @@ $dispatcher = patterns('',
         url_get('^faq/(?P<id>\d+)$', 'faq')
     )),
     url('^/content/', patterns('ajax.content.php:ContentAjaxAPI',
-        url_get('^log/(?P<id>\d+)', 'log'),
+        url_get('^log/(?P<id>\d+)', 'log_vars'),
         url_get('^context$', 'context'),
         url_get('^ticket_variables', 'ticket_variables'),
         url_get('^signature/(?P<type>\w+)(?:/(?P<id>\d+))?$', 'getSignature'),

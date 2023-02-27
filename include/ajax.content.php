@@ -19,7 +19,7 @@ require_once INCLUDE_DIR.'class.ajax.php';
 
 class ContentAjaxAPI extends AjaxController {
 
-    function log($id) {
+    function log_vars($id) {
 
         if($id && ($log=Log::lookup($id))) {
             $content=sprintf('<div
