@@ -546,7 +546,13 @@ class Mailer {
                     try {
                         $message->addInlineImage($match[1].$domain, $file);
                         // Don't re-attach the image below
-                        unset($self->attachments[$file->getId()]);
+                        $fileid = $file->getId();
+                        foreach ($self->attachments as $attachmentkey => $attachment) {
+                            if ($attachment->getHashtable()['file']->getHashtable()['id'] == $fileid) {
+                                unset($self->attachments[$attachmentkey]);
+                                break;
+                            }                           
+                        }
                         return $match[0].$domain;
                     }  catch(\Exception $ex) {
                          $self->logWarning(sprintf("%1\$s:%2\$s\n\n%3\$s\n",
