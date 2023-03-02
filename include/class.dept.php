@@ -604,7 +604,7 @@ implements TemplateVariable, Searchable {
                 return true;
     }
 
-    function export($dept, $criteria=null, $filename='') {
+    static function export($dept, $criteria=null, $filename='') {
         include_once(INCLUDE_DIR.'class.error.php');
         $members = $dept->getMembers();
 
