@@ -114,7 +114,7 @@ class TicketApiController extends ApiController {
             $ticket = $this->processEmailRequest();
         } else {
             // Get and Parse request body data for the format
-            $ticket = $this->createTicket($this->getEmailRequest($format));
+            $ticket = $this->createTicket($this->getRequest($format));
         }
 
 
