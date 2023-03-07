@@ -62,6 +62,10 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     // Connect
     $start = microtime(true);
+    // Specify the connection timeout (if defined)
+    if (defined('DBCONNECT_TIMEOUT'))
+        $__db->options(MYSQLI_OPT_CONNECT_TIMEOUT, DBCONNECT_TIMEOUT);
+
     if (!@$__db->real_connect($host, $user, $passwd, null, $port, $socket))
         return NULL;
 
