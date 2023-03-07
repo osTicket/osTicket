@@ -95,6 +95,10 @@ namespace osTicket\OAuth2 {
             return $this->hasExpired();
         }
 
+        public function isMatch($email, $strict=false) {
+            return !$strict ? true : (strcasecmp($this->getResourceOwnerEmail(), $email) === 0);
+        }
+
         public function getAuthRequest() {
             if ($this->hasExpired())
                 throw new Exception('Access Token is Expired');

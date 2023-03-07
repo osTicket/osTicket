@@ -170,3 +170,12 @@ header_spoofing:
         This advanced setting is generally used when sending mail from
         aliases of this mail box.
 
+strict_matching:
+    title: Strict Email Matching
+    content: >
+        <b>Enable</b> this option to require the Email Address and the Token's Resource Owner to match.
+        This is useful for preventing accidental authorization of a completely different account.
+        <br><br>
+        <b>Disable</b> this option to allow a different Resource Owner for the Token than the Email
+        Address. This is useful for Shared Mailboxes/Aliases/etc. where you need to use a Service
+        Account or Global Admin to authorize on behalf of the email.
