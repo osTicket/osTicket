@@ -419,7 +419,7 @@ abstract class AuthenticationBackend extends ServiceRegistry {
             if ($bk instanceof AuthDirectorySearch)
                 $backends[$bk->getBkId()] = $bk;
 
-        return array_unique($backends);
+        return array_unique($backends, SORT_REGULAR);
     }
 
     static function searchUsers($query) {
