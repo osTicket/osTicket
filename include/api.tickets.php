@@ -171,7 +171,7 @@ class TicketApiController extends ApiController {
         return $this->processEmail();
     }
 
-    function processEmail($data=false) {
+    function processEmail($data=false, array $defaults = []) {
 
         try {
             if (!$data)
@@ -182,6 +182,7 @@ class TicketApiController extends ApiController {
             throw new EmailParseError($ex->getMessage());
         }
 
+        $data = array_merge($defaults, $data);
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
             && ($message = $entry->postEmail($data))
