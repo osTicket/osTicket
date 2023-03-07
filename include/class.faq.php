@@ -347,7 +347,7 @@ class FAQ extends VerySimpleModel {
 
     static function getFeatured() {
         return self::objects()
-            ->filter(array('ispublished__in'=>array(1,2), 'category__ispublic'=>1))
+            ->filter(array('ispublished'=>2, 'category__ispublic__in'=>[1,2]))
             ->order_by('-ispublished');
     }
 
