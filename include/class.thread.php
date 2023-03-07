@@ -2115,6 +2115,7 @@ class ThreadEvent extends VerySimpleModel {
                 case 'timestamp':
                     $timeFormat = null;
                     if ($mode != self::MODE_CLIENT && $thisstaff
+                            && (!isset($_REQUEST['a']) || $_REQUEST['a']!='print')
                             && !strcasecmp($thisstaff->datetime_format,
                                 'relative')) {
                         $timeFormat = function ($timestamp) {
