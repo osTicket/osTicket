@@ -114,7 +114,7 @@ class TicketApiController extends ApiController {
             $ticket = $this->processEmailRequest();
         } else {
             // Get and Parse request body data for the format
-            $ticket = $this->createTicket($this->getEmailRequest($format));
+            $ticket = $this->createTicket($this->getRequest($format));
         }
 
 
@@ -164,14 +164,14 @@ class TicketApiController extends ApiController {
 
         $error = sprintf('%s :%s',
                 _S('Unable to create new ticket'), $error);
-        return $this->exerr(500, $error, $title);
+        return $this->exerr($errors['errno'] ?: 500, $error, $title);
     }
 
     function processEmailRequest() {
         return $this->processEmail();
     }
 
-    function processEmail($data=false) {
+    function processEmail($data=false, array $defaults = []) {
 
         try {
             if (!$data)
@@ -182,6 +182,7 @@ class TicketApiController extends ApiController {
             throw new EmailParseError($ex->getMessage());
         }
 
+        $data = array_merge($defaults, $data);
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
             && ($message = $entry->postEmail($data))

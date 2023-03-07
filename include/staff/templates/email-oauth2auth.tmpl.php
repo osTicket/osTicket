@@ -14,6 +14,7 @@ $info = Format::htmlchars(($errors && $_POST)
         ? array_merge($info, $_POST) : $info, true);
 $action = sprintf('#email/%d/auth/config/%s/%s',
         $email->getId(), $type, $auth);
+$addr = $account->getEmail()->email;
 ?>
 <h3><?php echo __('OAuth2 Authorization'); ?></h3>
 <b><a class="close" href="#"><i class="icon-remove-circle"></i></a></b>
@@ -51,20 +52,11 @@ if (isset($errors['err'])) {
         <thead>
             <tr>
                 <th colspan="2">
-                    <em><?php echo __('Name and Status'); ?></em>
+                    <em><?php echo __('General Settings'); ?></em>
                 </th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td width="180" class="required"><?php echo __('Name'); ?>:</td>
-                <td>
-                    <input size="50" type="text" autofocus
-                        name="name"
-                        value="<?php echo $info['name']; ?>"/>
-                    <span class="error">*<br/> <?php echo  $errors['name']; ?></span>
-                </td>
-            </tr>
             <tr>
                 <td width="180" class="required"><?php echo __('Status'); ?>:</td>
                 <td><select name="isactive">
@@ -75,6 +67,29 @@ if (isset($errors['err'])) {
                         ?>><?php echo $desc; ?></option>
                     <?php } ?>
                     </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="180" class="required"><?php echo __('Name'); ?>:</td>
+                <td>
+                    <input size="50" type="text" autofocus
+                        name="name"
+                        value="<?php echo $info['name']; ?>"/>
+                    <span class="error">*<br/> <?php echo  $errors['name']; ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td width="180"><b><?php echo __('Email Address'); ?>:</b></td>
+                <td>
+                    <input size="35" type="text" autofocus
+                        name="name"
+                        disabled="disabled"
+                        value="<?php echo $addr; ?>"/>&nbsp;
+                    <input type="checkbox" name="strict_matching"
+                        <?php if ($info['strict_matching']) echo 'checked="checked"'; ?>>
+                    &nbsp;<?php echo __('Strict Matching'); ?>
+                    <i class="help-tip icon-question-sign" href="#strict_matching"></i>
+                    <span class="error"><br/> <?php echo $errors['name']; ?></span>
                 </td>
             </tr>
         </tbody>
@@ -108,7 +123,14 @@ if (isset($errors['err'])) {
                      __('Expired Access Token gets auto-refreshed on use'));
         }
         ?>
-        <table class="form_table" width="940" border="0" cellspacing="0" cellpadding="2">
+        <a class="red button action-button pull-right" style="margin-bottom:8px;"
+            id="token-delete" data-toggle="tooltip"
+            href="<?php echo sprintf('#email/%d/auth/config/%s/delete', $email->getId(), $type); ?>"
+            title="Delete" data-original-title="Delete">
+                <i class="icon-trash"></i>&nbsp;<?php echo __('Delete Token'); ?>
+        </a>
+        <div class="clear"></div>
+        <table class="form_table" width="100%" border="0" cellspacing="0" cellpadding="2">
         <thead>
             <tr>
                 <th colspan="2">
@@ -158,3 +180,30 @@ if (isset($errors['err'])) {
     </span>
 </p>
 </form>
+<script type="text/javascript">
+$(function() {
+    $('#oauth-tabs_container').on('click', 'a#token-delete', function(e) {
+        e.preventDefault();
+        if (confirm(__('Are you sure?'))) {
+            $.ajax({
+              url: 'ajax.php/' + $(this).attr('href').substr(1),
+              type: 'POST',
+              success: function(json) {
+                  // Remove the Token tab completely
+                  $('#popup a[href="#token"]').parent().remove();
+                  $('#popup div#token').remove();
+                  // Add success banner
+                  $('#popup form').before('<div id="msg_notice">'+json+'</div>');
+                  // Load the IdP tab
+                  $('#popup a[href="#idp"]').click();
+              },
+              error: function(json) {
+                  // Add error banner
+                  $('#popup form').before('<div id="msg_error">'+json.responseText+'</div>');
+              }
+            });
+        }
+        return false;
+    });
+});
+</script>
