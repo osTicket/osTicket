@@ -987,7 +987,13 @@ class SavedQueue extends CustomQueue {
             }
 
             if ($Q->constraints && !$empty) {
-                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
+                $constraints = $Q->constraints;
+                // Add path_constraints to get the correct counts
+                foreach ($Q->path_constraints as $pc) {
+                    if (!empty($pc[0]->constraints))
+                        $constraints[] = $pc[0];
+                }
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($constraints)), new SqlField('ticket_id'));
                 $query->aggregate(array(
                     "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
                 ));
