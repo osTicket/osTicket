@@ -941,6 +941,9 @@ class SavedQueue extends CustomQueue {
             ->filter(Q::any(array(
                 'flags__hasbit' => CustomQueue::FLAG_QUEUE,
                 'staff_id' => $agent->getId(),
+            )))
+            ->filter(Q::not(array(
+                'flags__hasbit' => CustomQueue::FLAG_DISABLED,
             )));
 
         if ($criteria && is_array($criteria))
