@@ -84,6 +84,30 @@ osTicket v1.17-rc1
 ### Enhancements
 * Oauth2 / Modern Email Authentication Support (d99ff6e1-163c28b5)
 
+osTicket v1.16.6
+================
+### Improvements
+* session: Collab View Ticket (6afe0efa)
+* issue: Static forTask() (1079011f)
+* issue: Featured FAQs (8df09581)
+* print: Hidden Thread Events (f63fc67d)
+* issue: Does Not Have A Value (d47fc2b1)
+* issue: Disabled Queues Run Counts (3ff3ce93)
+* issue: Queue Counts Incorrect (2428cc58)
+* jquery: Update jQueryUI 1.13.2 (b896f70d)
+* issue: Department Export (5418cf20)
+* jquery: Update To 3.6.3 (8d39a4cc)
+* i18n: make-pot (74274b5c)
+* update: README PHP Version (6087bc55)
+* issue: mPDF Font Files (427a8aa6)
+* issue: FileUpload False (8dd2ab61)
+* Add translation for "last resort" standard column labels (cb528044)
+* add translation for task status (46c005a0)
+* issue: getRealPath() Stub (32a229aa)
+
+### Security
+* security: Latest Security Patches 03/2023 (86f9693d, 091ddba9, ec604393, daee20fd, 9fb01bc1, 619ce0f6, 343a2b47, 8a55c29f, e2c8f799, ee7ce3d9, 263f71a3)
+
 osTicket v1.16.5
 ================
 ### Improvements

@@ -7,10 +7,10 @@ if (is_a($template, 'EmailTemplateGroup')) {
     $tpl_id = $template->getId();
     $name = $template->getName();
     $group = $template;
-    $selected = $_REQUEST['code_name'];
+    $msgtemplates = $template::$all_names;
+    $selected = in_array($_REQUEST['code_name'], array_keys($msgtemplates)) ? $_REQUEST['code_name'] : '';
     $action = 'implement';
     $extras = array('code_name'=>$selected, 'tpl_id'=>$tpl_id);
-    $msgtemplates=$template::$all_names;
     $desc = $msgtemplates[$selected];
     // Attempt to lookup the default data if it is defined
     $default = @$template->getMsgTemplate($selected);

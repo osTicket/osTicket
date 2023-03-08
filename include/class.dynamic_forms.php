@@ -1215,7 +1215,7 @@ class DynamicFormEntry extends VerySimpleModel {
         return $entries[$ticket_id];
     }
 
-    function forTask($id, $force=false) {
+    static function forTask($id, $force=false) {
         static $entries = array();
         if (!isset($entries[$id]) || $force) {
             $stuff = DynamicFormEntry::objects()->filter(array(

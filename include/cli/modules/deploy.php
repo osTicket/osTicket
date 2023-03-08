@@ -205,7 +205,13 @@ class Deployment extends Unpacker {
         $verbose = $this->getOption('verbose') || $dryrun;
         $force = $this->getOption('force');
         while ($line = stream_get_line($pipes[1], 255, "\x00")) {
-            list($mode, $hash, , $path) = preg_split('/\s+/', $line);
+            list($mode, $hash, , $path, $pathx, $pathy, $pathz) = preg_split('/\s+/', $line);
+            if (isset($pathx))
+                $path = "$path $pathx";
+            if (isset($pathy))
+                $path = "$path $pathy";
+            if (isset($pathz))
+                $path = "$path $pathz";
             $src = $source.$local.$path;
             if ($this->exclude($exclude, $src))
                 continue;

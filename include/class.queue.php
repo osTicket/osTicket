@@ -692,7 +692,7 @@ class CustomQueue extends VerySimpleModel {
         foreach (array(
             QueueColumn::placeholder(array(
                 "id" => 1,
-                "heading" => "Number",
+                "heading" => __("Number"),
                 "primary" => 'number',
                 "width" => 85,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -702,7 +702,7 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 2,
-                "heading" => "Created",
+                "heading" => __("Created"),
                 "primary" => 'created',
                 "filter" => 'date:full',
                 "truncate" =>'wrap',
@@ -711,7 +711,7 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 3,
-                "heading" => "Subject",
+                "heading" => __("Subject"),
                 "primary" => 'cdata__subject',
                 "width" => 250,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -722,21 +722,21 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 4,
-                "heading" => "From",
+                "heading" => __("From"),
                 "primary" => 'user__name',
                 "width" => 150,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 5,
-                "heading" => "Priority",
+                "heading" => __("Priority"),
                 "primary" => 'cdata__priority',
                 "width" => 120,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 8,
-                "heading" => "Assignee",
+                "heading" => __("Assignee"),
                 "primary" => 'assignee',
                 "width" => 100,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -976,9 +976,10 @@ class CustomQueue extends VerySimpleModel {
                 $qs = $ost->searcher->find($value, $qs, false);
             }
             else {
+                $nullable = ($method === 'nset') ? false : null;
                 // XXX: Move getOrmPath to be more of a utility
                 // Ensure the special join is created to support custom data joins
-                $name = @static::getOrmPath($name, $qs);
+                $name = @static::getOrmPath($name, $qs, $nullable);
 
                 if (preg_match('/__answers!\d+__/', $name)) {
                     $qs->annotate(array($name => SqlAggregate::MAX($name)));
@@ -1466,7 +1467,7 @@ class CustomQueue extends VerySimpleModel {
         return $for_parent($pid);
     }
 
-    static function getOrmPath($name, $query=null) {
+    static function getOrmPath($name, $query=null, $nullable=null) {
         // Special case for custom data `__answers!id__value`. Only add the
         // join and constraint on the query the first pass, when the query
         // being mangled is received.
@@ -1481,6 +1482,10 @@ class CustomQueue extends VerySimpleModel {
             $root = $query->model;
             $meta = $root::getMeta()->getByPath($path[1]);
             $joins = $meta['joins'];
+            // If the method is 'nset' (ie. IS NULL) we want to force normal
+            // JOIN instead of LEFT JOIN to get proper results
+            if (isset($nullable))
+                $joins['answers']['null'] = $nullable;
             if (!isset($joins[$path[2]])) {
                 $meta->addJoin($path[2], $joins['answers']);
             }

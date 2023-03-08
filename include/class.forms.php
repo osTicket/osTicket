@@ -3971,6 +3971,10 @@ class FileUploadField extends FormField {
     }
 
     static function isValidFile($file) {
+        // Make sure mime type is valid
+        if (strcasecmp(FileObject::mime_type($file['tmp_name']),
+                    $file['type']) !== 0)
+            return false;
 
         // Check invalid image hacks
         if ($file['tmp_name']
@@ -4096,7 +4100,7 @@ class FileUploadField extends FormField {
         if (isset($this->attachments) && $this->attachments) {
             $this->attachments->keepOnlyFileIds($value);
         }
-        return JsonDataEncoder::encode($value);
+        return JsonDataEncoder::encode($value) ?? NULL;
     }
 
     function parse($value) {
