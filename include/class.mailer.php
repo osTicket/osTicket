@@ -110,19 +110,15 @@ class Mailer {
     }
 
     function addAttachment(\Attachment $attachment) {
-        // XXX: This looks too assuming; however, the attachment processor
-        // in the ::send() method seems hard coded to expect this format
-        $this->attachments[] = $attachment;
+        $this->attachments[$attachment->getFile()->getUId()] = $attachment;
     }
 
     function addAttachmentFile(\AttachmentFile $file) {
-        // XXX: This looks too assuming; however, the attachment processor
-        // in the ::send() method seems hard coded to expect this format
-        $this->attachments[] = $file;
+        $this->attachments[$file->getUId()] = $file;
     }
 
     function addFileObject(\FileObject $file) {
-        $this->attachments[] = $file;
+        $this->attachments[$file->getUId()] = $file;
     }
 
     function addAttachments($attachments) {
@@ -134,6 +130,19 @@ class Mailer {
             elseif ($a instanceof \FileObject)
                 $this->addFileObject($a);
         }
+    }
+
+    /**
+     *  lookup Attached File by Key
+     */
+    function getFile(String $key) {
+        foreach ($this->getAttachments() as $uid => $F) {
+            if ($F instanceof \Attachment)
+                $F = $F->getFile();
+            if (strcasecmp($F->getKey(), $key) === 0)
+                return $F;
+        }
+        return \AttachmentFile::lookup($key);
     }
 
     /**
@@ -529,24 +538,13 @@ class Mailer {
             $self = $this;
             $body = preg_replace_callback('/cid:([\w.-]{32})/',
                 function($match) use ($domain, $message, $self) {
-                    $file = false;
-                    foreach ($self->attachments as $id=>$F) {
-                        if ($F instanceof \Attachment)
-                            $F = $F->getFile();
-                        if (strcasecmp($F->getKey(), $match[1]) === 0) {
-                            $file = $F;
-                            break;
-                        }
-                    }
-                    if (!$file)
-                        // Not attached yet attempt to attach it inline
-                        $file = \AttachmentFile::lookup($match[1]);
-                    if (!$file)
+                    if (!($file=$self->getFile($match[1])))
                         return $match[0];
+
                     try {
                         $message->addInlineImage($match[1].$domain, $file);
                         // Don't re-attach the image below
-                        unset($self->attachments[$file->getId()]);
+                        unset($self->attachments[$file->getUId()]);
                         return $match[0].$domain;
                     }  catch(\Exception $ex) {
                          $self->logWarning(sprintf("%1\$s:%2\$s\n\n%3\$s\n",
@@ -561,16 +559,12 @@ class Mailer {
         //XXX: Attachments
         if(($attachments=$this->getAttachments())) {
             foreach($attachments as $file) {
-                // Read the filename from the Attachment if possible
                 if ($file instanceof \Attachment) {
                     $filename = $file->getFilename();
                     $file = $file->getFile();
-                } elseif ($file instanceof \AttachmentFile) {
+                } else {
                     $filename = $file->getName();
-                }  elseif ($file instanceof \FileObject) {
-                    $filename = $file->getFilename();
-                } else
-                    continue;
+                }
 
                 try {
                     $message->addAttachment($file, $filename);
