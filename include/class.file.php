@@ -1054,12 +1054,8 @@ class FileObject extends SplFileObject {
     }
 
     function getMimeType() {
-        if (!isset($this->_mimetype)) {
-            // Try to to auto-detect mime type
-            $finfo = new finfo(FILEINFO_MIME);
-            $this->_mimetype = $finfo->buffer($this->getContents(),
-                    FILEINFO_MIME_TYPE);
-        }
+        if (!isset($this->_mimetype))
+            $this->_mimetype = self::mime_type($this->getRealPath());
 
         return $this->_mimetype;
     }
@@ -1074,6 +1070,21 @@ class FileObject extends SplFileObject {
      */
     function getData() {
         return $this->getContents();
+    }
+
+    /*
+     * Given a filepath - auto detect the mime type
+     *
+     */
+    static function mime_type($filepath) {
+        // Try to to auto-detect mime type
+        $type = null;
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $type = finfo_file($finfo, $filepath);
+            finfo_close($finfo);
+        }
+        return $type ?: mime_content_type($filepath);
     }
 }
 
