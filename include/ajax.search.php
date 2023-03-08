@@ -31,7 +31,7 @@ class SearchAjaxAPI extends AjaxController {
         $search = new AdhocSearch(array(
             'root' => 'T',
             'staff_id' => $thisstaff->getId(),
-            'parent_id' => @$_GET['parent_id'] ?: 0,
+            'parent_id' => (int) @$_GET['parent_id'] ?: 0,
         ));
         if ($search->parent_id) {
             $search->flags |= SavedSearch::FLAG_INHERIT_COLUMNS;
@@ -168,7 +168,7 @@ class SearchAjaxAPI extends AjaxController {
                     'title' => __('Add Queue'),
                     'root' => 'T',
                     'staff_id' => $thisstaff->getId(),
-                    'parent_id' =>  $_GET['pid'],
+                    'parent_id' => (int) $_GET['pid'],
                     ));
         $this->_tryAgain($search);
     }
