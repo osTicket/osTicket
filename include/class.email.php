@@ -1284,7 +1284,7 @@ class SmtpAccount extends EmailAccount {
     protected function getConfig() {
         if ($this->isMailboxAuth()
                 && ($email=$this->getEmail())
-                && ($account=$email->getMailboxAccount()))
+                && ($account=$email->getMailBoxAccount()))
             return $account->getConfig();
         return parent::getConfig();
     }
