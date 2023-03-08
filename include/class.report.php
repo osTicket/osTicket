@@ -23,14 +23,21 @@ RolePermission::register(/* @trans */ 'Miscellaneous', ReportModel::getPermissio
 class OverviewReport {
     var $start;
     var $end;
+    static $end_choices = [
+        'now' => 'Up to today',
+        '+7 days' => 'One Week',
+        '+14 days' => 'Two Weeks',
+        '+1 month' => 'One Month',
+        '+3 months' => 'One Quarter'
+    ];
 
     var $format;
 
     function __construct($start, $end='now', $format=null) {
         global $cfg;
 
-        $this->start = $start;
-        $this->end = $end;
+        $this->start = Format::sanitize($start);
+        $this->end = array_key_exists($end, self::$end_choices) ? $end : 'now';
         $this->format = $format ?: $cfg->getDateFormat(true);
     }
 

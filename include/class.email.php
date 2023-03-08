@@ -408,12 +408,12 @@ class Email extends VerySimpleModel {
 
         $this->mail_errors = 0;
         $this->mail_lastfetch = null;
-        $this->email = $vars['email'];
+        $this->email = Format::sanitize($vars['email']);
         $this->name = Format::striptags($vars['name']);
-        $this->dept_id = $vars['dept_id'];
-        $this->priority_id = $vars['priority_id'];
-        $this->topic_id = $vars['topic_id'];
-        $this->noautoresp = $vars['noautoresp'];
+        $this->dept_id = (int) $vars['dept_id'];
+        $this->priority_id = (int) (isset($vars['priority_id']) ? $vars['priority_id'] : 0);
+        $this->topic_id = (int) $vars['topic_id'];
+        $this->noautoresp = (int) $vars['noautoresp'];
         $this->userid = $vars['userid'];
         $this->mail_active = $vars['mail_active'];
         $this->mail_host = $vars['mail_host'];

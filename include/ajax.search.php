@@ -31,7 +31,7 @@ class SearchAjaxAPI extends AjaxController {
         $search = new AdhocSearch(array(
             'root' => 'T',
             'staff_id' => $thisstaff->getId(),
-            'parent_id' => @$_GET['parent_id'] ?: 0,
+            'parent_id' => (int) @$_GET['parent_id'] ?: 0,
         ));
         if ($search->parent_id) {
             $search->flags |= SavedSearch::FLAG_INHERIT_COLUMNS;
@@ -168,7 +168,7 @@ class SearchAjaxAPI extends AjaxController {
                     'title' => __('Add Queue'),
                     'root' => 'T',
                     'staff_id' => $thisstaff->getId(),
-                    'parent_id' =>  $_GET['pid'],
+                    'parent_id' => (int) $_GET['pid'],
                     ));
         $this->_tryAgain($search);
     }
@@ -346,17 +346,16 @@ class SearchAjaxAPI extends AjaxController {
     function addCondition() {
         global $thisstaff;
 
-        if (!$thisstaff) {
+        if (!$thisstaff)
             Http::response(403, 'Agent login is required');
-        }
         elseif (!isset($_GET['field']) || !isset($_GET['id'])
-            || !isset($_GET['object_id'])
-        ) {
+                || !isset($_GET['object_id']))
             Http::response(400, '`field`, `id`, and `object_id` parameters required');
-        }
-        elseif (!is_numeric($_GET['object_id'])) {
+        elseif (!is_numeric($_GET['object_id']))
             Http::response(400, '`object_id` should be an integer');
-        }
+        elseif (!is_numeric($_GET['id']))
+            Http::response(400, '`id` should be an integer');
+
         $fields = SavedSearch::getSearchableFields('Ticket');
         if (!isset($fields[$_GET['field']])) {
             Http::response(400, sprintf('%s: No such searchable field'),
@@ -382,8 +381,8 @@ class SearchAjaxAPI extends AjaxController {
             Http::response(400, '`prop` and `condition` parameters required');
         }
 
-        $prop = $_GET['prop'];
-        $id = $_GET['condition'];
+        $prop = Format::htmlchars($_GET['prop']);
+        $id = Format::htmlchars($_GET['condition']);
         include STAFFINC_DIR . 'templates/queue-column-condition-prop.tmpl.php';
     }
 

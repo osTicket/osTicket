@@ -156,9 +156,10 @@ class Role extends RoleModel {
     }
 
     function update($vars, &$errors) {
-        if (!$vars['name'])
+        $name = Format::sanitize($vars['name']);
+        if (!$name)
             $errors['name'] = __('Name required');
-        elseif (($r=Role::lookup(array('name'=>$vars['name'])))
+        elseif (($r=Role::lookup(array('name'=>$name)))
                 && $r->getId() != $vars['id'])
             $errors['name'] = __('Name already in use');
         elseif (!$vars['perms'] || !count($vars['perms']))
@@ -167,8 +168,8 @@ class Role extends RoleModel {
         if ($errors)
             return false;
 
-        $this->name = $vars['name'];
-        $this->notes = $vars['notes'];
+        $this->name = $name;
+        $this->notes = Format::sanitize($vars['notes']);
 
         $this->updatePerms($vars['perms'], $errors);
 
