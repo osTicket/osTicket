@@ -16,6 +16,19 @@ require_once(INCLUDE_DIR.'class.error.php');
 
 
 /**
+ * FileObject Interface
+ *
+ * Methods File Objects should support
+ **/
+interface FileObjectInterface {
+    function getUId();
+    function getKey();
+    function getName();
+    function getData();
+    function getMimeType();
+}
+
+/**
  * Represents a file stored in a storage backend. It is generally attached
  * to something; however company logos, login page backdrops, and other
  * items are also stored in the database for various purposes.
@@ -29,8 +42,8 @@ require_once(INCLUDE_DIR.'class.error.php');
  *    - 'L' => Logo
  *    - 'B' => Backdrop
  */
-class AttachmentFile extends VerySimpleModel {
-
+class AttachmentFile extends VerySimpleModel
+    implements FileObjectInterface {
     static $meta = array(
         'table' => FILE_TABLE,
         'pk' => array('id'),
@@ -69,6 +82,10 @@ class AttachmentFile extends VerySimpleModel {
 
     function getId() {
         return $this->id;
+    }
+
+    function getUId() {
+        return $this->getId();
     }
 
     function getType() {
@@ -1029,12 +1046,27 @@ class OneSixAttachments extends FileStorageBackend {
 FileStorageBackend::register('6', 'OneSixAttachments');
 
 // FileObject - wrapper for SplFileObject class
-class FileObject extends SplFileObject {
+class FileObject extends SplFileObject
+    implements FileObjectInterface {
 
+    protected $_key;
+    protected $_sig;
     protected $_filename;
 
     function __construct($file, $mode='r') {
         parent::__construct($file, $mode);
+    }
+
+    function getUId() {
+        return $this->getKey();
+    }
+
+    function getKey() {
+        if (!isset($this->_key))
+            list($this->_key, $this->_sig) = AttachmentFile::_getKeyAndHash(
+                $this->getContents());
+
+        return $this->_key;
     }
 
     /* This allows us to set REAL file name as opposed to basename of the
@@ -1046,6 +1078,10 @@ class FileObject extends SplFileObject {
 
     function getFilename() {
         return $this->_filename ?: parent::getFilename();
+    }
+
+    function getName() {
+        return $this->getFilename();
     }
 
     /*
