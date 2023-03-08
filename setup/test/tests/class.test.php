@@ -18,7 +18,7 @@ class Test {
         '/include/laminas-mail/',
         '/js/select2.min.js',
         '/js/redactor.min.js',
-        '/js/jquery-ui-1.13.1.custom.min.js',
+        '/js/jquery-ui-1.13.2.custom.min.js',
         '/js/fabric.min.js',
 
         # Includes in the core-plugins project

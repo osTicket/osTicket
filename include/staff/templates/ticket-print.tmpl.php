@@ -255,7 +255,7 @@ if ($entries->exists(true)) {
             //       changes in dates between thread items.
             if ($this->includeevents) {
                 while ($event && $cmp($event->timestamp, $entry->created)) {
-                    $event->render(ThreadEvent::MODE_CLIENT);
+                    $event->render(ThreadEvent::MODE_STAFF);
                     $events->next();
                     $event = $events->current();
                 }
@@ -294,7 +294,7 @@ if ($entries->exists(true)) {
 }
 // Emit all other events
 while ($event) {
-    $event->render(ThreadEvent::MODE_CLIENT);
+    $event->render(ThreadEvent::MODE_STAFF);
     $events->next();
     $event = $events->current();
 } ?>
