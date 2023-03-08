@@ -96,17 +96,16 @@ namespace osTicket\OAuth2 {
         }
 
         public function isMatch($email, $strict=false) {
-            return !$strict ? true : (strcasecmp($this->getResourceOwnerEmail(), $email) === 0);
+            return (!$strict || strcasecmp($this->getResourceOwnerEmail(), $email) === 0);
         }
 
-        public function getAuthRequest() {
+        public function getAuthRequest($user=null) {
             if ($this->hasExpired())
                 throw new Exception('Access Token is Expired');
 
             return base64_encode(sprintf("user=%s\1auth=Bearer %s\1\1",
-                        $this->getResourceOwner(),
-                        $this->getAccessToken()
-                        ));
+                $user ?? $this->getResourceOwner(),
+                $this->getAccessToken()));
         }
 
         public function __toString() {
