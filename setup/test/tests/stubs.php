@@ -243,6 +243,7 @@ class HashPassword {
 
 class SplFileObject {
     function fseek() {}
+    function getRealPath() {}
 }
 
 class AuditEntry {
