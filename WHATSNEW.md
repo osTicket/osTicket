@@ -1,3 +1,21 @@
+osTicket v1.17.3
+================
+### Enhancements
+* oauth2: Strict Matching (7275d67b, b7718be4, ca913ba2, cb3625e8, f531718a, c0cd8b16)
+* OAuth2 Resource Owner (5c239adb)
+
+### Improvements
+* session: Regenerate Session Id (d5853245)
+* fetcher: Mail Fetcher / Parser Error Handling (d4d9c424, 0a4498b2)
+* mysql: Support Sidecar Database Proxies (246aaa4d)
+* Misc. Fixes (e6beeb9b, 24fd5075, eac9960a, 10af29a5)
+* fetcher: Default Department (f410d4ec)
+* issue: LDAP Multi-Instance Fatal Error (f6486044)
+* issue: TicketDenied errno (6de7cf4c)
+* session: User Logged Out (00d409d3)
+* Uncaught Error: Call to a member function getId() on bool (af83896d)
+* Mailer: Inline Images (7efbdfd2, 8815d087, 64a8abf3)
+
 osTicket v1.17.2
 ================
 ### Improvements
