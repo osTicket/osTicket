@@ -132,7 +132,7 @@ elseif ($thisstaff && $thisstaff->isValid()) {
 }
 
 // Browsers shouldn't suggest saving that username/password
-Http::response(422);
+// Http::response(422);
 
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');
