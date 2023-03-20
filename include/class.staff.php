@@ -1298,6 +1298,9 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $this->phone_ext = $vars['phone_ext'];
         $this->mobile = Format::phone($vars['mobile']);
         $this->notes = Format::sanitize($vars['notes']);
+        $this->max_page_size = $vars['max_page_size'];
+        $this->auto_refresh_rate = $vars['auto_refresh_rate'];
+        $this->default_signature_type = $vars['default_signature_type'];
 
         // Set staff password if exists
         if (!$vars['welcome_email'] && $vars['passwd1']) {

@@ -34,7 +34,7 @@ if (count($langs) > 1) { ?>
         lang="<?php echo $cfg->getPrimaryLanguage(); ?>" />
     <div style="margin-top: 5px">
     <div class="error"><?php echo $errors['body']; ?></div>
-    <textarea class="richtext no-bar" name="body"
+    <textarea class="richtext" name="body"
         data-root-context="<?php echo $content->getType();
         ?>"><?php echo Format::htmlchars(Format::viewableImages($info['body']));
         ?></textarea>
