@@ -3910,10 +3910,11 @@ class FileUploadField extends FormField {
         return $F;
     }
 
-    static function isValidFile($file) {
-        // Make sure mime type is valid
-        if (strcasecmp(FileObject::mime_type($file['tmp_name']),
-                    $file['type']) !== 0)
+    static function isValidFile($file, $strict=false) {
+        // If strict check mime type
+        if ($strict
+                &&!empty($file['type'])
+                && strcasecmp(FileObject::mime_type($file['tmp_name']), $file['type']) !== 0)
             return false;
 
         // Check invalid image hacks
