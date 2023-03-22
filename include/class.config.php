@@ -256,6 +256,7 @@ class OsticketConfig extends Config {
         'files_req_auth' => 1,
         'force_https' => '',
         'allow_external_images' => 0,
+        'max_page_width' => '960px',
     );
 
     function __construct($section=null) {
@@ -470,6 +471,10 @@ class OsticketConfig extends Config {
 
     function getPageSize() {
         return $this->get('max_page_size');
+    }
+
+    function getPageWidth() {
+        return $this->get('max_page_width');
     }
 
     function getGracePeriod() {
@@ -1317,6 +1322,11 @@ class OsticketConfig extends Config {
         if ($storagebk)
             $this->update('default_storage_bk', $storagebk->getBkChar());
 
+        if (empty($vars['max_page_width'])) {
+            $vars['max_page_width'] = '960px';
+        } elseif (is_numeric($vars['max_page_width'])) {
+            $vars['max_page_width'] = $vars['max_page_width'] . 'px';
+        }
 
         return $this->updateAll(array(
             'isonline'=>$vars['isonline'],
@@ -1325,6 +1335,7 @@ class OsticketConfig extends Config {
             'default_dept_id'=>$vars['default_dept_id'],
             'force_https'=>$vars['force_https'] ? 'on' : '',
             'max_page_size'=>$vars['max_page_size'],
+            'max_page_width'=>$vars['max_page_width'],
             'log_level'=>$vars['log_level'],
             'log_graceperiod'=>$vars['log_graceperiod'],
             'time_format'=>$vars['time_format'],
