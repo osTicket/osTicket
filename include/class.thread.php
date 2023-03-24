@@ -2286,7 +2286,7 @@ class Event extends VerySimpleModel {
     static function getStates($dropdown=false) {
         $names = array();
         if ($dropdown)
-            $names = array(__('All'));
+            $names = array('All');
 
         $events = self::objects()->values_flat('name');
         foreach ($events as $val)
