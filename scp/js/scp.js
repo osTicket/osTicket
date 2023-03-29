@@ -212,6 +212,14 @@ var scp_prep = function() {
             redactor.api('selection.save');
     });
 
+    // set focus to select2:search_field
+    $('form select#cannedResp').on('select2:open', function (e) {
+        const select2 = $(e.target).data('select2');
+        if (!select2.options.get('multiple')) {
+            select2.dropdown.$search.get(0).focus();
+        }
+    });
+
     $('form select#cannedResp').change(function() {
 
         var fObj = $(this).closest('form');
