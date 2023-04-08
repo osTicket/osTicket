@@ -598,6 +598,20 @@ class Format {
         }, $html);
     }
 
+    // Same as Format::viewableImages() but specialized for content encoded with Format::htmlchars()
+    static function viewableImagesSpecial($html, $options=array()) {
+        $cids = $images = array();
+        $options +=array(
+                'disposition' => 'inline');
+        return preg_replace_callback('/&quot;cid:([\w._-]{32})&quot;/',
+        function($match) use ($options, $images) {
+            if (!($file = AttachmentFile::lookup($match[1])))
+                return $match[0];
+
+            $attributes = sprintf('"%s" data-cid="%s"', $file->getDownloadUrl($options), $match[1]);
+            return Format::htmlchars($attributes, false);
+        }, $html);
+    }
 
     /**
      * Thanks, http://us2.php.net/manual/en/function.implode.php
