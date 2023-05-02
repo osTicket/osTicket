@@ -6122,7 +6122,7 @@ class TransferForm extends Form {
             'refer' => new BooleanField(array(
                 'id'=>2, 'label'=>'', 'required'=>false, 'default'=>false,
                 'configuration'=>array(
-                    'desc' => 'Maintain referral access to current department')
+                    'desc' => __('Maintain referral access to current department'))
             )),
             'comments' => new TextareaField(array(
                     'id' => 3,
