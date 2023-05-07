@@ -19,16 +19,19 @@ if (isset($_REQUEST['status'])) {
 $org_tickets = $thisclient->canSeeOrgTickets();
 if ($settings['keywords']) {
     // Don't show stat counts for searches
-    $openTickets = $closedTickets = -1;
+    $openTickets = $answeredTickets = $closedTickets = -1;
 }
 elseif ($settings['topic_id']) {
     $openTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'],
-        'open', $org_tickets);
+        'open', $org_tickets, false);
+    $answeredTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'],
+        'open', $org_tickets, true);
     $closedTickets = $thisclient->getNumTopicTicketsInState($settings['topic_id'],
         'closed', $org_tickets);
 }
 else {
-    $openTickets = $thisclient->getNumOpenTickets($org_tickets);
+    $openTickets = $thisclient->getNumOpenTickets($org_tickets, false);
+    $answeredTickets = $thisclient->getNumOpenTickets($org_tickets, true);
     $closedTickets = $thisclient->getNumClosedTickets($org_tickets);
 }
 
@@ -62,15 +65,24 @@ if ($settings['topic_id']) {
 
 if ($settings['status'])
     $status = strtolower($settings['status']);
-    switch ($status) {
+
+switch ($status) {
     default:
         $status = 'open';
     case 'open':
+        $results_type = __('Open Tickets');
+        $filter = array('status__state' => $status, 'isanswered' => 1);
+        break;
+    case 'answered':
+        $results_type = __('Answered Tickets');
+        $filter = array('status__state' => 'open', 'isanswered' => 0);
+        break;
     case 'closed':
-		$results_type = ($status == 'closed') ? __('Closed Tickets') : __('Open Tickets');
-        $basic_filter->filter(array('status__state' => $status));
+        $results_type = __('Closed Tickets');
+        $filter = array('status__state' => $status);
         break;
 }
+$basic_filter->filter($filter);
 
 // Add visibility constraints — use a union query to use multiple indexes,
 // use UNION without "ALL" (false as second parameter to union()) to imply
@@ -183,6 +195,18 @@ foreach (Topic::getHelpTopics(true) as $id=>$name) {
     <a class="state <?php if ($status == 'open') echo 'active'; ?>"
         href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'open')); ?>">
     <?php echo __('Open'); if ($openTickets > 0) echo sprintf(' (%d)', $openTickets); ?>
+    </a>
+    <?php if ($answeredTickets || $closedTickets) { ?>
+    &nbsp;
+    <span style="color:lightgray">|</span>
+    <?php }
+}
+if ($answeredTickets) { ?>
+    &nbsp;
+    <i class="icon-file-alt"></i>
+    <a class="state <?php if ($status == 'answered') echo 'active'; ?>"
+        href="?<?php echo Http::build_query(array('a' => 'search', 'status' => 'answered')); ?>">
+    <?php echo _P('ticket-status', 'Answered'); if ($answeredTickets > 0) echo sprintf(' (%d)', $answeredTickets); ?>
     </a>
     <?php if ($closedTickets) { ?>
     &nbsp;
