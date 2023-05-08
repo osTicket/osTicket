@@ -317,6 +317,9 @@ $(document).ready(function() {
         var value = $("#delete-child").prop("checked") ? 1 : 0;
         (value == 1) ? $('#savewarning').show() : $('#savewarning').hide();
     }
+    if (typeof set_select2_focus === "function") {
+        set_select2_focus();
+    }
 });
 </script>
 
