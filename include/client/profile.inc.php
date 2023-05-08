@@ -98,3 +98,12 @@ $selected = ($info['lang'] == $l['code']) ? 'selected="selected"' : ''; ?>
         window.location.href='index.php';"/>
 </p>
 </form>
+<script type="text/javascript">
+    // set focus to select2:search_field
+    $('form select').on('select2:open', function (e) {
+      var select2 = $(e.target).data('select2');
+      if (!select2.options.get('multiple')) {
+        select2.dropdown.$search.get(0).focus();
+      }
+    });
+</script>
