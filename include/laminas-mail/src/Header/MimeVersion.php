@@ -1,27 +1,27 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
+
+use function in_array;
+use function preg_match;
+use function strtolower;
 
 class MimeVersion implements HeaderInterface
 {
-    /**
-     * @var string Version string
-     */
+    /** @var string Version string */
     protected $version = '1.0';
 
+    /**
+     * @param string $headerLine
+     * @return static
+     */
     public static function fromString($headerLine)
     {
-        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
-        $value = HeaderWrap::mimeDecodeValue($value);
+        [$name, $value] = GenericHeader::splitHeaderLine($headerLine);
+        $value          = HeaderWrap::mimeDecodeValue($value);
 
         // check to ensure proper header type for this factory
-        if (strtolower($name) !== 'mime-version') {
+        if (! in_array(strtolower($name), ['mimeversion', 'mime_version', 'mime-version'])) {
             throw new Exception\InvalidArgumentException('Invalid header line for MIME-Version string');
         }
 
@@ -34,27 +34,43 @@ class MimeVersion implements HeaderInterface
         return $header;
     }
 
+    /**
+     * @return string
+     */
     public function getFieldName()
     {
         return 'MIME-Version';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
     {
         return $this->version;
     }
 
+    /**
+     * @param string $encoding
+     * @return self
+     */
     public function setEncoding($encoding)
     {
         // This header must be always in US-ASCII
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEncoding()
     {
         return 'ASCII';
     }
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         return 'MIME-Version: ' . $this->getFieldValue();

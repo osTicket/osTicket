@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail;
 
 class ConfigProvider
@@ -31,8 +25,8 @@ class ConfigProvider
     {
         return [
             // Legacy Zend Framework aliases
-            'aliases' => [
-                \Zend\Mail\Protocol\SmtpPluginManager::class => Protocol\SmtpPluginManager::class,
+            'aliases'   => [
+                'Zend\Mail\Protocol\SmtpPluginManager' => Protocol\SmtpPluginManager::class,
             ],
             'factories' => [
                 Protocol\SmtpPluginManager::class => Protocol\SmtpPluginManagerFactory::class,

@@ -1,19 +1,20 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Storage;
 
 use Laminas\Stdlib\ErrorHandler;
+
+use function array_combine;
+use function file_get_contents;
+use function is_resource;
+use function ltrim;
+use function stream_get_contents;
 
 class Message extends Part implements Message\MessageInterface
 {
     /**
      * flags for this message
+     *
      * @var array
      */
     protected $flags = [];
@@ -34,7 +35,7 @@ class Message extends Part implements Message\MessageInterface
             if (! is_resource($params['file'])) {
                 ErrorHandler::start();
                 $params['raw'] = file_get_contents($params['file']);
-                $error = ErrorHandler::stop();
+                $error         = ErrorHandler::stop();
                 if ($params['raw'] === false) {
                     throw new Exception\RuntimeException('could not open file', 0, $error);
                 }

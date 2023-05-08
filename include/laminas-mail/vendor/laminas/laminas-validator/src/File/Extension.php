@@ -1,16 +1,25 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Stdlib\ArrayUtils;
 use Laminas\Validator\AbstractValidator;
 use Traversable;
+
+use function array_key_exists;
+use function array_unique;
+use function explode;
+use function func_get_arg;
+use function func_num_args;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_readable;
+use function is_string;
+use function strrpos;
+use function strtolower;
+use function substr;
+use function trim;
 
 /**
  * Validator for the file extension of a file
@@ -22,12 +31,10 @@ class Extension extends AbstractValidator
     /**
      * @const string Error constants
      */
-    const FALSE_EXTENSION = 'fileExtensionFalse';
-    const NOT_FOUND       = 'fileExtensionNotFound';
+    public const FALSE_EXTENSION = 'fileExtensionFalse';
+    public const NOT_FOUND       = 'fileExtensionNotFound';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array<string, string> Error message templates */
     protected $messageTemplates = [
         self::FALSE_EXTENSION => 'File has an incorrect extension',
         self::NOT_FOUND       => 'File is not readable or does not exist',
@@ -39,14 +46,12 @@ class Extension extends AbstractValidator
      * @var array
      */
     protected $options = [
-        'case'      => false,   // Validate case sensitive
-        'extension' => '',      // List of extensions
+        'case'                 => false, // Validate case sensitive
+        'extension'            => '', // List of extensions
         'allowNonExistentFile' => false, // Allow validation even if file does not exist
     ];
 
-    /**
-     * @var array Error message template variables
-     */
+    /** @var array Error message template variables */
     protected $messageVariables = [
         'extension' => ['options' => 'extension'],
     ];
@@ -116,9 +121,14 @@ class Extension extends AbstractValidator
      */
     public function getExtension()
     {
-        $extension = explode(',', $this->options['extension']);
+        if (
+            ! array_key_exists('extension', $this->options)
+            || ! is_string($this->options['extension'])
+        ) {
+            return [];
+        }
 
-        return $extension;
+        return explode(',', $this->options['extension']);
     }
 
     /**
@@ -203,7 +213,8 @@ class Extension extends AbstractValidator
         $fileInfo = $this->getFileInfo($value, $file);
 
         // Is file readable ?
-        if (! $this->getAllowNonExistentFile()
+        if (
+            ! $this->getAllowNonExistentFile()
             && (empty($fileInfo['file']) || false === is_readable($fileInfo['file']))
         ) {
             $this->error(self::NOT_FOUND);
@@ -219,7 +230,7 @@ class Extension extends AbstractValidator
             return true;
         } elseif (! $this->getCase()) {
             foreach ($extensions as $ext) {
-                if (strtolower($ext) == strtolower($extension)) {
+                if (strtolower($ext) === strtolower($extension)) {
                     return true;
                 }
             }

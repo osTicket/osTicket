@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
 
 use Laminas\Loader\PluginClassLoader;
@@ -15,32 +9,33 @@ use Laminas\Loader\PluginClassLoader;
  */
 class HeaderLoader extends PluginClassLoader
 {
-    /**
-     * @var array Pre-aliased Header plugins
-     */
+    /** @var array Pre-aliased Header plugins */
     protected $plugins = [
-        'bcc'                       => 'Laminas\Mail\Header\Bcc',
-        'cc'                        => 'Laminas\Mail\Header\Cc',
-        'contenttype'               => 'Laminas\Mail\Header\ContentType',
-        'content_type'              => 'Laminas\Mail\Header\ContentType',
-        'content-type'              => 'Laminas\Mail\Header\ContentType',
-        'contenttransferencoding'   => 'Laminas\Mail\Header\ContentTransferEncoding',
-        'content_transfer_encoding' => 'Laminas\Mail\Header\ContentTransferEncoding',
-        'content-transfer-encoding' => 'Laminas\Mail\Header\ContentTransferEncoding',
-        'date'                      => 'Laminas\Mail\Header\Date',
-        'from'                      => 'Laminas\Mail\Header\From',
-        'in-reply-to'               => 'Laminas\Mail\Header\InReplyTo',
-        'message-id'                => 'Laminas\Mail\Header\MessageId',
-        'mimeversion'               => 'Laminas\Mail\Header\MimeVersion',
-        'mime_version'              => 'Laminas\Mail\Header\MimeVersion',
-        'mime-version'              => 'Laminas\Mail\Header\MimeVersion',
-        'received'                  => 'Laminas\Mail\Header\Received',
-        'references'                => 'Laminas\Mail\Header\References',
-        'replyto'                   => 'Laminas\Mail\Header\ReplyTo',
-        'reply_to'                  => 'Laminas\Mail\Header\ReplyTo',
-        'reply-to'                  => 'Laminas\Mail\Header\ReplyTo',
-        'sender'                    => 'Laminas\Mail\Header\Sender',
-        'subject'                   => 'Laminas\Mail\Header\Subject',
-        'to'                        => 'Laminas\Mail\Header\To',
+        'bcc'                       => Bcc::class,
+        'cc'                        => Cc::class,
+        'contentdisposition'        => ContentDisposition::class,
+        'content_disposition'       => ContentDisposition::class,
+        'content-disposition'       => ContentDisposition::class,
+        'contenttype'               => ContentType::class,
+        'content_type'              => ContentType::class,
+        'content-type'              => ContentType::class,
+        'contenttransferencoding'   => ContentTransferEncoding::class,
+        'content_transfer_encoding' => ContentTransferEncoding::class,
+        'content-transfer-encoding' => ContentTransferEncoding::class,
+        'date'                      => Date::class,
+        'from'                      => From::class,
+        'in-reply-to'               => InReplyTo::class,
+        'message-id'                => MessageId::class,
+        'mimeversion'               => MimeVersion::class,
+        'mime_version'              => MimeVersion::class,
+        'mime-version'              => MimeVersion::class,
+        'received'                  => Received::class,
+        'references'                => References::class,
+        'replyto'                   => ReplyTo::class,
+        'reply_to'                  => ReplyTo::class,
+        'reply-to'                  => ReplyTo::class,
+        'sender'                    => Sender::class,
+        'subject'                   => Subject::class,
+        'to'                        => To::class,
     ];
 }

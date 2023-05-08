@@ -1,14 +1,27 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-loader for the canonical source repository
- * @copyright https://github.com/laminas/laminas-loader/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-loader/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Loader;
 
 use Traversable;
+
+use function array_filter;
+use function array_values;
+use function array_walk;
+use function explode;
+use function file_exists;
+use function gettype;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_string;
+use function preg_match;
+use function realpath;
+use function spl_autoload_register;
+use function sprintf;
+use function str_pad;
+use function str_replace;
+use function strlen;
+use function substr;
 
 // Grab SplAutoloader interface
 require_once __DIR__ . '/SplAutoloader.php';
@@ -22,12 +35,14 @@ class ClassMapAutoloader implements SplAutoloader
 {
     /**
      * Registry of map files that have already been loaded
+     *
      * @var array
      */
     protected $mapsLoaded = [];
 
     /**
      * Class name/filename map
+     *
      * @var array
      */
     protected $map = [];
@@ -86,7 +101,7 @@ class ClassMapAutoloader implements SplAutoloader
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException(sprintf(
                 'Map file provided does not return a map. Map file: "%s"',
-                (isset($location) && is_string($location) ? $location : 'unexpected type: ' . gettype($map))
+                isset($location) && is_string($location) ? $location : 'unexpected type: ' . gettype($map)
             ));
         }
 
@@ -108,7 +123,7 @@ class ClassMapAutoloader implements SplAutoloader
      */
     public function registerAutoloadMaps($locations)
     {
-        if (! is_array($locations) && ! ($locations instanceof Traversable)) {
+        if (! is_array($locations) && ! $locations instanceof Traversable) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException('Map list must be an array or implement Traversable');
         }
@@ -161,7 +176,7 @@ class ClassMapAutoloader implements SplAutoloader
      *
      * @param  string $location
      * @return ClassMapAutoloader|mixed
-     * @throws Exception\InvalidArgumentException for nonexistent locations
+     * @throws Exception\InvalidArgumentException For nonexistent locations.
      */
     protected function loadMapFromFile($location)
     {
@@ -169,7 +184,7 @@ class ClassMapAutoloader implements SplAutoloader
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException(sprintf(
                 'Map file provided does not exist. Map file: "%s"',
-                (is_string($location) ? $location : 'unexpected type: ' . gettype($location))
+                is_string($location) ? $location : 'unexpected type: ' . gettype($location)
             ));
         }
 
@@ -182,15 +197,14 @@ class ClassMapAutoloader implements SplAutoloader
             return $this;
         }
 
-        $map = include $path;
-
-        return $map;
+        return include $path;
     }
 
     /**
      * Resolve the real_path() to a file within a phar.
      *
      * @see https://bugs.php.net/bug.php?id=52769
+     *
      * @param  string $path
      * @return string
      */
@@ -200,10 +214,10 @@ class ClassMapAutoloader implements SplAutoloader
             return;
         }
 
-        $prefixLength  = 5 + strlen($match[1]);
-        $parts = explode('/', str_replace(['/', '\\'], '/', substr($path, $prefixLength)));
-        $parts = array_values(array_filter($parts, function ($p) {
-            return ($p !== '' && $p !== '.');
+        $prefixLength = 5 + strlen($match[1]);
+        $parts        = explode('/', str_replace(['/', '\\'], '/', substr($path, $prefixLength)));
+        $parts        = array_values(array_filter($parts, function ($p) {
+            return $p !== '' && $p !== '.';
         }));
 
         array_walk($parts, function ($value, $key) use (&$parts) {

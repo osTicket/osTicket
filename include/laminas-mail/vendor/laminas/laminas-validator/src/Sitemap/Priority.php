@@ -1,14 +1,10 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\Sitemap;
 
 use Laminas\Validator\AbstractValidator;
+
+use function is_numeric;
 
 /**
  * Validates whether a given value is valid as a sitemap <priority> value
@@ -19,10 +15,9 @@ class Priority extends AbstractValidator
 {
     /**
      * Validation key for not valid
-     *
      */
-    const NOT_VALID = 'sitemapPriorityNotValid';
-    const INVALID   = 'sitemapPriorityInvalid';
+    public const NOT_VALID = 'sitemapPriorityNotValid';
+    public const INVALID   = 'sitemapPriorityInvalid';
 
     /**
      * Validation failure message template definitions

@@ -1,12 +1,16 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
+
+use function array_merge;
+use function class_exists;
+use function explode;
+use function finfo_file;
+use function finfo_open;
+use function in_array;
+use function is_readable;
+
+use const FILEINFO_MIME_TYPE;
 
 /**
  * Validator for the mime type of a file
@@ -15,13 +19,11 @@ class ExcludeMimeType extends MimeType
 {
     use FileInformationTrait;
 
-    const FALSE_TYPE   = 'fileExcludeMimeTypeFalse';
-    const NOT_DETECTED = 'fileExcludeMimeTypeNotDetected';
-    const NOT_READABLE = 'fileExcludeMimeTypeNotReadable';
+    public const FALSE_TYPE   = 'fileExcludeMimeTypeFalse';
+    public const NOT_DETECTED = 'fileExcludeMimeTypeNotDetected';
+    public const NOT_READABLE = 'fileExcludeMimeTypeNotReadable';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::FALSE_TYPE   => "File has an incorrect mimetype of '%type%'",
         self::NOT_DETECTED => 'The mimetype could not be detected from the file',

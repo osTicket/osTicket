@@ -1,12 +1,26 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol;
+
+use Generator;
+use Laminas\Mail\Headers;
+
+use function array_key_exists;
+use function array_replace_recursive;
+use function chunk_split;
+use function fclose;
+use function fgets;
+use function fopen;
+use function fwrite;
+use function implode;
+use function ini_get;
+use function is_array;
+use function rewind;
+use function rtrim;
+use function stream_socket_enable_crypto;
+use function strlen;
+use function strtolower;
+use function substr;
 
 /**
  * SMTP implementation of Laminas\Mail\Protocol\AbstractProtocol
@@ -17,6 +31,14 @@ namespace Laminas\Mail\Protocol;
 class Smtp extends AbstractProtocol
 {
     use ProtocolTrait;
+
+    /**
+     * RFC 5322 section-2.2.3 specifies maximum of 998 bytes per line.
+     * This may not be exceeded.
+     *
+     * @see https://tools.ietf.org/html/rfc5322#section-2.2.3
+     */
+    public const SMTP_LINE_LIMIT = 998;
 
     /**
      * The transport method for the socket
@@ -65,7 +87,7 @@ class Smtp extends AbstractProtocol
      *
      * @var bool
      */
-    protected $data = null;
+    protected $data;
 
     /**
      * Whether or not send QUIT command
@@ -75,8 +97,6 @@ class Smtp extends AbstractProtocol
     protected $useCompleteQuit = true;
 
     /**
-     * Constructor.
-     *
      * The first argument may be an array of all options. If so, it must include
      * the 'host' and 'port' keys in order to ensure that all required values
      * are present.
@@ -86,7 +106,7 @@ class Smtp extends AbstractProtocol
      * @param  null|array   $config
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($host = '127.0.0.1', $port = null, array $config = null)
+    public function __construct($host = '127.0.0.1', $port = null, ?array $config = null)
     {
         // Did we receive a configuration array?
         if (is_array($host)) {
@@ -125,7 +145,7 @@ class Smtp extends AbstractProtocol
 
                 case 'ssl':
                     $this->transport = 'ssl';
-                    $this->secure = 'ssl';
+                    $this->secure    = 'ssl';
                     if ($port === null) {
                         $port = 465;
                     }
@@ -152,6 +172,10 @@ class Smtp extends AbstractProtocol
             }
         }
 
+        if (array_key_exists('novalidatecert', $config)) {
+            $this->setNoValidateCert($config['novalidatecert']);
+        }
+
         parent::__construct($host, $port);
     }
 
@@ -164,6 +188,58 @@ class Smtp extends AbstractProtocol
     public function setUseCompleteQuit($useCompleteQuit)
     {
         return $this->useCompleteQuit = (bool) $useCompleteQuit;
+    }
+
+    /**
+     * Read $data as lines terminated by "\n"
+     *
+     * @return Generator|string[]
+     */
+    private static function chunkedReader(string $data, int $chunkSize = 4096): Generator
+    {
+        if (($fp = fopen("php://temp", "r+")) === false) {
+            throw new Exception\RuntimeException('cannot fopen');
+        }
+        if (fwrite($fp, $data) === false) {
+            throw new Exception\RuntimeException('cannot fwrite');
+        }
+        rewind($fp);
+
+        $line = null;
+        while (($buffer = fgets($fp, $chunkSize)) !== false) {
+            $line .= $buffer;
+
+            // This is optimization to avoid calling length() in a loop.
+            // We need to match a condition that is when:
+            // 1. maximum was read from fgets, which is $chunkSize-1
+            // 2. last byte of the buffer is not \n
+            //
+            // to access last byte of buffer, we can do
+            // - $buffer[strlen($buffer)-1]
+            // and when maximum is read from fgets, then:
+            // - strlen($buffer) === $chunkSize-1
+            // - strlen($buffer)-1 === $chunkSize-2
+            // which means this is also true:
+            // - $buffer[strlen($buffer)-1] === $buffer[$chunkSize-2]
+            //
+            // the null coalesce works, as string offset can never be null
+            $lastByte = $buffer[$chunkSize - 2] ?? null;
+
+            // partial read, continue loop to read again to complete the line
+            // compare \n first as that's usually false
+            if ($lastByte !== "\n" && $lastByte !== null) {
+                continue;
+            }
+
+            yield $line;
+            $line = null;
+        }
+
+        if ($line !== null) {
+            yield $line;
+        }
+
+        fclose($fp);
     }
 
     /**
@@ -183,9 +259,14 @@ class Smtp extends AbstractProtocol
      */
     public function connect()
     {
-        return $this->_connect($this->transport . '://' . $this->host . ':' . $this->port);
+        $this->socket = $this->setupSocket(
+            $this->transport,
+            $this->host,
+            $this->port,
+            self::TIMEOUT_CONNECTION
+        );
+        return true;
     }
-
 
     /**
      * Initiate HELO/EHLO sequence and set flag to indicate valid smtp session
@@ -237,7 +318,7 @@ class Smtp extends AbstractProtocol
      * Send EHLO or HELO depending on capabilities of smtp host
      *
      * @param  string $host The client hostname or IP address (default: 127.0.0.1)
-     * @throws \Exception|Exception\ExceptionInterface
+     * @throws Exception\ExceptionInterface
      */
     protected function ehlo($host)
     {
@@ -245,12 +326,11 @@ class Smtp extends AbstractProtocol
         try {
             $this->_send('EHLO ' . $host);
             $this->_expect(250, 300); // Timeout set for 5 minutes as per RFC 2821 4.5.3.2
-        } catch (Exception\ExceptionInterface $e) {
+        } catch (Exception\ExceptionInterface) {
             $this->_send('HELO ' . $host);
             $this->_expect(250, 300); // Timeout set for 5 minutes as per RFC 2821 4.5.3.2
         }
     }
-
 
     /**
      * Issues MAIL command
@@ -273,7 +353,6 @@ class Smtp extends AbstractProtocol
         $this->data = false;
     }
 
-
     /**
      * Issues RCPT command
      *
@@ -292,7 +371,6 @@ class Smtp extends AbstractProtocol
         $this->rcpt = true;
     }
 
-
     /**
      * Issues DATA command
      *
@@ -309,31 +387,30 @@ class Smtp extends AbstractProtocol
         $this->_send('DATA');
         $this->_expect(354, 120); // Timeout set for 2 minutes as per RFC 2821 4.5.3.2
 
-        if (($fp = fopen("php://temp", "r+")) === false) {
-            throw new Exception\RuntimeException('cannot fopen');
-        }
-        if (fwrite($fp, $data) === false) {
-            throw new Exception\RuntimeException('cannot fwrite');
-        }
-        unset($data);
-        rewind($fp);
-
-        // max line length is 998 char + \r\n = 1000
-        while (($line = stream_get_line($fp, 1000, "\n")) !== false) {
-            $line = rtrim($line, "\r");
+        $reader = self::chunkedReader($data);
+        foreach ($reader as $line) {
+            $line = rtrim($line, "\r\n");
             if (isset($line[0]) && $line[0] === '.') {
                 // Escape lines prefixed with a '.'
                 $line = '.' . $line;
             }
+
+            if (strlen($line) > self::SMTP_LINE_LIMIT) {
+                // Long lines are "folded" by inserting "<CR><LF><SPACE>"
+                // https://tools.ietf.org/html/rfc5322#section-2.2.3
+                // Add "-1" to stay within limits,
+                // because Headers::FOLDING includes a byte for space character after \r\n
+                $chunks = chunk_split($line, self::SMTP_LINE_LIMIT - 1, Headers::FOLDING);
+                $line   = substr($chunks, 0, -strlen(Headers::FOLDING));
+            }
+
             $this->_send($line);
         }
-        fclose($fp);
 
         $this->_send('.');
         $this->_expect(250, 600); // Timeout set for 10 minutes as per RFC 2821 4.5.3.2
         $this->data = true;
     }
-
 
     /**
      * Issues the RSET command end validates answer
@@ -344,7 +421,7 @@ class Smtp extends AbstractProtocol
     public function rset()
     {
         $this->_send('RSET');
-        // MS ESMTP doesn't follow RFC, see [Laminas-1377]
+        // MS ESMTP doesn't follow RFC, see https://zendframework.com/issues/browse/ZF-1377
         $this->_expect([250, 220]);
 
         $this->mail = false;
@@ -356,7 +433,6 @@ class Smtp extends AbstractProtocol
      * Issues the NOOP command end validates answer
      *
      * Not used by Laminas\Mail, could be used to keep a connection alive or check if it is still open.
-     *
      */
     public function noop()
     {
@@ -379,7 +455,6 @@ class Smtp extends AbstractProtocol
 
     /**
      * Issues the QUIT command and clears the current session
-     *
      */
     public function quit()
     {
@@ -411,21 +486,18 @@ class Smtp extends AbstractProtocol
 
     /**
      * Closes connection
-     *
      */
     public function disconnect()
     {
         $this->_disconnect();
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Disconnect from remote host and free resource
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _disconnect()
     {
-        // @codingStandardsIgnoreEnd
-
         // Make sure the session gets closed
         $this->quit();
         parent::_disconnect();
@@ -433,7 +505,6 @@ class Smtp extends AbstractProtocol
 
     /**
      * Start mail session
-     *
      */
     protected function startSession()
     {
@@ -442,7 +513,6 @@ class Smtp extends AbstractProtocol
 
     /**
      * Stop mail session
-     *
      */
     protected function stopSession()
     {

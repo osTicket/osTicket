@@ -1,27 +1,25 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Laminas\Filter\Digits as DigitsFilter;
 
+use function is_float;
+use function is_int;
+use function is_string;
+
 class Digits extends AbstractValidator
 {
-    const NOT_DIGITS   = 'notDigits';
-    const STRING_EMPTY = 'digitsStringEmpty';
-    const INVALID      = 'digitsInvalid';
+    public const NOT_DIGITS   = 'notDigits';
+    public const STRING_EMPTY = 'digitsStringEmpty';
+    public const INVALID      = 'digitsInvalid';
 
     /**
      * Digits filter used for validation
      *
-     * @var \Laminas\Filter\Digits
+     * @var DigitsFilter
      */
-    protected static $filter = null;
+    protected static $filter;
 
     /**
      * Validation failure message template definitions

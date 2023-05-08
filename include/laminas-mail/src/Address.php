@@ -1,20 +1,23 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail;
 
 use Laminas\Validator\EmailAddress as EmailAddressValidator;
 use Laminas\Validator\Hostname;
 
+use function array_shift;
+use function is_string;
+use function preg_match;
+use function sprintf;
+use function trim;
+
 class Address implements Address\AddressInterface
 {
+    /** @var null|string  */
     protected $comment;
+    /** @var string  */
     protected $email;
+    /** @var null|string  */
     protected $name;
 
     /**
@@ -50,6 +53,8 @@ class Address implements Address\AddressInterface
             $email = $matches['email'];
         }
         $email = trim($email);
+        //trim single quotes, because outlook does add single quotes to emails sometimes which is technically not valid
+        $email = trim($email, '\'');
 
         return new static($email, $name, $comment);
     }
@@ -108,9 +113,9 @@ class Address implements Address\AddressInterface
     }
 
     /**
-     * Retrieve name
+     * Retrieve name, if any
      *
-     * @return string
+     * @return null|string
      */
     public function getName()
     {
@@ -153,7 +158,7 @@ class Address implements Address\AddressInterface
      */
     private function constructName()
     {
-        $name = $this->getName();
+        $name    = $this->getName();
         $comment = $this->getComment();
 
         if ($comment === null || $comment === '') {

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Storage\Part;
 
 use ArrayIterator;
@@ -108,6 +102,7 @@ interface PartInterface extends RecursiveIterator
      * This getter is short for PartInterface::getHeader($name, 'string')
      *
      * @see PartInterface::getHeader()
+     *
      * @param  string $name header name
      * @return string value of header
      * @throws Exception\ExceptionInterface
