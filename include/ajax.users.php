@@ -234,6 +234,10 @@ class UsersAjaxAPI extends AjaxController {
 
             if ($errors['err'])
                 $info['error'] = $errors['err'];
+            else if($errors['passwd1']){
+                    $info['error'] = __('Unable to update account.') //AQUI ERRO DO USERNAE
+                        .' '.__('Invalid password.');
+            }
             else
                 $info['error'] = __('Unable to update account.')
                     .' '.__('Correct any errors below and try again.');
