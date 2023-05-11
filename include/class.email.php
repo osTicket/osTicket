@@ -1346,6 +1346,7 @@ class SmtpAccount extends EmailAccount {
         // matching.
         if ($vars['smtp_active'] == 1
                 && ($vars['smtp_auth_bk'] === 'mailbox')
+                && (strpos($vars['auth_bk'], 'oauth2') === 0)
                 && !$this->checkStrictMatching())
             $_errors['smtp_auth_bk'] = sprintf('%s and %s', __('Resource Owner'), __('Email Mismatch'));
 
