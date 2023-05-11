@@ -366,10 +366,10 @@ class osTicket {
 
     static function get_path_info() {
         if(isset($_SERVER['PATH_INFO']))
-            return $_SERVER['PATH_INFO'];
+            return htmlentities($_SERVER['PATH_INFO']);
 
         if(isset($_SERVER['ORIG_PATH_INFO']))
-            return $_SERVER['ORIG_PATH_INFO'];
+            return htmlentities($_SERVER['ORIG_PATH_INFO']);
 
         //TODO: conruct possible path info.
 

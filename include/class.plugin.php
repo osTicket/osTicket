@@ -368,6 +368,8 @@ class PluginManager {
      * registered in the plugin registry -- the %plugin table.
      */
     function install($path) {
+        // Fixup $path to ensure we are only installing from the plugin dir
+        $path = 'plugins/' . basename($path);
         $is_phar = substr($path, strlen($path) - 5) == '.phar';
         if (!($info = $this->getInfoForPath(INCLUDE_DIR . $path, $is_phar)))
             return false;
