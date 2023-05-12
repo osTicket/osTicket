@@ -326,17 +326,17 @@ class Format {
             $html = Format::htmldecode($html);
 
         // Remove HEAD and STYLE sections
-        $html = preg_replace(
-            [     ':<(head|style|script).+?</\1>:is',   # <head> and <style> sections
-                  ':<(head|style|script)[^<]*\/>:is',   # <head /> and <style /> attributes
-                  ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
-                  ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
-                  ':<(\!--)?\?[^>]+>:',         # <?xml version="1.0" ... > or <!--?xml version="1.0" ... >
-                  ':<html[^>]+:i',              # drop html attributes
-                  ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
-                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
-                  ':data-cid="[^"]*":',         # drop image cid attributes
-                  '(position:[^!";]+;?)',
++        $html = preg_replace([
++                ':<(head|style|script)[^<]+?<(/ ?\1|\1 ?/)>:is',   # Balanced <head>, <style>, and <script> sections
++                ':</? ?(head|style|script) ?/?>:is',   # Ubalanced <head>, <style>, and <script> tags (opening or closing)
++                ':<!\[[^]<]+\]>:',            		# <![if !mso]> and friends
++                ':<!DOCTYPE[^>]+>:',          		# <!DOCTYPE ... >
++                ':<(\!--)?\?[^>]+>:',         		# <?xml version="1.0" ... > or <!--?xml version="1.0" ... >
++                ':<html[^>]+:i',              		# drop html attributes
++                ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', 	# Drop _MailEndCompose
++                ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', 						# drop Gmail "ltr" attributes
++                ':data-cid="[^"]*":',         		# drop image cid attributes
++                '(position:[^!";]+;?)',
             ],
             ['', '', '', '', '', '<html', '$4', '$2 $3', '', ''],
             $html);
