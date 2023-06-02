@@ -484,9 +484,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $depts;
     }
 
-    function getTopicNames($publicOnly=false, $disabled=false) {
+    function getTopicNames($publicOnly=false, $disabled=false, $client=null, $isAgentView=false) {
         $allInfo = !$this->hasPerm(Dept::PERM_DEPT) ? true : false;
-        $topics = Topic::getHelpTopics($publicOnly, $disabled, true, array(), $allInfo);
+        if ($isAgentView)
+            $topics = Topic::getHelpTopics($publicOnly, $disabled, true, array(), $allInfo, false, false, $client);
+        else
+            $topics = Topic::getHelpTopics($publicOnly, $disabled, true, array(), $allInfo, true, true, $client);
         $topicsClean = array();
 
         if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {

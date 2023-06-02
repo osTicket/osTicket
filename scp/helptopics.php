@@ -173,11 +173,14 @@ if($_POST){
                         break;
                     case 'delete':
                         $i=1;
+                        $h = TopicOrganizationModel::objects()->filter(array(
+                            'topic_id__in'=>$_POST['ids']
+                        ))->delete();
                         $topics = Topic::objects()->filter(array(
                             'topic_id__in'=>$_POST['ids']
                         ));
 
-                        //dont allow deletion of all topics
+                        // Don't allow deletion of all topics
                         if (($count >= $allTopics) ||
                              count($diff) == count($activeTopics)) {
                             $errors['err'] = __('At least one Topic must be Active');

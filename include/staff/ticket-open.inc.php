@@ -228,7 +228,7 @@ if ($_POST)
                             }
                           });">
                     <?php
-                    if ($topics=$thisstaff->getTopicNames(false, false)) {
+                    if ($topics=$thisstaff->getTopicNames(false, false, null, true)) {
                         if (count($topics) == 1)
                             $selected = 'selected="selected"';
                         else { ?>

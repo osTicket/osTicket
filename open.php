@@ -28,6 +28,10 @@ if ($_POST) {
         elseif(strcmp($_SESSION['captcha'], md5(strtoupper($_POST['captcha']))))
             $errors['captcha']=sprintf('%s - %s', __('Invalid'), __('Please try again!'));
     }
+    // Do we have access to the desired Help Topic?
+    if (!in_array(intval($vars['topicId'] ?? 0), array_keys(Topic::getPublicHelpTopics($thisclient)))) {
+        $errors['topicId']=sprintf('%s - %s', __('Invalid'), __('Please try again!'));
+    }
 
     $tform = TicketForm::objects()->one()->getForm($vars);
     $messageField = $tform->getField('message');
