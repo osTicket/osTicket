@@ -17,7 +17,7 @@ $action=$upgrader->getNextAction();
 <div id="upgrader">
     <div id="main">
             <div id="intro">
-             <p><?php echo __('Thank you for taking the time to upgrade your osTicket intallation!');?></p>
+             <p><?php echo __('Thank you for taking the time to upgrade your osTicket installation!');?></p>
              <p><strong><?php echo __("Please don't cancel or close the browser. Any errors at this stage will be fatal.");?></strong></p>
             </div>
             <h2 id="task"><?php echo sprintf(__('Applying updates to database stream: %s'),
