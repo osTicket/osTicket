@@ -21,7 +21,7 @@ if ($_POST['export']) {
     $report = new OverviewReport($_POST['start'], $_POST['period']);
     switch (true) {
     case ($data = $report->getTabularData($_POST['export'])):
-        $ts = strftime('%Y%m%d');
+        $ts = date('Ymd');
         $group = Format::slugify($_POST['export']);
         $delimiter = ',';
         if (class_exists('NumberFormatter')) {
