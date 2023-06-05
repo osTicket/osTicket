@@ -1,16 +1,24 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Stdlib\ErrorHandler;
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
+use Traversable;
+
+use function array_shift;
+use function filesize;
+use function func_get_args;
+use function func_num_args;
+use function is_numeric;
+use function is_readable;
+use function is_string;
+use function round;
+use function sprintf;
+use function strtoupper;
+use function substr;
+use function trim;
 
 /**
  * Validator for the maximum size of a file up to a max of 2GB
@@ -22,22 +30,18 @@ class Size extends AbstractValidator
     /**
      * @const string Error constants
      */
-    const TOO_BIG   = 'fileSizeTooBig';
-    const TOO_SMALL = 'fileSizeTooSmall';
-    const NOT_FOUND = 'fileSizeNotFound';
+    public const TOO_BIG   = 'fileSizeTooBig';
+    public const TOO_SMALL = 'fileSizeTooSmall';
+    public const NOT_FOUND = 'fileSizeNotFound';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::TOO_BIG   => "Maximum allowed size for file is '%max%' but '%size%' detected",
         self::TOO_SMALL => "Minimum expected size for file is '%min%' but '%size%' detected",
         self::NOT_FOUND => 'File is not readable or does not exist',
     ];
 
-    /**
-     * @var array Error message template variables
-     */
+    /** @var array Error message template variables */
     protected $messageVariables = [
         'min'  => ['options' => 'min'],
         'max'  => ['options' => 'max'],
@@ -71,7 +75,7 @@ class Size extends AbstractValidator
      * 'max': Maximum file size
      * 'useByteString': Use bytestring or real size for messages
      *
-     * @param  int|array|\Traversable $options Options for the adapter
+     * @param int|array|Traversable $options Options for the adapter
      */
     public function __construct($options = null)
     {
@@ -94,8 +98,8 @@ class Size extends AbstractValidator
     /**
      * Should messages return bytes as integer or as string in SI notation
      *
-     * @param  bool $byteString Use bytestring ?
-     * @return int
+     * @param bool $byteString Use bytestring ?
+     * @return self
      */
     public function useByteString($byteString = true)
     {
@@ -137,8 +141,8 @@ class Size extends AbstractValidator
      * For example: 2000, 2MB, 0.2GB
      *
      * @param  int|string $min The minimum file size
-     * @throws Exception\InvalidArgumentException When min is greater than max
      * @return $this Provides a fluent interface
+     * @throws Exception\InvalidArgumentException When min is greater than max.
      */
     public function setMin($min)
     {
@@ -182,8 +186,8 @@ class Size extends AbstractValidator
      * For example: 2000, 2MB, 0.2GB
      *
      * @param  int|string $max The maximum file size
-     * @throws Exception\InvalidArgumentException When max is smaller than min
      * @return $this Provides a fluent interface
+     * @throws Exception\InvalidArgumentException When max is smaller than min.
      */
     public function setMax($max)
     {
@@ -305,8 +309,8 @@ class Size extends AbstractValidator
     /**
      * Returns the unformatted size
      *
-     * @param  string $size
-     * @return int
+     * @param string $size
+     * @return float|int|string
      */
     protected function fromByteString($size)
     {
@@ -314,7 +318,7 @@ class Size extends AbstractValidator
             return (int) $size;
         }
 
-        $type  = trim(substr($size, -2, 1));
+        $type = trim(substr($size, -2, 1));
 
         $value = substr($size, 0, -1);
         if (! is_numeric($value)) {

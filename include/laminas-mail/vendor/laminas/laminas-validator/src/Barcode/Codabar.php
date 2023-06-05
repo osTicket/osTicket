@@ -1,12 +1,9 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\Barcode;
+
+use function strpbrk;
+use function substr;
 
 class Codabar extends AbstractAdapter
 {
@@ -22,7 +19,11 @@ class Codabar extends AbstractAdapter
 
     /**
      * Checks for allowed characters
+     *
      * @see Laminas\Validator\Barcode.AbstractAdapter::checkChars()
+     *
+     * @param string $value
+     * @return bool
      */
     public function hasValidCharacters($value)
     {
@@ -56,7 +57,7 @@ class Codabar extends AbstractAdapter
             $value = substr($value, 1, -1);
         }
 
-        $chars  = $this->getCharacters();
+        $chars = $this->getCharacters();
         $this->setCharacters('0123456789-$:/.+');
         $result = parent::hasValidCharacters($value);
         $this->setCharacters($chars);

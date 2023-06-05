@@ -1,15 +1,27 @@
-<?php
-
-/**
- * @see       https://github.com/laminas/laminas-mime for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mime/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mime/blob/master/LICENSE.md New BSD License
- */
+<?php // phpcs:disable WebimpressCodingStandard.NamingConventions.ValidVariableName.NotCamelCaps
 
 namespace Laminas\Mime;
 
 use Laminas\Mail\Headers;
 use Laminas\Stdlib\ErrorHandler;
+
+use function count;
+use function explode;
+use function iconv_mime_decode;
+use function preg_match;
+use function preg_match_all;
+use function preg_split;
+use function str_replace;
+use function strcasecmp;
+use function strlen;
+use function strpos;
+use function strtok;
+use function strtolower;
+use function substr;
+
+use const E_NOTICE;
+use const E_WARNING;
+use const ICONV_MIME_DECODE_CONTINUE_ON_ERROR;
 
 class Decode
 {
@@ -29,7 +41,7 @@ class Decode
         $body = str_replace("\r", '', $body);
 
         $start = 0;
-        $res = [];
+        $res   = [];
         // find every mime part limiter and cut out the
         // string before it.
         // the part before the first boundary string is discarded:
@@ -74,7 +86,7 @@ class Decode
         if (! $parts) {
             return;
         }
-        $result = [];
+        $result  = [];
         $headers = null; // "Declare" variable before the first usage "for reading"
         $body    = null; // "Declare" variable before the first usage "for reading"
         foreach ($parts as $part) {
@@ -107,7 +119,7 @@ class Decode
         }
         // check for valid header at first line
         $firstlinePos = strpos($message, "\n");
-        $firstline = $firstlinePos === false ? $message : substr($message, 0, $firstlinePos);
+        $firstline    = $firstlinePos === false ? $message : substr($message, 0, $firstlinePos);
         if (! preg_match('%^[^\s]+[^:]*:%', $firstline)) {
             $headers = new Headers();
             // TODO: we're ignoring \r for now - is this function fast enough and is it safe to assume noone needs \r?
@@ -118,7 +130,7 @@ class Decode
         // see @Laminas-372, pops the first line off a message if it doesn't contain a header
         if (! $strict) {
             $parts = explode(':', $firstline, 2);
-            if (count($parts) != 2) {
+            if (count($parts) !== 2) {
                 $message = substr($message, strpos($message, $EOL) + 1);
             }
         }
@@ -131,19 +143,19 @@ class Decode
         // default is set new line
         // @todo Maybe this is too much "magic"; we should be more strict here
         if (strpos($message, $EOL . $EOL)) {
-            list($headers, $body) = explode($EOL . $EOL, $message, 2);
+            [$headers, $body] = explode($EOL . $EOL, $message, 2);
         // next is the standard new line
-        } elseif ($EOL != "\r\n" && strpos($message, "\r\n\r\n")) {
-            list($headers, $body) = explode("\r\n\r\n", $message, 2);
-            $headersEOL = "\r\n"; // Headers::fromString will fail with incorrect EOL
+        } elseif ($EOL !== "\r\n" && strpos($message, "\r\n\r\n")) {
+            [$headers, $body] = explode("\r\n\r\n", $message, 2);
+            $headersEOL       = "\r\n"; // Headers::fromString will fail with incorrect EOL
         // next is the other "standard" new line
-        } elseif ($EOL != "\n" && strpos($message, "\n\n")) {
-            list($headers, $body) = explode("\n\n", $message, 2);
-            $headersEOL = "\n";
+        } elseif ($EOL !== "\n" && strpos($message, "\n\n")) {
+            [$headers, $body] = explode("\n\n", $message, 2);
+            $headersEOL       = "\n";
         // at last resort find anything that looks like a new line
         } else {
             ErrorHandler::start(E_NOTICE | E_WARNING);
-            list($headers, $body) = preg_split("%([\r\n]+)\\1%U", $message, 2);
+            [$headers, $body] = preg_split("%([\r\n]+)\\1%U", $message, 2);
             ErrorHandler::stop();
         }
 
@@ -173,13 +185,13 @@ class Decode
      */
     public static function splitHeaderField($field, $wantedPart = null, $firstName = '0')
     {
-        $wantedPart = strtolower($wantedPart);
-        $firstName = strtolower($firstName);
+        $wantedPart = strtolower($wantedPart ?? '');
+        $firstName  = strtolower($firstName);
 
         // special case - a bit optimized
         if ($firstName === $wantedPart) {
             $field = strtok($field, ';');
-            return $field[0] == '"' ? substr($field, 1, -1) : $field;
+            return $field[0] === '"' ? substr($field, 1, -1) : $field;
         }
 
         $field = $firstName . '=' . $field;
@@ -192,7 +204,7 @@ class Decode
                 if (strcasecmp($name, $wantedPart)) {
                     continue;
                 }
-                if ($matches[2][$key][0] != '"') {
+                if ($matches[2][$key][0] !== '"') {
                     return $matches[2][$key];
                 }
                 return substr($matches[2][$key], 1, -1);
@@ -203,7 +215,7 @@ class Decode
         $split = [];
         foreach ($matches[1] as $key => $name) {
             $name = strtolower($name);
-            if ($matches[2][$key][0] == '"') {
+            if ($matches[2][$key][0] === '"') {
                 $split[$name] = substr($matches[2][$key], 1, -1);
             } else {
                 $split[$name] = $matches[2][$key];

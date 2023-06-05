@@ -1,53 +1,53 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Laminas\Stdlib\StringUtils;
 use Laminas\Stdlib\StringWrapper\StringWrapperInterface as StringWrapper;
+use Laminas\Stdlib\StringWrapper\StringWrapperInterface;
+use Traversable;
+
+use function array_shift;
+use function func_get_args;
+use function is_array;
+use function is_string;
+use function max;
 
 class StringLength extends AbstractValidator
 {
-    const INVALID   = 'stringLengthInvalid';
-    const TOO_SHORT = 'stringLengthTooShort';
-    const TOO_LONG  = 'stringLengthTooLong';
+    public const INVALID   = 'stringLengthInvalid';
+    public const TOO_SHORT = 'stringLengthTooShort';
+    public const TOO_LONG  = 'stringLengthTooLong';
 
-    /**
-     * @var array
-     */
+    /** @var array<string, string> */
     protected $messageTemplates = [
         self::INVALID   => 'Invalid type given. String expected',
         self::TOO_SHORT => 'The input is less than %min% characters long',
         self::TOO_LONG  => 'The input is more than %max% characters long',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array<string, array<string, string>> */
     protected $messageVariables = [
         'min'    => ['options' => 'min'],
         'max'    => ['options' => 'max'],
         'length' => ['options' => 'length'],
     ];
 
+    /** @var array<string, mixed> */
     protected $options = [
-        'min'      => 0,       // Minimum length
-        'max'      => null,    // Maximum length, null if there is no length limitation
+        'min'      => 0, // Minimum length
+        'max'      => null, // Maximum length, null if there is no length limitation
         'encoding' => 'UTF-8', // Encoding to use
-        'length'   => 0,       // Actual length
+        'length'   => 0, // Actual length
     ];
 
+    /** @var null|StringWrapperInterface */
     protected $stringWrapper;
 
     /**
      * Sets validator options
      *
-     * @param  int|array|\Traversable $options
+     * @param int|array|Traversable $options
      */
     public function __construct($options = [])
     {
@@ -145,8 +145,7 @@ class StringLength extends AbstractValidator
     /**
      * Set the string wrapper to detect the string length
      *
-     * @param StringWrapper $stringWrapper
-     * @return StringLength
+     * @return void
      */
     public function setStringWrapper(StringWrapper $stringWrapper)
     {
@@ -173,7 +172,7 @@ class StringLength extends AbstractValidator
      */
     public function setEncoding($encoding)
     {
-        $this->stringWrapper = StringUtils::getWrapper($encoding);
+        $this->stringWrapper       = StringUtils::getWrapper($encoding);
         $this->options['encoding'] = $encoding;
         return $this;
     }

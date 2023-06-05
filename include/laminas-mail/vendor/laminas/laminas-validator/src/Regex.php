@@ -1,35 +1,32 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
 use Laminas\Stdlib\ArrayUtils;
 use Laminas\Stdlib\ErrorHandler;
 use Traversable;
 
+use function array_key_exists;
+use function is_array;
+use function is_float;
+use function is_int;
+use function is_string;
+use function preg_match;
+
 class Regex extends AbstractValidator
 {
-    const INVALID   = 'regexInvalid';
-    const NOT_MATCH = 'regexNotMatch';
-    const ERROROUS  = 'regexErrorous';
+    public const INVALID   = 'regexInvalid';
+    public const NOT_MATCH = 'regexNotMatch';
+    public const ERROROUS  = 'regexErrorous';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageTemplates = [
         self::INVALID   => 'Invalid type given. String, integer or float expected',
         self::NOT_MATCH => "The input does not match against pattern '%pattern%'",
         self::ERROROUS  => "There was an internal error while using the pattern '%pattern%'",
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageVariables = [
         'pattern' => 'pattern',
     ];
@@ -45,7 +42,7 @@ class Regex extends AbstractValidator
      * Sets validator options
      *
      * @param  string|array|Traversable $pattern
-     * @throws Exception\InvalidArgumentException On missing 'pattern' parameter
+     * @throws Exception\InvalidArgumentException On missing 'pattern' parameter.
      */
     public function __construct($pattern)
     {
@@ -86,7 +83,7 @@ class Regex extends AbstractValidator
      * Sets the pattern option
      *
      * @param  string $pattern
-     * @throws Exception\InvalidArgumentException if there is a fatal error in pattern matching
+     * @throws Exception\InvalidArgumentException If there is a fatal error in pattern matching.
      * @return $this Provides a fluent interface
      */
     public function setPattern($pattern)

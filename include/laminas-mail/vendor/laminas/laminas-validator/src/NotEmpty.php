@@ -1,35 +1,45 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
 
+use Countable;
 use Laminas\Stdlib\ArrayUtils;
 use Traversable;
 
+use function array_search;
+use function array_shift;
+use function count;
+use function func_get_args;
+use function in_array;
+use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function is_object;
+use function is_string;
+use function method_exists;
+use function preg_match;
+
 class NotEmpty extends AbstractValidator
 {
-    const BOOLEAN       = 0b000000000001;
-    const INTEGER       = 0b000000000010;
-    const FLOAT         = 0b000000000100;
-    const STRING        = 0b000000001000;
-    const ZERO          = 0b000000010000;
-    const EMPTY_ARRAY   = 0b000000100000;
-    const NULL          = 0b000001000000;
-    const PHP           = 0b000001111111;
-    const SPACE         = 0b000010000000;
-    const OBJECT        = 0b000100000000;
-    const OBJECT_STRING = 0b001000000000;
-    const OBJECT_COUNT  = 0b010000000000;
-    const ALL           = 0b011111111111;
+    public const BOOLEAN       = 0b000000000001;
+    public const INTEGER       = 0b000000000010;
+    public const FLOAT         = 0b000000000100;
+    public const STRING        = 0b000000001000;
+    public const ZERO          = 0b000000010000;
+    public const EMPTY_ARRAY   = 0b000000100000;
+    public const NULL          = 0b000001000000;
+    public const PHP           = 0b000001111111;
+    public const SPACE         = 0b000010000000;
+    public const OBJECT        = 0b000100000000;
+    public const OBJECT_STRING = 0b001000000000;
+    public const OBJECT_COUNT  = 0b010000000000;
+    public const ALL           = 0b011111111111;
 
-    const INVALID  = 'notEmptyInvalid';
-    const IS_EMPTY = 'isEmpty';
+    public const INVALID  = 'notEmptyInvalid';
+    public const IS_EMPTY = 'isEmpty';
 
+    /** @var array<int, string> */
     protected $constants = [
         self::BOOLEAN       => 'boolean',
         self::INTEGER       => 'integer',
@@ -60,9 +70,7 @@ class NotEmpty extends AbstractValidator
         self::BOOLEAN,
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $messageTemplates = [
         self::IS_EMPTY => "Value is required and can't be empty",
         self::INVALID  => 'Invalid type given. String, integer, float, boolean or array expected',
@@ -97,7 +105,7 @@ class NotEmpty extends AbstractValidator
         }
 
         if (! isset($options['type'])) {
-            if (($type = $this->calculateTypeValue($options)) != 0) {
+            if (($type = $this->calculateTypeValue($options)) !== 0) {
                 $options['type'] = $type;
             } else {
                 $options['type'] = $this->defaultType;
@@ -110,7 +118,7 @@ class NotEmpty extends AbstractValidator
     /**
      * Returns the set types
      *
-     * @return array
+     * @return int
      */
     public function getType()
     {
@@ -118,7 +126,7 @@ class NotEmpty extends AbstractValidator
     }
 
     /**
-     * @return int
+     * @return false|int|string
      */
     public function getDefaultType()
     {
@@ -127,7 +135,7 @@ class NotEmpty extends AbstractValidator
 
     /**
      * @param array|int|string $type
-     * @return int
+     * @return false|int|string
      */
     protected function calculateTypeValue($type)
     {
@@ -137,7 +145,7 @@ class NotEmpty extends AbstractValidator
                 if (is_int($value)) {
                     $detected |= $value;
                 } elseif (in_array($value, $this->constants, true)) {
-                    $detected |= array_search($value, $this->constants, true);
+                    $detected |= (int) array_search($value, $this->constants, true);
                 }
             }
 
@@ -152,7 +160,7 @@ class NotEmpty extends AbstractValidator
     /**
      * Set the types
      *
-     * @param  int|array $type
+     * @param  int|int[] $type
      * @throws Exception\InvalidArgumentException
      * @return $this
      */
@@ -172,27 +180,33 @@ class NotEmpty extends AbstractValidator
     /**
      * Returns true if and only if $value is not an empty value.
      *
-     * @param  string $value
+     * @param  mixed $value
      * @return bool
      */
     public function isValid($value)
     {
-        if ($value !== null && ! is_string($value) && ! is_int($value) && ! is_float($value) &&
-            ! is_bool($value) && ! is_array($value) && ! is_object($value)
+        if (
+            $value !== null
+            && ! is_string($value)
+            && ! is_int($value)
+            && ! is_float($value)
+            && ! is_bool($value)
+            && ! is_array($value)
+            && ! is_object($value)
         ) {
             $this->error(self::INVALID);
             return false;
         }
 
-        $type    = $this->getType();
+        $type = $this->getType();
         $this->setValue($value);
-        $object  = false;
+        $object = false;
 
         // OBJECT_COUNT (countable object)
         if ($type & self::OBJECT_COUNT) {
             $object = true;
 
-            if (is_object($value) && $value instanceof \Countable && (count($value) == 0)) {
+            if (is_object($value) && $value instanceof Countable && (count($value) === 0)) {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
@@ -202,16 +216,19 @@ class NotEmpty extends AbstractValidator
         if ($type & self::OBJECT_STRING) {
             $object = true;
 
-            if ((is_object($value) && (! method_exists($value, '__toString'))) ||
-                (is_object($value) && (method_exists($value, '__toString')) && (((string) $value) == ''))) {
+            if (
+                (is_object($value) && ! method_exists($value, '__toString'))
+                || (is_object($value) && method_exists($value, '__toString') && (string) $value === '')
+            ) {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
         }
 
         // OBJECT (object)
+        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
         if ($type & self::OBJECT) {
-            // fall trough, objects are always not empty
+            // fall through, objects are always not empty
         } elseif ($object === false) {
             // object not allowed but object given -> return false
             if (is_object($value)) {
@@ -238,7 +255,7 @@ class NotEmpty extends AbstractValidator
 
         // EMPTY_ARRAY (array())
         if ($type & self::EMPTY_ARRAY) {
-            if (is_array($value) && ($value == [])) {
+            if ($value === []) {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
@@ -246,7 +263,7 @@ class NotEmpty extends AbstractValidator
 
         // ZERO ('0')
         if ($type & self::ZERO) {
-            if (is_string($value) && ($value == '0')) {
+            if ($value === '0') {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
@@ -254,7 +271,7 @@ class NotEmpty extends AbstractValidator
 
         // STRING ('')
         if ($type & self::STRING) {
-            if (is_string($value) && ($value == '')) {
+            if ($value === '') {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
@@ -262,7 +279,7 @@ class NotEmpty extends AbstractValidator
 
         // FLOAT (0.0)
         if ($type & self::FLOAT) {
-            if (is_float($value) && ($value == 0.0)) {
+            if ($value === 0.0) {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
@@ -270,7 +287,7 @@ class NotEmpty extends AbstractValidator
 
         // INTEGER (0)
         if ($type & self::INTEGER) {
-            if (is_int($value) && ($value == 0)) {
+            if ($value === 0) {
                 $this->error(self::IS_EMPTY);
                 return false;
             }
@@ -278,7 +295,7 @@ class NotEmpty extends AbstractValidator
 
         // BOOLEAN (false)
         if ($type & self::BOOLEAN) {
-            if (is_bool($value) && ($value == false)) {
+            if ($value === false) {
                 $this->error(self::IS_EMPTY);
                 return false;
             }

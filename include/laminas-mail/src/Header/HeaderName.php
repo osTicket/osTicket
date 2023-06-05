@@ -1,12 +1,9 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
+
+use function ord;
+use function strlen;
 
 final class HeaderName
 {
@@ -21,6 +18,7 @@ final class HeaderName
      * Filter the header name according to RFC 2822
      *
      * @see    http://www.rfc-base.org/txt/rfc-2822.txt (section 2.2)
+     *
      * @param  string $name
      * @return string
      */
