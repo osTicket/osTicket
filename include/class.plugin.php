@@ -377,6 +377,7 @@ abstract class Plugin {
     var $config_class = null;
     var $id;
     var $info;
+    var $_config = null;
 
     const VERIFIED = 1;             // Thumbs up
     const VERIFY_EXT_MISSING = 2;   // PHP extension missing
@@ -480,11 +481,10 @@ abstract class Plugin {
     }
 
     function getConfig() {
-        static $config = null;
-        if ($config === null && $this->config_class)
-            $config = new $this->config_class($this->getId());
+        if ($this->_config === null && $this->config_class)
+            $this->_config = new $this->config_class($this->getId());
 
-        return $config;
+        return $this->_config;
     }
 
     function source($what) {
