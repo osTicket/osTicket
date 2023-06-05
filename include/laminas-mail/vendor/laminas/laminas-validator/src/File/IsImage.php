@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Stdlib\ArrayUtils;
@@ -19,13 +13,11 @@ class IsImage extends MimeType
     /**
      * @const string Error constants
      */
-    const FALSE_TYPE   = 'fileIsImageFalseType';
-    const NOT_DETECTED = 'fileIsImageNotDetected';
-    const NOT_READABLE = 'fileIsImageNotReadable';
+    public const FALSE_TYPE   = 'fileIsImageFalseType';
+    public const NOT_DETECTED = 'fileIsImageNotDetected';
+    public const NOT_READABLE = 'fileIsImageNotReadable';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::FALSE_TYPE   => "File is no image, '%type%' detected",
         self::NOT_DETECTED => 'The mimetype could not be detected from the file',
@@ -59,6 +51,8 @@ class IsImage extends MimeType
             'image/cgm',
             'image/fif',
             'image/gif',
+            'image/heic',
+            'image/heif',
             'image/jpeg',
             'image/jpm',
             'image/jpx',

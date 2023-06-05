@@ -1,21 +1,23 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
 
 use Laminas\Mail\Headers;
 use Laminas\Mime\Mime;
 
+use function count;
+use function explode;
+use function implode;
+use function in_array;
+use function preg_match;
+use function sprintf;
+use function str_replace;
+use function strtolower;
+use function trim;
+
 class ContentType implements UnstructuredInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type;
 
     /**
@@ -25,22 +27,24 @@ class ContentType implements UnstructuredInterface
      */
     protected $encoding = 'ASCII';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $parameters = [];
 
+    /**
+     * @param string $headerLine
+     * @return static
+     */
     public static function fromString($headerLine)
     {
-        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
-        $value = HeaderWrap::mimeDecodeValue($value);
+        [$name, $value] = GenericHeader::splitHeaderLine($headerLine);
+        $value          = HeaderWrap::mimeDecodeValue($value);
 
         // check to ensure proper header type for this factory
-        if (strtolower($name) !== 'content-type') {
+        if (! in_array(strtolower($name), ['contenttype', 'content_type', 'content-type'])) {
             throw new Exception\InvalidArgumentException('Invalid header line for Content-Type string');
         }
 
-        $value  = str_replace(Headers::FOLDING, ' ', $value);
+        $value = str_replace(Headers::FOLDING, ' ', $value);
         $parts = explode(';', $value, 2);
 
         $header = new static();
@@ -60,11 +64,17 @@ class ContentType implements UnstructuredInterface
         return $header;
     }
 
+    /**
+     * @return string
+     */
     public function getFieldName()
     {
         return 'Content-Type';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
     {
         $prepared = $this->type;
@@ -76,7 +86,7 @@ class ContentType implements UnstructuredInterface
         foreach ($this->parameters as $attribute => $value) {
             if (HeaderInterface::FORMAT_ENCODED === $format && ! Mime::isPrintable($value)) {
                 $this->encoding = 'UTF-8';
-                $value = HeaderWrap::wrap($value, $this);
+                $value          = HeaderWrap::wrap($value, $this);
                 $this->encoding = 'ASCII';
             }
 
@@ -86,17 +96,27 @@ class ContentType implements UnstructuredInterface
         return implode(';' . Headers::FOLDING, $values);
     }
 
+    /**
+     * @param string $encoding
+     * @return self
+     */
     public function setEncoding($encoding)
     {
         $this->encoding = $encoding;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEncoding()
     {
         return $this->encoding;
     }
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         return 'Content-Type: ' . $this->getFieldValue(HeaderInterface::FORMAT_ENCODED);
@@ -138,12 +158,12 @@ class ContentType implements UnstructuredInterface
      * @param  string $name
      * @param  string $value
      * @return ContentType
-     * @throws Exception\InvalidArgumentException for parameter names that do not follow RFC 2822
-     * @throws Exception\InvalidArgumentException for parameter values that do not follow RFC 2822
+     * @throws Exception\InvalidArgumentException For parameter names that do not follow RFC 2822.
+     * @throws Exception\InvalidArgumentException For parameter values that do not follow RFC 2822.
      */
     public function addParameter($name, $value)
     {
-        $name  = strtolower($name);
+        $name  = trim(strtolower($name));
         $value = (string) $value;
 
         if (! HeaderValue::isValid($name)) {
@@ -181,7 +201,8 @@ class ContentType implements UnstructuredInterface
         if (isset($this->parameters[$name])) {
             return $this->parameters[$name];
         }
-        return;
+
+        return null;
     }
 
     /**

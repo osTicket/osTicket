@@ -16,22 +16,25 @@
         "forum": "https://discourse.laminas.dev"
     },
     "config": {
-        "sort-packages": true
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.2.x-dev",
-            "dev-develop": "3.3.x-dev"
+        "sort-packages": true,
+        "platform": {
+            "php": "8.1.99"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
+    "extra": {
+    },
     "require": {
-        "php": "^5.6 || ^7.0",
-        "laminas/laminas-zendframework-bridge": "^1.0"
+        "php": "~8.1.0 || ~8.2.0"
     },
     "require-dev": {
-        "laminas/laminas-coding-standard": "~1.0.0",
-        "phpbench/phpbench": "^0.13",
-        "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.2"
+        "laminas/laminas-coding-standard": "^2.5",
+        "phpbench/phpbench": "^1.2.9",
+        "phpunit/phpunit": "^10.0.16",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "vimeo/psalm": "^5.8"
     },
     "autoload": {
         "psr-4": {
@@ -51,10 +54,11 @@
         ],
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     },
-    "replace": {
-        "zendframework/zend-stdlib": "self.version"
+    "conflict": {
+        "zendframework/zend-stdlib": "*"
     }
 }

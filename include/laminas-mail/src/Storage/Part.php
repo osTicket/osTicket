@@ -1,64 +1,82 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Storage;
 
+use ArrayIterator;
 use Laminas\Mail\Header\HeaderInterface;
 use Laminas\Mail\Headers;
 use Laminas\Mime;
+use Laminas\Mime\Exception\RuntimeException;
 use RecursiveIterator;
+use ReturnTypeWillChange;
+use Stringable;
 
-class Part implements RecursiveIterator, Part\PartInterface
+use function array_map;
+use function count;
+use function current;
+use function implode;
+use function is_array;
+use function iterator_to_array;
+use function preg_replace;
+use function stripos;
+use function strlen;
+use function strtolower;
+use function trim;
+
+class Part implements RecursiveIterator, Part\PartInterface, Stringable
 {
     /**
      * Headers of the part
+     *
      * @var Headers|null
      */
     protected $headers;
 
     /**
      * raw part body
+     *
      * @var null|string
      */
     protected $content;
 
     /**
      * toplines as fetched with headers
+     *
      * @var string
      */
     protected $topLines = '';
 
     /**
      * parts of multipart message
+     *
      * @var array
      */
     protected $parts = [];
 
     /**
      * count of parts of a multipart message
+     *
      * @var null|int
      */
     protected $countParts;
 
     /**
      * current position of iterator
+     *
      * @var int
      */
     protected $iterationPos = 1;
 
     /**
      * mail handler, if late fetch is active
+     *
      * @var null|AbstractStorage
      */
     protected $mail;
 
     /**
      * message number for mail handler
+     *
      * @var int
      */
     protected $messageNum = 0;
@@ -92,7 +110,7 @@ class Part implements RecursiveIterator, Part\PartInterface
             $this->messageNum = $params['id'];
         }
 
-        $params['strict'] = isset($params['strict']) ? $params['strict'] : false;
+        $params['strict'] ??= false;
 
         if (isset($params['raw'])) {
             Mime\Decode::splitMessage(
@@ -129,11 +147,10 @@ class Part implements RecursiveIterator, Part\PartInterface
     {
         try {
             return stripos($this->contentType, 'multipart/') === 0;
-        } catch (Exception\ExceptionInterface $e) {
+        } catch (Exception\ExceptionInterface) {
             return false;
         }
     }
-
 
     /**
      * Body of part
@@ -168,12 +185,11 @@ class Part implements RecursiveIterator, Part\PartInterface
         return strlen($this->getContent());
     }
 
-
     /**
      * Cache content and split in parts if multipart
      *
      * @throws Exception\RuntimeException
-     * @return null
+     * @return void
      */
     protected function cacheContent()
     {
@@ -218,10 +234,10 @@ class Part implements RecursiveIterator, Part\PartInterface
             throw new Exception\RuntimeException('part not found');
         }
 
-        if ($this->mail && $this->mail->hasFetchPart) {
+        // if ($this->mail && $this->mail->hasFetchPart) {
             // TODO: fetch part
             // return
-        }
+        // }
 
         $this->cacheContent();
 
@@ -248,10 +264,10 @@ class Part implements RecursiveIterator, Part\PartInterface
             return $this->countParts;
         }
 
-        if ($this->mail && $this->mail->hasFetchPart) {
+        // if ($this->mail && $this->mail->hasFetchPart) {
             // TODO: fetch part
             // return
-        }
+        // }
 
         $this->cacheContent();
 
@@ -271,7 +287,7 @@ class Part implements RecursiveIterator, Part\PartInterface
     {
         if (null === $this->headers) {
             if ($this->mail) {
-                $part = $this->mail->getRawHeader($this->messageNum);
+                $part          = $this->mail->getRawHeader($this->messageNum);
                 $this->headers = Headers::fromString($part);
             } else {
                 $this->headers = new Headers();
@@ -295,14 +311,14 @@ class Part implements RecursiveIterator, Part\PartInterface
      * @param  string $name   name of header, matches case-insensitive, but camel-case is replaced with dashes
      * @param  string $format change type of return value to 'string' or 'array'
      * @throws Exception\InvalidArgumentException
-     * @return string|array|HeaderInterface|\ArrayIterator value of header in wanted or internal format
+     * @return string|array|HeaderInterface|ArrayIterator value of header in wanted or internal format
      */
     public function getHeader($name, $format = null)
     {
         $header = $this->getHeaders()->get($name);
         if ($header === false) {
             $lowerName = strtolower(preg_replace('%([a-z])([A-Z])%', '\1-\2', $name));
-            $header = $this->getHeaders()->get($lowerName);
+            $header    = $this->getHeaders()->get($lowerName);
             if ($header === false) {
                 throw new Exception\InvalidArgumentException(
                     "Header with Name $name or $lowerName not found"
@@ -315,12 +331,11 @@ class Part implements RecursiveIterator, Part\PartInterface
                 if ($header instanceof HeaderInterface) {
                     $return = $header->getFieldValue(HeaderInterface::FORMAT_RAW);
                 } else {
-                    $return = '';
-                    foreach ($header as $h) {
-                        $return .= $h->getFieldValue(HeaderInterface::FORMAT_RAW)
-                                 . Mime\Mime::LINEEND;
-                    }
-                    $return = trim($return, Mime\Mime::LINEEND);
+                    $return = trim(implode(
+                        Mime\Mime::LINEEND,
+                        array_map(static fn($header): string
+                            => $header->getFieldValue(HeaderInterface::FORMAT_RAW), iterator_to_array($header))
+                    ), Mime\Mime::LINEEND);
                 }
                 break;
             case 'array':
@@ -353,7 +368,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      * @param  string $wantedPart the wanted part, default is first, if null an array with all parts is returned
      * @param  string $firstName  key name for the first part
      * @return string|array wanted part or all parts as array($firstName => firstPart, partname => value)
-     * @throws \Laminas\Mime\Exception\RuntimeException
+     * @throws RuntimeException
      */
     public function getHeaderField($name, $wantedPart = '0', $firstName = '0')
     {
@@ -383,7 +398,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @see Part::hasHeader
      *
-     * @param  string
+     * @param  string $name
      * @return bool
      */
     public function __isset($name)
@@ -396,7 +411,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @return string content
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getContent();
     }
@@ -406,10 +421,11 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @return bool current element has children/is multipart
      */
+    #[ReturnTypeWillChange]
     public function hasChildren()
     {
         $current = $this->current();
-        return $current && $current instanceof Part && $current->isMultipart();
+        return $current && $current instanceof self && $current->isMultipart();
     }
 
     /**
@@ -417,6 +433,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @return Part same as self::current()
      */
+    #[ReturnTypeWillChange]
     public function getChildren()
     {
         return $this->current();
@@ -427,6 +444,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @return bool check if there's a current element
      */
+    #[ReturnTypeWillChange]
     public function valid()
     {
         if ($this->countParts === null) {
@@ -438,6 +456,7 @@ class Part implements RecursiveIterator, Part\PartInterface
     /**
      * implements Iterator::next()
      */
+    #[ReturnTypeWillChange]
     public function next()
     {
         ++$this->iterationPos;
@@ -448,6 +467,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @return string key/number of current part
      */
+    #[ReturnTypeWillChange]
     public function key()
     {
         return $this->iterationPos;
@@ -458,6 +478,7 @@ class Part implements RecursiveIterator, Part\PartInterface
      *
      * @return Part current part
      */
+    #[ReturnTypeWillChange]
     public function current()
     {
         return $this->getPart($this->iterationPos);
@@ -466,6 +487,7 @@ class Part implements RecursiveIterator, Part\PartInterface
     /**
      * implements Iterator::rewind()
      */
+    #[ReturnTypeWillChange]
     public function rewind()
     {
         $this->countParts();

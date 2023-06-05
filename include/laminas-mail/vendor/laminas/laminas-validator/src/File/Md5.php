@@ -1,12 +1,11 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
+
+use function array_keys;
+use function array_unique;
+use function hash_file;
+use function is_readable;
 
 /**
  * Validator for the md5 hash of given files
@@ -18,13 +17,11 @@ class Md5 extends Hash
     /**
      * @const string Error constants
      */
-    const DOES_NOT_MATCH = 'fileMd5DoesNotMatch';
-    const NOT_DETECTED   = 'fileMd5NotDetected';
-    const NOT_FOUND      = 'fileMd5NotFound';
+    public const DOES_NOT_MATCH = 'fileMd5DoesNotMatch';
+    public const NOT_DETECTED   = 'fileMd5NotDetected';
+    public const NOT_FOUND      = 'fileMd5NotFound';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::DOES_NOT_MATCH => 'File does not match the given md5 hashes',
         self::NOT_DETECTED   => 'An md5 hash could not be evaluated for the given file',

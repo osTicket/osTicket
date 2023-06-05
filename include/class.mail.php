@@ -707,29 +707,6 @@ namespace osTicket\Mail {
             parent::__construct($options);
         }
 
-        /*
-         * prepareHeaders($message)
-         *
-         * This is a temp fix needed for Windows installs until we upgrade
-         * to the latest version of Laminas Mail which already has the fix -
-         * the version we use currently doesn't strip the headers on Windows.
-         *
-         * TODO: Remove once Laminas Mail is upgraded.
-         */
-        protected function prepareHeaders(Mail\Message $message) {
-            // Clone message just incase upstream needs the headers intact
-            $message = clone $message;
-            // Remove "to" and "subject" headers before headers are prepared
-            // and passed to MTA. It's necessary since the headers in question
-            // are set directly via PHP mail() function - leaving them results
-            // in duplicate headers.
-            $message->getHeaders()->removeHeader('To');
-            $message->getHeaders()->removeHeader('Subject');
-            // Ask upstream to prepare the headers - it checks for From
-            // address injection etc.
-            return parent::prepareHeaders($message);
-        }
-
         public function sendMessage(Message $message) {
             try {
                 // Make sure the body is set

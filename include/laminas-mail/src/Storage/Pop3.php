@@ -1,21 +1,26 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Storage;
 
 use Laminas\Mail\Exception as MailException;
 use Laminas\Mail\Protocol;
+use Laminas\Mail\Protocol\Exception\RuntimeException;
+use Laminas\Mail\Storage\Exception\ExceptionInterface;
+use Laminas\Mail\Storage\Exception\InvalidArgumentException;
+use Laminas\Mail\Storage\Message;
 use Laminas\Mime;
+
+use function array_combine;
+use function array_key_exists;
+use function is_string;
+use function range;
+use function strtolower;
 
 class Pop3 extends AbstractStorage
 {
     /**
      * protocol handler
+     *
      * @var null|\Laminas\Mail\Protocol\Pop3
      */
     protected $protocol;
@@ -24,7 +29,7 @@ class Pop3 extends AbstractStorage
      * Count messages all messages in current box
      *
      * @return int number of messages
-     * @throws \Laminas\Mail\Storage\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
      */
     public function countMessages()
@@ -44,7 +49,7 @@ class Pop3 extends AbstractStorage
      */
     public function getSize($id = 0)
     {
-        $id = $id ? $id : null;
+        $id = $id ?: null;
         return $this->protocol->getList($id);
     }
 
@@ -52,19 +57,23 @@ class Pop3 extends AbstractStorage
      * Fetch a message
      *
      * @param int $id number of message
-     * @return \Laminas\Mail\Storage\Message
+     * @return Message
      * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
      */
     public function getMessage($id)
     {
         $bodyLines = 0;
-        $message = $this->protocol->top($id, $bodyLines, true);
+        $message   = $this->protocol->top($id, $bodyLines, true);
 
-        return new $this->messageClass(['handler' => $this, 'id' => $id, 'headers' => $message,
-                                              'noToplines' => $bodyLines < 1]);
+        return new $this->messageClass([
+            'handler'    => $this,
+            'id'         => $id,
+            'headers'    => $message,
+            'noToplines' => $bodyLines < 1,
+        ]);
     }
 
-    /*
+    /**
      * Get raw header of message or part
      *
      * @param  int               $id       number of message
@@ -72,7 +81,7 @@ class Pop3 extends AbstractStorage
      * @param  int               $topLines include this many lines with header (after an empty line)
      * @return string raw header
      * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
-     * @throws \Laminas\Mail\Storage\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function getRawHeader($id, $part = null, $topLines = 0)
     {
@@ -84,14 +93,14 @@ class Pop3 extends AbstractStorage
         return $this->protocol->top($id, 0, true);
     }
 
-    /*
+    /**
      * Get raw content of message or part
      *
      * @param  int               $id   number of message
      * @param  null|array|string $part path to part or null for message content
      * @return string raw content
      * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
-     * @throws \Laminas\Mail\Storage\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function getRawContent($id, $part = null)
     {
@@ -117,16 +126,13 @@ class Pop3 extends AbstractStorage
      *   - port port for POP3 server [optional, default = 110]
      *   - ssl 'SSL' or 'TLS' for secure sockets
      *
-     * @param  $params array  mail reader specific parameters
-     * @throws \Laminas\Mail\Storage\Exception\InvalidArgumentException
-     * @throws \Laminas\Mail\Protocol\Exception\RuntimeException
+     * @param  array|object|Protocol\Pop3 $params mail reader specific
+     *     parameters or configured Pop3 protocol object
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function __construct($params)
     {
-        if (is_array($params)) {
-            $params = (object) $params;
-        }
-
         $this->has['fetchPart'] = false;
         $this->has['top']       = null;
         $this->has['uniqueid']  = null;
@@ -136,18 +142,33 @@ class Pop3 extends AbstractStorage
             return;
         }
 
-        if (! isset($params->user)) {
-            throw new Exception\InvalidArgumentException('need at least user in params');
+        $params = ParamsNormalizer::normalizeParams($params);
+
+        if (! isset($params['user'])) {
+            throw new InvalidArgumentException('need at least user in params');
         }
 
-        $host     = isset($params->host) ? $params->host : 'localhost';
-        $password = isset($params->password) ? $params->password : '';
-        $port     = isset($params->port) ? $params->port : null;
-        $ssl      = isset($params->ssl) ? $params->ssl : false;
+        $host     = $params['host'] ?? 'localhost';
+        $password = $params['password'] ?? '';
+        $port     = $params['port'] ?? null;
+        $ssl      = $params['ssl'] ?? false;
+
+        if (null !== $port) {
+            $port = (int) $port;
+        }
+
+        if (! is_string($ssl)) {
+            $ssl = (bool) $ssl;
+        }
 
         $this->protocol = new Protocol\Pop3();
-        $this->protocol->connect($host, $port, $ssl);
-        $this->protocol->login($params->user, $password);
+
+        if (array_key_exists('novalidatecert', $params)) {
+            $this->protocol->setNoValidateCert((bool) $params['novalidatecert']);
+        }
+
+        $this->protocol->connect((string) $host, $port, $ssl);
+        $this->protocol->login((string) $params['user'], (string) $password);
     }
 
     /**
@@ -162,7 +183,7 @@ class Pop3 extends AbstractStorage
     /**
      * Keep the server busy.
      *
-     * @throws \Laminas\Mail\Protocol\Exception\RuntimeException
+     * @throws RuntimeException
      */
     public function noop()
     {
@@ -175,7 +196,7 @@ class Pop3 extends AbstractStorage
      * identify the message.
      *
      * @param  int $id number of message
-     * @throws \Laminas\Mail\Protocol\Exception\RuntimeException
+     * @throws RuntimeException
      */
     public function removeMessage($id)
     {
@@ -189,7 +210,7 @@ class Pop3 extends AbstractStorage
      *
      * @param int|null $id message number
      * @return array|string message number for given message or all messages as array
-     * @throws \Laminas\Mail\Storage\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function getUniqueId($id = null)
     {
@@ -215,7 +236,7 @@ class Pop3 extends AbstractStorage
      * as parameter and use this method to translate it to message number right before calling removeMessage()
      *
      * @param string $id unique id
-     * @throws Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return int message number
      */
     public function getNumberByUniqueId($id)
@@ -231,7 +252,7 @@ class Pop3 extends AbstractStorage
             }
         }
 
-        throw new Exception\InvalidArgumentException('unique id not found');
+        throw new InvalidArgumentException('unique id not found');
     }
 
     /**
@@ -239,8 +260,9 @@ class Pop3 extends AbstractStorage
      * retrieved if Top wasn't needed/tried yet.
      *
      * @see AbstractStorage::__get()
+     *
      * @param  string $var
-     * @return string
+     * @return null|string
      */
     public function __get($var)
     {
@@ -254,7 +276,7 @@ class Pop3 extends AbstractStorage
                 // need to make a real call, because not all server are honest in their capas
                 try {
                     $this->protocol->top(1, 0, false);
-                } catch (MailException\ExceptionInterface $e) {
+                } catch (MailException\ExceptionInterface) {
                     // ignoring error
                 }
             }
@@ -266,7 +288,7 @@ class Pop3 extends AbstractStorage
             $id = null;
             try {
                 $id = $this->protocol->uniqueid(1);
-            } catch (MailException\ExceptionInterface $e) {
+            } catch (MailException\ExceptionInterface) {
                 // ignoring error
             }
             $this->has['uniqueid'] = (bool) $id;
