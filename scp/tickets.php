@@ -540,7 +540,7 @@ if($ticket) {
       require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
       $show = AuditEntry::$show_view_audits;
       $filename = sprintf('%s-audits-%s.csv',
-              $ticket->getNumber(), strftime('%Y%m%d'));
+              $ticket->getNumber(), date('Ymd'));
       $tableInfo = AuditEntry::getTableInfo($ticket, true);
       if (!Export::audits('ticket', $filename, $tableInfo, $ticket, 'csv', $show))
           $errors['err'] = __('Unable to dump query results.')
