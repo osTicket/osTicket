@@ -756,6 +756,7 @@ class Format {
         if ($cfg && $cfg->isForce24HourTime())
             $format = str_replace('X', 'R', $format);
 
+        // TODO: Deprecated; replace this soon
         return strftime($format, $timestamp);
     }
 
