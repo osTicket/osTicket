@@ -3816,6 +3816,10 @@ class FileUploadField extends FormField {
                 'hint'=>__('Optionally, enter comma-separated list of additional file types, by extension. (e.g .doc, .pdf).'),
                 'configuration'=>array('html'=>false, 'rows'=>2),
             )),
+            'strictmimecheck' => new BooleanField([
+                'id' => 4, 'label'=>__('Strict Mime Type Check'), 'required' => false, 'default' => false,
+                'hint' => 'File Mime Type associations is OS dependent',
+                'configuration' => ['desc' => __('Enable strict Mime Type check')]]),
             'max' => new TextboxField(array(
                 'label'=>__('Maximum Files'),
                 'hint'=>__('Users cannot upload more than this many files.'),
@@ -3840,8 +3844,9 @@ class FileUploadField extends FormField {
             Http::response(400, 'Send one file at a time');
         $file = array_shift($files);
         $file['name'] = urldecode($file['name']);
+        $config = $this->getConfiguration();
 
-        if (!self::isValidFile($file))
+        if (!self::isValidFile($file, $config['strictmimecheck']))
             Http::response(413, 'Invalid File');
 
         if (!$bypass && !$this->isValidFileType($file['name'], $file['type']))
@@ -3870,10 +3875,11 @@ class FileUploadField extends FormField {
         if (!$this->isValidFileType($file['name'], $file['type']))
             throw new FileUploadError(__('File type is not allowed'));
 
-        if (!self::isValidFile($file))
+        $config = $this->getConfiguration();
+
+        if (!self::isValidFile($file, $config['strictmimecheck']))
              throw new FileUploadError(__('Invalid File'));
 
-        $config = $this->getConfiguration();
         if ($file['size'] > $config['size'])
             throw new FileUploadError(__('File size is too large'));
 
@@ -3910,11 +3916,18 @@ class FileUploadField extends FormField {
         return $F;
     }
 
-    static function isValidFile($file, $strict=false) {
-        // If strict check mime type
+    /**
+     * Strict mode can be enabled in Admin Panel > Settings > Tickets
+     *
+     * PS: Please note that the a mismatch can happen if the mime types
+     * database is not up to date or a little different compared to what the
+     * browser reports.
+     **/
+    static function isValidFile($file, $strict = false) {
+        // Strict mime check
         if ($strict
-                &&!empty($file['type'])
-                && strcasecmp(FileObject::mime_type($file['tmp_name']), $file['type']) !== 0)
+            && !empty($file['type'])
+            && FileObject::mimecmp($file['tmp_name'], $file['type']))
             return false;
 
         // Check invalid image hacks
