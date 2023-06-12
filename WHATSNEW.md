@@ -1,12 +1,3 @@
-osTicket v1.18.1
-================
-### Improvements
-* Update upgrade.php (9fd83eba)
-* Update upgrade.inc.php (8c8a7fd1)
-* update: PHP Requirements 1.18.x (1c0c670b)
-* CLI: Make sure manage util can be executed via CLI (0caf5864)
-* Update raphael-min.js to 2.3.0 (d4aeada1)
-
 osTicket v1.18
 ==============
 ### Enhancements
@@ -14,30 +5,6 @@ osTicket v1.18
 
 ### Improvements
 * Database: Change Plugin Name to varchar(255) (aac546d0)
-* update: MAJOR_VERSION (3eac42e5)
-
-osTicket v1.17.5
-================
-### Improvements
-* update: README.md PHP & Laminas (4baf9dc8, 555c4a74, 88294e2d, 30a4a6e9)
-* issue: putenv() Disabled (3c0d5f47)
-* i18n: Update Signing (98706274, 776c0f27)
-* i18n: Flags Position & Codes (3ee11112, 45f5b5b4)
-* mailer: Undefined SmtpAccount::getName() (560a4f1d)
-* issue: SystemSessionHandler (7e17daa6)
-* issue: Status List Overflow (1deee342)
-* faq: Category Notes Images (ccca0f59)
-* patches: Latest 10/03/2023 (65e12297, 48e8501d, a8d42a9d, 4475e03e, bd034712, 64b8c81d, 070eefcb, 1775ce75)
-* mail: NoValidateCert (d3c140ce)
-* issue: Choice/Selection Field Searches (00e22fad)
-* stubs: Add stubs to pass lint test (895c7236)
-* issue: Canned Response Inline Images (a503c160)
-* format: Viewable Images Bug (2a412883)
-
-### Security
-* issue: CSP Headers (6228f640)
-* security: Latest Vulns 09/2023 (04f4e611, 88a87a33, c4ad48de, 37cf8350)
-* issue: User Account Creation (777e6f0b)
 
 osTicket v1.17.4
 ================
