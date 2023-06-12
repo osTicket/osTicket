@@ -1,3 +1,24 @@
+osTicket v1.17.4
+================
+### Improvements
+* issue: Thread Entry Actions z-index (215a0ce2)
+* oauth2: Strict Matching Bug (e014ffd2)
+* Make string translatable (1105cde7)
+* issue: Inline-Images Canned Responses (4493b126)
+* issue: Remove Old Login Code (e17ad463)
+* issue: i18n Audit Exports (45dd7c4f)
+* Bug: Custom File Upload Field Config (6371269a, 7283ac81, 902b5d35)
+* issue: Duplicate User Copy/Paste Import (b304cdb)
+* issue: Relocate Typeahead JS/CSS Files (62cd406)
+* issue: strftime() Deprecation (3fe132c4)
+* jquery: Update To 3.7.0 (ffa23da)
+* issue: glob() Empty Array (c64a2611)
+* issue: Email Only Attachment (9e45f3fa)
+* installer: Change Email (a11aee29)
+
+### Security
+* security: Latest Vulns 06/2023 (86c2ba02, 69244175, 73b997a, ae37925, e4bfb00)
+
 osTicket v1.17.3
 ================
 ### Enhancements
