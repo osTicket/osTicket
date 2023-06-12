@@ -11,8 +11,8 @@ if($faq && $faq->getId()){
     $info=$faq->getHashtable();
     $info['id']=$faq->getId();
     $info['topics']=$faq->getHelpTopicsIds();
-    $info['answer']=Format::viewableImages($faq->getAnswer());
-    $info['notes']=Format::viewableImages($faq->getNotes());
+    $info['answer']=$faq->getAnswer();
+    $info['notes']=$faq->getNotes();
     $qs += array('id' => $faq->getId());
     $langs = $cfg->getSecondaryLanguages();
     $translations = $faq->getAllTranslations();
@@ -22,7 +22,7 @@ if($faq && $faq->getId()){
                 $trans = $t->getComplex();
                 $info['trans'][$tag] = array(
                     'question' => $trans['question'],
-                    'answer' => Format::viewableImages($trans['answer']),
+                    'answer' => $trans['answer'],
                 );
                 break;
             }
@@ -39,6 +39,15 @@ if($faq && $faq->getId()){
 }
 //TODO: Add attachment support.
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
+
+// Replace cid: scheme with downloadable URL for inline images
+$info['answer'] = Format::viewableImagesSpecial($info['answer']);
+$info['notes'] = Format::viewableImagesSpecial($info['notes']);
+foreach ($langs as $tag) {
+    $answer = &$info['trans'][$tag]['answer'];
+    $answer = Format::viewableImagesSpecial($answer);
+}
+
 $qstr = Http::build_query($qs);
 ?>
 <form action="faq.php?<?php echo $qstr; ?>" method="post" class="save" enctype="multipart/form-data">

@@ -8,9 +8,7 @@ if($canned && $_REQUEST['a']!='add'){
     $info=$canned->getInfo();
     $info['id']=$canned->getId();
     $qs += array('id' => $canned->getId());
-    // Replace cid: scheme with downloadable URL for inline images
-    $info['response'] = $canned->getResponseWithImages();
-    $info['notes'] = Format::viewableImages($info['notes']);
+    $info['response'] = $canned->getResponse();
 }else {
     $title=__('Add New Canned Response');
     $action='create';
@@ -20,6 +18,9 @@ if($canned && $_REQUEST['a']!='add'){
 }
 $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
 
+// Replace cid: scheme with downloadable URL for inline images
+$info['response'] = Format::viewableImagesSpecial($info['response']);
+$info['notes'] = Format::viewableImagesSpecial($info['notes']);
 ?>
 <form action="canned.php?<?php echo Http::build_query($qs); ?>" method="post" class="save" enctype="multipart/form-data">
  <?php csrf_token(); ?>
