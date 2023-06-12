@@ -59,6 +59,7 @@
             // and will be configured locally in the afterUpateDraft()
             this.opts.clipboardUpload =
             this.opts.imageUpload = this.autoCreateUrl + '/attach';
+            this.opts.imageCaption = false;
         }
         this.opts.autosaveData = {
             '__CSRFToken__': $("meta[name=csrf_token]").attr("content")
@@ -81,6 +82,7 @@
         this.opts.clipboardUpload =
         this.opts.imageUpload =
             'ajax.php/draft/' + draft_id + '/attach';
+        this.opts.imageCaption = false;
 
         // Add [Delete Draft] button to the toolbar
         if (this.opts.draftDelete) {
@@ -148,7 +150,7 @@
     displayError: function(json) {
         $.sysAlert(json.error,
             __('Unable to save draft.')
-          + __('Refresh the current page to restore and continue your draft.'));
+          + ' ' + __('Refresh the current page to restore and continue your draft.'));
     },
 
     onchanged: function() {
@@ -198,6 +200,7 @@
                 self.opts.autosave = self.autoCreateUrl;
                 self.opts.clipboardUpload =
                 self.opts.imageUpload = self.autoCreateUrl + '/attach';
+                self.opts.imageCaption = false;
                 self.deleteButton.hide();
                 self.saveButton.hide();
                 self.app.broadcast('draft.deleted');
@@ -380,6 +383,7 @@ $(function() {
                   ? ['imagemanager','definedlinks']
                   : ['imagemanager','table','video','definedlinks','autolock', 'fontcolor', 'fontfamily'],
                 'imageUpload': el.hasClass('draft'),
+                'imageCaption': false,
                 'imageManagerJson': 'ajax.php/draft/images/browse',
                 'imagePosition': true,
                 'imageUploadData': {

@@ -1541,7 +1541,7 @@ class TextboxField extends FormField {
                 function($v) use ($config) {
                     $regex = $config['regex'];
                     return @preg_match($regex, $v);
-                }, __('Value does not match required pattern')
+                }, $config['validator-error'] ?? __('Value does not match required pattern')
             ),
         );
         // Support configuration forms, as well as GUI-based form fields

@@ -65,9 +65,9 @@ class Draft extends VerySimpleModel {
             $draft_body = $draft->getBody();
         }
         $attrs[] = sprintf('data-draft-original="%s"',
-            Format::htmlchars(Format::viewableImages($original)));
+            Format::viewableImages($original, [], true));
 
-        return array(Format::htmlchars(Format::viewableImages($draft_body)),
+        return array(Format::viewableImages($draft_body, [], true),
             implode(' ', $attrs));
     }
 
