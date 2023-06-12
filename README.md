@@ -22,9 +22,9 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 8.0 - 8.1 (8.1 recommended)
+  * PHP version 8.0 - 8.2 (8.2 recommended)
   * mysqli extension for PHP
-  * MySQL database version 5.5
+  * MySQL database version 5.5 (or greater)
 
 ### Recommendations
   * gd, gettext, imap, json, mbstring, and xml extensions for PHP
@@ -126,6 +126,7 @@ osTicket is supported by several magical open source projects including:
   * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
   * [jQuery dropdown](http://labs.abeautifulsite.net/jquery-dropdown/)
   * [jsTimezoneDetect](http://pellepim.bitbucket.org/jstz/)
+  * [laminas-mail](https://github.com/laminas/laminas-mail)
   * [mPDF](http://www.mpdf1.com/)
   * [PasswordHash](http://www.openwall.com/phpass/)
   * [PEAR](http://pear.php.net/package/PEAR)
