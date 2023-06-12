@@ -105,7 +105,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info,
         <tr>
             <td colspan="7"><textarea name="notes" class="richtext no-bar"
                 rows="6" cols="80"><?php
-                echo $info['notes']; ?></textarea>
+                echo Format::viewableImages($info['notes']); ?></textarea>
             </td>
         </tr>
     </tbody>
