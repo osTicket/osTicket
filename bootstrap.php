@@ -368,7 +368,7 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 
 #Current version && schema signature (Changes from version to version)
 define('GIT_VERSION','$git');
-define('MAJOR_VERSION', '1.17');
+define('MAJOR_VERSION', '1.18');
 define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){
