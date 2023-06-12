@@ -148,7 +148,7 @@
     displayError: function(json) {
         $.sysAlert(json.error,
             __('Unable to save draft.')
-          + __('Refresh the current page to restore and continue your draft.'));
+          + ' ' + __('Refresh the current page to restore and continue your draft.'));
     },
 
     onchanged: function() {

@@ -59,6 +59,14 @@ class DraftAjaxAPI extends AjaxController {
         # Fixup for expected multiple attachments
         $file = AttachmentFile::format($_FILES['file']);
 
+        // Allow one file at a time.
+        if (count($file) > 1)
+            return Http::response(403,
+                JsonDataEncoder::encode(array(
+                    'error' => 'Send one file at a time',
+                ))
+            );
+
         # Allow for data-uri uploaded files
         $fp = fopen($file[0]['tmp_name'], 'rb');
         if (fread($fp, 5) == 'data:') {
