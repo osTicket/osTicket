@@ -359,7 +359,7 @@ class Format {
             $config['elements'] .= '+iframe';
             $config['spec'] = 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?('
                 .implode('|', $whitelist)
-                .')/?([^@]*)$`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
+                .')(\?|/|#)([^@]*)$`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
         }
 
         return Format::html($html, $config);
@@ -584,17 +584,19 @@ class Format {
     }
 
 
-    static function viewableImages($html, $options=array()) {
+    static function viewableImages($html, $options=array(), $format=false) {
         $cids = $images = array();
         $options +=array(
                 'disposition' => 'inline');
-        return preg_replace_callback('/"cid:([\w._-]{32})"/',
+        if ($format)
+            $html = Format::htmlchars($html, true);
+        return preg_replace_callback('/("|&quot;)cid:([\w._-]{32})("|&quot;)/',
         function($match) use ($options, $images) {
-            if (!($file = AttachmentFile::lookup($match[1])))
+            if (!($file = AttachmentFile::lookup($match[2])))
                 return $match[0];
 
             return sprintf('"%s" data-cid="%s"',
-                $file->getDownloadUrl($options), $match[1]);
+                $file->getDownloadUrl($options), $match[2]);
         }, $html);
     }
 
@@ -756,6 +758,7 @@ class Format {
         if ($cfg && $cfg->isForce24HourTime())
             $format = str_replace('X', 'R', $format);
 
+        // TODO: Deprecated; replace this soon
         return strftime($format, $timestamp);
     }
 
