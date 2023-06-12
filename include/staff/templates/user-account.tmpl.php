@@ -104,7 +104,7 @@ if ($info['error']) {
                     <?php echo __('New Password'); ?>:
                 </td>
                 <td>
-                    <input type="password" size="35" name="passwd1" value="<?php echo $info['passwd1']; ?>" autocomplete="new-password">
+                    <input type="password" size="35" name="passwd1" maxlength="128" value="<?php echo $info['passwd1']; ?>" autocomplete="new-password">
                     &nbsp;<span class="error">&nbsp;<?php echo
                     $errors['passwd1']; ?></span>
                 </td>
@@ -114,7 +114,7 @@ if ($info['error']) {
                    <?php echo __('Confirm Password'); ?>:
                 </td>
                 <td>
-                    <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>" autocomplete="new-password">
+                    <input type="password" size="35" name="passwd2" maxlength="128" value="<?php echo $info['passwd2']; ?>" autocomplete="new-password">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
                 </td>
             </tr>
