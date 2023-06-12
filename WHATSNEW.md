@@ -1,3 +1,12 @@
+osTicket v1.18
+==============
+### Enhancements
+* update: Laminas-Mail (66fa10af, bb45d37a)
+
+### Improvements
+* Database: Change Plugin Name to varchar(255) (aac546d0)
+* update: MAJOR_VERSION (3eac42e5)
+
 osTicket v1.17.4
 ================
 ### Improvements
