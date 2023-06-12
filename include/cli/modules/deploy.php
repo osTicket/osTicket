@@ -87,7 +87,7 @@ class Deployment extends Unpacker {
                     $root, $recurse - 1, $exclude);
             }
         }
-        if (!$contents || !glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT)) {
+        if (!$contents || !empty(glob($destination.'{,.}*', GLOB_BRACE|GLOB_NOSORT))) {
             if ($verbose)
                 $this->stdout->write("(delete-folder): $destination\n");
             if (!$dryrun)
