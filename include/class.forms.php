@@ -5243,7 +5243,7 @@ class FileUploadWidget extends Widget {
         // Get Form Type
         $type = $this->field->getForm()->type;
         // Determine if for Ticket/Task/Custom
-        if ($type) {
+        if ($type && !is_numeric($field_id)) {
             if ($type == 'T')
                 $field_id = 'ticket/attach';
             elseif ($type == 'A')
