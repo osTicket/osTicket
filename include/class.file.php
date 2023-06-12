@@ -1086,6 +1086,13 @@ class FileObject extends SplFileObject {
         }
         return $type ?: mime_content_type($filepath);
     }
+
+    /*
+     * Compare mime type of file content to a given mime
+     */
+    static function mimecmp($filepath, $mime) {
+        return strcasecmp(self::mime_type($filepath), $mime) !== 0;
+    }
 }
 
 ?>
