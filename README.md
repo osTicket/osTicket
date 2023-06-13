@@ -101,7 +101,7 @@ the feature is published in your fork, send a pull request to begin the
 conversation of integrating your new feature into osTicket.
 
 ### Localization
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/osticket-official/localized.png)](http://i18n.osticket.com/project/osticket-official)
+[![Crowdin](https://badges.crowdin.net/osticket-official/localized.svg)](https://crowdin.com/project/osticket-official)
 
 The interface for osTicket is now completely translatable. Language packs
 are available on the [download page](https://osticket.com/download). If you
