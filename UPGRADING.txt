@@ -1,5 +1,33 @@
-Welcome to osTicket 1.7
-=======================
+Upgrading osTicket
+==================
+osTicket supports upgrading from 1.6-rc1 and later versions. As with any
+upgrade, strongly consider a backup of your attachment files, database, and
+osTicket codebase before embarking on an upgrade.
+
+To trigger the update process, fetch the osTicket tarball from either
+the osTicket [GitHub](https://github.com/osTicket/osTicket/releases) page
+or from the [osTicket website](https://osticket.com/download). Extract the tarball
+into the folder of your osTicket codebase. This can also be accomplished
+with the zip file, and a FTP client can of course be used to upload the new
+source code to your server.
+
+Any way you choose your adventure, when you have your codebase upgraded,
+visit the /scp page of you ticketing system. The upgrader will
+be presented and will walk you through the rest of the process. (The couple
+clicks needed to go through the process are pretty boring to describe).
+
+### Upgrading from v1.6
+**WARNING**: If you are upgrading from osTicket 1.6, please ensure that all
+    your files in your upload folder are both readable and writable to your
+    http server software. Unreadable files will not be migrated to the
+    database during the upgrade and will be effectively lost.
+
+After upgrading, we recommend migrating your attachments to the database or
+to the new filesystem plugin. Use the `file` command-line applet to perform
+the migration.
+
+    php manage.php file migrate --backend=6 --to=D
+
 Some tasks are better left to a system administrator rather than a mindless
 upgrade script. These are those remaining things that we'd rather you take
 care of:
