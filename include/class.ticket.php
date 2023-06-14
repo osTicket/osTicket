@@ -2673,7 +2673,7 @@ implements RestrictedAccess, Threadable, Searchable {
             // currently assigned agent (if any)
             if ($this->isAssigned()
                 && ($staff=$this->getStaff())
-                && $dept->assignMembersOnly()
+                && ( $dept->assignMembersOnly() || $dept->assignPrimaryOnly() ) // Should fire if Department is set to Members Only or Primary Only
                 && !$dept->isMember($staff)
             ) {
                 $this->staff_id = 0;
