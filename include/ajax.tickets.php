@@ -865,7 +865,7 @@ class TicketsAjaxAPI extends AjaxController {
             Http::response(404, __('No such ticket'));
 
         // Check for premissions and such
-        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_ASSIGN)
+        if (!$ticket->checkStaffPerm($thisstaff, Ticket::PERM_CLAIM)
                 || !$ticket->isOpen() // Claim only open
                 || $ticket->getStaff() // cannot claim assigned ticket
                 || !($form = $ticket->getClaimForm($_POST)))

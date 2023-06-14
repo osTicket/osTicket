@@ -115,12 +115,12 @@ if($ticket->isOverdue())
 
             <?php
             // Assign
-            if ($ticket->isOpen() && $role->hasPerm(Ticket::PERM_ASSIGN)) {?>
+            if ($ticket->isOpen() && ( $role->hasPerm(Ticket::PERM_ASSIGN) || $role->hasPerm(Ticket::PERM_CLAIM) ))  {?>
             <span class="action-button pull-right"
                 data-dropdown="#action-dropdown-assign"
                 data-placement="bottom"
                 data-toggle="tooltip"
-                title=" <?php echo $ticket->isAssigned() ? __('Assign') : __('Reassign'); ?>"
+                title=" <?php echo $ticket->isAssigned() ? __('Reassign') : __('Assign'); ?>"
                 >
                 <i class="icon-caret-down pull-right"></i>
                 <a class="ticket-action" id="ticket-assign"
@@ -130,18 +130,27 @@ if($ticket->isOverdue())
             <div id="action-dropdown-assign" class="action-dropdown anchor-right">
               <ul>
                 <?php
+                // Count Option Types Displayed
+                $assignDropdownItems = 0;
                 // Agent can claim team assigned ticket
                 if (!$ticket->getStaff()
-                        && (!$dept->assignMembersOnly()
-                            || $dept->isMember($thisstaff))
-                        ) { ?>
+                    && ( 
+                        ($dept->assignMembersOnly() && $dept->isMember($thisstaff)) 
+                        || ($dept->assignPrimaryOnly() && $dept->isPrimaryMember($thisstaff))
+                    ) 
+                ){ 
+                    $assignDropdownItems++;
+                ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php?id=<?php echo
                     $ticket->getId(); ?>"
                     href="#tickets/<?php echo $ticket->getId(); ?>/claim"><i
                     class="icon-chevron-sign-down"></i> <?php echo __('Claim'); ?></a>
                 <?php
-                } ?>
+                } 
+                if ($role->hasPerm(Ticket::PERM_ASSIGN)) {
+                    $assignDropdownItems++;
+                ?>
                  <li><a class="no-pjax ticket-action"
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/agents"><i
@@ -150,6 +159,15 @@ if($ticket->isOverdue())
                     data-redirect="tickets.php"
                     href="#tickets/<?php echo $ticket->getId(); ?>/assign/teams"><i
                     class="icon-group"></i> <?php echo __('Team'); ?></a>
+                <?php
+                }
+                if($assignDropdownItems==0){
+                ?>
+                  <li><span><i
+                    class="icon-info-sign"></i> <?php echo __('No Actions Possible'); ?></span>
+                <?php
+                }
+                ?>
               </ul>
             </div>
             <?php
