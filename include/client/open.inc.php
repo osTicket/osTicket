@@ -81,7 +81,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
                     }
                 } ?>
             </select>
-            <font class="error">*&nbsp;<?php echo $errors['topicId']; ?></font>
+            <span class="error">*&nbsp;<?php echo $errors['topicId']; ?></span>
         </td>
     </tr>
     </tbody>
@@ -105,7 +105,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             &nbsp;&nbsp;
             <input id="captcha" type="text" name="captcha" size="6" autocomplete="off">
             <em><?php echo __('Enter the text shown on the image.');?></em>
-            <font class="error">*&nbsp;<?php echo $errors['captcha']; ?></font>
+            <span class="error">*&nbsp;<?php echo $errors['captcha']; ?></span>
         </td>
     </tr>
     <?php
