@@ -79,6 +79,9 @@ class FAQ extends VerySimpleModel {
     function getTeaser() {
         return Format::truncate(Format::striptags($this->answer), 150);
     }
+    function getLocalTeaser() {
+        return Format::truncate(Format::striptags($this->getLocalAnswer()), 150);
+    }
     function getSearchableAnswer() {
         return ThreadEntryBody::fromFormattedText($this->answer, 'html')
             ->getSearchable();
