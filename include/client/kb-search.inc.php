@@ -26,7 +26,7 @@
         <input type="hidden" name="a" value="search"/>
         <input type="text" name="q" class="search" placeholder="<?php
             echo __('Search our knowledge base'); ?>"/>
-        <input type="submit" style="display:none" value="search"/>
+        <input type="submit" style="display:none" value="<?php echo __('search'); ?>"/>
         </form>
     </div>
     <div class="content">
