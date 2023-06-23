@@ -3082,7 +3082,7 @@ implements RestrictedAccess, Threadable, Searchable {
         global $cfg;
 
         if ($origin)
-            $vars['origin'] = $origin;
+            $vars['source'] = $origin;
         if (isset($vars['ip']))
             $vars['ip_address'] = $vars['ip'];
         elseif (!$vars['ip_address'] && $_SERVER['REMOTE_ADDR'])
