@@ -942,7 +942,7 @@ class DynamicFormField extends VerySimpleModel {
             return $this->save();
 
         // Delete the field for realz
-        parent::delete();
+        return parent::delete();
 
     }
 
