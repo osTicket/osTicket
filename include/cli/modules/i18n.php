@@ -291,21 +291,21 @@ class i18n_Compiler extends Module {
         }
 
         // Include a manifest
-        include_once INCLUDE_DIR . 'class.mailfetch.php';
+        include_once INCLUDE_DIR . 'class.mailparse.php';
 
         $po_header = Mail_Parse::splitHeaders($mo['']);
         $info = array(
             'Build-Date' => date(DATE_RFC822),
-            'Phrases-Version' => $po_header['X-Osticket-Major-Version'],
+            'Phrases-Version' => $po_header['x-osticket-major-version'],
             'Build-Version' => trim(`git describe`),
             'Build-Major-Version' => MAJOR_VERSION,
-            'Language' => $po_header['Language'],
+            'Language' => $po_header['language'],
             #'Phrases' =>
             #'Translated' =>
             #'Approved' =>
             'Id' => 'lang:' . $lang,
-            'Last-Revision' => $po_header['PO-Revision-Date'],
-            'Version' => (int)(strtotime($po_header['PO-Revision-Date']) / 10000),
+            'Last-Revision' => $po_header['po-revision-date'],
+            'Version' => (int)(strtotime($po_header['po-revision-date']) / 10000),
         );
         $phar->addFromString(
             'MANIFEST.php',
