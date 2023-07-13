@@ -65,7 +65,7 @@ $hidden_cols = $queue->inheritExport();
     <select id="add-field" name="new-field" style="max-width: 300px;">
         <option value="">— <?php echo __('Add Other Field'); ?> —</option>
     <?php
-    $fields = $queue->getExportableFields();
+    $fields = CustomQueue::getExportableFields();
     if (is_array($fields)) {
     foreach ($fields as $path => $label) { ?>
         <option value="<?php echo $path; ?>" <?php

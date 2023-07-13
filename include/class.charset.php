@@ -74,7 +74,7 @@ class Charset {
     }
 
     //Wrapper for utf-8 transcoding.
-    function utf8($text, $charset=null) {
+    static function utf8($text, $charset=null) {
         return self::transcode($text, $charset, self::UTF8);
     }
 }

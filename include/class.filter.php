@@ -165,7 +165,7 @@ extends VerySimpleModel {
         return ($this->use_replyto_email);
     }
 
-    function disableFilters($object) {
+    static function disableFilters($object) {
         switch (get_class($object)) {
             case 'Topic':
                 $object_id = 'topic_id';
@@ -207,7 +207,7 @@ extends VerySimpleModel {
                            'configuration__like' => sprintf('%%"%s":%s}', $object_id, $id)));
         foreach($actions as $fa) {
             // Put a flag on the filter
-            $fa->setFilterFlags(false, 'Filter::FLAG_DELETED_OBJECT', true);
+            FilterAction::setFilterFlags($fa, 'Filter::FLAG_DELETED_OBJECT', true);
             $fa->save();
 
             // Disable the filter
@@ -238,6 +238,7 @@ extends VerySimpleModel {
             $extra['notes'] = Format::sanitize($extra['notes']);
         $rule = array_merge($extra,array('what'=>$what, 'how'=>$how, 'val'=>$val));
         $rule = new FilterRule($rule);
+        $rule->created = SqlFunction::NOW();
         $this->rules->add($rule);
         if ($rule->save())
             return true;
@@ -374,7 +375,7 @@ extends VerySimpleModel {
         return $keys;
     }
 
-    /* static */ function getSupportedMatchTypes() {
+    static function getSupportedMatchTypes() {
         return array(
             'equal'=>       __('Equal'),
             'not_equal'=>   __('Not Equal'),
@@ -404,7 +405,7 @@ extends VerySimpleModel {
         elseif(($filter=static::getByName($vars['name'])) && $filter->id!=$this->id)
             $errors['name'] = __('Name already in use');
 
-        if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
+        if(!$errors && !$this->validate_rules($vars,$errors) && !$errors['rules'])
             $errors['rules'] = __('Unable to validate rules as entered');
 
         $targets = self::getTargets();
@@ -475,7 +476,7 @@ extends VerySimpleModel {
     }
 
     /** static functions **/
-    function getTargets() {
+    static function getTargets() {
         return array(
                 'Any' => __('Any'),
                 'Web' => __('Web Forms'),
@@ -488,7 +489,7 @@ extends VerySimpleModel {
     }
 
     function validate_rules($vars,&$errors) {
-        $matches = array_keys(self::getSupportedMatchFields());
+        $matches = self::getSupportedMatchFields();
         $types = array_keys(self::getSupportedMatchTypes());
         $rules = array();
         foreach ($vars['rules'] as $i=>$rule) {
@@ -501,36 +502,34 @@ extends VerySimpleModel {
 
             if (is_array($rule)) {
                 if($rule["w"] || $rule["h"]) {
-                // Check for REGEX compile errors
-                if (in_array($rule["h"], array('match','not_match'))) {
-                    $wrapped = "/".$rule["v"]."/iu";
-                    if (false === @preg_match($rule["v"], ' ')
-                            && (false !== @preg_match($wrapped, ' ')))
-                        $rule["v"] = $wrapped;
+                    // Check for REGEX compile errors
+                    if (in_array($rule["h"], array('match','not_match'))) {
+                        $wrapped = "/".$rule["v"]."/iu";
+                        if (false === @preg_match($rule["v"], ' ')
+                                && (false !== @preg_match($wrapped, ' ')))
+                            $rule["v"] = $wrapped;
+                    }
+
+                    if(!$rule["w"] || !in_array($rule["w"],$matches))
+                        $errors["rule_$i"]=__('Invalid match selection');
+                    elseif(!$rule["h"] || !in_array($rule["h"],$types))
+                        $errors["rule_$i"]=__('Invalid match type selection');
+                    elseif(!$rule["v"])
+                        $errors["rule_$i"]=__('Value required');
+                    elseif($rule["w"]=='email'
+                            && $rule["h"]=='equal'
+                            && !Validator::is_email($rule["v"]))
+                        $errors["rule_$i"]=__('Valid email required for the match type');
+                    elseif (in_array($rule["h"], array('match','not_match'))
+                            && (false === @preg_match($rule["v"], ' ')))
+                        $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
+                            preg_last_error());
+                    else //for everything-else...we assume it's valid.
+                        $rules[]=array('what'=>$rule["w"],
+                            'how'=>$rule["h"],'val'=>trim($rule["v"]));
+                } elseif($rule["v"]) {
+                    $errors["rule_$i"]=__('Incomplete selection');
                 }
-
-                if(!$rule["w"] || !in_array($rule["w"],$matches))
-                    $errors["rule_$i"]=__('Invalid match selection');
-                elseif(!$rule["h"] || !in_array($rule["h"],$types))
-                    $errors["rule_$i"]=__('Invalid match type selection');
-                elseif(!$rule["v"])
-                    $errors["rule_$i"]=__('Value required');
-                elseif($rule["w"]=='email'
-                        && $rule["h"]=='equal'
-                        && !Validator::is_email($rule["v"]))
-                    $errors["rule_$i"]=__('Valid email required for the match type');
-                elseif (in_array($rule["h"], array('match','not_match'))
-                        && (false === @preg_match($rule["v"], ' ')))
-                    $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
-                        preg_last_error());
-
-
-                else //for everything-else...we assume it's valid.
-                    $rules[]=array('what'=>$rule["w"],
-                        'how'=>$rule["h"],'val'=>trim($rule["v"]));
-            }elseif($rule["v"]) {
-                $errors["rule_$i"]=__('Incomplete selection');
-            }
             }
         }
 
@@ -565,13 +564,22 @@ extends VerySimpleModel {
         return parent::save($refetch || $this->dirty);
     }
 
+    static function __create($vars,&$errors) {
+        $filter = new static($vars);
+        if ($filter->save()) {
+            $filter->save_rules($vars, $errors);
+            $filter->save_actions($filter->getId(), $vars, $errors);
+            return $filter;
+        }
+    }
+
     static function create($vars,&$errors) {
         $filter = new static($vars);
         if ($filter->save())
             return $filter;
     }
 
-    function validate_actions($vars, &$errors) {
+    static function validate_actions($vars, &$errors) {
         //allow the save if it is to set a filter flag
         if ($vars['pass'])
             return true;
@@ -907,6 +915,7 @@ class TicketFilter {
         );
 
         foreach ($auto_headers as $header=>$find) {
+            $header = strtolower($header);
             if(!isset($headers[$header])) continue;
 
             $value = strtoupper($headers[$header]);
@@ -930,8 +939,7 @@ class TicketFilter {
     }
 
     static function isBounce($headers) {
-
-        if($headers && !is_array($headers))
+        if ($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $bounce_headers = array(
@@ -946,6 +954,7 @@ class TicketFilter {
         );
 
         foreach ($bounce_headers as $header => $find) {
+            $header = strtolower($header);
             if(!isset($headers[$header])) continue;
 
             @list($func, $searches, $pos, $neg) = $find;
@@ -967,7 +976,7 @@ class TicketFilter {
      * Normalize ticket source to supported filter target
      *
      */
-    function origin2target($origin) {
+    static function origin2target($origin) {
         $sources=array('web' => 'Web', 'email' => 'Email', 'phone' => 'Web', 'staff' => 'Web', 'api' => 'API');
 
         return $sources[strtolower($origin)];

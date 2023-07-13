@@ -265,7 +265,7 @@ class Export {
 
         // Filename or stream to export agents to
         $filename = $filename ?: sprintf('Agents-%s.csv',
-                strftime('%Y%m%d'));
+                date('Ymd'));
         Http::download($filename, "text/$how");
         $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
         echo self::dumpQuery($agents, array(
@@ -302,7 +302,7 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
 
     // Filename or stream to export depts' agents to
     $filename = $filename ?: sprintf('%s-%s.csv', $dept->getName(),
-            strftime('%Y%m%d'));
+            date('Ymd'));
     Http::download($filename, "text/$how");
     echo self::dumpQuery($agents, array(
                 '::getName'  =>  'Name',
@@ -328,7 +328,7 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
     exit;
   }
 
-  static function audits($type, $filename='', $tableInfo='', $object='', $how='csv', $show_viewed=true, $data=array(), CsvExporter $exporter) {
+  static function audits($type, ?string $filename=null, ?string $tableInfo=null, ?string $object=null, ?string $how='csv', ?bool $show_viewed=true, ?array $data=array(), CsvExporter $exporter) {
       $headings = array('Description', 'Timestamp', 'IP');
       switch ($type) {
           case 'audit':
@@ -541,7 +541,7 @@ abstract class  Exporter {
                 || !($email=$cfg->getDefaultEmail()))
             return false;
 
-        $mailer = new Mailer($email);
+        $mailer = new osTicket\Mail\Mailer($email);
         $mailer->addFileObject($file);
         $subject = __("Export");
         $body = __("Attached is file containing the export you asked us to send you!");
@@ -609,7 +609,8 @@ class CsvExporter extends Exporter {
     }
 
     function getDelimiter() {
-        if (isset($this->options['delimiter']))
+        if (isset($this->options['delimiter'])
+                && $this->options['delimiter'])
             return $this->options['delimiter'];
         return Internationalization::getCSVDelimiter();
     }
@@ -685,7 +686,7 @@ class ResultSetExporter {
                 }
             }
             // Evalutate :: function call on target current
-            if ($func && (method_exists($current, $func) || method_exists($current, '__call'))) {
+            if (($current && $func) && (method_exists($current, $func) || method_exists($current, '__call'))) {
                 $current = $current->{$func}();
             }
 
@@ -748,12 +749,11 @@ class CsvResultsExporter extends ResultSetExporter {
 class JsonResultsExporter extends ResultSetExporter {
     function dump() {
         require_once(INCLUDE_DIR.'class.json.php');
-        $exp = new JsonDataEncoder();
         $rows = array();
         while ($row=$this->nextArray()) {
             $rows[] = $row;
         }
-        echo $exp->encode($rows);
+        echo JsonDataEncoder::encode($rows);
     }
 }
 
@@ -769,7 +769,7 @@ class DatabaseExporter {
     var $stream;
     var $options;
     var $tables = array(CONFIG_TABLE, SYSLOG_TABLE, FILE_TABLE,
-        FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE, GROUP_TABLE,
+        FILE_CHUNK_TABLE, STAFF_TABLE, DEPT_TABLE, TOPIC_TABLE,
         STAFF_DEPT_TABLE, TEAM_TABLE, TEAM_MEMBER_TABLE, FAQ_TABLE,
         FAQ_TOPIC_TABLE, FAQ_CATEGORY_TABLE, DRAFT_TABLE,
         CANNED_TABLE, TICKET_TABLE, ATTACHMENT_TABLE,
@@ -778,7 +778,7 @@ class DatabaseExporter {
         TICKET_PRIORITY_TABLE, EMAIL_TABLE, EMAIL_TEMPLATE_TABLE,
         EMAIL_TEMPLATE_GRP_TABLE,
         FILTER_TABLE, FILTER_RULE_TABLE, SLA_TABLE, API_KEY_TABLE,
-        TIMEZONE_TABLE, SESSION_TABLE, PAGE_TABLE,
+        SESSION_TABLE, PAGE_TABLE,
         FORM_SEC_TABLE, FORM_FIELD_TABLE, LIST_TABLE, LIST_ITEM_TABLE,
         FORM_ENTRY_TABLE, FORM_ANSWER_TABLE, USER_TABLE, USER_EMAIL_TABLE,
         PLUGIN_TABLE, THREAD_COLLABORATOR_TABLE, TRANSLATION_TABLE,
@@ -904,6 +904,18 @@ class TicketZipExporter {
             $zip->addFromString("{$prefix}/{$att->getFilename()}",
                 $att->getFile()->getData());
         }
+
+        // Include custom fields attachments
+        foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
+            $answers = $form->getAnswers()->filter(
+                    array('field__type' => 'files'));
+            foreach ($answers as $answer) {
+                $field = $answer->getField();
+                foreach ($field->getAttachments() as $a)
+                    $zip->addFromString("{$prefix}/{$a->getFilename()}",
+                            $a->getFile()->getData());
+            }
+        }
     }
 
     function addTask($task, $zip, $prefix, $notes=true, $psize=null) {
@@ -928,6 +940,17 @@ class TicketZipExporter {
         foreach ($attachments as $att) {
             $zip->addFromString("{$prefix}/{$task->getNumber()}/{$att->getFilename()}",
                 $att->getFile()->getData());
+        }
+        // Include custom fields attachments
+        foreach (DynamicFormEntry::forTask($task->getId()) as $form) {
+            $answers = $form->getAnswers()->filter(
+                    array('field__type' => 'files'));
+            foreach ($answers as $answer) {
+                $field = $answer->getField();
+                foreach ($field->getAttachments() as $a)
+                    $zip->addFromString("{$prefix}/{$task->getNumber()}/{$a->getFilename()}",
+                            $a->getFile()->getData());
+            }
         }
     }
 

@@ -21,7 +21,7 @@
 include_once "JSON.php";
 
 class JsonDataParser {
-    function parse($stream, $tidy=false) {
+    static function parse($stream, $tidy=false) {
         if (is_resource($stream)) {
             $contents = '';
             while (!feof($stream))
@@ -54,7 +54,7 @@ class JsonDataParser {
         return trim($content);
     }
 
-    function lastError() {
+    static function lastError() {
         if (function_exists("json_last_error")) {
             $errors = array(
             JSON_ERROR_NONE => __('No errors'),
@@ -75,7 +75,7 @@ class JsonDataParser {
 }
 
 class JsonDataEncoder {
-    function encode($var) {
+    static function encode($var) {
         if (function_exists('json_encode'))
             return json_encode($var);
         else {

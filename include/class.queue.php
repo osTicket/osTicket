@@ -146,7 +146,11 @@ class CustomQueue extends VerySimpleModel {
     }
 
     function describeCriteria($criteria=false){
-        $all = $this->getSupportedMatches($this->getRoot());
+        global $account;
+
+        if (!($all = $this->getSupportedMatches($this->getRoot())))
+            return '';
+
         $items = array();
         $criteria = $criteria ?: $this->getCriteria(true);
         foreach ($criteria ?: array() as $C) {
@@ -381,7 +385,8 @@ class CustomQueue extends VerySimpleModel {
             $exclude[$base] = 1;
             foreach ($base::getMeta('joins') as $path=>$j) {
                 $fc = $j['fkey'][0];
-                if (isset($exclude[$fc]) || $j['list'])
+                if (isset($exclude[$fc]) || (isset($j['list']) && $j['list'] === true)
+                        || (isset($j['searchable']) && $j['searchable'] === false))
                     continue;
                 foreach (static::getSearchableFields($fc, $recurse-1,
                     true, $exclude)
@@ -566,7 +571,7 @@ class CustomQueue extends VerySimpleModel {
         return $this->_conditions;
     }
 
-    function getExportableFields() {
+    static function getExportableFields() {
         $cdata = $fields = array();
         foreach (TicketForm::getInstance()->getFields() as $f) {
             // Ignore core fields
@@ -598,6 +603,7 @@ class CustomQueue extends VerySimpleModel {
                 'status__id' =>__('Current Status'),
                 'lastupdate' =>     __('Last Updated'),
                 'est_duedate' =>    __('SLA Due Date'),
+                'sla_id' => __('SLA Plan'),
                 'duedate' =>        __('Due Date'),
                 'closed' =>         __('Closed Date'),
                 'isoverdue' =>      __('Overdue'),
@@ -687,7 +693,7 @@ class CustomQueue extends VerySimpleModel {
         foreach (array(
             QueueColumn::placeholder(array(
                 "id" => 1,
-                "heading" => "Number",
+                "heading" => __("Number"),
                 "primary" => 'number',
                 "width" => 85,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -697,7 +703,7 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 2,
-                "heading" => "Created",
+                "heading" => __("Created"),
                 "primary" => 'created',
                 "filter" => 'date:full',
                 "truncate" =>'wrap',
@@ -706,7 +712,7 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 3,
-                "heading" => "Subject",
+                "heading" => __("Subject"),
                 "primary" => 'cdata__subject',
                 "width" => 250,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -717,21 +723,21 @@ class CustomQueue extends VerySimpleModel {
             )),
             QueueColumn::placeholder(array(
                 "id" => 4,
-                "heading" => "From",
+                "heading" => __("From"),
                 "primary" => 'user__name',
                 "width" => 150,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 5,
-                "heading" => "Priority",
+                "heading" => __("Priority"),
                 "primary" => 'cdata__priority',
                 "width" => 120,
                 "bits" => QueueColumn::FLAG_SORTABLE,
             )),
             QueueColumn::placeholder(array(
                 "id" => 8,
-                "heading" => "Assignee",
+                "heading" => __("Assignee"),
                 "primary" => 'assignee',
                 "width" => 100,
                 "bits" => QueueColumn::FLAG_SORTABLE,
@@ -814,6 +820,9 @@ class CustomQueue extends VerySimpleModel {
                 || !($query=$this->getQuery())
                 || !($fields=$this->getExportFields()))
             return false;
+
+        // Do not store results in memory
+        $query->setOption(QuerySet::OPT_NOCACHE, true);
 
         // See if we have cached export preference
         if (isset($_SESSION['Export:Q'.$this->getId()])) {
@@ -968,9 +977,10 @@ class CustomQueue extends VerySimpleModel {
                 $qs = $ost->searcher->find($value, $qs, false);
             }
             else {
+                $nullable = ($method === 'nset') ? false : null;
                 // XXX: Move getOrmPath to be more of a utility
                 // Ensure the special join is created to support custom data joins
-                $name = @static::getOrmPath($name, $qs);
+                $name = @static::getOrmPath($name, $qs, $nullable);
 
                 if (preg_match('/__answers!\d+__/', $name)) {
                     $qs->annotate(array($name => SqlAggregate::MAX($name)));
@@ -1177,7 +1187,7 @@ class CustomQueue extends VerySimpleModel {
                 continue;
             }
 
-            $f->set('heading', $heading);
+            $f->set('heading', isset($fields[$key]['heading']) ? $fields[$key]['heading'] : $heading);
             $f->set('sort', array_search($key, $order)+1);
             unset($new[$key]);
         }
@@ -1458,7 +1468,7 @@ class CustomQueue extends VerySimpleModel {
         return $for_parent($pid);
     }
 
-    static function getOrmPath($name, $query=null) {
+    static function getOrmPath($name, $query=null, $nullable=null) {
         // Special case for custom data `__answers!id__value`. Only add the
         // join and constraint on the query the first pass, when the query
         // being mangled is received.
@@ -1473,6 +1483,10 @@ class CustomQueue extends VerySimpleModel {
             $root = $query->model;
             $meta = $root::getMeta()->getByPath($path[1]);
             $joins = $meta['joins'];
+            // If the method is 'nset' (ie. IS NULL) we want to force normal
+            // JOIN instead of LEFT JOIN to get proper results
+            if (isset($nullable))
+                $joins['answers']['null'] = $nullable;
             if (!isset($joins[$path[2]])) {
                 $meta->addJoin($path[2], $joins['answers']);
             }
@@ -1574,7 +1588,7 @@ abstract class QueueColumnAnnotation {
     }
 
     // Add the annotation to a QuerySet
-    abstract function annotate($query, $name);
+    abstract static function annotate($query, $name);
 
     // Fetch some HTML to render the decoration on the page. This function
     // can return boolean FALSE to indicate no decoration should be applied
@@ -1628,7 +1642,7 @@ extends QueueColumnAnnotation {
     static $qname = '_thread_count';
     static $desc = /* @trans */ 'Thread Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => TicketThread::objects()
@@ -1659,7 +1673,7 @@ extends QueueColumnAnnotation {
     static $qname = '_reopen_count';
     static $desc = /* @trans */ 'Reopen Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => TicketThread::objects()
@@ -1691,7 +1705,7 @@ extends QueueColumnAnnotation {
     static $qname = '_att_count';
     static $desc = /* @trans */ 'Attachment Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         // TODO: Convert to Thread attachments
         $name = $name ?: static::$qname;
         return $query->annotate(array(
@@ -1722,7 +1736,7 @@ extends QueueColumnAnnotation {
     static $qname = '_task_count';
     static $desc = /* @trans */ 'Tasks Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => Task::objects()
@@ -1751,7 +1765,7 @@ extends QueueColumnAnnotation {
     static $qname = '_collabs';
     static $desc = /* @trans */ 'Collaborator Count';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         $name = $name ?: static::$qname;
         return $query->annotate(array(
             $name => TicketThread::objects()
@@ -1779,7 +1793,7 @@ extends QueueColumnAnnotation {
     static $icon = 'exclamation';
     static $desc = /* @trans */ 'Overdue Icon';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('isoverdue');
     }
 
@@ -1798,7 +1812,7 @@ extends QueueColumnAnnotation {
     static $icon = 'code-fork';
     static $desc = /* @trans */ 'Merged Icon';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('ticket_pid', 'flags');
     }
 
@@ -1825,7 +1839,7 @@ extends QueueColumnAnnotation {
     static $icon = 'link';
     static $desc = /* @trans */ 'Linked Icon';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('ticket_pid', 'flags');
     }
 
@@ -1846,7 +1860,7 @@ extends QueueColumnAnnotation {
     static $icon = 'phone';
     static $desc = /* @trans */ 'Ticket Source';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('source');
     }
 
@@ -1861,7 +1875,7 @@ extends QueueColumnAnnotation {
     static $icon = "lock";
     static $desc = /* @trans */ 'Locked';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         global $thisstaff;
 
         return $query
@@ -1888,7 +1902,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'Assignee Avatar';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('staff_id', 'team_id');
     }
 
@@ -1927,7 +1941,7 @@ extends QueueColumnAnnotation {
     static $icon = "user";
     static $desc = /* @trans */ 'User Avatar';
 
-    function annotate($query, $name=false) {
+    static function annotate($query, $name=false) {
         return $query->values('user_id');
     }
 
@@ -1944,7 +1958,7 @@ extends QueueColumnAnnotation {
 
 class DataSourceField
 extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         $config = $this->getConfiguration();
         $root = $config['root'];
         $fields = array();
@@ -2155,7 +2169,7 @@ extends ChoiceField {
             return new $choices(array('name' => $prop));
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (isset($this->property))
             return static::$properties[$this->property];
 
@@ -2270,7 +2284,7 @@ extends VerySimpleModel {
             $secondary = CustomQueue::getOrmPath($this->secondary);
             if (($F = $fields[$primary]) && (list(,$field) = $F))
                 $this->_fields[$primary] = $field;
-            if (($F = $fields[$secondary]) && (list(,$field) = $F))
+            if ((isset($fields[$secondary]) && ($F = $fields[$secondary])) && (list(,$field) = $F))
                 $this->_fields[$secondary] = $field;
         }
         return $this->_fields;
@@ -2360,7 +2374,7 @@ extends VerySimpleModel {
         ) {
             return new LazyDisplayWrapper($F, $T);
         }
-        if (($F = $fields[$secondary])
+        if (isset($fields[$secondary]) && ($F = $fields[$secondary])
             && ($T = $F->from_query($row, $secondary))
         ) {
             return new LazyDisplayWrapper($F, $T);
@@ -2374,7 +2388,7 @@ extends VerySimpleModel {
             return '';
 
         $val = $f->to_php($f->from_query($row, $this->primary));
-        if (!is_string($val))
+        if (!is_string($val) || is_numeric($val))
             $val = $f->display($val);
 
         return $val;
@@ -2426,7 +2440,7 @@ extends VerySimpleModel {
             $query = $this->addToQuery($query, $field,
                 CustomQueue::getOrmPath($this->primary, $query));
         }
-        if ($field = $fields[$this->secondary]) {
+        if (isset($fields[$this->secondary]) && ($field = $fields[$this->secondary])) {
             $query = $this->addToQuery($query, $field,
                 CustomQueue::getOrmPath($this->secondary, $query));
         }
@@ -3122,7 +3136,7 @@ extends QueueColumnFilter {
     function filter($text, $row) {
         return sprintf(
             '<time class="relative" datetime="%s" title="%s">%s</time>',
-            date(DateTime::W3C, Misc::db2gmtime($text->value)),
+            date(DateTime::W3C, Misc::db2gmtime($text->value) ?: 0),
             Format::daydatetime($text->value),
             Format::relativeTime(Misc::db2gmtime($text->value))
         );

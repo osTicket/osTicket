@@ -43,7 +43,8 @@ Q2hlZXJzISE=
 --=_28022448a1f58a3af7edf57ff2e3af44--
 EOF;
 
-        $result = @EmailDataParser::parse($email);
+        $parser = new EmailDataParser();
+        $result = $parser->parse($email);
         $this->assert(count($result['recipients']) == 1, 'Expected 1 recipient');
         $this->assert($result['recipients'][0]['source'] == 'delivered-to',
             'Delivered-To header used as a collaborator');

@@ -473,9 +473,14 @@ if (!RedactorPlugins) var RedactorPlugins = {};
           .get();
         var prevRow = $currentRow.prevElement()
           .get();
+        var $head = $R.dom(current).closest('thead');
         $component.removeRow(current);
         if (nextRow) this.caret.setStart(nextRow);
         else if (prevRow) this.caret.setEnd(prevRow);
+        else if ($head.length !== 0) {
+            $component.removeHead();
+            this.caret.setStart($component);
+        }
         else this.deleteTable();
       }
     },
@@ -785,6 +790,8 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       this.selection.restore();
       this.isOpen = true;
       this.opts.zindex = 1051;
+      // fix bootstrap modal focus
+      if (window.jQuery) window.jQuery(document).off('focusin.modal');
     },
     close: function () {
       this.isOpen = false;
@@ -865,13 +872,14 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       this.component = app.component;
       this.insertion = app.insertion;
       this.inspector = app.inspector;
+      this.selection = app.selection;
     },
     // messages
     onmodal: {
       video: {
         opened: function ($modal, $form) {
-          $form.getField('video')
-            .focus();
+          $video = $form.getField('video');
+          $video.focus();
         },
         insert: function ($modal, $form) {
           var data = $form.getData();
@@ -951,7 +959,11 @@ if (!RedactorPlugins) var RedactorPlugins = {};
         });
       } else {
         if (data.match(this.opts.regex.youtube)) {
-          data = data.replace(this.opts.regex.youtube, iframeStart + '//www.youtube.com/embed/$1' + iframeEnd);
+          var yturl = '//www.youtube.com';
+          if (data.search('youtube-nocookie.com') !== -1) {
+            yturl = '//www.youtube-nocookie.com';
+          }
+          data = data.replace(this.opts.regex.youtube, iframeStart + yturl + '/embed/$1' + iframeEnd);
         } else if (data.match(this.opts.regex.vimeo)) {
           data = data.replace(this.opts.regex.vimeo, iframeStart + '//player.vimeo.com/video/$2' + iframeEnd);
         }
@@ -1003,6 +1015,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
       this.app = app;
       this.lang = app.lang;
       this.block = app.block;
+      this.editor = app.editor;
       this.toolbar = app.toolbar;
       this.selection = app.selection;
     },
@@ -1021,7 +1034,7 @@ if (!RedactorPlugins) var RedactorPlugins = {};
     set: function(type) {
       var block = this.selection.getBlock();
       if (block && block.tagName === 'LI') {
-        var list = $R.dom(block).parents('ul, ol', '.redactor-in').last();
+        var list = $R.dom(block).parents('ul, ol', this.editor.getElement()).last();
         this.block.add({ attr: { dir: type }}, false, list);
       }
       else {

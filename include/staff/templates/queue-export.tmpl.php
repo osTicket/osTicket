@@ -8,12 +8,12 @@ if (isset($cache['filename']))
 else
     $filename = trim(sprintf('%s Tickets - %s.csv',
             Format::htmlchars($queue->getName() ?: ''),
-            strftime('%Y%m%d')));
+            date('Ymd')));
 
 if (isset($cache['delimiter']))
     $delimiter = $cache['delimiter'];
 else
-    $delimiter = ''; //TODO: get user's preference (browswer settings)
+    $delimiter = Internationalization::getCSVDelimiter();
 
 $fields = $queue->getExportFields(false) ?: array();
 if (isset($cache['fields']) && $fields)
@@ -49,7 +49,7 @@ name="queue-export" id="queue-export">
       </tbody>
       <tbody class="sortable-rows" id="fields">
         <?php
-        foreach (array_merge($fields, $queue->getExportableFields()) as $path  => $label) {
+        foreach (array_merge($fields, CustomQueue::getExportableFields()) as $path  => $label) {
          echo sprintf('<tr style="display: table-row;">
                 <td><i class="faded-more
                 icon-sort"></i>&nbsp;&nbsp;<label><input

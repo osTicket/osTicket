@@ -25,6 +25,7 @@ class Form {
     var $options = array();
     var $fields = array();
     var $title = '';
+    var $notice = '';
     var $instructions = '';
 
     var $validators = array();
@@ -39,6 +40,8 @@ class Form {
             $this->title = $options['title'];
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
+        if (isset($options['notice']))
+            $this->notice = $options['notice'];
         if (isset($options['id']))
             $this->id = $options['id'];
 
@@ -51,6 +54,10 @@ class Form {
     }
     function setId($id) {
         $this->id = $id;
+    }
+
+    function setNotice($notice) {
+        $this->notice = $notice;
     }
 
     function data($source) {
@@ -112,7 +119,8 @@ class Form {
     }
 
     function getTitle() { return $this->title; }
-    function getInstructions() { return $this->instructions; }
+    function getNotice() { return $this->notice; }
+    function getInstructions() { return Format::htmldecode($this->instructions); }
     function getSource() { return $this->_source; }
     function setSource($source) { $this->_source = $source; }
 
@@ -159,30 +167,54 @@ class Form {
         }
         return $this->_clean;
     }
+    /*
+     * Transform form data to database ready clean data.
+     *
+     */
+    function to_db($clean=null, $validate=true) {
+        if (!$clean
+                && !$this->isValid()
+                && !($clean=$this->getClean($validate)))
+            return false;
+        $data = [];
+        foreach ($clean as $name => $val) {
+            if (!($f = $this->getField($name)))
+                continue;
+            try {
+                $data[$name] = $f->to_database($val);
+            } catch (FieldUnchanged $e) {
+                // Unset field if it's unchanged...mainly
+                // useful for Secret/PasswordField
+                unset($data[$name]);
+            }
+        }
+        return $data;
+    }
 
     /*
      * Process the form input and return clean data.
      *
-     * It's similar to getClean but forms downstream can use it to return
-     * database ready data.
+     * It's similar to to_db but forms downstream can use it to skip or add
+     * extra validations
+
      */
     function process($validate=true) {
-        return $this->getClean($validate);
+        return $this->to_db($validate);
     }
+
 
     function errors($formOnly=false) {
         return ($formOnly) ? $this->_errors['form'] : $this->_errors;
     }
 
     function addError($message, $index=false) {
-
         if ($index)
             $this->_errors[$index] = $message;
         else
             $this->_errors['form'][] = $message;
     }
 
-    function addErrors($errors=array()) {
+    function addErrors($errors=[]) {
         foreach ($errors as $k => $v) {
             if (($f=$this->getField($k)))
                 $f->addError($v);
@@ -202,6 +234,9 @@ class Form {
             $this->title = $options['title'];
         if (isset($options['instructions']))
             $this->instructions = $options['instructions'];
+        if (isset($options['notice']))
+            $this->notice = $options['notice'];
+
         $form = $this;
         $template = $options['template'] ?: 'dynamic-form.tmpl.php';
         if (isset($options['staff']) && $options['staff'])
@@ -434,9 +469,14 @@ implements FormRenderer {
 ?>
       <table class="<?php echo 'grid form' ?>">
           <caption><?php echo Format::htmlchars($this->title ?: $form->getTitle()); ?>
-                  <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
-          </caption>
-          <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
+            <div><small><?php echo Format::viewableImages($form->getInstructions()); ?></small></div>
+            <?php
+            if ($form->getNotice())
+                echo sprintf('<div><small><p id="msg_warning">%s</p></small></div>',
+                        Format::htmlchars($form->getNotice()));
+            ?>
+        </caption>
+        <tbody><tr><?php for ($i=0; $i<12; $i++) echo '<td style="width:8.3333%"/>'; ?></tr></tbody>
 <?php
       $row_size = 12;
       $cols = $row = 0;
@@ -580,7 +620,7 @@ class FormField {
     static $more_types = array();
     static $uid = null;
 
-    function _uid() {
+    static function _uid() {
         return ++self::$uid;
     }
 
@@ -604,7 +644,7 @@ class FormField {
             foreach (static::$more_types as $group => $entries)
                 foreach ($entries as $c)
                     static::$types[$group] = array_merge(
-                            static::$types[$group] ?: array(), call_user_func($c));
+                            static::$types[$group] ?? array(), call_user_func($c));
 
             static::$more_types = array();
         }
@@ -677,6 +717,12 @@ class FormField {
     function errors() {
         return $this->_errors;
     }
+
+    function resetErrors() {
+        $this->_errors = [];
+        return !($this->_errors);
+    }
+
     function addError($message, $index=false) {
         if ($index)
             $this->_errors[$index] = $message;
@@ -1148,7 +1194,7 @@ class FormField {
      * Fetch a pseudo-random id for this form field. It is used when
      * rendering the widget in the @name attribute emitted in the resulting
      * HTML. The form element is based on the form id, field id and name,
-     * and the current user's session id. Therefor, the same form fields
+     * and the current user's session id. Therefore, the same form fields
      * will yield differing names for different users. This is used to ward
      * off bot attacks as it makes it very difficult to predict and
      * correlate the form names to the data they represent.
@@ -1157,12 +1203,30 @@ class FormField {
         $default = $this->get('name') ?: $this->get('id');
         if ($this->_form && is_numeric($fid = $this->_form->getFormId()))
             return substr(md5(
-                session_id() . '-form-field-id-' . $fid . $default), -14);
+                session_id() . "-form-field-id-$fid-$default-" . SECRET_SALT), -14);
         elseif (is_numeric($this->get('id')))
             return substr(md5(
-                session_id() . '-field-id-'.$this->get('id')), -16);
+                session_id() . '-field-id-'.$this->get('id') . '-' . SECRET_SALT), -16);
 
         return $default;
+    }
+
+    function getFormNames() {
+
+        // All possible names - this is important for inline data injection
+        $names = array_filter([
+                'hash' => $this->getFormName(),
+                'name' => $this->get('name'),
+                'id' => $this->get('id')]);
+
+        // Force pseudo-random name for Dynamicforms on POST (Web Tickets)
+        if (0 && $_POST
+                && !defined('APICALL')
+                && isset($this->ht['form'])
+                && ($this->ht['form'] instanceof DynamicForm))
+            return [$names['hash']];
+
+        return $names;
     }
 
     function setForm($form) {
@@ -1216,7 +1280,7 @@ class FormField {
      * the default value will be reflected in the returned configuration.
      */
     function getConfiguration() {
-        if (!$this->_config) {
+        if (!isset($this->_config)) {
             $this->_config = $this->get('configuration');
             if (is_string($this->_config))
                 $this->_config = JsonDataParser::parse($this->_config);
@@ -1453,7 +1517,7 @@ class TextboxField extends FormField {
 
     function validateEntry($value) {
         //check to see if value is the string '0'
-        $value = ($value == '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
+        $value = ($value === '0') ? '&#48' : Format::htmlchars($this->toString($value ?: $this->value));
         parent::validateEntry($value);
         $config = $this->getConfiguration();
         $validators = array(
@@ -1477,7 +1541,7 @@ class TextboxField extends FormField {
                 function($v) use ($config) {
                     $regex = $config['regex'];
                     return @preg_match($regex, $v);
-                }, __('Value does not match required pattern')
+                }, $config['validator-error'] ?? __('Value does not match required pattern')
             ),
         );
         // Support configuration forms, as well as GUI-based form fields
@@ -1508,7 +1572,7 @@ class TextboxField extends FormField {
     }
 
     function display($value) {
-        return ($value === '0') ? '&#48;' : Format::htmlchars($this->toString($value ?: $this->value));
+        return ($value === '0') ? '&#48;' : Format::htmlchars($this->toString($value ?: $this->value), true);
     }
 }
 
@@ -1517,7 +1581,17 @@ class PasswordField extends TextboxField {
 
     function __construct($options=array()) {
         parent::__construct($options);
-        $this->set('validator', 'password');
+        if (!isset($options['validator']))
+            $this->set('validator', 'password');
+    }
+
+    protected function getMasterKey() {
+        return SECRET_SALT;
+    }
+
+    protected function getSubKey() {
+        $config = $this->getConfiguration();
+        return $config['key'] ?: 'pwfield';
     }
 
     function parse($value) {
@@ -1529,11 +1603,13 @@ class PasswordField extends TextboxField {
         // If not set in UI, don't save the empty value
         if (!$value)
             throw new FieldUnchanged();
-        return Crypto::encrypt($value, SECRET_SALT, 'pwfield');
+        return Crypto::encrypt($value, $this->getMasterKey(),
+                $this->getSubKey());
     }
 
     function to_php($value) {
-        return Crypto::decrypt($value, SECRET_SALT, 'pwfield');
+        return Crypto::decrypt($value, $this->getMasterKey(),
+                $this->getSubKey());
     }
 }
 
@@ -1601,7 +1677,7 @@ class TextareaField extends FormField {
         if ($config['html'])
             return Format::safe_html($value);
         else
-            return nl2br(Format::htmlchars($value));
+            return nl2br(Format::htmlchars($value, true));
     }
 
     function searchable($value) {
@@ -1787,7 +1863,10 @@ class ChoiceField extends FormField {
                 'id'=>1, 'label'=>__('Choices'), 'required'=>false, 'default'=>'',
                 'hint'=>__('List choices, one per line. To protect against spelling changes, specify key:value names to preserve entries if the list item names change.</br><b>Note:</b> If you have more than two choices, use a List instead.'),
                 'validator'=>'choices',
-                'configuration'=>array('html'=>false)
+                'configuration'=>array(
+                    'html' => false,
+                    'disabled' => false,
+                    )
             )),
             'default' => new TextboxField(array(
                 'id'=>3, 'label'=>__('Default'), 'required'=>false, 'default'=>'',
@@ -1942,7 +2021,7 @@ class ChoiceField extends FormField {
         return $selection;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if ($this->_choices === null || $verbose) {
             // Allow choices to be set in this->ht (for configurationOptions)
             $this->_choices = $this->get('choices');
@@ -2039,18 +2118,19 @@ class ChoiceField extends FormField {
     function applyQuickFilter($query, $qf_value, $name=false) {
         global $thisstaff;
 
+        $field = new AssigneeChoiceField();
         //special assignment quick filters
         switch (true) {
             case ($qf_value == 'assigned'):
             case ($qf_value == '!assigned'):
-                $result = AssigneeChoiceField::getSearchQ($qf_value, $qf_value);
+                $result = $field->getSearchQ($qf_value, $qf_value);
                 return $query->filter($result);
             case (strpos($qf_value, 's') !== false):
             case (strpos($qf_value, 't') !== false):
             case ($qf_value == 'M'):
             case ($qf_value == 'T'):
                 $value = array($qf_value => $qf_value);
-                $result = AssigneeChoiceField::getSearchQ('includes', $value);
+                $result = $field->getSearchQ('includes', $value);
                 return $query->filter($result);
                 break;
         }
@@ -2188,7 +2268,7 @@ class DatetimeField extends FormField {
         return $this->max;
     }
 
-    function getPastPresentLabels() {
+    static function getPastPresentLabels() {
       return array(__('Create Date'), __('Reopen Date'),
                     __('Close Date'), __('Last Update'));
     }
@@ -2681,6 +2761,14 @@ class SectionBreakField extends FormField {
     function isBlockLevel() {
         return true;
     }
+
+    function isEditableToStaff() {
+        return $this->isVisibleToStaff();
+    }
+
+    function isEditableToUsers() {
+        return $this->isVisibleToUsers();
+    }
 }
 
 class ThreadEntryField extends FormField {
@@ -2758,8 +2846,10 @@ class TopicField extends ChoiceField {
     var $_choices;
 
     function getTopics() {
+        global $thisstaff;
+
         if (!isset($this->topics))
-            $this->topics = Topic::getHelpTopics(false, false, true);
+            $this->topics = $thisstaff->getTopicNames();
 
         return $this->topics;
     }
@@ -2784,7 +2874,7 @@ class TopicField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $this->_choices = $this->getTopics();
         }
@@ -2832,7 +2922,7 @@ class TopicField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -2890,7 +2980,7 @@ class SLAField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $choices = array();
             foreach ($this->getSLAs() as $s)
@@ -2940,7 +3030,7 @@ class SLAField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -2998,7 +3088,7 @@ class PriorityField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_choices)) {
             $choices = array();
             foreach ($this->getPriorities() as $p)
@@ -3016,16 +3106,19 @@ class PriorityField extends ChoiceField {
     function to_php($value, $id=false) {
         if ($value instanceof Priority)
             return $value;
+
         if (is_array($id)) {
             reset($id);
             $id = key($id);
-        }
-        elseif (is_array($value))
+        } elseif (is_array($value)) {
             list($value, $id) = $value;
-        elseif ($id === false)
+        } elseif ($id === false && is_numeric($value))
             $id = $value;
 
-        return $this->getPriority($id);
+        if (is_numeric($id))
+            return $this->getPriority($id);
+
+        return $value;
     }
 
     function to_database($value) {
@@ -3053,7 +3146,7 @@ class PriorityField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3123,7 +3216,7 @@ class TimezoneField extends ChoiceField {
         return false;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $cfg;
 
         $choices = array();
@@ -3134,7 +3227,7 @@ class TimezoneField extends ChoiceField {
     }
 
     function whatChanged($before, $after) {
-        return FormField::whatChanged($before, $after);
+        return parent::whatChanged($before, $after);
     }
 
     function searchable($value) {
@@ -3170,10 +3263,12 @@ class DepartmentField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
-        global $cfg;
+    function getChoices($verbose=false, $options=array()) {
+        global $cfg, $thisstaff;
 
-        $selected = self::getWidget();
+        $config = $this->getConfiguration();
+        $staff = $config['staff'] ?: $thisstaff;
+        $selected = $this->getWidget();
         if($selected && $selected->value) {
           if(is_array($selected->value)) {
             foreach ($selected->value as $k => $v) {
@@ -3187,32 +3282,48 @@ class DepartmentField extends ChoiceField {
           }
         }
 
-        $active_depts = Dept::objects()
-          ->filter(array('flags__hasbit' => Dept::FLAG_ACTIVE))
-          ->values('id', 'name')
-          ->order_by('name');
-
         $choices = array();
-        if ($depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED)) {
-          //create array w/queryset
-          $active = array();
-          foreach ($active_depts as $dept)
-            $active[$dept['id']] = $dept['name'];
 
-          //add selected dept to list
-          if($current_id)
+        //get all depts unfiltered
+        $depts = $config['hideDisabled'] ? Dept::getDepartments(array('activeonly' => true)) :
+            Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
+
+        //get staff depts based on permissions
+        if ($staff) {
+            $active = $staff->getDepartmentNames(true);
+
+            if ($staff->hasPerm(Dept::PERM_DEPT))
+                return $depts;
+        }
+        //filter custom department fields when there is no staff
+        else {
+            $userDepts = Dept::getDepartments(array('publiconly' => true, 'activeonly' => true));
+
+            return $userDepts;
+        }
+
+         //add selected dept to list
+         if($current_id)
             $active[$current_id] = $current_name;
-          else
+         else
             return $active;
 
-          foreach ($depts as $id => $name) {
+         foreach ($depts as $id => $name) {
             $choices[$id] = $name;
             if(!array_key_exists($id, $active) && $current_id)
                 unset($choices[$id]);
-          }
-        }
+         }
 
         return $choices;
+    }
+
+    function display($dept, &$styles=null) {
+        if (!is_numeric($dept) && is_string($dept))
+            return Format::htmlchars($dept);
+        elseif ($dept instanceof Dept)
+            return Format::htmlchars($dept->getName());
+
+        return parent::display($dept);
     }
 
     function parse($id) {
@@ -3297,15 +3408,20 @@ class AssigneeField extends ChoiceField {
 
     function getWidget($widgetClass=false) {
         $widget = parent::getWidget($widgetClass);
-        if (is_object($widget->value))
-            $widget->value = $widget->value->getId();
+        $value = $widget->value;
+        if (is_object($value)) {
+            $id = $value->getId();
+            if ($value instanceof Staff)
+                $widget->value = 's'.$id;
+            elseif ($value instanceof Team)
+                $widget->value = 't'.$id;
+        }
         return $widget;
     }
 
     function getCriteria() {
-
         if (!isset($this->_criteria)) {
-            $this->_criteria = array('available' => true);
+            $this->_criteria = array('available' => true, 'namesOnly' => true);
             if (($c=parent::getCriteria()))
                 $this->_criteria = array_merge($this->_criteria, $c);
         }
@@ -3322,58 +3438,124 @@ class AssigneeField extends ChoiceField {
     }
 
     function display($value) {
-        return $this->getAnswer() ? $this->getAnswer()->value : $value;
+        if ($this->getAnswer() && is_string($this->getAnswer()->value)) {
+            $v = JsonDataParser::parse($this->getAnswer()->value);
+            if (is_array($v))
+                $value = $v[key($v)];
+        }
+        return $value;
     }
 
-    function getChoices($verbose=false) {
-        global $cfg;
+    function getAssignees($options=array()) {
+        global $thisstaff;
 
-        if (!isset($this->_choices)) {
-            $config = $this->getConfiguration();
-            $choices = array(
+        $config = $this->getConfiguration();
+        $criteria = $this->getCriteria();
+        $dept = $config['dept'] ?: null;
+        $staff = $config['staff'] ?: $thisstaff;
+        $assignees = array();
+        switch (strtolower($config['target'])) {
+        case 'agents':
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $assignees['s'.$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name)
+                    $assignees['s'.$id] = $name;
+            break;
+        case 'teams':
+            foreach (Team::getActiveTeams() ?: array() as $id => $name)
+                $assignees['t'.$id] = $name;
+            break;
+        default:
+            // both agents and teams
+            $assignees = array(
                     __('Agents') => new ArrayObject(),
                     __('Teams') => new ArrayObject());
-            $A = current($choices);
+            $A = current($assignees);
             $criteria = $this->getCriteria();
             $agents = array();
-            if (($dept=$config['dept']) && $dept->assignMembersOnly()) {
-                if (($members = $dept->getAvailableMembers()))
-                    foreach ($members as $member)
-                        $agents[$member->getId()] = $member;
-            } else {
-                $agents = Staff::getStaffMembers($criteria);
-            }
+            if ($dept)
+                foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                    $A['s'.$a->getId()] = $a;
+            else
+                foreach (Staff::getStaffMembers(array('staff' => $staff)) as $a => $name)
+                    $A['s'.$a] = $name;
 
-            foreach ($agents as $id => $name)
-                $A['s'.$id] = $name;
-
-            next($choices);
-            $T = current($choices);
+            next($assignees);
+            $T = current($assignees);
             if (($teams = Team::getActiveTeams()))
                 foreach ($teams as $id => $name)
                     $T['t'.$id] = $name;
-
-            $this->_choices = $choices;
+            break;
         }
 
+        return $assignees;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        if (!isset($this->_choices))
+            $this->_choices = $this->getAssignees($options);
+
         return $this->_choices;
+    }
+
+    function getChoice($value) {
+        $choices = $this->getChoices();
+        $selection = array();
+        if ($value && is_object($value)) {
+            $keys = null;
+            if ($value instanceof Staff)
+                $keys = array('Agents', 's'.$value->getId());
+            elseif ($value instanceof Team)
+                $keys = array('Teams', 't'.$value->getId());
+            if ($keys && isset($choices[$keys[0]]))
+                $selection = $choices[$keys[0]][$keys[1]];
+
+            if (!empty($selection))
+                return $selection;
+        }
+
+        return parent::getChoice($value);
+    }
+
+    function getQuickFilterChoices() {
+        $choices = $this->getChoices();
+        $names = array();
+        foreach ($choices as $value) {
+            foreach ($value as $key => $value)
+                $names[$key] = is_object($value) ? $value->name : $value;
+        }
+
+        return $names;
     }
 
     function getValue() {
         if (($value = parent::getValue()) && ($id=$this->getClean())) {
             $name = (is_object($value[key($value)]) && get_class($value[key($value)]) == 'AgentsName') ?
                 $value[key($value)]->name : $value[key($value)];
-            return array($name, substr(key($value), 1));
+            $key = (($value[key($value)] instanceof AgentsName) ? 's' : 't').substr(key($value), 1);
+            return array(array($key => $name), substr(key($value), 1));
         } else
-            return array();
+            return null;
     }
-
 
     function parse($id) {
         return $this->to_php(null, $id);
     }
 
     function to_php($value, $id=false) {
+        if (is_string($value))
+            $value = JsonDataParser::parse($value) ?: $value;
+
+        if (is_string($value) && strpos($value, ',')) {
+            $values = array();
+            list($key, $V) = array_map('trim', explode(',', $value));
+
+            $values[$key] = $V;
+            $value = $values;
+        }
+
         $type = '';
         if (is_array($id)) {
             reset($id);
@@ -3381,6 +3563,14 @@ class AssigneeField extends ChoiceField {
             $type = $id[0];
             $id = substr($id, 1);
         }
+        if (is_array($value)) {
+            $type = key($value)[0];
+            if (!$id)
+                $id = substr(key($value), 1);
+        }
+
+        if (!$type && is_numeric($value))
+            return Staff::lookup($value);
 
         switch ($type) {
         case 's':
@@ -3394,11 +3584,23 @@ class AssigneeField extends ChoiceField {
         }
     }
 
-
     function to_database($value) {
-        return (is_object($value))
-            ? array($value->getName(), $value->getId())
-            : $value;
+        if (is_object($value)) {
+            $id = $value->getId();
+            if ($value instanceof Staff) {
+                $key = 's'.$id;
+                $name = $value->getName()->name;
+            } elseif ($value instanceof Team) {
+                $key = 't'.$id;
+                $name = $value->getName();
+            }
+
+            return JsonDataEncoder::encode(array($key => $name));
+        }
+        if (is_array($value)) {
+            return JsonDataEncoder::encode($value[0]);
+        }
+        return $value;
     }
 
     function toString($value) {
@@ -3407,6 +3609,38 @@ class AssigneeField extends ChoiceField {
 
     function searchable($value) {
         return null;
+    }
+
+    function getKeys($value) {
+        $value = $this->to_database($value);
+        if (is_array($value))
+            return $value[0];
+
+        return (string) $value;
+    }
+
+    function asVar($value, $id=false) {
+        $v = $this->to_php($value, $id);
+        return $v ? $v->getName() : null;
+    }
+
+    function getChanges() {
+        $new = $this->to_database($this->getValue());
+        $old = $this->to_database($this->answer ? $this->answer->getValue()
+                : $this->get('default'));
+        // Compare old and new
+        return ($old == $new)
+            ? false
+            : array($old, $new);
+    }
+
+    function whatChanged($before, $after) {
+        if ($before)
+            $before = array($before->getName());
+        if ($after)
+            $after = array($after->getName());
+
+        return parent::whatChanged($before, $after);
     }
 
     function getConfigurationOptions() {
@@ -3458,7 +3692,7 @@ class TicketStateField extends ChoiceField {
         return false;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         static $_choices;
 
         $states = static::$_states;
@@ -3546,7 +3780,7 @@ class TicketFlagField extends ChoiceField {
         return true;
     }
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         $this->ht['default'] =  '';
 
         if (!$this->_choices) {
@@ -3642,6 +3876,10 @@ class FileUploadField extends FormField {
                 'hint'=>__('Optionally, enter comma-separated list of additional file types, by extension. (e.g .doc, .pdf).'),
                 'configuration'=>array('html'=>false, 'rows'=>2),
             )),
+            'strictmimecheck' => new BooleanField([
+                'id' => 4, 'label'=>__('Strict Mime Type Check'), 'required' => false, 'default' => false,
+                'hint' => 'File Mime Type associations is OS dependent',
+                'configuration' => ['desc' => __('Enable strict Mime Type check')]]),
             'max' => new TextboxField(array(
                 'label'=>__('Maximum Files'),
                 'hint'=>__('Users cannot upload more than this many files.'),
@@ -3666,8 +3904,9 @@ class FileUploadField extends FormField {
             Http::response(400, 'Send one file at a time');
         $file = array_shift($files);
         $file['name'] = urldecode($file['name']);
+        $config = $this->getConfiguration();
 
-        if (!$this->isValidFile($file))
+        if (!self::isValidFile($file, $config['strictmimecheck']))
             Http::response(413, 'Invalid File');
 
         if (!$bypass && !$this->isValidFileType($file['name'], $file['type']))
@@ -3696,10 +3935,11 @@ class FileUploadField extends FormField {
         if (!$this->isValidFileType($file['name'], $file['type']))
             throw new FileUploadError(__('File type is not allowed'));
 
-        if (!$this->isValidFile($file))
+        $config = $this->getConfiguration();
+
+        if (!self::isValidFile($file, $config['strictmimecheck']))
              throw new FileUploadError(__('Invalid File'));
 
-        $config = $this->getConfiguration();
         if ($file['size'] > $config['size'])
             throw new FileUploadError(__('File size is too large'));
 
@@ -3736,12 +3976,23 @@ class FileUploadField extends FormField {
         return $F;
     }
 
-    function isValidFile($file) {
+    /**
+     * Strict mode can be enabled in Admin Panel > Settings > Tickets
+     *
+     * PS: Please note that the a mismatch can happen if the mime types
+     * database is not up to date or a little different compared to what the
+     * browser reports.
+     **/
+    static function isValidFile($file, $strict = false) {
+        // Strict mime check
+        if ($strict
+            && !empty($file['type'])
+            && FileObject::mimecmp($file['tmp_name'], $file['type']))
+            return false;
 
         // Check invalid image hacks
         if ($file['tmp_name']
                 && stripos($file['type'], 'image/') === 0
-                && function_exists('exif_imagetype')
                 && !exif_imagetype($file['tmp_name']))
             return false;
 
@@ -3799,7 +4050,11 @@ class FileUploadField extends FormField {
     }
 
     function getConfiguration() {
+        global $cfg;
+
         $config = parent::getConfiguration();
+        // If no size present default to system setting
+        $config['size'] ??= $cfg->getMaxFileSize();
         $_types = self::getFileTypes();
         $mimetypes = array();
         $extensions = array();
@@ -3859,7 +4114,7 @@ class FileUploadField extends FormField {
         if (isset($this->attachments) && $this->attachments) {
             $this->attachments->keepOnlyFileIds($value);
         }
-        return JsonDataEncoder::encode($value);
+        return JsonDataEncoder::encode($value) ?? NULL;
     }
 
     function parse($value) {
@@ -4118,13 +4373,10 @@ class Widget {
 
     function getValue() {
         $data = $this->field->getSource();
-        // Search for HTML form name first
-        if (isset($data[$this->name]))
-            return $data[$this->name];
-        elseif (isset($data[$this->field->get('name')]))
-            return $data[$this->field->get('name')];
-        elseif (isset($data[$this->field->get('id')]))
-            return $data[$this->field->get('id')];
+        foreach ($this->field->getFormNames() as $name)
+            if (isset($data[$name]))
+                return $data[$name];
+
         return null;
     }
 
@@ -4169,20 +4421,48 @@ class TextboxWidget extends Widget {
                 if (!isset($config[$k]) || !$config[$k])
                     $config[$k] = $v;
         }
-        if (isset($config['size']))
-            $size = "size=\"{$config['size']}\"";
-        if (isset($config['length']) && $config['length'])
-            $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['classes']))
-            $classes = 'class="'.$config['classes'].'"';
-        if (isset($config['autocomplete']))
-            $autocomplete = 'autocomplete="'.($config['autocomplete']?'on':'off').'"';
+
+        // Input attributes
+        $attrs = array();
+        foreach ($config as $k => $v) {
+            switch ($k) {
+                case 'autocomplete':
+                    if (is_numeric($v))
+                        $v = $v ? 'on' : 'off';
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'disabled';
+                    $attrs[$k] = '"disabled"';
+                    break;
+                case 'translatable':
+                    if ($v)
+                        $attrs['data-translate-tag'] =  '"'.$v.'"';
+                    break;
+                case 'length':
+                    $k = 'maxlength';
+                case 'size':
+                case 'maxlength':
+                    if ($v && is_numeric($v))
+                        $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'class':
+                case 'classes':
+                    $attrs['class'] = '"'.$v.'"';
+                    break;
+                case 'inputmode':
+                case 'pattern':
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+            }
+        }
+        // autofocus
+        $autofocus = '';
         if (isset($config['autofocus']))
             $autofocus = 'autofocus';
-        if (isset($config['disabled']))
-            $disabled = 'disabled="disabled"';
-        if (isset($config['translatable']) && $config['translatable'])
-            $translatable = 'data-translate-tag="'.$config['translatable'].'"';
+        // placeholder
+        $attrs['placeholder'] = sprintf('"%s"',
+                Format::htmlchars($this->field->getLocal('placeholder',
+                    $config['placeholder'])));
         $type = static::$input_type;
         $types = array(
             'email' => 'email',
@@ -4190,16 +4470,13 @@ class TextboxWidget extends Widget {
         );
         if ($type == 'text' && isset($types[$config['validator']]))
             $type = $types[$config['validator']];
-        $placeholder = sprintf('placeholder="%s"', $this->field->getLocal('placeholder',
-            $config['placeholder']));
         ?>
         <input type="<?php echo $type; ?>"
             id="<?php echo $this->id; ?>"
-            <?php echo implode(' ', array_filter(array(
-                $size, $maxlength, $classes, $autocomplete, $disabled,
-                $translatable, $placeholder, $autofocus))); ?>
+            <?php echo $autofocus .' '.Format::array_implode('=', ' ',
+                    array_filter($attrs)); ?>
             name="<?php echo $this->name; ?>"
-            value="<?php echo Format::htmlchars($this->value); ?>"/>
+            value="<?php echo Format::htmlchars($this->value, true); ?>"/>
         <?php
     }
 }
@@ -4230,8 +4507,9 @@ class PasswordWidget extends TextboxWidget {
 
     function render($mode=false, $extra=false) {
         $extra = array();
-        if ($this->field->value) {
-            $extra['placeholder'] = '••••••••••••';
+        if (isset($this->field->value)) {
+            $extra['placeholder'] = str_repeat('•',
+                    strlen($this->field->value));
         }
         return parent::render($mode, $extra);
     }
@@ -4248,30 +4526,45 @@ class PasswordWidget extends TextboxWidget {
 class TextareaWidget extends Widget {
     function render($options=array()) {
         $config = $this->field->getConfiguration();
-        $class = $cols = $rows = $maxlength = "";
+        // process textarea attributes
         $attrs = array();
-        if (isset($config['rows']))
-            $rows = "rows=\"{$config['rows']}\"";
-        if (isset($config['cols']))
-            $cols = "cols=\"{$config['cols']}\"";
-        if (isset($config['length']) && $config['length'])
-            $maxlength = "maxlength=\"{$config['length']}\"";
-        if (isset($config['html']) && $config['html']) {
-            $class = array('richtext', 'no-bar');
-            $class[] = @$config['size'] ?: 'small';
-            $class = sprintf('class="%s"', implode(' ', $class));
-            $this->value = Format::viewableImages($this->value);
+        foreach ($config as $k => $v) {
+            switch ($k) {
+                case 'rows':
+                case 'cols':
+                case 'length':
+                case 'maxlength':
+                    if ($v && is_numeric($v))
+                        $attrs[$k] = '"'.$v.'"';;
+                    break;
+                case 'context':
+                    $attrs['data-root-context'] =  '"'.$v.'"';
+                    break;
+                case 'class':
+                    // This might conflict with html attr below
+                    $attrs[$k] = '"'.$v.'"';
+                    break;
+                case 'html':
+                    if ($v) {
+                        $class = array('richtext', 'no-bar');
+                        $class[] = @$config['size'] ?: 'small';
+                        $attrs['class'] =  '"'.implode(' ', $class).'"';
+                        $this->value = Format::viewableImages($this->value);
+                    }
+                    break;
+            }
         }
-        if (isset($config['context']))
-            $attrs['data-root-context'] = '"'.$config['context'].'"';
+        // placeholder
+        $attrs['placeholder'] = sprintf('"%s"',
+                Format::htmlchars($this->field->getLocal('placeholder',
+                $config['placeholder'])));
         ?>
         <span style="display:inline-block;width:100%">
-        <textarea <?php echo $rows." ".$cols." ".$maxlength." ".$class
-                .' '.Format::array_implode('=', ' ', $attrs)
-                .' placeholder="'.$this->field->getLocal('placeholder', $config['placeholder']).'"'; ?>
+        <textarea <?php echo Format::array_implode('=', ' ',
+                array_filter($attrs)); ?>
             id="<?php echo $this->id; ?>"
             name="<?php echo $this->name; ?>"><?php
-                echo Format::htmlchars($this->value);
+                echo Format::htmlchars($this->value, ($config['html']));
             ?></textarea>
         </span>
         <?php
@@ -4344,7 +4637,7 @@ class ChoicesWidget extends Widget {
 
         // Determine the value for the default (the one listed if nothing is
         // selected)
-        $choices = $this->field->getChoices(true);
+        $choices = $this->field->getChoices(true, $options);
         $prompt = ($config['prompt'])
             ? $this->field->getLocal('prompt', $config['prompt'])
             : __('Select'
@@ -4385,7 +4678,9 @@ class ChoicesWidget extends Widget {
               foreach ($config['data'] as $D=>$V)
                 echo ' data-'.$D.'="'.Format::htmlchars($V).'"';
             ?>
-            data-placeholder="<?php echo $prompt; ?>"
+            data-placeholder="<?php echo Format::htmlchars($prompt); ?>"
+            <?php if ($config['disabled'])
+                echo ' disabled="disabled"'; ?>
             <?php if ($config['multiselect'])
                 echo ' multiple="multiple"'; ?>>
             <?php if ($showdefault || (!$have_def && !$config['multiselect'])) { ?>
@@ -4893,7 +5188,7 @@ class ThreadEntryWidget extends Widget {
 
         list($draft, $attrs) = Draft::getDraftAndDataAttrs($namespace, $object_id, $this->value);
         ?>
-        <textarea style="width:100%;" name="<?php echo $this->field->get('name'); ?>"
+        <textarea style="width:100%;" name="<?php echo $this->name; ?>"
             placeholder="<?php echo Format::htmlchars($this->field->get('placeholder')); ?>"
             class="<?php if ($config['html']) echo 'richtext';
                 ?> draft draft-delete" <?php echo $attrs; ?>
@@ -4987,12 +5282,31 @@ class FileUploadWidget extends Widget {
                 );
             }
         }
+
+        //see if the attachment is saved in the session for this specific field
+        if ($sessionAttachment = $_SESSION[':form-data'][$this->field->get('name')]) {
+            $F = AttachmentFile::objects()
+                ->filter(array('id__in' => array_keys($sessionAttachment)))
+                ->all();
+
+            foreach ($F as $f) {
+                $f->tmp_name = $sessionAttachment[$f->getId()];
+                $files[] = array(
+                    'id' => $f->getId(),
+                    'name' => $f->getName(),
+                    'type' => $f->getType(),
+                    'size' => $f->getSize(),
+                    'download_url' => $f->getDownloadUrl(),
+                );
+            }
+        }
+
          // Set default $field_id
         $field_id = $this->field->get('id');
         // Get Form Type
         $type = $this->field->getForm()->type;
         // Determine if for Ticket/Task/Custom
-        if ($type) {
+        if ($type && !is_numeric($field_id)) {
             if ($type == 'T')
                 $field_id = 'ticket/attach';
             elseif ($type == 'A')
@@ -5114,6 +5428,14 @@ class FreeTextField extends FormField {
 
     function isBlockLevel() {
         return true;
+    }
+
+    function isEditableToStaff() {
+        return $this->isVisibleToStaff();
+    }
+
+    function isEditableToUsers() {
+        return $this->isVisibleToUsers();
     }
 
     /* utils */
@@ -5400,7 +5722,7 @@ class AssignmentForm extends Form {
                     'id'=>2, 'label'=>'', 'required'=>false,
                     'default'=>false,
                     'configuration'=>array(
-                        'desc' => 'Maintain referral access to current assignees')
+                        'desc' => __('Maintain referral access to current assignees'))
                     )
                 ),
             'comments' => new TextareaField(array(
@@ -5417,7 +5739,6 @@ class AssignmentForm extends Form {
 
         if (isset($this->_assignees))
             $fields['assignee']->setChoices($this->_assignees);
-
 
         $this->setFields($fields);
 
@@ -5645,17 +5966,17 @@ class ReferralForm extends Form {
                                ),
                             )
                 ),
-            'agent' => new ChoiceField(array(
+            'agent' => new AgentSelectionField(array(
                     'id'=>2,
                     'label' => '',
                     'flags' => hexdec(0X450F3),
                     'required' => true,
+                    'validator-error' => __('Agent selection required'),
                     'configuration'=>array('prompt'=>__('Select Agent')),
-                            'validator-error' => __('Agent selection required'),
-                    'visibility' => new VisibilityConstraint(
-                        new Q(array('target__eq'=>'agent')),
-                        VisibilityConstraint::HIDDEN
-                      ),
+                            'visibility' => new VisibilityConstraint(
+                                    new Q(array('target__eq'=>'agent')),
+                                    VisibilityConstraint::HIDDEN
+                              ),
                             )
                 ),
             'team' => new ChoiceField(array(
@@ -5815,7 +6136,7 @@ class TransferForm extends Form {
             'refer' => new BooleanField(array(
                 'id'=>2, 'label'=>'', 'required'=>false, 'default'=>false,
                 'configuration'=>array(
-                    'desc' => 'Maintain referral access to current department')
+                    'desc' => __('Maintain referral access to current department'))
             )),
             'comments' => new TextareaField(array(
                     'id' => 3,
@@ -5877,6 +6198,15 @@ class TransferForm extends Form {
         }
 
         return $this->_dept;
+    }
+
+    function hideDisabled() {
+        global $thisstaff;
+
+        if ($f = $this->getField('dept')) {
+            $f->configure('staff', $thisstaff);
+            $f->configure('hideDisabled', true);
+        }
     }
 }
 

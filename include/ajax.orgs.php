@@ -30,7 +30,7 @@ class OrgsAjaxAPI extends AjaxController {
         if (!$_REQUEST['q'])
             return $this->json_encode(array());
 
-        $q = $_REQUEST['q'];
+        $q = Format::sanitize($_REQUEST['q']);
         $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
 
         if (strlen(Format::searchable($q)) < 3)
@@ -55,7 +55,7 @@ class OrgsAjaxAPI extends AjaxController {
         foreach ($orgs as $O) {
             list($id, $name) = $O;
             $matched[] = array('name' => Format::htmlchars($name), 'info' => $name,
-                'id' => $id, '/bin/true' => $_REQUEST['q']);
+                'id' => $id, '/bin/true' => Format::htmlchars($q));
         }
 
         return $this->json_encode(array_values($matched));

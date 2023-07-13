@@ -135,5 +135,5 @@ verify_email_addrs:
     content: >
         Enable this option to check if the email address has a mail
         exchanger (MX) in the domain's DNS. This is useful to detect
-        incorrectly typed email addresses. This is perfomed in addition to
+        incorrectly typed email addresses. This is performed in addition to
         checking the email address wellformedness.

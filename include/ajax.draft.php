@@ -6,7 +6,7 @@ require_once(INCLUDE_DIR.'class.draft.php');
 
 class DraftAjaxAPI extends AjaxController {
 
-    function _createDraft($vars) {
+    static function _createDraft($vars) {
         if (false === ($vars['body'] = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => __("Draft body not found in request"),
@@ -22,7 +22,7 @@ class DraftAjaxAPI extends AjaxController {
         ));
     }
 
-    function _getDraft($draft) {
+    static function _getDraft($draft) {
         if (!$draft || !$draft instanceof Draft)
             Http::response(205, "Draft not found. Create one first");
 
@@ -35,7 +35,7 @@ class DraftAjaxAPI extends AjaxController {
         ));
     }
 
-    function _updateDraft($draft) {
+    static function _updateDraft($draft) {
         if (false === ($body = self::_findDraftBody($_POST)))
             return JsonDataEncoder::encode(array(
                 'error' => array(
@@ -50,81 +50,83 @@ class DraftAjaxAPI extends AjaxController {
         echo "{}";
     }
 
-    function _uploadInlineImage($draft) {
+    static function _uploadInlineImage($draft) {
         global $cfg;
 
-        if (!isset($_POST['data']) && !isset($_FILES['file']))
+        if (!isset($_FILES['file']))
             Http::response(422, "File not included properly");
 
         # Fixup for expected multiple attachments
-        if (isset($_FILES['file'])) {
-            $file = AttachmentFile::format($_FILES['file']);
+        $file = AttachmentFile::format($_FILES['file']);
 
-            # Allow for data-uri uploaded files
-            $fp = fopen($file[0]['tmp_name'], 'rb');
-            if (fread($fp, 5) == 'data:') {
-                $data = 'data:';
-                while ($block = fread($fp, 8192))
-                  $data .= $block;
-                $file[0] = Format::parseRfc2397($data);
-                list(,$ext) = explode('/', $file[0]['type'], 2);
-                $file[0] += array(
-                    'name' => Misc::randCode(8).'.'.$ext,
-                    'size' => strlen($file[0]['data']),
-                );
-            }
-            fclose($fp);
-
-            # TODO: Detect unacceptable attachment extension
-            # TODO: Verify content-type and check file-content to ensure image
-            $type = $file[0]['type'];
-            if (strpos($file[0]['type'], 'image/') !== 0)
-                return Http::response(403,
-                    JsonDataEncoder::encode(array(
-                        'error' => 'File type is not allowed',
-                    ))
-                );
-
-            # TODO: Verify file size is acceptable
-            if ($file[0]['size'] > $cfg->getMaxFileSize())
-                return Http::response(403,
-                    JsonDataEncoder::encode(array(
-                        'error' => 'File is too large',
-                    ))
-                );
-
-            // Paste uploads in Chrome will have a name of 'blob'
-            if ($file[0]['name'] == 'blob')
-                $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
-
-            $ids = $draft->attachments->upload($file);
-
-            if (!$ids) {
-                if ($file[0]['error']) {
-                    return Http::response(403,
-                        JsonDataEncoder::encode(array(
-                            'error' => $file[0]['error'],
-                        ))
-                    );
-                }
-                else
-                    return Http::response(500, 'Unable to attach image');
-            }
-
-            $id = (is_array($ids)) ? $ids[0] : $ids;
-        }
-        else {
-            $type = explode('/', $_POST['contentType']);
-            $info = array(
-                'data' => base64_decode($_POST['data']),
-                'name' => Misc::randCode(10).'.'.$type[1],
-                // TODO: Ensure _POST['contentType']
-                'type' => $_POST['contentType'],
+        // Allow one file at a time.
+        if (count($file) > 1)
+            return Http::response(403,
+                JsonDataEncoder::encode(array(
+                    'error' => 'Send one file at a time',
+                ))
             );
-            // TODO: Detect unacceptable filetype
-            // TODO: Verify content-type and check file-content to ensure image
-            $id = $draft->attachments->save($info);
+
+        # Allow for data-uri uploaded files
+        $fp = fopen($file[0]['tmp_name'], 'rb');
+        if (fread($fp, 5) == 'data:') {
+            $data = 'data:';
+            while ($block = fread($fp, 8192))
+              $data .= $block;
+            $file[0] = Format::parseRfc2397($data);
+            list(,$ext) = explode('/', $file[0]['type'], 2);
+            $file[0] += array(
+                'name' => Misc::randCode(8).'.'.$ext,
+                'size' => strlen($file[0]['data']),
+            );
         }
+        fclose($fp);
+
+        // Check file type to ensure image
+        $type = $file[0]['type'];
+        if (strpos($file[0]['type'], 'image/') !== 0)
+            return Http::response(403,
+                JsonDataEncoder::encode(array(
+                    'error' => 'File type is not allowed',
+                ))
+            );
+
+        // Check if file is truly an image
+        if (!FileUploadField::isValidFile($file[0]))
+            return Http::response(403,
+                JsonDataEncoder::encode(array(
+                    'error' => 'File is not valid',
+                ))
+            );
+
+        // Verify file size is acceptable
+        if ($file[0]['size'] > $cfg->getMaxFileSize())
+            return Http::response(403,
+                JsonDataEncoder::encode(array(
+                    'error' => 'File is too large',
+                ))
+            );
+
+        // Paste uploads in Chrome will have a name of 'blob'
+        if ($file[0]['name'] == 'blob')
+            $file[0]['name'] = 'screenshot-'.Misc::randCode(4);
+
+        $ids = $draft->attachments->upload($file);
+
+        if (!$ids) {
+            if ($file[0]['error']) {
+                return Http::response(403,
+                    JsonDataEncoder::encode(array(
+                        'error' => $file[0]['error'],
+                    ))
+                );
+
+            }
+            else
+                return Http::response(500, 'Unable to attach image');
+        }
+
+        $id = (is_array($ids)) ? $ids[0] : $ids;
         if (!($f = AttachmentFile::lookup($id)))
             return Http::response(500, 'Unable to attach image');
 
@@ -376,7 +378,7 @@ class DraftAjaxAPI extends AjaxController {
         echo JsonDataEncoder::encode($files);
     }
 
-    function _findDraftBody($vars) {
+    static function _findDraftBody($vars) {
         if (isset($vars['name'])) {
             $parts = array();
             // Support nested `name`, like trans[lang]
@@ -388,8 +390,15 @@ class DraftAjaxAPI extends AjaxController {
                 return $focus;
             }
         }
+
+        // Get ThreadEntry field name.
+        $tform = TicketForm::objects()->one()->getForm();
+        $tfield = $tform->getField('message')->getFormName();
+        // Get Task Description field name.
+        $aform = TaskForm::objects()->one()->getForm();
+        $afield = $aform->getField('description')->getFormName();
         $field_list = array('response', 'note', 'answer', 'body',
-             'message', 'issue', 'description');
+             $tfield, 'issue', $afield);
         foreach ($field_list as $field) {
             if (isset($vars[$field])) {
                 return $vars[$field];

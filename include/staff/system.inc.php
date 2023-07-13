@@ -68,7 +68,7 @@ $extensions = array(
 <?php
 $lv = $ost->getLatestVersion('core', MAJOR_VERSION);
 $tv = THIS_VERSION;
-$gv = GIT_VERSION == '$git' ? substr(@`git rev-parse HEAD`, 0, 7) : false ?: GIT_VERSION;
+$gv = (GIT_VERSION == '$git') ? substr(@`git rev-parse HEAD`, 0, 7) : (false ?: GIT_VERSION);
 if ($lv && $tv[0] == 'v' ? version_compare(THIS_VERSION, $lv, '>=') : $lv == $gv) { ?>
     — <span style="color:green"><i class="icon-check"></i> <?php echo __('Up to date'); ?></span>
 <?php
@@ -194,7 +194,7 @@ if (!$lv) { ?>
             &mdash; <?php echo $manifest['Language']; ?>
         <?php } ?>
 <?php   if ($info['phar'])
-            Plugin::showVerificationBadge($info['path']); ?>
+            PluginManager::showVerificationBadge($info['path']); ?>
         </h3>
         <div><?php echo sprintf('<code>%s</code> — %s', $info['code'],
                 str_replace(ROOT_DIR, '', $info['path'])); ?>

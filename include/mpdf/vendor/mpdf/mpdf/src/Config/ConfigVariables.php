@@ -3,10 +3,8 @@
 namespace Mpdf\Config;
 
 use Mpdf\Css\DefaultCss;
-
 use Mpdf\Language\LanguageToFont;
 use Mpdf\Language\ScriptToLanguage;
-
 use Mpdf\Ucdn;
 
 class ConfigVariables
@@ -93,12 +91,12 @@ class ConfigVariables
 			// AUTOMATIC FONT SELECTION
 			// Based on script and/or language
 			// mPDF 6.0 (similar to previously using function SetAutoFont() )
-			'autoScriptToLang' => true,
+			'autoScriptToLang' => false,
 			'baseScript' => Ucdn::SCRIPT_LATIN,
 			'autoVietnamese' => true,
 			'autoArabic' => true,
 			// mPDF 6.0 (similar to old useLang)
-			'autoLangToFont' => true,
+			'autoLangToFont' => false,
 
 			// Substitute missing characters in UTF-8(multibyte) documents - from other fonts
 			'useSubstitutions' => false,
@@ -295,6 +293,10 @@ class ConfigVariables
 			// Default dpi to output images if size not defined
 			// See also above "dpi"
 			'img_dpi' => 96,
+			// Specify whitelisted PHP streams to be used for images
+			// Useful to add custom streams like `s3`
+			// Note: for security reasons the `phar` stream cannot be used @see https://github.com/mpdf/mpdf/issues/949
+			'whitelistStreamWrappers' => ['http', 'https', 'file'],
 
 			// TEXT SPACING & JUSTIFICATION
 
@@ -451,6 +453,8 @@ class ConfigVariables
 
 			'tempDir' => __DIR__ . '/../../tmp',
 
+			'cacheCleanupInterval' => 3600,
+
 			'allowAnnotationFiles' => false,
 
 			'hyphenationDictionaryFile' => __DIR__ . '/../../data/patterns/dictionary.txt',
@@ -506,7 +510,14 @@ class ConfigVariables
 			// cURL options
 			'curlFollowLocation' => false,
 			'curlAllowUnsafeSslRequests' => false,
+			'curlCaCertificate' => '',
 			'curlTimeout' => 5,
+			'curlExecutionTimeout' => null,
+			'curlProxy' => null,
+			'curlProxyAuth' => null,
+			'curlUserAgent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:13.0) Gecko/20100101 Firefox/13.0.1',
+
+			'exposeVersion' => true,
 		];
 	}
 

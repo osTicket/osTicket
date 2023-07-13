@@ -7,13 +7,13 @@
 #
 ---
 source: Web # notrans
-name: osTicket Support
-email: support@osticket.com
+name: osTicket Team
+email: feedback@osticket.com
 subject: osTicket Upgraded!
 message: |
     <p>
     osTicket upgraded successfully! Please refer to the Release Notes
-    (https://docs.osticket.com/en/latest/Developer%20Documentation/Changelog.html?highlight=notes) for more information about
+    (https://github.com/osTicket/osTicket/releases) for more information about
     changes and new features.
     </p><p>
     Be sure to join the <a href="https://forum.osticket.com">osTicket

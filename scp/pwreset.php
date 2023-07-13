@@ -39,17 +39,17 @@ if($_POST) {
     }
     switch ($_POST['do']) {
         case 'sendmail':
-            if (($staff=Staff::lookup($_POST['userid']))) {
-                if (!$staff->hasPassword()) {
+            $userid = (string) $_POST['userid'];
+            if (Validator::is_userid($userid)
+                    && ($staff=Staff::lookup($userid))) {
+                if (!$staff->hasPassword()
+                        || (($bk=$staff->getAuthBackend()) && !($bk instanceof osTicketStaffAuthentication)))
                     $msg = __('Unable to reset password. Contact your administrator');
-                }
-                elseif (!$staff->sendResetEmail()) {
+                elseif (!$staff->sendResetEmail())
                     $tpl = 'pwreset.sent.php';
-                }
             }
             else
-                $msg = sprintf(__('Unable to verify username %s'),
-                    Format::htmlchars($_POST['userid']));
+                $tpl = 'pwreset.sent.php';
             break;
         case 'newpasswd':
             // TODO: Compare passwords
@@ -69,7 +69,8 @@ elseif ($_GET['token']) {
     $msg = __('Please enter your username or email');
     $_config = new Config('pwreset');
     if (($id = $_config->get($_GET['token']))
-            && ($staff = Staff::lookup($id)))
+            && is_numeric($id)
+            && ($staff = Staff::lookup( (int) $id)))
         // TODO: Detect staff confirmation (for welcome email)
         $tpl = 'pwreset.login.php';
     else

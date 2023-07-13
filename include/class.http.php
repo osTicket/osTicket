@@ -15,7 +15,7 @@
 **********************************************************************/
 class Http {
 
-    function header_code_verbose($code) {
+    static function header_code_verbose($code) {
         switch($code):
         case 200: return '200 OK';
         case 201: return '201 Created';
@@ -33,7 +33,7 @@ class Http {
         endswitch;
     }
 
-    function response($code,$content=false,$contentType='text/html',$charset='UTF-8') {
+    static function response($code,$content=false,$contentType='text/html',$charset='UTF-8') {
 
         header('HTTP/1.1 '.Http::header_code_verbose($code));
 		header('Status: '.Http::header_code_verbose($code)."\r\n");
@@ -53,7 +53,7 @@ class Http {
      *  Flush the content to requester without exiting
      *
      */
-    function flush($code, $content, $contentType='text/html', $charset='UTF-8') {
+    static function flush($code, $content, $contentType='text/html', $charset='UTF-8') {
         self::response($code, null, $contentType, $charset);
         header('Cache-Control: no-cache, must-revalidate');
         header('Content-Length: '.strlen($content)."\r\n\r\n");
@@ -66,7 +66,7 @@ class Http {
             fastcgi_finish_request();
     }
 
-    function redirect($url,$delay=0,$msg='') {
+    static function redirect($url,$delay=0,$msg='') {
 
         $iis = strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') !== false;
         @list($name, $version) = explode('/', $_SERVER['SERVER_SOFTWARE']);
@@ -84,7 +84,7 @@ class Http {
         exit;
     }
 
-    function cacheable($etag, $modified=false, $ttl=3600) {
+    static function cacheable($etag, $modified=false, $ttl=3600) {
         // Thanks, http://stackoverflow.com/a/1583753/1025836
         // Timezone doesn't matter here — but the time needs to be
         // consistent round trip to the browser and back.
@@ -108,7 +108,7 @@ class Http {
      * is browser dependent, so the user agent is inspected to determine the
      * best encoding format for the filename
      */
-    function getDispositionFilename($filename) {
+    static function getDispositionFilename($filename) {
         $user_agent = strtolower ($_SERVER['HTTP_USER_AGENT']);
         if (false !== strpos($user_agent,'msie')
                 && false !== strpos($user_agent,'win'))
@@ -122,7 +122,7 @@ class Http {
             return "filename*=UTF-8''".rawurlencode($filename);
     }
 
-    function download($filename, $type, $data=null, $disposition='attachment') {
+    static function download($filename, $type, $data=null, $disposition='attachment') {
         if (strpos($type, 'image/') !== false && preg_match('/image\/.*\+.*/', $type))
           $disposition='attachment';
 
@@ -150,6 +150,60 @@ class Http {
             $vars = Format::htmlchars($vars);
 
         return http_build_query($vars, '', $separator);
+    }
+
+    static function domain() {
+        $domain = null;
+        if (isset($_SERVER['HTTP_HOST'])
+                && strpos($_SERVER['HTTP_HOST'], '.') !== false
+                && !Validator::is_ip($_SERVER['HTTP_HOST']))
+            // Remote port specification, as it will make an invalid domain
+            list($domain) = explode(':', $_SERVER['HTTP_HOST']);
+
+        return $domain;
+    }
+
+    // Get current url
+    static function url() {
+        // Scheme + Host.
+        $https =  osTicket::is_https();
+        $url  = sprintf('http%s://%s',
+                $https ? 's' : '',
+                $_SERVER['HTTP_HOST']);
+        //  Add Port if not 80 and not https
+        $port = osTicket::get_client_port();
+        if ($port && $port != 80 && !$https && !str_contains($url, $port))
+            $url .= ":{$port}";
+        // Path + Query string
+        if (isset($_SERVER['REQUEST_URI']))
+            $url  .= $_SERVER['REQUEST_URI'];
+        else
+            $url  .= sprintf('%s?$s',
+                    $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
+
+        return $url;
+    }
+
+    // Parse path from given url or the current url
+    static function url_path(string $url = null, bool $htmlentities = true) {
+        $path = parse_url($url ?: self::url(), PHP_URL_PATH);
+        return ($htmlentities && $path)
+            ? htmlentities($path) : $path;
+    }
+
+    // Parse query string from current url
+    static function query_string(string $url = null) {
+        return parse_url($url ?: self::url(), PHP_URL_QUERY);
+    }
+
+    // Refresh url
+    static function refresh_url(array $queryFilter = []) {
+        $url = self::url();
+        $refresh_url = self::url_path($url);
+        if (($qs=self::query_string($url)))
+            $refresh_url .= sprintf('?%s',
+                    Format::http_query_string($qs, $queryFilter));
+        return $refresh_url;
     }
 }
 ?>

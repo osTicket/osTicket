@@ -54,17 +54,17 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
     var $_config = null;
     var $_perm;
 
+    const PERM_STAFF = 'visibility.agents';
+
+    static protected $perms = array(
+        self::PERM_STAFF => array(
+            'title' => /* @trans */ 'Agent',
+            'desc'  => /* @trans */ 'Ability to see Agents in all Departments',
+            'primary' => true,
+        ),
+    );
+
     function __onload() {
-
-        // WE have to patch info here to support upgrading from old versions.
-        $time = null;
-        if (isset($this->passwdreset) && $this->passwdreset)
-            $time=strtotime($this->passwdreset);
-        elseif (isset($this->added) && $this->added)
-            $time=strtotime($this->added);
-
-        if ($time)
-            $this->passwd_change = time()-$time; //XXX: check timezone issues.
     }
 
     function get($field, $default=false) {
@@ -80,6 +80,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         if (isset($this->_config[$field]))
             return $this->_config[$field];
+    }
+
+    function getConfigObj() {
+        return new Config('staff.'.$this->getId());
     }
 
     function getConfig() {
@@ -100,6 +104,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
 
         return $this->_config;
+    }
+
+    function updateConfig($vars) {
+        $config = $this->getConfigObj();
+        $config->updateAll($vars);
+        $this->_config = null;
     }
 
     function __toString() {
@@ -178,6 +188,21 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return StaffAuthenticationBackend::getBackend($bk);
     }
 
+    function get2FABackendId() {
+        return $this->default_2fa;
+    }
+
+    function get2FABackend() {
+        return Staff2FABackend::getBackend($this->get2FABackendId());
+    }
+
+    // gets configured backends
+    function get2FAConfig($id) {
+        $config =  $this->getConfig();
+        return isset($config[$id]) ?
+            JsonDataParser::decode($config[$id]) : array();
+    }
+
     function setAuthKey($key) {
         $this->authkey = $key;
     }
@@ -228,11 +253,22 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->save();
     }
 
-    /* check if passwd reset is due. */
-    function isPasswdResetDue() {
-        global $cfg;
-        return ($cfg && $cfg->getPasswdResetPeriod()
-                    && $this->passwd_change>($cfg->getPasswdResetPeriod()*30*24*60*60));
+    function getPasswdResetTimestamp() {
+        if (!isset($this->passwd_change)) {
+            // WE have to patch info here to support upgrading from old versions.
+            if (isset($this->passwdreset) && $this->passwdreset)
+                $this->passwd_change = strtotime($this->passwdreset);
+            elseif (isset($this->added) && $this->added)
+                $this->passwd_change = strtotime($this->added);
+            elseif (isset($this->created) && $this->created)
+                $this->passwd_change = strtotime($this->created);
+        }
+
+        return $this->passwd_change;
+    }
+
+    static function checkPassword($new, $current=null) {
+        osTicketStaffAuthentication::checkPassword($new, $current);
     }
 
     function setPassword($new, $current=false) {
@@ -246,7 +282,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             || !$bk instanceof AuthBackend
         ) {
             // Fallback to osTicket authentication token udpates
-            $bk = new osTicketAuthentication();
+            $bk = new osTicketStaffAuthentication();
         }
 
         // And now for the magic
@@ -275,10 +311,6 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return true;
     }
 
-    function isPasswdChangeDue() {
-        return $this->isPasswdResetDue();
-    }
-
     function getRefreshRate() {
         return $this->auto_refresh_rate;
     }
@@ -296,6 +328,15 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function getEmail() {
         return $this->email;
+    }
+
+    function getEmailAddress() {
+        $emailaddr =  (string) $this->getEmail();
+        if (($name=$this->getName()))
+            $emailaddr = sprintf('"%s" <%s>',
+                    (string) $name,
+                    $emailaddr);
+        return $emailaddr;
     }
 
     function getAvatar($size=null) {
@@ -367,6 +408,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         return $this->change_passwd;
     }
 
+    function force2faConfig() {
+        global $cfg;
+
+        $id = $this->get2FABackendId();
+        $config = $this->get2FAConfig($id);
+
+        //2fa is required and
+        //1. agent doesn't have default_2fa or
+        //2. agent has default_2fa, but that default_2fa is not configured
+        return ($cfg->require2FAForAgents() && !$id || ($id && empty($config)));
+    }
+
     function getDepartments() {
         // TODO: Cache this in the agent's session as it is unlikely to
         //       change while logged in
@@ -415,6 +468,53 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function getDepts() {
         return $this->getDepartments();
+    }
+
+    function getDepartmentNames($activeonly=false) {
+        $depts = Dept::getDepartments(array('activeonly' => $activeonly));
+
+        //filter out departments the agent does not have access to
+        if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
+            foreach ($depts as $id => $name) {
+                if (!in_array($id, $staffDepts))
+                    unset($depts[$id]);
+            }
+        }
+
+        return $depts;
+    }
+
+    function getTopicNames($publicOnly=false, $disabled=false) {
+        $allInfo = !$this->hasPerm(Dept::PERM_DEPT) ? true : false;
+        $topics = Topic::getHelpTopics($publicOnly, $disabled, true, array(), $allInfo);
+        $topicsClean = array();
+
+        if (!$this->hasPerm(Dept::PERM_DEPT) && $staffDepts = $this->getDepts()) {
+            foreach ($topics as $id => $info) {
+                if ($info['pid']) {
+                    $childDeptId = $info['dept_id'];
+                    //show child if public, has access to topic dept_id, or no dept at all
+                    if ($info['public'] || !$childDeptId || ($childDeptId && in_array($childDeptId, $staffDepts)))
+                        $topicsClean[$id] = $info['topic'];
+                    $parent = Topic::lookup($info['pid']);
+                    if (!$parent->isPublic() && $parent->getDeptId() && !in_array($parent->getDeptId(), $staffDepts)) {
+                        //hide child if parent topic is private and no access to parent topic dept_id
+                        unset($topicsClean[$id]);
+                    }
+                } elseif ($info['public']) {
+                    //show all public topics
+                    $topicsClean[$id] = $info['topic'];
+                } else {
+                    //show private topics if access to topic dept_id or no dept at all
+                    if ($info['dept_id'] && in_array($info['dept_id'], $staffDepts) || !$info['dept_id'])
+                        $topicsClean[$id] = $info['topic'];
+                }
+            }
+
+            return $topicsClean;
+        }
+
+        return $topics;
     }
 
     function getManagedDepartments() {
@@ -532,8 +632,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
                 || $this->hasPerm(Ticket::PERM_CLOSE, false);
     }
 
-    function isManager() {
-        return (($dept=$this->getDept()) && $dept->getManagerId()==$this->getId());
+    function isManager($dept=null) {
+        return (($dept=$dept?:$this->getDept()) && $dept->getManagerId()==$this->getId());
     }
 
     function isStaff() {
@@ -639,6 +739,18 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     function applyVisibility($query, $exclude_archived=false) {
         return $query->filter($this->getTicketsVisibility($exclude_archived));
+    }
+
+    function applyDeptVisibility($qs) {
+        // Restrict agents based on visibility of the assigner
+        if (!$this->hasPerm(Staff::PERM_STAFF)
+                && ($depts=$this->getDepts())) {
+            return $qs->filter(Q::any(array(
+                'dept_id__in' => $depts,
+                'dept_access__dept_id__in' => $depts,
+            )));
+        }
+        return $qs;
     }
 
     /* stats */
@@ -779,6 +891,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $_config->updateAll(array(
                     'datetime_format' => $vars['datetime_format'],
                     'default_from_name' => $vars['default_from_name'],
+                    'default_2fa' => $vars['default_2fa'],
                     'thread_view_order' => $vars['thread_view_order'],
                     'default_ticket_queue_id' => $vars['default_ticket_queue_id'],
                     'reply_redirect' => ($vars['reply_redirect'] == 'Queue') ? 'Queue' : 'Ticket',
@@ -797,7 +910,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             $dropped[$TM->team_id] = 1;
 
         reset($membership);
-        while(list(, list($team_id, $alerts)) = each($membership)) {
+        foreach ($membership as $mem) {
+            list($team_id, $alerts) = $mem;
             $member = $this->teams->findFirst(array('team_id' => $team_id));
             if (!$member) {
                 $this->teams->add($member = new TeamMember(array(
@@ -862,11 +976,11 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         if (is_array($var))
             return parent::lookup($var);
         elseif (is_numeric($var))
-            return parent::lookup(array('staff_id'=>$var));
+            return parent::lookup(array('staff_id' => (int) $var));
         elseif (Validator::is_email($var))
-            return parent::lookup(array('email'=>$var));
-        elseif (is_string($var))
-            return parent::lookup(array('username'=>$var));
+            return parent::lookup(array('email' => $var));
+        elseif (is_string($var) &&  Validator::is_username($var))
+            return parent::lookup(array('username' => (string) $var));
         else
             return null;
     }
@@ -883,6 +997,10 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             ));
         }
 
+        // Restrict agents based on visibility of the assigner
+        if (($staff=$criteria['staff']))
+            $members = $staff->applyDeptVisibility($members);
+
         $members = self::nsort($members);
 
         $users=array();
@@ -895,6 +1013,35 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
     static function getAvailableStaffMembers() {
         return self::getStaffMembers(array('available'=>true));
+    }
+
+    //returns agents in departments this agent has access to
+    function getDeptAgents($criteria=array()) {
+        $agents = static::objects()
+            ->distinct('staff_id')
+            ->select_related('dept')
+            ->select_related('dept_access');
+
+        $agents = $this->applyDeptVisibility($agents);
+
+        if (isset($criteria['available'])) {
+            $agents = $agents->filter(array(
+                'onvacation' => 0,
+                'isactive' => 1,
+            ));
+        }
+
+        $agents = self::nsort($agents);
+
+        if (isset($criteria['namesOnly'])) {
+            $clean = array();
+            foreach ($agents as $a) {
+                $clean[$a->getId()] = $a->getName();
+            }
+            return $clean;
+        }
+
+        return $agents;
     }
 
     static function getsortby($path='', $format=null) {
@@ -1175,7 +1322,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             }
             $this->updateAccess($access, $errors);
             $this->setExtraAttr('def_assn_role',
-                isset($vars['assign_use_pri_role']), false);
+                isset($vars['assign_use_pri_role']), true);
 
             // Format team membership as [array(team_id, alerts?)]
             $teams = array();
@@ -1214,7 +1361,8 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         $dropped = array();
         foreach ($this->dept_access as $DA)
             $dropped[$DA->dept_id] = 1;
-        while (list(, list($dept_id, $role_id, $alerts)) = each($access)) {
+        foreach ($access as $acc) {
+            list($dept_id, $role_id, $alerts) = $acc;
             unset($dropped[$dept_id]);
             if (!$role_id || !Role::lookup($role_id))
                 $errors['dept_access'][$dept_id] = __('Select a valid role');
@@ -1261,7 +1409,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         }
         $permissions = $this->getPermission();
         foreach ($vars as $k => $val) {
-             if (!array_key_exists($val, $permissions->perms)) {
+             if (!$permissions->exists($val)) {
                  $type = array('type' => 'edited', 'key' => $val);
                  Signal::send('object.edited', $this, $type);
              }
@@ -1269,7 +1417,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
 
         foreach (RolePermission::allPermissions() as $g => $perms) {
             foreach ($perms as $k => $v) {
-                if (!in_array($k, $vars) && array_key_exists($k, $permissions->perms)) {
+                if (!in_array($k, $vars) && $permissions->exists($k)) {
                      $type = array('type' => 'edited', 'key' => $k);
                      Signal::send('object.edited', $this, $type);
                  }
@@ -1289,7 +1437,12 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
         Export::agents($agents, $filename);
     }
 
+    static function getPermissions() {
+        return self::$perms;
+    }
+
 }
+RolePermission::register(/* @trans */ 'Miscellaneous', Staff::getPermissions());
 
 interface RestrictedAccess {
     function checkStaffPerm($staff);
@@ -1350,22 +1503,40 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'classes' => 'span12',
+                    'length' => '128',
                 ),
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
                 'required' => true,
                 'configuration' => array(
                     'classes' => 'span12',
+                    'length' => '128',
                 ),
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false)),
                     VisibilityConstraint::HIDDEN
                 ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
             'change_passwd' => new BooleanField(array(
                 'default' => true,
@@ -1396,16 +1567,40 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'autofocus' => true,
+                    'length' => '128',
                 ),
+                'validator' => 'noop',
             )),
             'passwd1' => new PasswordField(array(
                 'label' => __('Enter a new password'),
                 'placeholder' => __('New Password'),
                 'required' => true,
+                'configuration' => array(
+                    'length' => '128',
+                ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
                 'required' => true,
+                'configuration' => array(
+                    'length' => '128',
+                ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
             )),
         );
 
@@ -1428,6 +1623,10 @@ extends AbstractForm {
     }
 
     function validate($clean) {
+        global $thisstaff;
+
+        if (isset($clean['current']) && !$thisstaff->cmp_passwd($clean['current']))
+            $this->getField('current')->addError(__('Current password is incorrect.'));
         if ($clean['passwd1'] != $clean['passwd2'])
             $this->getField('passwd1')->addError(__('Passwords do not match'));
     }
@@ -1556,6 +1755,7 @@ extends AbstractForm {
                     'validator' => 'email',
                     'placeholder' => __('Email Address — e.g. me@mycompany.com'),
                     'length' => 128,
+                    'autocomplete' => 'email',
                   ),
             )),
             'dept_id' => new ChoiceField(array(
@@ -1568,9 +1768,7 @@ extends AbstractForm {
             'role_id' => new ChoiceField(array(
                 'label' => __('Primary Role'),
                 'required' => true,
-                'choices' =>
-                    array(0 => __('Select Role'))
-                    + Role::getRoles(),
+                'choices' => Role::getRoles(),
                 'layout' => new GridFluidCell(6),
             )),
             'isadmin' => new BooleanField(array(
@@ -1591,7 +1789,16 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'placeholder' => __("Temporary Password"),
+                    'autocomplete' => 'new-password',
                 ),
+                'validator' => '',
+                'validators' => function($self, $v) {
+                    try {
+                        Staff::checkPassword($v, null);
+                    } catch (BadPassword $ex) {
+                        $self->addError($ex->getMessage());
+                    }
+                },
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false))
                 ),
@@ -1601,6 +1808,7 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'placeholder' => __("Confirm Password"),
+                    'autocomplete' => 'new-password',
                 ),
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false))
@@ -1632,6 +1840,8 @@ extends AbstractForm {
             Organization::PERM_EDIT,
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         );
         return $clean;
     }

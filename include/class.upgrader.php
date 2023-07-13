@@ -72,10 +72,17 @@ class Upgrader {
 
     function setState($state) {
         $this->state = $state;
-        if ($state == 'done') {
-            ModelMeta::flushModelCache();
-            $this->createUpgradedTicket();
-        }
+        if ($state == 'done')
+            $this->finalize();
+    }
+
+    function finalize() {
+        // Make sure cdata tables are created
+        DynamicForm::ensureDynamicDataViews();
+        // Flush the model cache
+        ModelMeta::flushModelCache();
+        // Create upgrade ticket
+        $this->createUpgradedTicket();
     }
 
     function createUpgradedTicket() {
@@ -196,7 +203,7 @@ class StreamUpgrader extends SetupWizard {
         if($email) {
             $email->sendAlert($thisstaff->getEmail(), $subject, $error);
         } else {//no luck - try the system mail.
-            Mailer::sendmail($thisstaff->getEmail(), $subject, $error,
+            osTicket\Mail\Mailer::sendmail($thisstaff->getEmail(), $subject, $error,
                 '"'._S('osTicket Alerts')."\" <{$thisstaff->getEmail()}>");
         }
 

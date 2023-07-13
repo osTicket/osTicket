@@ -32,8 +32,11 @@ if ($_POST) {
     $tform = TicketForm::objects()->one()->getForm($vars);
     $messageField = $tform->getField('message');
     $attachments = $messageField->getWidget()->getAttachments();
-    if (!$errors && $messageField->isAttachmentsEnabled())
-        $vars['files'] = $attachments->getFiles();
+    if (!$errors) {
+        $vars['message'] = $messageField->getClean();
+        if ($messageField->isAttachmentsEnabled())
+            $vars['files'] = $attachments->getFiles();
+    }
 
     // Drop the draft.. If there are validation errors, the content
     // submitted will be displayed back to the user
@@ -44,11 +47,12 @@ if ($_POST) {
         // Drop session-backed form data
         unset($_SESSION[':form-data']);
         //Logged in...simply view the newly created ticket.
-        if($thisclient && $thisclient->isValid()) {
-            session_write_close();
-            session_regenerate_id();
+        if ($thisclient && $thisclient->isValid()) {
+            // Regenerate session id
+            $thisclient->regenerateSession();
             @header('Location: tickets.php?id='.$ticket->getId());
-        }
+        } else
+            $ost->getCSRF()->rotate();
     }else{
         $errors['err'] = $errors['err'] ?: sprintf('%s %s',
             __('Unable to create a ticket.'),

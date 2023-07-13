@@ -10,7 +10,7 @@ $role=$ticket->getRole($thisstaff);
 $error=$msg=$warn=null;
 $thread = $ticket->getThread();
 
-if($lock && $lock->getStaffId()==$thisstaff->getId())
+if($lock && $lock->getStaffId()!==$thisstaff->getId())
     $warn.='&nbsp;<span class="Icon lockedTicket">'
     .sprintf(__('Ticket is locked by %s'), $lock->getStaffName()).'</span>';
 elseif($ticket->isOverdue())
@@ -73,7 +73,7 @@ if($ticket->isClosed()) {
     echo sprintf('
             <tr>
                 <th>'.__('Closed').':</th>
-                <td>%s   <span class="faded">by %s</span></td>
+                <td>%s   <span class="faded">'.__('by').' %s</span></td>
             </tr>',
             Format::datetime($ticket->getCloseDate()),
             ($staff?$staff->getName():'staff')

@@ -31,14 +31,13 @@ class Config {
     var $defaults = array();                # List of default values
 
     function __construct($section=null, $defaults=array()) {
+        if ($defaults)
+            $this->defaults = $defaults;
         if ($section)
             $this->section = $section;
-
         if ($this->section === null)
             return false;
 
-        if ($defaults)
-            $this->defaults = $defaults;
 
         if (isset($_SESSION['cfg:'.$this->section]))
             $this->session = &$_SESSION['cfg:'.$this->section];
@@ -62,6 +61,10 @@ class Config {
         return $info;
     }
 
+    function toArray() {
+        return $this->getInfo();
+    }
+
     function get($key, $default=null) {
         if (isset($this->session) && isset($this->session[$key]))
             return $this->session[$key];
@@ -74,7 +77,12 @@ class Config {
     }
 
     function exists($key) {
-        return $this->get($key, null) ? true : false;
+        if ((isset($this->session) && array_key_exists($key, $this->session))
+                || array_key_exists($key, $this->config)
+                || array_key_exists($key, $this->defaults))
+            return true;
+
+        return false;
     }
 
     function set($key, $value) {
@@ -186,6 +194,23 @@ extends VerySimpleModel {
                 'updated__lt' => SqlFunction::NOW()->minus(SqlInterval::SECOND($period)),
             ))->delete();
     }
+
+    static function getConfigsByNamespace(?string $namespace=null, $key, $value=false) {
+        $filter = array();
+
+         $filter['key'] = $key;
+
+         if ($namespace)
+            $filter['namespace'] = $namespace;
+
+         if ($value)
+            $filter['value'] = $value;
+
+         $token = ConfigItem::objects()
+            ->filter($filter);
+
+         return $namespace ? $token[0] : $token;
+    }
 }
 
 class OsticketConfig extends Config {
@@ -236,7 +261,7 @@ class OsticketConfig extends Config {
         'max_open_tickets' => 0,
         'files_req_auth' => 1,
         'force_https' => '',
-        'allow_external_images' => 1,
+        'allow_external_images' => 0,
     );
 
     function __construct($section=null) {
@@ -482,8 +507,23 @@ class OsticketConfig extends Config {
         return $this->get('overdue_grace_period');
     }
 
+    // This is here for legacy reasons - default osTicket Password Policy
+    // uses it, if previously set.
     function getPasswdResetPeriod() {
         return $this->get('passwd_reset_period');
+    }
+
+
+    function getStaffPasswordPolicy() {
+        return $this->get('agent_passwd_policy');
+    }
+
+    function getClientPasswordPolicy() {
+        return $this->get('client_passwd_policy');
+    }
+
+    function require2FAForAgents() {
+         return $this->get('require_agent_2fa');
     }
 
     function isRichTextEnabled() {
@@ -658,12 +698,15 @@ class OsticketConfig extends Config {
         return $this->alertEmail;
     }
 
-    function getDefaultSMTPEmail() {
+    function getDefaultSmtpAccount() {
+        if (!$this->defaultSmtpAccount && $this->get('default_smtp_id'))
+            $this->defaultSmtpAccount = SmtpAccount::lookup($this->get('default_smtp_id'));
 
-        if(!$this->defaultSMTPEmail && $this->get('default_smtp_id'))
-            $this->defaultSMTPEmail = Email::lookup($this->get('default_smtp_id'));
+        return $this->defaultSmtpAccount;
+    }
 
-        return $this->defaultSMTPEmail;
+    function getDefaultMTA() {
+        return $this->getDefaultSmtpAccount();
     }
 
     function getDefaultPriorityId() {
@@ -1355,13 +1398,14 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
-            'passwd_reset_period'=>$vars['passwd_reset_period'],
+            'agent_passwd_policy'=>$vars['agent_passwd_policy'],
             'staff_max_logins'=>$vars['staff_max_logins'],
             'staff_login_timeout'=>$vars['staff_login_timeout'],
             'staff_session_timeout'=>$vars['staff_session_timeout'],
             'staff_ip_binding'=>isset($vars['staff_ip_binding'])?1:0,
             'allow_pw_reset'=>isset($vars['allow_pw_reset'])?1:0,
             'pw_reset_window'=>$vars['pw_reset_window'],
+            'require_agent_2fa'=> isset($vars['require_agent_2fa']) ? 1 : 0,
             'agent_name_format'=>$vars['agent_name_format'],
             'hide_staff_name'=>isset($vars['hide_staff_name']) ? 1 : 0,
             'agent_avatar'=>$vars['agent_avatar'],
@@ -1382,6 +1426,7 @@ class OsticketConfig extends Config {
             return false;
 
         return $this->updateAll(array(
+            'client_passwd_policy'=>$vars['client_passwd_policy'],
             'client_max_logins'=>$vars['client_max_logins'],
             'client_login_timeout'=>$vars['client_login_timeout'],
             'client_session_timeout'=>$vars['client_session_timeout'],
@@ -1790,7 +1835,7 @@ class OsticketConfig extends Config {
     }
 
     //Used to detect version prior to 1.7 (useful during upgrade)
-    /* static */ function getDBVersion() {
+    static function getDBVersion() {
         $sql='SELECT `ostversion` FROM '.TABLE_PREFIX.'config '
             .'WHERE id=1';
         return db_result(db_query($sql));

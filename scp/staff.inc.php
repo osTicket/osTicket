@@ -26,7 +26,8 @@ if (!Validator::check_acl('staff'))
     die(__('Access Denied'));
 
 /*Some more include defines specific to staff only */
-define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
+if (!defined('STAFFINC_DIR'))
+    define('STAFFINC_DIR',INCLUDE_DIR.'staff/');
 define('SCP_DIR',str_replace('//','/',dirname(__FILE__).'/'));
 
 /* Define tag that included files can check */
@@ -89,10 +90,15 @@ if(!$thisstaff->isAdmin()) {
 
     //Staff are not allowed to login in offline mode!!
     if(!$ost->isSystemOnline() || $ost->isUpgradePending()) {
+        //logout current user if system is offline
+        $thisstaff->logOut();
         staffLoginPage(__('System Offline'));
         exit;
     }
 }
+/******* SET STAFF DEFAULTS **********/
+define('PAGE_LIMIT', $thisstaff->getPageLimit() ?: DEFAULT_PAGE_LIMIT);
+define('SESSION_MAXLIFE', $thisstaff->getMaxIdleTime());
 
 //Keep the session activity alive
 $thisstaff->refreshSession();
@@ -110,8 +116,6 @@ $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'"
 // Load the navigation after the user in case some things are hidden
 require_once(INCLUDE_DIR.'class.nav.php');
 
-/******* SET STAFF DEFAULTS **********/
-define('PAGE_LIMIT', $thisstaff->getPageLimit() ?: DEFAULT_PAGE_LIMIT);
 
 $tabs=array();
 $submenu=array();
@@ -135,6 +139,10 @@ if($thisstaff->forcePasswdChange() && !$exempt) {
     #      the request
     $sysnotice = __('Password change required to continue');
     require('profile.php'); //profile.php must request this file as require_once to avoid problems.
+    exit;
+} elseif ($thisstaff->force2faConfig() && !$exempt) {
+    $sysnotice = __('Two Factor Authentication configuration required to continue');
+    require('profile.php');
     exit;
 }
 $ost->setWarning($sysnotice);

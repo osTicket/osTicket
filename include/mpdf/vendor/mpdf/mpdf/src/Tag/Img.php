@@ -128,7 +128,7 @@ class Img extends Tag
 			}
 
 			if (isset($properties['VERTICAL-ALIGN'])) {
-				$objattr['vertical-align'] = self::ALIGN[strtolower($properties['VERTICAL-ALIGN'])];
+				$objattr['vertical-align'] = $this->getAlign($properties['VERTICAL-ALIGN']);
 			}
 			$w = 0;
 			$h = 0;
@@ -278,8 +278,8 @@ class Img extends Tag
 				$info = $this->imageProcessor->getImage($this->mpdf->noImageFile);
 				if ($info) {
 					$srcpath = $this->mpdf->noImageFile;
-					$w = ($info['w'] * (25.4 / $this->mpdf->dpi));
-					$h = ($info['h'] * (25.4 / $this->mpdf->dpi));
+					$w = ($info['w'] * (25.4 / $this->mpdf->img_dpi));
+					$h = ($info['h'] * (25.4 / $this->mpdf->img_dpi));
 				}
 			}
 			if (!$info) {

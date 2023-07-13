@@ -111,8 +111,8 @@ class Validator {
                     $this->errors[$k]=$field['error'];
                 break;
             case 'password':
-                if(strlen($this->input[$k])<5)
-                    $this->errors[$k]=$field['error'].' '.__('(Five characters min)');
+                if(strlen($this->input[$k])<6)
+                    $this->errors[$k]=$field['error'].' '.__('(Six characters min)');
                 break;
             case 'username':
                 $error = '';
@@ -185,9 +185,13 @@ class Validator {
         // full-stop trailing char so that the default domain of the server
         // is not added automatically
         if ($verify and !dns_get_record($m->host.'.', DNS_MX))
-            return 0 < @count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA));
+            return (count(dns_get_record($m->host.'.', DNS_A|DNS_AAAA) ?: []));
 
         return true;
+    }
+
+    static function is_emailish($email) {
+        return (preg_match('/(.*@.{2,})|(.{2,}@.*)/', $email));
     }
 
     static function is_numeric($number, &$error='') {
@@ -220,13 +224,20 @@ class Validator {
     static function is_username($username, &$error='') {
         if (strlen($username)<2)
             $error = __('Username must have at least two (2) characters');
-        elseif (!preg_match('/^[\p{L}\d._-]+$/u', $username))
+        elseif (is_numeric($username) || !preg_match('/^[\p{L}\d._-]+$/u', $username))
             $error = __('Username contains invalid characters');
         return $error == '';
     }
 
+    static  function is_userid($userid, &$error='') {
+        if (!self::is_username($userid)
+                    && !self::is_email($userid))
+            $error = __('Invalid User Id ');
+        return $error == '';
+    }
+
     static function is_formula($text, &$error='') {
-        if (!preg_match('/^[^=\+@-].*$/s', $text))
+        if (!preg_match('/(^[^=\+@-].*$)|(^\+\d+$)/s', $text))
             $error = __('Content cannot start with the following characters: = - + @');
         return $error == '';
     }
@@ -333,7 +344,7 @@ class Validator {
         return true;
     }
 
-    function process($fields,$vars,&$errors){
+    static function process($fields,$vars,&$errors){
 
         $val = new Validator();
         $val->setFields($fields);
@@ -343,7 +354,7 @@ class Validator {
         return (!$errors);
     }
 
-    function check_acl($backend) {
+    static function check_acl($backend) {
         global $cfg;
 
         $acl = $cfg->getACL();

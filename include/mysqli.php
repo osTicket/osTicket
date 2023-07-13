@@ -62,6 +62,10 @@ function db_connect($host, $user, $passwd, $options = array()) {
 
     // Connect
     $start = microtime(true);
+    // Specify the connection timeout (if defined)
+    if (defined('DBCONNECT_TIMEOUT'))
+        $__db->options(MYSQLI_OPT_CONNECT_TIMEOUT, DBCONNECT_TIMEOUT);
+
     if (!@$__db->real_connect($host, $user, $passwd, null, $port, $socket))
         return NULL;
 
@@ -116,7 +120,11 @@ function db_version() {
 }
 
 function db_timezone() {
-    return db_get_variable('system_time_zone', 'global');
+    $timezone = db_get_variable('time_zone', 'global');
+    if ($timezone == 'SYSTEM')
+        $timezone = db_get_variable('system_time_zone', 'global');
+
+    return $timezone;
 }
 
 function db_get_variable($variable, $type='session') {
@@ -162,30 +170,33 @@ function db_create_database($database, $charset='utf8',
         sprintf('CREATE DATABASE %s DEFAULT CHARACTER SET %s COLLATE %s',
             $database, $charset, $collate));
 }
-
 /**
  * Function: db_query
- * Execute sql query
+ * Execute SQL query
  *
  * Parameters:
- * $query - (string) SQL query (with parameters)
- * $logError - (mixed):
- *      - (bool) true or false if error should be logged and alert email sent
- *      - (callable) to receive error number and return true or false if
- *      error should be logged and alert email sent. The callable is only
- *      invoked if the query fails.
  *
- * Returns:
- * (mixed) MysqliResource if SELECT query succeeds, true if an INSERT,
- * UPDATE, or DELETE succeeds, false or null if the query fails.
+ * @param string $query
+ *     SQL query (with parameters)
+ * @param bool|callable $logError
+ *     - (bool) true or false if error should be logged and alert email sent
+ *     - (callable) to receive error number and return true or false if
+ *       error should be logged and alert email sent. The callable is only
+ *       invoked if the query fails.
+ *
+ * @return bool|mysqli_result
+ *   mysqli_result object if SELECT query succeeds, true if an INSERT,
+ *   UPDATE, or DELETE succeeds, false if the query fails.
  */
 function db_query($query, $logError=true, $buffered=true) {
     global $ost, $__db;
 
     $tries = 3;
     do {
-        $res = $__db->query($query,
-            $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
+        try {
+            $res = $__db->query($query,
+                $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
+        } catch (mysqli_sql_exception $e) {}
         // Retry the query due to deadlock error (#1213)
         // TODO: Consider retry on #1205 (lock wait timeout exceeded)
         // TODO: Log warning
@@ -198,7 +209,7 @@ function db_query($query, $logError=true, $buffered=true) {
 
         $msg='['.$query.']'."\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
-        //echo $msg; #uncomment during debuging or dev.
+        //echo $msg; #uncomment during debugging or dev.
     }
 
     return $res;

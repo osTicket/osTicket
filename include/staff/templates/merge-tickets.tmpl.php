@@ -100,7 +100,7 @@ foreach ($tickets as $t) {
         var select = $(this).parent().find('select'),
             $sel = select.find('option:selected'),
             id = $sel.val();
-            data = $sel.data();
+            data = select.select2('data');
             for(var key in data) {
                  ticket_id = data[key]['ticket_id'];
                  ticketLink = '<?php echo Ticket::getLink('');?>';

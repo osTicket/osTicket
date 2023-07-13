@@ -65,16 +65,14 @@ class Draft extends VerySimpleModel {
             $draft_body = $draft->getBody();
         }
         $attrs[] = sprintf('data-draft-original="%s"',
-            Format::htmlchars(Format::viewableImages($original)));
+            Format::viewableImages($original, [], true));
 
-        return array(Format::htmlchars(Format::viewableImages($draft_body)),
+        return array(Format::viewableImages($draft_body, [], true),
             implode(' ', $attrs));
     }
 
-    function getAttachmentIds($body=false) {
+    static function getAttachmentIds($body=false) {
         $attachments = array();
-        if (!$body)
-            $body = $this->getBody();
         $body = Format::localizeInlineImages($body);
         $matches = array();
         if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {

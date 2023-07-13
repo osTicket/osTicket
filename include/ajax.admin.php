@@ -48,7 +48,7 @@ class AdminAjaxAPI extends AjaxController {
         }
 
         $title = __("Add New Department");
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
@@ -95,7 +95,7 @@ class AdminAjaxAPI extends AjaxController {
         }
 
         $title = __("Add New Team");
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
@@ -139,7 +139,7 @@ class AdminAjaxAPI extends AjaxController {
         }
 
         $title = __("Add New Role");
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add-role.tmpl.php';
     }
@@ -186,7 +186,7 @@ class AdminAjaxAPI extends AjaxController {
         }
 
         $title = __("Add New Agent");
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }
@@ -225,10 +225,12 @@ class AdminAjaxAPI extends AjaxController {
             Http::response(403, 'Access denied');
 
         $sort = new QueueSort();
+        $errors = array();
         if ($_POST) {
+            $_POST['root'] = $root;
             $data_form = $sort->getDataConfigForm($_POST);
             if ($data_form->isValid()) {
-                $sort->update($data_form->getClean() + $_POST, $root);
+                $sort->update($data_form->getClean() + $_POST, $errors);
                 if ($sort->save())
                     Http::response(201, $this->encode(array(
                         'id' => $sort->getId(),

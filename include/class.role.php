@@ -156,9 +156,10 @@ class Role extends RoleModel {
     }
 
     function update($vars, &$errors) {
-        if (!$vars['name'])
+        $name = Format::sanitize($vars['name']);
+        if (!$name)
             $errors['name'] = __('Name required');
-        elseif (($r=Role::lookup(array('name'=>$vars['name'])))
+        elseif (($r=Role::lookup(array('name'=>$name)))
                 && $r->getId() != $vars['id'])
             $errors['name'] = __('Name already in use');
         elseif (!$vars['perms'] || !count($vars['perms']))
@@ -167,8 +168,8 @@ class Role extends RoleModel {
         if ($errors)
             return false;
 
-        $this->name = $vars['name'];
-        $this->notes = $vars['notes'];
+        $this->name = $name;
+        $this->notes = Format::sanitize($vars['notes']);
 
         $this->updatePerms($vars['perms'], $errors);
 
@@ -184,7 +185,7 @@ class Role extends RoleModel {
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
 
-        return parent::save($refetch | $this->dirty);
+        return parent::save($refetch || $this->dirty);
     }
 
     function delete() {
@@ -295,6 +296,10 @@ class RolePermission {
             $this->perms = JsonDataParser::parse($this->perms);
         elseif (!$this->perms)
             $this->perms = array();
+    }
+
+    function exists($perm) {
+        return array_key_exists($perm, $this->perms ?: array());
     }
 
     function has($perm) {

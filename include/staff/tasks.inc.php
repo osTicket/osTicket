@@ -5,17 +5,9 @@ $date_header = $date_col = false;
 // Make sure the cdata materialized view is available
 TaskForm::ensureDynamicDataView();
 
-// Figure out REFRESH url — which might not be accurate after posting a
-// response
-list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
-$args = array();
-parse_str($_SERVER['QUERY_STRING'], $args);
-
-// Remove commands from query
-unset($args['id']);
-unset($args['a']);
-
-$refresh_url = $path . '?' . http_build_query($args);
+// Remove some variables from query string.
+$qsFilter = ['id', 'a'];
+$refresh_url = Http::refresh_url($qsFilter);
 
 $sort_options = array(
     'updated' =>            __('Most Recently Updated'),
@@ -246,8 +238,6 @@ $count = $tasks->count();
 $pageNav=new Pagenate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tasks.php', $args);
 $tasks = $pageNav->paginate($tasks);
-
-TaskForm::ensureDynamicDataView();
 
 // Save the query to the session for exporting
 $_SESSION[':Q:tasks'] = $tasks;

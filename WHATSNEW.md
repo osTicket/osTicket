@@ -1,3 +1,571 @@
+osTicket v1.18
+==============
+### Enhancements
+* update: Laminas-Mail (66fa10af, bb45d37a)
+
+### Improvements
+* Database: Change Plugin Name to varchar(255) (aac546d0)
+* update: MAJOR_VERSION (3eac42e5)
+
+osTicket v1.17.4
+================
+### Improvements
+* issue: Thread Entry Actions z-index (215a0ce2)
+* oauth2: Strict Matching Bug (e014ffd2)
+* Make string translatable (1105cde7)
+* issue: Inline-Images Canned Responses (4493b126)
+* issue: Remove Old Login Code (e17ad463)
+* issue: i18n Audit Exports (45dd7c4f)
+* Bug: Custom File Upload Field Config (6371269a, 7283ac81, 902b5d35)
+* issue: Duplicate User Copy/Paste Import (b304cdb)
+* issue: Relocate Typeahead JS/CSS Files (62cd406)
+* issue: strftime() Deprecation (3fe132c4)
+* jquery: Update To 3.7.0 (ffa23da)
+* issue: glob() Empty Array (c64a2611)
+* issue: Email Only Attachment (9e45f3fa)
+* installer: Change Email (a11aee29)
+
+### Security
+* security: Latest Vulns 06/2023 (86c2ba02, 69244175, 73b997a, ae37925, e4bfb00)
+
+osTicket v1.17.3
+================
+### Enhancements
+* oauth2: Strict Matching (7275d67b, b7718be4, ca913ba2, cb3625e8, f531718a, c0cd8b16)
+* OAuth2 Resource Owner (5c239adb)
+
+### Improvements
+* session: Regenerate Session Id (d5853245)
+* fetcher: Mail Fetcher / Parser Error Handling (d4d9c424, 0a4498b2)
+* mysql: Support Sidecar Database Proxies (246aaa4d)
+* Misc. Fixes (e6beeb9b, 24fd5075, eac9960a, 10af29a5)
+* fetcher: Default Department (f410d4ec)
+* issue: LDAP Multi-Instance Fatal Error (f6486044)
+* issue: TicketDenied errno (6de7cf4c)
+* session: User Logged Out (00d409d3)
+* Uncaught Error: Call to a member function getId() on bool (af83896d)
+* Mailer: Inline Images (7efbdfd2, 8815d087, 64a8abf3)
+
+osTicket v1.17.2
+================
+### Improvements
+* Fix old reference to SessionData (cf8b8ce7)
+* Email Misc. Fixes (de620fe6, c19a5f03)
+* session: Memcache Max TTL (ea3e03d2)
+* mailer: Use Namespaced Mailer (133585f8)
+
+osTicket v1.17.1
+================
+### Enhancements
+* mail: Add plain:// encryption scheme hint (7c1b97b3, 39d76258)
+
+### Improvements
+* mailer: Make Headers Valid Again (c08a8a8a, aaee6b0f, 00981554, 2223877c, 020fa0d3, 60c8c884)
+* POP3 Configration can not saved (b84547b0, ccd8445e)
+* fetcher: Errors Handling & Logging (384aad13, 22edf2b4, c92006e6)
+* upgrader: Email Account Status (aee25d69)
+* issue: Plugin Config Item Exists (fdf9e412)
+* mailer: Improvements & Enhancements (845e5008, 23a80592, 977cf9aa)
+* smtp: Use proper name when saying What's Up (HELO/EHLO) (b0e5ac83)
+* email: Make sure Email Account is Active 4realz! (5efd9f14, a9b57496)
+* Session++ (ced0ef4d, b943a955, b6b63c99, f58e1c5d, 47df2b44, e2e6c0f4, 9ab5b4f1, da667366, f2c01840, c2be4ebf, db913bd3)
+* setup: Use Bootstrap:ini() to initialize setup dir sessions (48e436f0)
+* issue: Plugin Config Item Exists (fdf9e412)
+* upgrader: Email Account Status (aee25d69)
+* fetcher: Errors Handling & Logging (384aad13, 22edf2b4, c92006e6)
+* fetcher: Mail Fetch Order (f1639d41, 24338c2b)
+* SMTP: Dont send 'QUIT' on __destruct() (dbeae227)
+* issue: MTA Typo (03eeb8e2)
+* sendmail: Strip "To" and "Subject" headers (ac3855a4)
+* Mail Parse Error Handling (320981df, 75c5cfe9, a4e36d39, ba2d31cd, 30ad9cd4, 678098d8, 46b7899b, f85f9036)
+* Issue/session revisited (49d91b05, 4fc5f5cc)
+
+osTicket v1.17
+==============
+### Enhancements
+* email: Set Default Email Message Encoding to UTF-8 (4656cf4c, 8954f05b)
+* plugins: Multi-Instance Blacklist (56077516)
+* mailer: Reset FROM Address when SMTP fails (75605a3f)
+* Issue: File Storage Plugins Blacklist (1ba8d37a)
+* mail: Catch Possible Exceptions and Errors (81d5cb35)
+
+### Improvements
+* Update class.mail.php (d5545b4e)
+* Mail Fetcher Fixes (1eebcd66, 3decbe78)
+* 1.17.x Bug Fixes (6c2ecad2, 5d799ecd, 21e3a407)
+* plugins: Make Plugins Upgradeable Again! (80bcc191)
+* mailer: Skip Invalid Email Recipients (046f4327, 551f7864, d7d37c4c)
+* issue: Wrong Variable Order (12a4cb09)
+* mailer: Skip Missing Attachment Files (2218aaca)
+* fetcher: TicketDenied Exception + Throwable (58f64e65, 79209144, e027dcc4, be178da5)
+* files: Catch possible Storage Backends Errors (e685636e)
+* fetcher: Fail Safely on Email Parse Error (459520e8)
+* forms: Add getNotice func. to DynamicFormEntry (6e54e810)
+* bug: Users Password Policy (ebfc1d89)
+* v1.17 Misc. Fixes (d149ea0d)
+* plugins: Make Plugin Base Class Play Nice (7b26f665, 5787f9ae, 3163972b)
+
+osTicket v1.17-rc4
+==================
+### Enhancements
+* v1.17: Bug Fixes & Enhancements (bd300c44, ab9a8101, 3024d7f5, e705ff0f, 681bea08, bc154434, 246c1445, e4f594c2, 76bf7725, 4ee44d48, a7068668, 5e53b1a1, 481a0475, 2fa077ae, 13888292)
+
+### Improvements
+* mail: Mixed Mime Message with mixed multiparts (6de79a0b, c71ddade)
+* 2fa: Fix 2FA Backend Registry (f8f5d3dd, 2318714e)
+* issue: Dispatcher include_once (dab490dc)
+* plugins: Audit enable() (7796d60c)
+* issue: AuthenticationBackend getBkId() (29f01c09)
+
+osTicket v1.17-rc3
+==================
+### Improvements
+* Oauth2 / Modern Email Auth Latest Fixes (fdc5b0fa, d9b41f4e, fa8dc24d, 265065c1)
+
+osTicket v1.17-rc2
+==================
+### Improvements
+* Oauth2 / Modern Email Auth Latest Fixes (4da6fb07, 90ed880b, 72b2a249, 8a8c1a16, fa6cc040, 97a9b0af)
+
+osTicket v1.17-rc1
+==================
+### Enhancements
+* Oauth2 / Modern Email Authentication Support (d99ff6e1-163c28b5)
+
+osTicket v1.16.6
+================
+### Improvements
+* session: Collab View Ticket (6afe0efa)
+* issue: Static forTask() (1079011f)
+* issue: Featured FAQs (8df09581)
+* print: Hidden Thread Events (f63fc67d)
+* issue: Does Not Have A Value (d47fc2b1)
+* issue: Disabled Queues Run Counts (3ff3ce93)
+* issue: Queue Counts Incorrect (2428cc58)
+* jquery: Update jQueryUI 1.13.2 (b896f70d)
+* issue: Department Export (5418cf20)
+* jquery: Update To 3.6.3 (8d39a4cc)
+* i18n: make-pot (74274b5c)
+* update: README PHP Version (6087bc55)
+* issue: mPDF Font Files (427a8aa6)
+* issue: FileUpload False (8dd2ab61)
+* Add translation for "last resort" standard column labels (cb528044)
+* add translation for task status (46c005a0)
+* issue: getRealPath() Stub (32a229aa)
+
+### Security
+* security: Latest Security Patches 03/2023 (86f9693d, 091ddba9, ec604393, daee20fd, 9fb01bc1, 619ce0f6, 343a2b47, 8a55c29f, e2c8f799, ee7ce3d9, 263f71a3)
+
+osTicket v1.16.5
+================
+### Improvements
+* Fix trusted proxy wildcard check (04c0bb3a)
+* issue: Html Typo (50dfe931)
+* mailparse: Parse filenames with complex format (c8067212)
+* validator: Email Domain Verification (3c4a20a8)
+* user: Make sure User has a valid Email on create (55fbfcb5)
+
+osTicket v1.16.4
+================
+### Enhancements
+* i18n: Default Ticket Queue (7a5dd0eb)
+* mailparse: thread_entry_recipients to (a82af698)
+* issue: Unique Variable Names (0dc5a02e)
+* php: 8.1 Support (22b599e3, c24ee575, dd2b9a43)
+* issue: Session Cookie Refresh (1630459a)
+
+### Improvements
+* oops: jQuery UI Images (822a05fe)
+* issue: Manually Sorted Topics (a80db8a7)
+* issue: Queue Export Headings (47449758)
+* installer: Checking Existing Install (a3f2e246)
+* Catch storage error when mailing ticket response (ca5932ac)
+* issue: Staff Ticket Open Session (4f3d3cff)
+* issue: External Auth Regenerate Session (83252260)
+* issue: Searching Numbers (e00003f6)
+* Replace hacky way with ReflectionClass (55f61390)
+* Issue: Installer YAML (6780f29e)
+* issue: Fix Upgrader Session Issues (311089a6)
+* issue: Undefined Variable ORM (4009881a)
+* v1.16: Misc Bug Fixes (4c0341e2)
+* issue: User/Agent Password Reset (d3de1599)
+* issue: imagesx Boolean (5d06ee46)
+* file: Possible Key Collision (21c71c6e)
+* cli: User Import (4c43e46f)
+* issue: Miscellaneous Fixes (50bc1a21, 5002bef9, e036fd9a, 35684189, 9c280b49, c2a15b64, 5e970061)
+* issue: urldecode Dispatcher (c00b8e87)
+* issue: Information and SectionBreak Fields On Edit (7b60c576)
+* issue: Favicons Login Headers (61655ec6)
+* issue: Schedules stops_on (e2dcbb69)
+* Issue: Agent Permission to Assign Tickets (b4732b05)
+* issue: File Upload Size (45f554ad)
+
+### Security
+* security: Username XSS (5213ff13)
+* security: Refresh URL (3702a4fb)
+
+osTicket v1.16.3
+================
+### Improvements
+* installer: Help Topic Disabled Fields (81e99fe4)
+* Do not autocomplete new access fields of the (another) user (02633694)
+* issue: mPDF Table Print (38c0979e)
+* Make string localizable (4cc509b1, 612183ce)
+
+### Security
+* mpdf: Unregister PHAR (57721def)
+* issue: Form Elements & Attribute (45b6cf2e)
+* Security: Session Fixation (85a76f40)
+* security: Unvalidated Password Change (01a378f6)
+* xss: System Logs (334934ec)
+* xss: Agent Directory (a5c4d931)
+
+osTicket v1.16.2
+================
+### Improvements
+* Issue: Topic->getHelpTopics() don't return localized names when $allData = true (a078a0f)
+* class.email: allow empty smtp_passwd when existing (0d0d8a1)
+* Fixes permission issue when registration mode ist disabled (dee6a13)
+* email: use correct e-mail formatting (7692637)
+* Fix HTML syntax in thread view (84913f5)
+* Fix slugify regex (f72691c)
+* issue: preg_match Pass By Reference (148a2e7)
+* issue: php_analyze each() (f627a5e)
+* issue: Deprecated Required Parameter (0d0ab46)
+* tests: UninitializedVars (60f6ad7)
+* tests: Validation Checks (91e7d30)
+* issue: QueueSort (92e820c)
+* issue: Task Export (baa46d3)
+* issue: PEAR Mail parseAddressList() (7130056)
+* issue: Filter Events (8c9b392)
+* issue: Last Message Data Source (d185e50)
+* issue: Undefined Constant GLOB_BRACE (0499b97)
+* Update edit.inc.php (8b5ea64)
+* Update ticket-preview.tmpl.php (e6f437c)
+* Update ticket-view.inc.php (84c4eb8)
+* issue: Nullable date() Timestamp (a77158b)
+
+osTicket v1.16.1
+================
+### Improvements
+* issue: Remaining Deprecated each() (69db3a7)
+* issue: User sendUnlockEmail (13652db)
+* issue: Auth_SASL Non-Static (4378f77)
+* issue: Banlist Non-Static (96995e1)
+* issue: PHP Version Requirements 1.16.x (fdc0445)
+* issue: Email Templates Static (fb0b075)
+* issue: Status List getSortModes() (6d4650d)
+
+osTicket v1.16
+==============
+### Enhancements
+* PHP8: Static Method Lint Test (958a748)
+* Update MPDF (59dc587)
+
+### Improvements
+* prereqs: Update README.md (2767ad4)
+* upgrader: v1.16 Release (57347ab)
+* release: Prep Release (0905e7b)
+* php8: Temporarily Suppress Warnings (0afe2b2)
+* issue: PEAR each() (1eafd98)
+* issue: Further Fixes (03d203b)
+* issue: EmailDataParser (c4fc76c)
+* issue: Even More Fixes (998cd7d)
+* issue: Misc. Fixes (ec9c09d)
+* issue: Static to Non-Static (3bb36ff)
+* issue: create_function() (7668b71)
+* issue: Unparenthesized (64076e2)
+* issue: Undefined Key, Var, Prop (6974734)
+* issue: Undefined Function each() (e261a5f)
+* issue: Calling Non-Static Statically (a4ab19d)
+* Fix first problems with PHP 8 (ab77c0a, 29dcbd9, 6b3c7f9, 4d972b5, e63998e)
+
+osTicket v1.15.8
+================
+### Enhancements
+* issue: Check User Status (3a2f072d)
+* jquery: Update jQueryUI 1.13.1 (ed958d98)
+
+### Improvements
+* issue: Redactor Freezing (42525aca)
+
+### Security
+* mpdf: Unregister PHAR (57721def)
+* issue: Form Elements & Attribute (45b6cf2e)
+* Security: Session Fixation (85a76f40)
+* security: Unvalidated Password Change (01a378f6)
+* xss: System Logs (334934ec)
+* xss: Agent Directory (a5c4d931)
+
+osTicket v1.15.7
+================
+### Enhancements
+* i18n: Bosnian Flag CSS (94f5e95)
+* i18n: Translatable Tooltip (e2be9e7)
+* i18n: No Tasks String (01016db)
+
+### Improvements
+* Use HTTPS version of Crowdin project (d52cc40, da1309a)
+* fix staff login redirect loop when system is offline (38b8f53)
+* oops: Banlist Created (f0ae76f)
+* issue: MaxLength Attribute (225eb7a)
+* Update ticket-tasks.inc.php (b063504)
+* Issue: Disabled/Archived Primary Dept (0b7c9c2)
+* issue: Sweden Capitalization (3cb05ad)
+* typo: Emtpy To Empty (9c858b8)
+* issue: Fixes Test Errors (34cf2f2)
+
+osTicket v1.15.6
+================
+### Enhancements
+* i18n: Missing translations for the action buttons (823b5fb)
+
+### Improvements
+* issue: Required Custom Field User Registration (f4e693e)
+
+osTicket v1.15.5
+================
+### Enhancements
+* redactor: Upgrade to version 3.5.2 (4e4f82e)
+* auth: Allow AuthBackends to auto-register Users (6836b17)
+
+### Improvements
+* issue: Khmer Language Flag (f878f14)
+* issue: Assignee Item Property (3cde88a)
+* issue: CDATA Rebuild Issue (9da3b5e)
+* issue: Plus Symbol (b0f143e)
+* issue: Plain-Text Canned Responses (19c03ca)
+* issue: Improved Validation for Variable Names (35c8ca8)
+* Revert "issue: List Item Properties On Mouseover" (5c91f64)
+
+osTicket v1.15.4
+================
+### Enhancements
+* Feature: Log Event For Filters (7d48735, 1fd2b6b, 99ec09a)
+
+### Improvements
+* Issue: Delete Referrals (790c0e6)
+* Show "-Empty-" value for empty due dates in ticket view (64712eb)
+* Issue: Audit Closed Ticket Events (311a600)
+
+### Security
+* security: PwReset Username and Username Discoverability (e282910, 86165c2)
+* security: SSRF External Images (1c6f98e)
+* xss: Stored XSS/Domain Whitelist Bypass (4b4da5b)
+* security: Recipient Injection via User's Name (7c5c584)
+* xss: Advanced Search (4a8d3c8)
+* xss: Tasks (b01c6a2)
+
+osTicket v1.15.3.1
+==================
+### Improvements
+* Auth: Service Name (da05573)
+
+osTicket v1.15.3
+================
+### Enhancements
+* Enhancement: S3 Plugin Folder Capability (ae4ed63)
+
+### Improvements
+* Auth: Service Name on Client Portal (b755b99)
+* CDATA: Rebuild Cdata tables post Install (4409dbd)
+* Issue: Deleted Forms on Help Topics (4494bf4)
+* Issue: Saving Priority Field (56c50b8)
+* CDATA: Dynamic Forms Views (4ab3602)
+* CDATA: Check Cdata Tables on Cron (b758c14, 3397987, aba5970)
+* CDATA: DynamicFormField Update (678decc, 9f01ee1)
+* Issue: Filter Email Variables (3a36727)
+* status: Localize Status Names (6173a73)
+* Issue: Queue Columns Custom Fields (bd4cfb4)
+* Issue: Custom Dept/Custom Assignee Exports (8140d4b)
+* Issue: 'Open' heading don't get translated (6065715)
+* Make Max-Age consistent across backends (292df94)
+* Zip Export: Include Custom File Upload Files (1328bd7)
+* Issue: Spaces in List Items (ef6c949)
+* Issue: Class PageNate had problems with total value as string (573ab33)
+* Tweak PersonsName->getShort() and getShortFormal() (fa64ad4, ad91e66, 8671a68)
+
+### Security
+* xss: SVG Image (68dcaa2)
+* security: open.php Refresh (b8603c7)
+* xss: Client-Side i18n (fd560df)
+* session: Verify UserAgent String (f71c954)
+
+osTicket v1.15.2
+================
+### Enhancements
+* Issue: Visibility Permissions (8da9da3)
+* Depts Visibility (fe37ae2)
+* Issue: Task Inline Transfer (e43d6bf)
+
+### Improvements
+* Make word count error match the actual limit (3e177bb)
+* Mute warning when Every Minute is selected. (2a56da7)
+* Remove extra selection - Choice Field handles prompt. (b564ce3)
+* Fail gracefully when supported matches return null (4550b65)
+* Create variable before passing it by reference (858649c)
+* FAQ: Check for lookup failures (edd1feb)
+* 2fa: use isset to check checkbox (7f68060)
+* Session: Regenerate session id before closing it. (14e9fb2)
+* Issue: Unlinking Tickets (98efec5)
+* Issue: Agents/Depts in Queue Cols (d8f6ef6)
+* Issue: Revise getDepartments (71f4c0c)
+* Issue: Visibility Permissions (3ee5941)
+* issue: getDefaultDeptId() On Null (38a09e6)
+* issue: Dashboard Export Date Range (db79149)
+* Issue: Echoing Default Dept Status (fe31575)
+* issue: Export Memory Limit (3a5e5c9)
+* Use PageNate->showing() for Users and Orgs in SCP (63f0ae8)
+* Don't capitalize Queue menu items (2348850)
+* Issue: Disabled Dept on Email (b1397a3)
+* issue: Assign To Sort Alphabetically (77c7a12)
+* Update class.plugin.php (4a3451f)
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
+osTicket v1.15.1
+================
+### Improvements
+* readme: Update PHP Version (a4c85d7)
+* placeholder: Quote and encode html chars (0056d14)
+
+osTicket v1.14.8
+================
+### Improvements
+* issue: Auto-Assign Comments Var (c3171c3)
+* issue: List Item Properties On Mouseover (a6a7192)
+* issue: def_assn_role (6ad568f)
+* search: Child Thread Relation (08785f9)
+
+### Security
+* security: PwReset Username and Username Discoverability (e282910, 86165c2)
+* security: SSRF External Images (1c6f98e)
+* xss: Stored XSS/Domain Whitelist Bypass (4b4da5b)
+* security: Recipient Injection via User's Name (7c5c584)
+* xss: Advanced Search (4a8d3c8)
+* xss: Tasks (b01c6a2)
+
+osTicket v1.14.7
+================
+### Enhancements
+* redactor: Upgrade to version 3.5.1 (2617f53)
+
+### Improvements
+* issue: Setup Admin Password Heltip Verbiage (7866a72)
+* issue: getDBVersion() SQL Errors (43210e3)
+* issue: Missing Thread On Referral Check (1359d91)
+* readme: Update PHP Version (a1cf24f)
+* typo: Default Sorting (89c322b)
+* issue: Choices Field Sanitization (07526af)
+* issue: "New Task Alert" email template typo (8178b4d)
+* issue: Edit Entry Dropped Attachments (a9a64ed)
+* issue: EmailTest Draft (27259e1)
+* issue: Release Notes Links (e9a2155)
+* Role: Handle null perms (4211952)
+* Issue: Missing null check in Staff->updatePerms() (f9626f8)
+* Banlist sorting by Updated (15ccc71)
+* issue: ticket.dept.sla Variable sla_id (bf15d6f)
+
+### Security
+* xss: SVG Image (68dcaa2)
+* security: open.php Refresh (b8603c7)
+* xss: Client-Side i18n (fd560df)
+* session: Verify UserAgent String (f71c954)
+
+osTicket v1.14.6
+================
+### Enhancements
+* redactor: Upgrade to version 3.4.9 (ab40f97)
+
+### Improvements
+* issue: markAs Popup Manager (No Access) (8d1d623)
+* issue: Task last_update Var (08cd762)
+* issue: SCP Login Redirect (9b12a54)
+* issue: Client-Side Reply Draft Saving (996cd9e)
+
+### Security
+* xss: FormAction Attribute (8d956e0)
+* xss: onerror Property (25e6d12)
+
+osTicket v1.14.5
+================
+### Enhancements
+* typo: Change User Confirmation Popup (79e6513)
+* redactor: Upgrade to version 3.4.6 (5c77b0d)
+
+### Improvements
+* issue: MailFetch Inline Disposition (fbf0c7d)
+* issue: Editor Spacing (a6cbc5c)
+* Issue: Collaborator Adding New Collabs (a4ab6b6)
+* mail: Reply to Ticket Owner Only (a4bb20a)
+* dept: Dept Deletion Bug (7cba73d)
+* issue: Task From Ticket (4b48456)
+
+### Security
+* security: Parent Ticket Access (Client) (5972fe8)
+
+osTicket v1.15
+==============
+### Enhancements
+* Change dept_id and priority_id fron tinyint to int (e54f6f3)
+* csrf: Add ability to rotate token (36e614c)
+* Feature: Agent/Department Visibility (5fbd762, e4346d2, 4ad7e95, 49b2f1b, 46033d1, 3a8ea4b, 6eae7e6, f306ce8, 6fdc111, 4489b2f, 7f0602a, 484023d, 3722fc5, 6425146, 9902ac2, 07b2373, ca81176, 4e86313)
+* db: Latest Indexes (da2fd37, 2731074, c359d12, ea09373, 4c9968b)
+* SLA Plan Search Field (0fd63b4)
+* 2FA Backends (5dd0a34, 4ef752c, cff12f7, ea86103, 4b6bc73, a1b7826, 3f08e62, 9d46c84, 8f4fe18)
+* Password Policy Revisited (e1aba7c, 744676b)
+
+### Improvements
+* Issue: Missing Events (38232f2)
+* Issue: 2FA Upgrade (0065c3b)
+* Ticket From Email (f02edd9)
+* Issue: User Custom Dept Field (52825f0)
+* Staff: Password Change (7527ea7)
+* oops: Indexes Patch Schema (709b55f)
+* CsvImporter: Skip Byte Order Mark (BOM) if present (bfd5da8)
+* Oops: Method Inheritance Compatibility (cb13b82)
+* issue: Form Instructions Translation (4f7d23c)
+
+osTicket v1.14.4
+================
+### Enhancements
+* forms: Pseudo-random name for Dynamicforms on POST (077d26f)
+* Authcode: Ticket Access Link (043c3fe)
+* redactor: Upgrade to version 3.4.5 (e593c5c, 9102240, e471132)
+* Auth: Client Create Request (c3c01d3, 43e07c2)
+
+### Improvements
+* Issue: Event YAML (52c7211)
+* issue: Missing Description On New Task (949acc6)
+* issue: Draft Save (f2c5c5a)
+* mpdf: Logo Overlap (5012ccc)
+* Issue: Viewing Email Templates (817cdee)
+* Issue: Topics on Install (bfaad5b)
+* Partially revert commit 077d26f6d0bb15 (d554c2b)
+* Issue: Prevent Deleting All Topics (8d2b8c6)
+* Issue: Sub Queues (8e3a6c6)
+* authtoken: Add ticket link when recipient is ticket owner (2be608c)
+* redactor: Improper Formatting When Double Spacing (fe26123)
+* forms: Add SECRET_SALT to field name hash (4eeb4b5, 133362d)
+* issue: Better URL Parsing For External Inline Images (50eed90)
+* Issue: Default Delimiter (f302503)
+* issue: Update Autocomplete (d3245b1)
+* Fix incorrrect compare locked staff at Ticket Preview (e8f0c58)
+* Don't use a default comment on ticket assignment (433e62d)
+* Issue: Ticket Export Delimiters (38dbe73)
+* CsvImporter: Skip Byte Order Mark (BOM) if present (9e1dfef)
+* Drop nested table from open new ticket (fb0164b)
+* issue: New Message Alert Recipients (ea9cd56)
+* issue: Custom REGEX Failure (4850b2a)
+* Issue: Ticket From Thread Attachments (1de3f6a)
+* cli: Manage.php Errors (239b9ba)
+* issue: Assignee Field (3c89117)
+* issue: Agent Password Reset With No Existing Password (101ebea)
+* More modern, cleaner DocBlock (84195ec)
+* issue: Ticket Merge Select2 (bffac98)
+
 osTicket v1.14.3
 ================
 ### Enhancements

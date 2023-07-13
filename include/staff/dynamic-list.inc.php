@@ -86,7 +86,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info,
             <td width="180"><?php echo __('Sort Order'); ?>:</td>
             <td><select name="sort_mode">
                 <?php
-                $sortModes = $list ? $list->getSortModes() : DynamicList::getSortModes();
+                $sortModes = $list ? $list->getSortModes() : DynamicList::sortModes();
                 foreach ($sortModes as $key=>$desc) { ?>
                 <option value="<?php echo $key; ?>" <?php
                     if ($key == $info['sort_mode']) echo 'selected="selected"';
@@ -105,7 +105,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info,
         <tr>
             <td colspan="7"><textarea name="notes" class="richtext no-bar"
                 rows="6" cols="80"><?php
-                echo $info['notes']; ?></textarea>
+                echo Format::viewableImages($info['notes']); ?></textarea>
             </td>
         </tr>
     </tbody>

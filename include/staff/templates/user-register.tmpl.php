@@ -55,8 +55,8 @@ echo sprintf(__(
                 <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
             <?php foreach (UserAuthenticationBackend::allRegistered() as $ab) {
                 if (!$ab->supportsInteractiveAuthentication()) continue; ?>
-                <option value="<?php echo $ab::$id; ?>" <?php
-                    if ($info['backend'] == $ab::$id)
+                <option value="<?php echo $ab->getBkId(); ?>" <?php
+                    if ($info['backend'] == $ab->getBkId())
                         echo 'selected="selected"'; ?>><?php
                     echo $ab->getName(); ?></option>
             <?php } ?>
@@ -68,8 +68,8 @@ echo sprintf(__(
                     <?php echo __('Username'); ?>:
                 </td>
                 <td>
-                    <input type="text" size="35" name="username" value="<?php echo $info['username'] ?: $user->getEmail(); ?>">
-                    &nbsp;<span class="error">&nbsp;<?php echo $errors['username']; ?></span>
+                    <input type="text" size="35" name="username" value="<?php echo $info['username'] ? Format::htmlchars($info['username']) : $user->getEmail(); ?>">
+                    &nbsp;<span class="error">&nbsp;<?php echo Format::htmlchars($errors['username']); ?></span>
                 </td>
             </tr>
         </tbody>
@@ -94,7 +94,7 @@ echo sprintf(__(
                     <?php echo __('Temporary Password'); ?>:
                 </td>
                 <td>
-                    <input type="password" size="35" name="passwd1" value="<?php echo $info['passwd1']; ?>">
+                    <input type="password" size="35" name="passwd1" maxlength="128" value="<?php echo $info['passwd1']; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo
                     $errors['passwd1']; ?></span>
                 </td>
@@ -104,7 +104,7 @@ echo sprintf(__(
                    <?php echo __('Confirm Password'); ?>:
                 </td>
                 <td>
-                    <input type="password" size="35" name="passwd2" value="<?php echo $info['passwd2']; ?>">
+                    <input type="password" size="35" name="passwd2" maxlength="128" value="<?php echo $info['passwd2']; ?>">
                     &nbsp;<span class="error">&nbsp;<?php echo $errors['passwd2']; ?></span>
                 </td>
             </tr>

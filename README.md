@@ -22,7 +22,7 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 7.0 to 7.3, 7.3 is recommended
+  * PHP version 8.0 - 8.1 (8.1 recommended)
   * mysqli extension for PHP
   * MySQL database version 5.5
 
@@ -105,14 +105,13 @@ conversation of integrating your new feature into osTicket.
 
 The interface for osTicket is now completely translatable. Language packs
 are available on the [download page](https://osticket.com/download). If you
-do not see your language there, join the [Crowdin](http://i18n.osticket.com)
+do not see your language there, join the [Crowdin](https://crowdin.com/project/osticket-official)
 project and request to have your language added. Languages which reach 100%
 translated are are significantly reviewed will be made available on the
 osTicket download page.
 
-The software can also be translated in place in our [JIPT site]
-(http://jipt.i18n.osticket.com). Once you have a Crowdin account, login and
-translate the software in your browser!
+The software can also be translated in place in our [JIPT site](http://jipt.i18n.osticket.com).
+Once you have a Crowdin account, login and translate the software in your browser!
 
 Localizing strings in new code requires usage of a [few rules](setup/doc/i18n.md).
 

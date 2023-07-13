@@ -74,7 +74,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                         <?php
                         } ?>
                     </select>
-                    &nbsp;<span class="error">*&nbsp;<?php echo
+                    &nbsp;<span class="error"><?php echo
                     $errors['default_task_priority_id']; ?></span> <i class="help-tip icon-question-sign" href="#default_priority"></i>
                  </td>
             </tr>
@@ -117,7 +117,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     <input type="radio" name="task_alert_active"  value="0"
                     <?php echo !$config['task_alert_active'] ? 'checked="checked"' : ''; ?> />
                     <?php echo __('Disable'); ?>
-                    &nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['task_alert_active']; ?></font></em>
+                    &nbsp;&nbsp;<font class="error"><?php echo $errors['task_alert_active']; ?></font></em>
                  </td>
             </tr>
             <tr>
@@ -153,7 +153,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                   <input type="radio" name="task_activity_alert_active"  value="0"
                   <?php echo !$config['task_activity_alert_active'] ? 'checked="checked"' : ''; ?> />
                     <?php echo __('Disable'); ?>
-                  &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['task_activity_alert_active']; ?></font>
+                  &nbsp;&nbsp;&nbsp;<font class="error"><?php echo $errors['task_activity_alert_active']; ?></font>
                 </td>
             </tr>
             <tr>
@@ -189,7 +189,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                   <input name="task_assignment_alert_active" value="0" type="radio"
                     <?php echo !$config['task_assignment_alert_active'] ? 'checked="checked"' : ''; ?>>
                     <?php echo __('Disable'); ?>
-                   &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['task_assignment_alert_active']; ?></font>
+                   &nbsp;&nbsp;&nbsp;<font class="error"><?php echo $errors['task_assignment_alert_active']; ?></font>
                 </td>
             </tr>
             <tr>
@@ -224,7 +224,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                 <input type="radio" name="task_transfer_alert_active"  value="0"
                 <?php echo !$config['task_transfer_alert_active'] ? 'checked="checked"' : ''; ?> />
                     <?php echo __('Disable'); ?>
-                  &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php
+                  &nbsp;&nbsp;&nbsp;<font class="error"><?php
                   echo $errors['task_transfer_alert_active']; ?></font>
                 </td>
             </tr>
@@ -258,7 +258,7 @@ if(!($maxfileuploads=ini_get('max_file_uploads')))
                     <?php echo $config['task_overdue_alert_active'] ? 'checked="checked"' : ''; ?> /> <?php echo __('Enable'); ?>
                   <input type="radio" name="task_overdue_alert_active"  value="0"
                     <?php echo !$config['task_overdue_alert_active'] ? 'checked="checked"' : ''; ?> /> <?php echo __('Disable'); ?>
-                  &nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['task_overdue_alert_active']; ?></font>
+                  &nbsp;&nbsp;<font class="error"><?php echo $errors['task_overdue_alert_active']; ?></font>
                 </td>
             </tr>
             <tr>

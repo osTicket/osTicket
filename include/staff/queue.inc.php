@@ -124,7 +124,7 @@ else {
             echo Format::htmlchars($errors['filter']); ?></div>
         <br/>
 
-        <div><strong><?php echo __("Defaut Sorting"); ?></strong></div>
+        <div><strong><?php echo __("Default Sorting"); ?></strong></div>
         <hr/>
         <select name="sort_id">
           <option value="" <?php if ($queue->filter == "")

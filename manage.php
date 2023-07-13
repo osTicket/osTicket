@@ -23,10 +23,6 @@ if (PHP_SAPI != "cli")
 
 require_once 'bootstrap.php';
 require_once CLI_DIR . 'cli.inc.php';
-
-if (!function_exists('noop')) { function noop() {} }
-session_set_save_handler('noop','noop','noop','noop','noop','noop');
-
 class Manager extends Module {
     var $prologue =
         "Manage one or more osTicket installations";

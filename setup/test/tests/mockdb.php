@@ -91,13 +91,11 @@ class MockDbCursor {
     }
 
     function fetch_row() {
-        list($i, $row) = each($this->data);
-        return $row;
+        return current($this->data);
     }
 
     function fetch_array() {
-        list($i, $row) = each($this->data);
-        return $row;
+        return current($this->data);
     }
 
     function num_rows() {
