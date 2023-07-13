@@ -53,9 +53,6 @@ class UserManager extends Module {
 
         switch ($args['action']) {
         case 'import':
-            // Properly detect Macintosh style line endings
-            ini_set('auto_detect_line_endings', true);
-
             if (!$options['file'] || $options['file'] == '-')
                 $options['file'] = 'php://stdin';
             if (!($this->stream = fopen($options['file'], 'rb')))
@@ -171,7 +168,8 @@ class UserManager extends Module {
         default:
             $this->stderr->write('Unknown action!');
         }
-        @fclose($this->stream);
+        if (is_resource($this->stream))
+            @fclose($this->stream);
     }
 
     function getQuerySet($options, $requireOne=false) {

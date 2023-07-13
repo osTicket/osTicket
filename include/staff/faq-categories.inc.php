@@ -77,16 +77,21 @@ usort($topics, function($a, $b) {
     return strcmp($a->getFullName(), $b->getFullName());
 });
 array_unshift($topics, new Topic(array('id' => 0, 'topic' => __('All Topics'), 'faq_count' => $total)));
+if (!$thisstaff->hasPerm(Dept::PERM_DEPT))
+    $staffTopics = $thisstaff->getTopicNames(false);
+
 foreach ($topics as $T) {
-        $active = $_REQUEST['topicId'] == $T->getId(); ?>
-        <li <?php if ($active) echo 'class="active"'; ?>>
-            <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
-                <i class="icon-fixed-width <?php
-                if ($active) echo 'icon-hand-right'; ?>"></i>
-                <?php echo sprintf('%s (%d)',
-                    Format::htmlchars($T->getFullName()),
-                    $T->faq_count); ?></a>
-        </li> <?php
+        $active = $_REQUEST['topicId'] == $T->getId();
+        if (!$staffTopics || is_null($T->getId()) || ($staffTopics && array_key_exists($T->getId(), $staffTopics))) { ?>
+            <li <?php if ($active) echo 'class="active"'; ?>>
+                <a href="#" data-topic-id="<?php echo $T->getId(); ?>">
+                    <i class="icon-fixed-width <?php
+                    if ($active) echo 'icon-hand-right'; ?>"></i>
+                    <?php echo sprintf('%s (%d)',
+                        Format::htmlchars($T->getFullName()),
+                        $T->faq_count); ?></a>
+            </li> <?php
+        }
 } ?>
             </ul>
         </div>

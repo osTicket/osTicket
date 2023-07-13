@@ -220,7 +220,11 @@ implements TemplateVariable, Searchable {
     static function fromVars($vars, $create=true, $update=false) {
         // Try and lookup by email address
         $user = static::lookupByEmail($vars['email']);
-        if (!$user && $create) {
+        if (!$user
+                // can create user?
+                && $create
+                // Make sure at least email is valid
+                && Validator::is_email($vars['email'])) {
             $name = $vars['name'];
             if (is_array($name))
                 $name = implode(', ', $name);
@@ -254,8 +258,7 @@ implements TemplateVariable, Searchable {
             $type = array('type' => 'created');
             Signal::send('object.created', $user, $type);
             Signal::send('user.created', $user);
-        }
-        elseif ($update) {
+        } elseif ($update && $user) {
             $errors = array();
             $user->updateInfo($vars, $errors, true);
         }
@@ -527,7 +530,7 @@ implements TemplateVariable, Searchable {
         return $imported;
     }
 
-    function importFromPost($stream, $extra=array()) {
+    static function importFromPost($stream, $extra=array()) {
         if (!is_array($stream))
             $stream = sprintf('name, email%s %s',PHP_EOL, $stream);
 
@@ -737,6 +740,8 @@ implements TemplateVariable {
             $this->address = sprintf('"%s" <%s>',
                     $this->getName(),
                     $this->email);
+        else
+             $this->address =  $this->email;
     }
 
     function __toString() {
@@ -745,7 +750,7 @@ implements TemplateVariable {
 
     function getVar($what) {
 
-        if (!$this->_info)
+        if (!isset($this->_info))
             return '';
 
         switch ($what) {
@@ -760,7 +765,11 @@ implements TemplateVariable {
     }
 
     function getAddress() {
-        return $this->address ?: $this->email;
+        return $this->address ?: $this->getEmail();
+    }
+
+    function getEmail() {
+        return $this->email;
     }
 
     function getHost() {
@@ -782,9 +791,8 @@ implements TemplateVariable {
     // Parse and email adddress (RFC822) into it's parts.
     // @address - one address is expected
     static function parse($address) {
-        require_once PEAR_DIR . 'Mail/RFC822.php';
         require_once PEAR_DIR . 'PEAR.php';
-        if (($parts = Mail_RFC822::parseAddressList($address))
+        if (($parts = Mail_Parse::parseAddressList($address))
                 && !PEAR::isError($parts))
             return current($parts);
     }
@@ -847,8 +855,22 @@ implements TemplateVariable {
         return $this->parts['middle'];
     }
 
+    function getFirstInitial() {
+        if ($this->parts['first'])
+            return mb_substr($this->parts['first'],0,1).'.';
+        return '';
+    }
+
     function getMiddleInitial() {
-        return mb_substr($this->parts['middle'],0,1).'.';
+        if ($this->parts['middle'])
+            return mb_substr($this->parts['middle'],0,1).'.';
+        return '';
+    }
+
+    function getLastInitial() {
+        if ($this->parts['last'])
+            return mb_substr($this->parts['last'],0,1).'.';
+        return '';
     }
 
     function getFormal() {
@@ -862,10 +884,9 @@ implements TemplateVariable {
     function getLegal() {
         $parts = array(
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
         );
-        if ($parts[1]) $parts[1] .= '.';
         return implode(' ', array_filter($parts));
     }
 
@@ -873,27 +894,27 @@ implements TemplateVariable {
         $parts = array(
             $this->parts['salutation'],
             $this->parts['first'],
-            mb_substr($this->parts['middle'],0,1),
+            $this->getMiddleInitial(),
             $this->parts['last'],
             $this->parts['suffix']
         );
-        if ($parts[2]) $parts[2] .= '.';
         return implode(' ', array_filter($parts));
     }
 
     function getLastFirst() {
         $name = $this->parts['last'].', '.$this->parts['first'];
+        $name = trim($name, ', ');
         if ($this->parts['suffix'])
             $name .= ', '.$this->parts['suffix'];
         return $name;
     }
 
     function getShort() {
-        return $this->parts['first'].' '.mb_substr($this->parts['last'],0,1).'.';
+        return $this->parts['first'].' '.$this->getLastInitial();
     }
 
     function getShortFormal() {
-        return mb_substr($this->parts['first'],0,1).'. '.$this->parts['last'];
+        return $this->getFirstInitial().' '.$this->parts['last'];
     }
 
     function getOriginal() {
@@ -1109,6 +1130,10 @@ class UserAccount extends VerySimpleModel {
         return $this->getStatus()->isLocked();
     }
 
+    function isActive() {
+        return (!$this->isLocked() && $this->isConfirmed());
+    }
+
     function forcePasswdReset() {
         $this->setStatus(UserAccountStatus::REQUIRE_PASSWD_RESET);
         return $this->save();
@@ -1200,11 +1225,11 @@ class UserAccount extends VerySimpleModel {
     }
 
     function sendResetEmail() {
-        return static::sendUnlockEmail('pwreset-client') === true;
+        return $this->sendUnlockEmail('pwreset-client') === true;
     }
 
     function sendConfirmEmail() {
-        return static::sendUnlockEmail('registration-client') === true;
+        return $this->sendUnlockEmail('registration-client') === true;
     }
 
     function setPassword($new) {
@@ -1273,10 +1298,13 @@ class UserAccount extends VerySimpleModel {
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = __('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = __('Must be at least 6 characters');
-            elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = __('Passwords do not match');
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         // Make sure the username is not an email.
@@ -1301,7 +1329,7 @@ class UserAccount extends VerySimpleModel {
         }
 
         $this->set('timezone', $vars['timezone']);
-        $this->set('username', $vars['username']);
+        $this->set('username', Format::sanitize($vars['username']));
 
         if ($vars['passwd1']) {
             $this->setPassword($vars['passwd1']);
@@ -1359,10 +1387,15 @@ class UserAccount extends VerySimpleModel {
                 && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
                 $errors['passwd1'] = 'Temporary password required';
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2'] = 'Passwords do not match';
+            else {
+                try {
+                    self::checkPassword($vars['passwd1']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] =  $ex->getMessage();
+                }
+            }
         }
 
         if ($errors) return false;
@@ -1374,7 +1407,7 @@ class UserAccount extends VerySimpleModel {
         ));
 
         if ($vars['username'] && strcasecmp($vars['username'], $user->getEmail()))
-            $account->set('username', $vars['username']);
+            $account->set('username', Format::sanitize($vars['username']));
 
         if ($vars['passwd1'] && !$vars['sendemail']) {
             $account->set('passwd', Passwd::hash($vars['passwd1']));
@@ -1395,6 +1428,10 @@ class UserAccount extends VerySimpleModel {
             $account->sendConfirmEmail();
 
         return $account;
+    }
+
+    static function checkPassword($new, $current=null) {
+        osTicketClientAuthentication::checkPassword($new, $current);
     }
 
 }

@@ -46,8 +46,7 @@ if ($cfg->isAuthRequiredForFiles()
 
     // Try and determine if an agent is viewing the page / file
     if (strpos($_SERVER['HTTP_REFERRER'], ROOT_PATH .  'scp/') !== false) {
-        $_SESSION['_staff']['auth']['dest'] =
-            '/' . ltrim($_SERVER['REQUEST_URI'], '/');
+        $_SESSION['_staff']['auth']['dest'] = Http::refresh_url();
         Http::redirect(ROOT_PATH.'scp/login.php');
     } else {
         require 'secure.inc.php';

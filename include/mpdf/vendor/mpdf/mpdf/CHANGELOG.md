@@ -1,10 +1,76 @@
+mPDF 8.0.x
+===========================
+
+* Ability to customize User-Agent header in the HTTP requests sent by cURL (@samuelecat, #1229)
+* Add Page Number Myanmar Language Support (@MinKyawNyunt, #1201)
+* new `Mpdf\Exception\FontException` extending base `MpdfException` was introduced and is thrown on Font manipulation
+* A bit cleaner exception messages for font-related errors
+* Use atomic cache writing. (@PATROMO, #1186)
+* Fix: "Undefined index: group" when calling MultiCell when using font without OTL data (@Kekos, #1213, #941)
+* Add C128RAW barcode type to create any barcode (ex: subtype change in middle of barcode) (#1124)
+* Add proxy support to curl
+* Fixed date and time format in the informations dictionary (#1083, @peterdevpl)
+* Checking allowed stream wrappers in CssManager
+* PHP 7.4 support (until final 7.4 release with composer --ignore-platform-reqs)
+* Improve debugging of remote content issues (@ribeirobreno)
+* Added `exposeVersion` configuration variable allowing to hide mPDF version from Producer tag and HTTP headers
+* Added the check for JPEG SOF header 0xFF 0xC1 (extended) (@jamiejones85)
+* Allows setting `none` as zoom mode in `SetDisplayMode` method, so that OpenAction is not written (#602)
+* Allowed image stream whitelist to be customised (#1005, thanks @jakejackson)
+* Fixed parsing of top-left-bottom-right CSS rules with !important (#1009)
+* Fixed skipping ordered list numbering with page-break-inside: avoid (#339)
+* Compound classes selector support, like `.one.two` or `div.message.special` (#538, @peterdevpl)
+* Fixed CMYK colors in text-shadow (#1115, @lexilya)
+* Skip non supported wrappers when resolving paths (#1204, @MarkVaughn)
+* Fixed SVGs using a style tag, has styles ignored ( Requires ext-dom ) (#450, @antman3351)
+* Allows `{nb}`, `{nbpg}`, `{PAGENO}` and `{DATE ...}` substitution in body (#172 and #267, @Dasc3er)
+* Cache now creates a dedicated subdirectory `/mpdf`.
+* It is possible to disable automatic cache cleanup with `cacheCleanupInterval` config variable
+* PHP 8.0 is supported since 8.0.10 (#1263)
+* Fix: First header of named page is added twice (@antman3351, #1320)
+* Added `curlExecutionTimeout` configuration variable allowing to `CURLOPT_TIMEOUT` when fetching remote content
+* Fix: Not all combinations were generated for more than three compound classes (@JeppeKnockaert)
+* Added `quiet_zone_left` and `quiet_zone_right` to barcodes which support quiet zones in order to customize its width
+* Updated `CssManager` to use the `RemoteContentFetcher` class instead of `curl` natively (@greew)
+* Added optional `continue2pages` parameter to `SetDocTemplate` method, allowing a template to continue the last 2 pages alternately (@bmg-ruudv)
+* Ensure that all digits of a string are hexadecimal before decoding in ColorConverter (@derklaro)
+* Fix: Using mpdf in phar package leads to weird errors (#1504, @sandreas)
+
+mPDF 8.0.0
+===========================
+
+### 15/03/2019
+
+* Updated FPDI dependency to version 2 (thanks a lot, @JanSlabon)
+    - removed `SetImportUse` method
+    - case of `ImportPage` method changed to `importPage`
+    - similarly, case of `setSourceFile` and `useTemplate` was changed to a lowercase first letter.
+    - signature of `importPage` changed
+    - returned value of `useTemplate` changed
+* Moved QRCode generating code portions to external package _mpdf/qrcode_
+    - This reduced package size considerably (ca 6MB)
+* Fraction sizes without leading zeros allowed for font sizes (#973, thanks @peterdevpl)
+* WriteHTML is now strict about used `$mode` parameter (#915, thanks, @tomtomau)
+* Fixed regression in nested tables (#860, thanks, @machour)
+* Scientific notation handling in CSS font sizes (#753, thanks, @peterdevpl)
+
+
 mPDF 7.1.x
 ===========================
 
-* Added myclabs/deepcopy dependency to fix TOC page numbering
+* PHAR security issue fixed (thanks, @jakejackson)
+* Font temporary data saved as JSON instead of generating PHP files (thanks, @jakejackson)
+* cURL handling enhancements (thanks, @jakejackson)
+* SVG parsing fixes (thanks, @achretien)
+* Write PDF content with *Writer service classes
+* PHP 7.3 is supported
+* Added myclabs/deepcopy dependency, fixed TOC page numbering (thanks, @jakejackson)
 * Custom color for QR codes
 * Added support for orientation config key
-* Various code cleanups and fixes (See commit history)
+* Code and tests cleanups and enhancements
+    - PHPUnit dedicated assertions (thanks, @carusogabriel)
+    - WriteHTML part constants (thanks, @tomtomau)
+    - Various notice fixes (kudos to all respective authors)
 
 mPDF 7.0.x
 ===========================

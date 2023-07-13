@@ -151,6 +151,19 @@ implements EmailContact, ITicketUser, TemplateVariable {
         return $this->user->getId();
     }
 
+    function getEmailAddress() {
+        $emailaddr =  (string) $this->getEmail();
+        if (($name=$this->getName()))
+            $emailaddr = sprintf('"%s" <%s>',
+                    (string) $name,
+                    $emailaddr);
+        return $emailaddr;
+    }
+
+    function __toString() {
+        return $this->getEmailAddress();
+    }
+
     abstract function getTicketId();
     abstract function getTicket();
 }
@@ -245,6 +258,11 @@ class EndUser extends BaseAuthenticatedUser {
     function getAuthBackend() {
         list($authkey,) = explode(':', $this->getAuthKey());
         return UserAuthenticationBackend::getBackend($authkey);
+    }
+
+    function get2FABackend() {
+        //TODO: support 2FA on client portal
+        return null;
     }
 
     function getTicketStats() {
@@ -381,7 +399,7 @@ class EndUser extends BaseAuthenticatedUser {
 
 class ClientAccount extends UserAccount {
 
-    function checkPassword($password, $autoupdate=true) {
+    function check_passwd($password, $autoupdate=true) {
 
         /*bcrypt based password match*/
         if(Passwd::cmp($password, $this->get('passwd')))
@@ -402,7 +420,7 @@ class ClientAccount extends UserAccount {
     }
 
     function hasCurrentPassword($password) {
-        return $this->checkPassword($password, false);
+        return $this->check_passwd($password, false);
     }
 
     function cancelResetTokens() {
@@ -431,32 +449,37 @@ class ClientAccount extends UserAccount {
             return parent::update($vars, $errors);
 
         $rtoken = $_SESSION['_client']['reset-token'];
-        if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
+
+
+		if ($rtoken) {
+			$_config = new Config('pwreset');
+			if ($_config->get($rtoken) != 'c'.$this->getUserId())
+				$errors['err'] =
+					__('Invalid reset token. Logout and try again');
+			elseif (!($ts = $_config->lastModified($rtoken))
+					&& ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
+				$errors['err'] =
+					__('Invalid reset token. Logout and try again');
+		} elseif ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd']) {
 
             if (!$vars['passwd1'])
                 $errors['passwd1']=__('New password is required');
-            elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Password must be at least 6 characters');
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
                 $errors['passwd2']=__('Passwords do not match');
-
-            if ($rtoken) {
-                $_config = new Config('pwreset');
-                if ($_config->get($rtoken) != 'c'.$this->getUserId())
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-                elseif (!($ts = $_config->lastModified($rtoken))
-                        && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
-                    $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
-            }
             elseif ($this->get('passwd')) {
                 if (!$vars['cpasswd'])
                     $errors['cpasswd']=__('Current password is required');
                 elseif (!$this->hasCurrentPassword($vars['cpasswd']))
                     $errors['cpasswd']=__('Invalid current password!');
-                elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                    $errors['passwd1']=__('New password MUST be different from the current password!');
+            }
+
+            // Check password policies
+			if (!$errors) {
+                try {
+                    UserAccount::checkPassword($vars['passwd1'], @$vars['cpasswd']);
+                } catch (BadPassword $ex) {
+                    $errors['passwd1'] = $ex->getMessage();
+                }
             }
         }
 
@@ -474,7 +497,7 @@ class ClientAccount extends UserAccount {
         if ($vars['backend']) {
             $this->set('backend', $vars['backend']);
             if ($vars['username'])
-                $this->set('username', $vars['username']);
+                $this->set('username', Format::sanitize($vars['username']));
         }
 
         if ($vars['passwd1']) {

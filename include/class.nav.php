@@ -125,7 +125,7 @@ class StaffNav {
     function getTabs(){
         global $thisstaff;
 
-        if(!$this->tabs) {
+        if(!isset($this->tabs)) {
             $this->tabs = array();
             $this->tabs['dashboard'] = array(
                 'desc'=>__('Dashboard'),'href'=>'dashboard.php','title'=>__('Agent Dashboard'), "class"=>"no-pjax"
@@ -210,7 +210,7 @@ class AdminNav extends StaffNav{
 
     function getTabs(){
 
-        if(!$this->tabs){
+        if(!isset($this->tabs)){
 
             $tabs=array();
             $tabs['dashboard']=array('desc'=>__('Dashboard'),'href'=>'logs.php','title'=>__('Admin Dashboard'));
@@ -245,6 +245,7 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Tasks'),'href'=>'settings.php?t=tasks','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('Agents'),'href'=>'settings.php?t=agents','iconclass'=>'teams');
                     $subnav[]=array('desc'=>__('Users'),'href'=>'settings.php?t=users','iconclass'=>'groups');
+                    $subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings');
                     $subnav[]=array('desc'=>__('Knowledgebase'),'href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     break;
                 case 'manage':

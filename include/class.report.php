@@ -23,14 +23,21 @@ RolePermission::register(/* @trans */ 'Miscellaneous', ReportModel::getPermissio
 class OverviewReport {
     var $start;
     var $end;
+    static $end_choices = [
+        'now' => 'Up to today',
+        '+7 days' => 'One Week',
+        '+14 days' => 'Two Weeks',
+        '+1 month' => 'One Month',
+        '+3 months' => 'One Quarter'
+    ];
 
     var $format;
 
     function __construct($start, $end='now', $format=null) {
         global $cfg;
 
-        $this->start = $start;
-        $this->end = $end;
+        $this->start = Format::sanitize($start);
+        $this->end = array_key_exists($end, self::$end_choices) ? $end : 'now';
         $this->format = $format ?: $cfg->getDateFormat(true);
     }
 
@@ -44,7 +51,7 @@ class OverviewReport {
         if ($translate) {
             $format = str_replace(
                     array('y', 'Y', 'm'),
-                    array('yy', 'yyyy', 'mm'),
+                    array('y', 'yy', 'mm'),
                     $format);
         }
 
@@ -226,7 +233,7 @@ class OverviewReport {
             $headers = array(__('Help Topic'));
             $header = function($row) { return Topic::getLocalNameById($row['topic_id'], $row['topic__topic']); };
             $pk = 'topic_id';
-            $topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+            $topics = $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED);
             if (empty($topics))
                 return array("columns" => array_merge($headers, $dash_headers),
                       "data" => array());

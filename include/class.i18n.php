@@ -49,14 +49,14 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept::__create',
             'sla.yaml' =>           'SLA::__create',
+            'department.yaml' =>    'Dept::__create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
             'help_topic.yaml' =>    'Topic::__create',
-            'filter.yaml' =>        'Filter::create',
+            'filter.yaml' =>        'Filter::__create',
             'team.yaml' =>          'Team::__create',
             // Organization
             'organization.yaml' =>  'Organization::__create',
@@ -126,7 +126,7 @@ class Internationalization {
                 'registration-staff', 'pwreset-staff', 'banner-staff',
                 'registration-client', 'pwreset-client', 'banner-client',
                 'registration-confirm', 'registration-thanks',
-                'access-link') as $type) {
+                'access-link', 'email2fa-staff') as $type) {
             $tpl = $this->getTemplate("templates/page/{$type}.yaml");
             if (!($page = $tpl->getData()))
                 continue;
@@ -240,7 +240,7 @@ class Internationalization {
                     'code' => $base,
                 );
                 $installed[strtolower($base)]['flag'] = strtolower(
-                    $langs[$code]['flag'] ?: $locale ?: $code
+                    ($langs[$code]['flag'] ?? $locale) ?: $code
                 );
             }
         }
@@ -382,7 +382,7 @@ class Internationalization {
                 return $lang;
 
         // Support the flag buttons for guests
-        if ((!$user || $user != $thisstaff) && $_SESSION['::lang'])
+        if ((!$user || $user != $thisstaff) && isset($_SESSION['::lang']))
             return $_SESSION['::lang'];
 
         return self::getDefaultLanguage();
@@ -465,11 +465,11 @@ class Internationalization {
         // Create formatter && cache
         $cache[$k] = $formatter = new IntlDateFormatter(
                 $options['locale'],
-                $options['daytype'] ?: null,
-                $options['timetype'] ?: null,
-                $options['timezone'] ?: null,
-                $options['calendar'] ?: IntlDateFormatter::GREGORIAN,
-                $options['pattern'] ?: null
+                $options['daytype'] ?? null,
+                $options['timetype'] ?? null,
+                $options['timezone'] ?? null,
+                $options['calendar'] ?? IntlDateFormatter::GREGORIAN,
+                $options['pattern'] ?? null
                 );
 
         return $formatter;

@@ -26,15 +26,11 @@ $columns = $queue->getColumns();
 
 // Figure out REFRESH url — which might not be accurate after posting a
 // response
-list($path,) = explode('?', $_SERVER['REQUEST_URI'], 2);
-$args = array();
-parse_str($_SERVER['QUERY_STRING'], $args);
-
-// Remove commands from query
-unset($args['id']);
-if ($args['a'] !== 'search') unset($args['a']);
-
-$refresh_url = $path . '?' . http_build_query($args);
+// Remove some variables from query string.
+$qsFilter = ['id'];
+if (isset($_REQUEST['a']) && ($_REQUEST['a'] !== 'search'))
+    $qsFilter[] = 'a';
+$refresh_url = Http::refresh_url($qsFilter);
 
 // Establish the selected or default sorting mechanism
 if (isset($_GET['sort']) && is_numeric($_GET['sort'])) {
@@ -61,7 +57,7 @@ elseif (isset($_SESSION['sort'][$queue->getId()])) {
 elseif ($queue_sort = $queue->getDefaultSort()) {
     $sort = $_SESSION['sort'][$queue->getId()] = array(
         'queuesort' => $queue_sort,
-        'dir' => (int) $_GET['dir'] ?: 0,
+        'dir' => (int) $_GET['dir'] ?? 0,
     );
 }
 
@@ -87,7 +83,7 @@ if (!$sorted) {
 
 // Apply pagination
 
-$page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
+$page = (isset($_GET['p']) && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
 
@@ -125,7 +121,7 @@ if (($Q->extra && isset($Q->extra['tables'])) || !$Q->constraints || $empty) {
     $count = '-';
 }
 
-$count = $count ?: $queue->getCount($thisstaff);
+$count = $count ?? $queue->getCount($thisstaff);
 $pageNav->setTotal($count, true);
 $pageNav->setURL('tickets.php', $args);
 ?>
@@ -151,7 +147,7 @@ return false;">
     <input type="hidden" name="search-type" value=""/>
     <div class="attached input">
       <input type="text" class="basic-search" data-url="ajax.php/tickets/lookup" name="query"
-        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'], true); ?>"
+        autofocus size="30" value="<?php echo Format::htmlchars($_REQUEST['query'] ?? null, true); ?>"
         autocomplete="off" autocorrect="off" autocapitalize="off">
       <button type="submit" class="attached button"><i class="icon-search"></i>
       </button>
@@ -218,7 +214,7 @@ if ($queue->id > 0 && $queue->isOwner($thisstaff)) { ?>
             <?php
             // TODO: Respect queue root and corresponding actions
             if ($count) {
-                Ticket::agentActions($thisstaff, array('status' => $status));
+                Ticket::agentActions($thisstaff, array('status' => $status ?? null));
             }?>
             </div>
         </div>

@@ -189,6 +189,10 @@ img.avatar {
     <th><?php echo __('Last Message'); ?></th>
     <td><?php echo Format::datetime($ticket->getLastMessageDate()); ?></td>
 </tr>
+<tr>
+    <th><?php echo __('Time Spent'); ?></th>
+    <td><?php echo $ticket->getTimeSpent(); ?></td>
+</tr>
 </tbody>
 </table>
 
@@ -255,7 +259,7 @@ if ($entries->exists(true)) {
             //       changes in dates between thread items.
             if ($this->includeevents) {
                 while ($event && $cmp($event->timestamp, $entry->created)) {
-                    $event->render(ThreadEvent::MODE_CLIENT);
+                    $event->render(ThreadEvent::MODE_STAFF);
                     $events->next();
                     $event = $events->current();
                 }
@@ -267,6 +271,13 @@ if ($entries->exists(true)) {
                             echo Format::datetime($entry->created);?></span>
                         <span style="padding:0 1em" class="faded title"><?php
                             echo Format::truncate($entry->title, 100); ?></span>
+                        <?php if ($cfg->isThreadTime()) {
+                        if ($entry->time_spent > 0) { ?>
+                            <span style="display:inline-block">
+                                <?php echo Ticket::formatTime($entry->time_spent) .' - '. Ticket::convTimeType($entry->time_type); ?>
+                            </span>
+                        <?php }
+                    } ?>
                     </td>
                     <td class="flush-right faded title" style="white-space:no-wrap">
 <?php
@@ -294,7 +305,7 @@ if ($entries->exists(true)) {
 }
 // Emit all other events
 while ($event) {
-    $event->render(ThreadEvent::MODE_CLIENT);
+    $event->render(ThreadEvent::MODE_STAFF);
     $events->next();
     $event = $events->current();
 } ?>

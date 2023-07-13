@@ -33,6 +33,8 @@ class Dispatcher {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_GET['_method']);
             unset($_GET['_method']);
         }
+        // Decode URL for accurate matching
+        $url = urldecode($url);
         foreach ($this->urls as $matcher) {
             if ($matcher->matches($url)) {
                 return $matcher->dispatch($url, $args);
@@ -105,7 +107,7 @@ class UrlMatcher {
         $f = array_filter(array_keys($this->matches), 'is_numeric');
         $this->matches = array_intersect_key($this->matches, array_flip($f));
 
-        if (@get_class($this->func) == "Dispatcher") {
+        if (is_object($this->func) && (@get_class($this->func) == "Dispatcher")) {
             # Trim the leading match off the $url and call the
             # sub-dispatcher. This will be the case for lines in the URL
             # file like
@@ -136,7 +138,13 @@ class UrlMatcher {
         if ($class) {
             # Create instance of the class, which is the first item,
             # then call the method which is the second item
-            $func = array(new $class, $func);
+            $class = new $class;
+            # Check access at the controller level
+            if (!$class->access())
+                 Http::response(403,  __('Access Denied!!!'));
+            # Create callable function, class is the first item,
+            # then call the method is the second item
+            $func = array($class, $func);
         }
 
         if (!is_callable($func))
@@ -160,7 +168,7 @@ class UrlMatcher {
 
         if (strpos($class, ":")) {
             list($file, $class) = explode(":", $class, 2);
-            include $file;
+            include_once $file;
         }
         return array($class, $func);
     }

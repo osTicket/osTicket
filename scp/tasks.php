@@ -231,7 +231,7 @@ if($task) {
             $thisstaff->hasPerm(Task::PERM_CREATE, false))
         $inc = 'task-open.inc.php';
     elseif($_REQUEST['a'] == 'export') {
-        $ts = strftime('%Y%m%d');
+        $ts = date('Ymd');
         if (!($query=$_SESSION[':Q:tasks']))
             $errors['err'] = __('Query token not found');
         elseif (!Export::saveTasks($query, "tasks-$ts.csv", 'csv'))

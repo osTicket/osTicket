@@ -234,10 +234,7 @@ class Page extends VerySimpleModel {
         try {
             return self::objects()->filter(array('type'=>$type))->one();
         }
-        catch (DoesNotExist $ex) {
-            return null;
-        }
-        catch (InconsistentModelException $ex) {
+        catch (DoesNotExist | InconsistentModelException $ex) {
             return null;
         }
     }

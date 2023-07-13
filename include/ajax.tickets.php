@@ -55,8 +55,12 @@ class TicketsAjaxAPI extends AjaxController {
         global $ost;
         $hits = $ost->searcher->find($q, $hits, false);
 
-        if (preg_match('/\d{2,}[^*]/', $q, $T = array())) {
+        $T = array();
+        if (preg_match('/\d{2,}[^*]/', $q, $T)) {
             $hits = $this->lookupByNumber($limit, $visibility, $hits);
+        }
+        elseif (preg_match('/(.*@.{2,})|(.{2,}@.*)/', $q, $T)) {
+            $hits = $this->lookupByEmail($limit, $visibility, $hits);
         }
         elseif (!count($hits) && preg_match('`\w$`u', $q)) {
             // Do wild-card fulltext search
@@ -138,6 +142,50 @@ class TicketsAjaxAPI extends AjaxController {
                 'mergeType'=>Ticket::getMergeTypeByFlag($T['flags']),
                 'children'=>count(Ticket::getChildTickets($T['ticket_id'])) > 0 ? true : false,
                 'matches'=>$_REQUEST['q']);
+        }
+        $tickets = array_values($tickets);
+
+        return $this->json_encode($tickets);
+    }
+
+    function lookupByEmail($limit=false, $visibility=false, $matches=false) {
+        global $thisstaff;
+
+        if (!$limit)
+            $limit = isset($_REQUEST['limit']) ? (int) $_REQUEST['limit']:25;
+
+        $tickets=array();
+        // Bail out of query is empty
+        if (!$_REQUEST['q'])
+            return $this->json_encode($tickets);
+
+        $q = trim($_REQUEST['q']);
+
+        if (!$visibility)
+            $visibility = $thisstaff->getTicketsVisibility();
+
+        $hits = Ticket::objects()
+            ->values('user__default_email__address', 'cdata__subject', 'user__name', 'ticket_id', 'thread__id', 'flags')
+            ->annotate(array(
+                'number' => new SqlCode('null'),
+                'tickets' => SqlAggregate::COUNT('ticket_id', true),
+                'tasks' => SqlAggregate::COUNT('tasks__id', true),
+                'collaborators' => SqlAggregate::COUNT('thread__collaborators__id', true),
+                'entries' => SqlAggregate::COUNT('thread__entries__id', true),
+            ))
+            ->filter($visibility)
+            ->filter(array('user__default_email__address__contains' => $q))
+            ->order_by('user__default_email__address')
+            ->limit($limit);
+
+        if ($matches && is_a($matches, 'QuerySet'))
+            return $hits->union($matches);
+
+        foreach ($hits as $T) {
+            $count = $T['tickets'];
+            $email = $T['user__default_email__address'];
+            $tickets[$email] = array('email'=>$email, 'value'=>$email,
+                'info'=>"$email ($count)", 'matches'=>$_REQUEST['q']);
         }
         $tickets = array_values($tickets);
 
@@ -318,7 +366,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_userlookup($user, null, $info);
     }
 
-    function _userlookup($user, $form, $info) {
+    static function _userlookup($user, $form, $info) {
         global $thisstaff;
 
         ob_start();
@@ -450,7 +498,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_updateMerge($parent, $tickets, $info);
     }
 
-    private function _updateMerge($ticket, $tickets, $info) {
+    static private function _updateMerge($ticket, $tickets, $info) {
         include(STAFFINC_DIR . 'templates/merge-tickets.tmpl.php');
     }
 
@@ -688,7 +736,7 @@ class TicketsAjaxAPI extends AjaxController {
                         break;
                     default:
                         $clean =  $field->getClean();
-                        $clean = is_array($clean) ? implode($clean, ',') :
+                        $clean = is_array($clean) ? implode(',', $clean) :
                             (string) $clean;
                 }
 
@@ -994,7 +1042,7 @@ class TicketsAjaxAPI extends AjaxController {
             foreach ($tickets as $ticket) {
                 list($ticket_id, $flags, $dept_id, $ticket_pid) = $ticket;
                 $mergeType = Ticket::getMergeTypeByFlag($flags);
-                $isParent = Ticket::isParent($flags);
+                $isParent = Ticket::isParentStatic($flags);
                 $role = $thisstaff->getRole($dept_id);
                 $hasPermission[] = $role->hasPerm($permission);
 
@@ -1086,13 +1134,8 @@ class TicketsAjaxAPI extends AjaxController {
 
                         $depts = $tickets->values_flat('dept_id');
                     }
-                    $members = Staff::objects()
-                        ->distinct('staff_id')
-                        ->filter(array(
-                                    'onvacation' => 0,
-                                    'isactive' => 1,
-                                    )
-                                );
+                    //agents in depts $thisstaff can access
+                    $members = $thisstaff->getDeptAgents(array('available' => true));
 
                     if ($depts) {
                         $all_agent_depts = Dept::objects()->filter(
@@ -1169,6 +1212,9 @@ class TicketsAjaxAPI extends AjaxController {
                 $f->configure('prompt', $prompt);
 
             if ($_POST && $form->isValid()) {
+                // we need to clear this relation so we can create a fresh
+                // query that will get roles for all depts this agent can access
+                unset($thisstaff->ht['dept_access']);
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
                             // Make sure the agent is allowed to
@@ -1191,9 +1237,10 @@ class TicketsAjaxAPI extends AjaxController {
         case 'transfer':
             $inc = 'transfer.tmpl.php';
             $info[':action'] = '#tickets/mass/transfer';
-            $info[':title'] = sprintf('Transfer %s',
+            $info[':title'] = sprintf(__('Transfer %s'),
                     _N('selected ticket', 'selected tickets', $count));
             $form = TransferForm::instantiate($_POST);
+            $form->hideDisabled();
             if ($_POST && $form->isValid()) {
                 foreach ($_POST['tids'] as $tid) {
                     if (($t=Ticket::lookup($tid))
@@ -1675,7 +1722,7 @@ class TicketsAjaxAPI extends AjaxController {
         $thread->triggerAction($action);
     }
 
-    private function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
+    private static function _changeSelectedTicketsStatus($state, $info=array(), $errors=array()) {
 
         $count = $_REQUEST['count'] ?:
             ($_REQUEST['tids'] ?  count($_REQUEST['tids']) : 0);
@@ -1707,7 +1754,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_changeStatus($state, $info, $errors);
     }
 
-    private function _changeTicketStatus($ticket, $state, $info=array(), $errors=array()) {
+    private static function _changeTicketStatus($ticket, $state, $info=array(), $errors=array()) {
 
         $verb = TicketStateField::getVerb($state);
 
@@ -1743,7 +1790,7 @@ class TicketsAjaxAPI extends AjaxController {
         return self::_changeStatus($state, $info, $errors);
     }
 
-    private function _changeStatus($state, $info=array(), $errors=array()) {
+    private static function _changeStatus($state, $info=array(), $errors=array()) {
 
         if ($info && isset($info['errors']))
             $errors = array_merge($errors, $info['errors']);
@@ -1988,7 +2035,7 @@ class TicketsAjaxAPI extends AjaxController {
             } else {
                 $filename = sprintf('%s Tickets-%s.csv',
                         $queue->getName(),
-                        strftime('%Y%m%d'));
+                        date('Ymd'));
             }
 
             try {

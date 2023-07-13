@@ -69,7 +69,7 @@ class Log {
     }
 
     /*** static function ***/
-    function lookup($id){
+    static function lookup($id){
         return ($id && is_numeric($id) && ($l= new Log($id)) && $l->getId()==$id)?$l:null;
     }
 }

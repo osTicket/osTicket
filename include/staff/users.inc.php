@@ -126,12 +126,12 @@ $users->order_by($order . $order_column);
                             <i class="icon-unlock icon-fixed-width"></i>
                             <?php echo __('Unlock'); ?></a></li>
                         <?php }
+                        } # end of registration-enabled
                         if ($thisstaff->hasPerm(User::PERM_DELETE)) { ?>
                         <li class="danger"><a class="users-action" href="#delete">
                             <i class="icon-trash icon-fixed-width"></i>
                             <?php echo __('Delete'); ?></a></li>
-                        <?php }
-                        } # end of registration-enabled? ?>
+                        <?php } ?>
                     </ul>
                 </div>
             </div>
@@ -226,7 +226,9 @@ else
 </table>
 <?php
 if ($total) {
-    echo sprintf('<div>&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
+    echo '<div>';
+    echo '<span class="faded pull-right">'.$showing.'</span>';
+    echo sprintf('&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
             href="users.php?a=export&qh=%s">'.__('Export').'</a></div>',
             $pageNav->getPageLinks(),
             $qhash);

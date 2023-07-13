@@ -85,7 +85,7 @@ class KbaseAjaxAPI extends AjaxController {
 
         $title = __("Manage FAQ Access");
         $verb = __('Update');
-        $path = ltrim($ost->get_path_info(), '/');
+        $path = ltrim(Osticket::get_path_info(), '/');
 
         include STAFFINC_DIR . 'templates/quick-add.tmpl.php';
     }

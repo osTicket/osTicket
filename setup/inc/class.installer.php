@@ -101,15 +101,17 @@ class Installer extends SetupWizard {
             } elseif(!db_select_database($vars['dbname'])) {
                 $this->errors['dbname']=__('Unable to select the database');
             } else {
-                //Abort if we have another installation (or table) with same prefix.
-                $sql = 'SELECT * FROM `'.$vars['prefix'].'config` LIMIT 1';
-                if(db_query($sql, false)) {
-                    $this->errors['err'] = __('We have a problem - another installation with same table prefix exists!');
-                    $this->errors['prefix'] = __('Prefix already in-use');
-                } else {
-                    //Try changing charset and collation of the DB - no bigie if we fail.
-                    db_query('ALTER DATABASE '.$vars['dbname'].' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci', false);
-                }
+               try {
+                   //Abort if we have another installation (or table) with same prefix.
+                   $sql = 'SELECT * FROM `'.$vars['prefix'].'config` LIMIT 1';
+                   if(db_query($sql, false)) {
+                       $this->errors['err'] = __('We have a problem - another installation with same table prefix exists!');
+                       $this->errors['prefix'] = __('Prefix already in-use');
+                   } else {
+                       //Try changing charset and collation of the DB - no bigie if we fail.
+                       db_query('ALTER DATABASE '.$vars['dbname'].' DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci', false);
+                   }
+               } catch (Exception $ex) {} // If an error is thrown, don't worry, (be happy) it's okay!
             }
         }
 
@@ -206,6 +208,8 @@ class Installer extends SetupWizard {
             Organization::PERM_DELETE,
             FAQ::PERM_MANAGE,
             Email::PERM_BANLIST,
+            Dept::PERM_DEPT,
+            Staff::PERM_STAFF,
         ));
         $staff->setPassword($vars['passwd']);
         if (!$staff->save()) {
@@ -316,8 +320,10 @@ class Installer extends SetupWizard {
             $user->setOrganization($org);
         }
 
-        //TODO: create another personalized ticket and assign to admin??
+        // Rebuild cdata tables
+        DynamicForm::rebuildDynamicDataViews();
 
+        //TODO: create another personalized ticket and assign to admin??
         //Log a message.
         $msg=__("Congratulations osTicket basic installation completed!\n\nThank you for choosing osTicket!");
         $sql='INSERT INTO '.TABLE_PREFIX.'syslog SET created=NOW(), updated=NOW(), log_type="Debug" '

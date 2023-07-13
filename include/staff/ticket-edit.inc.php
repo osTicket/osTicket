@@ -93,7 +93,7 @@ if ($_POST)
                 <select name="topicId">
                     <option value="" selected >&mdash; <?php echo __('Select Help Topic');?> &mdash;</option>
                     <?php
-                    if($topics=Topic::getHelpTopics()) {
+                    if ($topics=$thisstaff->getTopicNames()) {
                       if($ticket->topic_id && !array_key_exists($ticket->topic_id, $topics)) {
                         $topics[$ticket->topic_id] = $ticket->topic;
                         $errors['topicId'] = sprintf(__('%s selected must be active'), __('Help Topic'));
@@ -167,7 +167,7 @@ if ($_POST)
         <tr>
             <td colspan="2">
                 <textarea class="richtext no-bar" name="note" cols="21"
-                    rows="6" style="width:80%;"><?php echo $info['note'];
+                    rows="6" style="width:80%;"><?php echo Format::viewableImages($info['note']);
                     ?></textarea>
             </td>
         </tr>

@@ -55,7 +55,7 @@ abstract class SearchBackend {
         static::$registry[$backend::$id] = $backend;
     }
 
-    function getInstance($id) {
+    static function getInstance($id) {
         if (!isset(self::$registry[$id]))
             return null;
 
@@ -204,7 +204,7 @@ class SearchInterface {
         if (defined('SEARCH_BACKEND'))
             $bk = SearchBackend::getInstance(SEARCH_BACKEND);
 
-        if (!$bk && !($bk = SearchBackend::getInstance('mysql')))
+        if (!isset($bk) && !($bk = SearchBackend::getInstance('mysql')))
             // No backend registered or defined
             return false;
 
@@ -358,8 +358,9 @@ class MysqlSearchBackend extends SearchBackend {
 
         // Require the use of at least one operator and conform to the
         // boolean mode grammar
-        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T = array())
-            && preg_match("`^{$BOOLEAN}$`u", $query, $T = array())
+        $T = array();
+        if (preg_match('`(^|\s)["()<>~+-]`u', $query, $T)
+            && preg_match("`^{$BOOLEAN}$`u", $query, $T)
         ) {
             // If using boolean operators, search in boolean mode. This regex
             // will ensure proper placement of operators, whitespace, and quotes
@@ -369,6 +370,10 @@ class MysqlSearchBackend extends SearchBackend {
         }
         #elseif (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
+
+        // Strip colon (:num) to avoid possible params injection
+        $query = preg_replace('/:(\d+)/i', '$1', $query);
+        // escape query and using it as search
         $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
 
         switch ($criteria->model) {
@@ -580,7 +585,8 @@ class MysqlSearchBackend extends SearchBackend {
             return false;
 
         while ($row = db_fetch_row($res)) {
-            $faq = FAQ::lookup($row[0]);
+            if (!($faq = FAQ::lookup($row[0])))
+               continue;
             $q = $faq->getQuestion();
             if ($k = $faq->getKeywords())
                 $q = $k.' '.$q;
@@ -792,7 +798,7 @@ class SavedQueue extends CustomQueue {
 
         if (!isset($this->_criteria)) {
             $this->getSettings();
-            $this->_criteria = $this->_settings['criteria'] ?: array();
+            $this->_criteria = $this->_settings['criteria'] ?? array();
         }
 
         $criteria = $this->_criteria;
@@ -939,6 +945,9 @@ class SavedQueue extends CustomQueue {
             ->filter(Q::any(array(
                 'flags__hasbit' => CustomQueue::FLAG_QUEUE,
                 'staff_id' => $agent->getId(),
+            )))
+            ->filter(Q::not(array(
+                'flags__hasbit' => CustomQueue::FLAG_DISABLED,
             )));
 
         if ($criteria && is_array($criteria))
@@ -982,7 +991,13 @@ class SavedQueue extends CustomQueue {
             }
 
             if ($Q->constraints && !$empty) {
-                $expr = SqlCase::N()->when(new SqlExpr(new Q($Q->constraints)), new SqlField('ticket_id'));
+                $constraints = $Q->constraints;
+                // Add path_constraints to get the correct counts
+                foreach ($Q->path_constraints as $pc) {
+                    if (!empty($pc[0]->constraints))
+                        $constraints[] = $pc[0];
+                }
+                $expr = SqlCase::N()->when(new SqlExpr(new Q($constraints)), new SqlField('ticket_id'));
                 $query->aggregate(array(
                     "q{$queue->id}" => SqlAggregate::COUNT($expr, true)
                 ));
@@ -1095,7 +1110,7 @@ extends SavedSearch {
         return $this->title ?: $this->describeCriteria();
     }
 
-    function load($key) {
+    static function load($key) {
         global $thisstaff;
 
         if (strpos($key, 'adhoc') === 0)
@@ -1181,31 +1196,87 @@ class HelpTopicChoiceField extends AdvancedSearchSelectionField {
         return true;
     }
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_topics))
-            $this->_topics = Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+        if (!isset($this->_topics)) {
+            $this->_topics = $thisstaff ? $thisstaff->getTopicNames(false, Topic::DISPLAY_DISABLED) :
+                Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED);;
+        }
 
         return $this->_topics;
+    }
+}
+
+class SLAChoiceField extends AdvancedSearchSelectionField {
+    static $_slas;
+
+    function hasIdValue() {
+        return true;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        if (!isset($this->_slas))
+            $this->_slas = SLA::getSLAs(array('nameOnly' => true));
+
+        return $this->_slas;
     }
 }
 
 require_once INCLUDE_DIR . 'class.dept.php';
 class DepartmentChoiceField extends AdvancedSearchSelectionField {
     static $_depts;
+    static $_alldepts;
     var $_choices;
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_depts))
-            $this->_depts = Dept::getDepartments();
+    function getDepts($criteria=array()) {
+        global $thisstaff;
 
-        return $this->_depts;
+        $staff = $criteria['staff'];
+        $depts = array();
+        if ($staff)
+            foreach ($staff->getDepartmentNames(true) as $id => $name)
+                $depts[$id] = $name;
+        else
+            foreach (Dept::getDepartments() as $id => $name)
+                $depts[$id] = $name;
+
+        return $depts;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+        $config = $this->getConfiguration();
+
+        $criteria = array(
+                'staff' => $config['staff'] ?: $thisstaff
+                );
+        if (!isset($this->_choices))
+            $this->_choices = $this->getDepts($criteria);
+
+        return $this->_choices;
+
+    }
+
+    function toString($value) {
+        if (!isset($this->_alldepts))
+            $this->_alldepts = $this->getDepts();
+        $choices =  $this->_alldepts;
+        $selection = array();
+        if (!is_array($value))
+            $value = array($value => $value);
+
+        foreach ($value as $k => $v)
+            if (isset($choices[$k]))
+                $selection[] = $choices[$k];
+
+        return $selection ?  implode(',', $selection) :
+            parent::toString($value);
     }
 
     function getQuickFilterChoices() {
        global $thisstaff;
 
        if (!isset($this->_choices)) {
-         $this->_choices = array();
          $depts = $thisstaff ? $thisstaff->getDepts() : array();
          foreach ($this->getChoices() as $id => $name) {
            if (!$depts || in_array($id, $depts))
@@ -1239,7 +1310,7 @@ class AssigneeChoiceField extends ChoiceField {
     protected $_items;
 
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         global $thisstaff;
 
         if (!isset($this->_items)) {
@@ -1247,7 +1318,9 @@ class AssigneeChoiceField extends ChoiceField {
                 'M' => __('Me'),
                 'T' => __('One of my teams'),
             );
-            foreach (Staff::getStaffMembers() as $id=>$name) {
+            $assignees = Staff::getStaffMembers(array('staff' => $thisstaff));
+
+            foreach ($assignees as $id=>$name) {
                 // Don't include $thisstaff (since that's 'Me')
                 if ($thisstaff && $thisstaff->getId() == $id)
                     continue;
@@ -1277,16 +1350,16 @@ class AssigneeChoiceField extends ChoiceField {
         );
     }
 
-    function getSearchMethodWidgets() {
+    function getSearchMethodWidgets($options=array()) {
         return array(
             'assigned' => null,
             '!assigned' => null,
             'includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
             '!includes' => array('ChoiceField', array(
-                'choices' => $this->getChoices(),
+                'choices' => $this->getChoices(false, $options),
                 'configuration' => array('multiselect' => true),
             )),
         );
@@ -1384,7 +1457,7 @@ class AssigneeChoiceField extends ChoiceField {
 
 class AssignedField extends AssigneeChoiceField {
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'assigned' =>   __('Assigned'),
             '!assigned' =>  __('Unassigned'),
@@ -1524,20 +1597,44 @@ trait ZeroMeansUnset {
 
 class AgentSelectionField extends AdvancedSearchSelectionField {
     use ZeroMeansUnset;
-
+    static $_allagents;
     static $_agents;
 
-    function getChoices($verbose=false) {
-        if (!isset($this->_agents)) {
-            $this->_agents = array('M' => __('Me')) +
-                Staff::getStaffMembers();
+    function getAgents($criteria=array()) {
+        $dept = $criteria['dept'] ?: null;
+        $staff = $criteria['staff'] ?: null;
+        $agents = array();
+        if ($dept) {
+            foreach ($dept->getAssignees(array('staff' => $staff)) as $a)
+                $agents[$a->getId()] = $a;
+        } else {
+            foreach (Staff::getStaffMembers(array('staff' => $staff)) as $id => $name) {
+                if ($staff && $staff->getId() == $id)
+                    $agents['M'] = __('Me');
+                $agents[$id] = $name;
+            }
         }
-        return $this->_agents;
+        return $agents;
+    }
+
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+        $config = $this->getConfiguration();
+        $criteria = array(
+                'dept' => $config['dept'] ?: null,
+                'staff' => $config['staff'] ?: $thisstaff
+                );
+        if (!isset($this->_choices))
+            $this->_choices = $this->getAgents($criteria);
+
+        return $this->_choices;
+
     }
 
     function toString($value) {
-
-        $choices =  $this->getChoices();
+        if (!isset($this->_allagents))
+            $this->_allagents = $this->getAgents();
+        $choices =  $this->_allagents;
         $selection = array();
         if (!is_array($value))
             $value = array($value => $value);
@@ -1574,12 +1671,17 @@ class AgentSelectionField extends AdvancedSearchSelectionField {
 class DepartmentManagerSelectionField extends AgentSelectionField {
     static $_members;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
+        global $thisstaff;
+
         if (!isset($this->_members)) {
             $managers = array();
-            $staff = Staff::objects()->filter(array('dept__manager_id__gt' => 0));
-            foreach ($staff as $s) {
-                $managers['s'.$s->getId()] = $s->getName()->name;
+            $mgr = Dept::objects()->filter(array('manager_id__gt' => 0))->values_flat('manager_id');
+            $staff = $thisstaff->getDeptAgents(array('available' => true, 'namesOnly' => true));
+            foreach ($mgr as $mid) {
+                $mid = $mid[0];
+                if (array_key_exists($mid, $staff))
+                    $managers['s'.$mid] = $staff[$mid]->getName()->name;
             }
             $this->_members = $managers;
         }
@@ -1595,7 +1697,7 @@ class DepartmentManagerSelectionField extends AgentSelectionField {
 class TeamSelectionField extends AdvancedSearchSelectionField {
     static $_teams;
 
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         if (!isset($this->_teams) && $teams = Team::getTeams())
             $this->_teams = array('T' => __('One of my teams')) +
                 $teams;
@@ -1641,7 +1743,7 @@ class TeamSelectionField extends AdvancedSearchSelectionField {
 }
 
 class TicketStateChoiceField extends AdvancedSearchSelectionField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'open' => __('Open'),
             'closed' => __('Closed'),
@@ -1663,7 +1765,7 @@ class TicketStateChoiceField extends AdvancedSearchSelectionField {
 }
 
 class TicketFlagChoiceField extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return array(
             'isanswered' =>   __('Answered'),
             'isoverdue' =>    __('Overdue'),
@@ -1691,7 +1793,7 @@ class TicketFlagChoiceField extends ChoiceField {
 }
 
 class TicketSourceChoiceField extends ChoiceField {
-    function getChoices($verbose=false) {
+    function getChoices($verbose=false, $options=array()) {
         return Ticket::getSources();
     }
 

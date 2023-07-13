@@ -10,7 +10,7 @@
                 /> <?php echo __('Enable'); ?>
                 <input type="radio" name="ticket_alert_active"  value="0"   <?php echo !$config['ticket_alert_active']?'checked':''; ?> />
                  <?php echo __('Disable'); ?>
-                &nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['ticket_alert_active']; ?></font></em>
+                &nbsp;&nbsp;<font class="error"><?php echo $errors['ticket_alert_active']; ?></font></em>
              </td>
         </tr>
         <tr>
@@ -86,7 +86,7 @@
               &nbsp;&nbsp;
               <input type="radio" name="note_alert_active"  value="0"   <?php echo !$config['note_alert_active']?'checked':''; ?> />
                 <?php echo __('Disable'); ?>
-              &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['note_alert_active']; ?></font>
+              &nbsp;&nbsp;&nbsp;<font class="error"><?php echo $errors['note_alert_active']; ?></font>
             </td>
         </tr>
         <tr>
@@ -117,7 +117,7 @@
               &nbsp;&nbsp;
               <input name="assigned_alert_active" value="0" type="radio"
                 <?php echo !$config['assigned_alert_active']?'checked="checked"':''; ?>> <?php echo __('Disable'); ?>
-               &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['assigned_alert_active']; ?></font>
+               &nbsp;&nbsp;&nbsp;<font class="error"><?php echo $errors['assigned_alert_active']; ?></font>
             </td>
         </tr>
         <tr>
@@ -147,7 +147,7 @@
                 <?php echo __('Enable'); ?>
             <input type="radio" name="transfer_alert_active"  value="0"   <?php echo !$config['transfer_alert_active']?'checked':''; ?> />
                 <?php echo __('Disable'); ?>
-              &nbsp;&nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['alert_alert_active']; ?></font>
+              &nbsp;&nbsp;&nbsp;<font class="error"><?php echo $errors['alert_alert_active']; ?></font>
             </td>
         </tr>
         <tr>
@@ -177,7 +177,7 @@
                 <?php echo $config['overdue_alert_active']?'checked':''; ?> /> <?php echo __('Enable'); ?>
               <input type="radio" name="overdue_alert_active"  value="0"
                 <?php echo !$config['overdue_alert_active']?'checked':''; ?> /> <?php echo __('Disable'); ?>
-              &nbsp;&nbsp;<font class="error">&nbsp;<?php echo $errors['overdue_alert_active']; ?></font>
+              &nbsp;&nbsp;<font class="error"><?php echo $errors['overdue_alert_active']; ?></font>
             </td>
         </tr>
         <tr>

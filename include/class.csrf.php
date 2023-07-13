@@ -60,7 +60,7 @@ Class CSRF {
 
     function getToken() {
 
-        if (!$this->csrf['token'] || $this->isExpired()) {
+        if ((!is_array($this->csrf) || !$this->csrf['token']) || $this->isExpired()) {
             $this->rotate();
         } else {
             //Reset the timer

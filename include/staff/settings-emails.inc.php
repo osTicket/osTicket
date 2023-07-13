@@ -147,16 +147,22 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <select name="default_smtp_id">
                     <option value=0 selected="selected"><?php echo __('None: Use PHP mail function');?></option>
                     <?php
-                    $sql=' SELECT email_id, email, name, smtp_host '
-                        .' FROM '.EMAIL_TABLE.' WHERE smtp_active = 1';
-                    if(($res=db_query($sql)) && db_num_rows($res)) {
-                        while (list($id, $email, $name, $host) = db_fetch_row($res)){
-                            $email=$name?"$name &lt;$email&gt;":$email;
-                            ?>
-                            <option value="<?php echo $id; ?>"<?php echo ($config['default_smtp_id']==$id)?'selected="selected"':''; ?>><?php echo $email; ?></option>
+                    $accounts = SmtpAccount::objects()->filter(['active' => 1]);
+                    foreach ($accounts as $account) {
+                        if (!($email=$account->getEmail()))
+                            continue;
+
+                        $id = $account->getId();
+                        $addr = sprintf('%s &lt;%s&gt;',
+                                $email->getName(),
+                                $email->getEmail());
+                        ?>
+                        <option value="<?php echo $id; ?>"<?php
+                            echo ($config['default_smtp_id'] == $id) ? 'selected="selected"' : ''; ?>><?php
+                            echo $addr; ?></option>
                         <?php
-                        }
-                    } ?>
+                    }
+                    ?>
                  </select>&nbsp;<font class="error">&nbsp;<?php echo $errors['default_smtp_id']; ?></font>
                  <i class="help-tip icon-question-sign" href="#default_mta"></i>
            </td>

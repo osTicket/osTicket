@@ -12,14 +12,14 @@ class Code93 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 	/**
 	 * @param string $code
 	 */
-	public function __construct($code)
+	public function __construct($code, $quiet_zone_left = null, $quiet_zone_right = null)
 	{
 		$this->init($code);
 
 		$this->data['nom-X'] = 0.381; // Nominal value for X-dim (bar width) in mm (2 X min. spec.)
 		$this->data['nom-H'] = 10;  // Nominal value for Height of Full bar in mm (non-spec.)
-		$this->data['lightmL'] = 10; // LEFT light margin =  x X-dim (spec.)
-		$this->data['lightmR'] = 10; // RIGHT light margin =  x X-dim (spec.)
+		$this->data['lightmL'] = ($quiet_zone_left !== null ? $quiet_zone_left : 10); // LEFT light margin =  x X-dim (spec.)
+		$this->data['lightmR'] = ($quiet_zone_right !== null ? $quiet_zone_right : 10); // RIGHT light margin =  x X-dim (spec.)
 		$this->data['lightTB'] = 0; // TOP/BOTTOM light margin =  x X-dim (non-spec.)
 	}
 
@@ -119,10 +119,10 @@ class Code93 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 		$clen = strlen($code);
 
 		for ($i = 0; $i < $clen; ++$i) {
-			if (ord($code{$i}) > 127) {
-				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid character "%s" in Code93 barcode value', $code{$i}));
+			if (ord($code[$i]) > 127) {
+				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid character "%s" in CODE93 barcode value "%s"', $code[$i], $code));
 			}
-			$code_ext .= $encode[$code{$i}];
+			$code_ext .= $encode[$code[$i]];
 		}
 
 		// checksum
@@ -135,10 +135,10 @@ class Code93 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 		$clen = strlen($code);
 
 		for ($i = 0; $i < $clen; ++$i) {
-			$char = ord($code{$i});
+			$char = ord($code[$i]);
 			if (!isset($chr[$char])) {
 				// invalid character
-				throw new \Mpdf\Barcode\BarcodeException('Invalid CODE93 barcode value');
+				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE93 barcode value "%s"', $code));
 			}
 			for ($j = 0; $j < 6; ++$j) {
 				if (($j % 2) == 0) {
@@ -146,7 +146,7 @@ class Code93 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 				} else {
 					$t = false; // space
 				}
-				$w = $chr[$char]{$j};
+				$w = $chr[$char][$j];
 				$bararray['bcode'][$k] = ['t' => $t, 'w' => $w, 'h' => 1, 'p' => 0];
 				$bararray['maxw'] += $w;
 				++$k;
@@ -183,7 +183,7 @@ class Code93 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 		$p = 1;
 		$check = 0;
 		for ($i = ($len - 1); $i >= 0; --$i) {
-			$k = array_keys($chars, $code{$i});
+			$k = array_keys($chars, $code[$i]);
 			$check += ($k[0] * $p);
 			++$p;
 			if ($p > 20) {
@@ -198,7 +198,7 @@ class Code93 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 		$p = 1;
 		$check = 0;
 		for ($i = $len; $i >= 0; --$i) {
-			$k = array_keys($chars, $code{$i});
+			$k = array_keys($chars, $code[$i]);
 			$check += ($k[0] * $p);
 			++$p;
 			if ($p > 15) {

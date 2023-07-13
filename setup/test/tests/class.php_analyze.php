@@ -27,7 +27,10 @@ class SourceAnalyzer extends Test {
         $token = false;
         $blocks = 0;
         $func_options = array('allow_this'=>true);
-        while (list($i,$token) = each($this->tokens)) {
+        while (list($i,$token) = [key($this->tokens), current($this->tokens)]) {
+            next($this->tokens);
+            if ($token === false)
+                break;
             switch ($token[0]) {
             case '{':
                 $blocks++;
@@ -55,7 +58,8 @@ class SourceAnalyzer extends Test {
             case T_VAR:
                 // var $variable
                 // used inside classes to define instance variables
-                while (list(,$token) = each($this->tokens)) {
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
                     if (is_array($token) && $token[0] == T_VARIABLE)
                         // TODO: Add this to some class context in the
                         // future to support indefined access to $this->blah
@@ -72,7 +76,8 @@ class SourceAnalyzer extends Test {
         $token = false;
         $scope = array();
         while ($token != "{") {
-            list(,$token) = each($this->tokens);
+            $token = current($this->tokens);
+            next($this->tokens);
             switch ($token[0]) {
             case T_WHITESPACE:
                 continue 2;
@@ -100,7 +105,10 @@ class SourceAnalyzer extends Test {
         // Unpack function[line][file] if set
         if (is_array($function['line']))
             $function['file'] = $function['line'][1];
-        while (list($i,$token) = each($this->tokens)) {
+        while (list($i,$token) = [key($this->tokens), current($this->tokens)]) {
+            next($this->tokens);
+            if ($token === false)
+                break;
             // Check variable usage and for nested blocks
             switch ($token[0]) {
             case '{':
@@ -212,8 +220,9 @@ class SourceAnalyzer extends Test {
                 if ($c[0] == T_PAAMAYIM_NEKUDOTAYIM)
                     break;
             case T_GLOBAL:
-                while (list(,$token) = each($this->tokens)) {
-                    if ($token == ';')
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if (($token == ';') || $token === false)
                         break;
                     elseif (!is_array($token))
                         continue;
@@ -225,8 +234,9 @@ class SourceAnalyzer extends Test {
                 // for ($i=0;...)
                 // Find first semi-colon, variables defined before it should
                 // be added to the current scope
-                while (list(,$token) = each($this->tokens)) {
-                    if ($token == ';')
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if (($token == ';') || $token === false)
                         break;
                     elseif (!is_array($token))
                         continue;
@@ -241,7 +251,10 @@ class SourceAnalyzer extends Test {
                 $parens = 0;
                 // Scan for the variables defined for the scope of the
                 // foreach block
-                while (list(,$token) = each($this->tokens)) {
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if ($token === false)
+                        break;
                     if ($token == '(')
                         $parens++;
                     elseif ($token == ')' && --$parens == 0)
@@ -260,8 +273,9 @@ class SourceAnalyzer extends Test {
             case T_LIST:
                 // list($a, $b) = ...
                 // Find all variables defined up to the closing parenthesis
-                while (list(,$token) = each($this->tokens)) {
-                    if ($token == ')')
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if (($token == ')') || $token === false)
                         break;
                     elseif (!is_array($token))
                         continue;
@@ -273,16 +287,18 @@ class SourceAnalyzer extends Test {
                 // isset($var)
                 // $var is allowed to be undefined and not be an error.
                 // Consume tokens until close parentheses
-                while (list(,$token) = each($this->tokens)) {
-                    if ($token == ')')
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if (($token == ')') || $token === false)
                         break;
                 }
                 break;
             case T_UNSET:
                 // unset($var)
                 // Var will no longer be in scope
-                while (list(,$token) = each($this->tokens)) {
-                    if ($token == ')')
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if (($token == ')') || $token === false)
                         break;
                     elseif (is_array($token) && $token[0] == T_VARIABLE) {
                         // Check for unset($var[key]) -- don't unset anything
@@ -301,8 +317,9 @@ class SourceAnalyzer extends Test {
                 break;
             case T_CATCH:
                 // catch (Exception $var) {
-                while (list(,$token) = each($this->tokens)) {
-                    if ($token == '{')
+                while ($token = current($this->tokens)) {
+                    next($this->tokens);
+                    if (($token == '{') || $token === false)
                         break;
                     elseif ($token[0] == T_VARIABLE)
                         $variable = $token[1];

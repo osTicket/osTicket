@@ -252,7 +252,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return $this->_children ?: array();
     }
 
-    function getMergeTypeByFlag($flag) {
+    static function getMergeTypeByFlag($flag) {
         if (($flag & self::FLAG_COMBINE_THREADS) != 0)
             return 'combine';
         if (($flag & self::FLAG_SEPARATE_THREADS) != 0)
@@ -279,10 +279,15 @@ implements RestrictedAccess, Threadable, Searchable {
         return false;
     }
 
-    function isParent($flag=false) {
-        if (is_numeric($flag) && ($flag & self::FLAG_PARENT) != 0)
+    function isParent() {
+        if ($this->hasFlag(self::FLAG_PARENT))
             return true;
-        elseif (!is_numeric($flag) && $this->hasFlag(self::FLAG_PARENT))
+
+        return false;
+    }
+
+    static function isParentStatic($flag=false) {
+        if (is_numeric($flag) && ($flag & self::FLAG_PARENT) != 0)
             return true;
 
         return false;
@@ -528,6 +533,62 @@ implements RestrictedAccess, Threadable, Searchable {
 
     function getUpdateDate() {
         return $this->updated;
+    }
+
+    function getTimeSpent(){
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $this->getId()])
+            ->values('thread__entries__time_type')
+            ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
+
+        $totals = 0;
+        foreach ($times as $T) {
+            $totals = $totals + $T['totaltime'];
+        }
+
+        return $this->formatTime($totals);
+    }
+
+    function convTimeSpent($time) {
+        return $this->formatTime($time);
+    }
+
+    static function convTimeType($type) {
+        $typetext = DynamicListItem::lookup($type);
+        return $typetext->value;
+    }
+
+    static function formatTime($time) {
+        $hours = floor($time / 60);
+        $minutes = $time % 60;
+        $formatted = '';
+
+        if ($hours > 0) {
+            $formatted .= sprintf('%d %s', $hours, _N('Hour', 'Hours', $hours));
+        }
+        if ($minutes > 0) {
+            if ($formatted) $formatted .= ', ';
+            $formatted .= sprintf('%d %s', $minutes, _N('Minute', 'Minutes', $minutes));
+        }
+        return $formatted;
+    }
+
+    function getTimeTotalsByType($billable=true, $typeid=false) {
+        $times = Ticket::objects()
+            ->filter(['ticket_id' => $this->getId()])
+            ->values('thread__entries__time_type')
+            ->annotate(['totaltime' => SqlAggregate::SUM('thread__entries__time_spent')]);
+
+        if ($typeid)
+            $times = $times->filter(['thread__entries__time_type' => $typeid]);
+        if ($billable)
+            $times = $times->filter(['thread__entries__time_bill' => 1]);
+
+        $totals = array();
+        foreach ($times as $T) {
+            $totals[$T['thread__entries__time_type']] = $T['totaltime'];
+        }
+        return $totals;
     }
 
     function getEffectiveDate() {
@@ -993,26 +1054,18 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getAssignmentForm($source=null, $options=array()) {
+        global $thisstaff;
+
         $prompt = $assignee = '';
         // Possible assignees
-        $assignees = null;
         $dept = $this->getDept();
         switch (strtolower($options['target'])) {
             case 'agents':
-                $assignees = array();
-                foreach ($dept->getAssignees() as $member)
-                    $assignees['s'.$member->getId()] = $member;
-
                 if (!$source && $this->isOpen() && $this->staff)
                     $assignee = sprintf('s%d', $this->staff->getId());
                 $prompt = __('Select an Agent');
                 break;
             case 'teams':
-                $assignees = array();
-                if (($teams = Team::getActiveTeams()))
-                    foreach ($teams as $id => $name)
-                        $assignees['t'.$id] = $name;
-
                 if (!$source && $this->isOpen() && $this->team)
                     $assignee = sprintf('t%d', $this->team->getId());
                 $prompt = __('Select a Team');
@@ -1025,11 +1078,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $form = AssignmentForm::instantiate($source, $options);
 
-        if (isset($assignees))
-            $form->setAssignees($assignees);
-
         if (($refer = $form->getField('refer'))) {
-            if ($assignee) {
+            if (!$assignee) {
                 $visibility = new VisibilityConstraint(
                         new Q(array()), VisibilityConstraint::HIDDEN);
                 $refer->set('visibility', $visibility);
@@ -1041,15 +1091,19 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Field configurations
         if ($f=$form->getField('assignee')) {
+            $f->configure('dept', $dept);
+            $f->configure('staff', $thisstaff);
             if ($prompt)
                 $f->configure('prompt', $prompt);
-            $f->configure('dept', $dept);
+            if ($options['target'])
+                $f->configure('target', $options['target']);
         }
 
         return $form;
     }
 
     function getReferralForm($source=null, $options=array()) {
+        global $thisstaff;
 
         $form = ReferralForm::instantiate($source, $options);
         $dept = $this->getDept();
@@ -1058,6 +1112,7 @@ implements RestrictedAccess, Threadable, Searchable {
          'isactive' => 1,
          ))
          ->filter(Q::not(array('dept_id' => $dept->getId())));
+
         $staff = Staff::nsort($staff);
         $agents = array();
         foreach ($staff as $s)
@@ -1066,7 +1121,16 @@ implements RestrictedAccess, Threadable, Searchable {
         // Teams
         $form->setChoices('team', Team::getActiveTeams());
         // Depts
-        $form->setChoices('dept', Dept::getDepartments());
+        $form->setChoices('dept', Dept::getActiveDepartments());
+
+        // Field configurations
+        if ($f=$form->getField('agent')) {
+            $f->configure('dept', $dept);
+            $f->configure('staff', $thisstaff);
+        }
+
+        if ($f = $form->getField('dept'))
+            $f->configure('hideDisabled', true);
 
         return $form;
     }
@@ -1086,12 +1150,17 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function getTransferForm($source=null) {
+        global $thisstaff;
 
         if (!$source)
             $source = array('dept' => array($this->getDeptId()),
                     'refer' => false);
 
-        return TransferForm::instantiate($source);
+        $form = TransferForm::instantiate($source);
+
+        $form->hideDisabled();
+
+        return $form;
     }
 
     function getField($fid) {
@@ -1519,8 +1588,6 @@ implements RestrictedAccess, Threadable, Searchable {
 
                 $ecb = function($t) use ($status) {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
-                    $type = array('type' => 'closed');
-                    Signal::send('object.edited', $t, $type);
                     $t->deleteDrafts();
                 };
                 break;
@@ -2273,6 +2340,8 @@ implements RestrictedAccess, Threadable, Searchable {
 
     // Searchable interface
     static function getSearchableFields() {
+        global $thisstaff;
+
         $base = array(
             'number' => new TextboxField(array(
                 'label' => __('Ticket Number')
@@ -2318,12 +2387,16 @@ implements RestrictedAccess, Threadable, Searchable {
             )),
             'staff_id' => new AgentSelectionField(array(
                 'label' => __('Assigned Staff'),
+                'configuration' => array('staff' => $thisstaff),
             )),
             'team_id' => new TeamSelectionField(array(
                 'label' => __('Assigned Team'),
             )),
             'dept_id' => new DepartmentChoiceField(array(
                 'label' => __('Department'),
+            )),
+            'sla_id' => new SLAChoiceField(array(
+                'label' => __('SLA Plan'),
             )),
             'topic_id' => new HelpTopicChoiceField(array(
                 'label' => __('Help Topic'),
@@ -2458,16 +2531,18 @@ implements RestrictedAccess, Threadable, Searchable {
         $parent = $this->isParent() ? $this : (Ticket::lookup($pid));
         $child = $this->isChild() ? $this : '';
         $children = $this->getChildren();
+        $count = count($children);
 
         if ($children) {
             foreach ($children as $child) {
                 $child = Ticket::lookup($child[0]);
                 $child->unlinkChild($parent);
+                $count--;
             }
         } elseif ($child)
             $child->unlinkChild($parent);
 
-        if (count($children) == 0) {
+        if ($this->isParent() && $count == 0) {
             $parent->setFlag(Ticket::FLAG_LINKED, false);
             $parent->setFlag(Ticket::FLAG_PARENT, false);
             $parent->save();
@@ -2476,7 +2551,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return true;
     }
 
-    function manageMerge($tickets) {
+    static function manageMerge($tickets) {
         global $thisstaff;
 
         $permission = ($tickets['title'] && $tickets['title'] == 'link') ? (Ticket::PERM_LINK) : (Ticket::PERM_MERGE);
@@ -2540,7 +2615,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return $ticketObjects;
     }
 
-    function merge($tickets) {
+    static function merge($tickets) {
         $options = $tickets;
         if (!$tickets = self::manageMerge($tickets))
             return false;
@@ -2916,12 +2991,12 @@ implements RestrictedAccess, Threadable, Searchable {
         return true;
     }
 
-    function release($info=array(), &$errors) {
-        if ($info['sid'] && $info['tid'])
+    function release(?array $info=array(), &$errors) {
+        if (isset($info['sid']) && isset($info['tid']))
             return $this->unassign();
-        elseif ($info['sid'] && $this->setStaffId(0))
+        elseif (isset($info['sid']) && $this->setStaffId(0))
             return true;
-        elseif ($info['tid'] && $this->setTeamId(0))
+        elseif (isset($info['tid']) && $this->setTeamId(0))
             return true;
 
         return false;
@@ -2993,12 +3068,27 @@ implements RestrictedAccess, Threadable, Searchable {
     }
 
     function systemReferral($emails) {
+        global $cfg;
 
-        if (!$this->getThread())
+        if (!$thread = $this->getThread())
             return;
 
+        $eventEmails = array();
+        $events = ThreadEvent::objects()
+            ->filter(array('thread_id' => $thread->getId(),
+                           'event__name' => 'transferred'));
+        if ($events) {
+            foreach ($events as $e) {
+                $emailId = Dept::getEmailIdById($e->dept_id) ?: $cfg->getDefaultEmailId();
+                if (!in_array($emailId, $eventEmails))
+                    $eventEmails[] = $emailId;
+            }
+        }
+
         foreach ($emails as $id) {
+            $refer = $eventEmails ? !in_array($id, $eventEmails) : true;
             if ($id != $this->email_id
+                    && $refer
                     && ($email=Email::lookup($id))
                     && $this->getDeptId() != $email->getDeptId()
                     && ($dept=Dept::lookup($email->getDeptId()))
@@ -3064,7 +3154,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($vars['userId']) {
                 $user = User::lookup($vars['userId']);
              } elseif ($vars['header']
-                    && ($hdr= Mail_parse::splitHeaders($vars['header'], true))
+                    && ($hdr= Mail_Parse::splitHeaders($vars['header'], true))
                     && $hdr['From']
                     && ($addr= Mail_Parse::parseAddressList($hdr['From']))) {
                 $info = array(
@@ -3075,7 +3165,8 @@ implements RestrictedAccess, Threadable, Searchable {
             }
 
             if ($user) {
-                $c = $ticket->getThread()->addCollaborator($user,array(),
+                $v = array();
+                $c = $ticket->getThread()->addCollaborator($user, $v,
                         $errors);
             }
        }
@@ -3928,7 +4019,7 @@ implements RestrictedAccess, Threadable, Searchable {
         return db_fetch_array(db_query($sql));
     }
 
-    protected function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
+    protected static function filterTicketData($origin, $vars, $forms, $user=false, $postCreate=false) {
         global $cfg;
 
         // Unset all the filter data field data in case things change
@@ -3987,6 +4078,23 @@ implements RestrictedAccess, Threadable, Searchable {
             // Init ticket filters...
             $ticket_filter = new TicketFilter($origin, $vars);
             $ticket_filter->apply($vars, $postCreate);
+
+            if ($postCreate && $filterMatches = $ticket_filter->getMatchingFilterList()) {
+                $username = __('Ticket Filter');
+                foreach ($filterMatches as $f) {
+                    $actions = $f->getActions();
+                    foreach ($actions as $key => $value) {
+                        $filterName = $f->getName();
+                        if (!$coreClass = $value->lookupByType($value->type))
+                            continue;
+
+                        if ($description = $coreClass->getEventDescription($value, $filterName))
+                            $postCreate->logEvent($description['type'], $description['desc'], $username);
+
+                    }
+                    if ($f->stopOnMatch()) break;
+                }
+            }
         }
         catch (FilterDataChanged $ex) {
             // Don't pass user recursively, assume the user has changed
@@ -4231,6 +4339,9 @@ implements RestrictedAccess, Threadable, Searchable {
         // topic
         if ($vars['emailId'] && ($email=Email::lookup($vars['emailId']))) {
             $deptId = $deptId ?: $email->getDeptId();
+            $dept = Dept::lookup($deptId);
+            if ($dept && !$dept->isActive())
+                $deptId = $cfg->getDefaultDeptId();
             $priority = $form->getAnswer('priority');
             if (!$priority || !$priority->getIdValue())
                 $form->setAnswer('priority', null, $email->getPriorityId());
@@ -4325,9 +4436,6 @@ implements RestrictedAccess, Threadable, Searchable {
             return null;
 
         /* -------------------- POST CREATE ------------------------ */
-        $vars['ticket'] = $ticket;
-        self::filterTicketData($origin, $vars,
-            array_merge(array($form), $topic_forms), $user, true);
 
         // Save the (common) dynamic form
         // Ensure we have a subject
@@ -4384,6 +4492,10 @@ implements RestrictedAccess, Threadable, Searchable {
         $vars['title'] = $vars['subject']; //Use the initial subject as title of the post.
         $vars['userId'] = $ticket->getUserId();
         $message = $ticket->postMessage($vars , $origin, false);
+
+        $vars['ticket'] = $ticket;
+        self::filterTicketData($origin, $vars,
+            array_merge(array($form), $topic_forms), $user, $ticket);
 
         // If a message was posted, flag it as the orignal message. This
         // needs to be done on new ticket, so as to otherwise separate the

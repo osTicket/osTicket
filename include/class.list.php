@@ -181,12 +181,16 @@ class DynamicList extends VerySimpleModel implements CustomList {
         return ($this->getForm() && $this->getForm()->getFields());
     }
 
-    function getSortModes() {
+    static function sortModes() {
         return array(
             'Alpha'     => __('Alphabetical'),
             '-Alpha'    => __('Alphabetical (Reversed)'),
             'SortCol'   => __('Manually Sorted')
         );
+    }
+
+    function getSortModes() {
+        return self::sortModes();
     }
 
     function getSortMode() {
@@ -592,8 +596,6 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
     function importFromPost($stuff, $extra=array()) {
         if (is_array($stuff) && !$stuff['error']) {
-            // Properly detect Macintosh style line endings
-            ini_set('auto_detect_line_endings', true);
             $stream = fopen($stuff['tmp_name'], 'r');
         }
         elseif ($stuff) {
@@ -722,7 +724,7 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     function setConfiguration($vars, &$errors=array()) {
         $config = array();
         foreach ($this->getConfigurationForm($vars)->getFields() as $field) {
-            $config[$field->get('id')] = $field->to_php($field->getClean());
+            $config[$field->get('id')] = $field->to_database($field->getClean());
             $errors = array_merge($errors, $field->errors());
         }
 
@@ -797,13 +799,14 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
     }
 
     function display() {
+
+        return $this->getValue();
         //TODO: Allow for display mode (edit, preview or both)
-        return sprintf('%s &nbsp;<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">
-                <i class="icon-info-sign"></i></a>',
-                $this->getValue(),
+        return sprintf('<a class="preview" href="#"
+                data-preview="#list/%d/items/%d/preview">%s</a>',
                 $this->getListId(),
-                $this->getId()
+                $this->getId(),
+                $this->getValue()
                 );
     }
 
@@ -826,6 +829,12 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         }
 
         return $this->save();
+    }
+
+    function save($refetch=false) {
+        $this->value = trim($this->value);
+
+        return parent::save($refetch);
     }
 
     function delete() {
@@ -920,9 +929,9 @@ class TicketStatusList extends CustomListHandler {
         $items = TicketStatus::objects();
         if ($filters)
             $items->filter($filters);
-        if ($criteria['limit'])
+        if (isset($criteria['limit']))
             $items->limit($criteria['limit']);
-        if ($criteria['offset'])
+        if (isset($criteria['offset']))
             $items->offset($criteria['offset']);
 
         $items->order_by($this->getListOrderBy());
@@ -1231,8 +1240,8 @@ implements CustomListItem, TemplateVariable, Searchable {
         return $this->get('id');
     }
 
-    function getName() {
-        return $this->get('name');
+    function getName($localize=true) {
+        return $localize ? $this->getLocalName() : $this->get('name');
     }
 
     function getState() {
@@ -1242,8 +1251,9 @@ implements CustomListItem, TemplateVariable, Searchable {
     function getValue() {
         return $this->getName();
     }
+
     function getLocalName() {
-        return $this->getLocal('value', $this->getName());
+        return $this->getLocal('value', $this->get('name'));
     }
 
     function getAbbrev() {
@@ -1435,15 +1445,7 @@ implements CustomListItem, TemplateVariable, Searchable {
     }
 
     function display() {
-
-        return $this->getLocalName();
-
-        return sprintf('<a class="preview" href="#"
-                data-preview="#list/%d/items/%d/preview">%s</a>',
-                $this->getListId(),
-                $this->getId(),
-                $this->getLocalName()
-                );
+        return $this->getName();
     }
 
     function update($vars, &$errors) {

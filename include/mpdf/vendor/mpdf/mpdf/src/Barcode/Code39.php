@@ -14,14 +14,14 @@ class Code39 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 	 * @param bool $extended
 	 * @param bool $checksum
 	 */
-	public function __construct($code, $printRatio, $extended = false, $checksum = false)
+	public function __construct($code, $printRatio, $extended = false, $checksum = false, $quiet_zone_left = null, $quiet_zone_right = null)
 	{
 		$this->init($code, $printRatio, $extended, $checksum);
 
 		$this->data['nom-X'] = 0.381; // Nominal value for X-dim (bar width) in mm (2 X min. spec.)
 		$this->data['nom-H'] = 10;  // Nominal value for Height of Full bar in mm (non-spec.)
-		$this->data['lightmL'] = 10; // LEFT light margin =  x X-dim (spec.)
-		$this->data['lightmR'] = 10; // RIGHT light margin =  x X-dim (spec.)
+		$this->data['lightmL'] = ($quiet_zone_left !== null ? $quiet_zone_left : 10); // LEFT light margin =  x X-dim (spec.)
+		$this->data['lightmR'] = ($quiet_zone_right !== null ? $quiet_zone_right : 10); // RIGHT light margin =  x X-dim (spec.)
 		$this->data['lightTB'] = 0; // TOP/BOTTOM light margin =  x X-dim (non-spec.)
 	}
 
@@ -91,7 +91,7 @@ class Code39 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 		}
 
 		if ($code === false) {
-			throw new \Mpdf\Barcode\BarcodeException('Invalid CODE39 barcode value');
+			throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE39 barcode value "%s"', $code));
 		}
 
 		if ($checksum) {
@@ -109,7 +109,7 @@ class Code39 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 			$char = $code[$i];
 			if (!isset($chr[$char])) {
 				// invalid character
-				throw new \Mpdf\Barcode\BarcodeException('Invalid CODE39 barcode value');
+				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE39 barcode value "%s"', $code));
 			}
 			for ($j = 0; $j < 9; ++$j) {
 				if (($j % 2) == 0) {
@@ -187,7 +187,7 @@ class Code39 extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
 		for ($i = 0; $i < $clen; ++$i) {
 
 			if (ord($code[$i]) > 127) {
-				throw new \Mpdf\Barcode\BarcodeException('Invalid CODE39 barcode value');
+				throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid CODE39 barcode value "%s"', $code));
 			}
 
 			$code_ext .= $encode[$code[$i]];

@@ -182,7 +182,7 @@ class EmailTemplateGroup {
         ),
     );
 
-    function __construct($id){
+    function __construct($id=0){
         $this->id=0;
         $this->load($id);
     }
@@ -419,11 +419,12 @@ class EmailTemplateGroup {
         return $num;
     }
 
-    function create($vars,&$errors) {
-        return EmailTemplateGroup::save(0,$vars,$errors);
+    static function create($vars,&$errors) {
+        $group = new static();
+        return $group->save(0,$vars,$errors);
     }
 
-    function add($vars, &$errors) {
+    static function add($vars, &$errors) {
         return self::lookup(self::create($vars, $errors));
     }
 
@@ -435,7 +436,7 @@ class EmailTemplateGroup {
         return $id;
     }
 
-    function lookup($id){
+    static function lookup($id){
         return ($id && is_numeric($id) && ($t= new EmailTemplateGroup($id)) && $t->getId()==$id)?$t:null;
     }
 
@@ -518,7 +519,7 @@ class EmailTemplate {
     var $ht;
     var $_group;
 
-    function __construct($id, $group=null){
+    function __construct($id=0, $group=null){
         $this->id=0;
         if ($id) $this->load($id);
         if ($group) $this->_group = $group;
@@ -676,11 +677,12 @@ class EmailTemplate {
         return null;
     }
 
-    function create($vars, &$errors) {
-        return self::save(0, $vars, $errors);
+    static function create($vars, &$errors) {
+        $template = new static();
+        return $template->save(0, $vars, $errors);
     }
 
-    function add($vars, &$errors) {
+    static function add($vars, &$errors) {
         $inst = self::lookup(self::create($vars, $errors));
 
         // Inline images (attached to the draft)
@@ -690,7 +692,7 @@ class EmailTemplate {
         return $inst;
     }
 
-    function lookupByName($tpl_id, $name, $group=null) {
+    static function lookupByName($tpl_id, $name, $group=null) {
         $sql = 'SELECT id FROM '.EMAIL_TEMPLATE_TABLE
             .' WHERE tpl_id='.db_input($tpl_id)
             .' AND code_name='.db_input($name);
@@ -700,7 +702,7 @@ class EmailTemplate {
         return false;
     }
 
-    function lookup($id, $group=null) {
+    static function lookup($id, $group=null) {
         return ($id && is_numeric($id) && ($t= new EmailTemplate($id, $group)) && $t->getId()==$id)?$t:null;
     }
 
@@ -709,7 +711,7 @@ class EmailTemplate {
      * file should be free flow text. The first line is the subject and the
      * rest of the file is the body.
      */
-    function fromInitialData($name, $group=null) {
+    static function fromInitialData($name, $group=null) {
         $templ = new EmailTemplate(0, $group);
         $lang = ($group) ? $group->getLanguage() : 'en_US';
         $i18n = new Internationalization($lang);

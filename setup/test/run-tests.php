@@ -8,6 +8,11 @@ $selected_test = (isset($argv[1])) ? $argv[1] : false;
 require_once 'bootstrap.php';
 require_once "tests/class.test.php";
 
+//define constants for testing
+define('SECRET_SALT','%CONFIG-SIRI');
+define('TABLE_PREFIX', '%');
+Bootstrap::defineTables(TABLE_PREFIX);
+
 $root = get_osticket_root_path();
 $fails = array();
 

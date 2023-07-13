@@ -20,7 +20,7 @@ require_once INCLUDE_DIR.'class.variable.php';
 class Format {
 
 
-    function file_size($bytes) {
+    static function file_size($bytes) {
 
         if(!is_numeric($bytes))
             return $bytes;
@@ -32,7 +32,7 @@ class Format {
         return round(($bytes/1048576),1).' mb';
     }
 
-    function filesize2bytes($size) {
+    static function filesize2bytes($size) {
         switch (substr($size, -1)) {
         case 'M': case 'm': return (int)$size <<= 20;
         case 'K': case 'k': return (int)$size <<= 10;
@@ -42,11 +42,11 @@ class Format {
         return $size;
     }
 
-    function filename($filename) {
+    static function filename($filename) {
         return preg_replace('/[^a-zA-Z0-9\-\._]/', '-', $filename);
     }
 
-    function mimedecode($text, $encoding='UTF-8') {
+    static function mimedecode($text, $encoding='UTF-8') {
         // Handle poorly or completely un-encoded header values (
         if (function_exists('mb_detect_encoding'))
             if (($src_enc = mb_detect_encoding($text))
@@ -76,7 +76,7 @@ class Format {
      * language sub-component is defined in RFC5646, and that the filename
      * is URL encoded (in the charset specified)
      */
-    function decodeRfc5987($filename) {
+    static function decodeRfc5987($filename) {
         $match = array();
         if (preg_match("/([\w!#$%&+^_`{}~-]+)'([\w-]*)'(.*)$/",
                 $filename, $match))
@@ -91,12 +91,12 @@ class Format {
      * Json Encoder
      *
      */
-    function json_encode($what) {
+    static function json_encode($what) {
         require_once (INCLUDE_DIR.'class.json.php');
         return JsonDataEncoder::encode($what);
     }
 
-	function phone($phone) {
+	static function phone($phone) {
 
 		$stripped= preg_replace("/[^0-9]/", "", $phone);
 		if(strlen($stripped) == 7)
@@ -107,7 +107,23 @@ class Format {
 			return $phone;
 	}
 
-    function truncate($string,$len,$hard=false) {
+    static function mask($str, $start = 0, $length = null, $mask="*") {
+        $mask = preg_replace("/\S/", $mask, $str);
+        if ($length)
+            $str = substr_replace($str, substr($mask, $start, $length), $start, $length);
+        else
+            $str = substr_replace ($str, substr($mask, $start), $start);
+
+        return $str;
+    }
+
+    static function shroud($str, $start=0, $length=null) {
+        $str = $length ? substr($str, 0, $length) : $str;
+        return self::mask($str, $start, $length);
+    }
+
+
+    static function truncate($string,$len,$hard=false) {
 
         if(!$len || $len>strlen($string))
             return $string;
@@ -117,15 +133,15 @@ class Format {
         return $hard?$string:(substr($string,0,strrpos($string,' ')).' ...');
     }
 
-    function strip_slashes($var) {
+    static function strip_slashes($var) {
         return is_array($var)?array_map(array('Format','strip_slashes'),$var):stripslashes($var);
     }
 
-    function wrap($text, $len=75) {
+    static function wrap($text, $len=75) {
         return $len ? wordwrap($text, $len, "\n", true) : $text;
     }
 
-    function html_balance($html, $remove_empty=true) {
+    static function html_balance($html, $remove_empty=true) {
         if (!extension_loaded('dom'))
             return $html;
 
@@ -178,7 +194,7 @@ class Format {
         return preg_replace('`^<div>|</div>$`', '', trim($html));
     }
 
-    function html($html, $config=array()) {
+    static function html($html, $config=array()) {
         require_once(INCLUDE_DIR.'htmLawed.php');
         $spec = false;
         if (isset($config['spec']))
@@ -202,7 +218,7 @@ class Format {
         return htmLawed($html, $config, $spec);
     }
 
-    function html2text($html, $width=74, $tidy=true) {
+    static function html2text($html, $width=74, $tidy=true) {
 
         if (!$html)
             return $html;
@@ -294,7 +310,7 @@ class Format {
         }
     }
 
-    function safe_html($html, $options=array()) {
+    static function safe_html($html, $options=array()) {
         global $cfg;
 
         $options = array_merge(array(
@@ -319,8 +335,9 @@ class Format {
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
                   ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
                   ':data-cid="[^"]*":',         # drop image cid attributes
+                  '(position:[^!";]+;?)',
             ),
-            array('', '', '', '', '<html', '$4', '$2 $3', ''),
+            array('', '', '', '', '<html', '$4', '$2 $3', '', ''),
             $html);
 
         // HtmLawed specific config only
@@ -329,7 +346,8 @@ class Format {
             'balance' => $options['balance'],
             'comment' => 1, //Remove html comments (OUTLOOK LOVE THEM)
             'tidy' => -1,
-            'deny_attribute' => 'id, formaction, on*',
+            'elements' => '*-form-input-button',
+            'deny_attribute' => 'id, formaction, action, on*',
             'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; src: cid, http, https, data',
             'hook_tag' => function($e, $a=0) { return Format::__html_cleanup($e, $a); },
         );
@@ -338,23 +356,23 @@ class Format {
         if ($cfg)
             $whitelist = $cfg->getIframeWhitelist();
         if (!empty($whitelist)) {
-            $config['elements'] = '*+iframe';
+            $config['elements'] .= '+iframe';
             $config['spec'] = 'iframe=-*,height,width,type,style,src(match="`^(https?:)?//(www\.)?('
                 .implode('|', $whitelist)
-                .')/?([^@]*)$`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
+                .')(\?|/|#)([^@]*)$`i"),frameborder'.($options['spec'] ? '; '.$options['spec'] : '').',allowfullscreen';
         }
 
         return Format::html($html, $config);
     }
 
-    function localizeInlineImages($text) {
+    static function localizeInlineImages($text) {
         // Change file.php urls back to content-id's
         return preg_replace(
             '`src="(?:https?:/)?(?:/[^/"]+)*?/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*`',
             'src="cid:$1', $text);
     }
 
-    function sanitize($text, $striptags=false, $spec=false) {
+    static function sanitize($text, $striptags=false, $spec=false) {
 
         //balance and neutralize unsafe tags.
         $text = Format::safe_html($text, array('spec' => $spec));
@@ -365,7 +383,7 @@ class Format {
         return $striptags?Format::striptags($text, false):$text;
     }
 
-    function htmlchars($var, $sanitize = false) {
+    static function htmlchars($var, $sanitize = false) {
         static $phpversion = null;
 
         if (is_array($var)) {
@@ -393,7 +411,7 @@ class Format {
         }
     }
 
-    function htmldecode($var) {
+    static function htmldecode($var) {
 
         if(is_array($var))
             return array_map(array('Format','htmldecode'), $var);
@@ -405,12 +423,20 @@ class Format {
         return htmlspecialchars_decode($var, $flags);
     }
 
-    function input($var) {
+    static function http_query_string(string $query, array $filter = null) {
+        $args = [];
+        parse_str($query, $args);
+        if ($filter && is_array($filter))
+            $args = array_diff_key($args, array_flip($filter));
+        return http_build_query($args);
+    }
+
+    static function input($var) {
         return Format::htmlchars($var);
     }
 
     //Format text for display..
-    function display($text, $inline_images=true, $balance=true) {
+    static function display($text, $inline_images=true, $balance=true) {
         global $cfg;
 
         // Exclude external images?
@@ -450,7 +476,7 @@ class Format {
         return $text;
     }
 
-    function stripExternalImages($input, $display=false) {
+    static function stripExternalImages($input, $display=false) {
         global $cfg;
 
         // Allowed Inline External Image Extensions
@@ -478,7 +504,7 @@ class Format {
         return $input;
     }
 
-    function striptags($var, $decode=true) {
+    static function striptags($var, $decode=true) {
 
         if(is_array($var))
             return array_map(array('Format','striptags'), $var, array_fill(0, count($var), $decode));
@@ -487,7 +513,7 @@ class Format {
     }
 
     // Strip all Emoticon/Emoji characters until we support them
-    function strip_emoticons($text) {
+    static function strip_emoticons($text) {
         return preg_replace(array(
                 '/[\x{1F601}-\x{1F64F}]/u', # Emoticons
                 '/[\x{1F680}-\x{1F6C0}]/u', # Transport/Map
@@ -515,12 +541,12 @@ class Format {
     }
 
     // Insert </br> tag inside empty <p> tags to ensure proper editor spacing
-    function editor_spacing($text) {
+    static function editor_spacing($text) {
         return preg_replace('/<p><\/p>/', '<p><br></p>', $text);
     }
 
     //make urls clickable. Mainly for display
-    function clickableurls($text, $target='_blank') {
+    static function clickableurls($text, $target='_blank') {
         global $ost;
 
         // Find all text between tags
@@ -553,22 +579,24 @@ class Format {
             $text);
     }
 
-    function stripEmptyLines($string) {
+    static function stripEmptyLines($string) {
         return preg_replace("/\n{3,}/", "\n\n", trim($string));
     }
 
 
-    function viewableImages($html, $options=array()) {
+    static function viewableImages($html, $options=array(), $format=false) {
         $cids = $images = array();
         $options +=array(
                 'disposition' => 'inline');
-        return preg_replace_callback('/"cid:([\w._-]{32})"/',
+        if ($format)
+            $html = Format::htmlchars($html, true);
+        return preg_replace_callback('/("|&quot;)cid:([\w._-]{32})("|&quot;)/',
         function($match) use ($options, $images) {
-            if (!($file = AttachmentFile::lookup($match[1])))
+            if (!($file = AttachmentFile::lookup($match[2])))
                 return $match[0];
 
             return sprintf('"%s" data-cid="%s"',
-                $file->getDownloadUrl($options), $match[1]);
+                $file->getDownloadUrl($options), $match[2]);
         }, $html);
     }
 
@@ -583,7 +611,7 @@ class Format {
      * @param array $array The array to implode
      * @return string The imploded array
     */
-    function array_implode( $glue, $separator, $array ) {
+    static function array_implode( $glue, $separator, $array ) {
 
         if ( !is_array( $array ) ) return $array;
 
@@ -598,7 +626,7 @@ class Format {
         return implode( $separator, $string );
     }
 
-    function number($number, $locale=false) {
+    static function number($number, $locale=false) {
         if (is_array($number))
             return array_map(array('Format','number'), $number);
 
@@ -619,7 +647,7 @@ class Format {
      * TODO: Combine this routine with Format::number and pass in type of
      * formatting.
      */
-    function ordinalsuffix($number, $locale=false) {
+    static function ordinalsuffix($number, $locale=false) {
         if (is_array($number))
             return array_map(array('Format', 'ordinalsuffix'), $number);
 
@@ -646,7 +674,7 @@ class Format {
     }
 
     /* elapsed time */
-    function elapsedTime($sec) {
+    static function elapsedTime($sec) {
 
         if(!$sec || !is_numeric($sec)) return "";
 
@@ -660,7 +688,7 @@ class Format {
         return $tstring;
     }
 
-    function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
+    static function __formatDate($timestamp, $format, $fromDb, $dayType, $timeType,
             $strftimeFallback, $timezone, $user=false) {
         global $cfg;
         static $cache;
@@ -701,7 +729,7 @@ class Format {
 
     // IntDateFormat
     // Format datetime to desired format in accorrding to desired locale
-    function IntDateFormat(DateTime $datetime, $format, $options=array()) {
+    static function IntDateFormat(DateTime $datetime, $format, $options=array()) {
         global $cfg;
 
         if (!$datetime instanceof DateTime)
@@ -730,11 +758,12 @@ class Format {
         if ($cfg && $cfg->isForce24HourTime())
             $format = str_replace('X', 'R', $format);
 
+        // TODO: Deprecated; replace this soon
         return strftime($format, $timestamp);
     }
 
     // Normalize ambiguous timezones
-    function timezone($tz, $default=false) {
+    static function timezone($tz, $default=false) {
 
         // Translate ambiguous 'GMT' timezone
         if ($tz == 'GMT')
@@ -765,7 +794,7 @@ class Format {
         return $tz;
     }
 
-    function parseDateTime($date, $locale=null, $format=false) {
+    static function parseDateTime($date, $locale=null, $format=false) {
         global $cfg;
 
         if (!$date)
@@ -795,7 +824,7 @@ class Format {
         return $datetime;
     }
 
-    function time($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
+    static function time($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -804,7 +833,7 @@ class Format {
             '%X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function date($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
+    static function date($timestamp, $fromDb=true, $format=false, $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -813,7 +842,7 @@ class Format {
             '%x', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function datetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
+    static function datetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -822,7 +851,7 @@ class Format {
                 '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function daydatetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
+    static function daydatetime($timestamp, $fromDb=true, $format=false,  $timezone=false, $user=false) {
         global $cfg;
 
         return self::__formatDate($timestamp,
@@ -831,7 +860,7 @@ class Format {
                 '%x %X', $timezone ?: $cfg->getTimezone(), $user);
     }
 
-    function getStrftimeFormat($format) {
+    static function getStrftimeFormat($format) {
         static $codes, $ids;
 
         if (!isset($codes)) {
@@ -894,7 +923,7 @@ class Format {
     }
 
     // Translate php date / time formats to js equivalent
-    function dtfmt_php2js($format) {
+    static function dtfmt_php2js($format) {
 
         $codes = array(
         // Date
@@ -925,13 +954,13 @@ class Format {
 
     // Thanks, http://stackoverflow.com/a/2955878/1025836
     /* static */
-    function slugify($text) {
+    static function slugify($text) {
         // convert special characters to entities
         $text = htmlentities($text, ENT_NOQUOTES, 'UTF-8');
 
         // removes entity suffixes, leaving only un-accented characters
-        $text = preg_replace('~&([A-za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);~', '$1', $text);
-        $text = preg_replace('~&([A-za-z]{2})(?:lig);~', '$1', $text);
+        $text = preg_replace('~&([A-Za-z])(?:acute|cedil|circ|grave|orn|ring|slash|th|tilde|uml);~', '$1', $text);
+        $text = preg_replace('~&([A-Za-z]{2})(?:lig);~', '$1', $text);
 
         // replace non letter or digits by -
         $text = preg_replace('~[^\p{L}\p{N}]+~u', '-', $text);
@@ -967,7 +996,7 @@ class Format {
      * References:
      * http://www.ietf.org/rfc/rfc2397.txt
      */
-    function parseRfc2397($data, $output_encoding=false, $always_convert=true) {
+    static function parseRfc2397($data, $output_encoding=false, $always_convert=true) {
         if (substr($data, 0, 5) != "data:")
             return array('data'=>$data, 'type'=>'text/plain');
 
@@ -1004,7 +1033,7 @@ class Format {
 
     // Performs Unicode normalization (where possible) and splits words at
     // difficult word boundaries (for far eastern languages)
-    function searchable($text, $lang=false) {
+    static function searchable($text, $lang=false, $length=false) {
         global $cfg;
 
         if (function_exists('normalizer_normalize')) {
@@ -1036,10 +1065,14 @@ class Format {
             // Drop leading and trailing whitespace
             $text = trim($text);
         }
+
+        if ($length && (str_word_count($text) > $length))
+            return null;
+
         return $text;
     }
 
-    function relativeTime($to, $from=false, $granularity=1) {
+    static function relativeTime($to, $from=false, $granularity=1) {
         if (!$to)
             return false;
         $timestamp = $to;

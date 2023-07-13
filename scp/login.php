@@ -24,9 +24,9 @@ require_once(INCLUDE_DIR.'class.staff.php');
 require_once(INCLUDE_DIR.'class.csrf.php');
 
 $content = Page::lookupByType('banner-staff');
-
-$dest = $_SESSION['_staff']['auth']['dest'];
-$msg = $_SESSION['_staff']['auth']['msg'];
+$thisstaff = StaffAuthenticationBackend::getUser();
+$dest = $_SESSION['_staff']['auth']['dest'] ?? null;
+$msg = $_SESSION['_staff']['auth']['msg'] ?? null;
 $msg = $msg ?: ($content ? $content->getLocalName() : __('Authentication Required'));
 $dest=($dest && (!strstr($dest,'login.php') && !strstr($dest,'ajax.php')))?$dest:'index.php';
 $show_reset = false;
@@ -69,8 +69,8 @@ if ($_POST && isset($_POST['userid'])) {
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
-            $_POST['passwd'], $errors)) {
-        $redirect($dest);
+            substr($_POST['passwd'], 0, 128), $errors)) {
+        $redirect($user->isValid() ? $dest : 'login.php');
     }
 
     $msg = $errors['err'] ?: __('Invalid login');
@@ -84,7 +84,32 @@ if ($_POST && isset($_POST['userid'])) {
         $ost->getCSRF()->rotate();
     }
 }
-elseif ($_GET['do']) {
+elseif ($_POST
+        && !strcmp($_POST['do'], '2fa')
+        && $thisstaff
+        && $thisstaff->is2FAPending()
+        && ($auth=$thisstaff->get2FABackend())) {
+
+    try {
+        $form = $auth->getInputForm($_POST);
+        if ($form->isValid() && $auth->validate($form, $thisstaff))
+            $redirect($dest);
+    } catch (ExpiredOTP $ex) {
+        // Expired or too many attempts
+        $thisstaff->logOut();
+        $redirect('login.php');
+    }
+
+    $msg = __('Invalid Code');
+    if ($json) {
+        $respond(401, ['message' => $msg]);
+    }
+    else {
+        // Rotate the CSRF token (original cannot be reused)
+        $ost->getCSRF()->rotate();
+    }
+}
+elseif (isset($_GET['do'])) {
     switch ($_GET['do']) {
     case 'ext':
         // Lookup external backend
@@ -105,9 +130,6 @@ elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
 elseif ($thisstaff && $thisstaff->isValid()) {
     Http::redirect($dest);
 }
-
-// Browsers shouldn't suggest saving that username/password
-Http::response(422);
 
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');

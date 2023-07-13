@@ -380,8 +380,10 @@ class gettext_reader {
                   $this->get_plural_forms(), $matches))
               return 1;
 
-          $this->plural_expression = create_function('$n',
-              sprintf('return %s;', str_replace('n', '($n)', $matches[2])));
+          $this->plural_expression = function ($n) use ($matches) {
+              $var = str_replace('n', $n, $matches[2]);
+              return eval("return $var");
+          };
           $this->plural_total = (int) $matches[1];
       }
       $func = $this->plural_expression;
@@ -540,6 +542,7 @@ class FileReader {
 class Translation extends gettext_reader implements Serializable {
 
     var $charset;
+    var $encode;
 
     const META_HEADER = 0;
 
@@ -664,12 +667,20 @@ class Translation extends gettext_reader implements Serializable {
     }
 
 
+    // Fix PHP 8.1.x Deprecation Warnings
+    // Serializable interface will be removed in PHP 9.x
     function serialize() {
-        return serialize(array($this->charset, $this->encode, $this->cache_translations));
+        return serialize($this->__serialize());
     }
     function unserialize($what) {
-        list($this->charset, $this->encode, $this->cache_translations)
-            = unserialize($what);
+        $this->__unserialize(unserialize($what));
+    }
+
+    function __serialize() {
+        return array($this->charset, $this->encode, $this->cache_translations);
+    }
+    function __unserialize($what) {
+        list($this->charset, $this->encode, $this->cache_translations) = $what;
         $this->short_circuit = ! $this->enable_cache
             = 0 < $this->cache_translations ? count($this->cache_translations) : 1;
     }
@@ -798,7 +809,7 @@ class TextDomain {
                 $locale, $m)
             ) {
 
-            if ($m['modifier']) {
+            if (isset($m['modifier'])) {
                 // TODO: Confirm if Crowdin uses the modifer flags
                 if ($m['country']) {
                     $locale_names[] = "{$m['lang']}_{$m['country']}@{$m['modifier']}";
