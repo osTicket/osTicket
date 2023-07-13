@@ -382,7 +382,6 @@ implements Searchable {
 
     // Render thread
     function render($type=false, $options=array()) {
-        global $cfg;
 
         $mode = $options['mode'] ?: self::MODE_STAFF;
 

@@ -35,3 +35,14 @@ thread_timer:
         Once a ticket is displayed on screen the timer starts, but has
         controls like pause, reset, play and of course the ability to
         manually override the time.
+
+thread_bill:
+    title: Enable Thread Time to be Billed
+    content: >
+        Enable this option to make thread time billed.
+        
+thread_billdefault:
+    title: Billable as Default
+    content: >
+        Enable this option to make time billable as default.
+        
