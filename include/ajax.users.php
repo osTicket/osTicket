@@ -26,6 +26,8 @@ class UsersAjaxAPI extends AjaxController {
     /* Assumes search by basic info for now */
     function search($type = null, $fulltext=false) {
 
+        global $thisstaff;
+        
         if(!isset($_REQUEST['q'])) {
             Http::response(400, __('Query argument is required'));
         }
@@ -45,8 +47,14 @@ class UsersAjaxAPI extends AjaxController {
 
         if (!$type || !strcasecmp($type, 'remote')) {
             foreach (AuthenticationBackend::searchUsers($q) as $u) {
-                if (!trim($u['email']))
+                $umail = trim($u['email']);
+                if (!$umail)
                     // Email is required currently
+                    continue;
+                if ((!$thisstaff->hasPerm(User::PERM_DIRECTORY)) &&
+                    ($q != $umail))
+                    // If agent can't search user directory,
+                    // they must type full email to get a match
                     continue;
                 $name = new UsersName(array('first' => $u['first'], 'last' => $u['last']));
                 $matches[] = array('email' => $u['email'], 'name'=>(string) $name,
@@ -105,6 +113,11 @@ class UsersAjaxAPI extends AjaxController {
                         break;
                     }
                 }
+                if ((!$thisstaff->hasPerm(User::PERM_DIRECTORY)) &&
+                    ($q != $email))
+                    // If agent can't search user directory,
+                    // they must type full email to get a match
+                    continue;
                 $name = Format::htmlchars(new UsersName($name));
                 $matches[] = array('email'=>$email, 'name'=>$name, 'info'=>"$email - $name",
                     "id" => $id, "/bin/true" => $q);
