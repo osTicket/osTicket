@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: text/html; charset=UTF-8");
-header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
+header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes()."; script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'none'");
 
 $title = ($ost && ($title=$ost->getPageTitle()))
     ? $title : ('osTicket :: '.__('Staff Control Panel'));

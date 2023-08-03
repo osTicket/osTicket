@@ -6,7 +6,7 @@ $signin_url = ROOT_PATH . "login.php"
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
 header("Content-Type: text/html; charset=UTF-8");
-header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
+header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes()."; script-src 'self' 'unsafe-inline'; object-src 'none'");
 
 if (($lang = Internationalization::getCurrentLanguage())) {
     $langs = array_unique(array($lang, $cfg->getPrimaryLanguage()));
