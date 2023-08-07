@@ -49,14 +49,14 @@ class Internationalization {
     function loadDefaultData() {
         # notrans -- do not translate the contents of this array
         $models = array(
-            'department.yaml' =>    'Dept::__create',
             'sla.yaml' =>           'SLA::__create',
+            'department.yaml' =>    'Dept::__create',
             'form.yaml' =>          'DynamicForm::create',
             'list.yaml' =>          'DynamicList::create',
             // Note that department, sla, and forms are required for
             // help_topic
             'help_topic.yaml' =>    'Topic::__create',
-            'filter.yaml' =>        'Filter::create',
+            'filter.yaml' =>        'Filter::__create',
             'team.yaml' =>          'Team::__create',
             // Organization
             'organization.yaml' =>  'Organization::__create',

@@ -35,7 +35,7 @@ if(isset($_REQUEST['id']) || isset($_REQUEST['number'])) {
          $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
     elseif($_REQUEST['number'] && !($ticket=Ticket::lookup(array('number' => $_REQUEST['number']))))
          $errors['err']=sprintf(__('%s: Unknown or invalid number.'), __('ticket'));
-     elseif(!$ticket->checkStaffPerm($thisstaff)) {
+     elseif(!$ticket || !$ticket->checkStaffPerm($thisstaff)) {
          $errors['err']=__('Access denied. Contact admin if you believe this is in error');
          $ticket=null; //Clear ticket obj.
      }
@@ -93,6 +93,8 @@ if (!$ticket) {
                     Validator::is_valid_email($_GET['query']) ? 'equal' : 'contains',
                     $_GET['query']
                 ];
+            } elseif (Validator::is_numeric($_GET['query'])) {
+                $criteria = ['number', 'contains', $_GET['query']];
             } else {
                 $criteria = [':keywords', null, $_GET['query']];
             }
@@ -100,7 +102,7 @@ if (!$ticket) {
             $queue_id = "adhoc,{$key}";
         } else {
             $errors['err'] = sprintf(
-                    __('Search term cannot have more than %d keywords', 4));
+                    __('Search term cannot have more than %d keywords'), 4);
         }
     }
 
@@ -430,6 +432,8 @@ if($_POST && !$errors):
                         $response_form->setSource(array());
                         $response_form->getField('attachments')->reset();
                         $_SESSION[':form-data'] = null;
+                        // Regenerate Session ID
+                        $thisstaff->regenerateSession();
                     } elseif(!$errors['err']) {
                         // ensure that we retain the tid if ticket is created from thread
                         if ($_SESSION[':form-data']['ticketId'] || $_SESSION[':form-data']['taskId'])
@@ -534,7 +538,7 @@ if($ticket) {
       require_once(sprintf('phar:///%s/plugins/audit.phar/class.audit.php', INCLUDE_DIR));
       $show = AuditEntry::$show_view_audits;
       $filename = sprintf('%s-audits-%s.csv',
-              $ticket->getNumber(), strftime('%Y%m%d'));
+              $ticket->getNumber(), date('Ymd'));
       $tableInfo = AuditEntry::getTableInfo($ticket, true);
       if (!Export::audits('ticket', $filename, $tableInfo, $ticket, 'csv', $show))
           $errors['err'] = __('Unable to dump query results.')

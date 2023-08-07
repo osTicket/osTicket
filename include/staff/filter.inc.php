@@ -340,7 +340,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <tr>
                     <td colspan=2>
                         <textarea class="richtext no-bar" name="notes" cols="21"
-                            rows="8" style="width: 80%;"><?php echo $info['notes']; ?></textarea>
+                            rows="8" style="width: 80%;"><?php echo Format::viewableImages($info['notes']); ?></textarea>
                     </td>
                 </tr>
             </tbody>

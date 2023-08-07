@@ -45,7 +45,7 @@ if ($thisstaff && $thisstaff->is2FAPending())
             <input type="text" name="userid" id="name" value="<?php
                 echo $info['userid'] ?? null; ?>" placeholder="<?php echo __('Email or Username'); ?>"
                 autofocus autocorrect="off" autocapitalize="off">
-            <input type="password" name="passwd" id="pass" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
+            <input type="password" name="passwd" id="pass" maxlength="128" placeholder="<?php echo __('Password'); ?>" autocorrect="off" autocapitalize="off">
                 <h3 style="display:inline"><a id="reset-link" class="<?php
                     if (!$show_reset || !$cfg->allowPasswordReset()) echo 'hidden';
                     ?>" href="pwreset.php"><?php echo __('Forgot My Password'); ?></a></h3>
@@ -58,17 +58,12 @@ if ($thisstaff && $thisstaff->is2FAPending())
         } ?>
     </form>
 <?php
-$ext_bks = array();
-foreach (StaffAuthenticationBackend::allRegistered() as $bk)
-    if ($bk instanceof ExternalAuthentication)
-        $ext_bks[] = $bk;
-
-if (count($ext_bks)) { ?>
+if (($bks=StaffAuthenticationBackend::getExternal())) { ?>
 <div class="or">
     <hr/>
 </div><?php
-    foreach ($ext_bks as $bk) { ?>
-<div class="external-auth"><?php $bk->renderExternalLink(); ?></div><?php
+    foreach ($bks as $bk) { ?>
+<div class="external-auth"><?php $bk->renderExternalLink(); ?></div><br/><?php
     }
 } ?>
 
@@ -172,6 +167,6 @@ if (count($ext_bks)) { ?>
         #loginBox:after { background-color: white !important; }
     </style>
     <![endif]-->
-    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.13.1.custom.min.js"></script>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/jquery-ui-1.13.2.custom.min.js"></script>
 </body>
 </html>

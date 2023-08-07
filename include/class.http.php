@@ -151,5 +151,59 @@ class Http {
 
         return http_build_query($vars, '', $separator);
     }
+
+    static function domain() {
+        $domain = null;
+        if (isset($_SERVER['HTTP_HOST'])
+                && strpos($_SERVER['HTTP_HOST'], '.') !== false
+                && !Validator::is_ip($_SERVER['HTTP_HOST']))
+            // Remote port specification, as it will make an invalid domain
+            list($domain) = explode(':', $_SERVER['HTTP_HOST']);
+
+        return $domain;
+    }
+
+    // Get current url
+    static function url() {
+        // Scheme + Host.
+        $https =  osTicket::is_https();
+        $url  = sprintf('http%s://%s',
+                $https ? 's' : '',
+                $_SERVER['HTTP_HOST']);
+        //  Add Port if not 80 and not https
+        $port = osTicket::get_client_port();
+        if ($port && $port != 80 && !$https && !str_contains($url, $port))
+            $url .= ":{$port}";
+        // Path + Query string
+        if (isset($_SERVER['REQUEST_URI']))
+            $url  .= $_SERVER['REQUEST_URI'];
+        else
+            $url  .= sprintf('%s?$s',
+                    $_SERVER['PHP_SELF'], $_SERVER['QUERY_STRING']);
+
+        return $url;
+    }
+
+    // Parse path from given url or the current url
+    static function url_path(string $url = null, bool $htmlentities = true) {
+        $path = parse_url($url ?: self::url(), PHP_URL_PATH);
+        return ($htmlentities && $path)
+            ? htmlentities($path) : $path;
+    }
+
+    // Parse query string from current url
+    static function query_string(string $url = null) {
+        return parse_url($url ?: self::url(), PHP_URL_QUERY);
+    }
+
+    // Refresh url
+    static function refresh_url(array $queryFilter = []) {
+        $url = self::url();
+        $refresh_url = self::url_path($url);
+        if (($qs=self::query_string($url)))
+            $refresh_url .= sprintf('?%s',
+                    Format::http_query_string($qs, $queryFilter));
+        return $refresh_url;
+    }
 }
 ?>

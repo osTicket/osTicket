@@ -1034,6 +1034,10 @@ class DynamicFormEntry extends VerySimpleModel {
         return $this->form->getInstructions();
     }
 
+    function getNotice() {
+        return  $this->form->getNotice();
+    }
+
     function getDynamicForm() {
         return $this->form;
     }
@@ -1211,7 +1215,7 @@ class DynamicFormEntry extends VerySimpleModel {
         return $entries[$ticket_id];
     }
 
-    function forTask($id, $force=false) {
+    static function forTask($id, $force=false) {
         static $entries = array();
         if (!isset($entries[$id]) || $force) {
             $stuff = DynamicFormEntry::objects()->filter(array(
@@ -1729,6 +1733,7 @@ class SelectionField extends FormField {
                         ?: __('Unknown or invalid input');
                 }
             } elseif ($config['typeahead']
+                    && $entry
                     && ($entered = $this->getWidget()->getEnteredValue())
                     && !in_array($entered, $entry)
                     && $entered != $entry) {

@@ -243,6 +243,7 @@ class HashPassword {
 
 class SplFileObject {
     function fseek() {}
+    function getRealPath() {}
 }
 
 class AuditEntry {
@@ -250,4 +251,30 @@ class AuditEntry {
     static function getTableInfo() {}
 }
 
+class Smtp {
+    function _expect() {}
+    function _send() {}
+}
+
+class Imap {
+    function setFlags() {}
+}
+
+class Message {
+    function setSubject() {}
+    function isMultiPart() {}
+}
+
+class MailBoxProtocolTrait {
+    function sendRequest() {}
+}
+
+class MailBoxStorageTrait {
+    function selectFolder() {}
+    function countMessages() {}
+    function getRawHeader() {}
+    function getRawContent() {}
+    function moveMessage() {}
+    function removeMessage() {}
+}
 ?>

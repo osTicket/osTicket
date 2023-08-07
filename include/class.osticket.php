@@ -22,11 +22,12 @@ require_once(INCLUDE_DIR.'class.csrf.php'); //CSRF token class.
 require_once(INCLUDE_DIR.'class.migrater.php');
 require_once(INCLUDE_DIR.'class.plugin.php');
 require_once INCLUDE_DIR . 'class.message.php';
+require_once(INCLUDE_DIR.'UniversalClassLoader.php');
+use Symfony\Component\ClassLoader\UniversalClassLoader_osTicket;
 
 define('LOG_WARN',LOG_WARNING);
 
 class osTicket {
-
     var $loglevel=array(1=>'Error','Warning','Debug');
 
     //Page errors.
@@ -34,10 +35,6 @@ class osTicket {
 
     //System
     var $system;
-
-
-
-
     var $warning;
     var $message;
 
@@ -55,16 +52,19 @@ class osTicket {
 
         require_once(INCLUDE_DIR.'class.config.php'); //Config helper
         require_once(INCLUDE_DIR.'class.company.php');
-
-        if (!defined('DISABLE_SESSION') || !DISABLE_SESSION)
-            $this->session = osTicketSession::start(SESSION_TTL); // start DB based session
-
+        // Load the config
         $this->config = new OsticketConfig();
 
+        // Start Session
+        if (!defined('SESSION_SESSID'))
+            define('SESSION_SESSID', 'OSTSESSID');
+        $this->session = osTicketSession::start(SESSION_SESSID, SESSION_TTL,
+                    $this->isUpgradePending());
+        // CSRF Token
         $this->csrf = new CSRF('__CSRFToken__');
-
+        // Company information
         $this->company = new Company();
-
+        // Load Plugin Manager
         $this->plugins = new PluginManager();
     }
 
@@ -237,7 +237,8 @@ class osTicket {
         if($email) {
             $email->sendAlert($to, $subject, $message, null, array('text'=>true, 'reply-tag'=>false));
         } else {//no luck - try the system mail.
-            Mailer::sendmail($to, $subject, $message, '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
+            osTicket\Mail\Mailer::sendmail($to, $subject, $message,
+                     '"'.__('osTicket Alerts').sprintf('" <%s>',$to));
         }
 
         //log the alert? Watch out for loops here.
@@ -314,11 +315,6 @@ class osTicket {
         if($this->getConfig()->getLogLevel()<$level && !$force)
             return false;
 
-        //Alert admin if enabled...
-        $alert = $alert && !$this->isUpgradePending();
-        if ($alert && $this->getConfig()->getLogLevel() >= $level)
-            $this->alertAdmin($title, $message);
-
         //Save log based on system log level settings.
         $sql='INSERT INTO '.SYSLOG_TABLE.' SET created=NOW(), updated=NOW() '
             .',title='.db_input(Format::sanitize($title, true))
@@ -327,6 +323,11 @@ class osTicket {
             .',ip_address='.db_input($_SERVER['REMOTE_ADDR']);
 
         db_query($sql, false);
+
+        // Alert admin if enabled...
+        $alert = $alert && !$this->isUpgradePending();
+        if ($alert && $this->getConfig()->getLogLevel() >= $level)
+            $this->alertAdmin($title, $message);
 
         return true;
     }
@@ -365,10 +366,10 @@ class osTicket {
 
     static function get_path_info() {
         if(isset($_SERVER['PATH_INFO']))
-            return $_SERVER['PATH_INFO'];
+            return htmlentities($_SERVER['PATH_INFO']);
 
         if(isset($_SERVER['ORIG_PATH_INFO']))
-            return $_SERVER['ORIG_PATH_INFO'];
+            return htmlentities($_SERVER['ORIG_PATH_INFO']);
 
         //TODO: conruct possible path info.
 
@@ -520,6 +521,38 @@ class osTicket {
     }
 
     /*
+     * get_base_url
+     *
+     * Get base url osTicket is installed on
+     * It Should match help desk url.
+     *
+     */
+    static function get_base_url() {
+        return sprintf('http%s://%s',
+                osTicket::is_https() ? 's' : '',
+                $_SERVER['HTTP_HOST'] . ROOT_PATH);
+    }
+
+    /*
+     * get_client_port
+     *
+     * Get client PORT from "Http_X-Forwarded-PORT" if we have trusted
+     * proxies set.
+     * FIXME: Follow trusted proxies chain
+     *
+     */
+    static function get_client_port($header='HTTP_X_FORWARDED_PORT') {
+        $port = $_SERVER['SERVER_PORT'];
+        // We're just making sure we have Trusted Proxies
+        // FIXME: Validate
+        $proxies = self::getTrustedProxies();
+        if (isset($_SERVER[$header]) &&  $proxies)
+            $port = $_SERVER[$header];
+
+        return $port;
+    }
+
+    /*
      * get_client_ip
      *
      * Get client IP address from "Http_X-Forwarded-For" header by following a
@@ -571,7 +604,7 @@ class osTicket {
         if (!$proxies)
             return false;
         // Wildcard set - trust all proxies
-        else if ($proxies == '*')
+        else if (in_array('*', $proxies))
             return true;
 
         return ($proxies && Validator::check_ip($ip, $proxies));
@@ -631,7 +664,14 @@ class osTicket {
                 );
     }
 
-    /**** static functions ****/
+    static function register_namespace($dirs) {
+        $dirs = is_array($dirs) ? $dirs : [$dirs];
+        $loader = new UniversalClassLoader_osTicket();
+        $loader->registerNamespaceFallbacks($dirs);
+        $loader->register();
+        return $loader;
+    }
+
     static function start() {
         // Prep basic translation support
         Internationalization::bootstrap();
@@ -640,7 +680,9 @@ class osTicket {
             return null;
 
         // Bootstrap installed plugins
-        $ost->plugins->bootstrap();
+        //XXX: This is TEMP for v1.17
+        if (!$ost->isUpgradePending())
+            $ost->plugins->bootstrap();
 
         // Mirror content updates to the search backend
         $ost->searcher = new SearchInterface();

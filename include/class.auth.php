@@ -146,7 +146,7 @@ class ClientCreateRequest {
         );
         if ($bk->supportsInteractiveAuthentication())
             // User can only be authenticated against this backend
-            $defaults['backend'] = $bk::$id;
+            $defaults['backend'] = $bk->getBkId();
         if ($this_form->isValid(function($f) { return !$f->isVisibleToUsers(); })
                 && ($U = User::fromVars($this_form->getClean()))
                 && ($acct = ClientAccount::createForUser($U, $defaults))
@@ -156,6 +156,78 @@ class ClientCreateRequest {
                 && ($cl = new ClientSession(new EndUser($U)))
                 && ($bk->login($cl, $bk)))
             return $cl;
+    }
+}
+
+
+/**
+ * Authorization backend
+ *
+ * Abstract service registry to provide authorization backends.
+ */
+abstract class OAuth2Backend extends ServiceRegistry {
+    static $name;
+    static $id;
+    protected  $config;
+
+    static function register($bk) {
+        if (is_string($bk) && class_exists($bk))
+            $bk = new $bk();
+
+        if (!is_object($bk)
+                || !($bk instanceof OAuth2Backend))
+            return false;
+
+        static::$registry[$bk->getBkId()] = $bk;
+    }
+
+    static function allRegistered() {
+        return self::getRegistry();
+    }
+
+    static function getBackend($id) {
+        if ($id && ($registry = static::allRegistered())
+                && isset($registry[$id]))
+            return $registry[$id];
+    }
+}
+
+abstract class OAuth2AuthorizationBackend  extends OAuth2Backend {
+    static protected $registry = array();
+
+    static function allRegistered() {
+        return array_merge(self::$registry, parent::allRegistered());
+    }
+
+    static function getBackend($id) {
+        if (($bk=parent::getBackend($id)))
+            return $bk;
+
+        // Overloaded backend load.
+        list($auth, $a, $i) = self::parseId($id);
+        if ($auth && ($bk=parent::getBackend($auth)))
+            return $bk;
+    }
+
+    static function parseId($id) {
+        return  preg_split('/(?(?<=oauth2):(?!\w+)|:)/', $id);
+    }
+
+    abstract function getConfigForm($configId);
+    abstract function triggerEmailAuth($id);
+    abstract function callback($resp, $ref);
+}
+
+abstract class OAuth2AuthenticationBackend  extends OAuth2Backend {
+    static protected $registry = array();
+
+    static function allRegistered() {
+        return array_merge(self::$registry, parent::allRegistered());
+    }
+
+    static function getBackend($id) {
+        if (($bk=parent::getBackend($id)))
+            return $bk;
     }
 }
 
@@ -174,39 +246,59 @@ class ClientCreateRequest {
  * receives a username and optional password. If the authentication
  * succeeds, an instance deriving from <User> should be returned.
  */
-abstract class AuthenticationBackend {
-    static protected $registry = array();
+abstract class AuthenticationBackend extends ServiceRegistry {
     static $name;
     static $id;
+    protected  $config;
 
+    static function register($bk) {
+        if (is_string($bk) && class_exists($bk))
+            $bk = new $bk();
 
-    /* static */
-    static function register($class) {
-        if (is_string($class) && class_exists($class))
-            $class = new $class();
-
-        if (!is_object($class)
-                || !($class instanceof AuthenticationBackend))
+        if (!is_object($bk)
+                || !($bk instanceof AuthenticationBackend))
             return false;
 
-        return static::_register($class);
-    }
-
-    static function _register($class) {
-        // XXX: Raise error if $class::id is already in the registry
-        static::$registry[$class::$id] = $class;
+        static::$registry[$bk->getBkId()] = $bk;
     }
 
     static function allRegistered() {
-        return static::$registry;
+        return self::getRegistry();
+    }
+
+    static function getInteractive() {
+        $backends = [];
+        foreach (static::allRegistered() as $bk)
+            if ($bk->isInteractive())
+                $backends[] = $bk;
+        return $backends;
+    }
+
+    static function getExternal() {
+        $backends = [];
+        foreach (static::allRegistered() as $bk)
+            if ($bk->isExternal())
+                $backends[] = $bk;
+        return $backends;
     }
 
     static function getBackend($id) {
-
         if ($id
                 && ($backends = static::allRegistered())
                 && isset($backends[$id]))
             return $backends[$id];
+    }
+
+    static function lookupBackend($id, $class=null) {
+        // Lookup both registries
+        if (!($bk = StaffAuthenticationBackend::getBackend($id)))
+            $bk = UserAuthenticationBackend::getBackend($id);
+
+        // See if specific type is requesred.
+        if ($class && !($bk instanceof $class))
+            return null;
+
+        return $bk;
     }
 
     static function getSearchDirectoryBackend($id) {
@@ -238,7 +330,7 @@ abstract class AuthenticationBackend {
         foreach (static::allRegistered() as $bk) {
             if ($backends //Allowed backends
                     && $bk->supportsInteractiveAuthentication()
-                    && !in_array($bk::$id, $backends))
+                    && !in_array($bk->getBkId(), $backends))
                 // User cannot be authenticated against this backend
                 continue;
 
@@ -321,13 +413,13 @@ abstract class AuthenticationBackend {
         $backends = array();
         foreach (StaffAuthenticationBackend::allRegistered() as $bk)
             if ($bk instanceof AuthDirectorySearch)
-                $backends[$bk::$id] = $bk;
+                $backends[$bk->getBkId()] = $bk;
 
         foreach (UserAuthenticationBackend::allRegistered() as $bk)
             if ($bk instanceof AuthDirectorySearch)
-                $backends[$bk::$id] = $bk;
+                $backends[$bk->getBkId()] = $bk;
 
-        return array_unique($backends);
+        return array_unique($backends, SORT_REGULAR);
     }
 
     static function searchUsers($query) {
@@ -339,18 +431,26 @@ abstract class AuthenticationBackend {
     }
 
     /**
-     * Fetches the friendly name of the backend
-     */
-    function getName() {
-        return static::$name;
-    }
-
-    /**
      * Indicates if the backed supports authentication. Useful if the
      * backend is used for logging or lockout only
      */
     function supportsInteractiveAuthentication() {
         return true;
+    }
+
+    /**
+     * Alias for supportsInteractiveAuthentication()
+     *
+     */
+    function isInteractive() {
+        return $this->supportsInteractiveAuthentication();
+    }
+
+    /**
+     * Indicates of the backend is External Authentication
+     */
+    function isExternal() {
+        return ($this instanceof ExternalAuthentication);
     }
 
     /**
@@ -478,15 +578,10 @@ interface ExternalAuthentication {
 }
 
 abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
-
-    static private $_registry = array();
-
-    static function _register($class) {
-        static::$_registry[$class::$id] = $class;
-    }
+    static protected $registry = array();
 
     static function allRegistered() {
-        return array_merge(self::$_registry, parent::allRegistered());
+        return array_merge(self::$registry, parent::allRegistered());
     }
 
     static function isBackendAllowed($staff, $bk) {
@@ -494,7 +589,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         if (!($backends=self::getAllowedBackends($staff->getId())))
             return true;  //No restrictions
 
-        return in_array($bk::$id, array_map('strtolower', $backends));
+        return in_array($bk->getBkId(), array_map('strtolower', $backends));
     }
 
     function getPasswordPolicies($user=null) {
@@ -502,7 +597,7 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getStaffPasswordPolicy())) {
             foreach ($policies as $P)
-                if ($policy == $P::$id)
+                if ($policy == $P->getBkId())
                     return array($P);
         }
 
@@ -538,8 +633,6 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
             || !($authkey=$bk->getAuthKey($staff)))
             return false;
 
-        // Regenerate session id and refresh (avoid session fixation)
-        $staff->regenerateSession();
         //Log debug info.
         $ost->logDebug(_S('Agent Login'),
             sprintf(_S("%s logged in [%s], via %s"), $staff->getUserName(),
@@ -558,13 +651,15 @@ abstract class StaffAuthenticationBackend  extends AuthenticationBackend {
         }
 
         // Tag the authkey.
-        $authkey = $bk::$id.':'.$authkey;
+        $authkey = $bk->getBkId().':'.$authkey;
         // Now set session crap and lets roll baby!
         $authsession = &$_SESSION['_auth']['staff'];
         $authsession = array(); //clear.
         $authsession['id'] = $staff->getId();
         $authsession['key'] =  $authkey;
         $authsession['2fa'] =  $auth2fa;
+        // Set TIME_BOMB to regenerate the session 10 seconds after login
+        $_SESSION['TIME_BOMB'] = time() + 10;
         // Set session token
         $staff->setSessionToken();
         // Set Auth Key
@@ -665,7 +760,8 @@ abstract class ExternalStaffAuthenticationBackend
                 $this->getServiceName());
         ?>
         <a class="external-sign-in" title="<?php echo $service; ?>"
-                href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
+                href="login.php?do=ext&amp;bk=<?php echo
+                urlencode($this->getBkId()); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
             ?>" alt="<?php echo $service; ?>"/>
@@ -683,15 +779,17 @@ abstract class ExternalStaffAuthenticationBackend
     }
 
     function triggerAuth() {
+        $_SESSION['ext:bk:id'] = $this->getBkId();
+        // For legacy plugins prior to v1.17
         $_SESSION['ext:bk:class'] = get_class($this);
     }
 }
 Signal::connect('api', function($dispatcher) {
     $dispatcher->append(
         url('^/auth/ext$', function() {
-            if ($class = $_SESSION['ext:bk:class']) {
-                $bk = StaffAuthenticationBackend::getBackend($class::$id)
-                    ?: UserAuthenticationBackend::getBackend($class::$id);
+            if ($id = $_SESSION['ext:bk:id']) {
+                $bk = StaffAuthenticationBackend::getBackend($id)
+                    ?: UserAuthenticationBackend::getBackend($id);
                 if ($bk instanceof ExternalAuthentication)
                     $bk->triggerAuth();
             }
@@ -700,24 +798,18 @@ Signal::connect('api', function($dispatcher) {
 });
 
 abstract class UserAuthenticationBackend  extends AuthenticationBackend {
-
-    static private $_registry = array();
-
-    static function _register($class) {
-        static::$_registry[$class::$id] = $class;
-    }
+    static protected $registry = array();
 
     static function allRegistered() {
-        return array_merge(self::$_registry, parent::allRegistered());
+        return array_merge(self::$registry, parent::allRegistered());
     }
-
 
     function getPasswordPolicies($user=null) {
         global $cfg;
         $policies = PasswordPolicy::allActivePolicies();
         if ($cfg && ($policy = $cfg->getClientPasswordPolicy())) {
             foreach ($policies as $P)
-                if ($policy == $P::$id)
+                if ($policy == $P->getId())
                     return array($P);
         }
 
@@ -745,7 +837,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         global $ost;
 
         if (!$user || !$bk
-                || !$bk::$id //Must have ID
+                || !$bk->getBkId() //Must have ID
                 || !($authkey = $bk->getAuthKey($user)))
             return false;
 
@@ -758,8 +850,6 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
                 throw new AccessDenied(__('Account is administratively locked'));
         }
 
-        // Regenerate session id and refresh (avoid session fixation)
-        $user->regenerateSession();
         // Tag the user and associated ticket in the SESSION
         $this->setAuthKey($user, $bk, $authkey);
         // Set Session Token
@@ -777,6 +867,9 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $type = array('type' => 'login');
         Signal::send('person.login', $u, $type);
 
+        // Set TIME_BOMB to regenerate the session 10 seconds after login
+        $_SESSION['TIME_BOMB'] = time() + 10;
+
         if ($bk->supportsInteractiveAuthentication() && ($acct=$user->getAccount()))
             $acct->cancelResetTokens();
 
@@ -790,7 +883,7 @@ abstract class UserAuthenticationBackend  extends AuthenticationBackend {
         $authkey = $key ?: $bk->getAuthKey($user);
 
         //Tag the authkey.
-        $authkey = $bk::$id.':'.$authkey;
+        $authkey = $bk->getBkId().':'.$authkey;
 
         //Set the session goodies
         $authsession = &$_SESSION['_auth']['user'];
@@ -876,10 +969,11 @@ abstract class ExternalUserAuthenticationBackend
 
         ?>
         <a class="external-sign-in" title="<?php echo $service; ?>"
-                href="login.php?do=ext&amp;bk=<?php echo urlencode(static::$id); ?>">
+                href="login.php?do=ext&amp;bk=<?php echo
+                urlencode($this->getBkId()); ?>">
 <?php if (static::$sign_in_image_url) { ?>
         <img class="sign-in-image" src="<?php echo static::$sign_in_image_url;
-            ?>" alt="<?php $service; ?>"/>
+            ?>" alt="<?php echo $service; ?>"/>
 <?php } else { ?>
             <div class="external-auth-box">
             <span class="external-auth-icon">
@@ -894,6 +988,8 @@ abstract class ExternalUserAuthenticationBackend
     }
 
     function triggerAuth() {
+        $_SESSION['ext:bk:id'] = $this->getBkId();
+        // Legacy for plugins prior to v1.17
         $_SESSION['ext:bk:class'] = get_class($this);
     }
 }
@@ -964,6 +1060,7 @@ abstract class AuthStrikeBackend extends AuthenticationBackend {
  * Backend to monitor staff's failed login attempts
  */
 class StaffAuthStrikeBackend extends  AuthStrikeBackend {
+    static $id = "authstrike.staff";
 
     static function authTimeout() {
         global $ost;
@@ -1033,6 +1130,7 @@ StaffAuthenticationBackend::register('StaffAuthStrikeBackend');
  * Backend to monitor user's failed login attempts
  */
 class UserAuthStrikeBackend extends  AuthStrikeBackend {
+    static $id = "authstrike.user";
 
     static function authTimeout() {
         global $ost;
@@ -1433,9 +1531,7 @@ class BadPassword extends Exception {}
 class ExpiredPassword extends Exception {}
 class PasswordUpdateFailed extends Exception {}
 
-abstract class PasswordPolicy {
-    static protected $registry = array();
-
+abstract class PasswordPolicy extends ServiceRegistry {
     static $id;
     static $name;
 
@@ -1451,14 +1547,7 @@ abstract class PasswordPolicy {
     abstract function onLogin($user, $password);
 
     /*
-     * get friendly name of the policy
-     */
-    function getName() {
-        return static::$name;
-    }
-
-    /*
-     * Check a password aganist all available policies 
+     * Check a password aganist all available policies
      */
     static function checkPassword($new, $current, $bk=null) {
         if ($bk && is_a($bk, 'AuthenticationBackend'))
@@ -1472,17 +1561,13 @@ abstract class PasswordPolicy {
 
     static function allActivePolicies() {
         $policies = array();
-        foreach (array_reverse(static::$registry) as $P) {
+        foreach (array_reverse(self::getRegistry()) as $P) {
             if (is_string($P) && class_exists($P))
                 $P = new $P();
             if ($P instanceof PasswordPolicy)
                 $policies[] = $P;
         }
         return $policies;
-    }
-
-    static function register($policy) {
-        static::$registry[] = $policy;
     }
 
     static function cleanSessions($model, $user=null) {
@@ -1509,7 +1594,7 @@ abstract class PasswordPolicy {
                 return false;
         }
 
-        return SessionData::objects()->filter($criteria)->delete();
+        return DatabaseSessionRecord::objects()->filter($criteria)->delete();
     }
 }
 Signal::connect('auth.clean', array('PasswordPolicy', 'cleanSessions'));
@@ -1537,9 +1622,13 @@ extends PasswordPolicy {
     }
 
     function onSet($passwd, $current) {
-        if (strlen($passwd) < 6) {
+        $pwdlen = strlen($passwd);
+        if ($pwdlen < 6) {
             throw new BadPassword(
                 __('Password must be at least 6 characters'));
+        } elseif ($pwdlen > 128) {
+            throw new BadPassword(
+                sprintf('%s - %s', __('Password is too long'), __('maximum of 128 characters allowed')));
         }
         // XXX: Changing case is technicall changing the password
         if (0 === strcasecmp($passwd, $current)) {

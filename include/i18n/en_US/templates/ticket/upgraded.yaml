@@ -7,8 +7,8 @@
 #
 ---
 source: Web # notrans
-name: osTicket Support
-email: support@osticket.com
+name: osTicket Team
+email: feedback@osticket.com
 subject: osTicket Upgraded!
 message: |
     <p>

@@ -8,6 +8,7 @@ interface EmailContact {
     function getUserId();
     function getName();
     function getEmail();
+    function getEmailAddress();
 }
 
 
@@ -15,6 +16,7 @@ class EmailRecipient
 implements EmailContact {
     protected $contact;
     protected $type;
+    protected $address;
 
     function __construct(EmailContact $contact, $type='to') {
         $this->contact = $contact;
@@ -37,6 +39,16 @@ implements EmailContact {
         return $this->contact->getEmail();
     }
 
+    function getEmailAddress() {
+        if (!isset($this->address)) {
+            $this->address =  (string) $this->getEmail();
+            if (($name=$this->getName()))
+                $this->address = sprintf('"%s" <%s>',
+                        (string) $name, $this->address);
+        }
+        return $this->address;
+    }
+
     function getName() {
         return $this->contact->getName();
     }
@@ -44,6 +56,11 @@ implements EmailContact {
     function getType() {
         return $this->type;
     }
+
+    function __toString() {
+        return (string) $this->getEmailAddress();
+    }
+
 }
 
 abstract class BaseList
@@ -215,12 +232,22 @@ implements ArrayAccess, Serializable {
         unset($this->storage[$offset]);
     }
 
-    // Serializable
+    // Fix PHP 8.1.x Deprecation Warnings
+    // Serializable interface will be removed in PHP 9.x
     function serialize() {
-        return serialize($this->storage);
+        return serialize($this->__serialize());
     }
+
     function unserialize($what) {
-        $this->storage = unserialize($what);
+        $this->__unserialize(unserialize($what));
+    }
+
+    // Serializable
+    function __serialize() {
+        return $this->storage;
+    }
+    function __unserialize($what) {
+        $this->storage = $what;
     }
 }
 
@@ -298,5 +325,63 @@ implements TemplateVariable {
             'emails' => __('List of email addresses'),
             'full' => __('List of names and email addresses'),
         );
+    }
+}
+
+
+
+
+/*
+ * ServiceRegistry
+ *
+ * An abscract class to implement basic functions and add ability to
+ * register service - collection of similar objects eng authentication
+ * backends.
+ *
+ * TODO: Consider using ListObject class - it's an overkill for now.
+ */
+abstract class  ServiceRegistry {
+    static protected $registry = array();
+
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
+    function getId() {
+        return static::$id;
+    }
+
+    /*
+     *  getBkId
+     *
+     *  Get service id used to register the service. Plugins adds a tag
+     *  making it possible to register multiple instances of the same
+     *  plugin.
+     *
+     */
+    function getBkId() {
+        $id = $this->getId();
+        // FIXME: Abstract getting backend id cleanly
+        if (isset($this->config)
+                && is_a($this->config, 'PluginConfig'))
+            $id =sprintf('%s.%s', $id, $this->config->getId());
+
+        return $id;
+    }
+
+    function getName() {
+        if (isset($this->config)
+                && is_a($this->config, 'PluginConfig'))
+             return $this->config->getName();
+
+        return static::$name;
+    }
+
+    static function register($obj) {
+         static::$registry[] = $obj;
+    }
+
+    static function getRegistry() {
+        return static::$registry;
     }
 }

@@ -1,0 +1,100 @@
+{
+    "name": "laminas/laminas-servicemanager",
+    "description": "Factory-Driven Dependency Injection Container",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "laminas",
+        "di",
+        "dic",
+        "dependency-injection",
+        "psr-11",
+        "servicemanager",
+        "service-manager"
+    ],
+    "homepage": "https://laminas.dev",
+    "support": {
+        "issues": "https://github.com/laminas/laminas-servicemanager/issues",
+        "forum": "https://discourse.laminas.dev",
+        "chat": "https://laminas.dev/chat",
+        "source": "https://github.com/laminas/laminas-servicemanager",
+        "docs": "https://docs.laminas.dev/laminas-servicemanager/",
+        "rss": "https://github.com/laminas/laminas-servicemanager/releases.atom"
+    },
+    "require": {
+        "php": "~8.1.0 || ~8.2.0",
+        "laminas/laminas-stdlib": "^3.17",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "composer/package-versions-deprecated": "^1.11.99.5",
+        "friendsofphp/proxy-manager-lts": "^1.0.14",
+        "laminas/laminas-code": "^4.10.0",
+        "laminas/laminas-coding-standard": "~2.5.0",
+        "laminas/laminas-container-config-test": "^0.8",
+        "laminas/laminas-dependency-plugin": "^2.2",
+        "mikey179/vfsstream": "^1.6.11",
+        "phpbench/phpbench": "^1.2.9",
+        "phpunit/phpunit": "^10.0.17",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "vimeo/psalm": "^5.8.0"
+    },
+    "replace": {
+        "container-interop/container-interop": "^1.2.0"
+    },
+    "conflict": {
+        "ext-psr": "*",
+        "laminas/laminas-code": "<4.10.0",
+        "zendframework/zend-code": "<3.3.1",
+        "zendframework/zend-servicemanager": "*"
+    },
+    "provide": {
+        "psr/container-implementation": "^1.0"
+    },
+    "suggest": {
+        "friendsofphp/proxy-manager-lts": "ProxyManager ^2.1.1 to handle lazy initialization of services"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\ServiceManager\\": "src/"
+        },
+        "files": [
+            "src/autoload.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\ServiceManager\\": "test/",
+            "LaminasBench\\ServiceManager\\": "benchmarks/"
+        },
+        "files": [
+            "test/autoload.php"
+        ]
+    },
+    "bin": [
+        "bin/generate-deps-for-config-factory",
+        "bin/generate-factory-for-class"
+    ],
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true,
+            "laminas/laminas-dependency-plugin": true
+        },
+        "platform": {
+            "php": "8.1.99"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "benchmark": "phpbench run --revs=2 --iterations=2 --report=aggregate",
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

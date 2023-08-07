@@ -17,18 +17,25 @@ require('admin.inc.php');
 include_once(INCLUDE_DIR.'class.email.php');
 
 $email=null;
-if($_REQUEST['id'] && !($email=Email::lookup($_REQUEST['id'])))
-    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('email'));
+if ($_REQUEST['id']) {
+    if (($email=Email::lookup((int) $_REQUEST['id']))) {
+        // Get stashed errors or msg (if any)
+        if (!($errors=$email->restoreErrors()))
+            $msg = $email->restoreNotice() ?: null;
+    } else {
+        $errors['err'] = sprintf(__('%s: Unknown or invalid ID.'), __('email'));
+    }
+}
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
-            if(!$email){
-                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('email'));
-            }elseif($email->update($_POST,$errors)){
+            if (!$email){
+                $errors['err'] = sprintf(__('%s: Unknown or invalid'), __('email'));
+            } elseif ($email->update($_POST, $errors)){
                 $msg=sprintf(__('Successfully updated %s.'),
                     __('this email'));
-            }elseif(!$errors['err']){
+            } elseif (!isset($errors['err'])) {
                 $errors['err'] = sprintf('%s %s',
                     sprintf(__('Unable to update %s.'), __('this email')),
                     __('Correct any errors below and try again.'));
@@ -37,12 +44,14 @@ if($_POST){
         case 'create':
             $box = Email::create();
             if ($box->update($_POST, $errors)) {
+                $email = $box;
                 $id = $box->getId();
-                $msg=sprintf(__('Successfully added %s.'), Format::htmlchars($_POST['name']));
+                $msg=sprintf(__('Successfully added %s.'),
+                        Format::htmlchars($email->getAddress()));
                 $_REQUEST['a']=null;
                 $type = array('type' => 'created');
-                Signal::send('object.created', $box, $type);
-            }elseif(!$errors['err']){
+                Signal::send('object.created', $email, $type);
+            } elseif (!$errors['err']) {
                 $errors['err']=sprintf('%s %s',
                     sprintf(__('Unable to add %s.'), __('this email')),
                     __('Correct any errors below and try again.'));
@@ -83,13 +92,22 @@ if($_POST){
             $errors['err'] = __('Unknown action');
             break;
     }
+}  elseif (isset($_GET['do'])) {
+    switch ($_GET['do']) {
+    case 'autho':
+        // Lookup external oauth2 backend
+        if ($bk=OAuth2AuthorizationBackend::getBackend($_GET['bk']))
+            $bk->triggerEmailAuth($_GET['bk']);
+    }
+    $errors['err'] = sprintf('%s: %s',
+            __('Unknown Authorization Backend'),
+            __('OAuth2 Plugin must be enabled'));
 }
 
 $page='emails.inc.php';
 $tip_namespace = 'emails.email';
-if($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'],'add'))) {
+if ($email || ($_REQUEST['a'] && !strcasecmp($_REQUEST['a'], 'add')))
     $page='email.inc.php';
-}
 
 $nav->setTabActive('emails');
 $ost->addExtraHeader('<meta name="tip-namespace" content="' . $tip_namespace . '" />',

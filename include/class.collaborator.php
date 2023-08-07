@@ -39,12 +39,6 @@ implements EmailContact, ITicketUser {
 
     var $active;
 
-    function __toString() {
-        return Format::htmlchars($this->toString());
-    }
-    function toString() {
-        return sprintf('"%s" <%s>', $this->getName(), $this->getEmail());
-    }
 
     function getId() {
         return $this->id;
@@ -81,6 +75,16 @@ implements EmailContact, ITicketUser {
     function getEmail() {
         return $this->user->getEmail();
     }
+
+    function getEmailAddress() {
+        $emailaddr =  (string) $this->getEmail();
+        if (($name=$this->getName()))
+            $emailaddr = sprintf('"%s" <%s>',
+                    (string) $name,
+                    $emailaddr);
+        return $emailaddr;
+    }
+
     function getName() {
         return $this->user->getName();
     }
@@ -133,6 +137,10 @@ implements EmailContact, ITicketUser {
     }
     function getUserId() {
         return $this->user_id;
+    }
+
+    function __toString() {
+        return Format::htmlchars($this->getEmailAddress());
     }
 
     function hasFlag($flag) {

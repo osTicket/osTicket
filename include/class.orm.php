@@ -1667,7 +1667,17 @@ EOF;
         return $classname;
     }
 
+    // Fix PHP 8.1.x Deprecation Warnings
+    // Serializable interface will be removed in PHP 9.x
     function serialize() {
+        return serialize($this->__serialize());
+    }
+
+    function unserialize($data) {
+        $this->__unserialize(unserialize($data));
+    }
+
+    function __serialize() {
         $info = get_object_vars($this);
         unset($info['query']);
         unset($info['limit']);
@@ -1675,11 +1685,10 @@ EOF;
         unset($info['_iterator']);
         unset($info['count']);
         unset($info['total']);
-        return serialize($info);
+        return $info;
     }
 
-    function unserialize($data) {
-        $data = unserialize($data);
+    function __unserialize($data) {
         foreach ($data as $name => $val) {
             $this->{$name} = $val;
         }
@@ -2951,7 +2960,12 @@ class MySqlCompiler extends SqlCompiler {
         $q->annotations = false;
         $exec = $q->getQuery(array('nosort' => true));
         $exec->sql = 'SELECT COUNT(*) FROM ('.$exec->sql.') __';
-        $row = $exec->getRow();
+        try {
+            $row = $exec->getRow();
+        } catch (mysqli_sql_exception $e) {
+            throw new InconsistentModelException(
+                'Unable to prepare query: '.db_error().' '.$exec->sql);
+        }
         return is_array($row) ? (int) $row[0] : null;
     }
 
@@ -3621,12 +3635,22 @@ class Q implements Serializable {
         return $result;
     }
 
+    // Fix PHP 8.1.x Deprecation Warnings
+    // Serializable interface will be removed in PHP 9.x
     function serialize() {
-        return serialize(array($this->negated, $this->ored, $this->constraints));
+        return serialize($this->__serialize());
     }
 
     function unserialize($data) {
-        list($this->negated, $this->ored, $this->constraints) = unserialize($data);
+        $this->__unserialize(unserialize($data));
+    }
+
+    function __serialize() {
+        return array($this->negated, $this->ored, $this->constraints);
+    }
+
+    function __unserialize($data) {
+        list($this->negated, $this->ored, $this->constraints) = $data;
     }
 }
 ?>

@@ -259,7 +259,7 @@ class Export {
 
         // Filename or stream to export agents to
         $filename = $filename ?: sprintf('Agents-%s.csv',
-                strftime('%Y%m%d'));
+                date('Ymd'));
         Http::download($filename, "text/$how");
         $depts = Dept::getDepartments(null, true, Dept::DISPLAY_DISABLED);
         echo self::dumpQuery($agents, array(
@@ -296,7 +296,7 @@ static function departmentMembers($dept, $agents, $filename='', $how='csv') {
 
     // Filename or stream to export depts' agents to
     $filename = $filename ?: sprintf('%s-%s.csv', $dept->getName(),
-            strftime('%Y%m%d'));
+            date('Ymd'));
     Http::download($filename, "text/$how");
     echo self::dumpQuery($agents, array(
                 '::getName'  =>  'Name',
@@ -535,7 +535,7 @@ abstract class  Exporter {
                 || !($email=$cfg->getDefaultEmail()))
             return false;
 
-        $mailer = new Mailer($email);
+        $mailer = new osTicket\Mail\Mailer($email);
         $mailer->addFileObject($file);
         $subject = __("Export");
         $body = __("Attached is file containing the export you asked us to send you!");

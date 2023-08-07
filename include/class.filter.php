@@ -502,36 +502,34 @@ extends VerySimpleModel {
 
             if (is_array($rule)) {
                 if($rule["w"] || $rule["h"]) {
-                // Check for REGEX compile errors
-                if (in_array($rule["h"], array('match','not_match'))) {
-                    $wrapped = "/".$rule["v"]."/iu";
-                    if (false === @preg_match($rule["v"], ' ')
-                            && (false !== @preg_match($wrapped, ' ')))
-                        $rule["v"] = $wrapped;
+                    // Check for REGEX compile errors
+                    if (in_array($rule["h"], array('match','not_match'))) {
+                        $wrapped = "/".$rule["v"]."/iu";
+                        if (false === @preg_match($rule["v"], ' ')
+                                && (false !== @preg_match($wrapped, ' ')))
+                            $rule["v"] = $wrapped;
+                    }
+
+                    if(!$rule["w"] || !in_array($rule["w"],$matches))
+                        $errors["rule_$i"]=__('Invalid match selection');
+                    elseif(!$rule["h"] || !in_array($rule["h"],$types))
+                        $errors["rule_$i"]=__('Invalid match type selection');
+                    elseif(!$rule["v"])
+                        $errors["rule_$i"]=__('Value required');
+                    elseif($rule["w"]=='email'
+                            && $rule["h"]=='equal'
+                            && !Validator::is_email($rule["v"]))
+                        $errors["rule_$i"]=__('Valid email required for the match type');
+                    elseif (in_array($rule["h"], array('match','not_match'))
+                            && (false === @preg_match($rule["v"], ' ')))
+                        $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
+                            preg_last_error());
+                    else //for everything-else...we assume it's valid.
+                        $rules[]=array('what'=>$rule["w"],
+                            'how'=>$rule["h"],'val'=>trim($rule["v"]));
+                } elseif($rule["v"]) {
+                    $errors["rule_$i"]=__('Incomplete selection');
                 }
-
-                if(!$rule["w"] || !in_array($rule["w"],$matches))
-                    $errors["rule_$i"]=__('Invalid match selection');
-                elseif(!$rule["h"] || !in_array($rule["h"],$types))
-                    $errors["rule_$i"]=__('Invalid match type selection');
-                elseif(!$rule["v"])
-                    $errors["rule_$i"]=__('Value required');
-                elseif($rule["w"]=='email'
-                        && $rule["h"]=='equal'
-                        && !Validator::is_email($rule["v"]))
-                    $errors["rule_$i"]=__('Valid email required for the match type');
-                elseif (in_array($rule["h"], array('match','not_match'))
-                        && (false === @preg_match($rule["v"], ' ')))
-                    $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
-                        preg_last_error());
-
-
-                else //for everything-else...we assume it's valid.
-                    $rules[]=array('what'=>$rule["w"],
-                        'how'=>$rule["h"],'val'=>trim($rule["v"]));
-            }elseif($rule["v"]) {
-                $errors["rule_$i"]=__('Incomplete selection');
-            }
             }
         }
 
@@ -564,6 +562,15 @@ extends VerySimpleModel {
         if ($this->dirty)
             $this->updated = SqlFunction::NOW();
         return parent::save($refetch || $this->dirty);
+    }
+
+    static function __create($vars,&$errors) {
+        $filter = new static($vars);
+        if ($filter->save()) {
+            $filter->save_rules($vars, $errors);
+            $filter->save_actions($filter->getId(), $vars, $errors);
+            return $filter;
+        }
     }
 
     static function create($vars,&$errors) {
@@ -908,6 +915,7 @@ class TicketFilter {
         );
 
         foreach ($auto_headers as $header=>$find) {
+            $header = strtolower($header);
             if(!isset($headers[$header])) continue;
 
             $value = strtoupper($headers[$header]);
@@ -931,8 +939,7 @@ class TicketFilter {
     }
 
     static function isBounce($headers) {
-
-        if($headers && !is_array($headers))
+        if ($headers && !is_array($headers))
             $headers = Mail_Parse::splitHeaders($headers);
 
         $bounce_headers = array(
@@ -947,6 +954,7 @@ class TicketFilter {
         );
 
         foreach ($bounce_headers as $header => $find) {
+            $header = strtolower($header);
             if(!isset($headers[$header])) continue;
 
             @list($func, $searches, $pos, $neg) = $find;

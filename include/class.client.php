@@ -151,6 +151,19 @@ implements EmailContact, ITicketUser, TemplateVariable {
         return $this->user->getId();
     }
 
+    function getEmailAddress() {
+        $emailaddr =  (string) $this->getEmail();
+        if (($name=$this->getName()))
+            $emailaddr = sprintf('"%s" <%s>',
+                    (string) $name,
+                    $emailaddr);
+        return $emailaddr;
+    }
+
+    function __toString() {
+        return $this->getEmailAddress();
+    }
+
     abstract function getTicketId();
     abstract function getTicket();
 }
@@ -484,7 +497,7 @@ class ClientAccount extends UserAccount {
         if ($vars['backend']) {
             $this->set('backend', $vars['backend']);
             if ($vars['username'])
-                $this->set('username', $vars['username']);
+                $this->set('username', Format::sanitize($vars['username']));
         }
 
         if ($vars['passwd1']) {

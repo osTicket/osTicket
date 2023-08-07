@@ -704,7 +704,7 @@ implements Searchable {
             // osTicket, the Mailer class can break it apart. If it came
             // from this help desk, the 'loopback' property will be set
             // to true.
-            $mid_info = Mailer::decodeMessageId($mid);
+            $mid_info = osTicket\Mail\Mailer::decodeMessageId($mid);
             if (!$mid_info || !$mid_info['loopback'])
                 continue;
             if (isset($mid_info['uid'])
@@ -890,14 +890,14 @@ implements TemplateVariable {
         // Mail sent by this system will have a predictable message-id
         // If this incoming mail matches the code, then it very likely
         // originated from this system and looped
-        $info = Mailer::decodeMessageId($mailinfo['mid']);
+        $info = osTicket\Mail\Mailer::decodeMessageId($mailinfo['mid']);
         if ($info && $info['loopback']) {
             // This mail was sent by this system. It was received due to
             // some kind of mail delivery loop. It should not be considered
             // a response to an existing thread entry
             if ($ost)
                 $ost->log(LOG_ERR, _S('Email loop detected'), sprintf(
-                _S('It appears as though &lt;%s&gt; is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
+                _S('It appears as though %s is being used as a forwarded or fetched email account and is also being used as a user / system account. Please correct the loop or seek technical assistance.'),
                 $mailinfo['email']),
 
                 // This is quite intentional -- don't continue the loop
@@ -1454,7 +1454,7 @@ implements TemplateVariable {
             // osTicket, the Mailer class can break it apart. If it came
             // from this help desk, the 'loopback' property will be set
             // to true.
-            $mid_info = Mailer::decodeMessageId($mid);
+            $mid_info = osTicket\Mail\Mailer::decodeMessageId($mid);
             if (!$mid_info || !$mid_info['loopback'])
                 continue;
             if (isset($mid_info['uid'])
@@ -1532,7 +1532,7 @@ implements TemplateVariable {
      * Find a thread entry from a message-id created from the
      * ::asMessageId() method.
      *
-     * *DEPRECATED* use Mailer::decodeMessageId() instead
+     * *DEPRECATED* use osTicket\Mail\Mailer::decodeMessageId() instead
      */
     function lookupByRefMessageId($mid, $from) {
         global $ost;
@@ -2115,6 +2115,7 @@ class ThreadEvent extends VerySimpleModel {
                 case 'timestamp':
                     $timeFormat = null;
                     if ($mode != self::MODE_CLIENT && $thisstaff
+                            && (!isset($_REQUEST['a']) || $_REQUEST['a']!='print')
                             && !strcasecmp($thisstaff->datetime_format,
                                 'relative')) {
                         $timeFormat = function ($timestamp) {
@@ -2285,7 +2286,7 @@ class Event extends VerySimpleModel {
     static function getStates($dropdown=false) {
         $names = array();
         if ($dropdown)
-            $names = array(__('All'));
+            $names = array('All');
 
         $events = self::objects()->values_flat('name');
         foreach ($events as $val)

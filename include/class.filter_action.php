@@ -642,7 +642,7 @@ class FA_SendEmail extends TriggerAction {
 
         // Honor FROM address settings
         if (!$config['from'] || !($mailer = Email::lookup($config['from'])))
-            $mailer = new Mailer();
+            $mailer = new osTicket\Mail\Mailer();
 
         // Allow %{user} in the To: line
         $replacer = new VariableReplacer();

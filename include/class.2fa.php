@@ -3,17 +3,17 @@
 /**
  * TwoFactorAuthentication backend
  *
- * Provides the basis of abstracting 2fa backends 
+ * Provides the basis of abstracting 2fa backends
 
  * The authentication backend should define a validate() method which
  * receives a user and OPT.
  */
-abstract class TwoFactorAuthenticationBackend {
+abstract class TwoFactorAuthenticationBackend extends ServiceRegistry {
     // Global registry
     static protected $registry = array();
     // Grace period in minutes before OTP is expired and user logged out
     // It's hardcoded to 6 minutes here but downstream backends can make it
-    // configurable 
+    // configurable
     protected $timeout = 6;
 
     // Maximum number of validation attempts before the user is logged out
@@ -36,14 +36,6 @@ abstract class TwoFactorAuthenticationBackend {
     // validate OTP provided by user
     abstract function validate($form, $user);
 
-    function getId() {
-        return static::$id;
-    }
-
-    function getName() {
-        return __(static::$name);
-    }
-
     function getDescription() {
         return __(static::$desc);
     }
@@ -64,7 +56,7 @@ abstract class TwoFactorAuthenticationBackend {
         return array();
     }
 
-    // stash OTP info in the session 
+    // stash OTP info in the session
     protected function store($otp) {
        $store =  &$_SESSION['_2fa'][$this->getId()];
        $store = ['otp' => $otp, 'time' => time(), 'strikes' => 0];
@@ -76,12 +68,12 @@ abstract class TwoFactorAuthenticationBackend {
     protected function _validate($otp, $strict=true) {
         $store = &$_SESSION['_2fa'][$this->getId()];
         // Track and check the attempts
-        $store['strikes'] += 1;   
+        $store['strikes'] += 1;
         if ($strict && $store['strikes'] > $this->getMaxStrikes())
             throw new ExpiredOTP(__('Too many attempts'));
 
         // Check timeout - if expired throw an exception.
-        if ($strict 
+        if ($strict
                 && ($timeout=$this->getTimeout())
                 && ($store['time']+($timeout*60)) < time())
             throw new ExpiredOTP(__('Expired OTP'));
@@ -120,18 +112,11 @@ abstract class TwoFactorAuthenticationBackend {
                 || !($class instanceof TwoFactorAuthenticationBackend))
             return false;
 
-        return static::_register($class);
-    }
-
-    static function _register($class) {
-        if (isset(static::$registry[$class::$id]))
-            return false;
-
-        static::$registry[$class::$id] = $class;
+        static::$registry[$class->getBkId()] = $class;
     }
 
     static function allRegistered() {
-        return static::$registry;
+        return array_merge(self::$registry, parent::getRegistry());
     }
 
     static function getBackend($id) {
@@ -154,38 +139,19 @@ class ExpiredOTP extends Exception {}
  *
  */
 abstract class Staff2FABackend extends TwoFactorAuthenticationBackend {
-    static private $_registry = array();
-   
-    static function _register($class) {
-        if (isset(static::$_registry[$class::$id]))
-            return false;
-
-        static::$_registry[$class::$id] = $class;
-    }
-
+    static protected $registry = array();
     static function allRegistered() {
-        return array_merge(self::$_registry, parent::allRegistered());
+        return array_merge(self::$registry, parent::allRegistered());
     }
-
-
     abstract function send($user);
     abstract function validate($form, $user);
 }
 
 abstract class User2FABackend extends TwoFactorAuthenticationBackend {
-    static private $_registry = array();
-
-    static function _register($class) {
-        if (isset(static::$_registry[$class::$id]))
-            return false;
-
-        static::$_registry[$class::$id] = $class;
-    }
-
+    static protected $registry = array();
     static function allRegistered() {
-        return array_merge(self::$_registry, parent::allRegistered());
+        return array_merge(self::$registry, parent::allRegistered());
     }
-
     abstract function send($user);
     abstract function validate($form, $user);
 }
@@ -193,8 +159,8 @@ abstract class User2FABackend extends TwoFactorAuthenticationBackend {
 /*
  * Email2FABackend
  *
- * Email based two factor authentication. 
- * 
+ * Email based two factor authentication.
+ *
  * This is the default 2FA that works out of the box once users configure
  * it.
  *
@@ -219,7 +185,7 @@ class Email2FABackend extends TwoFactorAuthenticationBackend {
         return array(
             'token' => new TextboxField(array(
                 'id'=>1, 'label'=>__('Verification Code'), 'required'=>true, 'default'=>'',
-                'validator'=>'number', 
+                'validator'=>'number',
                 'hint'=>__('Please enter the code you were sent'),
                 'configuration'=>array(
                     'size'=>40, 'length'=>40,
@@ -234,7 +200,7 @@ class Email2FABackend extends TwoFactorAuthenticationBackend {
 
     function validate($form, $user) {
         // Make sure form is valid and token exists
-        if (!($form->isValid() 
+        if (!($form->isValid()
                     && ($clean=$form->getClean())
                     && $clean['token']))
             return false;

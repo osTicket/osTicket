@@ -841,11 +841,11 @@ if ($errors['err'] && isset($_POST['a'])) {
                                  Format::htmlchars($e->getAddress()));
                      }
                      $staffDepts = $thisstaff->getDepts();
+                     if (in_array($cfg->getDefaultDeptId(), $staffDepts))
+                         $staffDepts[] = 0;
                      // Optional SMTP addreses user can send email via
                      if (($emails = Email::getAddresses(array('smtp' => true,
                                  'depts' => $staffDepts), false)) && count($emails)) {
-                         echo '<option value=""
-                             disabled="disabled">&nbsp;</option>';
                          $emailId = $_POST['from_email_id'] ?: 0;
                          foreach ($emails as $e) {
                              if ($dept->getEmail()->getId() == $e->getId())

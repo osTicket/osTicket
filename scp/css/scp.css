@@ -2255,6 +2255,10 @@ time.faq {
     width:750px !important;
 }
 
+.dialog.size-xl {
+    width:940px !important;
+}
+
 .dialog #popup-loading {
     position:absolute;
     text-align:center;
@@ -2567,6 +2571,15 @@ button[type=submit], input[type="submit"], .primary.button {
   background-color: rgba(255, 174, 0, 0.63);
   box-shadow: 0 0 0 2px rgba(255, 174, 0, 1) inset;
 }
+.save.pending:hover {
+  box-shadow: 0 0 0 2px rgba(242, 165, 0, 1) inset;
+  background-color: rgba(255, 174, 0, 0.79);
+  color: black;
+}
+
+.save.success {
+  background-color: rgba(22, 109, 82, 0.63);
+}
 
 .button:hover, .button:active,
 .action-button:hover, .action-button:active,
@@ -2590,11 +2603,6 @@ button[type=submit]:disabled, input[type=submit]:disabled {
   opacity: 0.6;
 }
 
-.save.pending:hover {
-  box-shadow: 0 0 0 2px rgba(242, 165, 0, 1) inset;
-  background-color: rgba(255, 174, 0, 0.79);
-  color: black;
-}
 
 input[type=button].small, .small.button, input[type=submit].small {
   font-size: 0.8em;

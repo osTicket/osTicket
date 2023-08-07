@@ -96,6 +96,9 @@ if(!$thisstaff->isAdmin()) {
         exit;
     }
 }
+/******* SET STAFF DEFAULTS **********/
+define('PAGE_LIMIT', $thisstaff->getPageLimit() ?: DEFAULT_PAGE_LIMIT);
+define('SESSION_MAXLIFE', $thisstaff->getMaxIdleTime());
 
 //Keep the session activity alive
 $thisstaff->refreshSession();
@@ -113,8 +116,6 @@ $ost->addExtraHeader('<meta name="csrf_token" content="'.$ost->getCSRFToken().'"
 // Load the navigation after the user in case some things are hidden
 require_once(INCLUDE_DIR.'class.nav.php');
 
-/******* SET STAFF DEFAULTS **********/
-define('PAGE_LIMIT', $thisstaff->getPageLimit() ?: DEFAULT_PAGE_LIMIT);
 
 $tabs=array();
 $submenu=array();

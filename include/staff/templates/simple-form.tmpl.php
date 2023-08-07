@@ -4,8 +4,14 @@
     </h1>
     <?php
     }
+    // Display notice as in warning format.
+    if ($form->getNotice())
+        echo sprintf('<br/><div><p id="msg_warning">%s</p></div>',
+                Format::htmlchars($form->getNotice()));
     foreach ($form->getFields() as $field) { ?>
-        <div class="form-field"><?php
+        <div class="form-field" id="field<?php echo $field->getWidget()->id;
+            ?>" <?php if (!$field->isVisible()) echo 'style="display:none;"'; ?>>
+        <?php
         if (!$field->isBlockLevel()) { ?>
             <div class="<?php if ($field->isRequired()) echo 'required';
                 ?>" style="display:inline-block;width:27%;">

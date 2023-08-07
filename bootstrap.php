@@ -45,6 +45,24 @@ class Bootstrap {
         }
         date_default_timezone_set('UTC');
 
+        if (!function_exists('exif_imagetype')) {
+            function exif_imagetype ($filename) {
+                if ((list($width,$height,$type,) = getimagesize($filename)) !== false)
+                    return $type;
+
+                return false;
+            }
+        }
+
+        if (!function_exists('exif_imagetype')) {
+            function exif_imagetype ($filename) {
+                if ((list($width,$height,$type,) = getimagesize($filename)) !== false)
+                    return $type;
+
+                return false;
+            }
+        }
+
         if (!isset($_SERVER['REMOTE_ADDR']))
             $_SERVER['REMOTE_ADDR'] = '';
     }
@@ -125,6 +143,7 @@ class Bootstrap {
         define('SLA_TABLE', $prefix.'sla');
 
         define('EMAIL_TABLE',$prefix.'email');
+        define('EMAIL_ACCOUNT_TABLE', $prefix.'email_account');
         define('EMAIL_TEMPLATE_GRP_TABLE',$prefix.'email_template_group');
         define('EMAIL_TEMPLATE_TABLE',$prefix.'email_template');
 
@@ -133,6 +152,7 @@ class Bootstrap {
         define('FILTER_ACTION_TABLE', $prefix.'filter_action');
 
         define('PLUGIN_TABLE', $prefix.'plugin');
+        define('PLUGIN_INSTANCE_TABLE', $prefix.'plugin_instance');
         define('SEQUENCE_TABLE', $prefix.'sequence');
         define('TRANSLATION_TABLE', $prefix.'translation');
         define('QUEUE_TABLE', $prefix.'queue');
@@ -191,19 +211,28 @@ class Bootstrap {
                 'key' => DBSSLKEY
             );
 
-        if (!db_connect(DBHOST, DBUSER, DBPASS, $options)) {
-            $ferror=sprintf('Unable to connect to the database — %s',db_connect_error());
-        }elseif(!db_select_database(DBNAME)) {
-            $ferror=sprintf('Unknown or invalid database: %s',DBNAME);
+        $hosts = explode(',', DBHOST);
+        foreach ($hosts as $host) {
+            $ferror  = null;
+            if (!db_connect($host, DBUSER, DBPASS, $options)) {
+                $ferror = sprintf('Unable to connect to the database — %s',
+                        db_connect_error());
+            }elseif(!db_select_database(DBNAME)) {
+                $ferror = sprintf('Unknown or invalid database: %s',
+                        DBNAME);
+           }
+           // break if no error
+           if (!$ferror) break;
         }
 
-        if($ferror) //Fatal error
+        if ($ferror) //Fatal error
             self::croak($ferror);
     }
 
     static function loadCode() {
         #include required files
         require_once INCLUDE_DIR.'class.util.php';
+        include_once INCLUDE_DIR.'class.controller.php';
         require_once INCLUDE_DIR.'class.translation.php';
         require_once(INCLUDE_DIR.'class.signal.php');
         require(INCLUDE_DIR.'class.model.php');
@@ -214,8 +243,7 @@ class Bootstrap {
         require(INCLUDE_DIR.'class.crypto.php');
         require(INCLUDE_DIR.'class.page.php');
         require_once(INCLUDE_DIR.'class.format.php'); //format helpers
-        require_once(INCLUDE_DIR.'class.validator.php'); //Class to help with basic form input validation...please help improve it.
-        require(INCLUDE_DIR.'class.mailer.php');
+        require_once(INCLUDE_DIR.'class.validator.php');
         require_once INCLUDE_DIR.'mysqli.php';
         require_once INCLUDE_DIR.'class.i18n.php';
         require_once INCLUDE_DIR.'class.queue.php';
@@ -312,7 +340,7 @@ class Bootstrap {
 
     static function croak($message) {
         $msg = $message."\n\n".THISPAGE;
-        Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
+        osTicket\Mail\Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
             sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
         Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
@@ -340,7 +368,7 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 
 #Current version && schema signature (Changes from version to version)
 define('GIT_VERSION','$git');
-define('MAJOR_VERSION', '1.16');
+define('MAJOR_VERSION', '1.18');
 define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
 //Path separator
 if(!defined('PATH_SEPARATOR')){
@@ -366,7 +394,7 @@ if (!defined('ROOT_PATH') && ($rp = osTicket::get_root_path(dirname(__file__))))
 Bootstrap::init();
 
 #CURRENT EXECUTING SCRIPT.
-define('THISPAGE', Misc::currentURL());
+define('THISPAGE', Http::url());
 
 define('DEFAULT_MAX_FILE_UPLOADS', ini_get('max_file_uploads') ?: 5);
 define('DEFAULT_PRIORITY_ID', 1);

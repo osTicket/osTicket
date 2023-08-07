@@ -105,61 +105,84 @@ class TicketApiController extends ApiController {
 
     function create($format) {
 
-        if(!($key=$this->requireApiKey()) || !$key->canCreateTickets())
+        if (!($key=$this->requireApiKey()) || !$key->canCreateTickets())
             return $this->exerr(401, __('API key not authorized'));
 
         $ticket = null;
-        if(!strcasecmp($format, 'email')) {
-            # Handle remote piped emails - could be a reply...etc.
-            $ticket = $this->processEmail();
+        if (!strcasecmp($format, 'email')) {
+            // Process remotely piped emails - could be a reply...etc.
+            $ticket = $this->processEmailRequest();
         } else {
-            # Parse request body
+            // Get and Parse request body data for the format
             $ticket = $this->createTicket($this->getRequest($format));
         }
 
-        if(!$ticket)
-            return $this->exerr(500, __("Unable to create new ticket: unknown error"));
 
-        $this->response(201, $ticket->getNumber());
+
+        if ($ticket)
+            $this->response(201, $ticket->getNumber());
+        else
+            $this->exerr(500, _S("unknown error"));
+
     }
 
     /* private helper functions */
 
-    function createTicket($data) {
+    function createTicket($data, $source = 'API') {
 
         # Pull off some meta-data
         $alert       = (bool) (isset($data['alert'])       ? $data['alert']       : true);
         $autorespond = (bool) (isset($data['autorespond']) ? $data['autorespond'] : true);
 
-        # Assign default value to source if not defined, or defined as NULL
-        $data['source'] = isset($data['source']) ? $data['source'] : 'API';
+        // Assign default value to source if not defined, or defined as NULL
+        $data['source'] ??= $source;
 
-        # Create the ticket with the data (attempt to anyway)
+        // Create the ticket with the data (attempt to anyway)
         $errors = array();
+        if (($ticket = Ticket::create($data, $errors, $data['source'],
+                        $autorespond, $alert)) &&  !$errors)
+            return $ticket;
 
-        $ticket = Ticket::create($data, $errors, $data['source'], $autorespond, $alert);
-        # Return errors (?)
+        // Ticket create failed Bigly - got errors?
+        $title = null;
+        // Got errors?
         if (count($errors)) {
-            if(isset($errors['errno']) && $errors['errno'] == 403)
-                return $this->exerr(403, __('Ticket denied'));
-            else
-                return $this->exerr(
-                        400,
-                        __("Unable to create new ticket: validation errors").":\n"
-                        .Format::array_implode(": ", "\n", $errors)
-                        );
-        } elseif (!$ticket) {
-            return $this->exerr(500, __("Unable to create new ticket: unknown error"));
+            // Ticket denied? Say so loudly so it can standout from generic
+            // validation errors
+            if (isset($errors['errno']) && $errors['errno'] == 403) {
+                $title = _S('Ticket denied');
+                $error = sprintf("%s: %s\n\n%s",
+                        $title, $data['email'], $errors['err']);
+            } else {
+                // unpack the errors
+                $error = Format::array_implode("\n", "\n", $errors);
+            }
+        } else {
+            // unknown reason - default
+            $error = _S('unknown error');
         }
 
-        return $ticket;
+        $error = sprintf('%s :%s',
+                _S('Unable to create new ticket'), $error);
+        return $this->exerr($errors['errno'] ?: 500, $error, $title);
     }
 
-    function processEmail($data=false) {
+    function processEmailRequest() {
+        return $this->processEmail();
+    }
 
-        if (!$data)
-            $data = $this->getEmailRequest();
+    function processEmail($data=false, array $defaults = []) {
 
+        try {
+            if (!$data)
+                $data = $this->getEmailRequest();
+            elseif (!is_array($data))
+                $data = $this->parseEmail($data);
+        } catch (Exception $ex)  {
+            throw new EmailParseError($ex->getMessage());
+        }
+
+        $data = array_merge($defaults, $data);
         $seen = false;
         if (($entry = ThreadEntry::lookupByEmailHeaders($data, $seen))
             && ($message = $entry->postEmail($data))
@@ -183,18 +206,34 @@ class TicketApiController extends ApiController {
         // All emails which do not appear to be part of an existing thread
         // will always create new "Tickets". All other objects will need to
         // be created via the web interface or the API
-        return $this->createTicket($data);
+        try {
+            return $this->createTicket($data, 'Email');
+        } catch (TicketApiError $err) {
+            // Check if the ticket was denied by a filter or banlist
+            if ($err->isDenied() && $data['mid']) {
+                // We need to log the Message-Id (mid) so we don't
+                // process the same email again in subsequent fetches
+                $entry = new ThreadEntry();
+                $entry->logEmailHeaders(0, $data['mid']);
+                // throw TicketDenied exception so the caller can handle it
+                // accordingly
+                throw new TicketDenied($err->getMessage());
+            } else {
+                // otherwise rethrow this bad baby as it is!
+                throw $err;
+            }
+        }
     }
-
 }
 
 //Local email piping controller - no API key required!
 class PipeApiController extends TicketApiController {
 
-    //Overwrite grandparent's (ApiController) response method.
+    // Overwrite grandparent's (ApiController) response method.
     function response($code, $resp) {
 
-        //Use postfix exit codes - instead of HTTP
+        // It's important to use postfix exit codes for local piping instead
+        // of HTTP's so the piping script can process them accordingly
         switch($code) {
             case 201: //Success
                 $exitcode = 0;
@@ -219,19 +258,33 @@ class PipeApiController extends TicketApiController {
             default: //Temp (unknown) failure - retry
                 $exitcode = 75;
         }
-
-        //echo "$code ($exitcode):$resp";
         //We're simply exiting - MTA will take care of the rest based on exit code!
         exit($exitcode);
     }
 
-    static function process() {
-        $pipe = new PipeApiController();
-        if(($ticket=$pipe->processEmail()))
-           return $pipe->response(201, $ticket->getNumber());
+    static function process($sapi=null) {
+        $pipe = new PipeApiController($sapi);
+        if (($ticket=$pipe->processEmail()))
+           return $pipe->response(201,
+                   is_object($ticket) ? $ticket->getNumber() : $ticket);
 
         return $pipe->exerr(416, __('Request failed - retry again!'));
     }
+
+    static function local() {
+        return self::process('cli');
+    }
 }
+
+class TicketApiError extends Exception {
+
+    // Check if exception is because of denial
+    public function isDenied() {
+        return ($this->getCode() === 403);
+    }
+}
+
+class TicketDenied extends Exception {}
+class EmailParseError extends Exception {}
 
 ?>

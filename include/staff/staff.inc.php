@@ -136,12 +136,7 @@ $extras = new ArrayObject();
           </td>
         </tr>
 <?php
-$bks = array();
-foreach (StaffAuthenticationBackend::allRegistered() as $ab) {
-  if (!$ab->supportsInteractiveAuthentication()) continue;
-  $bks[] = $ab;
-}
-if (count($bks) > 1) {
+if (($bks = StaffAuthenticationBackend::getInteractive())) {
 ?>
         <tr>
           <td><?php echo __('Authentication Backend'); ?>:</td>
@@ -154,9 +149,10 @@ if (count($bks) > 1) {
                     $('#password-fields').show();
                 ">
               <option value="">&mdash; <?php echo __('Use any available backend'); ?> &mdash;</option>
-<?php foreach ($bks as $ab) { ?>
-              <option value="<?php echo $ab::$id; ?>" <?php
-                if ($staff->backend == $ab::$id)
+<?php foreach ($bks as $ab) {
+                $id = $ab->getBkId(); ?>
+              <option value="<?php echo $id; ?>" <?php
+                if ($staff->backend == $id)
                   echo 'selected="selected"'; ?>><?php
                 echo $ab->getName(); ?></option>
 <?php } ?>

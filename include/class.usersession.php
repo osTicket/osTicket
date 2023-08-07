@@ -2,10 +2,13 @@
 /*********************************************************************
     class.usersession.php
 
-    User (client and staff) sessions handle.
+    User (client and staff) sessions manager
+
+    User-Space session management, not to confused with Session Storage
+    Backends.
 
     Peter Rotich <peter@osticket.com>
-    Copyright (c)  2006-2013 osTicket
+    Copyright (c)  2022 osTicket
     http://www.osticket.com
 
     Released under the GNU General Public License WITHOUT ANY WARRANTY.
@@ -52,9 +55,12 @@ class UserSession {
    }
 
    function sessionToken(){
+      // Please note that user-space token is not meant to be secure at all
+      // we're simply encoding stuff we want to track as we refresh the
+      // session.
       $time  = time();
       $hash  = md5($time.SESSION_SECRET.$this->userID);
-      $token = "$hash:$time:".MD5($this->ip);
+      $token = "$hash:$time:".MD5($this->getIP());
       return $token;
    }
 
@@ -66,16 +72,12 @@ class UserSession {
        return $expire;
    }
 
-   function isvalidSession($htoken,$maxidletime=0,$checkip=false){
-        global $cfgi;
+   function isvalidSession($htoken, $maxidletime=0, $checkip=false){
+        global $cfg;
 
         // Compare session ids
         if (strcmp($this->getSessionId(), session_id()))
             return false;
-
-        // Is the session invalidated?
-        if (isset($_SESSION['KAPUT']) &&  $_SESSION['KAPUT'] < time())
-            return (session_destroy() && false);
 
         $token = rawurldecode($htoken);
         // Check if we got what we expected....
@@ -83,18 +85,18 @@ class UserSession {
             return false;
 
         // Get the goodies
-        list($hash, $expire, $ip) = explode(":",$token);
+        list($hash, $expire, $ip) = explode(':', $token);
 
         // Make sure the session hash is valid
         if ((md5($expire . SESSION_SECRET . $this->userID) != $hash))
             return false;
 
         // is it expired??
-        if ($maxidletime && ((time()-$expire)>$maxidletime))
+        if ($maxidletime && ((time()-$expire) > $maxidletime))
             return false;
 
-        #Make sure IP is still same ( proxy access??????)
-        if ($checkip && strcmp($ip, MD5($this->ip)))
+        // Make sure IP is still same - if requested
+        if ($checkip && strcmp($ip, MD5($this->getIP())))
             return false;
 
         $this->validated = true;
@@ -102,54 +104,13 @@ class UserSession {
         return true;
    }
 
-   function regenerateSession($destroy=false) {
-       // Delayed kaput time for current session
-       $_SESSION['KAPUT'] = time() + 60;
-       // Save the session id as old
-       $old = session_id();
-       // Regenerate the session without destroying data
-       session_regenerate_id(false);
-       // Get new session id and close
-       $new = session_id();
-       session_write_close();
-       // Start new session
-       session_id($new);
-       session_start();
-       $this->session_id  = $new;
-       // Make sure new session is not set to KAPUT
-       unset($_SESSION['KAPUT']);
-       // Destroy ?
-       if ($destroy) {
-           // Destrory old session
-           $this->destroySession($old);
-           // Restore new session
-           session_id($new);
-           session_start();
-       }
-       return true;
-   }
-
-   function destroySession($id) {
-       // Close current session
-       session_write_close();
-       // Start target session
-       session_id($id);
-       session_start();
-       // Destroy session
-       session_destroy();
-       session_write_close();
-       return true;
-   }
-
    function isValid() {
         return  ($this->validated);
    }
-
 }
 
-
 trait UserSessionTrait {
-    // Session Object
+    // User Session Object
     var $session;
     // Session Token
     var $token;
@@ -160,20 +121,60 @@ trait UserSessionTrait {
     // User class
     var $class = '';
 
-    function refreshSession($force=false) {
-        $time = $this->session->getLastUpdate($this->token);
-        // Deadband session token updates to once / 30-seconds
-        if (!$force && time() - $time < 30)
-            return;
 
-        $this->token = $this->getSessionToken();
-        osTicketSession::renewCookie($time, $this->maxidletime);
+    public function getMaxIdleTime() {
+        return $this->maxidletime ;
     }
 
-    function regenerateSession($destroy=false) {
-        $this->session->regenerateSession($destroy);
-        // Set cookie for the new session id.
-        $this->refreshSession(true);
+    function refreshSession($refreshRate=60) {
+        // Check Time To Die (TTD) if any - OLD people.. I mean sessions,
+        // must die! Don't fight it bro!
+        if (isset($_SESSION['TTD']) &&  $_SESSION['TTD'] < time()) {
+            error_log(sprintf('Session %s with TTD %s was used',
+                        session_id(), $_SESSION['TTD']));
+            return (session_destroy() && false);
+        }
+
+        // If TIME_BOMB is set and less than the current time we need to regenerate
+        // session id to help mitigate session fixation attacks.
+        // Only regenerate on GET to avoid invalidating data in-flight on a
+        // POST request
+        if ($_SERVER['REQUEST_METHOD'] === 'GET'
+                && isset($_SESSION['TIME_BOMB'])
+                && ($_SESSION['TIME_BOMB'] < time())
+                && ($id=$this->regenerateSession())) {
+            // unset timer and set next one based on maxlife for the user or
+            // 24 hrs later
+            // TODO: Make regenerate frequency configurable in 2032 /j
+            // PS: Living and dying and the stories that are true Secrets to
+            // a good life is knowing when you're through ~ time bomb
+            $ttl = ($this->getMaxIdleTime() ?: 86400);
+            $_SESSION['TIME_BOMB'] = time() + $ttl;
+            // Set new id locally
+            $this->session_id  = $id;
+            // Force cookie renewal NOW!
+            $refreshRate = -1;
+        }
+
+        // Deadband session token updates to once / 30-seconds
+        $updated = $this->session->getLastUpdate($this->token);
+        if ($updated + $refreshRate < time()) {
+            // Renew the session token
+            $this->token = $this->getSessionToken();
+            // Update the expire time for the session cookie
+            osTicketSession::renewCookie(time(), $this->getMaxIdleTime());
+        }
+    }
+
+    function regenerateSession(int $ttl = 120) {
+        // Set TTD (Time To Die) on current session
+        // If ttl is 0 then session is destroyed immediatetly
+        $_SESSION['TTD'] = time() + $ttl; // now + ttl
+        if (($id=osTicketSession::regenerate($ttl)))
+            $this->session->session_id = $id;
+        // unset TTD on the new session - new life my boy!
+        unset($_SESSION['TTD']);
+        return $id;
     }
 
     function getSession() {
@@ -188,6 +189,7 @@ trait UserSessionTrait {
         // Assign memory to token variable
         $this->token = &$_SESSION[':token'][$this->class];
         // Set token
+        $token = $token ?: $this->token;
         $this->token = $token ?: $this->getSessionToken();
     }
 
@@ -198,7 +200,7 @@ trait UserSessionTrait {
     function isValidSession() {
         return ($this->getId()
                 && $this->session->isvalidSession($this->token,
-                    $this->maxidletime, $this->checkip));
+                    $this->getMaxIdleTime(), $this->checkip));
     }
 
     abstract function isValid();
@@ -212,7 +214,7 @@ class ClientSession extends EndUser {
         parent::__construct($user);
         $this->class ='client';
         // XXX: Change the key to user-id
-        $this->session = new UserSession($user->getId());
+        $this->session = new UserSession($user->getUserId());
         $this->setSessionToken();
         $this->maxidletime = $cfg->getClientTimeout();
     }
