@@ -3228,7 +3228,7 @@ implements RestrictedAccess, Threadable, Searchable {
             if ($cfg->alertAssignedONNewMessage() && $ticket->isAssigned()) {
                 if ($staff = $ticket->getStaff())
                     $recipients[] = $staff;
-                elseif ($team = $ticket->getTeam())
+                if ($team = $ticket->getTeam())
                     $recipients = array_merge($recipients, $team->getMembersForAlerts());
             }
 
