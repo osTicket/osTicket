@@ -1006,7 +1006,7 @@ class FormField {
             'contains' => array('TextboxField', array('configuration' => array('size' => 40))),
             'match' => array('TextboxField', array(
                 'placeholder' => __('Valid regular expression'),
-                'configuration' => array('size'=>30),
+                'configuration' => array('size'=>60, 'length'=>200),
                 'validators' => function($self, $v) {
                     if (false === @preg_match($v, ' ')
                         && false === @preg_match("/$v/", ' '))
