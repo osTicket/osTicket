@@ -96,6 +96,12 @@ function db_autocommit($enable=true) {
     return $__db->autocommit($enable);
 }
 
+function db_commit($flags=0, $name=null) {
+    global $__db;
+
+    return $__db->commit($flags, $name);
+}
+
 function db_rollback() {
     global $__db;
 
