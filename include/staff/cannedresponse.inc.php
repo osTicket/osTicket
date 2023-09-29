@@ -95,7 +95,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <?php
                 $attachments = $canned_form->getField('attachments');
                 if ($canned && $attachments) {
-                    $attachments->setAttachments($canned->attachments);
+                    $attachments->setAttachments($canned->attachments->window(['inline' => false]));
                 }
                 print $attachments->render(); ?>
                 <br/>

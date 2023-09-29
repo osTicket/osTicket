@@ -81,6 +81,7 @@ class Draft extends VerySimpleModel {
             foreach ($files as $F) {
                 $attachments[] = array(
                     'id' => $F->getId(),
+                    'name' => $F->getName(),
                     'inline' => true
                 );
             }
