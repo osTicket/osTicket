@@ -189,6 +189,12 @@ img.avatar {
     <th><?php echo __('Last Message'); ?></th>
     <td><?php echo Format::datetime($ticket->getLastMessageDate()); ?></td>
 </tr>
+// CHANGED!   
+<tr>
+    <th><?php echo __('Time Spent'); ?></th>
+    <td><?php echo $ticket->getTimeSpent(); ?></td>
+</tr>
+// CHANGED!
 </tbody>
 </table>
 
@@ -267,6 +273,16 @@ if ($entries->exists(true)) {
                             echo Format::datetime($entry->created);?></span>
                         <span style="padding:0 1em" class="faded title"><?php
                             echo Format::truncate($entry->title, 100); ?></span>
+                    // CHANGED!
+                            <?php if ($cfg->isThreadTime()) {
+                            if ($entry->time_spent > 0) { ?>
+                            <span style="display:inline-block">
+                                <?php echo Ticket::formatTime($entry->time_spent) .' - '. $entry->getTimeTypeName(); ?>
+                            </span>
+                        <?php }
+                    } ?>
+                    // CHANGED!
+   
                     </td>
                     <td class="flush-right faded title" style="white-space:no-wrap">
 <?php

@@ -95,6 +95,14 @@ if ($thisclient && $thisclient->isGuest()
                    <th><?php echo __('Phone');?>:</th>
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
+               // CHANGED!
+                <?php if ($cfg->isClientTime()) { ?>
+               <tr>
+                    <th><?php echo __('Time Spent');?>:</th>
+                    <td><?php echo $ticket->getTimeSpent(); ?></td>
+                </tr>
+                <?PHP } ?>
+                // CHANGED!
             </table>
        </td>
     </tr>

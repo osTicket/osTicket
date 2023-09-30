@@ -974,7 +974,40 @@ implements TemplateVariable {
         $this->body = (string) $body;
         return $this->save();
     }
+        // CHANGED!
 
+        function setTimeInvoice($time_invoice) {
+            global $cfg;
+            $this->time_invoice = (int) $time_invoice;
+            return $this->save();
+        }
+    
+        function getTimeInvoice() {
+            return $this->time_invoice;
+        }
+    
+        function getTimeSpent() {
+            return $this->time_spent;
+        }
+    
+        function getTimeType() {
+            return $this->time_type;
+        }
+    
+        function getTimeTypeName() {
+            $typetext = DynamicListItem::lookup($this->time_type);
+            return $typetext->value;
+        }
+    
+        function getTimeBill() {
+            return $this->time_bill;
+        }
+    
+        function setTimeBill($val) {
+            $this->time_bill = $val;
+            $this->save();
+        }
+    
     function getMessage() {
         return $this->getBody();
     }
@@ -1658,7 +1691,20 @@ implements TemplateVariable {
 
         // Ensure valid external images
         $body = Format::stripExternalImages($body);
-
+        // CHANGED!
+		$time_spent = $vars['time_spent'];
+        if ($time_spent && is_object($time_spent))
+            $time_spent = (float) $time_spent;
+        $time_type = $vars['time_type'];
+        if ($time_type && is_object($time_type))
+            $time_type = (int) $time_type;
+        $time_bill = $vars['time_bill'];
+        if ($time_bill && is_object($time_bill))
+            $time_bill = (int) $time_bill;
+        $time_invoice = $vars['time_invoice'];
+        if ($time_invoice && is_object($time_invoice))
+            $time_invoice = (int) $time_invoice;
+        // CHANGED!
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
@@ -1672,6 +1718,13 @@ implements TemplateVariable {
             'staff_id' => $vars['staffId'],
             'user_id' => $vars['userId'],
             'poster' => $poster,
+            // CHANGED!
+			'time_spent' => $time_spent,
+            'time_type' => $time_type,
+            'time_bill' => $time_bill,
+            'time_invoice' => $time_invoice,
+          // CHANGED!
+
             'source' => $vars['source'],
             'flags' => $vars['flags'] ?: 0,
         ));

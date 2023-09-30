@@ -139,6 +139,11 @@ class StaffNav {
             $this->tabs['tickets'] = array('desc'=>__('Tickets'),'href'=>'tickets.php','title'=>__('Ticket Queue'));
 
             $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
+        // CHANGED!
+			if ($cfg->isThreadTime()) {
+				$this->tabs['timebill'] = array('desc'=>__('Time and Billing'),'href'=>'timebill.php','title'=>__('Time and Billing'));
+			}
+        // CHANGED!
             if (!is_null($this->getRegisteredApps()))
                 $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));
         }
@@ -175,6 +180,12 @@ class StaffNav {
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
+                 // CHANGED!
+				case 'timebill':
+					$subnav[]=array('desc'=>__('Ticket Information'),'href'=>'timebill.php','iconclass'=>'logs');
+					break;
+                // CHANGED!
+
                 case 'apps':
                     foreach ($this->getRegisteredApps() as $app)
                         $subnav[] = $app;
@@ -245,6 +256,9 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Tasks'),'href'=>'settings.php?t=tasks','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('Agents'),'href'=>'settings.php?t=agents','iconclass'=>'teams');
                     $subnav[]=array('desc'=>__('Users'),'href'=>'settings.php?t=users','iconclass'=>'groups');
+                    // CHANGED!
+                    $subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings');
+                    // CHANGED!
                     $subnav[]=array('desc'=>__('Knowledgebase'),'href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
                     break;
                 case 'manage':

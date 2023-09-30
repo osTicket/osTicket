@@ -616,6 +616,9 @@ class CustomQueue extends VerySimpleModel {
                 'reopen_count' =>   __('Reopen Count'),
                 'attachment_count' => __('Attachment Count'),
                 'task_count' => __('Task Count'),
+                // CHANGED!
+				'time_spent' => __('Time Spent'),
+                // CHANGED!
                 ) + $cdata;
 
         return $fields;
@@ -3230,3 +3233,39 @@ extends AbstractForm {
         );
     }
 }
+
+        // CHANGED!
+        class ThreadTimeSpentSum
+        extends QueueColumnAnnotation {
+        static $icon = 'paperclip';
+        static $qname = '_time_spent';
+        static $desc = /* @trans */ 'Time Spent';
+        
+        function annotate($query, $name=false) {
+            // TODO: Convert to Thread attachments
+            $name = $name ?: static::$qname;
+                
+                return $query->annotate(array(
+                    'time_spent' => TicketThread::objects()
+                        ->filter(array('ticket__ticket_id' => new SqlField('ticket_id', 1)))  
+                        ->aggregate(array('count' => SqlAggregate::SUM('entries__time_spent'))),            
+            ));
+        }
+        
+        function getDecoration($row, $text) {
+            $TimeSpentSum = $row[static::$qname];
+            if ($TimeSpentSum) {
+                return sprintf(
+                    '&nbsp;<small class="faded-more"><i class="icon-%s"></i> %s</small>',
+                    static::$icon,
+                    $TimeSpentSum > 1 ? $TimeSpentSum : ''
+                );
+            }
+        }
+        
+        function isVisible($row) {
+            return $row[static::$qname] > 0;
+        }
+        }
+                // CHANGED!
+        
