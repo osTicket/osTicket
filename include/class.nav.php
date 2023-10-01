@@ -140,9 +140,9 @@ class StaffNav {
 
             $this->tabs['kbase'] = array('desc'=>__('Knowledgebase'),'href'=>'kb.php','title'=>__('Knowledgebase'));
         // CHANGED!
-			if ($cfg->isThreadTime()) {
+			//if ($cfg->isThreadTime()) {
 				$this->tabs['timebill'] = array('desc'=>__('Time and Billing'),'href'=>'timebill.php','title'=>__('Time and Billing'));
-			}
+			//}
         // CHANGED!
             if (!is_null($this->getRegisteredApps()))
                 $this->tabs['apps']=array('desc'=>__('Applications'),'href'=>'apps.php','title'=>__('Applications'));

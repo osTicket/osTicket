@@ -3241,7 +3241,7 @@ extends AbstractForm {
         static $qname = '_time_spent';
         static $desc = /* @trans */ 'Time Spent';
         
-        function annotate($query, $name=false) {
+       static function annotate($query, $name=false) {
             // TODO: Convert to Thread attachments
             $name = $name ?: static::$qname;
                 
