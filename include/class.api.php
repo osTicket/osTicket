@@ -253,7 +253,7 @@ class ApiController extends Controller {
                 return $this->exerr(415, __('Unsupported data format'));
         }
 
-        if (!($data = $parser->parse($stream))) {
+        if (!($data = $parser->parse($stream)) || !is_array($data)) {
             $this->exerr(400, $parser->lastError());
         }
 
