@@ -588,9 +588,7 @@ class Format {
         $cids = $images = array();
         $options +=array(
                 'disposition' => 'inline');
-        if ($format)
-            $html = Format::htmlchars($html, true);
-        return preg_replace_callback('/("|&quot;)cid:([\w._-]{32})("|&quot;)/',
+        $html = preg_replace_callback('/("|&quot;)cid:([\w._-]{32})("|&quot;)/',
         function($match) use ($options, $images) {
             if (!($file = AttachmentFile::lookup($match[2])))
                 return $match[0];
@@ -598,6 +596,7 @@ class Format {
             return sprintf('"%s" data-cid="%s"',
                 $file->getDownloadUrl($options), $match[2]);
         }, $html);
+        return $format ? Format::htmlchars($html, true) : $html;
     }
 
 
