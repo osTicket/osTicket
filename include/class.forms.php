@@ -2085,7 +2085,7 @@ class ChoiceField extends FormField {
         $name = $name ?: $this->get('name');
         $val = $value;
         if ($value && is_array($value))
-            $val = '"?'.implode('("|,|$)|"?', array_keys($value)).'("|,|$)';
+            $val = '"?(?<![0-9])'.implode('("|,|$)|"?(?<![0-9])', array_keys($value)).'("|,|$)';
         switch ($method) {
         case '!includes':
             return Q::not(array("{$name}__regex" => $val));
