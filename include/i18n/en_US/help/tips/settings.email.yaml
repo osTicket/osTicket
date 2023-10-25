@@ -118,6 +118,12 @@ accept_email_collaborators:
         <em>Collaborators can always be added manually by Agents when
         viewing a ticket.</em>
 
+add_email_forms:
+    title: Add Forms
+    content: >
+        Forms associated with the Help Topic will be added to the ticket,
+        <strong>but will not have any data</strong>.
+
 default_mta:
     title: Default MTA
     content: >

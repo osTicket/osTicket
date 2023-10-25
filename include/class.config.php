@@ -241,6 +241,7 @@ class OsticketConfig extends Config {
         'default_storage_bk' => 'D',
         'message_autoresponder_collabs' => true,
         'add_email_collabs' => true,
+        'add_email_forms' => false,
         'clients_only' => false,
         'client_registration' => 'closed',
         'accept_unregistered_email' => true,
@@ -872,6 +873,10 @@ class OsticketConfig extends Config {
 
     function addCollabsViaEmail() {
         return ($this->get('add_email_collabs'));
+    }
+
+    function addFormsViaEmail() {
+        return ($this->get('add_email_forms'));
     }
 
     function getAdminEmail() {
@@ -1576,6 +1581,7 @@ class OsticketConfig extends Config {
             'use_email_priority'=>isset($vars['use_email_priority'])?1:0,
             'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
+            'add_email_forms'=>isset($vars['add_email_forms'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
             'email_attachments'=>isset($vars['email_attachments'])?1:0,
          ));
