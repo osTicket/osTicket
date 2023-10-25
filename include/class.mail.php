@@ -315,8 +315,8 @@ namespace osTicket\Mail {
             // Attempt to connect to the mail server
             $connect = $setting->getConnectionConfig();
             // Let's go Brandon
-            parent::connect($connect['host'], $connect['port'],
-                    $connect['ssl']);
+            parent::__construct($connect['host'], $connect['port'],
+                    $connect['ssl'], true);
             // Attempt authentication based on MailBoxAccount settings
             $auth = $setting->getAuthCredentials();
             switch (true) {
@@ -657,7 +657,10 @@ namespace osTicket\Mail {
         // Build out SmtpOptions options based on SmtpAccount Settings
         private function buildOptions(AccountSetting $setting) {
             // Dont send 'QUIT' on __destruct()
-            $config = ['use_complete_quit' => false];
+            $config = [
+                'use_complete_quit' => false,
+                'novalidatecert' => true
+            ];
             $connect = $setting->getConnectionConfig();
             $auth = $setting->getAuthCredentials();
             switch (true) {

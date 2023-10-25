@@ -776,7 +776,9 @@ class TextDomain {
             return;
 
         // Define locale for C-libraries
-        putenv('LC_ALL=' . $info['code']);
+        // Check if putenv() is available - some hosts disable it
+        if (function_exists('putenv'))
+            putenv('LC_ALL=' . $info['code']);
         self::setLocale(LC_ALL, $info['code']);
     }
 
