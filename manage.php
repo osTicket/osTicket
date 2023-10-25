@@ -18,7 +18,9 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-if (PHP_SAPI != "cli")
+
+// Make sure the script is executed via CLI
+if (!osTicket::is_cli())
     die("Management only supported from command-line\n");
 
 require_once 'bootstrap.php';
