@@ -368,16 +368,16 @@ class Format {
     static function localizeInlineImages($text) {
         // Change file.php urls back to content-id's
         return preg_replace(
-            '`src="(?:https?:/)?(?:/[^/"]+)*?/file\\.php\\?(?:\w+=[^&]+&(?:amp;)?)*?key=([^&]+)[^"]*`',
-            'src="cid:$1', $text);
+            '`<img src="(?:https?:/)?(?:/[^/"]+)*?/file\\.php\\?(?:\w+=[^&"]+&(?:amp;)?)*?key=([^&]+)[^"]*`',
+            '<img src="cid:$1', $text);
     }
 
     static function sanitize($text, $striptags=false, $spec=false) {
+        // Localize inline images before sanitizing content
+        $text = self::localizeInlineImages($text);
 
         //balance and neutralize unsafe tags.
         $text = Format::safe_html($text, array('spec' => $spec));
-
-        $text = self::localizeInlineImages($text);
 
         //If requested - strip tags with decoding disabled.
         return $striptags?Format::striptags($text, false):$text;

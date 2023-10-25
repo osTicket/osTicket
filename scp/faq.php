@@ -62,8 +62,11 @@ if ($langs && $faq) {
         $attachments->setAttachments($faq->getAttachments($lang)->window(array('inline' => false)));
     }
 }
+// Check if the Staff can Manage FAQs
+$can_manage = $thisstaff->hasPerm(FAQ::PERM_MANAGE);
 
-if ($_POST) {
+// Make sure the Agent has permission
+if ($_POST && $can_manage) {
     $errors=array();
     // General attachments
     $_POST['files'] = $faq_form->getField('attachments')->getClean();
@@ -142,7 +145,6 @@ if ($_POST) {
             break;
         default:
             $errors['err']=__('Unknown action');
-
     }
 }
 
@@ -150,12 +152,12 @@ $inc='faq-categories.inc.php'; //FAQs landing page.
 if($faq && $faq->getId()) {
     $inc='faq-view.inc.php';
     if ($_REQUEST['a']=='edit'
-            && $thisstaff->hasPerm(FAQ::PERM_MANAGE))
+            && $can_manage)
         $inc='faq.inc.php';
     elseif ($_REQUEST['a'] == 'print')
         return $faq->printPdf();
 }elseif($_REQUEST['a']=='add'
-        && $thisstaff->hasPerm(FAQ::PERM_MANAGE)) {
+        && $can_manage) {
     $inc='faq.inc.php';
 } elseif($category && $_REQUEST['a']!='search') {
     $inc='faq-category.inc.php';
