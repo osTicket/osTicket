@@ -1,6 +1,6 @@
 <?php
 if ($cfg)
-    header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes().";");
+    header("Content-Security-Policy: frame-ancestors ".$cfg->getAllowIframes()."; script-src 'self' 'unsafe-inline'; object-src 'none'");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
