@@ -18,12 +18,12 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
+require_once 'bootstrap.php';
 
 // Make sure the script is executed via CLI
 if (!osTicket::is_cli())
     die("Management only supported from command-line\n");
 
-require_once 'bootstrap.php';
 require_once CLI_DIR . 'cli.inc.php';
 class Manager extends Module {
     var $prologue =
