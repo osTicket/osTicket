@@ -1,3 +1,12 @@
+osTicket v1.18.1
+================
+### Improvements
+* Update upgrade.php (9fd83eba)
+* Update upgrade.inc.php (8c8a7fd1)
+* update: PHP Requirements 1.18.x (1c0c670b)
+* CLI: Make sure manage util can be executed via CLI (0caf5864)
+* Update raphael-min.js to 2.3.0 (d4aeada1)
+
 osTicket v1.18
 ==============
 ### Enhancements
