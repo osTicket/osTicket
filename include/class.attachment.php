@@ -120,10 +120,11 @@ extends InstrumentedList {
         }
         $attachments = array();
         // Format $new for upload() with new name
-        foreach ($ids as $id=>$name) {
+        foreach ($ids as $id=>$value) {
+            if (is_array($value)) list('id' => $id, 'name' => $value) = $value;
             $attachments[] = array(
                     'id' => $id,
-                    'name' => $name
+                    'name' => $value
                 );
         }
         // Everything remaining in $attachments is truly new
