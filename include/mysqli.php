@@ -191,18 +191,31 @@ function db_create_database($database, $charset='utf8',
 function db_query($query, $logError=true, $buffered=true) {
     global $ost, $__db;
 
+    if ($__db->unbuffered_result) {
+        $__db->unbuffered_result->free();
+        $__db->unbuffered_result = false;
+    }
+
+    static $retry_codes = array(2006 => 1, 1213 => 1);
+
     $tries = 3;
     do {
         try {
             $res = $__db->query($query,
                 $buffered ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
-        } catch (mysqli_sql_exception $e) {}
+	} catch (mysqli_sql_exception $e) {}
+
+        // Attempt reconnect?
+        if ($__db->errno == 2006) {
+            ini_set('mysqli.reconnect', 1);
+            $__db->ping();
+        }
         // Retry the query due to deadlock error (#1213)
         // TODO: Consider retry on #1205 (lock wait timeout exceeded)
         // TODO: Log warning
-    } while (!$res && --$tries && $__db->errno == 1213);
+    } while (!$res && --$tries && isset($retry_codes[$__db->errno]));
 
-    if(!$res && $logError && $ost) { //error reporting
+    if (false === $res && $logError && $ost) { //error reporting
         // Allow $logError() callback to determine if logging is necessary
         if (is_callable($logError) && !($logError($__db->errno)))
             return $res;
@@ -211,7 +224,6 @@ function db_query($query, $logError=true, $buffered=true) {
         $ost->logDBError('DB Error #'.db_errno(), $msg);
         //echo $msg; #uncomment during debugging or dev.
     }
-
     return $res;
 }
 
@@ -325,8 +337,22 @@ function db_field_type($res, $col=0) {
 function db_prepare($stmt) {
     global $ost, $__db;
 
-    $res = $__db->prepare($stmt);
-    if (!$res && $ost) {
+    $tries = 2;
+    while ($tries--) {
+        $res = $__db->prepare($stmt);
+
+        if ($res !== false)
+            // Query was successful
+            break;
+
+        // Attempt reconnect?
+        if ($__db->errno == 2006) {
+            ini_set('mysqli.reconnect', 1);
+            $__db->ping();
+        }
+    }
+
+    if ($res === false && $ost) {
         // Include a backtrace in the error email
         $msg='['.$stmt."]\n\n".db_error();
         $ost->logDBError('DB Error #'.db_errno(), $msg);
