@@ -11,7 +11,7 @@ if($category && $_REQUEST['a']!='add'){
     $submit_text=__('Save Changes');
     $info=$category->getHashtable();
     $info['id']=$category->getId();
-    $info['notes'] = Format::viewableImages($category->getNotes());
+    $info['notes'] = $category->getNotes();
     $qs += array('id' => $category->getId());
     $langs = $cfg->getSecondaryLanguages();
     $translations = $category->getAllTranslations();
@@ -150,7 +150,7 @@ if (count($langs) > 1) { ?>
     </div>
     <textarea class="richtext" name="<?php echo $dname; ?>" cols="21" rows="12"
         style="width:100%;"><?php
-        echo Format::sanitize($desc); ?></textarea>
+        echo Format::viewableImages($desc); ?></textarea>
     </div>
 <?php } ?>
 </div>
@@ -160,7 +160,7 @@ if (count($langs) > 1) { ?>
     <b><?php echo __('Internal Notes');?></b>:
     <span class="faded"><?php echo __("Be liberal, they're internal");?></span>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::viewableImages($info['notes']); ?></textarea>
 </div>
 
 
