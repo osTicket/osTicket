@@ -508,6 +508,16 @@ if($ticket->isOverdue())
                     ?>
                  </td>
                 </tr>
+		<tr>
+                    <th>
+                        <?php echo __('Phone'); ?>:
+                    </th>
+                    <td>
+                        <?php
+                        echo Format::htmlchars($user->getPhone());
+                        ?>
+                    </td>
+                </tr>
             </table>
         </td>
     </tr>
