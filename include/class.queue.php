@@ -1973,6 +1973,7 @@ class QueueColumnCondition {
     var $config;
     var $queue;
     var $properties = array();
+    var $annotation_name;
 
     static $uid = 1;
 
@@ -2147,6 +2148,8 @@ extends ChoiceField {
         ),
     );
 
+    var $property;
+
     function __construct($property) {
         $this->property = $property;
     }
@@ -2178,6 +2181,10 @@ extends ChoiceField {
 }
 
 class LazyDisplayWrapper {
+    var $field;
+    var $value;
+    var $safe;
+
     function __construct($field, $value) {
         $this->field = $field;
         $this->value = $value;

@@ -1539,6 +1539,9 @@ class DynamicFormEntryAnswer extends VerySimpleModel {
 class SelectionField extends FormField {
     static $widget = 'ChoicesWidget';
 
+    var $_list;
+    var $_choices;
+
     function getListId() {
         list(,$list_id) = explode('-', $this->get('type'));
         return $list_id ?: $this->get('list_id');

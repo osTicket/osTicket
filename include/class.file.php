@@ -929,6 +929,11 @@ class AttachmentChunkedData extends FileStorageBackend {
     static $desc = /* @trans */ "In the database";
     static $blocksize = CHUNK_SIZE;
 
+    var $file;
+    var $_chunk;
+    var $_buffer;
+    var $eof;
+
     function __construct($file) {
         $this->file = $file;
         $this->_chunk = 0;

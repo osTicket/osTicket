@@ -17,6 +17,17 @@ require_once("class.file.php");
 
 class Knowledgebase {
 
+    var $title;
+    var $keywords;
+    var $enabled;
+    var $answer;
+    var $created;
+    var $updated;
+    var $_attachments;
+    var $department;
+    var $id;
+    var $published;
+
     function __construct($id) {
         $res=db_query(
             'SELECT title, isenabled, dept_id, created, updated '

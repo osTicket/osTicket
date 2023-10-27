@@ -48,6 +48,7 @@ class ModelMeta implements ArrayAccess {
     );
     static $model_cache;
 
+    var $parent;
     var $model;
     var $meta = array();
     var $new;
@@ -867,6 +868,8 @@ trait WriteableAnnotatedModelTrait {
 
 class SqlFunction {
     var $alias;
+    var $func;
+    var $args;
 
     function __construct($name) {
         $this->func = $name;
@@ -1035,6 +1038,7 @@ class SqlInterval extends SqlFunction {
 }
 
 class SqlField extends SqlExpression {
+    var $field;
     var $level;
 
     function __construct($field, $level=0) {
@@ -1052,6 +1056,8 @@ class SqlField extends SqlExpression {
 }
 
 class SqlCode extends SqlFunction {
+    var $code;
+
     function __construct($code) {
         $this->code = $code;
     }
@@ -1169,6 +1175,8 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     var $query;
     var $count;
     var $total;
+
+    var $_iterator;
 
     function __construct($model) {
         $this->model = $model;
@@ -1844,7 +1852,7 @@ implements IteratorAggregate {
     var $model;
     var $map;
     var $resource;
-    var $annnotations;
+    var $annotations;
     var $defer;
 
     static $objectCache = array();
@@ -2113,6 +2121,8 @@ implements IteratorAggregate {
 class InstrumentedList
 extends ModelResultSet {
     var $key;
+    var $model;
+    var $queryset;
 
     function __construct($fkey, $queryset=false,
         $iterator='ModelInstanceManager'
@@ -2267,6 +2277,9 @@ class SqlCompiler {
     var $joins = array();
     var $aliases = array();
     var $alias_num = 1;
+    var $quote;
+    var $compileJoin;
+    var $input;
 
     static $operators = array(
         'exact' => '%$1s = %$2s'
@@ -2688,6 +2701,7 @@ class CompiledExpression /* extends SplString */ {
     const TYPE_HAVING =  0x0002;
 
     var $text = '';
+    var $type;
 
     function __construct($clause, $type=self::TYPE_WHERE) {
         $this->text = $clause;
@@ -3477,6 +3491,8 @@ class MySqlPreparedExecutor {
  */
 class MySqlExecutor
 extends MySqlPreparedExecutor {
+    var $types;
+
     function execute() {
         $sql = $this->__toString();
         if (!($this->stmt = db_query($sql, true, !$this->unbuffered)))

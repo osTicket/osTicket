@@ -30,6 +30,7 @@ class Form {
 
     var $validators = array();
 
+    var $_clean = null;
     var $_errors = null;
     var $_source = false;
 
@@ -387,6 +388,9 @@ class Form {
  *
  */
 class SimpleForm extends Form {
+
+    var $type;
+
     function __construct($fields=array(), $source=null, $options=array()) {
         parent::__construct($source, $options);
         if (isset($options['type']))
@@ -4356,6 +4360,10 @@ class InlineFormWidget extends Widget {
 
 class Widget {
     static $media = null;
+
+    var $field;
+    var $name;
+    var $id;
 
     function __construct($field) {
         $this->field = $field;
