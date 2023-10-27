@@ -46,7 +46,7 @@ $$x=' class="'.($order == '' ? 'asc' : 'desc').'" ';
 
 $total = $users->count();
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav=new Pagenate($total,$page,PAGE_LIMIT);
+$pageNav=new PageNate($total,$page,PAGE_LIMIT);
 $pageNav->paginate($users);
 
 $qstr = '&amp;'. Http::build_query($qs);

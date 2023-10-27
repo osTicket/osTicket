@@ -605,7 +605,7 @@ implements AuthenticatedUser, EmailContact, TemplateVariable, Searchable {
             return $this->role;
 
         // Ticket Create & View only access
-        $perms = JSONDataEncoder::encode(array(
+        $perms = JsonDataEncoder::encode(array(
                     Ticket::PERM_CREATE => 1));
         return new Role(array('permissions' => $perms));
     }

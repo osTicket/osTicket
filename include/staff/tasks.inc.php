@@ -235,7 +235,7 @@ if (in_array($sort_cols, array('created', 'due', 'updated')))
 // Apply requested pagination
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $count = $tasks->count();
-$pageNav=new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav=new PageNate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tasks.php', $args);
 $tasks = $pageNav->paginate($tasks);
 

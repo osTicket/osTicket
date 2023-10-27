@@ -6,7 +6,7 @@
 //      query
 
 $page = ($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav = new PageNate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('tickets.php', $args);
 $tickets = $pageNav->paginate($tickets);
 

@@ -177,7 +177,7 @@ class Installer extends SetupWizard {
 
         Signal::send('system.install', $this);
 
-        list($sla_id) = Sla::objects()->order_by('id')->values_flat('id')->first();
+        list($sla_id) = SLA::objects()->order_by('id')->values_flat('id')->first();
         list($dept_id) = Dept::objects()->order_by('id')->values_flat('id')->first();
         list($role_id) = Role::objects()->order_by('id')->values_flat('id')->first();
         list($schedule_id) = Schedule::objects()->order_by('id')->values_flat('id')->first();

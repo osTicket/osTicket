@@ -129,7 +129,7 @@ class i18n_Compiler extends Module {
     function _list() {
         error_reporting(E_ALL);
         list($code, $body) = $this->_request('status');
-        $d = new DOMDocument();
+        $d = new DomDocument();
         $d->loadXML($body);
 
         $xp = new DOMXpath($d);

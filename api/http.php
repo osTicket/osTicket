@@ -26,5 +26,5 @@ $dispatcher = patterns('',
 // Send api signal so backend can register endpoints
 Signal::send('api', $dispatcher);
 # Call the respective function
-print $dispatcher->resolve(Osticket::get_path_info());
+print $dispatcher->resolve(osTicket::get_path_info());
 ?>

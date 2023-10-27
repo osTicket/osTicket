@@ -100,8 +100,8 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 echo sprintf('<tr><td colspan=2>&nbsp;<strong><a
                     href="templates.php?tpl_id=%d&a=implement&code_name=%s"
                     >%s</a></strong><br/>&nbsp%s</td></tr>',
-                    $template->getid(),$cn,format::htmlchars(__($i['name'])),
-                    format::htmlchars(__($i['desc'])));
+                    $template->getid(),$cn,Format::htmlchars(__($i['name'])),
+                    Format::htmlchars(__($i['desc'])));
             }
          } # endfor
         } else { ?>

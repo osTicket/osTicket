@@ -2299,7 +2299,7 @@ class DatetimeField extends FormField {
 
         // Force timezone if field has one.
         if ($config['timezone']) {
-            $timezone = new DateTimezone($config['timezone']);
+            $timezone = new DateTimeZone($config['timezone']);
             $datetime->setTimezone($timezone);
         }
 

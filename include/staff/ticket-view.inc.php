@@ -58,7 +58,7 @@ if (!$errors['err']) {
         $errors['err'] = __('EndUser email address is not valid! Consider updating it before responding');
 }
 
-$unbannable=($emailBanned) ? BanList::includes($ticket->getEmail()) : false;
+$unbannable=($emailBanned) ? Banlist::includes($ticket->getEmail()) : false;
 
 if($ticket->isOverdue())
     $warn.='&nbsp;&nbsp;<span class="Icon overdueTicket">'.__('Marked overdue!').'</span>';

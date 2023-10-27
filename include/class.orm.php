@@ -2970,7 +2970,7 @@ class MySqlCompiler extends SqlCompiler {
     }
 
     function getFoundRows() {
-        $exec = new MysqlExecutor('SELECT FOUND_ROWS()', array());
+        $exec = new MySqlExecutor('SELECT FOUND_ROWS()', array());
         $row = $exec->getRow();
         return is_array($row) ? (int) $row[0] : null;
     }
@@ -3195,7 +3195,7 @@ class MySqlCompiler extends SqlCompiler {
             break;
         }
 
-        return new MysqlExecutor($sql, $this->params, $fieldMap ?? array());
+        return new MySqlExecutor($sql, $this->params, $fieldMap ?? array());
     }
 
     function __compileUpdateSet($model, array $pk) {
@@ -3248,7 +3248,7 @@ class MySqlCompiler extends SqlCompiler {
         $joins = $this->getJoins($queryset);
         $sql = 'DELETE '.$this->quote($table).'.* FROM '
             .$this->quote($table).$joins.$where;
-        return new MysqlExecutor($sql, $this->params);
+        return new MySqlExecutor($sql, $this->params);
     }
 
     function compileBulkUpdate($queryset, array $what) {
@@ -3261,7 +3261,7 @@ class MySqlCompiler extends SqlCompiler {
         list($where, $having) = $this->getWhereHavingClause($queryset);
         $joins = $this->getJoins($queryset);
         $sql = 'UPDATE '.$this->quote($table).$joins.' SET '.$set.$where;
-        return new MysqlExecutor($sql, $this->params);
+        return new MySqlExecutor($sql, $this->params);
     }
 
     // Returns meta data about the table used to build queries
@@ -3276,7 +3276,7 @@ class MySqlCompiler extends SqlCompiler {
         $sql = 'SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS '
             .'WHERE TABLE_NAME = '.db_input($table).' AND TABLE_SCHEMA = DATABASE() '
             .'ORDER BY ORDINAL_POSITION';
-        $ex = new MysqlExecutor($sql, array());
+        $ex = new MySqlExecutor($sql, array());
         $columns = array();
         while (list($column) = $ex->getRow()) {
             $columns[] = $column;

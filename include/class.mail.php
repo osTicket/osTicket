@@ -557,7 +557,7 @@ namespace osTicket\Mail {
         private $folders;
 
         public function __construct($accountSetting) {
-            $protocol = new ImapMailBoxProtocol($accountSetting);
+            $protocol = new ImapMailboxProtocol($accountSetting);
             parent::__construct($protocol);
             $this->init($accountSetting);
         }

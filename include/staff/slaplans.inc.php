@@ -34,7 +34,7 @@ $count = SLA::objects()->count();
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav = new PageNate($count, $page, PAGE_LIMIT);
 $pageNav->setURL('slas.php', $qs);
 $showing = $pageNav->showing().' '._N('Service Level Agreement', 'Service Level Agreements', $count);
 $qstr .= '&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');

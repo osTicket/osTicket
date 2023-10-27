@@ -16,7 +16,7 @@ if (!$ignoreVisibility || //limited visibility
 // do not show children tickets unless agent is doing a search
 if ($queue->isAQueue() || $queue->isASubQueue())
     $tickets->filter(Q::any(
-            array('ticket_pid' => null, 'flags__hasbit' => TICKET::FLAG_LINKED)));
+            array('ticket_pid' => null, 'flags__hasbit' => Ticket::FLAG_LINKED)));
 
 // Make sure the cdata materialized view is available
 TicketForm::ensureDynamicDataView();
@@ -84,7 +84,7 @@ if (!$sorted) {
 // Apply pagination
 
 $page = (isset($_GET['p']) && is_numeric($_GET['p']))?$_GET['p']:1;
-$pageNav = new Pagenate(PHP_INT_MAX, $page, PAGE_LIMIT);
+$pageNav = new PageNate(PHP_INT_MAX, $page, PAGE_LIMIT);
 $tickets = $pageNav->paginateSimple($tickets);
 
 if (isset($tickets->extra['tables'])) {

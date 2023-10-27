@@ -40,7 +40,7 @@ $_SESSION[$queue] = $tickets;
 // Apply pagination
 $total = $tickets->count();
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-$pageNav = new Pagenate($total, $page, PAGE_LIMIT);
+$pageNav = new PageNate($total, $page, PAGE_LIMIT);
 $pageNav->setURL(($user ? 'users.php' : 'orgs.php'), $args);
 $tickets = $pageNav->paginate($tickets);
 

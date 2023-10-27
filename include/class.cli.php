@@ -255,13 +255,12 @@ class Module {
         die();
     }
 
-    /* static */
-    function register($action, $class) {
+    static function register($action, $class) {
         global $registered_modules;
         $registered_modules[$action] = new $class();
     }
 
-    /* static */ function getInstance($action) {
+    static function getInstance($action) {
         global $registered_modules;
         return $registered_modules[$action];
     }
@@ -305,5 +304,3 @@ class Module {
 }
 
 $registered_modules = array();
-
-?>

@@ -34,7 +34,7 @@ $x=$sort.'_sort';
 $$x=' class="'.strtolower($order).'" ';
 $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
 $count = Team::objects()->count();
-$pageNav = new Pagenate($count, $page, PAGE_LIMIT);
+$pageNav = new PageNate($count, $page, PAGE_LIMIT);
 $qstr = '&amp;'. Http::build_query($qs);
 $qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
 $pageNav->setURL('teams.php', $qs);

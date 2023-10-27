@@ -27,5 +27,5 @@ $dispatcher = patterns('',
         url_get('^(?P<lang>[\w_]+)?/tips/(?P<namespace>[\w_.]+)$', 'getTipsJsonForLang')
     ))
 );
-print $dispatcher->resolve(Osticket::get_path_info());
+print $dispatcher->resolve(osTicket::get_path_info());
 ?>
