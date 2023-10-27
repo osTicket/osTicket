@@ -443,7 +443,9 @@ if($ticket->isOverdue())
                 <tr>
                     <th><?php echo __('Email'); ?>:</th>
                     <td>
-                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"><?php echo $ticket->getEmail(); ?></span>
+                        <span id="user-<?php echo $ticket->getOwnerId(); ?>-email"<?php 
+                        echo ($emailBanned ? ' style="color: #ff0000;" data-placement="bottom" data-toggle="tooltip" title="" data-original-title="Banned Email Address"' : '');
+                        ?>><?php echo $ticket->getEmail(); ?></span>
                     </td>
                 </tr>
 <?php   if ($user->getOrganization()) { ?>
