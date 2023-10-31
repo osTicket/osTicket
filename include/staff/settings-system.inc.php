@@ -124,6 +124,15 @@ $gmtime = Misc::gmtime();
             </td>
         </tr>
         <tr>
+            <td width="220"><?php echo __('Remove Staff Login Link');?>:</td>
+            <td>
+                <input type="checkbox" name="remove_staff_login_link" <?php
+                echo $config['remove_staff_login_link'] ? 'checked="checked"': ''; ?>>
+                <?php echo __('Removes the staff login link from the client login interface');?>
+                <i class="help-tip icon-question-sign" href="#remove_staff_login_link"></i>
+            </td>
+        </tr>
+        <tr>
             <td><?php echo __('Show Avatars'); ?>:</td>
             <td>
                 <input type="checkbox" name="enable_avatars" <?php
