@@ -121,6 +121,7 @@ if (osTicket::is_ie())
 <?php
                 }
             } ?>
+            | <a href="<?php echo ROOT_PATH; ?>scp/"><?php echo __("Agent"); ?></a>
             </p>
             <p>
 <?php

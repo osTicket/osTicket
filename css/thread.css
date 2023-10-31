@@ -201,7 +201,7 @@
 .thread-body h1,
 .thread-body h2,
 .thread-body h3 {
-  margin-top: 20px;
+  margin-top: 0px;
   margin-bottom: 10px;
 }
 .thread-body h4,

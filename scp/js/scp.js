@@ -447,7 +447,6 @@ var scp_prep = function() {
          $(window).off('.sticky');
      });
 
-     $that.find('.content').width($that.width());
      $(window).on('scroll.sticky', function (event) {
        // what the y position of the scroll is
        var y = $(this).scrollTop();

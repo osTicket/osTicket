@@ -2412,9 +2412,8 @@ extends VerySimpleModel {
         case 'clip':
             $class[] = 'bleed';
         case 'ellipsis':
-            $class[] = 'truncate';
-            return sprintf('<span class="%s" style="max-width:%dpx">%s</span>',
-                implode(' ', $class), $width, $text);
+            $class[] = '';
+            return sprintf('<span class="%s" style="max-width:%dpx">%s</span>', implode(' ', $class), $width, $text);
         default:
         case 'wrap':
             return $text;
