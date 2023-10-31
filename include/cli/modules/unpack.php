@@ -19,6 +19,10 @@ class Unpacker extends Module {
              code in that folder. The folder will be automatically created if
              it doesn't already exist."
         ),
+        'php' => array('-p','--php', 'metavar'=>'/path/to/php', 'help'=>
+            "Location of php binary to use, helpful if multiple php versions are
+             installed on machine."
+        ),
         'verbose' => array('-v','--verbose', 'default'=>false, 'nargs'=>0,
             'action'=>'store_true', 'help'=>
             "Move verbose logging to stdout"),
@@ -204,7 +208,11 @@ class Unpacker extends Module {
             return $location;
 
         $pipes = array();
-        $php = proc_open('php', array(
+        $php = $this->getOption('php');
+        if (!empty($php) && !is_executable($php))
+            die("PHP binary specified not found\n");
+
+        $php = proc_open($php ?: 'php', array(
             0 => array('pipe', 'r'),
             1 => array('pipe', 'w'),
         ), $pipes);
