@@ -51,8 +51,8 @@ elseif ($_GET['token']) {
     $banner = __('Re-enter your username or email');
     $inc = 'pwreset.login.php';
     $_config = new Config('pwreset');
-    if (($id = $_config->get($_GET['token']))
-            && ($acct = ClientAccount::lookup(array('user_id'=>substr($id,1))))) {
+    if (($id = substr($_config->get($_GET['token']),1))
+            && ($acct = ClientAccount::lookup(array('user_id'=>$id)))) {
         if (!$acct->isConfirmed()) {
             $inc = 'register.confirmed.inc.php';
             $acct->confirm();
