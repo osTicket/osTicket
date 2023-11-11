@@ -176,21 +176,12 @@ class Format {
             } while (!$done);
         }
 
-        static $phpversion;
-        if (!isset($phpversion))
-            $phpversion = phpversion();
-
         $body = $doc->getElementsByTagName('body');
         if (!$body->length)
             return $html;
 
-        if ($phpversion > '5.3.6') {
-            $html = $doc->saveHTML($doc->getElementsByTagName('body')->item(0)->firstChild);
-        }
-        else {
-            $html = $doc->saveHTML();
-            $html = preg_replace('`^<!DOCTYPE.+?>|<\?xml .+?>|</?html>|</?body>|</?head>|<meta .+?/?>`', '', $html); # <?php
-        }
+        $html = $doc->saveHTML($doc->getElementsByTagName('body')->item(0)->firstChild);
+
         return preg_replace('`^<div>|</div>$`', '', trim($html));
     }
 
@@ -384,8 +375,6 @@ class Format {
     }
 
     static function htmlchars($var, $sanitize = false) {
-        static $phpversion = null;
-
         if (is_array($var)) {
             $result = array();
             foreach ($var as $k => $v)
@@ -397,15 +386,8 @@ class Format {
         if ($sanitize)
             $var = Format::sanitize($var);
 
-        if (!isset($phpversion))
-            $phpversion = phpversion();
-
-        $flags = ENT_COMPAT;
-        if ($phpversion >= '5.4.0')
-            $flags |= ENT_HTML401;
-
         try {
-            return htmlspecialchars( (string) $var, $flags, 'UTF-8', false);
+            return htmlspecialchars( (string) $var, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
         } catch(Exception $e) {
             return $var;
         }
@@ -416,11 +398,7 @@ class Format {
         if(is_array($var))
             return array_map(array('Format','htmldecode'), $var);
 
-        $flags = ENT_COMPAT;
-        if (phpversion() >= '5.4.0')
-            $flags |= ENT_HTML401;
-
-        return htmlspecialchars_decode($var, $flags);
+        return htmlspecialchars_decode($var, ENT_COMPAT | ENT_HTML401);
     }
 
     static function http_query_string(string $query, array $filter = null) {
