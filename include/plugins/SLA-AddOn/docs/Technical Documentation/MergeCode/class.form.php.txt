@@ -1,0 +1,46 @@
+Change 1-  line no 21
+ require_once(INCLUDE_DIR . 'plugins/SLA-AddOn/constants.php');
+
+
+----------------------------------x----------------------------------------
+Change 2- Line number 1410
+Inside - function getEditForm($source=null) { , Add the below code , before current code
+========================
+ $field_name = $this->ht['name'];
+        $field_list = array(
+            FIELD_FIRST_RESPONSE_STATUS,
+            FIELD_TEMP_SOLUTION_STATUS,
+            FIELD_FINAL_SOLUTION_STATUS
+        );
+        if(in_array($field_name, $field_list)){
+           $required = true;
+           $required_type = 'Required';
+        }else{
+          $required = false;
+          $required_type = 'Optional';
+        }
+
+=========================    
+Change 3 (line no - 1431) - Update  'required' value to variable $required
+Change 4-(line no - 1436) -  Update Placeholder value to __($required_type.' reason for the update'),
+
+'required' => $required, 
+'placeholder' => __($required_type.' reason for the update'),
+                   
+                        OR 
+ Directly Replace field array to below values
+
+ $fields = array(
+                'field' => $this,
+                'comments' => new TextareaField(array(
+                        'id' => 2,
+                        'label'=> '',
+                        'required' => $required, 
+                        'default' => '',
+                        'configuration' => array(
+                            'html' => true,
+                            'size' => 'small',
+                            'placeholder' => __($required_type.' reason for the update'),
+                            )
+                        ))
+                );    

@@ -1,0 +1,49 @@
+2.1
+// class.ticket.php line no 1513 to 1518
+ // custom code for SLA Addon starts
+        $property = json_decode($status->ht['properties']);         
+        $awaited  = $property->allowawaiting;
+        $temporarysolution  = $property->temporarysolution;
+        
+  // custom code for SLA Addon ends  
+
+
+
+===========================================================================
+2.2
+// class.ticket.php line no 1545
+Under case 'closed': before break statement
+                 // custom code for SLA Addon starts
+                $info = array('status'=>$status);
+                Signal::send('status.finalsolution', $this, $info);                  
+                // custom code for SLA Addon ends
+break;
+=============================================================================
+2.3
+// class.ticket.php line no 1550 to 1562
+
+case 'open':
+                // custom code for SLA Addon starts
+                if($awaited == True){                     
+                    $info = array('status'=>$status);
+                    Signal::send('status.awaited', $this, $info); 
+                }
+                if($temporarysolution == True){
+                     
+                    $info = array('status'=>$status);
+                    Signal::send('status.temporarysolution', $this, $info); 
+
+                     
+                }
+                // custom code for SLA Addon ends
+=============================================================================
+2.4
+// class.ticket.php line no 3783 to 3786
+
+// custom code for SLA Addon starts                 
+                $info = array('current_sla_id'=>$old,'new_sla_id'=>$this->{$F} , 'ticket_id'=>$vars['id']);
+                Signal::send('sla.update', $info);                  
+                // custom code for SLA Addon ends
+
+
+

@@ -1,0 +1,6 @@
+// scp/tickets.php line no 240 to 243
+
+
+// custom code for SLA Addon starts                    
+ Signal::send('ticket.reply', $ticket);  
+// custom code for SLA Addon ends

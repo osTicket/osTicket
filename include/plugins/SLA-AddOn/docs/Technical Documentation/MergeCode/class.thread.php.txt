@@ -1,0 +1,33 @@
+#Change 1 
+include file at top of file
+line no 20 to 21
+----------------------------------------------------------------
+//require_once(INCLUDE_DIR.'/plugins/SLA-AddOn/constants.php');
+require_once(INCLUDE_DIR.'/plugins/SLA-AddOn/class.sla_helper.php');
+----------------------------------------------------------------
+==========================================xx==================================
+
+#Change 2 
+line no 587 to 599 
+Location => Function Name   function postEmail($mailinfo, $entry=null) {
+      3.2  Inside default: case ,Direct After // TODO: Consider security constraints
+        if (!$vars['thread-type']) {……} loop
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+// Code to change status when it is coming from email to open. Code By - GS 21/02/2023
+		$errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
+		$ticket=Ticket::lookup($vars['ticketId']);
+	//	if($ticket->getStatus==STATUS_AWAITED){
+		    $ticket->setStatus(1, '', $errors);
+	//	}
+		// Need to entry in new table to maintain ticket SLA to resume
+		if(isset($vars['ticketId']) && $vars['ticketId']!=''){
+		 $SlaObj = new SlaHelper();
+		 $SlaObj->SlaPauseOnAwait($vars['ticketId']);
+		}
+		// Code ends here for SLA pause calculation
+--------------------------------------------------------------------------------------------------------------------------------
+
+=============================================xx=======================================

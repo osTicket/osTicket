@@ -1,0 +1,32 @@
+1.1
+//   line no - 1032 to 1061 - include/class.list.php 
+// custom code for SLA Addon starts
+            'allowawaiting' => new BooleanField(array(
+                'label' =>__('Allow Awaiting'),
+                'editable' => true,
+                'default' => false,
+                'id' => 'allowawaiting',
+                'name' => 'allowawaiting',
+                'configuration' => array(
+                    'desc'=>__('Allow Awating on this status to be reopened by end users'),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('state__eq'=>'open')),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),
+            'temporarysolution' => new BooleanField(array(
+                'label' =>__('Temporary Solution'),
+                'editable' => true,
+                'default' => false,
+                'id' => 'temporarysolution',
+                'name' => 'temporarysolution',
+                'configuration' => array(
+                    'desc'=>__('Temporary Solution Provided on this status.'),
+                ),
+                'visibility' => new VisibilityConstraint(
+                    new Q(array('state__eq'=>'open')),
+                    VisibilityConstraint::HIDDEN
+                ),
+            )),           
+            // custom code for SLA Addon ends
