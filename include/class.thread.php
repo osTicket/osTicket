@@ -18,6 +18,8 @@ include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
 include_once(INCLUDE_DIR.'class.role.php');
 
+//require_once(INCLUDE_DIR.'/plugins/SLA-AddOn/constants.php');
+require_once(INCLUDE_DIR.'/plugins/SLA-AddOn/class.sla_helper.php');
 //Ticket thread.
 class Thread extends VerySimpleModel
 implements Searchable {
@@ -581,6 +583,20 @@ implements Searchable {
             $vars['userId'] = 0; //Unknown user! //XXX: Assume ticket owner?
             $vars['thread-type'] = 'M';
         }
+
+        // Code to change status when it is coming from email to open. Code By - GS 21/02/2023
+        $errors['err'] = sprintf('%s %s',
+                            __('Unknown or invalid'), __('status'));
+        $ticket=Ticket::lookup($vars['ticketId']);
+        //  if($ticket->getStatus==STATUS_AWAITED){
+            $ticket->setStatus(1, '', $errors);
+        //  }
+        // Need to entry in new table to maintain ticket SLA to resume
+        if(isset($vars['ticketId']) && $vars['ticketId']!=''){
+         $SlaObj = new SlaHelper();
+         $SlaObj->SlaPauseOnAwait($vars['ticketId']);
+        }
+        // Code ends here for SLA pause calculation
 
         if ($mailinfo['system_emails']
                 && ($t = $this->getObject())

@@ -1513,6 +1513,12 @@ implements RestrictedAccess, Threadable, Searchable {
 
         // Perform checks on the *new* status, _before_ the status changes
         $ecb = $refer = null;
+        // custom code for SLA Addon starts
+        $property = json_decode($status->ht['properties']);         
+        $awaited  = $property->allowawaiting;
+        $temporarysolution  = $property->temporarysolution;
+        
+        // custom code for SLA Addon ends  
         switch ($status->getState()) {
             case 'closed':
                 // Check if ticket is closeable
@@ -1534,8 +1540,23 @@ implements RestrictedAccess, Threadable, Searchable {
                     $t->logEvent('closed', array('status' => array($status->getId(), $status->getName())), null, 'closed');
                     $t->deleteDrafts();
                 };
+                // custom code for SLA Addon starts
+                $info = array('status'=>$status);
+                Signal::send('status.finalsolution', $this, $info);                  
+                // custom code for SLA Addon ends
                 break;
             case 'open':
+                // custom code for SLA Addon starts
+                if($awaited == True){                     
+                    $info = array('status'=>$status);
+                    Signal::send('status.awaited', $this, $info); 
+                }
+                if($temporarysolution == True){
+                     
+                    $info = array('status'=>$status);
+                    Signal::send('status.temporarysolution', $this, $info); 
+                }
+                // custom code for SLA Addon ends
                 if ($this->isClosed() && $this->isReopenable()) {
                     // Auto-assign to closing staff or the last respondent if the
                     // agent is available and has access. Otherwise, put the ticket back
@@ -3757,6 +3778,10 @@ implements RestrictedAccess, Threadable, Searchable {
             case 'duedate':
             case 'sla_id':
                 $changes[$F] = array($old, $this->{$F});
+                // custom code for SLA Addon starts                 
+                $info = array('current_sla_id'=>$old,'new_sla_id'=>$this->{$F} , 'ticket_id'=>$vars['id']);
+                Signal::send('sla.update', $info);                  
+                // custom code for SLA Addon ends
             }
         }
 

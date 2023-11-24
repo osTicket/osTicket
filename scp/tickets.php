@@ -237,6 +237,10 @@ if($_POST && !$errors):
                     'ticket.response.' . $ticket->getId(),
                     $thisstaff->getId());
 
+                // custom code for SLA Addon starts                    
+                    Signal::send('ticket.reply', $ticket);  
+                // custom code for SLA Addon ends
+
                 if ($ticket->isClosed())
                     $ticket = null;
 

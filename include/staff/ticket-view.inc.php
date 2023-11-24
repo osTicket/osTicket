@@ -568,10 +568,11 @@ if($ticket->isOverdue())
                     <?php
                          if ($role->hasPerm(Ticket::PERM_EDIT)) {
                              $slaField = $ticket->getField('sla'); ?>
-                          <a class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
+                          <a style="display:none" class="inline-edit" data-placement="bottom" data-toggle="tooltip" title="<?php echo __('Update'); ?>"
                           href="#tickets/<?php echo $ticket->getId(); ?>/field/sla/edit">
                           <span id="field_sla"><?php echo $sla ?: __('None'); ?></span>
                       </a>
+                      <span id="field_sla"><?php echo $sla ?: __('None'); ?></span>
                       <?php } else { ?>
                         <span id="field_sla"><?php echo $sla ?: __('None'); ?></span>
                       <?php } ?>
@@ -723,7 +724,42 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
               </a>
             <?php
             } else {
-                echo $clean;
+                 // custom code for SLA Addon starts
+                    //echo $clean."/  ** ";
+                    global $cfg,$thisclient;
+                    $name  = $field->get('name');
+                    if($form->getTitle() == "Ticket Details") {
+                    $field_frs = $form->getField( FIELD_FIRST_RESPONSE_TIME);
+                    $first_reponse_time = $field_frs->answer->getValue();
+                    $field_ts = $form->getField( FIELD_TEMP_SOLUTION_TIME);
+                    $temporary_solution_time = $field_ts->answer->getValue();
+                    $field_fn = $form->getField( FIELD_FINAL_SOLUTION_TIME);
+                    $final_response_time = $field_fn->answer->getValue();
+                    }
+                    if($name == ( FIELD_FIRST_RESPONSE_TIME || FIELD_TEMP_SOLUTION_TIME || FIELD_FINAL_SOLUTION_TIME ) && (!str_contains($clean, 'Empty')) ) {
+                    if($name == 'first_response_time' && $first_reponse_time != 0 ){
+                    $answer = $first_reponse_time;
+                    }elseif($name == 'temporary_solution_time' && $temporary_solution_time != 0 ){
+                    $answer = $temporary_solution_time;
+                    }elseif($name == 'final_solution_time' && $final_response_time != 0 ){
+                    $answer = $final_response_time;
+                    }else{
+                    $answer = $clean ;
+                    }
+
+                    /*$tz = new DateTimeZone('Europe/Berlin');
+                    $datetime = new DateTime($clean);
+                    echo $date = $datetime->format('m/d/y h:i A');  */
+
+                    $tz = new DateTimeZone($cfg->getTimezone());
+                    $datetime = new DateTime($answer);
+                    $datetime->setTimeZone($tz);
+                    echo $date = $datetime->format('m/d/y h:i:s A');               
+  
+                    }else  
+                    echo $clean;
+                
+                // custom code for SLA Addon ends
             } ?>
             </td>
         </tr>

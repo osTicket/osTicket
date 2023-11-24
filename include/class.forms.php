@@ -18,6 +18,7 @@
  * Form template, used for designing the custom form and for entering custom
  * data for a ticket
  */
+require_once(INCLUDE_DIR . 'plugins/SLA-AddOn/constants.php');
 class Form {
     static $renderer = 'GridFluidLayout';
     static $id = 0;
@@ -1407,17 +1408,32 @@ class FormField {
     }
 
     function getEditForm($source=null) {
+        $field_name = $this->ht['name']; // custom code for SLA Addon starts
+        $field_list = array(
+            FIELD_FIRST_RESPONSE_STATUS,
+            FIELD_TEMP_SOLUTION_STATUS,
+            FIELD_FINAL_SOLUTION_STATUS
+        );
+        if(in_array($field_name, $field_list)){
+           $required = true;
+           $required_type = 'Required';
+        }else{
+          $required = false;
+          $required_type = 'Optional';
+        } // custom code for SLA Addon ends
         $fields = array(
                 'field' => $this,
                 'comments' => new TextareaField(array(
                         'id' => 2,
                         'label'=> '',
-                        'required' => false,
+                        //'required' => false,
+                        'required' => $required,
                         'default' => '',
                         'configuration' => array(
                             'html' => true,
                             'size' => 'small',
-                            'placeholder' => __('Optional reason for the update'),
+                            //'placeholder' => __('Optional reason for the update'),
+                            'placeholder' => __($required_type.' reason for the update'),
                             )
                         ))
                 );
