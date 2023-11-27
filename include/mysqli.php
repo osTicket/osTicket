@@ -66,8 +66,13 @@ function db_connect($host, $user, $passwd, $options = array()) {
     if (defined('DBCONNECT_TIMEOUT'))
         $__db->options(MYSQLI_OPT_CONNECT_TIMEOUT, DBCONNECT_TIMEOUT);
 
-    if (!@$__db->real_connect($host, $user, $passwd, null, $port, $socket))
-        return NULL;
+    try {	
+        if (!@$__db->real_connect($host, $user, $passwd, null, $port, $socket))
+            return NULL;
+    } catch(mysqli_sql_exception $e) {
+        error_log($e->getMessage());
+	return NULL;
+    }
 
     //Select the database, if any.
     if(isset($options['db'])) $__db->select_db($options['db']);
