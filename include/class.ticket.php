@@ -1716,6 +1716,15 @@ implements RestrictedAccess, Threadable, Searchable {
                             $recipients[] = $M;
                 }
 
+                //Send alerts to dept members if the ticket has been auto-assigned via a ticket filter or help topic.
+                if ($cfg->alertDeptMembersONNewTicket() && $cfg->alertSendIfAutoAssignedONNewTicket()
+					&& ($members = $dept->getMembersForAlerts())
+				) {
+                    foreach ($members as $M)
+                        if ($M != $manager)
+                            $recipients[] = $M;
+                }
+
                 if ($cfg->alertDeptManagerONNewTicket() && $manager) {
                     $recipients[] = $manager;
                 }
