@@ -715,6 +715,7 @@ class FA_SendEmail extends TriggerAction {
                 'required' => true,
                 'configuration' => array(
                     'size' => 80,
+                    'length' => 70,
                     'placeholder' => __('Subject')
                 ),
             )),
