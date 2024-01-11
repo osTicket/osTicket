@@ -3135,7 +3135,13 @@ implements RestrictedAccess, Threadable, Searchable {
       if ($recipients && $recipients instanceof MailingList)
           $vars['thread_entry_recipients'] = $recipients->getEmailAddresses();
 
-        if (!($message = $ticket->getThread()->addMessage($vars, $errors)))
+        // In case created by staff, force take into account poster field
+        $create_vars = $vars;
+        if ($origin == 'staff') {
+              $create_vars['userId'] = "";
+        }
+
+        if (!($message = $ticket->getThread()->addMessage($create_vars, $errors)))
             return null;
 
         $ticket->setLastMessage($message);
@@ -4638,6 +4644,8 @@ implements RestrictedAccess, Threadable, Searchable {
         $mfield = $tform->getField('message');
         $create_vars['message'] = $mfield->getClean();
         $create_vars['files'] = $mfield->getWidget()->getAttachments()->getFiles();
+        // Set poster to staff name
+        $create_vars['poster'] = $thisstaff->getName();
 
         if (!($ticket=self::create($create_vars, $errors, 'staff', false)))
             return false;
