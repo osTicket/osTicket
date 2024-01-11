@@ -397,7 +397,7 @@ if($ticket->isOverdue())
                         if ($user) { ?>
                             <a href="tickets.php?<?php echo Http::build_query(array(
                                 'status'=>'open', 'a'=>'search', 'uid'=> $user->getId()
-                            )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                            )); ?>" title="<?php echo __('User Related Tickets'); ?>"
                             data-dropdown="#action-dropdown-stats">
                             (<b><?php echo $user->getNumTickets(); ?></b>)
                             </a>
@@ -453,7 +453,7 @@ if($ticket->isOverdue())
                     <?php echo Format::htmlchars($user->getOrganization()->getName()); ?>
                         <a href="tickets.php?<?php echo Http::build_query(array(
                             'status'=>'open', 'a'=>'search', 'orgid'=> $user->getOrgId()
-                        )); ?>" title="<?php echo __('Related Tickets'); ?>"
+                        )); ?>" title="<?php echo __('Organization Related Tickets'); ?>"
                         data-dropdown="#action-dropdown-org-stats">
                         (<b><?php echo $user->getNumOrganizationTickets(); ?></b>)
                         </a>
@@ -751,7 +751,7 @@ $tcount = $ticket->getThreadEntries($types) ? $ticket->getThreadEntries($types)-
     <li><a href="#relations" id="ticket-relations-tab"
         data-url="<?php
         echo sprintf('#tickets/%d/relations', $ticket->getId()); ?>"
-        ><?php echo __('Related Tickets');
+        ><?php echo __('Linked Tickets');
         if (count($children))
             echo sprintf('&nbsp;(<span id="ticket-relations-count">%d</span>)', count($children));
         elseif ($ticket->isChild())
