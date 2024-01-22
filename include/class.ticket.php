@@ -1691,6 +1691,14 @@ implements RestrictedAccess, Threadable, Searchable {
             );
             $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body'],
                 null, $options);
+            
+            // Notify collaborators also on New Ticket
+            if ($cfg->notifyCollabsONNewMessage()) {    // Check if Collaborators should be notified.
+                $this->notifyCollaborators(
+                    $message,
+                    array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
+                );
+            }
         }
 
         // Send alert to out sleepy & idle staff.
