@@ -245,6 +245,9 @@ class TasksAjaxAPI extends AjaxController {
                       );
 
                 switch (true) {
+                    case ($fid == 'duedate'):
+                        $clean = Format::datetime($task->duedate);
+                        break;
                     case $field instanceof DateTime:
                     case $field instanceof DatetimeField:
                         $clean = Format::datetime((string) $field->getClean());
