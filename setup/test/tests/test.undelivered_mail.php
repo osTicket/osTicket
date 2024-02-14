@@ -90,7 +90,7 @@ EOF;
 
         $parser = new EmailDataParser();
         $result = $parser->parse($email);
-        var_dump($result);
+
         $this->assert($result['mailflags']['bounce'], "Bounce should be true");
         $this->assert($result['in-reply-to'] == '<BKAfB/m-40f2Z-AAAAAGINAACIBAAATe4OlSy5-test@example.com>', "in-reply to should be set");
         $this->assert($result['thread-type'] == 'N', "Thread type should be N");
