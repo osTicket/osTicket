@@ -312,10 +312,10 @@ class Mail_Parse {
             return false;
 
         $info = self::splitHeaders($body);
-        if (!isset($info['Action']))
+        if (!isset($info['action']))
             return false;
 
-        return strcasecmp($info['Action'], 'failed') === 0;
+        return strcasecmp($info['action'], 'failed') === 0;
     }
 
     function getDeliveryStatusMessage() {
