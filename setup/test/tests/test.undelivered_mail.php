@@ -48,11 +48,11 @@ X-Postcow-Queue-ID: CA4EC21BFE80
 X-Postcow-Sender: rfc822; test@example.com
 Arrival-Date: Fri,  2 Feb 2024 01:10:13 +0000 (UTC)
 
-Final-Recipient: rfc822; recipient@remotemail.com
-Original-Recipient: rfc822;recipient@remotemail.com
+Final-Recipient: rfc822; recipient@example.net
+Original-Recipient: rfc822;recipient@example.net
 Action: failed
 Status: 5.0.0
-Remote-MTA: dns; remotemail.com
+Remote-MTA: dns; example.net
 Diagnostic-Code: smtp; 550 invalid mailbox (call fwd)
 
 --CA4EC21BFE80.1706836246/mail.example.com
@@ -64,8 +64,8 @@ Date: Fri, 02 Feb 2024 01:10:13 +0000
 Message-ID: <BKAfB/m-40f2Z-AAAAAGINAACIBAAATe4OlSy5-test@example.com>
 From: =?utf-8?Q?Source=2Email?= <test@example.com>
 Subject: =?UTF-8?Q?Re:=20TEST=
-To: =?utf-8?Q?test?= <recipient@remotemail.com>
-Cc: =?utf-8?Q?test?= <recipient@remotemail.com>
+To: =?utf-8?Q?test?= <recipient@example.net>
+Cc: =?utf-8?Q?test?= <recipient@example.net>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
     boundary="=_9875f05c0d2ad638ed6e39eb808b5ce5"
