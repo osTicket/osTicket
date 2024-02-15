@@ -66,6 +66,7 @@ From: =?utf-8?Q?Source=2Email?= <test@example.com>
 Subject: =?UTF-8?Q?Re:=20TEST=
 To: =?utf-8?Q?test?= <recipient@example.net>
 Cc: =?utf-8?Q?test?= <recipient@example.net>
+References: <5d281dbd60ef48d18478a35261e2cfbd265bfbcb.test@example.net>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
     boundary="=_9875f05c0d2ad638ed6e39eb808b5ce5"
@@ -93,6 +94,7 @@ EOF;
 
         $this->assert($result['mailflags']['bounce'], "Bounce should be true");
         $this->assert($result['in-reply-to'] == '<BKAfB/m-40f2Z-AAAAAGINAACIBAAATe4OlSy5-test@example.com>', "in-reply to should be set");
+        $this->assert($result['references'] == '<5d281dbd60ef48d18478a35261e2cfbd265bfbcb.test@example.net>', "references should be set");
         $this->assert($result['thread-type'] == 'N', "Thread type should be N");
     }
 }
