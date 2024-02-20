@@ -1832,6 +1832,7 @@ implements RestrictedAccess, Threadable, Searchable {
 
         $vars = array_merge($vars, array(
             'message' => (string) $entry,
+	    'response' => (string) $entry,
             'poster' => $poster ?: _S('A collaborator'),
             )
         );
