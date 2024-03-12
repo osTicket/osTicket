@@ -259,7 +259,7 @@ class Fetcher {
                     $msg = sprintf("\n %s:\n",
                             _S('osTicket is having trouble fetching emails from the following mail account')).
                         "\n"._S('Email').": ".$mailbox->getEmail()->getAddress().
-                        "\n"._S('Host Info').": ".$mailbox->getHostInfo();
+                        "\n"._S('Host Info').": ".$mailbox->getHostInfo().
                         "\n"._S('Error').": ".$t->getMessage().
                         "\n\n ".sprintf(_S('%1$d consecutive errors. Maximum of %2$d allowed'),
                                 $mailbox->getNumErrors(), $MAXERRORS).
