@@ -53,6 +53,22 @@ define('DBPASS','%CONFIG-DBPASS');
 # Table prefix
 define('TABLE_PREFIX','%CONFIG-PREFIX');
 
+# Option: USERS_COLUMS
+#
+# Values: string of column-separated field|title from the ost_user__cdata
+#         table that we want to display additional to the default fields
+#         in the users directory list view.
+#         Check the columns in your ost_user__cdata table and use the
+#         field name 'cdata__'+columnname in the list below.
+#         If a language term is available (see
+#         include/i18n/[language_code]/LC_MESSAGES/messages.mo.php)
+#         you can use it after the field name with a | separator, like;
+#           'cdata__firstname|First Name:cdata__email2|Email'
+#         If no language term is available, just leave empty or put a
+#         term that should work for most of your agents.
+#
+# define('USERS_COLUMNS', 'cdata__firstname|First Name:cdata__mobilephone|Mobile Number');
+
 #
 # SSL Options
 # ---------------------------------------------------
