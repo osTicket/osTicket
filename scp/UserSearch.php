@@ -726,6 +726,7 @@ body {
 									};
 									echo '</td>';
 									echo '<td> <a href="mailto:'.$row["UserEmail"].'">'.$row["UserEmail"].'</a></td> ';
+									auth_img($row["UserId"]);
 									echo '<td>
 											<div style="float:right">
 												<div style="float:left" id="UpdateUserNotes" data-bs-toggle="modal" data-UserId="'.$row["UserId"].'" data-bs-target="#UpdateUserNotesModal-'.$row["UserId"].'">

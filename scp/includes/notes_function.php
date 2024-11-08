@@ -41,4 +41,19 @@ function user_notes($id) {
 		}
     }
 }
+function auth_img($id) {
+	$query = "SELECT contact_important, contact_billing, contact_decisions FROM `tbyte-portal`.contacts WHERE contact_ticket_id = '$id'";
+	$commit = db_query($query, $logError = true, $buffered = true);
+	while ($row = $commit->fetch_assoc()) {
+		if ($row['contact_important']){
+			echo '<i class="bi bi-exclamation-circle-fill"></i>';
+		}
+		if ($row['contact_billing']){
+			echo '<i class="bi bi-cash-coin"></i>';
+		}
+		if ($row['contact_decisions']){
+			echo '<i class="bi bi-person-fill-check"></i>';
+		}
+	}
+}
 ?>
