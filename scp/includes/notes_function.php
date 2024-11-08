@@ -46,16 +46,16 @@ function auth_img($id, $cid) {
     $commit = db_query($query, $logError = true, $buffered = true);
     while ($row = $commit->fetch_assoc()) {
         if ($row['contact_important']) {
-            echo '&nbsp;<a class="bi bi-exclamation-circle-fill fs-5 text-black" title="' . $row['contact_notes'] . '" href="https://portal.remoteit.co.uk/client/contacts/?client_id='.$cid.'"></a>&nbsp;';
+            echo '&nbsp;<a class="bi bi-exclamation-circle-fill fs-5 text-black" title="' . $row['contact_notes'] . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
         }
         if ($row['contact_billing']) {
-            echo '&nbsp;<a class="bi bi-cash-coin fs-5 text-black" title="' . $row['contact_notes'] . '" href="https://portal.remoteit.co.uk/client/contacts/?client_id='.$cid.'"></a>&nbsp;';
+            echo '&nbsp;<a class="bi bi-cash-coin fs-5 text-black" title="' . $row['contact_notes'] . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
         }
         if ($row['contact_decisions']) {
-            echo '&nbsp;<a class="bi bi-person-fill-check fs-5 text-black" title="' . $row['contact_notes'] . '" href="https://portal.remoteit.co.uk/client/contacts/?client_id='.$cid.'"></a>&nbsp;';
+            echo '&nbsp;<a class="bi bi-person-fill-check fs-5 text-black" title="' . $row['contact_notes'] . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
         }
     }
-	echo '&nbsp;<a class="bi bi-list-check fs-5 text-secondary" href="https://portal.remoteit.co.uk/client/contacts/?client_id='.$cid.'"></a>&nbsp;';
+	echo '&nbsp;<a class="bi bi-list-check fs-5 text-secondary" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
 }
 
 ?>
