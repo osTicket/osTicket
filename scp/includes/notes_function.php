@@ -44,10 +44,7 @@ function user_notes($id) {
 function auth_img($id) {
 	$query = "SELECT contact_important, contact_billing, contact_decisions FROM `tbyte-portal`.contacts WHERE contact_ticket_id = '$id'";
 	$commit = db_query($query, $logError = true, $buffered = true);
-	
-	echo '<div class="text-end">';
 	while ($row = $commit->fetch_assoc()) {
-		
 		if ($row['contact_important']){
 			echo '<i class="bi bi-exclamation-circle-fill"></i>';
 		}
@@ -58,6 +55,5 @@ function auth_img($id) {
 			echo '<i class="bi bi-person-fill-check"></i>';
 		}
 	}
-	echo '</div>';
 }
 ?>

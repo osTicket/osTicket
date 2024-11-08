@@ -660,6 +660,7 @@ body {
 									<th scope="col">User Phone</th>
 									
 									<th scope="col">User Email</th>
+									<th></th>
 									<th scope="col">User Notes</th>
 									<th scope="col">Org Name</th>
 									<th scope="col">Org Phone</th>
@@ -725,7 +726,8 @@ body {
 											';
 									};
 									echo '</td>';
-									echo '<td> <a href="mailto:'.$row["UserEmail"].'">'.$row["UserEmail"].'</a>  ';
+									echo '<td> <a href="mailto:'.$row["UserEmail"].'">'.$row["UserEmail"].'</a>  </td>';
+									echo '<td>';
 									auth_img($row["UserId"]);
 									echo '</td>';
 									echo '<td>
