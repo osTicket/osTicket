@@ -1,5 +1,5 @@
 <?php
-require_once('../../main.inc.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/main.inc.php');
 if (isset($_POST['save_user'])) {
     $id = intval($_POST['id']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);

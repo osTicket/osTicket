@@ -17,7 +17,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action='../scp/includes/notes.php' method="post" autocomplete="off" id="addNoteForm">
+                <form action='/scp/includes/notes.php' method="post" autocomplete="off" id="addNoteForm">
                 <input type="hidden" name="id_note" value="<?php echo $id_note ?>">    
                 <div class="mb-4">
                         <label for="noteText">Note Text</label>
