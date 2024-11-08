@@ -558,7 +558,7 @@ if( (isset($_GET['UserNumber']) OR isset($_GET['UserNotes']) OR isset($_GET['Org
 	}
 }
 
-require('includes/notes_function.php')
+require('includes/functions.php')
 
 ?>
 
