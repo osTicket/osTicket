@@ -44,7 +44,7 @@ function user_notes($id) {
 function auth_img($id, $cid) {
     $query = "SELECT contact_important, contact_billing, contact_decisions, contact_notes FROM `tbyte-portal`.contacts WHERE contact_ticket_id = '$id'";
     $commit = db_query($query, $logError = true, $buffered = true);
-	echo '&nbsp;<a class="bi bi-list-check fs-5 text-secondary" title="Auth List" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
+	echo '<a class="bi bi-list-check fs-5 text-secondary" title="Auth List" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
     while ($row = $commit->fetch_assoc()) {
         $clean_notes = strip_tags(html_entity_decode($row['contact_notes']));
         
@@ -52,7 +52,7 @@ function auth_img($id, $cid) {
             echo '&nbsp;<a class="bi bi-exclamation-circle-fill fs-5 text-black" title="IMPORTANT: ' . htmlspecialchars($clean_notes) . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
         }
         if ($row['contact_billing']) {
-            echo '&nbsp;<a class="bi bi-cash-coin fs-5 text-black" title="BILLING: ' . htmlspecialchars($clean_notes) . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
+            echo '&nbsp;<a class="bi bi-cash-coin fs-4 text-black" title="BILLING: ' . htmlspecialchars($clean_notes) . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
         }
         if ($row['contact_decisions']) {
             echo '&nbsp;<a class="bi bi-person-fill-check fs-5 text-black" title="DECISIONS: ' . htmlspecialchars($clean_notes) . '" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
