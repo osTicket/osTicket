@@ -23,10 +23,8 @@ if (isset($_POST['save_user'])) {
     $priority = calculatePriority($noteColour);
     $staffid = intval($_POST['staffid']);
 
-    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES (?, ?, 'u', ?, ?, ?, ?)";
-    $stmt = db_prepare($query);
-    $stmt->bind_param("ssissi", $noteText, $noteColour, $id, $expiryDate, $priority, $staffid);
-    $result = $stmt->execute();
+    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'u', '$id', '$expiryDate', '$priority', '$staffid')";
+    $result = db_query($query, $logError = true, $buffered = true);
     
     if ($result) {
         echo "Note saved successfully!";
@@ -41,15 +39,13 @@ if (isset($_POST['save_user'])) {
 if (isset($_POST['save_company'])) {
     $id = intval($_POST['id']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
-    $expiryDate = $_POST['cexpiryDate'];
+    $expiryDate = $_POST['expiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
     $staffid = intval($_POST['staffid']);
 
-    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES (?, ?, 'c', ?, ?, ?, ?)";
-    $stmt = db_prepare($query);
-    $stmt->bind_param("ssissi", $noteText, $noteColour, $id, $expiryDate, $priority, $staffid);
-    $result = $stmt->execute();
+    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'c', '$id', '$expiryDate', '$priority', '$staffid')";
+    $result = db_query($query, $logError = true, $buffered = true);
     
     if ($result) {
         echo "Note saved successfully!";
@@ -63,14 +59,12 @@ if (isset($_POST['save_company'])) {
 if(isset($_POST['edit_note'])) {
     $id_note = intval($_POST['id_note']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
-    $expiryDate = $_POST['eexpiryDate'];
+    $expiryDate = $_POST['expiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
 
-    $query = "UPDATE notes SET text = ?, colour = ?, expiry = ?, priority = ? WHERE id_note = ?";
-    $stmt = db_prepare($query);
-    $stmt->bind_param("ssisi", $noteText, $noteColour, $expiryDate, $priority, $id_note);
-    $result = $stmt->execute();
+    $query = "UPDATE notes SET text = '$noteText', colour = '$noteColour', expiry = '$expiryDate', priority = '$priority' WHERE id_note = $id_note";
+    $result = db_query($query, $logError = true, $buffered = true);
     
     if ($result) {
         echo "Note Updated successfully!";
