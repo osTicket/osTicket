@@ -1,52 +1,50 @@
 <?php
 function company_notes($id) {
-    $query = "SELECT * FROM notes WHERE id = ? AND type = 'c' ORDER BY priority ASC, id_note ASC";
-    $commit = db_query($query, [$id], $logError = true, $buffered = true);
+    $query = "SELECT * FROM notes WHERE id = '$id' AND type = 'c' ORDER BY priority ASC, id_note ASC";
+    $commit = db_query($query, $logError = true, $buffered = true);
     while ($row = $commit->fetch_assoc()) {
         if (strtotime($row['expiry']) >= strtotime('today')) {
-            $colour = htmlspecialchars($row['colour']); // Ensure colour is safe
-            $text = htmlspecialchars_decode($row['text']);
-            $expiry = htmlspecialchars($row['expiry']); // Ensure expiry is safe
-            $id_note = htmlspecialchars($row['id_note']); // Ensure id_note is safe
-            echo '
-				<div class="d-flex justify-content-between align-items-center">
+			$colour = $row['colour'];
+			$text = htmlspecialchars_decode($row['text']);
+			$expiry = $row['expiry'];
+			$id_note = $row['id_note'];
+			echo '
+			<div class="d-flex justify-content-between align-items-center">
 				<div class="col-md-1"></div>
 				<div class="alert '.$colour.' text-center fs-3 col-md" role="alert" style="--bs-alert-padding-x: 0; --bs-alert-padding-y: 0;--bs-alert-margin-bottom:0;">
-				'.$text.' <span class="fs-6 text-end">- Expiry: '.$expiry.'</span>
+					'.$text.' <asa class="fs-6 text-end" >- Expiry: '.$expiry.'</asa>
 				</div>
 				<div class="col-md-1"><button type="button" class="btn btn-primary" id="add" data-bs-toggle="modal" data-bs-target="#editNoteModal-'.$id_note.'"><i class="bi bi-pencil"></i></button></div>
-				</div>';
-            include('includes/note_edit_modal.php');
-        }
+			</div>';
+			include('includes/note_edit_modal.php');
+		}
     }
 }
-
 function user_notes($id) {
-    $query = "SELECT * FROM notes WHERE id = ? AND type = 'u' ORDER BY priority ASC, id_note ASC";
-    $commit = db_query($query, [$id], $logError = true, $buffered = true);
+    $query = "SELECT * FROM notes WHERE id = '$id' AND type = 'u' ORDER BY priority ASC, id_note ASC";
+    $commit = db_query($query, $logError = true, $buffered = true);
     while ($row = $commit->fetch_assoc()) {
         if (strtotime($row['expiry']) >= strtotime('today')) {
-            $colour = htmlspecialchars($row['colour']); // Ensure colour is safe
-            $text = htmlspecialchars_decode($row['text']);
-            $expiry = htmlspecialchars($row['expiry']); // Ensure expiry is safe
-            $id_note = htmlspecialchars($row['id_note']); // Ensure id_note is safe
-            echo '
-				<div class="d-flex justify-content-between align-items-center">
+			$colour = $row['colour'];
+			$text = htmlspecialchars_decode($row['text']);
+			$expiry = $row['expiry'];
+			$id_note = $row['id_note'];
+			echo '
+			<div class="d-flex justify-content-between align-items-center">
 				<div class="col-md-1"></div>
 				<div class="alert '.$colour.' text-center fs-3 col-md" role="alert" style="--bs-alert-padding-x: 0; --bs-alert-padding-y: 0;--bs-alert-margin-bottom:0;">
-				'.$text.' <span class="fs-6 text-end">- Expiry: '.$expiry.'</span>
+					'.$text.' <asa class="fs-6 text-end" >- Expiry: '.$expiry.'</asa>
 				</div>
 				<div class="col-md-1"><button type="button" class="btn btn-primary" id="add" data-bs-toggle="modal" data-bs-target="#editNoteModal-'.$id_note.'"><i class="bi bi-pencil"></i></button></div>
-				</div>';
-            include('includes/note_edit_modal.php');
-        }
+			</div>';
+			include('includes/note_edit_modal.php');
+		}
     }
 }
-
 function auth_img($id, $cid) {
-    $query = "SELECT contact_important, contact_billing, contact_decisions, contact_notes FROM `tbyte-portal`.contacts WHERE contact_ticket_id = ?";
-    $commit = db_query($query, [$id], $logError = true, $buffered = true);
-    echo '<a class="bi bi-list-check fs-5 text-secondary" title="Auth List" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
+    $query = "SELECT contact_important, contact_billing, contact_decisions, contact_notes FROM `tbyte-portal`.contacts WHERE contact_ticket_id = '$id'";
+    $commit = db_query($query, $logError = true, $buffered = true);
+	echo '<a class="bi bi-list-check fs-5 text-secondary" title="Auth List" href="https://portal.remoteit.co.uk/client/contacts/?ticket_id='.$cid.'"></a>&nbsp;';
     while ($row = $commit->fetch_assoc()) {
         $clean_notes = strip_tags(html_entity_decode($row['contact_notes']));
         
@@ -61,4 +59,6 @@ function auth_img($id, $cid) {
         }
     }
 }
+
+
 ?>
