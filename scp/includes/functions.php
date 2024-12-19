@@ -1,6 +1,6 @@
 <?php
 function company_notes($id) {
-    $query = "SELECT * FROM notes WHERE id = '$id' AND type = 'c' ORDER BY id_note ASC";
+    $query = "SELECT * FROM notes WHERE id = '$id' AND type = 'c' ORDER BY priority ASC, id_note ASC";
     $commit = db_query($query, $logError = true, $buffered = true);
     while ($row = $commit->fetch_assoc()) {
         if (strtotime($row['expiry']) >= strtotime('today')) {
@@ -21,7 +21,7 @@ function company_notes($id) {
     }
 }
 function user_notes($id) {
-    $query = "SELECT * FROM notes WHERE id = '$id' AND type = 'u' ORDER BY id_note ASC";
+    $query = "SELECT * FROM notes WHERE id = '$id' AND type = 'u' ORDER BY priority ASC, id_note ASC";
     $commit = db_query($query, $logError = true, $buffered = true);
     while ($row = $commit->fetch_assoc()) {
         if (strtotime($row['expiry']) >= strtotime('today')) {
