@@ -27,15 +27,16 @@
                         <div class="col-md mb-4">
                             <label for="noteColour">Note Colour</label>
                             <select class="form-control" id="noteColour" name="noteColour" style="width: 80%;">
-                                <option value="alert-primary" <?php if($colour == 'alert-primary' ){echo 'selected'; }?>>Blue</option>
-                                <option value="alert-secondary" <?php if($colour == 'alert-secondary' ){echo 'selected'; }?>>Dark Grey</option>
-                                <option value="alert-success" <?php if($colour == 'alert-success' ){echo 'selected'; }?>>Green</option>
-                                <option value="alert-danger" <?php if($colour == 'alert-danger' ){echo 'selected'; }?>>Red</option>
-                                <option value="alert-warning" <?php if($colour == 'alert-warning' ){echo 'selected'; }?>>Yellow</option>
-                                <option value="alert-info" <?php if($colour == 'alert-info' ){echo 'selected'; }?>>Teal</option>
-                                <option value="alert-light" <?php if($colour == 'alert-light' ){echo 'selected'; }?>>Light Grey</option>
-                                <option value="alert-dark" <?php if($colour == 'alert-dark' ){echo 'selected'; }?>>Black</option>
+                                <option value="alert-danger" <?php echo ($colour == 'alert-danger') ? 'selected' : ''; ?>>Red - Contract/Accounts Info</option>
+                                <option value="alert-warning" <?php echo ($colour == 'alert-warning') ? 'selected' : ''; ?>>Yellow - Warnings</option>
+                                <option value="alert-success" <?php echo ($colour == 'alert-success') ? 'selected' : ''; ?>>Green - New Customers</option>
+                                <option value="alert-primary" <?php echo ($colour == 'alert-primary') ? 'selected' : ''; ?>>Blue - Notes 1</option>
+                                <option value="alert-info" <?php echo ($colour == 'alert-info') ? 'selected' : ''; ?>>Teal - Notes 2</option>
+                                <option value="alert-light" <?php echo ($colour == 'alert-light') ? 'selected' : ''; ?>>Light Grey - Notes 3</option>
+                                <option value="alert-secondary" <?php echo ($colour == 'alert-secondary') ? 'selected' : ''; ?>>Dark Grey - Notes 4</option>
+                                <option value="alert-dark" <?php echo ($colour == 'alert-dark') ? 'selected' : ''; ?>>Black - Notes 5</option>
                             </select>
+
                         </div>
                         <div class="col-md mb-4">
                             <label for="eexpiryDate">Expiry Date</label>

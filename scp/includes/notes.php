@@ -21,11 +21,12 @@ if (isset($_POST['save_user'])) {
     $expiryDate = $_POST['expiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
-    #$staffid = $_POST['staffid']; 
+    #$staffid = intval($_POST['staffid']); // Ensure staffid is sanitized
 
-    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'u', '$id', '$expiryDate', '$priority', '$staffid')";
-
-    $result = db_query($query, $logError = true, $buffered = true);
+    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES (?, ?, 'u', ?, ?, ?, ?)";
+    $stmt = db_prepare($query);
+    $stmt->bind_param("ssissi", $noteText, $noteColour, $id, $expiryDate, $priority, $staffid);
+    $result = $stmt->execute();
     
     if ($result) {
         echo "Note saved successfully!";
@@ -34,6 +35,7 @@ if (isset($_POST['save_user'])) {
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit; // Ensure no further code is executed after redirect
 }
 
 if (isset($_POST['save_company'])) {
@@ -42,11 +44,12 @@ if (isset($_POST['save_company'])) {
     $expiryDate = $_POST['cexpiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
-    #$staffid = $_POST['staffid'];
+    #$staffid = intval($_POST['staffid']); // Ensure staffid is sanitized
 
-    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'c', '$id', '$expiryDate', '$priority', '$staffid')";
-
-    $result = db_query($query, $logError = true, $buffered = true);
+    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES (?, ?, 'c', ?, ?, ?, ?)";
+    $stmt = db_prepare($query);
+    $stmt->bind_param("ssissi", $noteText, $noteColour, $id, $expiryDate, $priority, $staffid);
+    $result = $stmt->execute();
     
     if ($result) {
         echo "Note saved successfully!";
@@ -54,18 +57,20 @@ if (isset($_POST['save_company'])) {
         echo "Error saving note. Please try again.";
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit; // Ensure no further code is executed after redirect
 }
 
 if(isset($_POST['edit_note'])) {
-    $id_note = $_POST['id_note'];
+    $id_note = intval($_POST['id_note']); // Ensure id_note is sanitized
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
     $expiryDate = $_POST['eexpiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
 
-    $query = "UPDATE notes SET text = '$noteText', colour = '$noteColour', expiry = '$expiryDate', priority = '$priority' WHERE id_note = '$id_note'";
-
-    $result = db_query($query, $logError = true, $buffered = true);
+    $query = "UPDATE notes SET text = ?, colour = ?, expiry = ?, priority = ? WHERE id_note = ?";
+    $stmt = db_prepare($query);
+    $stmt->bind_param("ssisi", $noteText, $noteColour, $expiryDate, $priority, $id_note);
+    $result = $stmt->execute();
     
     if ($result) {
         echo "Note Updated successfully!";
@@ -73,15 +78,17 @@ if(isset($_POST['edit_note'])) {
         echo "Error saving note. Please try again.";
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit; // Ensure no further code is executed after redirect
 }
 
 if(isset($_POST['delete_note'])) {
-    $id_note = $_POST['id_note'];
+    $id_note = intval($_POST['id_note']); // Ensure id_note is sanitized
     $expiryDate = date('Y-m-d', strtotime('-1 year'));
 
-    $query = "UPDATE notes SET expiry = '$expiryDate' WHERE id_note = '$id_note'";
-
-    $result = db_query($query, $logError = true, $buffered = true);
+    $query = "UPDATE notes SET expiry = ? WHERE id_note = ?";
+    $stmt = db_prepare($query);
+    $stmt->bind_param("si", $expiryDate, $id_note);
+    $result = $stmt->execute();
     
     if ($result) {
         echo "Note Deleted successfully!";
@@ -89,6 +96,7 @@ if(isset($_POST['delete_note'])) {
         echo "Error saving note. Please try again.";
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
+    exit; // Ensure no further code is executed after redirect
 }
 
 ?>

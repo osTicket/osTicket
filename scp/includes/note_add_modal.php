@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 35%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addNoteModalLabel">Add New Note</h5>
+                <h5 class="modal-title" id="addNoteModalLabel">Add New User Note</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -17,14 +17,14 @@
                         <div class="col-md mb-4">
                             <label for="noteColour">Note Colour</label>
                             <select class="form-control" id="noteColour" name="noteColour" style="width: 80%;">
-                                <option value="alert-primary">Blue</option>
-                                <option value="alert-secondary">Dark Grey</option>
-                                <option value="alert-success">Green</option>
-                                <option value="alert-danger">Red</option>
-                                <option value="alert-warning">Yellow</option>
-                                <option value="alert-info">Teal</option>
-                                <option value="alert-light">Light Grey</option>
-                                <option value="alert-dark">Black</option>
+                                <option value="alert-danger">Red - Contract/Accounts Info</option>
+                                <option value="alert-warning">Yellow - Warnings</option>
+                                <option value="alert-success">Green - New Customers</option>
+                                <option value="alert-primary">Blue - Notes 1</option>
+                                <option value="alert-info">Teal - Notes 2</option>
+                                <option value="alert-light">Light Grey - Notes 3</option>
+                                <option value="alert-secondary">Dark Grey - Notes 4</option>
+                                <option value="alert-dark">Black - Notes 5</option>
                             </select>
                         </div>
                         <div class="col-md mb-4">
@@ -45,7 +45,7 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 35%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addNoteModalLabel">Add New Note</h5>
+                <h5 class="modal-title" id="addNoteModalLabel">Add New Company Note</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -60,14 +60,14 @@
                         <div class="col-md mb-4">
                             <label for="noteColour">Note Colour</label>
                             <select class="form-control" id="noteColour" name="noteColour" style="width: 80%;">
-                                <option value="alert-primary">Blue</option>
-                                <option value="alert-secondary">Dark Grey</option>
-                                <option value="alert-success">Green</option>
-                                <option value="alert-danger">Red</option>
-                                <option value="alert-warning">Yellow</option>
-                                <option value="alert-info">Teal</option>
-                                <option value="alert-light">Light Grey</option>
-                                <option value="alert-dark">Black</option>
+                                <option value="alert-danger">Red - Contract/Accounts Info</option>
+                                <option value="alert-warning">Yellow - Warnings</option>
+                                <option value="alert-success">Green - New Customers</option>
+                                <option value="alert-primary">Blue - Notes 1</option>
+                                <option value="alert-info">Teal - Notes 2</option>
+                                <option value="alert-light">Light Grey - Notes 3</option>
+                                <option value="alert-secondary">Dark Grey - Notes 4</option>
+                                <option value="alert-dark">Black - Notes 5</option>
                             </select>
                         </div>
                         <div class="col-md mb-4">
