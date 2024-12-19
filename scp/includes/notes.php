@@ -21,7 +21,7 @@ if (isset($_POST['save_user'])) {
     $expiryDate = $_POST['expiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
-    $staffid = $_POST['staffid']; 
+    #$staffid = $_POST['staffid']; 
 
     $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'u', '$id', '$expiryDate', '$priority', '$staffid')";
 
@@ -42,7 +42,7 @@ if (isset($_POST['save_company'])) {
     $expiryDate = $_POST['cexpiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
-    $staffid = $_POST['staffid'];
+    #$staffid = $_POST['staffid'];
 
     $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'c', '$id', '$expiryDate', '$priority', '$staffid')";
 
