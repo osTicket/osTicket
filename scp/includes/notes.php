@@ -21,7 +21,7 @@ if (isset($_POST['save_user'])) {
     $expiryDate = $_POST['expiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
-    #$staffid = intval($_POST['staffid']); // Ensure staffid is sanitized
+    $staffid = intval($_POST['staffid']);
 
     $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES (?, ?, 'u', ?, ?, ?, ?)";
     $stmt = db_prepare($query);
@@ -35,7 +35,7 @@ if (isset($_POST['save_user'])) {
     }
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit; // Ensure no further code is executed after redirect
+    exit;
 }
 
 if (isset($_POST['save_company'])) {
@@ -44,7 +44,7 @@ if (isset($_POST['save_company'])) {
     $expiryDate = $_POST['cexpiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
-    #$staffid = intval($_POST['staffid']); // Ensure staffid is sanitized
+    $staffid = intval($_POST['staffid']);
 
     $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES (?, ?, 'c', ?, ?, ?, ?)";
     $stmt = db_prepare($query);
@@ -57,11 +57,11 @@ if (isset($_POST['save_company'])) {
         echo "Error saving note. Please try again.";
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit; // Ensure no further code is executed after redirect
+    exit;
 }
 
 if(isset($_POST['edit_note'])) {
-    $id_note = intval($_POST['id_note']); // Ensure id_note is sanitized
+    $id_note = intval($_POST['id_note']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
     $expiryDate = $_POST['eexpiryDate'];
     $noteColour = $_POST['noteColour'];
@@ -78,11 +78,11 @@ if(isset($_POST['edit_note'])) {
         echo "Error saving note. Please try again.";
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit; // Ensure no further code is executed after redirect
+    exit;
 }
 
 if(isset($_POST['delete_note'])) {
-    $id_note = intval($_POST['id_note']); // Ensure id_note is sanitized
+    $id_note = intval($_POST['id_note']);
     $expiryDate = date('Y-m-d', strtotime('-1 year'));
 
     $query = "UPDATE notes SET expiry = ? WHERE id_note = ?";
@@ -96,7 +96,7 @@ if(isset($_POST['delete_note'])) {
         echo "Error saving note. Please try again.";
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
-    exit; // Ensure no further code is executed after redirect
+    exit;
 }
 
 ?>
