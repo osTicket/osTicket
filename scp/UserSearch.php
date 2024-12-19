@@ -684,6 +684,7 @@ body {
 										$OrgNotesPHP = str_replace("<br />",PHP_EOL,$row["OrgNotes"]);
 										$OrgNotesPHP = str_replace("<p>","",$OrgNotesPHP);
 										$OrgNotesPHP = str_replace("</p>","",$OrgNotesPHP);
+										$staffid = $thisuser->getId();
 										
 									}
 

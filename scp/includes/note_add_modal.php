@@ -7,7 +7,8 @@
             </div>
             <div class="modal-body">
                 <form action='/scp/includes/notes.php' method="post" autocomplete="off" id="addNoteForm">
-                <input type="hidden" name="id" value="<?php echo $UserId; ?>">    
+                <input type="hidden" name="id" value="<?php echo $UserId; ?>">
+                <input type="hidden" name="staffid" value="<?php echo $staffid; ?>">     
                 <div class="mb-4">
                         <label for="noteText">Note Text</label>
                         <textarea class="form-control" id="noteText" name="noteText" rows="3"></textarea>
@@ -49,7 +50,8 @@
             </div>
             <div class="modal-body">
                 <form action='/scp/includes/notes.php' method="post" autocomplete="off" id="addCNoteForm">
-                <input type="hidden" name="id" value="<?php echo $OrgId; ?>">    
+                <input type="hidden" name="id" value="<?php echo $OrgId; ?>">   
+                <input type="hidden" name="staffid" value="<?php echo $staffid; ?>"> 
                     <div class="mb-4">
                         <label for="noteText">Note Text</label>
                         <textarea class="form-control" id="noteText" name="noteText" rows="3"></textarea>

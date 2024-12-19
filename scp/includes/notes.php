@@ -1,12 +1,29 @@
 <?php
 require_once($_SERVER['DOCUMENT_ROOT'].'/main.inc.php');
+
+function calculatePriority($noteColour) {
+    $priorityMap = [
+        "alert-danger" => 0,
+        "alert-warning" => 1,
+        "alert-success" => 2,
+        "alert-primary" => 3,
+        "alert-info" => 4,
+        "alert-light" => 5,
+        "alert-secondary" => 6,
+        "alert-dark" => 7
+    ];
+    return $priorityMap[$noteColour] ?? null;
+}
+
 if (isset($_POST['save_user'])) {
     $id = intval($_POST['id']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
     $expiryDate = $_POST['expiryDate'];
     $noteColour = $_POST['noteColour'];
+    $priority = calculatePriority($noteColour);
+    $staffid = $_POST['staffid']; 
 
-    $query = "INSERT INTO notes (text, colour, type, id, expiry) VALUES ('$noteText', '$noteColour', 'u', '$id', '$expiryDate')";
+    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'u', '$id', '$expiryDate', '$priority', '$staffid')";
 
     $result = db_query($query, $logError = true, $buffered = true);
     
@@ -18,12 +35,16 @@ if (isset($_POST['save_user'])) {
 
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
 if (isset($_POST['save_company'])) {
     $id = intval($_POST['id']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
     $expiryDate = $_POST['cexpiryDate'];
     $noteColour = $_POST['noteColour'];
-    $query = "INSERT INTO notes (text, colour, type, id, expiry) VALUES ('$noteText', '$noteColour', 'c', '$id', '$expiryDate')";
+    $priority = calculatePriority($noteColour);
+    $staffid = $_POST['staffid'];
+
+    $query = "INSERT INTO notes (text, colour, type, id, expiry, priority, staffid) VALUES ('$noteText', '$noteColour', 'c', '$id', '$expiryDate', '$priority', '$staffid')";
 
     $result = db_query($query, $logError = true, $buffered = true);
     
@@ -34,13 +55,15 @@ if (isset($_POST['save_company'])) {
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
 if(isset($_POST['edit_note'])) {
     $id_note = $_POST['id_note'];
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
     $expiryDate = $_POST['eexpiryDate'];
     $noteColour = $_POST['noteColour'];
+    $priority = calculatePriority($noteColour);
 
-    $query = "UPDATE notes SET text = '$noteText', colour = '$noteColour', expiry = '$expiryDate' WHERE id_note = '$id_note'";
+    $query = "UPDATE notes SET text = '$noteText', colour = '$noteColour', expiry = '$expiryDate', priority = '$priority' WHERE id_note = '$id_note'";
 
     $result = db_query($query, $logError = true, $buffered = true);
     
@@ -51,6 +74,7 @@ if(isset($_POST['edit_note'])) {
     }
     header("Location: " . $_SERVER["HTTP_REFERER"]);
 }
+
 if(isset($_POST['delete_note'])) {
     $id_note = $_POST['id_note'];
     $expiryDate = date('Y-m-d', strtotime('-1 year'));
