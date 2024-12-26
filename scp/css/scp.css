@@ -126,7 +126,7 @@ a time {
 
 
 #container {
-    width:960px;
+    width:80%;
     margin:0 auto 20px auto;
 }
 
@@ -725,7 +725,7 @@ a time {
 .jb-overflowmenu {
     position: relative;
     height:35px;
-    width: 960px;
+    width: 100%;
 }
 
 
