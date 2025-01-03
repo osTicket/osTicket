@@ -1216,7 +1216,7 @@ body {
 	<script>
 		$('#addCNoteModal').on('shown.bs.modal', function () {
 			$(function() {
-				$("#cexpiryDate").datepicker({
+				$("#expiryDate").datepicker({
 					showButtonPanel: true,
 					dateFormat: 'yy-mm-dd',
 					numberOfMonths: 2,
