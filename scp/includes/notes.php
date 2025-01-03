@@ -39,7 +39,7 @@ if (isset($_POST['save_user'])) {
 if (isset($_POST['save_company'])) {
     $id = intval($_POST['id']);
     $noteText = htmlspecialchars($_POST['noteText'], ENT_QUOTES);
-    $expiryDate = $_POST['expiryDate'];
+    $expiryDate = $_POST['cexpiryDate'];
     $noteColour = $_POST['noteColour'];
     $priority = calculatePriority($noteColour);
     $staffid = intval($_POST['staffid']);

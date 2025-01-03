@@ -45,7 +45,7 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 35%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addNoteModalLabel">Add New Company Note</h5>
+                <h5 class="modal-title" id="addCNoteModalLabel">Add New Company Note</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -71,8 +71,8 @@
                             </select>
                         </div>
                         <div class="col-md mb-4">
-                            <label for="expiryDate">Expiry Date</label>
-                            <input type="text" class="form-control" id="expiryDate" name="expiryDate" style="width: 80%;" value="<?php echo date('Y-m-d', strtotime('+1000 years')); ?>">
+                            <label for="cexpiryDate">Expiry Date</label>
+                            <input type="text" class="form-control" id="cexpiryDate" name="cexpiryDate" style="width: 80%;" value="<?php echo date('Y-m-d', strtotime('+1000 years')); ?>">
                         </div>
                     </div>
                     <div class="modal-footer">
