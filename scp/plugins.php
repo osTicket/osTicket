@@ -92,17 +92,19 @@ if ($_POST) {
         } else {
             $plugins = Plugin::objects()->filter([
                     'id__in' => array_values($_POST['ids'])]);
-            switch(strtolower($_POST['a'])) {
-            case 'enable':
-                $plugins->update(['isactive' => 1]);
-                break;
-            case 'disable':
-                 $plugins->update(['isactive' => 0]);
-                break;
-            case 'delete':
-                foreach ($plugins as $p)
-                    $p->uninstall($errors);
-                break;
+            foreach ($plugins as $p) {
+                $impl = $p->getImpl() ?: $p;
+                switch(strtolower($_POST['a'])) {
+                case 'enable':
+                    $impl->enable();
+                    break;
+                case 'disable':
+                     $impl->disable();
+                    break;
+                case 'delete':
+                    $impl->uninstall($errors);
+                    break;
+                }
             }
             // reset cached list
             PluginManager::clearCache();
