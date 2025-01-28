@@ -895,8 +895,14 @@ class Plugin extends VerySimpleModel {
         return true;
     }
 
+    function disable() {
+        $errors = [];
+        $this->update(['isactive' => 0], $errors);
+    }
+
     function enable() {
-        return true;
+        $errors = [];
+        $this->update(['isactive' => 1], $errors);
     }
 
     /**
