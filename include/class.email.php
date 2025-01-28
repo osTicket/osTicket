@@ -552,6 +552,10 @@ class EmailAccount extends VerySimpleModel {
         return $this->email;
     }
 
+    public function getName() {
+        return $this->getEmail()->getName();
+    }
+
     public function getAccessToken() {
         $cred = $this->getFreshCredentials();
         return $cred ? $cred->getAccessToken($this->getConfigSignature()) : null;

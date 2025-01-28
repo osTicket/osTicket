@@ -182,7 +182,7 @@ class Internationalization {
         global $thisstaff, $thisclient;
 
         $langs = self::availableLanguages();
-        $lang = strtolower($lang);
+        $lang = str_replace('-', '_', strtolower($lang));
         if (isset($langs[$lang])) {
             $info = &$langs[$lang];
             if (!isset($info['desc'])) {
@@ -213,7 +213,7 @@ class Internationalization {
 
     static function getLanguageInfo($lang) {
         $langs = self::availableLanguages();
-        return @$langs[strtolower($lang)] ?: array();
+        return @$langs[str_replace('-', '_', strtolower($lang))] ?: array();
     }
 
     static function availableLanguages($base=I18N_DIR) {

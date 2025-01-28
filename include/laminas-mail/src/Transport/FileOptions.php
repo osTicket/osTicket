@@ -1,33 +1,34 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Transport;
 
 use Laminas\Mail\Exception;
+use Laminas\Mail\Exception\InvalidArgumentException;
 use Laminas\Stdlib\AbstractOptions;
+
+use function gettype;
+use function is_callable;
+use function is_dir;
+use function is_object;
+use function is_writable;
+use function mt_rand;
+use function sprintf;
+use function sys_get_temp_dir;
+use function time;
 
 class FileOptions extends AbstractOptions
 {
-    /**
-     * @var string Path to stored mail files
-     */
+    /** @var string Path to stored mail files */
     protected $path;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $callback;
 
     /**
      * Set path to stored mail files
      *
      * @param  string $path
-     * @throws \Laminas\Mail\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return FileOptions
      */
     public function setPath($path)
@@ -62,7 +63,7 @@ class FileOptions extends AbstractOptions
      * Set callback used to generate a file name
      *
      * @param  callable $callback
-     * @throws \Laminas\Mail\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return FileOptions
      */
     public function setCallback($callback)
@@ -71,7 +72,7 @@ class FileOptions extends AbstractOptions
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a valid callback; received "%s"',
                 __METHOD__,
-                (is_object($callback) ? get_class($callback) : gettype($callback))
+                is_object($callback) ? $callback::class : gettype($callback)
             ));
         }
         $this->callback = $callback;
@@ -86,9 +87,7 @@ class FileOptions extends AbstractOptions
     public function getCallback()
     {
         if (null === $this->callback) {
-            $this->setCallback(function () {
-                return 'LaminasMail_' . time() . '_' . mt_rand() . '.eml';
-            });
+            $this->setCallback(static fn() => 'LaminasMail_' . time() . '_' . mt_rand() . '.eml');
         }
         return $this->callback;
     }

@@ -1,8 +1,0 @@
-includes:
-    - /composer/vendor/phpstan/phpstan-mockery/extension.neon
-    - /composer/vendor/phpstan/phpstan-webmozart-assert/extension.neon
-
-parameters:
-    level: max
-    ignoreErrors:
-        - '#Call to static method Webmozart\\Assert\\Assert::implementsInterface\(\) with class-string#'

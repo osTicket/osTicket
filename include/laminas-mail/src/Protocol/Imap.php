@@ -1,14 +1,40 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol;
 
-use Laminas\Stdlib\ErrorHandler;
+use Laminas\Mail\Protocol\Exception\ExceptionInterface;
+
+use function array_merge;
+use function array_pop;
+use function array_push;
+use function array_search;
+use function array_shift;
+use function count;
+use function current;
+use function explode;
+use function fclose;
+use function fgets;
+use function func_get_args;
+use function func_num_args;
+use function fwrite;
+use function implode;
+use function is_array;
+use function is_numeric;
+use function key;
+use function next;
+use function preg_match;
+use function rtrim;
+use function str_contains;
+use function str_replace;
+use function str_starts_with;
+use function stream_socket_enable_crypto;
+use function strlen;
+use function strpos;
+use function strtolower;
+use function substr;
+use function trim;
+
+use const INF;
 
 class Imap
 {
@@ -17,16 +43,14 @@ class Imap
     /**
      * Default timeout in seconds for initiating session
      */
-    const TIMEOUT_CONNECTION = 30;
+    public const TIMEOUT_CONNECTION = 30;
 
-    /**
-     * socket to imap server
-     * @var resource|null
-     */
+    /** @var null|resource */
     protected $socket;
 
     /**
      * counter for request tag
+     *
      * @var int
      */
     protected $tagCount = 0;
@@ -34,13 +58,16 @@ class Imap
     /**
      * Public constructor
      *
-     * @param  string   $host  hostname or IP address of IMAP server, if given connect() is called
-     * @param  int|null $port  port of IMAP server, null for default (143 or 993 for ssl)
-     * @param  bool     $ssl   use ssl? 'SSL', 'TLS' or false
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @param  string       $host           hostname or IP address of IMAP server, if given connect() is called
+     * @param  int|null     $port           port of IMAP server, null for default (143 or 993 for ssl)
+     * @param  string|bool  $ssl            use ssl? 'SSL', 'TLS' or false
+     * @param  bool         $novalidatecert set to true to skip SSL certificate validation
+     * @throws ExceptionInterface
      */
-    public function __construct($host = '', $port = null, $ssl = false)
+    public function __construct($host = '', $port = null, $ssl = false, $novalidatecert = false)
     {
+        $this->setNoValidateCert($novalidatecert);
+
         if ($host) {
             $this->connect($host, $port, $ssl);
         }
@@ -61,11 +88,12 @@ class Imap
      * @param  int|null    $port  of IMAP server, default is 143 (993 for ssl)
      * @param  string|bool $ssl   use 'SSL', 'TLS' or false
      * @throws Exception\RuntimeException
-     * @return string welcome message
+     * @return void
      */
     public function connect($host, $port = null, $ssl = false)
     {
-        $isTls = false;
+        $transport = 'tcp';
+        $isTls     = false;
 
         if ($ssl) {
             $ssl = strtolower($ssl);
@@ -73,7 +101,7 @@ class Imap
 
         switch ($ssl) {
             case 'ssl':
-                $host = 'ssl://' . $host;
+                $transport = 'ssl';
                 if (! $port) {
                     $port = 993;
                 }
@@ -87,15 +115,7 @@ class Imap
                 }
         }
 
-        ErrorHandler::start();
-        $this->socket = fsockopen($host, $port, $errno, $errstr, self::TIMEOUT_CONNECTION);
-        $error = ErrorHandler::stop();
-        if (! $this->socket) {
-            throw new Exception\RuntimeException(sprintf(
-                'cannot connect to host %s',
-                ($error ? sprintf('; error = %s (errno = %d )', $error->getMessage(), $error->getCode()) : '')
-            ), 0, $error);
-        }
+        $this->socket = $this->setupSocket($transport, $host, $port, self::TIMEOUT_CONNECTION);
 
         if (! $this->assumedNextLine('* OK')) {
             throw new Exception\RuntimeException('host doesn\'t allow connection');
@@ -136,7 +156,7 @@ class Imap
     protected function assumedNextLine($start)
     {
         $line = $this->nextLine();
-        return strpos($line, $start) === 0;
+        return str_starts_with($line, $start);
     }
 
     /**
@@ -150,7 +170,7 @@ class Imap
         $line = $this->nextLine();
 
         // separate tag from line
-        list($tag, $line) = explode(' ', $line, 2);
+        [$tag, $line] = explode(' ', $line, 2);
 
         return $line;
     }
@@ -164,7 +184,7 @@ class Imap
     protected function decodeLine($line)
     {
         $tokens = [];
-        $stack = [];
+        $stack  = [];
 
         /*
             We start to decode the response here. The understood tokens are:
@@ -190,18 +210,18 @@ class Imap
             while ($token[0] == '(') {
                 array_push($stack, $tokens);
                 $tokens = [];
-                $token = substr($token, 1);
+                $token  = substr($token, 1);
             }
             if ($token[0] == '"') {
                 if (preg_match('%^\(*"((.|\\\\|\\")*?)" *%', $line, $matches)) {
                     $tokens[] = $matches[1];
-                    $line = substr($line, strlen($matches[0]));
+                    $line     = substr($line, strlen($matches[0]));
                     continue;
                 }
             }
             if ($token[0] == '{') {
                 $endPos = strpos($token, '}');
-                $chars = substr($token, 1, $endPos - 1);
+                $chars  = substr($token, 1, $endPos - 1);
                 if (is_numeric($chars)) {
                     $token = '';
                     while (strlen($token) < $chars) {
@@ -209,43 +229,43 @@ class Imap
                     }
                     $line = '';
                     if (strlen($token) > $chars) {
-                        $line = substr($token, $chars);
+                        $line  = substr($token, $chars);
                         $token = substr($token, 0, $chars);
                     } else {
                         $line .= $this->nextLine();
                     }
                     $tokens[] = $token;
-                    $line = trim($line) . ' ';
+                    $line     = trim($line) . ' ';
                     continue;
                 }
             }
             if ($stack && $token[strlen($token) - 1] == ')') {
                 // closing braces are not separated by spaces, so we need to count them
                 $braces = strlen($token);
-                $token = rtrim($token, ')');
+                $token  = rtrim($token, ')');
                 // only count braces if more than one
                 $braces -= strlen($token) + 1;
                 // only add if token had more than just closing braces
                 if (rtrim($token) != '') {
                     $tokens[] = rtrim($token);
                 }
-                $token = $tokens;
+                $token  = $tokens;
                 $tokens = array_pop($stack);
                 // special handline if more than one closing brace
                 while ($braces-- > 0) {
                     $tokens[] = $token;
-                    $token = $tokens;
-                    $tokens = array_pop($stack);
+                    $token    = $tokens;
+                    $tokens   = array_pop($stack);
                 }
             }
             $tokens[] = $token;
-            $line = substr($line, $pos + 1);
+            $line     = substr($line, $pos + 1);
         }
 
         // maybe the server forgot to send some closing braces
         while ($stack) {
-            $child = $tokens;
-            $tokens = array_pop($stack);
+            $child    = $tokens;
+            $tokens   = array_pop($stack);
             $tokens[] = $child;
         }
 
@@ -287,7 +307,7 @@ class Imap
      */
     public function readResponse($tag, $dontParse = false)
     {
-        $lines = [];
+        $lines  = [];
         $tokens = null; // define $tokens variable before first use
         while (! $this->readLine($tokens, $tag, $dontParse)) {
             $lines[] = $tokens;
@@ -297,13 +317,13 @@ class Imap
             // last to chars are still needed for response code
             $tokens = [substr($tokens, 0, 2)];
         }
+
         // last line has response code
         if ($tokens[0] == 'OK') {
-            return $lines ? $lines : true;
+            return $lines ?: true;
         } elseif ($tokens[0] == 'NO') {
             return false;
         }
-        return;
     }
 
     /**
@@ -354,9 +374,7 @@ class Imap
     {
         $tag = null; // define $tag variable before first use
         $this->sendRequest($command, $tokens, $tag);
-        $response = $this->readResponse($tag, $dontParse);
-
-        return $response;
+        return $this->readResponse($tag, $dontParse);
     }
 
     /**
@@ -369,12 +387,13 @@ class Imap
     public function escapeString($string)
     {
         if (func_num_args() < 2) {
-            if (strpos($string, "\n") !== false) {
+            if (str_contains($string, "\n")) {
                 return ['{' . strlen($string) . '}', $string];
-            } else {
-                return '"' . str_replace(['\\', '"'], ['\\\\', '\\"'], $string) . '"';
             }
+
+            return '"' . str_replace(['\\', '"'], ['\\\\', '\\"'], $string) . '"';
         }
+
         $result = [];
         foreach (func_get_args() as $string) {
             $result[] = $this->escapeString($string);
@@ -424,7 +443,7 @@ class Imap
         if ($this->socket) {
             try {
                 $result = $this->requestAndResponse('LOGOUT', [], true);
-            } catch (Exception\ExceptionInterface $e) {
+            } catch (Exception\ExceptionInterface) {
                 // ignoring exception
             }
             fclose($this->socket);
@@ -437,7 +456,7 @@ class Imap
      * Get capabilities from IMAP server
      *
      * @return array list of capabilities
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function capability()
     {
@@ -462,7 +481,7 @@ class Imap
      * @param  string $box which folder to change to or examine
      * @return bool|array false if error, array with returned information
      *                    otherwise (flags, exists, recent, uidvalidity)
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function examineOrSelect($command = 'EXAMINE', $box = 'INBOX')
     {
@@ -501,7 +520,7 @@ class Imap
      *
      * @param  string $box change to this folder
      * @return bool|array see examineOrselect()
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function select($box = 'INBOX')
     {
@@ -513,7 +532,7 @@ class Imap
      *
      * @param  string $box examine this folder
      * @return bool|array see examineOrselect()
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function examine($box = 'INBOX')
     {
@@ -547,7 +566,7 @@ class Imap
             $set = (int) $from . ':' . (int) $to;
         }
 
-        $items = (array) $items;
+        $items    = (array) $items;
         $itemList = $this->escapeList($items);
 
         $tag = null;  // define $tag variable before first use
@@ -605,6 +624,7 @@ class Imap
             // if we want only one message we can ignore everything else and just return
             if ($to === null && ! is_array($from) && ($uid ? $tokens[2][$uidKey] == $from : $tokens[0] == $from)) {
                 // we still need to read all lines
+                // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedWhile
                 while (! $this->readLine($tokens, $tag)) {
                 }
                 return $data;
@@ -627,12 +647,12 @@ class Imap
      * @param  string $reference mailbox reference for list
      * @param  string $mailbox   mailbox name match with wildcards
      * @return array mailboxes that matched $mailbox as array(globalName => array('delim' => .., 'flags' => ..))
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function listMailbox($reference = '', $mailbox = '*')
     {
         $result = [];
-        $list = $this->requestAndResponse('LIST', $this->escapeString($reference, $mailbox));
+        $list   = $this->requestAndResponse('LIST', $this->escapeString($reference, $mailbox));
         if (! $list || $list === true) {
             return $result;
         }
@@ -657,7 +677,7 @@ class Imap
      * @param  string|null $mode   '+' to add flags, '-' to remove flags, everything else sets the flags as given
      * @param  bool        $silent if false the return values are the new flags for the wanted messages
      * @return bool|array new flags if $silent is false, else true or false depending on success
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function store(array $flags, $from, $to = null, $mode = null, $silent = true)
     {
@@ -670,7 +690,7 @@ class Imap
         }
 
         $flags = $this->escapeList($flags);
-        $set = (int) $from;
+        $set   = (int) $from;
         if ($to !== null) {
             $set .= ':' . ($to == INF ? '*' : (int) $to);
         }
@@ -701,11 +721,11 @@ class Imap
      * @param array  $flags   flags for new message
      * @param string $date    date for new message
      * @return bool success
-     * @throws \Laminas\Mail\Protocol\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function append($folder, $message, $flags = null, $date = null)
     {
-        $tokens = [];
+        $tokens   = [];
         $tokens[] = $this->escapeString($folder);
         if ($flags !== null) {
             $tokens[] = $this->escapeList($flags);
@@ -722,14 +742,14 @@ class Imap
      * copy message set from current folder to other folder
      *
      * @param string   $folder destination folder
-     * @param $from
+     * @param int $from
      * @param int|null $to     if null only one message ($from) is fetched, else it's the
      *                         last message, INF means last message available
      * @return bool success
      */
     public function copy($folder, $from, $to = null)
     {
-        $set = (int) $from;
+        $set = (string) $from;
         if ($to !== null) {
             $set .= ':' . ($to == INF ? '*' : (int) $to);
         }

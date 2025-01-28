@@ -10,7 +10,6 @@ if($canned && $_REQUEST['a']!='add'){
     $qs += array('id' => $canned->getId());
     // Replace cid: scheme with downloadable URL for inline images
     $info['response'] = $canned->getResponseWithImages();
-    $info['notes'] = Format::viewableImages($info['notes']);
 }else {
     $title=__('Add New Canned Response');
     $action='create';
@@ -87,7 +86,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                     style="width:98%;" class="richtext draft draft-delete" <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('canned',
         is_object($canned) ? $canned->getId() : false, $info['response']);
-    echo $attrs; ?>><?php echo $draft ?: $info['response'];
+    echo $attrs; ?>><?php echo $draft ?: Format::viewableImages($info['response']);
                 ?></textarea>
                 <div><h3><?php echo __('Canned Attachments'); ?> <?php echo __('(optional)'); ?>
                 &nbsp;<i class="help-tip icon-question-sign" href="#canned_attachments"></i></h3>
@@ -96,7 +95,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                 <?php
                 $attachments = $canned_form->getField('attachments');
                 if ($canned && $attachments) {
-                    $attachments->setAttachments($canned->attachments);
+                    $attachments->setAttachments($canned->attachments->window(['inline' => false]));
                 }
                 print $attachments->render(); ?>
                 <br/>
@@ -110,7 +109,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
         <tr>
             <td colspan=2>
                 <textarea class="richtext no-bar" name="notes" cols="21"
-                    rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
+                    rows="8" style="width: 80%;"><?php echo Format::viewableImages($info['notes']); ?></textarea>
             </td>
         </tr>
     </tbody>

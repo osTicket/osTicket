@@ -150,7 +150,7 @@ if ($ticket && $ticket->getOwnerId() == $user->getId())
                     <?php echo __('Auto Add Members From'); ?>:
                 </td>
                 <td>
-                    <input type="text" size="40" maxlength="60" name="domain"
+                    <input type="text" size="40" maxlength="256" name="domain"
                         value="<?php echo $info['domain']; ?>" />
                     <br/><span class="error"><?php echo $errors['domain']; ?></span>
                 </td>

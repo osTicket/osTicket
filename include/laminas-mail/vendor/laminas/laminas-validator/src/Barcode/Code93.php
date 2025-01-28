@@ -1,27 +1,67 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\Barcode;
+
+use function array_search;
+use function count;
+use function str_split;
+use function substr;
 
 class Code93 extends AbstractAdapter
 {
     /**
      * Note that the characters !"§& are only synonyms
+     *
      * @var array
      */
     protected $check = [
-        '0' => 0, '1' => 1, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6,
-        '7' => 7, '8' => 8, '9' => 9, 'A' => 10, 'B' => 11, 'C' => 12, 'D' => 13,
-        'E' => 14, 'F' => 15, 'G' => 16, 'H' => 17, 'I' => 18, 'J' => 19, 'K' => 20,
-        'L' => 21, 'M' => 22, 'N' => 23, 'O' => 24, 'P' => 25, 'Q' => 26, 'R' => 27,
-        'S' => 28, 'T' => 29, 'U' => 30, 'V' => 31, 'W' => 32, 'X' => 33, 'Y' => 34,
-        'Z' => 35, '-' => 36, '.' => 37, ' ' => 38, '$' => 39, '/' => 40, '+' => 41,
-        '%' => 42, '!' => 43, '"' => 44, '§' => 45, '&' => 46,
+        '0' => 0,
+        '1' => 1,
+        '2' => 2,
+        '3' => 3,
+        '4' => 4,
+        '5' => 5,
+        '6' => 6,
+        '7' => 7,
+        '8' => 8,
+        '9' => 9,
+        'A' => 10,
+        'B' => 11,
+        'C' => 12,
+        'D' => 13,
+        'E' => 14,
+        'F' => 15,
+        'G' => 16,
+        'H' => 17,
+        'I' => 18,
+        'J' => 19,
+        'K' => 20,
+        'L' => 21,
+        'M' => 22,
+        'N' => 23,
+        'O' => 24,
+        'P' => 25,
+        'Q' => 26,
+        'R' => 27,
+        'S' => 28,
+        'T' => 29,
+        'U' => 30,
+        'V' => 31,
+        'W' => 32,
+        'X' => 33,
+        'Y' => 34,
+        'Z' => 35,
+        '-' => 36,
+        '.' => 37,
+        ' ' => 38,
+        '$' => 39,
+        '/' => 40,
+        '+' => 41,
+        '%' => 42,
+        '!' => 43,
+        '"' => 44,
+        '§' => 45,
+        '&' => 46,
     ];
 
     /**
@@ -48,7 +88,7 @@ class Code93 extends AbstractAdapter
         $count    = 0;
         $length   = count($value) % 20;
         foreach ($value as $char) {
-            if ($length == 0) {
+            if ($length === 0) {
                 $length = 20;
             }
 
@@ -61,7 +101,7 @@ class Code93 extends AbstractAdapter
         $count   = 0;
         $length  = count($value) % 15;
         foreach ($value as $char) {
-            if ($length == 0) {
+            if ($length === 0) {
                 $length = 15;
             }
 
@@ -70,7 +110,7 @@ class Code93 extends AbstractAdapter
         }
         $check .= array_search($count % 47, $this->check);
 
-        if ($check == $checksum) {
+        if ($check === $checksum) {
             return true;
         }
 

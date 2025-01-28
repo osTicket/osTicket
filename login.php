@@ -49,7 +49,7 @@ if ($_POST && isset($_POST['luser'])) {
     if (!$_POST['luser'])
         $errors['err'] = __('Valid username or email address is required');
     elseif (($user = UserAuthenticationBackend::process(trim($_POST['luser']),
-            $_POST['lpasswd'], $errors))) {
+            substr($_POST['lpasswd'], 0, 128), $errors))) {
         if ($user instanceof ClientCreateRequest) {
             if ($cfg && $cfg->isClientRegistrationEnabled()) {
                 // Attempt to automatically register
@@ -146,9 +146,6 @@ if (!$nav) {
     $nav = new UserNav();
     $nav->setActiveNav('status');
 }
-
-// Browsers shouldn't suggest saving that username/password
-Http::response(422);
 
 require CLIENTINC_DIR.'header.inc.php';
 require CLIENTINC_DIR.$inc;

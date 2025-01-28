@@ -188,10 +188,15 @@ class SearchAjaxAPI extends AjaxController {
                         'root' => 'T',
                         'staff_id' => $thisstaff->getId()
                         ));
+            $new = true;
         }
 
         if (false === $this->_saveSearch($search))
             return;
+
+        //store saved search count when it is created
+        if ($new)
+            $search->counts($thisstaff, false);
 
         $info = array(
                 'msg' => sprintf('%s %s %s',

@@ -1,34 +1,27 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol\Smtp\Auth;
 
 use Laminas\Crypt\Hmac;
 use Laminas\Mail\Protocol\Smtp;
+
+use function array_replace_recursive;
+use function base64_decode;
+use function base64_encode;
+use function is_array;
 
 /**
  * Performs CRAM-MD5 authentication
  */
 class Crammd5 extends Smtp
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $username;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $password;
 
     /**
-     * Constructor.
-     *
      * All parameters may be passed as an array to the first argument of the
      * constructor. If so,
      *
@@ -73,7 +66,7 @@ class Crammd5 extends Smtp
         $this->_send('AUTH CRAM-MD5');
         $challenge = $this->_expect(334);
         $challenge = base64_decode($challenge);
-        $digest = $this->hmacMd5($this->getPassword(), $challenge);
+        $digest    = $this->hmacMd5($this->getPassword(), $challenge);
         $this->_send(base64_encode($this->getUsername() . ' ' . $digest));
         $this->_expect(235);
         $this->auth = true;

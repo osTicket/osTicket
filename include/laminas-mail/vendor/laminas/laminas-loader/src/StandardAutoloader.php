@@ -1,12 +1,23 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-loader for the canonical source repository
- * @copyright https://github.com/laminas/laminas-loader/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-loader/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Loader;
+
+use Traversable;
+
+use function dirname;
+use function file_exists;
+use function in_array;
+use function is_array;
+use function preg_match;
+use function rtrim;
+use function spl_autoload_register;
+use function str_replace;
+use function stream_resolve_include_path;
+use function strlen;
+use function strpos;
+use function substr;
+
+use const DIRECTORY_SEPARATOR;
 
 // Grab SplAutoloader interface
 require_once __DIR__ . '/SplAutoloader.php';
@@ -20,34 +31,28 @@ require_once __DIR__ . '/SplAutoloader.php';
  */
 class StandardAutoloader implements SplAutoloader
 {
-    const NS_SEPARATOR     = '\\';
-    const PREFIX_SEPARATOR = '_';
-    const LOAD_NS          = 'namespaces';
-    const LOAD_PREFIX      = 'prefixes';
-    const ACT_AS_FALLBACK  = 'fallback_autoloader';
+    public const NS_SEPARATOR     = '\\';
+    public const PREFIX_SEPARATOR = '_';
+    public const LOAD_NS          = 'namespaces';
+    public const LOAD_PREFIX      = 'prefixes';
+    public const ACT_AS_FALLBACK  = 'fallback_autoloader';
     /** @deprecated Use AUTOREGISTER_LAMINAS instead */
-    const AUTOREGISTER_ZF  = 'autoregister_laminas';
-    const AUTOREGISTER_LAMINAS  = 'autoregister_laminas';
+    public const AUTOREGISTER_ZF      = 'autoregister_laminas';
+    public const AUTOREGISTER_LAMINAS = 'autoregister_laminas';
 
-    /**
-     * @var array Namespace/directory pairs to search; Laminas library added by default
-     */
+    /** @var array Namespace/directory pairs to search; Laminas library added by default */
     protected $namespaces = [];
 
-    /**
-     * @var array Prefix/directory pairs to search
-     */
+    /** @var array Prefix/directory pairs to search */
     protected $prefixes = [];
 
-    /**
-     * @var bool Whether or not the autoloader should also act as a fallback autoloader
-     */
+    /** @var bool Whether or not the autoloader should also act as a fallback autoloader */
     protected $fallbackAutoloaderFlag = false;
 
     /**
      * Constructor
      *
-     * @param  null|array|\Traversable $options
+     * @param null|array|Traversable $options
      */
     public function __construct($options = null)
     {
@@ -74,13 +79,13 @@ class StandardAutoloader implements SplAutoloader
      * )
      * </code>
      *
-     * @param  array|\Traversable $options
+     * @param array|Traversable $options
      * @throws Exception\InvalidArgumentException
      * @return StandardAutoloader
      */
     public function setOptions($options)
     {
-        if (! is_array($options) && ! ($options instanceof \Traversable)) {
+        if (! is_array($options) && ! $options instanceof Traversable) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException('Options must be either an array or Traversable');
         }
@@ -93,12 +98,12 @@ class StandardAutoloader implements SplAutoloader
                     }
                     break;
                 case self::LOAD_NS:
-                    if (is_array($pairs) || $pairs instanceof \Traversable) {
+                    if (is_array($pairs) || $pairs instanceof Traversable) {
                         $this->registerNamespaces($pairs);
                     }
                     break;
                 case self::LOAD_PREFIX:
-                    if (is_array($pairs) || $pairs instanceof \Traversable) {
+                    if (is_array($pairs) || $pairs instanceof Traversable) {
                         $this->registerPrefixes($pairs);
                     }
                     break;
@@ -143,7 +148,7 @@ class StandardAutoloader implements SplAutoloader
      */
     public function registerNamespace($namespace, $directory)
     {
-        $namespace = rtrim($namespace, self::NS_SEPARATOR) . self::NS_SEPARATOR;
+        $namespace                    = rtrim($namespace, self::NS_SEPARATOR) . self::NS_SEPARATOR;
         $this->namespaces[$namespace] = $this->normalizeDirectory($directory);
         return $this;
     }
@@ -157,7 +162,7 @@ class StandardAutoloader implements SplAutoloader
      */
     public function registerNamespaces($namespaces)
     {
-        if (! is_array($namespaces) && ! $namespaces instanceof \Traversable) {
+        if (! is_array($namespaces) && ! $namespaces instanceof Traversable) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException('Namespace pairs must be either an array or Traversable');
         }
@@ -177,7 +182,7 @@ class StandardAutoloader implements SplAutoloader
      */
     public function registerPrefix($prefix, $directory)
     {
-        $prefix = rtrim($prefix, self::PREFIX_SEPARATOR). self::PREFIX_SEPARATOR;
+        $prefix                  = rtrim($prefix, self::PREFIX_SEPARATOR) . self::PREFIX_SEPARATOR;
         $this->prefixes[$prefix] = $this->normalizeDirectory($directory);
         return $this;
     }
@@ -191,7 +196,7 @@ class StandardAutoloader implements SplAutoloader
      */
     public function registerPrefixes($prefixes)
     {
-        if (! is_array($prefixes) && ! $prefixes instanceof \Traversable) {
+        if (! is_array($prefixes) && ! $prefixes instanceof Traversable) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException('Prefix pairs must be either an array or Traversable');
         }
@@ -257,8 +262,8 @@ class StandardAutoloader implements SplAutoloader
         $matches = [];
         preg_match('/(?P<namespace>.+\\\)?(?P<class>[^\\\]+$)/', $class, $matches);
 
-        $class     = (isset($matches['class'])) ? $matches['class'] : '';
-        $namespace = (isset($matches['namespace'])) ? $matches['namespace'] : '';
+        $class     = $matches['class'] ?? '';
+        $namespace = $matches['namespace'] ?? '';
 
         return $directory
              . str_replace(self::NS_SEPARATOR, '/', $namespace)

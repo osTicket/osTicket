@@ -1,28 +1,28 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Transport;
 
 use Laminas\Stdlib\ArrayUtils;
 use Traversable;
 
+use function class_exists;
+use function gettype;
+use function is_array;
+use function is_object;
+use function sprintf;
+use function strtolower;
+
+// phpcs:ignore WebimpressCodingStandard.NamingConventions.AbstractClass.Prefix
 abstract class Factory
 {
-    /**
-     * @var array Known transport types
-     */
+    /** @var array Known transport types */
     protected static $classMap = [
-        'file'      => 'Laminas\Mail\Transport\File',
-        'inmemory'  => 'Laminas\Mail\Transport\InMemory',
-        'memory'    => 'Laminas\Mail\Transport\InMemory',
-        'null'      => 'Laminas\Mail\Transport\InMemory',
-        'sendmail'  => 'Laminas\Mail\Transport\Sendmail',
-        'smtp'      => 'Laminas\Mail\Transport\Smtp',
+        'file'     => File::class,
+        'inmemory' => InMemory::class,
+        'memory'   => InMemory::class,
+        'null'     => InMemory::class,
+        'sendmail' => Sendmail::class,
+        'smtp'     => Smtp::class,
     ];
 
     /**
@@ -41,11 +41,11 @@ abstract class Factory
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects an array or Traversable argument; received "%s"',
                 __METHOD__,
-                (is_object($spec) ? get_class($spec) : gettype($spec))
+                is_object($spec) ? $spec::class : gettype($spec)
             ));
         }
 
-        $type = isset($spec['type']) ? $spec['type'] : 'sendmail';
+        $type = $spec['type'] ?? 'sendmail';
 
         $normalizedType = strtolower($type);
 
@@ -61,13 +61,13 @@ abstract class Factory
             ));
         }
 
-        $transport = new $type;
+        $transport = new $type();
 
         if (! $transport instanceof TransportInterface) {
             throw new Exception\DomainException(sprintf(
-                '%s expects the "type" attribute to resolve to a valid'
-                . ' Laminas\Mail\Transport\TransportInterface instance; received "%s"',
+                '%s expects the "type" attribute to resolve to a valid %s instance; received "%s"',
                 __METHOD__,
+                TransportInterface::class,
                 $type
             ));
         }

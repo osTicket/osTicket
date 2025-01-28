@@ -47,7 +47,7 @@ if (!$nextStatuses)
 </span>
 <div id="action-dropdown-statuses"
     class="action-dropdown anchor-right">
-    <ul>
+    <ul <?php if (count($nextStatuses) > 20) echo 'style="height:500px;overflow-y:scroll"'; ?>>
 <?php foreach ($nextStatuses as $status) { ?>
         <li>
             <a class="no-pjax <?php

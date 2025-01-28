@@ -1,16 +1,21 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-stdlib for the canonical source repository
- * @copyright https://github.com/laminas/laminas-stdlib/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-stdlib/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\Stdlib;
 
 use Countable;
 use IteratorAggregate;
+use ReturnTypeWillChange;
 use Serializable;
+use UnexpectedValueException;
+
+use function array_map;
+use function count;
+use function is_array;
+use function serialize;
+use function sprintf;
+use function unserialize;
 
 /**
  * Re-usable, serializable priority queue implementation
@@ -23,29 +28,36 @@ use Serializable;
  * This class aggregates items for the queue itself, but also composes an
  * "inner" iterator in the form of an SplPriorityQueue object for performing
  * the actual iteration.
+ *
+ * @template TValue
+ * @template TPriority of int
+ * @implements IteratorAggregate<array-key, TValue>
  */
 class PriorityQueue implements Countable, IteratorAggregate, Serializable
 {
-    const EXTR_DATA     = 0x00000001;
-    const EXTR_PRIORITY = 0x00000002;
-    const EXTR_BOTH     = 0x00000003;
+    public const EXTR_DATA     = 0x00000001;
+    public const EXTR_PRIORITY = 0x00000002;
+    public const EXTR_BOTH     = 0x00000003;
 
     /**
      * Inner queue class to use for iteration
-     * @var string
+     *
+     * @var class-string<\SplPriorityQueue>
      */
-    protected $queueClass = 'Laminas\Stdlib\SplPriorityQueue';
+    protected $queueClass = SplPriorityQueue::class;
 
     /**
      * Actual items aggregated in the priority queue. Each item is an array
      * with keys "data" and "priority".
-     * @var array
+     *
+     * @var list<array{data: TValue, priority: TPriority}>
      */
-    protected $items      = [];
+    protected $items = [];
 
     /**
      * Inner queue object
-     * @var SplPriorityQueue
+     *
+     * @var \SplPriorityQueue<TPriority, TValue>|null
      */
     protected $queue;
 
@@ -54,13 +66,14 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      *
      * Priority defaults to 1 (low priority) if none provided.
      *
-     * @param  mixed $data
-     * @param  int $priority
-     * @return PriorityQueue
+     * @param  TValue    $data
+     * @param  TPriority $priority
+     * @return $this
      */
     public function insert($data, $priority = 1)
     {
-        $priority = (int) $priority;
+        /** @psalm-var TPriority $priority */
+        $priority      = (int) $priority;
         $this->items[] = [
             'data'     => $data,
             'priority' => $priority,
@@ -82,19 +95,19 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      * the same item has been added multiple times, it will not remove other
      * instances.
      *
-     * @param  mixed $datum
      * @return bool False if the item was not found, true otherwise.
      */
-    public function remove($datum)
+    public function remove(mixed $datum)
     {
         $found = false;
+        $key   = null;
         foreach ($this->items as $key => $item) {
             if ($item['data'] === $datum) {
                 $found = true;
                 break;
             }
         }
-        if ($found) {
+        if ($found && $key !== null) {
             unset($this->items[$key]);
             $this->queue = null;
 
@@ -116,7 +129,7 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      */
     public function isEmpty()
     {
-        return (0 === $this->count());
+        return 0 === $this->count();
     }
 
     /**
@@ -124,6 +137,7 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      *
      * @return int
      */
+    #[ReturnTypeWillChange]
     public function count()
     {
         return count($this->items);
@@ -132,21 +146,50 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
     /**
      * Peek at the top node in the queue, based on priority.
      *
-     * @return mixed
+     * @return TValue
      */
     public function top()
     {
-        return $this->getIterator()->top();
+        $queue = clone $this->getQueue();
+
+        return $queue->top();
     }
 
     /**
      * Extract a node from the inner queue and sift up
      *
-     * @return mixed
+     * @return TValue
      */
     public function extract()
     {
-        return $this->getQueue()->extract();
+        $value = $this->getQueue()->extract();
+
+        $keyToRemove     = null;
+        $highestPriority = null;
+        foreach ($this->items as $key => $item) {
+            if ($item['data'] !== $value) {
+                continue;
+            }
+
+            if (null === $highestPriority) {
+                $highestPriority = $item['priority'];
+                $keyToRemove     = $key;
+                continue;
+            }
+
+            if ($highestPriority >= $item['priority']) {
+                continue;
+            }
+
+            $highestPriority = $item['priority'];
+            $keyToRemove     = $key;
+        }
+
+        if ($keyToRemove !== null) {
+            unset($this->items[$keyToRemove]);
+        }
+
+        return $value;
     }
 
     /**
@@ -159,8 +202,9 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      * retrieves the inner queue object, and clones it for purposes of
      * iteration.
      *
-     * @return SplPriorityQueue
+     * @return \SplPriorityQueue<TPriority, TValue>
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         $queue = $this->getQueue();
@@ -174,49 +218,77 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      */
     public function serialize()
     {
-        return serialize($this->items);
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * Magic method used for serializing of an instance.
+     *
+     * @return list<array{data: TValue, priority: TPriority}>
+     */
+    public function __serialize()
+    {
+        return $this->items;
     }
 
     /**
      * Unserialize a string into a PriorityQueue object
      *
-     * Serialization format is compatible with {@link Laminas\Stdlib\SplPriorityQueue}
+     * Serialization format is compatible with {@link SplPriorityQueue}
      *
      * @param  string $data
      * @return void
      */
     public function unserialize($data)
     {
-        foreach (unserialize($data) as $item) {
+        $toUnserialize = unserialize($data);
+        if (! is_array($toUnserialize)) {
+            throw new UnexpectedValueException(sprintf(
+                'Cannot deserialize %s instance; corrupt serialization data',
+                self::class
+            ));
+        }
+
+        /** @psalm-var list<array{data: TValue, priority: TPriority}> $toUnserialize */
+
+        $this->__unserialize($toUnserialize);
+    }
+
+   /**
+    * Magic method used to rebuild an instance.
+    *
+    * @param list<array{data: TValue, priority: TPriority}> $data Data array.
+    * @return void
+    */
+    public function __unserialize($data)
+    {
+        foreach ($data as $item) {
             $this->insert($item['data'], $item['priority']);
         }
     }
 
     /**
      * Serialize to an array
-     *
      * By default, returns only the item data, and in the order registered (not
      * sorted). You may provide one of the EXTR_* flags as an argument, allowing
      * the ability to return priorities or both data and priority.
      *
      * @param  int $flag
-     * @return array
+     * @return array<array-key, mixed>
+     * @psalm-return ($flag is self::EXTR_BOTH
+     *                      ? list<array{data: TValue, priority: TPriority}>
+     *                      : $flag is self::EXTR_PRIORITY
+     *                          ? list<TPriority>
+     *                          : list<TValue>
+     *               )
      */
     public function toArray($flag = self::EXTR_DATA)
     {
-        switch ($flag) {
-            case self::EXTR_BOTH:
-                return $this->items;
-            case self::EXTR_PRIORITY:
-                return array_map(function ($item) {
-                    return $item['priority'];
-                }, $this->items);
-            case self::EXTR_DATA:
-            default:
-                return array_map(function ($item) {
-                    return $item['data'];
-                }, $this->items);
-        }
+        return match ($flag) {
+            self::EXTR_BOTH => $this->items,
+            self::EXTR_PRIORITY => array_map(static fn($item): int => $item['priority'], $this->items),
+            default => array_map(static fn($item): mixed => $item['data'], $this->items),
+        };
     }
 
     /**
@@ -225,11 +297,12 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      * Please see {@link getIterator()} for details on the necessity of an
      * internal queue class. The class provided should extend SplPriorityQueue.
      *
-     * @param  string $class
-     * @return PriorityQueue
+     * @param  class-string<\SplPriorityQueue> $class
+     * @return $this
      */
     public function setInternalQueueClass($class)
     {
+        /** @psalm-suppress RedundantCastGivenDocblockType */
         $this->queueClass = (string) $class;
         return $this;
     }
@@ -237,7 +310,7 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
     /**
      * Does the queue contain the given datum?
      *
-     * @param  mixed $datum
+     * @param  TValue $datum
      * @return bool
      */
     public function contains($datum)
@@ -253,7 +326,7 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
     /**
      * Does the queue have an item with the given priority?
      *
-     * @param  int $priority
+     * @param  TPriority $priority
      * @return bool
      */
     public function hasPriority($priority)
@@ -270,19 +343,25 @@ class PriorityQueue implements Countable, IteratorAggregate, Serializable
      * Get the inner priority queue instance
      *
      * @throws Exception\DomainException
-     * @return SplPriorityQueue
+     * @return \SplPriorityQueue<TPriority, TValue>
+     * @psalm-assert !null $this->queue
      */
     protected function getQueue()
     {
         if (null === $this->queue) {
-            $this->queue = new $this->queueClass();
+            /** @psalm-suppress UnsafeInstantiation */
+            $queue = new $this->queueClass();
+            /** @psalm-var \SplPriorityQueue<TPriority, TValue> $queue */
+            $this->queue = $queue;
+            /** @psalm-suppress DocblockTypeContradiction */
             if (! $this->queue instanceof \SplPriorityQueue) {
                 throw new Exception\DomainException(sprintf(
                     'PriorityQueue expects an internal queue of type SplPriorityQueue; received "%s"',
-                    get_class($this->queue)
+                    $this->queue::class
                 ));
             }
         }
+
         return $this->queue;
     }
 

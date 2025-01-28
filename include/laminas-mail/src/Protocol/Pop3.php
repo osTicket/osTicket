@@ -1,14 +1,23 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol;
 
+use Laminas\Mail\Protocol\Pop3\Response;
 use Laminas\Stdlib\ErrorHandler;
+
+use function explode;
+use function fclose;
+use function fgets;
+use function fwrite;
+use function is_string;
+use function md5;
+use function rtrim;
+use function stream_socket_enable_crypto;
+use function strpos;
+use function strtok;
+use function strtolower;
+use function substr;
+use function trim;
 
 class Pop3
 {
@@ -17,22 +26,21 @@ class Pop3
     /**
      * Default timeout in seconds for initiating session
      */
-    const TIMEOUT_CONNECTION = 30;
+    public const TIMEOUT_CONNECTION = 30;
 
     /**
      * saves if server supports top
+     *
      * @var null|bool
      */
-    public $hasTop = null;
+    public $hasTop;
 
-    /**
-     * socket to pop3
-     * @var null|resource
-     */
+    /** @var null|resource */
     protected $socket;
 
     /**
      * greeting timestamp for apop
+     *
      * @var null|string
      */
     protected $timestamp;
@@ -40,12 +48,15 @@ class Pop3
     /**
      * Public constructor
      *
-     * @param  string      $host  hostname or IP address of POP3 server, if given connect() is called
-     * @param  int|null    $port  port of POP3 server, null for default (110 or 995 for ssl)
-     * @param  bool|string $ssl   use ssl? 'SSL', 'TLS' or false
+     * @param  string      $host           hostname or IP address of POP3 server, if given connect() is called
+     * @param  int|null    $port           port of POP3 server, null for default (110 or 995 for ssl)
+     * @param  bool|string $ssl            use ssl? 'SSL', 'TLS' or false
+     * @param  bool        $novalidatecert set to true to skip SSL certificate validation
      */
-    public function __construct($host = '', $port = null, $ssl = false)
+    public function __construct($host = '', $port = null, $ssl = false, $novalidatecert = false)
     {
+        $this->setNoValidateCert($novalidatecert);
+
         if ($host) {
             $this->connect($host, $port, $ssl);
         }
@@ -70,7 +81,8 @@ class Pop3
      */
     public function connect($host, $port = null, $ssl = false)
     {
-        $isTls = false;
+        $transport = 'tcp';
+        $isTls     = false;
 
         if ($ssl) {
             $ssl = strtolower($ssl);
@@ -78,7 +90,7 @@ class Pop3
 
         switch ($ssl) {
             case 'ssl':
-                $host = 'ssl://' . $host;
+                $transport = 'ssl';
                 if (! $port) {
                     $port = 995;
                 }
@@ -92,15 +104,7 @@ class Pop3
                 }
         }
 
-        ErrorHandler::start();
-        $this->socket = fsockopen($host, $port, $errno, $errstr, self::TIMEOUT_CONNECTION);
-        $error = ErrorHandler::stop();
-        if (! $this->socket) {
-            throw new Exception\RuntimeException(sprintf(
-                'cannot connect to host %s',
-                ($error ? sprintf('; error = %s (errno = %d )', $error->getMessage(), $error->getCode()) : '')
-            ), 0, $error);
-        }
+        $this->socket = $this->setupSocket($transport, $host, $port, self::TIMEOUT_CONNECTION);
 
         $welcome = $this->readResponse();
 
@@ -132,7 +136,7 @@ class Pop3
     public function sendRequest($request)
     {
         ErrorHandler::start();
-        $result = fputs($this->socket, $request . "\r\n");
+        $result = fwrite($this->socket, $request . "\r\n");
         $error  = ErrorHandler::stop();
         if (! $result) {
             throw new Exception\RuntimeException('send failed - connection closed?', 0, $error);
@@ -148,6 +152,37 @@ class Pop3
      */
     public function readResponse($multiline = false)
     {
+        $response = $this->readRemoteResponse();
+
+        if ($response->status() != '+OK') {
+            throw new Exception\RuntimeException('last request failed');
+        }
+
+        $message = $response->message();
+
+        if ($multiline) {
+            $message = '';
+            $line    = fgets($this->socket);
+            while ($line && rtrim($line, "\r\n") != '.') {
+                if ($line[0] == '.') {
+                    $line = substr($line, 1);
+                }
+                $message .= $line;
+                $line     = fgets($this->socket);
+            }
+        }
+
+        return $message;
+    }
+
+    /**
+     * read a response
+     * return extracted status / message from response
+
+     * @throws Exception\RuntimeException
+     */
+    protected function readRemoteResponse(): Response
+    {
         ErrorHandler::start();
         $result = fgets($this->socket);
         $error  = ErrorHandler::stop();
@@ -157,29 +192,13 @@ class Pop3
 
         $result = trim($result);
         if (strpos($result, ' ')) {
-            list($status, $message) = explode(' ', $result, 2);
+            [$status, $message] = explode(' ', $result, 2);
         } else {
-            $status = $result;
+            $status  = $result;
             $message = '';
         }
 
-        if ($status != '+OK') {
-            throw new Exception\RuntimeException('last request failed');
-        }
-
-        if ($multiline) {
-            $message = '';
-            $line = fgets($this->socket);
-            while ($line && rtrim($line, "\r\n") != '.') {
-                if ($line[0] == '.') {
-                    $line = substr($line, 1);
-                }
-                $message .= $line;
-                $line = fgets($this->socket);
-            };
-        }
-
-        return $message;
+        return new Response($status, $message);
     }
 
     /**
@@ -187,6 +206,7 @@ class Pop3
      *
      * @see sendRequest()
      * @see readResponse()
+     *
      * @param  string $request    request
      * @param  bool   $multiline  multiline response?
      * @return string             result from readResponse()
@@ -205,7 +225,7 @@ class Pop3
         if ($this->socket) {
             try {
                 $this->request('QUIT');
-            } catch (Exception\ExceptionInterface $e) {
+            } catch (Exception\ExceptionInterface) {
                 // ignore error - we're closing the socket anyway
             }
 
@@ -213,7 +233,6 @@ class Pop3
             $this->socket = null;
         }
     }
-
 
     /**
      * Get capabilities from POP3 server
@@ -225,7 +244,6 @@ class Pop3
         $result = $this->request('CAPA', true);
         return explode("\n", $result);
     }
-
 
     /**
      * Login to POP3 server. Can use APOP
@@ -240,7 +258,7 @@ class Pop3
             try {
                 $this->request("APOP $user " . md5($this->timestamp . $password));
                 return;
-            } catch (Exception\ExceptionInterface $e) {
+            } catch (Exception\ExceptionInterface) {
                 // ignore
             }
         }
@@ -248,7 +266,6 @@ class Pop3
         $this->request("USER $user");
         $this->request("PASS $password");
     }
-
 
     /**
      * Make STAT call for message count and size sum
@@ -259,12 +276,11 @@ class Pop3
     public function status(&$messages, &$octets)
     {
         $messages = 0;
-        $octets = 0;
-        $result = $this->request('STAT');
+        $octets   = 0;
+        $result   = $this->request('STAT');
 
-        list($messages, $octets) = explode(' ', $result);
+        [$messages, $octets] = explode(' ', $result);
     }
-
 
     /**
      * Make LIST call for size of message(s)
@@ -277,22 +293,21 @@ class Pop3
         if ($msgno !== null) {
             $result = $this->request("LIST $msgno");
 
-            list(, $result) = explode(' ', $result);
+            [, $result] = explode(' ', $result);
             return (int) $result;
         }
 
-        $result = $this->request('LIST', true);
+        $result   = $this->request('LIST', true);
         $messages = [];
-        $line = strtok($result, "\n");
+        $line     = strtok($result, "\n");
         while ($line) {
-            list($no, $size) = explode(' ', trim($line));
+            [$no, $size]         = explode(' ', trim($line));
             $messages[(int) $no] = (int) $size;
-            $line = strtok("\n");
+            $line                = strtok("\n");
         }
 
         return $messages;
     }
-
 
     /**
      * Make UIDL call for getting a uniqueid
@@ -305,25 +320,24 @@ class Pop3
         if ($msgno !== null) {
             $result = $this->request("UIDL $msgno");
 
-            list(, $result) = explode(' ', $result);
+            [, $result] = explode(' ', $result);
             return $result;
         }
 
         $result = $this->request('UIDL', true);
 
-        $result = explode("\n", $result);
+        $result   = explode("\n", $result);
         $messages = [];
         foreach ($result as $line) {
             if (! $line) {
                 continue;
             }
-            list($no, $id) = explode(' ', trim($line), 2);
+            [$no, $id]           = explode(' ', trim($line), 2);
             $messages[(int) $no] = $id;
         }
 
         return $messages;
     }
-
 
     /**
      * Make TOP call for getting headers and maybe some body lines
@@ -344,13 +358,13 @@ class Pop3
         if ($this->hasTop === false) {
             if ($fallback) {
                 return $this->retrieve($msgno);
-            } else {
-                throw new Exception\RuntimeException('top not supported and no fallback wanted');
             }
+
+            throw new Exception\RuntimeException('top not supported and no fallback wanted');
         }
         $this->hasTop = true;
 
-        $lines = (! $lines || $lines < 1) ? 0 : (int) $lines;
+        $lines = ! $lines || $lines < 1 ? 0 : (int) $lines;
 
         try {
             $result = $this->request("TOP $msgno $lines", true);
@@ -374,8 +388,7 @@ class Pop3
      */
     public function retrieve($msgno)
     {
-        $result = $this->request("RETR $msgno", true);
-        return $result;
+        return $this->request("RETR $msgno", true);
     }
 
     /**
@@ -389,7 +402,7 @@ class Pop3
     /**
      * Make a DELE count to remove a message
      *
-     * @param $msgno
+     * @param int $msgno
      */
     public function delete($msgno)
     {

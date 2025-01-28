@@ -545,8 +545,12 @@ class Mail_Parse {
             return $files;
         }
 
-        if($part==null)
+        if($part==null) {
             $part=$this->getStruct();
+            if (!$part->parts)
+                if($result=$this->getAttachments($part))
+                    $files=array_merge($files,$result);
+        }
 
         if($part->parts){
             foreach($part->parts as $k=>$p){

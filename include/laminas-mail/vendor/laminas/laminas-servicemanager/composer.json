@@ -13,71 +13,88 @@
     ],
     "homepage": "https://laminas.dev",
     "support": {
-        "docs": "https://docs.laminas.dev/laminas-servicemanager/",
         "issues": "https://github.com/laminas/laminas-servicemanager/issues",
-        "source": "https://github.com/laminas/laminas-servicemanager",
-        "rss": "https://github.com/laminas/laminas-servicemanager/releases.atom",
+        "forum": "https://discourse.laminas.dev",
         "chat": "https://laminas.dev/chat",
-        "forum": "https://discourse.laminas.dev"
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.3-dev",
-            "dev-develop": "4.0-dev"
-        }
+        "source": "https://github.com/laminas/laminas-servicemanager",
+        "docs": "https://docs.laminas.dev/laminas-servicemanager/",
+        "rss": "https://github.com/laminas/laminas-servicemanager/releases.atom"
     },
     "require": {
-        "php": "^5.6 || ^7.0",
-        "container-interop/container-interop": "^1.2",
-        "laminas/laminas-stdlib": "^3.2.1",
-        "laminas/laminas-zendframework-bridge": "^1.0",
+        "php": "~8.1.0 || ~8.2.0",
+        "laminas/laminas-stdlib": "^3.17",
         "psr/container": "^1.0"
     },
     "require-dev": {
-        "laminas/laminas-coding-standard": "~1.0.0",
-        "mikey179/vfsstream": "^1.6.5",
-        "ocramius/proxy-manager": "^1.0 || ^2.0",
-        "phpbench/phpbench": "^0.13.0",
-        "phpunit/phpunit": "^5.7.25 || ^6.4.4"
+        "composer/package-versions-deprecated": "^1.11.99.5",
+        "friendsofphp/proxy-manager-lts": "^1.0.14",
+        "laminas/laminas-code": "^4.10.0",
+        "laminas/laminas-coding-standard": "~2.5.0",
+        "laminas/laminas-container-config-test": "^0.8",
+        "laminas/laminas-dependency-plugin": "^2.2",
+        "mikey179/vfsstream": "^1.6.11",
+        "phpbench/phpbench": "^1.2.9",
+        "phpunit/phpunit": "^10.0.17",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "vimeo/psalm": "^5.8.0"
+    },
+    "replace": {
+        "container-interop/container-interop": "^1.2.0"
+    },
+    "conflict": {
+        "ext-psr": "*",
+        "laminas/laminas-code": "<4.10.0",
+        "zendframework/zend-code": "<3.3.1",
+        "zendframework/zend-servicemanager": "*"
     },
     "provide": {
-        "container-interop/container-interop-implementation": "^1.2",
         "psr/container-implementation": "^1.0"
     },
     "suggest": {
-        "laminas/laminas-stdlib": "laminas-stdlib ^2.5 if you wish to use the MergeReplaceKey or MergeRemoveKey features in Config instances",
-        "ocramius/proxy-manager": "ProxyManager 1.* to handle lazy initialization of services"
+        "friendsofphp/proxy-manager-lts": "ProxyManager ^2.1.1 to handle lazy initialization of services"
     },
     "autoload": {
         "psr-4": {
             "Laminas\\ServiceManager\\": "src/"
-        }
+        },
+        "files": [
+            "src/autoload.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
             "LaminasTest\\ServiceManager\\": "test/",
             "LaminasBench\\ServiceManager\\": "benchmarks/"
-        }
+        },
+        "files": [
+            "test/autoload.php"
+        ]
     },
     "bin": [
         "bin/generate-deps-for-config-factory",
         "bin/generate-factory-for-class"
     ],
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true,
+            "laminas/laminas-dependency-plugin": true
+        },
+        "platform": {
+            "php": "8.1.99"
+        },
+        "sort-packages": true
+    },
     "scripts": {
+        "benchmark": "phpbench run --revs=2 --iterations=2 --report=aggregate",
         "check": [
             "@cs-check",
             "@test"
         ],
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
         "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "upload-coverage": "coveralls -v"
-    },
-    "replace": {
-        "zendframework/zend-servicemanager": "^3.4.0"
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

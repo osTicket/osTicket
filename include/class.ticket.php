@@ -4237,7 +4237,8 @@ implements RestrictedAccess, Threadable, Searchable {
             $errors += $form->errors();
 
         if ($vars['topicId']) {
-            if (($topic=Topic::lookup($vars['topicId']))
+            if (is_numeric($vars['topicId'])
+                    && ($topic=Topic::lookup((int) $vars['topicId']))
                     && $topic->isActive()) {
                 foreach ($topic_forms as $topic_form) {
                     $TF = $topic_form->getForm($vars);

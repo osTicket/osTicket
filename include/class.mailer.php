@@ -593,7 +593,7 @@ class Mailer {
                             // get Account Email
                             (string) $smtpAccount->getEmail()->getEmail(),
                             // Try to keep the name if available
-                            $this->getFromName() ?: $smtpAccount->getName());
+                            $this->getFromName() ?: $smtpAccount->getName() ?: $this->getEmail());
                 }
                 // Attempt to send the Message.
                 if (($smtp=$smtpAccount->getSmtpConnection())

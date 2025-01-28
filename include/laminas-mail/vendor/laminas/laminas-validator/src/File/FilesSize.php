@@ -1,34 +1,36 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Stdlib\ArrayUtils;
 use Laminas\Stdlib\ErrorHandler;
 use Laminas\Validator\Exception;
+use Laminas\Validator\Exception\InvalidArgumentException;
 use Traversable;
+
+use function array_key_exists;
+use function array_shift;
+use function filesize;
+use function func_get_args;
+use function func_num_args;
+use function is_array;
+use function is_readable;
+use function is_scalar;
+use function is_string;
 
 /**
  * Validator for the size of all files which will be validated in sum
- *
  */
 class FilesSize extends Size
 {
     /**
      * @const string Error constants
      */
-    const TOO_BIG      = 'fileFilesSizeTooBig';
-    const TOO_SMALL    = 'fileFilesSizeTooSmall';
-    const NOT_READABLE = 'fileFilesSizeNotReadable';
+    public const TOO_BIG      = 'fileFilesSizeTooBig';
+    public const TOO_SMALL    = 'fileFilesSizeTooSmall';
+    public const NOT_READABLE = 'fileFilesSizeNotReadable';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::TOO_BIG      => "All files in sum should have a maximum size of '%max%' but '%size%' were detected",
         self::TOO_SMALL    => "All files in sum should have a minimum size of '%min%' but '%size%' were detected",
@@ -49,7 +51,7 @@ class FilesSize extends Size
      * It also accepts an array with the keys 'min' and 'max'
      *
      * @param  int|array|Traversable $options Options for this validator
-     * @throws \Laminas\Validator\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct($options = null)
     {

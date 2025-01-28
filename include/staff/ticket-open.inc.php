@@ -391,7 +391,7 @@ if ($_POST)
                 <textarea
                     class="<?php if ($cfg->isRichTextEnabled()) echo 'richtext';
                         ?> draft draft-delete" data-signature="<?php
-                        echo Format::htmlchars(Format::viewableImages($signature)); ?>"
+                        echo Format::viewableImages(Format::htmlchars($signature, true)); ?>"
                     data-signature-field="signature" data-dept-field="deptId"
                     placeholder="<?php echo __('Initial response for the ticket'); ?>"
                     name="response" id="response" cols="21" rows="8"

@@ -2035,7 +2035,7 @@ class TicketsAjaxAPI extends AjaxController {
             } else {
                 $filename = sprintf('%s Tickets-%s.csv',
                         $queue->getName(),
-                        strftime('%Y%m%d'));
+                        date('Ymd'));
             }
 
             try {

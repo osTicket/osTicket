@@ -11,8 +11,8 @@ if($faq && $faq->getId()){
     $info=$faq->getHashtable();
     $info['id']=$faq->getId();
     $info['topics']=$faq->getHelpTopicsIds();
-    $info['answer']=Format::viewableImages($faq->getAnswer());
-    $info['notes']=Format::viewableImages($faq->getNotes());
+    $info['answer']=$faq->getAnswer();
+    $info['notes']=$faq->getNotes();
     $qs += array('id' => $faq->getId());
     $langs = $cfg->getSecondaryLanguages();
     $translations = $faq->getAllTranslations();
@@ -22,7 +22,7 @@ if($faq && $faq->getId()){
                 $trans = $t->getComplex();
                 $info['trans'][$tag] = array(
                     'question' => $trans['question'],
-                    'answer' => Format::viewableImages($trans['answer']),
+                    'answer' => $trans['answer'],
                 );
                 break;
             }
@@ -188,7 +188,7 @@ if ($faq && count($langs) > 1) { ?>
         data-width="670px"
         class="richtext draft" <?php
 list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq', $namespace, $answer);
-echo $attrs; ?>><?php echo $draft ?: $answer;
+echo $attrs; ?>><?php echo $draft ?: Format::viewableImages($answer);
         ?></textarea>
 
     </div>
@@ -250,7 +250,7 @@ echo $attrs; ?>><?php echo $draft ?: $answer;
     </div>
     <div style="margin-top:10px"></div>
     <textarea class="richtext no-bar" name="notes" cols="21"
-        rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
+        rows="8" style="width: 80%;"><?php echo Format::viewableImages($info['notes']); ?></textarea>
 </div>
 
 <p style="text-align:center;">

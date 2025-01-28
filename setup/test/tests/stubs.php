@@ -12,6 +12,7 @@ class mysqli {
     function set_charset() {}
     function autocommit() {}
     function rollback() {}
+    function ping() {}
 }
 
 class mysqli_stmt {
@@ -186,6 +187,10 @@ class NumberFormatter {
 class Collator {
     function setStrength() {}
     function compare() {}
+}
+
+class Aws {
+    function createRoute53() {}
 }
 
 class Aws_Route53_Client {

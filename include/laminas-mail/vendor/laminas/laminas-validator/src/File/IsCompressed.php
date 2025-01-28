@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Stdlib\ArrayUtils;
@@ -19,13 +13,11 @@ class IsCompressed extends MimeType
     /**
      * @const string Error constants
      */
-    const FALSE_TYPE   = 'fileIsCompressedFalseType';
-    const NOT_DETECTED = 'fileIsCompressedNotDetected';
-    const NOT_READABLE = 'fileIsCompressedNotReadable';
+    public const FALSE_TYPE   = 'fileIsCompressedFalseType';
+    public const NOT_DETECTED = 'fileIsCompressedNotDetected';
+    public const NOT_READABLE = 'fileIsCompressedNotReadable';
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::FALSE_TYPE   => "File is not compressed, '%type%' detected",
         self::NOT_DETECTED => 'The mimetype could not be detected from the file',

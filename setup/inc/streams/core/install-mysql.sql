@@ -895,7 +895,7 @@ CREATE TABLE IF NOT EXISTS `%TABLE_PREFIX%content` (
 DROP TABLE IF EXISTS `%TABLE_PREFIX%plugin`;
 CREATE TABLE `%TABLE_PREFIX%plugin` (
   `id` int(11) unsigned not null auto_increment,
-  `name` varchar(30) not null,
+  `name` varchar(255) not null,
   `install_path` varchar(60) not null,
   `isphar` tinyint(1) not null default 0,
   `isactive` tinyint(1) not null default 0,
@@ -911,7 +911,7 @@ CREATE TABLE `%TABLE_PREFIX%plugin_instance` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `plugin_id` int(11) unsigned NOT NULL,
   `flags` int(10) NOT NULL DEFAULT 0,
-  `name` varchar(128) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
   `notes` text DEFAULT NULL,
   `created` datetime NOT NULL,
   `updated` datetime DEFAULT NULL,

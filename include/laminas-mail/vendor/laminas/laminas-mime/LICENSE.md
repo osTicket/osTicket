@@ -1,5 +1,4 @@
-Copyright (c) 2019-2020, Laminas Foundation
-All rights reserved.
+Copyright (c) 2020 Laminas Project a Series of LF Projects, LLC.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

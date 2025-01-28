@@ -1,26 +1,29 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-loader for the canonical source repository
- * @copyright https://github.com/laminas/laminas-loader/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-loader/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Loader;
 
+use Laminas\Loader\SplAutoloader;
+use Laminas\Loader\StandardAutoloader;
 use Traversable;
 
-if (class_exists('Laminas\Loader\AutoloaderFactory')) {
+use function class_exists;
+use function is_array;
+use function is_subclass_of;
+use function spl_autoload_unregister;
+use function sprintf;
+use function strrchr;
+use function substr;
+
+if (class_exists(AutoloaderFactory::class)) {
     return;
 }
 
+// phpcs:ignore WebimpressCodingStandard.NamingConventions.AbstractClass.Prefix
 abstract class AutoloaderFactory
 {
-    const STANDARD_AUTOLOADER = 'Laminas\Loader\StandardAutoloader';
+    public const STANDARD_AUTOLOADER = StandardAutoloader::class;
 
-    /**
-     * @var array All autoloaders registered using the factory
-     */
+    /** @var array All autoloaders registered using the factory */
     protected static $loaders = [];
 
     /**
@@ -51,9 +54,9 @@ abstract class AutoloaderFactory
      *
      * @param  array|Traversable $options (optional) options to use. Defaults to Laminas\Loader\StandardAutoloader
      * @return void
-     * @throws Exception\InvalidArgumentException for invalid options
-     * @throws Exception\InvalidArgumentException for unloadable autoloader classes
-     * @throws Exception\DomainException for autoloader classes not implementing SplAutoloader
+     * @throws Exception\InvalidArgumentException For invalid options.
+     * @throws Exception\InvalidArgumentException For unloadable autoloader classes.
+     * @throws Exception\DomainException For autoloader classes not implementing SplAutoloader.
      */
     public static function factory($options = null)
     {
@@ -68,7 +71,7 @@ abstract class AutoloaderFactory
             return;
         }
 
-        if (! is_array($options) && ! ($options instanceof Traversable)) {
+        if (! is_array($options) && ! $options instanceof Traversable) {
             require_once __DIR__ . '/Exception/InvalidArgumentException.php';
             throw new Exception\InvalidArgumentException(
                 'Options provided must be an array or Traversable'
@@ -85,7 +88,7 @@ abstract class AutoloaderFactory
                     );
                 }
 
-                if (! is_subclass_of($class, 'Laminas\Loader\SplAutoloader')) {
+                if (! is_subclass_of($class, SplAutoloader::class)) {
                     require_once 'Exception/InvalidArgumentException.php';
                     throw new Exception\InvalidArgumentException(
                         sprintf('Autoloader class %s must implement Laminas\\Loader\\SplAutoloader', $class)
@@ -122,7 +125,7 @@ abstract class AutoloaderFactory
      *
      * @param  string $class
      * @return SplAutoloader
-     * @throws Exception\InvalidArgumentException for non-registered class
+     * @throws Exception\InvalidArgumentException For non-registered class.
      */
     public static function getRegisteredAutoloader($class)
     {
@@ -180,13 +183,12 @@ abstract class AutoloaderFactory
             return static::$standardAutoloader;
         }
 
-
         if (! class_exists(static::STANDARD_AUTOLOADER)) {
             // Extract the filename from the classname
             $stdAutoloader = substr(strrchr(static::STANDARD_AUTOLOADER, '\\'), 1);
             require_once __DIR__ . "/$stdAutoloader.php";
         }
-        $loader = new StandardAutoloader();
+        $loader                     = new StandardAutoloader();
         static::$standardAutoloader = $loader;
         return static::$standardAutoloader;
     }
@@ -194,10 +196,10 @@ abstract class AutoloaderFactory
     /**
      * Checks if the object has this class as one of its parents
      *
+     * @deprecated since laminas 2.3 requires PHP >= 5.3.23
+     *
      * @see https://bugs.php.net/bug.php?id=53727
      * @see https://github.com/zendframework/zf2/pull/1807
-     *
-     * @deprecated since laminas 2.3 requires PHP >= 5.3.23
      *
      * @param  string $className
      * @param  string $type

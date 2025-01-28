@@ -115,7 +115,7 @@ $info = $team->getInfo();
         <tr>
             <td colspan=2>
                 <textarea class="richtext no-bar" name="notes" cols="21"
-                    rows="8" style="width: 80%;"><?php echo Format::htmlchars($team->notes); ?></textarea>
+                    rows="8" style="width: 80%;"><?php echo Format::viewableImages(Format::htmlchars($team->notes, true)); ?></textarea>
             </td>
         </tr>
     </tbody>

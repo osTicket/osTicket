@@ -1,12 +1,21 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-stdlib for the canonical source repository
- * @copyright https://github.com/laminas/laminas-stdlib/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-stdlib/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\Stdlib;
+
+use function function_exists;
+use function fwrite;
+use function getenv;
+use function posix_isatty;
+use function preg_replace;
+use function sprintf;
+use function str_replace;
+
+use const DIRECTORY_SEPARATOR;
+use const PHP_EOL;
+use const STDERR;
+use const STDOUT;
 
 /**
  * Utilities for console tooling.
@@ -28,32 +37,26 @@ namespace Laminas\Stdlib;
  */
 class ConsoleHelper
 {
-    const COLOR_GREEN = "\033[32m";
-    const COLOR_RED   = "\033[31m";
-    const COLOR_RESET = "\033[0m";
+    public const COLOR_GREEN = "\033[32m";
+    public const COLOR_RED   = "\033[31m";
+    public const COLOR_RESET = "\033[0m";
 
-    const HIGHLIGHT_INFO  = 'info';
-    const HIGHLIGHT_ERROR = 'error';
+    public const HIGHLIGHT_INFO  = 'info';
+    public const HIGHLIGHT_ERROR = 'error';
 
-    private $highlightMap = [
+    /** @psalm-var array<ConsoleHelper::HIGHLIGHT_*, ConsoleHelper::COLOR_GREEN|ConsoleHelper::COLOR_RED> */
+    private array $highlightMap = [
         self::HIGHLIGHT_INFO  => self::COLOR_GREEN,
         self::HIGHLIGHT_ERROR => self::COLOR_RED,
     ];
 
-    /**
-     * @var string Exists only for testing.
-     */
-    private $eol = PHP_EOL;
+    /** @var string Exists only for testing. */
+    private string $eol = PHP_EOL;
 
-    /**
-     * @var resource Exists only for testing.
-     */
+    /** @var resource Exists only for testing. */
     private $stderr = STDERR;
 
-    /**
-     * @var bool
-     */
-    private $supportsColor;
+    private bool $supportsColor;
 
     /**
      * @param resource $resource
@@ -147,7 +150,7 @@ class ConsoleHelper
     /**
      * Ensure newlines are appropriate for the current terminal.
      *
-     * @param string
+     * @param string $string
      * @return string
      */
     private function formatNewlines($string)

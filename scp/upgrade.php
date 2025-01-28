@@ -25,7 +25,7 @@ if($_POST && $_POST['s'] && !$upgrader->isAborted()) {
             if(!$ost->isUpgradePending()) {
                 $errors['err']=__('Nothing to do! System already upgraded to the current version');
             } elseif(!$upgrader->isUpgradable()) {
-                $errors['err']=__('The upgrader does NOT support upgrading from the current vesion!');
+                $errors['err']=__('The upgrader does NOT support upgrading from the current version!');
             } elseif(!$upgrader->check_prereq()) {
                 $errors['prereq']=__('Minimum requirements not met! Refer to Release Notes for more information');
             } elseif(!strcasecmp(basename(CONFIG_FILE), 'settings.php')) {

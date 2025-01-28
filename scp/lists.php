@@ -25,18 +25,19 @@ if ($criteria) {
 $errors = array();
 
 if($_POST) {
+    $info=Format::htmlchars($_POST, true);
     switch(strtolower($_REQUEST['do'])) {
         case 'update':
             if (!$list)
                 $errors['err']=sprintf(__('%s: Unknown or invalid ID.'),
                     __('custom list'));
-            elseif ($list->update($_POST, $errors)) {
+            elseif ($list->update($info, $errors)) {
                 // Update item sorting
                 if ($list->getSortMode() == 'SortCol') {
                     foreach ($list->getAllItems() as $item) {
                         $id = $item->getId();
-                        if (isset($_POST["sort-{$id}"])) {
-                            $item->sort = $_POST["sort-$id"];
+                        if (isset($info["sort-{$id}"])) {
+                            $item->sort = $info["sort-$id"];
                             $item->save();
                         }
                     }
@@ -46,22 +47,21 @@ if($_POST) {
                 if (!$errors && ($form = $list->getForm())) {
                     $names = array();
                     $fields = $form->getDynamicFields();
-                    $vars = Format::htmlchars($_POST);
                     foreach ($fields as $field) {
                         $id = $field->get('id');
-                        if ($vars["delete-prop-$id"] == 'on' && $field->isDeletable()) {
+                        if ($info["delete-prop-$id"] == 'on' && $field->isDeletable()) {
                             $fields->remove($field);
                             // Don't bother updating the field
                             continue;
                         }
-                        if (isset($vars["type-$id"]) && $field->isChangeable())
-                            $field->set('type', $vars["type-$id"]);
-                        if (isset($vars["name-$id"]) && !$field->isNameForced())
-                            $field->set('name', $vars["name-$id"]);
+                        if (isset($info["type-$id"]) && $field->isChangeable())
+                            $field->set('type', $info["type-$id"]);
+                        if (isset($info["name-$id"]) && !$field->isNameForced())
+                            $field->set('name', $info["name-$id"]);
 
                         foreach (array('sort','label') as $f) {
-                            if (isset($vars["prop-$f-$id"])) {
-                                $field->set($f, $vars["prop-$f-$id"]);
+                            if (isset($info["prop-$f-$id"])) {
+                                $field->set($f, $info["prop-$f-$id"]);
                             }
                         }
                         if (in_array($field->get('name'), $names))
@@ -100,7 +100,7 @@ if($_POST) {
 
             break;
         case 'add':
-            if ($list=DynamicList::add($_POST, $errors)) {
+            if ($list=DynamicList::add($info, $errors)) {
                  $form = $list->getForm(true);
                  Messages::success(sprintf(__('Successfully added %s.'), __('this custom list')));
                  $type = array('type' => 'created');
@@ -118,15 +118,15 @@ if($_POST) {
             break;
 
         case 'mass_process':
-            if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
+            if(!$info['ids'] || !is_array($info['ids']) || !count($info['ids'])) {
                 $errors['err'] = sprintf(__('You must select at least %s.'),
                     __('one custom list'));
             } else {
-                $count = count($_POST['ids']);
-                switch(strtolower($_POST['a'])) {
+                $count = count($info['ids']);
+                switch(strtolower($info['a'])) {
                     case 'delete':
                         $i=0;
-                        foreach($_POST['ids'] as $k=>$v) {
+                        foreach($info['ids'] as $k=>$v) {
                             if(($t=DynamicList::lookup($v)) && $t->delete())
                                 $i++;
                         }
@@ -150,7 +150,7 @@ if($_POST) {
                     __('custom list'));
             }
             else {
-                $status = $list->importFromPost($_FILES['import'] ?: $_POST['pasted']);
+                $status = $list->importFromPost($_FILES['import'] ?: $info['pasted']);
                 if (is_numeric($status))
                     $msg = sprintf(__('Successfully imported %1$d %2$s'), $status,
                         _N('list item', 'list items', $status));
@@ -161,14 +161,14 @@ if($_POST) {
     }
 
     if ($form) {
-        for ($i=0; isset($_POST["prop-sort-new-$i"]); $i++) {
-            if (!$_POST["prop-label-new-$i"])
+        for ($i=0; isset($info["prop-sort-new-$i"]); $i++) {
+            if (!$info["prop-label-new-$i"])
                 continue;
             $field = DynamicFormField::create(array(
-                'sort' => $_POST["prop-sort-new-$i"] ?: ++$max_sort,
-                'label' => $_POST["prop-label-new-$i"],
-                'type' => $_POST["type-new-$i"],
-                'name' => $_POST["name-new-$i"],
+                'sort' => $info["prop-sort-new-$i"] ?: ++$max_sort,
+                'label' => $info["prop-label-new-$i"],
+                'type' => $info["type-new-$i"],
+                'name' => $info["name-new-$i"],
                 'flags' => DynamicFormField::FLAG_ENABLED
                     | DynamicFormField::FLAG_AGENT_VIEW
                     | DynamicFormField::FLAG_AGENT_EDIT,

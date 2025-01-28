@@ -1,40 +1,44 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\File;
 
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
+use Psr\Http\Message\UploadedFileInterface;
+use Traversable;
+
+use function array_key_exists;
+use function array_shift;
+use function count;
+use function dirname;
+use function func_get_args;
+use function func_num_args;
+use function is_array;
+use function is_numeric;
+use function is_string;
+
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Validator for counting all given files
- *
  */
 class Count extends AbstractValidator
 {
     /**#@+
+     *
      * @const string Error constants
      */
-    const TOO_MANY = 'fileCountTooMany';
-    const TOO_FEW  = 'fileCountTooFew';
+    public const TOO_MANY = 'fileCountTooMany';
+    public const TOO_FEW  = 'fileCountTooFew';
     /**#@-*/
 
-    /**
-     * @var array Error message templates
-     */
+    /** @var array Error message templates */
     protected $messageTemplates = [
         self::TOO_MANY => "Too many files, maximum '%max%' are allowed but '%count%' are given",
         self::TOO_FEW  => "Too few files, minimum '%min%' are expected but '%count%' are given",
     ];
 
-    /**
-     * @var array Error message template variables
-     */
+    /** @var array Error message template variables */
     protected $messageVariables = [
         'min'   => ['options' => 'min'],
         'max'   => ['options' => 'max'],
@@ -50,6 +54,7 @@ class Count extends AbstractValidator
 
     /**
      * Internal file array
+     *
      * @var array
      */
     protected $files;
@@ -60,8 +65,8 @@ class Count extends AbstractValidator
      * @var array
      */
     protected $options = [
-        'min' => null,  // Minimum file count, if null there is no minimum file count
-        'max' => null,  // Maximum file count, if null there is no maximum file count
+        'min' => null, // Minimum file count, if null there is no minimum file count
+        'max' => null, // Maximum file count, if null there is no maximum file count
     ];
 
     /**
@@ -75,12 +80,12 @@ class Count extends AbstractValidator
      * 'min': Minimum filecount
      * 'max': Maximum filecount
      *
-     * @param  int|array|\Traversable $options Options for the adapter
+     * @param int|array|Traversable $options Options for the adapter
      */
     public function __construct($options = null)
     {
         if (1 < func_num_args()) {
-            $args = func_get_args();
+            $args    = func_get_args();
             $options = [
                 'min' => array_shift($args),
                 'max' => array_shift($args),
@@ -109,7 +114,7 @@ class Count extends AbstractValidator
      *
      * @param  int|array $min The minimum file count
      * @return $this Provides a fluent interface
-     * @throws Exception\InvalidArgumentException When min is greater than max
+     * @throws Exception\InvalidArgumentException When min is greater than max.
      */
     public function setMin($min)
     {
@@ -147,7 +152,7 @@ class Count extends AbstractValidator
      *
      * @param  int|array $max The maximum file count
      * @return $this Provides a fluent interface
-     * @throws Exception\InvalidArgumentException When max is smaller than min
+     * @throws Exception\InvalidArgumentException When max is smaller than min.
      */
     public function setMax($max)
     {
@@ -173,7 +178,7 @@ class Count extends AbstractValidator
     /**
      * Adds a file for validation
      *
-     * @param string|array $file
+     * @param string|array|UploadedFileInterface $file
      * @return $this
      */
     public function addFile($file)
@@ -190,6 +195,10 @@ class Count extends AbstractValidator
             }
         }
 
+        if ($file instanceof UploadedFileInterface && is_string($file->getClientFilename())) {
+            $this->files[(string) $file->getClientFilename()] = $file->getClientFilename();
+        }
+
         return $this;
     }
 
@@ -198,18 +207,22 @@ class Count extends AbstractValidator
      * not bigger than max (when max is not null). Attention: When checking with set min you
      * must give all files with the first call, otherwise you will get a false.
      *
-     * @param  string|array $value Filenames to check for count
-     * @param  array        $file  File data from \Laminas\File\Transfer\Transfer
+     * @param  string|array|UploadedFileInterface $value Filenames to check for count
+     * @param  array                              $file  File data from \Laminas\File\Transfer\Transfer
      * @return bool
      */
     public function isValid($value, $file = null)
     {
-        if (($file !== null) && ! array_key_exists('destination', $file)) {
-            $file['destination'] = dirname($value);
-        }
+        if ($this->isUploadedFilterInterface($value)) {
+            $this->addFile($value);
+        } elseif ($file !== null) {
+            if (! array_key_exists('destination', $file)) {
+                $file['destination'] = dirname($value);
+            }
 
-        if (($file !== null) && array_key_exists('tmp_name', $file)) {
-            $value = $file['destination'] . DIRECTORY_SEPARATOR . $file['name'];
+            if (array_key_exists('tmp_name', $file)) {
+                $value = $file['destination'] . DIRECTORY_SEPARATOR . $file['name'];
+            }
         }
 
         if (($file === null) || ! empty($file['tmp_name'])) {
@@ -217,6 +230,7 @@ class Count extends AbstractValidator
         }
 
         $this->count = count($this->files);
+
         if (($this->getMax() !== null) && ($this->count > $this->getMax())) {
             return $this->throwError($file, self::TOO_MANY);
         }
@@ -248,6 +262,21 @@ class Count extends AbstractValidator
         }
 
         $this->error($errorType);
+        return false;
+    }
+
+    /**
+     * Checks if the type of uploaded file is UploadedFileInterface.
+     *
+     * @param  string|array|UploadedFileInterface $value Filenames to check for count
+     * @return bool
+     */
+    private function isUploadedFilterInterface($value)
+    {
+        if ($value instanceof UploadedFileInterface) {
+            return true;
+        }
+
         return false;
     }
 }

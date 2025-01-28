@@ -1,12 +1,8 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\Barcode;
+
+use function strlen;
 
 class Upce extends AbstractAdapter
 {
@@ -28,7 +24,7 @@ class Upce extends AbstractAdapter
      */
     public function hasValidLength($value)
     {
-        if (strlen($value) != 8) {
+        if (strlen($value) !== 8) {
             $this->useChecksum(false);
         } else {
             $this->useChecksum(true);

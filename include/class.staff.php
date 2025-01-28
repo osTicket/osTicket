@@ -1503,6 +1503,7 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'classes' => 'span12',
+                    'length' => '128',
                 ),
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false)),
@@ -1522,6 +1523,7 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'classes' => 'span12',
+                    'length' => '128',
                 ),
                 'visibility' => new VisibilityConstraint(
                     new Q(array('welcome_email' => false)),
@@ -1565,6 +1567,7 @@ extends AbstractForm {
                 'required' => true,
                 'configuration' => array(
                     'autofocus' => true,
+                    'length' => '128',
                 ),
                 'validator' => 'noop',
             )),
@@ -1572,6 +1575,9 @@ extends AbstractForm {
                 'label' => __('Enter a new password'),
                 'placeholder' => __('New Password'),
                 'required' => true,
+                'configuration' => array(
+                    'length' => '128',
+                ),
                 'validator' => '',
                 'validators' => function($self, $v) {
                     try {
@@ -1584,6 +1590,9 @@ extends AbstractForm {
             'passwd2' => new PasswordField(array(
                 'placeholder' => __('Confirm Password'),
                 'required' => true,
+                'configuration' => array(
+                    'length' => '128',
+                ),
                 'validator' => '',
                 'validators' => function($self, $v) {
                     try {

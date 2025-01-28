@@ -68,7 +68,7 @@ namespace osTicket\Session {
             } else {
                 // local handler is being used force this namespace
                 $handler = sprintf('%s\%s', __NAMESPACE__, $backend);
-                $impl = 'AbstractSessionhandler';
+                $impl = ($bk == 'system') ? 'SystemSessionHandler' : 'AbstractSessionHandler';
             }
 
             // Make sure handler / backend class exits
@@ -544,7 +544,7 @@ namespace osTicket\Session {
      * Use this session handler when you don't care about session data.
      *
      */
-    class NoopSessionStorageBackend extends AbstractSessionhandler {
+    class NoopSessionStorageBackend extends AbstractSessionHandler {
         public function read($id) {
             return "";
         }

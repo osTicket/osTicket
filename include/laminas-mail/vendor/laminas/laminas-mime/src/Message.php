@@ -1,17 +1,30 @@
-<?php
-
-/**
- * @see       https://github.com/laminas/laminas-mime for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mime/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mime/blob/master/LICENSE.md New BSD License
- */
+<?php // phpcs:disable WebimpressCodingStandard.NamingConventions.ValidVariableName.NotCamelCaps,PSR12.Files.FileHeader.SpacingAfterBlock,PSR2.Methods.MethodDeclaration.Underscore
 
 namespace Laminas\Mime;
 
+use Laminas\Mail\Header\HeaderInterface;
+use Laminas\Mime\Mime;
+use Laminas\Mime\Part;
+
+use function array_keys;
+use function base64_decode;
+use function count;
+use function current;
+use function quoted_printable_decode;
+use function sprintf;
+use function strlen;
+use function strpos;
+use function strtolower;
+use function substr;
+use function trim;
+
 class Message
 {
+    /** @var Part[] */
     protected $parts = [];
-    protected $mime = null;
+
+    /** @var null|Mime */
+    protected $mime;
 
     /**
      * Returns the list of all Laminas\Mime\Part in the message
@@ -38,14 +51,13 @@ class Message
     /**
      * Append a new Laminas\Mime\Part to the current message
      *
-     * @param \Laminas\Mime\Part $part
      * @throws Exception\InvalidArgumentException
      * @return self
      */
     public function addPart(Part $part)
     {
-        foreach ($this->getParts() as $key => $row) {
-            if ($part == $row) {
+        foreach ($this->getParts() as $row) {
+            if ($part === $row) {
                 throw new Exception\InvalidArgumentException(sprintf(
                     'Provided part %s already defined.',
                     $part->getId()
@@ -65,7 +77,7 @@ class Message
      */
     public function isMultiPart()
     {
-        return (count($this->parts) > 1);
+        return count($this->parts) > 1;
     }
 
     /**
@@ -74,7 +86,6 @@ class Message
      * This can be used to set the boundary specifically or to use a subclass of
      * Laminas\Mime for generating the boundary.
      *
-     * @param \Laminas\Mime\Mime $mime
      * @return self
      */
     public function setMime(Mime $mime)
@@ -89,7 +100,7 @@ class Message
      * If the object was not present, it is created and returned. Can be used to
      * determine the boundary used in this message.
      *
-     * @return \Laminas\Mime\Mime
+     * @return Mime
      */
     public function getMime()
     {
@@ -127,7 +138,7 @@ class Message
             $mime = $this->getMime();
 
             $boundaryLine = $mime->boundaryLine($EOL);
-            $body = 'This is a message in Mime Format.  If you see this, '
+            $body         = 'This is a message in Mime Format.  If you see this, '
                   . "your mail reader does not support this format." . $EOL;
 
             foreach (array_keys($this->parts) as $p) {
@@ -188,16 +199,14 @@ class Message
      * @throws Exception\RuntimeException
      * @return array
      */
-    // @codingStandardsIgnoreStart
     protected static function _disassembleMime($body, $boundary)
     {
-        // @codingStandardsIgnoreEnd
-        $start  = 0;
-        $res    = [];
+        $start = 0;
+        $res   = [];
         // find every mime part limiter and cut out the
         // string before it.
         // the part before the first boundary string is discarded:
-        $p = strpos($body, '--' . $boundary."\n", $start);
+        $p = strpos($body, '--' . $boundary . "\n", $start);
         if ($p === false) {
             // no parts found!
             return [];
@@ -239,10 +248,12 @@ class Message
             $parts = Decode::splitMessageStruct($message, $boundary, $EOL);
         } else {
             Decode::splitMessage($message, $headers, $body, $EOL);
-            $parts = [[
-                'header' => $headers,
-                'body'   => $body,
-            ]];
+            $parts = [
+                [
+                    'header' => $headers,
+                    'body'   => $body,
+                ],
+            ];
         }
 
         $res = new static();
@@ -250,7 +261,7 @@ class Message
             // now we build a new MimePart for the current Message Part:
             $properties = [];
             foreach ($part['header'] as $header) {
-                /** @var \Laminas\Mail\Header\HeaderInterface $header */
+                /** @var HeaderInterface $header */
                 /**
                  * @todo check for characterset and filename
                  */

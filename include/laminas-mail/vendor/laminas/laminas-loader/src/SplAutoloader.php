@@ -1,16 +1,12 @@
-<?php
-
-/**
- * @see       https://github.com/laminas/laminas-loader for the canonical source repository
- * @copyright https://github.com/laminas/laminas-loader/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-loader/blob/master/LICENSE.md New BSD License
- */
+<?php // phpcs:disable WebimpressCodingStandard.NamingConventions.Interface.Suffix
 
 namespace Laminas\Loader;
 
 use Traversable;
 
-if (interface_exists('Laminas\Loader\SplAutoloader')) {
+use function interface_exists;
+
+if (interface_exists(SplAutoloader::class)) {
     return;
 }
 
@@ -43,7 +39,7 @@ interface SplAutoloader
     /**
      * Autoload a class
      *
-     * @param   $class
+     * @param   string $class
      * @return  mixed
      *          False [if unable to load $class]
      *          get_class($class) [if $class is successfully loaded]

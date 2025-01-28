@@ -759,6 +759,10 @@ return array(
         "name" => "Yoruba",
         "nativeName" => "Yorùbá"
     ),
+    "fil" => array(
+        "name" => "Filipino",
+        "nativeName" => "Republika ng Pilipinas"
+    ),
     "za" => array(
         "name" => "Zhuang, Chuang",
         "nativeName" => "Saɯ cueŋƅ, Saw cuengh"

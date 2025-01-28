@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\Db;
 
 use Laminas\Db\Adapter\Adapter as DbAdapter;
@@ -17,7 +11,15 @@ use Laminas\Db\Sql\TableIdentifier;
 use Laminas\Stdlib\ArrayUtils;
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
+use Laminas\Validator\Exception\InvalidArgumentException;
+use Laminas\Validator\Exception\RuntimeException;
 use Traversable;
+
+use function array_key_exists;
+use function array_shift;
+use function func_get_args;
+use function func_num_args;
+use function is_array;
 
 /**
  * Class for Database record validation
@@ -29,12 +31,10 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
     /**
      * Error constants
      */
-    const ERROR_NO_RECORD_FOUND = 'noRecordFound';
-    const ERROR_RECORD_FOUND    = 'recordFound';
+    public const ERROR_NO_RECORD_FOUND = 'noRecordFound';
+    public const ERROR_RECORD_FOUND    = 'recordFound';
 
-    /**
-     * @var array Message templates
-     */
+    /** @var array<string, string> Message templates */
     protected $messageTemplates = [
         self::ERROR_NO_RECORD_FOUND => 'No record matching the input was found',
         self::ERROR_RECORD_FOUND    => 'A record matching the input was found',
@@ -47,25 +47,17 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
      */
     protected $select;
 
-    /**
-     * @var string
-     */
-    protected $schema = null;
+    /** @var string */
+    protected $schema;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $table = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $field = '';
 
-    /**
-     * @var mixed
-     */
-    protected $exclude = null;
+    /** @var mixed */
+    protected $exclude;
 
     /**
      * Provides basic configuration for use with Laminas\Validator\Db Validators
@@ -82,7 +74,7 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
      * 'adapter' => An optional database adapter to use
      *
      * @param array|Traversable|Select $options Options to use for this validator
-     * @throws \Laminas\Validator\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct($options = null)
     {
@@ -146,7 +138,7 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
     /**
      * Returns the set adapter
      *
-     * @throws \Laminas\Validator\Exception\RuntimeException When no database adapter is defined
+     * @throws RuntimeException When no database adapter is defined.
      * @return DbAdapter
      */
     public function getAdapter()
@@ -157,7 +149,6 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
     /**
      * Sets a new database adapter
      *
-     * @param  DbAdapter $adapter
      * @return self Provides a fluent interface
      */
     public function setAdapter(DbAdapter $adapter)
@@ -260,7 +251,6 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
     /**
      * Sets the select object to be used by the validator
      *
-     * @param  Select $select
      * @return $this Provides a fluent interface
      */
     public function setSelect(Select $select)
@@ -313,12 +303,12 @@ abstract class AbstractDb extends AbstractValidator implements AdapterAwareInter
      */
     protected function query($value)
     {
-        $sql = new Sql($this->getAdapter());
-        $select = $this->getSelect();
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $parameters = $statement->getParameterContainer();
+        $sql                  = new Sql($this->getAdapter());
+        $select               = $this->getSelect();
+        $statement            = $sql->prepareStatementForSqlObject($select);
+        $parameters           = $statement->getParameterContainer();
         $parameters['where1'] = $value;
-        $result = $statement->execute();
+        $result               = $statement->execute();
 
         return $result->current();
     }

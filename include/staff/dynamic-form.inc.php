@@ -19,7 +19,7 @@ if($form && $_REQUEST['a']!='add') {
             continue;
         // Create keys of [trans][de_DE][title] for instance
         $info['trans'][$t->lang][$_keys[$t->object_hash]]
-            = Format::viewableImages($t->text);
+            = $t->text;
     }
 } else {
     $title = __('Add new custom form section');
@@ -85,7 +85,7 @@ if ($form && count($langs) > 1) { ?>
                 <i class="help-tip icon-question-sign" href="#form_instructions"></i>
                 </div>
             <textarea name="instructions" rows="3" cols="40" class="richtext small"><?php
-                echo $info['instructions']; ?></textarea>
+                echo Format::viewableImages($info['instructions']); ?></textarea>
         </div>
 
 <?php if ($langs && $form) {
@@ -105,7 +105,7 @@ if ($form && count($langs) > 1) { ?>
             </div>
         <textarea name="trans[<?php echo $tag; ?>][instructions]" cols="21" rows="12"
             style="width:100%" class="richtext small"><?php
-            echo $info['trans'][$tag]['instructions']; ?></textarea>
+            echo Format::viewableImages($info['trans'][$tag]['instructions']); ?></textarea>
         </div>
 <?php }
 } ?>
@@ -287,7 +287,7 @@ if ($form && count($langs) > 1) { ?>
         <tr>
             <td colspan="7"><textarea class="richtext no-bar" name="notes"
                 rows="6" cols="80"><?php
-                echo $info['notes']; ?></textarea>
+                echo Format::viewableImages($info['notes']); ?></textarea>
             </td>
         </tr>
     </tbody>

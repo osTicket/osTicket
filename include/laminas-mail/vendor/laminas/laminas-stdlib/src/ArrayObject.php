@@ -1,64 +1,84 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-stdlib for the canonical source repository
- * @copyright https://github.com/laminas/laminas-stdlib/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-stdlib/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\Stdlib;
 
+use AllowDynamicProperties;
 use ArrayAccess;
+use ArrayIterator;
 use Countable;
+use Iterator;
 use IteratorAggregate;
+use ReturnTypeWillChange;
 use Serializable;
+use UnexpectedValueException;
+
+use function array_key_exists;
+use function array_keys;
+use function asort;
+use function class_exists;
+use function count;
+use function get_debug_type;
+use function get_object_vars;
+use function gettype;
+use function in_array;
+use function is_array;
+use function is_callable;
+use function is_object;
+use function is_string;
+use function ksort;
+use function natcasesort;
+use function natsort;
+use function serialize;
+use function sprintf;
+use function str_starts_with;
+use function uasort;
+use function uksort;
+use function unserialize;
 
 /**
  * Custom framework ArrayObject implementation
  *
  * Extends version-specific "abstract" implementation.
+ *
+ * @template TKey of array-key
+ * @template TValue
+ * @template-implements IteratorAggregate<TKey, TValue>
+ * @template-implements ArrayAccess<TKey, TValue>
  */
+#[AllowDynamicProperties]
 class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Countable
 {
     /**
      * Properties of the object have their normal functionality
      * when accessed as list (var_dump, foreach, etc.).
      */
-    const STD_PROP_LIST = 1;
+    public const STD_PROP_LIST = 1;
 
     /**
      * Entries can be accessed as properties (read and write).
      */
-    const ARRAY_AS_PROPS = 2;
+    public const ARRAY_AS_PROPS = 2;
 
-    /**
-     * @var array
-     */
+    /** @var array<TKey, TValue> */
     protected $storage;
 
-    /**
-     * @var int
-     */
+    /** @var self::STD_PROP_LIST|self::ARRAY_AS_PROPS */
     protected $flag;
 
-    /**
-     * @var string
-     */
+    /** @var class-string<Iterator> */
     protected $iteratorClass;
 
-    /**
-     * @var array
-     */
+    /** @var list<string> */
     protected $protectedProperties;
 
     /**
-     * Constructor
-     *
-     * @param array  $input
-     * @param int    $flags
-     * @param string $iteratorClass
+     * @param array<TKey, TValue>|object               $input Object values must act like ArrayAccess
+     * @param self::STD_PROP_LIST|self::ARRAY_AS_PROPS $flags
+     * @param class-string<Iterator>                   $iteratorClass
      */
-    public function __construct($input = [], $flags = self::STD_PROP_LIST, $iteratorClass = 'ArrayIterator')
+    public function __construct($input = [], $flags = self::STD_PROP_LIST, $iteratorClass = ArrayIterator::class)
     {
         $this->setFlags($flags);
         $this->storage = $input;
@@ -69,16 +89,17 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Returns whether the requested key exists
      *
-     * @param  mixed $key
+     * @param TKey $key
      * @return bool
      */
-    public function __isset($key)
+    public function __isset(mixed $key)
     {
-        if ($this->flag == self::ARRAY_AS_PROPS) {
+        if ($this->flag === self::ARRAY_AS_PROPS) {
             return $this->offsetExists($key);
         }
+
         if (in_array($key, $this->protectedProperties)) {
-            throw new Exception\InvalidArgumentException('$key is a protected property, use a different key');
+            throw new Exception\InvalidArgumentException("$key is a protected property, use a different key");
         }
 
         return isset($this->$key);
@@ -87,54 +108,60 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Sets the value at the specified key to value
      *
-     * @param  mixed $key
-     * @param  mixed $value
+     * @param TKey $key
+     * @param TValue $value
      * @return void
      */
-    public function __set($key, $value)
+    public function __set(mixed $key, mixed $value)
     {
-        if ($this->flag == self::ARRAY_AS_PROPS) {
-            return $this->offsetSet($key, $value);
+        if ($this->flag === self::ARRAY_AS_PROPS) {
+            $this->offsetSet($key, $value);
+            return;
         }
+
         if (in_array($key, $this->protectedProperties)) {
-            throw new Exception\InvalidArgumentException('$key is a protected property, use a different key');
+            throw new Exception\InvalidArgumentException("$key is a protected property, use a different key");
         }
+
         $this->$key = $value;
     }
 
     /**
      * Unsets the value at the specified key
      *
-     * @param  mixed $key
+     * @param TKey $key
      * @return void
      */
-    public function __unset($key)
+    public function __unset(mixed $key)
     {
-        if ($this->flag == self::ARRAY_AS_PROPS) {
-            return $this->offsetUnset($key);
+        if ($this->flag === self::ARRAY_AS_PROPS) {
+            $this->offsetUnset($key);
+            return;
         }
+
         if (in_array($key, $this->protectedProperties)) {
-            throw new Exception\InvalidArgumentException('$key is a protected property, use a different key');
+            throw new Exception\InvalidArgumentException("$key is a protected property, use a different key");
         }
+
         unset($this->$key);
     }
 
     /**
      * Returns the value at the specified key by reference
      *
-     * @param  mixed $key
-     * @return mixed
+     * @param TKey $key
+     * @return TValue|null
      */
-    public function &__get($key)
+    public function &__get(mixed $key)
     {
-        $ret = null;
-        if ($this->flag == self::ARRAY_AS_PROPS) {
-            $ret =& $this->offsetGet($key);
+        if ($this->flag === self::ARRAY_AS_PROPS) {
+            $ret = &$this->offsetGet($key);
 
             return $ret;
         }
-        if (in_array($key, $this->protectedProperties)) {
-            throw new Exception\InvalidArgumentException('$key is a protected property, use a different key');
+
+        if (in_array($key, $this->protectedProperties, true)) {
+            throw new Exception\InvalidArgumentException("$key is a protected property, use a different key");
         }
 
         return $this->$key;
@@ -143,10 +170,10 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Appends the value
      *
-     * @param  mixed $value
+     * @param TValue $value
      * @return void
      */
-    public function append($value)
+    public function append(mixed $value)
     {
         $this->storage[] = $value;
     }
@@ -164,8 +191,9 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Get the number of public properties in the ArrayObject
      *
-     * @return int
+     * @return positive-int|0
      */
+    #[ReturnTypeWillChange]
     public function count()
     {
         return count($this->storage);
@@ -174,8 +202,8 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Exchange the array for another one.
      *
-     * @param  array|ArrayObject $data
-     * @return array
+     * @param array<TKey, TValue>|ArrayObject<TKey, TValue>|ArrayIterator<TKey, TValue>|object $data
+     * @return array<TKey, TValue>
      */
     public function exchangeArray($data)
     {
@@ -202,7 +230,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Creates a copy of the ArrayObject.
      *
-     * @return array
+     * @return array<TKey, TValue>
      */
     public function getArrayCopy()
     {
@@ -212,7 +240,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Gets the behavior flags.
      *
-     * @return int
+     * @return self::STD_PROP_LIST|self::ARRAY_AS_PROPS
      */
     public function getFlags()
     {
@@ -222,8 +250,9 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Create a new iterator from an ArrayObject instance
      *
-     * @return \Iterator
+     * @return Iterator<TKey, TValue>
      */
+    #[ReturnTypeWillChange]
     public function getIterator()
     {
         $class = $this->iteratorClass;
@@ -234,7 +263,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Gets the iterator classname for the ArrayObject.
      *
-     * @return string
+     * @return class-string<Iterator>
      */
     public function getIteratorClass()
     {
@@ -274,27 +303,29 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Returns whether the requested key exists
      *
-     * @param  mixed $key
+     * @param TKey $key
      * @return bool
      */
-    public function offsetExists($key)
+    #[ReturnTypeWillChange]
+    public function offsetExists(mixed $key)
     {
         return isset($this->storage[$key]);
     }
 
     /**
-     * Returns the value at the specified key
+     * {@inheritDoc}
      *
-     * @param  mixed $key
-     * @return mixed
+     * @param TKey $key
+     * @return TValue|null
      */
-    public function &offsetGet($key)
+    #[ReturnTypeWillChange]
+    public function &offsetGet(mixed $key)
     {
         $ret = null;
         if (! $this->offsetExists($key)) {
             return $ret;
         }
-        $ret =& $this->storage[$key];
+        $ret = &$this->storage[$key];
 
         return $ret;
     }
@@ -302,11 +333,12 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Sets the value at the specified key to value
      *
-     * @param  mixed $key
-     * @param  mixed $value
+     * @param TKey $key
+     * @param TValue $value
      * @return void
      */
-    public function offsetSet($key, $value)
+    #[ReturnTypeWillChange]
+    public function offsetSet(mixed $key, mixed $value)
     {
         $this->storage[$key] = $value;
     }
@@ -314,10 +346,11 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Unsets the value at the specified key
      *
-     * @param  mixed $key
+     * @param TKey $key
      * @return void
      */
-    public function offsetUnset($key)
+    #[ReturnTypeWillChange]
+    public function offsetUnset(mixed $key)
     {
         if ($this->offsetExists($key)) {
             unset($this->storage[$key]);
@@ -331,13 +364,23 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
      */
     public function serialize()
     {
-        return serialize(get_object_vars($this));
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * Magic method used for serializing of an instance.
+     *
+     * @return array<string, mixed>
+     */
+    public function __serialize()
+    {
+        return get_object_vars($this);
     }
 
     /**
      * Sets the behavior flags
      *
-     * @param  int  $flags
+     * @param self::STD_PROP_LIST|self::ARRAY_AS_PROPS $flags
      * @return void
      */
     public function setFlags($flags)
@@ -348,7 +391,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Sets the iterator classname for the ArrayObject
      *
-     * @param  string $class
+     * @param  class-string<Iterator> $class
      * @return void
      */
     public function setIteratorClass($class)
@@ -356,15 +399,15 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
         if (class_exists($class)) {
             $this->iteratorClass = $class;
 
-            return ;
+            return;
         }
 
-        if (strpos($class, '\\') === 0) {
+        if (str_starts_with($class, '\\')) {
             $class = '\\' . $class;
             if (class_exists($class)) {
                 $this->iteratorClass = $class;
 
-                return ;
+                return;
             }
         }
 
@@ -374,7 +417,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Sort the entries with a user-defined comparison function and maintain key association
      *
-     * @param  callable $function
+     * @param  callable(TValue, TValue): int $function
      * @return void
      */
     public function uasort($function)
@@ -387,7 +430,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Sort the entries by keys using a user-defined comparison function
      *
-     * @param  callable $function
+     * @param  callable(TKey, TKey): int $function
      * @return void
      */
     public function uksort($function)
@@ -405,29 +448,62 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
      */
     public function unserialize($data)
     {
-        $ar                        = unserialize($data);
+        $toUnserialize = unserialize($data);
+        if (! is_array($toUnserialize)) {
+            throw new UnexpectedValueException(sprintf(
+                'Cannot deserialize %s instance; corrupt serialization data',
+                self::class
+            ));
+        }
+
+        $this->__unserialize($toUnserialize);
+    }
+
+    /**
+     * Magic method used to rebuild an instance.
+     *
+     * @param array $data Data array.
+     * @return void
+     */
+    public function __unserialize($data)
+    {
         $this->protectedProperties = array_keys(get_object_vars($this));
 
-        $this->setFlags($ar['flag']);
-        $this->exchangeArray($ar['storage']);
-        $this->setIteratorClass($ar['iteratorClass']);
+        // Unserialize protected internal properties first
+        if (array_key_exists('flag', $data)) {
+            $this->setFlags((int) $data['flag']);
+            unset($data['flag']);
+        }
 
-        foreach ($ar as $k => $v) {
-            switch ($k) {
-                case 'flag':
-                    $this->setFlags($v);
-                    break;
-                case 'storage':
-                    $this->exchangeArray($v);
-                    break;
-                case 'iteratorClass':
-                    $this->setIteratorClass($v);
-                    break;
-                case 'protectedProperties':
-                    break;
-                default:
-                    $this->__set($k, $v);
+        if (array_key_exists('storage', $data)) {
+            if (! is_array($data['storage']) && ! is_object($data['storage'])) {
+                throw new UnexpectedValueException(sprintf(
+                    'Cannot deserialize %s instance: corrupt storage data; expected array or object, received %s',
+                    self::class,
+                    gettype($data['storage'])
+                ));
             }
+            $this->exchangeArray($data['storage']);
+            unset($data['storage']);
+        }
+
+        if (array_key_exists('iteratorClass', $data)) {
+            if (! is_string($data['iteratorClass'])) {
+                throw new UnexpectedValueException(sprintf(
+                    'Cannot deserialize %s instance: invalid iteratorClass; expected string, received %s',
+                    self::class,
+                    get_debug_type($data['iteratorClass'])
+                ));
+            }
+            $this->setIteratorClass($data['iteratorClass']);
+            unset($data['iteratorClass']);
+        }
+
+        unset($data['protectedProperties']);
+
+        // Unserialize array keys after resolving protected properties to ensure configuration is used.
+        foreach ($data as $k => $v) {
+            $this->__set($k, $v);
         }
     }
 }

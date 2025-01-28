@@ -69,7 +69,7 @@ if ($_POST && isset($_POST['userid'])) {
     // Lookup support backends for this staff
     $username = trim($_POST['userid']);
     if ($user = StaffAuthenticationBackend::process($username,
-            $_POST['passwd'], $errors)) {
+            substr($_POST['passwd'], 0, 128), $errors)) {
         $redirect($user->isValid() ? $dest : 'login.php');
     }
 
@@ -130,9 +130,6 @@ elseif (!$thisstaff || !($thisstaff->getId() || $thisstaff->isValid())) {
 elseif ($thisstaff && $thisstaff->isValid()) {
     Http::redirect($dest);
 }
-
-// Browsers shouldn't suggest saving that username/password
-Http::response(422);
 
 define("OSTSCPINC",TRUE); //Make includes happy!
 include_once(INCLUDE_DIR.'staff/login.tpl.php');

@@ -1,14 +1,30 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Protocol;
 
 use Laminas\Validator;
+use Laminas\Validator\ValidatorChain;
+
+use function array_shift;
+use function count;
+use function fclose;
+use function fgets;
+use function fwrite;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_resource;
+use function preg_split;
+use function restore_error_handler;
+use function set_error_handler;
+use function sprintf;
+use function str_starts_with;
+use function stream_get_meta_data;
+use function stream_set_timeout;
+use function stream_socket_client;
+
+use const E_WARNING;
+use const PREG_SPLIT_DELIM_CAPTURE;
 
 /**
  * Provides low-level methods for concrete adapters to communicate with a
@@ -21,69 +37,66 @@ abstract class AbstractProtocol
     /**
      * Mail default EOL string
      */
-    const EOL = "\r\n";
+    public const EOL = "\r\n";
 
     /**
      * Default timeout in seconds for initiating session
      */
-    const TIMEOUT_CONNECTION = 30;
+    public const TIMEOUT_CONNECTION = 30;
 
     /**
      * Maximum of the transaction log
+     *
      * @var int
      */
     protected $maximumLog = 64;
 
     /**
      * Hostname or IP address of remote server
+     *
      * @var string
      */
     protected $host;
 
     /**
-     * Port number of connection
-     * @var int
-     */
-    protected $port;
-
-    /**
      * Instance of Laminas\Validator\ValidatorChain to check hostnames
-     * @var \Laminas\Validator\ValidatorChain
+     *
+     * @var ValidatorChain
      */
     protected $validHost;
 
     /**
      * Socket connection resource
-     * @var resource
+     *
+     * @var null|resource
      */
     protected $socket;
 
     /**
      * Last request sent to server
+     *
      * @var string
      */
     protected $request;
 
     /**
      * Array of server responses to last request
+     *
      * @var array
      */
     protected $response;
 
     /**
      * Log of mail requests and server responses for a session
-     * @var array
      */
-    private $log = [];
+    private array $log = [];
 
     /**
-     * Constructor.
-     *
      * @param  string  $host OPTIONAL Hostname of remote connection (default: 127.0.0.1)
      * @param  int $port OPTIONAL Port number (default: null)
      * @throws Exception\RuntimeException
      */
-    public function __construct($host = '127.0.0.1', $port = null)
+    public function __construct($host = '127.0.0.1', protected $port = null)
     {
         $this->validHost = new Validator\ValidatorChain();
         $this->validHost->attach(new Validator\Hostname(Validator\Hostname::ALLOW_ALL));
@@ -93,12 +106,10 @@ abstract class AbstractProtocol
         }
 
         $this->host = $host;
-        $this->port = $port;
     }
 
     /**
      * Class destructor to cleanup open resources
-     *
      */
     public function __destruct()
     {
@@ -165,22 +176,20 @@ abstract class AbstractProtocol
 
     /**
      * Reset the transaction log
-     *
      */
     public function resetLog()
     {
         $this->log = [];
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Add the transaction log
      *
      * @param  string $value new transaction
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _addLog($value)
     {
-        // @codingStandardsIgnoreEnd
         if ($this->maximumLog >= 0 && count($this->log) >= $this->maximumLog) {
             array_shift($this->log);
         }
@@ -188,25 +197,27 @@ abstract class AbstractProtocol
         $this->log[] = $value;
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Connect to the server using the supplied transport and target
      *
      * An example $remote string may be 'tcp://mail.example.com:25' or 'ssh://hostname.com:2222'
      *
+     * @deprecated Since 1.12.0. Implementations should use the ProtocolTrait::setupSocket() method instead.
+     *
+     * @todo Remove for 3.0.0.
      * @param  string $remote Remote
      * @throws Exception\RuntimeException
      * @return bool
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _connect($remote)
     {
-        // @codingStandardsIgnoreEnd
         $errorNum = 0;
         $errorStr = '';
 
         // open connection
         set_error_handler(
-            function ($error, $message = '') {
+            static function ($error, $message = '') {
                 throw new Exception\RuntimeException(sprintf('Could not open socket: %s', $message), $error);
             },
             E_WARNING
@@ -228,20 +239,17 @@ abstract class AbstractProtocol
         return $result;
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Disconnect from remote host and free resource
-     *
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _disconnect()
     {
-        // @codingStandardsIgnoreEnd
         if (is_resource($this->socket)) {
             fclose($this->socket);
         }
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Send the given request followed by a LINEEND to the server.
      *
@@ -249,9 +257,9 @@ abstract class AbstractProtocol
      * @throws Exception\RuntimeException
      * @return int|bool Number of bytes written to remote host
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _send($request)
     {
-        // @codingStandardsIgnoreEnd
         if (! is_resource($this->socket)) {
             throw new Exception\RuntimeException('No connection has been established to ' . $this->host);
         }
@@ -270,7 +278,6 @@ abstract class AbstractProtocol
         return $result;
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Get a line from the stream.
      *
@@ -278,9 +285,9 @@ abstract class AbstractProtocol
      * @throws Exception\RuntimeException
      * @return string
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _receive($timeout = null)
     {
-        // @codingStandardsIgnoreEnd
         if (! is_resource($this->socket)) {
             throw new Exception\RuntimeException('No connection has been established to ' . $this->host);
         }
@@ -299,7 +306,7 @@ abstract class AbstractProtocol
         // Check meta data to ensure connection is still valid
         $info = stream_get_meta_data($this->socket);
 
-        if (! empty($info['timed_out'])) {
+        if ($info['timed_out']) {
             throw new Exception\RuntimeException($this->host . ' has timed out');
         }
 
@@ -310,7 +317,6 @@ abstract class AbstractProtocol
         return $response;
     }
 
-    // @codingStandardsIgnoreStart
     /**
      * Parse server response for successful codes
      *
@@ -322,19 +328,19 @@ abstract class AbstractProtocol
      * @throws Exception\RuntimeException
      * @return string Last line of response string
      */
+    // @codingStandardsIgnoreLine PSR2.Methods.MethodDeclaration.Underscore
     protected function _expect($code, $timeout = null)
     {
-        // @codingStandardsIgnoreEnd
         $this->response = [];
-        $errMsg = '';
+        $errMsg         = '';
 
         if (! is_array($code)) {
             $code = [$code];
         }
 
         do {
-            $this->response[] = $result = $this->_receive($timeout);
-            list($cmd, $more, $msg) = preg_split('/([\s-]+)/', $result, 2, PREG_SPLIT_DELIM_CAPTURE);
+            $this->response[]   = $result = $this->_receive($timeout);
+            [$cmd, $more, $msg] = preg_split('/([\s-]+)/', $result, 2, PREG_SPLIT_DELIM_CAPTURE);
 
             if ($errMsg !== '') {
                 $errMsg .= ' ' . $msg;
@@ -343,10 +349,10 @@ abstract class AbstractProtocol
             }
 
         // The '-' message prefix indicates an information string instead of a response string.
-        } while (strpos($more, '-') === 0);
+        } while (str_starts_with($more, '-'));
 
         if ($errMsg !== '') {
-            throw new Exception\RuntimeException($errMsg);
+            throw new Exception\RuntimeException($errMsg, (int) $cmd);
         }
 
         return $msg;

@@ -1,18 +1,25 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-servicemanager for the canonical source repository
- * @copyright https://github.com/laminas/laminas-servicemanager/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-servicemanager/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\ServiceManager\Exception;
 
 use DomainException;
 
-/**
- * @inheritDoc
- */
+use function sprintf;
+
 class ContainerModificationsNotAllowedException extends DomainException implements ExceptionInterface
 {
+    /**
+     * @param string $service Name of service that already exists.
+     */
+    public static function fromExistingService(string $service): self
+    {
+        return new self(sprintf(
+            'The container does not allow replacing or updating a service'
+            . ' with existing instances; the following service'
+            . ' already exists in the container: %s',
+            $service
+        ));
+    }
 }

@@ -1,19 +1,17 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Storage\Message;
 
+use Laminas\Mail\Storage\Exception\ExceptionInterface;
 use Laminas\Mail\Storage\Part;
+
+use function array_combine;
 
 class File extends Part\File implements MessageInterface
 {
     /**
      * flags for this message
+     *
      * @var array
      */
     protected $flags = [];
@@ -25,7 +23,7 @@ class File extends Part\File implements MessageInterface
      * - flags array with flags for message, keys are ignored, use constants defined in Laminas\Mail\Storage
      *
      * @param  array $params
-     * @throws \Laminas\Mail\Storage\Exception\ExceptionInterface
+     * @throws ExceptionInterface
      */
     public function __construct(array $params)
     {

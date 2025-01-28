@@ -1,26 +1,25 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
 
+use Laminas\Mail\Header\Exception\InvalidArgumentException;
 use Laminas\Mime\Mime;
+
+use function count;
+use function explode;
+use function is_string;
+use function ltrim;
+use function str_replace;
+use function strtoupper;
+use function ucwords;
 
 class GenericHeader implements HeaderInterface, UnstructuredInterface
 {
-    /**
-     * @var string
-     */
-    protected $fieldName = null;
+    /** @var string */
+    protected $fieldName;
 
-    /**
-     * @var string
-     */
-    protected $fieldValue = null;
+    /** @var string */
+    protected $fieldValue = '';
 
     /**
      * Header encoding
@@ -35,11 +34,9 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
      */
     public static function fromString($headerLine)
     {
-        list($name, $value) = self::splitHeaderLine($headerLine);
-        $value  = HeaderWrap::mimeDecodeValue($value);
-        $header = new static($name, $value);
-
-        return $header;
+        [$name, $value] = self::splitHeaderLine($headerLine);
+        $value          = HeaderWrap::mimeDecodeValue($value);
+        return new static($name, $value);
     }
 
     /**
@@ -47,21 +44,21 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
      *
      * @param string $headerLine
      * @return string[] `name` in the first index and `value` in the second.
-     * @throws Exception\InvalidArgumentException If header does not match with the format ``name:value``
+     * @throws InvalidArgumentException If header does not match with the format ``name:value``.
      */
     public static function splitHeaderLine($headerLine)
     {
         $parts = explode(':', $headerLine, 2);
         if (count($parts) !== 2) {
-            throw new Exception\InvalidArgumentException('Header must match with the format "name:value"');
+            throw new InvalidArgumentException('Header must match with the format "name:value"');
         }
 
         if (! HeaderName::isValid($parts[0])) {
-            throw new Exception\InvalidArgumentException('Invalid header name detected');
+            throw new InvalidArgumentException('Invalid header name detected');
         }
 
         if (! HeaderValue::isValid($parts[1])) {
-            throw new Exception\InvalidArgumentException('Invalid header value detected');
+            throw new InvalidArgumentException('Invalid header value detected');
         }
 
         $parts[1] = ltrim($parts[1]);
@@ -73,13 +70,15 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
      * Constructor
      *
      * @param string $fieldName  Optional
-     * @param string $fieldValue Optional
+     * @param null|string $fieldValue Optional
      */
     public function __construct($fieldName = null, $fieldValue = null)
     {
-        if ($fieldName) {
-            $this->setFieldName($fieldName);
+        if (! $fieldName) {
+            throw new InvalidArgumentException('Header MUST contain a field name');
         }
+
+        $this->setFieldName($fieldName);
 
         if ($fieldValue !== null) {
             $this->setFieldValue($fieldValue);
@@ -96,14 +95,14 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
     public function setFieldName($fieldName)
     {
         if (! is_string($fieldName) || empty($fieldName)) {
-            throw new Exception\InvalidArgumentException('Header name must be a string');
+            throw new InvalidArgumentException('Header name must be a string');
         }
 
         // Pre-filter to normalize valid characters, change underscore to dash
         $fieldName = str_replace(' ', '-', ucwords(str_replace(['_', '-'], ' ', $fieldName)));
 
         if (! HeaderName::isValid($fieldName)) {
-            throw new Exception\InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Header name must be composed of printable US-ASCII characters, except colon.'
             );
         }
@@ -112,6 +111,9 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFieldName()
     {
         return $this->fieldName;
@@ -129,7 +131,7 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         $fieldValue = (string) $fieldValue;
 
         if (! HeaderWrap::canBeEncoded($fieldValue)) {
-            throw new Exception\InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Header value must be composed of printable US-ASCII characters and valid folding sequences.'
             );
         }
@@ -140,6 +142,9 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
     {
         if (HeaderInterface::FORMAT_ENCODED === $format) {
@@ -149,6 +154,10 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         return $this->fieldValue;
     }
 
+    /**
+     * @param string $encoding
+     * @return self
+     */
     public function setEncoding($encoding)
     {
         if ($encoding === $this->encoding) {
@@ -176,6 +185,9 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEncoding()
     {
         if (! $this->encoding) {
@@ -185,6 +197,9 @@ class GenericHeader implements HeaderInterface, UnstructuredInterface
         return $this->encoding;
     }
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         $name = $this->getFieldName();

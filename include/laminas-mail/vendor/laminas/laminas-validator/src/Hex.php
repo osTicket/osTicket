@@ -1,17 +1,15 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator;
+
+use function ctype_xdigit;
+use function is_int;
+use function is_string;
 
 class Hex extends AbstractValidator
 {
-    const INVALID = 'hexInvalid';
-    const NOT_HEX = 'notHex';
+    public const INVALID = 'hexInvalid';
+    public const NOT_HEX = 'notHex';
 
     /**
      * Validation failure message template definitions

@@ -78,7 +78,7 @@ class TicketApiController extends ApiController {
             $data['attachments'] = array();
 
         //Validate attachments: Do error checking... soft fail - set the error and pass on the request.
-        if ($data['attachments'] && is_array($data['attachments'])) {
+        if (isset($data['attachments']) && is_array($data['attachments'])) {
             foreach($data['attachments'] as &$file) {
                 if ($file['encoding'] && !strcasecmp($file['encoding'], 'base64')) {
                     if(!($file['data'] = base64_decode($file['data'], true)))

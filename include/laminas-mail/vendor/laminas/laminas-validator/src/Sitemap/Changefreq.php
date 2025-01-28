@@ -1,14 +1,11 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Validator\Sitemap;
 
 use Laminas\Validator\AbstractValidator;
+
+use function in_array;
+use function is_string;
 
 /**
  * Validates whether a given value is valid as a sitemap <changefreq> value
@@ -19,10 +16,9 @@ class Changefreq extends AbstractValidator
 {
     /**
      * Validation key for not valid
-     *
      */
-    const NOT_VALID = 'sitemapChangefreqNotValid';
-    const INVALID   = 'sitemapChangefreqInvalid';
+    public const NOT_VALID = 'sitemapChangefreqNotValid';
+    public const INVALID   = 'sitemapChangefreqInvalid';
 
     /**
      * Validation failure message template definitions
@@ -40,8 +36,13 @@ class Changefreq extends AbstractValidator
      * @var array
      */
     protected $changeFreqs = [
-        'always',  'hourly', 'daily', 'weekly',
-        'monthly', 'yearly', 'never',
+        'always',
+        'hourly',
+        'daily',
+        'weekly',
+        'monthly',
+        'yearly',
+        'never',
     ];
 
     /**
@@ -60,9 +61,6 @@ class Changefreq extends AbstractValidator
         }
 
         $this->setValue($value);
-        if (! is_string($value)) {
-            return false;
-        }
 
         if (! in_array($value, $this->changeFreqs, true)) {
             $this->error(self::NOT_VALID);

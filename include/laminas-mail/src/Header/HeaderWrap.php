@@ -1,27 +1,39 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
 
 use Laminas\Mail\Headers;
 use Laminas\Mime\Mime;
 
+use function array_reduce;
+use function explode;
+use function extension_loaded;
+use function iconv_mime_decode;
+use function iconv_mime_encode;
+use function imap_mime_header_decode;
+use function imap_utf8;
+use function implode;
+use function str_contains;
+use function str_pad;
+use function str_starts_with;
+use function strlen;
+use function strpos;
+use function substr;
+use function wordwrap;
+
+use const ICONV_MIME_DECODE_CONTINUE_ON_ERROR;
+
 /**
  * Utility class used for creating wrapped or MIME-encoded versions of header
  * values.
  */
+// phpcs:ignore WebimpressCodingStandard.NamingConventions.AbstractClass.Prefix
 abstract class HeaderWrap
 {
     /**
      * Wrap a long header line
      *
      * @param  string          $value
-     * @param  HeaderInterface $header
      * @return string
      */
     public static function wrap($value, HeaderInterface $header)
@@ -40,23 +52,33 @@ abstract class HeaderWrap
      * Wrap at 78 characters or before, based on whitespace.
      *
      * @param string          $value
-     * @param HeaderInterface $header
      * @return string
      */
     protected static function wrapUnstructuredHeader($value, HeaderInterface $header)
     {
-        $encoding = $header->getEncoding();
+        $headerNameColonSize = strlen($header->getFieldName() . ': ');
+        $encoding            = $header->getEncoding();
+
         if ($encoding == 'ASCII') {
-            return wordwrap($value, 78, Headers::FOLDING);
+            /*
+             * Before folding the header line, it is necessary to calculate the length of the
+             * entire header (including the name and colon). We need to put a stub at the
+             * beginning of the value so that the folding is performed correctly.
+             */
+            $headerLine       = str_pad('0', $headerNameColonSize, '0') . $value;
+            $foldedHeaderLine = wordwrap($headerLine, 78, Headers::FOLDING);
+
+            // Remove the stub and return the header folded value.
+            return substr($foldedHeaderLine, $headerNameColonSize);
         }
-        return static::mimeEncodeValue($value, $encoding, 78);
+
+        return static::mimeEncodeValue($value, $encoding, 78, $headerNameColonSize);
     }
 
     /**
      * Wrap a structured header line
      *
      * @param  string              $value
-     * @param  StructuredInterface $header
      * @return string
      */
     protected static function wrapStructuredHeader($value, StructuredInterface $header)
@@ -82,14 +104,19 @@ abstract class HeaderWrap
      * Performs quoted-printable encoding on a value, setting maximum
      * line-length to 998.
      *
-     * @param  string $value
-     * @param  string $encoding
-     * @param  int    $lineLength maximum line-length, by default 998
+     * @param string            $value
+     * @param string            $encoding
+     * @param int               $lineLength         Maximum line-length, by default 998
+     * @param positive-int|0    $firstLineGapSize   When folding a line, it is necessary to calculate
+     *                                              the length of the entire line (together with the
+     *                                              header name). Therefore, you can specify the header
+     *                                              name and colon length in this argument to fold the
+     *                                              string properly.
      * @return string Returns the mime encode value without the last line ending
      */
-    public static function mimeEncodeValue($value, $encoding, $lineLength = 998)
+    public static function mimeEncodeValue($value, $encoding, $lineLength = 998, $firstLineGapSize = 0)
     {
-        return Mime::encodeQuotedPrintableHeader($value, $encoding, $lineLength, Headers::EOL);
+        return Mime::encodeQuotedPrintableHeader($value, $encoding, $lineLength, Headers::EOL, $firstLineGapSize);
     }
 
     /**
@@ -115,9 +142,7 @@ abstract class HeaderWrap
         if (self::isNotDecoded($value, $decodedValue) && extension_loaded('imap')) {
             return array_reduce(
                 imap_mime_header_decode(imap_utf8($value)),
-                function ($accumulator, $headerPart) {
-                    return $accumulator . $headerPart->text;
-                },
+                static fn($accumulator, $headerPart) => $accumulator . $headerPart->text,
                 ''
             );
         }
@@ -125,11 +150,11 @@ abstract class HeaderWrap
         return $decodedValue;
     }
 
-    private static function isNotDecoded($originalValue, $value)
+    private static function isNotDecoded(string $originalValue, string $value): bool
     {
-        return 0 === strpos($value, '=?')
+        return str_starts_with($value, '=?')
             && strlen($value) - 2 === strpos($value, '?=')
-            && false !== strpos($originalValue, $value);
+            && str_contains($originalValue, $value);
     }
 
     /**
@@ -144,18 +169,18 @@ abstract class HeaderWrap
         // "test" -> 4
         // "x-test: =?ISO-8859-1?B?dGVzdA==?=" -> 33
         //  8       +2          +3         +3  -> 16
-        $charset = 'UTF-8';
+        $charset    = 'UTF-8';
         $lineLength = strlen($value) * 4 + strlen($charset) + 16;
 
         $preferences = [
-            'scheme' => 'Q',
-            'input-charset' => $charset,
+            'scheme'         => 'Q',
+            'input-charset'  => $charset,
             'output-charset' => $charset,
-            'line-length' => $lineLength,
+            'line-length'    => $lineLength,
         ];
 
         $encoded = iconv_mime_encode('x-test', $value, $preferences);
 
-        return (false !== $encoded);
+        return false !== $encoded;
     }
 }

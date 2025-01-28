@@ -22,13 +22,14 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 8.0 - 8.1 (8.1 recommended)
+  * PHP version 8.1 - 8.2 (8.2 recommended)
   * mysqli extension for PHP
-  * MySQL database version 5.5
+  * MySQL database version 5.5 (or greater)
 
 ### Recommendations
-  * gd, gettext, imap, json, mbstring, and xml extensions for PHP
-  * APC module enabled and configured for PHP
+  * fileinfo, gd, gettext, imap, intl, json, mbstring, Zend OPcache, phar,
+    xml, xml-dom, and zip extensions for PHP
+  * APCu module enabled and configured for PHP
 
 Deployment
 ----------
@@ -58,33 +59,9 @@ Upgrading
 ---------
 osTicket supports upgrading from 1.6-rc1 and later versions. As with any
 upgrade, strongly consider a backup of your attachment files, database, and
-osTicket codebase before embarking on an upgrade.
-
-To trigger the update process, fetch the osTicket tarball from either
-the osTicket [github](http://github.com/osTicket/osTicket/releases) page
-or from the [osTicket website](https://osticket.com). Extract the tarball
-into the folder of your osTicket codebase. This can also be accomplished
-with the zip file, and a FTP client can of course be used to upload the new
-source code to your server.
-
-Any way you choose your adventure, when you have your codebase upgraded to
-osTicket-1.7, visit the /scp page of you ticketing system. The upgrader will
-be presented and will walk you through the rest of the process. (The couple
-clicks needed to go through the process are pretty boring to describe).
-
-### Upgrading from v1.6
-**WARNING**: If you are upgrading from osTicket 1.6, please ensure that all
-    your files in your upload folder are both readable and writable to your
-    http server software. Unreadable files will not be migrated to the
-    database during the upgrade and will be effectively lost.
-
-After upgrading, we recommend migrating your attachments to the database or
-to the new filesystem plugin. Use the `file` command-line applet to perform
-the migration.
-
-    php manage.php file migrate --backend=6 --to=D
-
-View the UPGRADING.txt file for other todo items to complete your upgrade.
+osTicket codebase before embarking on an upgrade. Please review our [Upgrade
+Guide](https://docs.osticket.com/en/latest/Getting%20Started/Upgrade%20and%20Migration.html)
+or the [UPGRADING.txt file](UPGRADING.txt) for upgrade instructions.
 
 Help
 ----
@@ -101,7 +78,7 @@ the feature is published in your fork, send a pull request to begin the
 conversation of integrating your new feature into osTicket.
 
 ### Localization
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/osticket-official/localized.png)](http://i18n.osticket.com/project/osticket-official)
+[![Crowdin](https://badges.crowdin.net/osticket-official/localized.svg)](https://crowdin.com/project/osticket-official)
 
 The interface for osTicket is now completely translatable. Language packs
 are available on the [download page](https://osticket.com/download). If you
@@ -122,18 +99,19 @@ file for the gory details of the General Public License.
 
 osTicket is supported by several magical open source projects including:
 
-  * [Font-Awesome](http://fortawesome.github.com/Font-Awesome/)
-  * [HTMLawed](http://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
-  * [jQuery dropdown](http://labs.abeautifulsite.net/jquery-dropdown/)
-  * [jsTimezoneDetect](http://pellepim.bitbucket.org/jstz/)
-  * [mPDF](http://www.mpdf1.com/)
-  * [PasswordHash](http://www.openwall.com/phpass/)
-  * [PEAR](http://pear.php.net/package/PEAR)
-  * [PEAR/Auth_SASL](http://pear.php.net/package/Auth_SASL)
-  * [PEAR/Mail](http://pear.php.net/package/mail)
-  * [PEAR/Net_SMTP](http://pear.php.net/package/Net_SMTP)
-  * [PEAR/Net_Socket](http://pear.php.net/package/Net_Socket)
-  * [PEAR/Serivces_JSON](http://pear.php.net/package/Services_JSON)
+  * [Font-Awesome](https://fontawesome.com/)
+  * [HTMLawed](https://www.bioinformatics.org/phplabware/internal_utilities/htmLawed)
+  * [jQuery dropdown](https://labs.abeautifulsite.net/jquery-dropdown/) (Project Deleted)
+  * [jsTimezoneDetect](https://pellepim.bitbucket.org/jstz/)
+  * [laminas-mail](https://github.com/laminas/laminas-mail)
+  * [mPDF](https://github.com/mpdf/mpdf)
+  * [PasswordHash](https://www.openwall.com/phpass/)
+  * [PEAR](https://pear.php.net/package/PEAR)
+  * [PEAR/Auth_SASL](https://pear.php.net/package/Auth_SASL)
+  * [PEAR/Mail](https://pear.php.net/package/mail)
+  * [PEAR/Net_SMTP](https://pear.php.net/package/Net_SMTP)
+  * [PEAR/Net_Socket](https://pear.php.net/package/Net_Socket)
+  * [PEAR/Serivces_JSON](https://pear.php.net/package/Services_JSON)
   * [php-gettext](https://launchpad.net/php-gettext/)
-  * [phpseclib](http://phpseclib.sourceforge.net/)
-  * [Spyc](http://github.com/mustangostang/spyc)
+  * [phpseclib](https://phpseclib.sourceforge.net/)
+  * [Spyc](https://github.com/mustangostang/spyc)

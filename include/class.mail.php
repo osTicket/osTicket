@@ -315,8 +315,8 @@ namespace osTicket\Mail {
             // Attempt to connect to the mail server
             $connect = $setting->getConnectionConfig();
             // Let's go Brandon
-            parent::connect($connect['host'], $connect['port'],
-                    $connect['ssl']);
+            parent::__construct($connect['host'], $connect['port'],
+                    $connect['ssl'], true);
             // Attempt authentication based on MailBoxAccount settings
             $auth = $setting->getAuthCredentials();
             switch (true) {
@@ -657,7 +657,10 @@ namespace osTicket\Mail {
         // Build out SmtpOptions options based on SmtpAccount Settings
         private function buildOptions(AccountSetting $setting) {
             // Dont send 'QUIT' on __destruct()
-            $config = ['use_complete_quit' => false];
+            $config = [
+                'use_complete_quit' => false,
+                'novalidatecert' => true
+            ];
             $connect = $setting->getConnectionConfig();
             $auth = $setting->getAuthCredentials();
             switch (true) {
@@ -705,29 +708,6 @@ namespace osTicket\Mail {
     class Sendmail extends SendmailTransport {
         public function __construct($options) {
             parent::__construct($options);
-        }
-
-        /*
-         * prepareHeaders($message)
-         *
-         * This is a temp fix needed for Windows installs until we upgrade
-         * to the latest version of Laminas Mail which already has the fix -
-         * the version we use currently doesn't strip the headers on Windows.
-         *
-         * TODO: Remove once Laminas Mail is upgraded.
-         */
-        protected function prepareHeaders(Mail\Message $message) {
-            // Clone message just incase upstream needs the headers intact
-            $message = clone $message;
-            // Remove "to" and "subject" headers before headers are prepared
-            // and passed to MTA. It's necessary since the headers in question
-            // are set directly via PHP mail() function - leaving them results
-            // in duplicate headers.
-            $message->getHeaders()->removeHeader('To');
-            $message->getHeaders()->removeHeader('Subject');
-            // Ask upstream to prepare the headers - it checks for From
-            // address injection etc.
-            return parent::prepareHeaders($message);
         }
 
         public function sendMessage(Message $message) {

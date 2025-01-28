@@ -8,7 +8,7 @@ if (isset($cache['filename']))
 else
     $filename = trim(sprintf('%s Tickets - %s.csv',
             Format::htmlchars($queue->getName() ?: ''),
-            strftime('%Y%m%d')));
+            date('Ymd')));
 
 if (isset($cache['delimiter']))
     $delimiter = $cache['delimiter'];

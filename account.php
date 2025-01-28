@@ -125,6 +125,8 @@ elseif ($_POST) {
             }
             break;
         }
+        // Rotate CSRF on successful POST
+        $ost->getCSRF()->rotate();
     }
 
     if ($errors && $user && $user != $thisclient)

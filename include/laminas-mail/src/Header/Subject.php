@@ -1,14 +1,11 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Header;
 
 use Laminas\Mime\Mime;
+
+use function strtolower;
+use function strtoupper;
 
 /**
  * Subject header class methods.
@@ -18,9 +15,7 @@ use Laminas\Mime\Mime;
  */
 class Subject implements UnstructuredInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $subject = '';
 
     /**
@@ -30,10 +25,14 @@ class Subject implements UnstructuredInterface
      */
     protected $encoding;
 
+    /**
+     * @param string $headerLine
+     * @return static
+     */
     public static function fromString($headerLine)
     {
-        list($name, $value) = GenericHeader::splitHeaderLine($headerLine);
-        $value = HeaderWrap::mimeDecodeValue($value);
+        [$name, $value] = GenericHeader::splitHeaderLine($headerLine);
+        $value          = HeaderWrap::mimeDecodeValue($value);
 
         // check to ensure proper header type for this factory
         if (strtolower($name) !== 'subject') {
@@ -46,11 +45,17 @@ class Subject implements UnstructuredInterface
         return $header;
     }
 
+    /**
+     * @return string
+     */
     public function getFieldName()
     {
         return 'Subject';
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getFieldValue($format = HeaderInterface::FORMAT_RAW)
     {
         if (HeaderInterface::FORMAT_ENCODED === $format) {
@@ -60,6 +65,10 @@ class Subject implements UnstructuredInterface
         return $this->subject;
     }
 
+    /**
+     * @param string $encoding
+     * @return self
+     */
     public function setEncoding($encoding)
     {
         if ($encoding === $this->encoding) {
@@ -87,6 +96,9 @@ class Subject implements UnstructuredInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEncoding()
     {
         if (! $this->encoding) {
@@ -96,6 +108,10 @@ class Subject implements UnstructuredInterface
         return $this->encoding;
     }
 
+    /**
+     * @param string $subject
+     * @return self
+     */
     public function setSubject($subject)
     {
         $subject = (string) $subject;
@@ -112,6 +128,9 @@ class Subject implements UnstructuredInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         return 'Subject: ' . $this->getFieldValue(HeaderInterface::FORMAT_ENCODED);

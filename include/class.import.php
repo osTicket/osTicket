@@ -189,7 +189,7 @@ implements Iterator {
             foreach ($this->headers as $h => $label) {
                 $f = $this->fields[$h];
                 $f->_errors = array();
-                $T = $f->parse($csv[$i]);
+                $T = $f->parse(trim($csv[$i]));
                 if ($f->validateEntry($T) && $f->errors())
                     throw new ImportDataError(sprintf(__(
                         /* 1 will be a field label, and 2 will be error messages */

@@ -1,20 +1,30 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-mail for the canonical source repository
- * @copyright https://github.com/laminas/laminas-mail/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-mail/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Mail\Storage\Part;
 
 use Laminas\Mail\Headers;
 use Laminas\Mail\Storage\Part;
 
+use function count;
+use function feof;
+use function fgets;
+use function fopen;
+use function fread;
+use function fseek;
+use function ftell;
+use function is_resource;
+use function stream_copy_to_stream;
+use function trim;
+
+use const SEEK_END;
+
 class File extends Part
 {
+    /** @var array */
     protected $contentPos = [];
+    /** @var array */
     protected $partPos = [];
+    /** @var resource */
     protected $fh;
 
     /**
@@ -37,18 +47,19 @@ class File extends Part
         }
 
         if (! is_resource($params['file'])) {
-            $this->fh = fopen($params['file'], 'r');
+            $fh = fopen($params['file'], 'r');
         } else {
-            $this->fh = $params['file'];
+            $fh = $params['file'];
         }
-        if (! $this->fh) {
+        if (! $fh) {
             throw new Exception\RuntimeException('could not open file');
         }
+        $this->fh = $fh;
         if (isset($params['startPos'])) {
             fseek($this->fh, $params['startPos']);
         }
         $header = '';
-        $endPos = isset($params['endPos']) ? $params['endPos'] : null;
+        $endPos = $params['endPos'] ?? null;
         while (($endPos === null || ftell($this->fh) < $endPos) && trim($line = fgets($this->fh))) {
             $header .= $line;
         }
@@ -76,7 +87,7 @@ class File extends Part
         }
 
         $part = [];
-        $pos = $this->contentPos[0];
+        $pos  = $this->contentPos[0];
         fseek($this->fh, $pos);
         while (! feof($this->fh) && ($endPos === null || $pos < $endPos)) {
             $line = fgets($this->fh);
@@ -88,18 +99,18 @@ class File extends Part
             }
 
             $lastPos = $pos;
-            $pos = ftell($this->fh);
-            $line = trim($line);
+            $pos     = ftell($this->fh);
+            $line    = trim($line);
 
             if ($line == '--' . $boundary) {
                 if ($part) {
                     // not first part
-                    $part[1] = $lastPos;
+                    $part[1]         = $lastPos;
                     $this->partPos[] = $part;
                 }
                 $part = [$pos];
             } elseif ($line == '--' . $boundary . '--') {
-                $part[1] = $lastPos;
+                $part[1]         = $lastPos;
                 $this->partPos[] = $part;
                 break;
             }
@@ -151,7 +162,10 @@ class File extends Part
             throw new Exception\RuntimeException('part not found');
         }
 
-        return new static(['file' => $this->fh, 'startPos' => $this->partPos[$num][0],
-                              'endPos' => $this->partPos[$num][1]]);
+        return new static([
+            'file'     => $this->fh,
+            'startPos' => $this->partPos[$num][0],
+            'endPos'   => $this->partPos[$num][1],
+        ]);
     }
 }

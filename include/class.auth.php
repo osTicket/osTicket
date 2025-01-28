@@ -1622,9 +1622,13 @@ extends PasswordPolicy {
     }
 
     function onSet($passwd, $current) {
-        if (strlen($passwd) < 6) {
+        $pwdlen = strlen($passwd);
+        if ($pwdlen < 6) {
             throw new BadPassword(
                 __('Password must be at least 6 characters'));
+        } elseif ($pwdlen > 128) {
+            throw new BadPassword(
+                sprintf('%s - %s', __('Password is too long'), __('maximum of 128 characters allowed')));
         }
         // XXX: Changing case is technicall changing the password
         if (0 === strcasecmp($passwd, $current)) {

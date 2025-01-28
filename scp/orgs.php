@@ -99,7 +99,7 @@ if ($_POST) {
     }
 } elseif (!$org && $_REQUEST['a'] == 'export') {
     require_once(INCLUDE_DIR.'class.export.php');
-    $ts = strftime('%Y%m%d');
+    $ts = date('Ymd');
     if (!($query=$_SESSION[':Q:orgs']))
         $errors['err'] = __('Query token not found');
     elseif (!Export::saveOrganizations($query, __('organizations')."-$ts.csv", 'csv'))
@@ -119,7 +119,7 @@ if ($org) {
             return;
         } elseif ($_REQUEST['a'] == 'export' && ($query=$_SESSION[':O:tickets'])) {
             $filename = sprintf('%s-tickets-%s.csv',
-                    $org->getName(), strftime('%Y%m%d'));
+                    $org->getName(), date('Ymd'));
             if (!Export::saveTickets($query, NULL, $filename, 'csv'))
                 $errors['err'] = __('Unable to dump query results.')
                     .' '.__('Internal error occurred');

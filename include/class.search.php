@@ -1164,6 +1164,7 @@ class AdvancedSearchSelectionField extends ChoiceField {
         switch ($method) {
             case 'includes':
             case '!includes':
+                if (!$value) return;
                 $Q = new Q();
                 if (count($value) > 1)
                     $Q->add(array("{$name}__in" => array_keys($value)));

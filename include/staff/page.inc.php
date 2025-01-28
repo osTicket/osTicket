@@ -12,8 +12,8 @@ if($page && $_REQUEST['a']!='add'){
     $action='update';
     $submit_text=__('Save Changes');
     $info=$page->getHashtable();
-    $info['body'] = Format::viewableImages($page->getBody());
-    $info['notes'] = Format::viewableImages($info['notes']);
+    $info['body'] = $page->getBody();
+    $info['notes'] = $info['notes'];
     $trans['name'] = $page->getTranslateTag('name');
     $slug = Format::slugify($info['name']);
     $qs += array('id' => $page->getId());
@@ -23,7 +23,7 @@ if($page && $_REQUEST['a']!='add'){
         foreach ($translations as $t) {
             if (strcasecmp($t->lang, $tag) === 0) {
                 $C = $t->getComplex();
-                $info['trans'][$tag] = Format::viewableImages($C['body']);
+                $info['trans'][$tag] = $C['body'];
                 break;
             }
         }
@@ -150,7 +150,7 @@ else
 <?php
     if (!$info['type'] || $info['type'] == 'thank-you') echo 'data-root-context="thank-you"';
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'], $info['body']);
-    echo $attrs; ?>><?php echo $info['body'] ?: $draft; ?></textarea>
+    echo $attrs; ?>><?php echo $draft ?: Format::viewableImages($info['body']); ?></textarea>
       </div>
 
 <?php if ($langs && $page) {
@@ -164,7 +164,7 @@ else
           style="width:100%" class="richtext draft" data-width="<?php echo $width; ?>"
 <?php
     list($draft, $attrs) = Draft::getDraftAndDataAttrs('page', $info['id'].'.'.$tag, $info['trans'][$tag]);
-    echo $attrs; ?>><?php echo $info['trans'][$tag] ?: $draft; ?></textarea>
+    echo $attrs; ?>><?php echo $draft ?: Format::viewableImages($info['trans'][$tag]); ?></textarea>
       </div>
 <?php }
 } ?>
@@ -184,7 +184,7 @@ else
     <em><strong><?php echo __('Internal Notes'); ?></strong>:
       <?php echo __("Be liberal, they're internal"); ?></em>
     <textarea class="richtext no-bar" name="notes" cols="21"
-      rows="8" style="width: 80%;"><?php echo Format::sanitize($info['notes']); ?></textarea>
+      rows="8" style="width: 80%;"><?php echo Format::viewableImages($info['notes']); ?></textarea>
   </div>
 </div>
 
