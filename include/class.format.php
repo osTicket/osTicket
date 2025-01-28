@@ -327,16 +327,27 @@ class Format {
 
         // Remove HEAD and STYLE sections
         $html = preg_replace([
+            array(':<(head|style|script).+?</\1>:is', # <head> and <style> sections
 +                ':<(head|style|script)[^<]+?<(/ ?\1|\1 ?/)>:is',   # Balanced <head>, <style>, and <script> sections
+                  ':<!\[[^]<]+\]>:',            # <![if !mso]> and friends
 +                ':</? ?(head|style|script) ?/?>:is',   # Ubalanced <head>, <style>, and <script> tags (opening or closing)
+                  ':<!DOCTYPE[^>]+>:',          # <!DOCTYPE ... >
 +                ':<!\[[^]<]+\]>:',            		# <![if !mso]> and friends
+                  ':<\?[^>]+>:',                # <?xml version="1.0" ... >
 +                ':<!DOCTYPE[^>]+>:',          		# <!DOCTYPE ... >
+                  ':<html[^>]+:i',              # drop html attributes
 +                ':<(\!--)?\?[^>]+>:',         		# <?xml version="1.0" ... > or <!--?xml version="1.0" ... >
+                  ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
 +                ':<html[^>]+:i',              		# drop html attributes
+                  ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
 +                ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', 	# Drop _MailEndCompose
+                  ':data-cid="[^"]*":',         # drop image cid attributes
 +                ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', 						# drop Gmail "ltr" attributes
+                  '(position:[^!";]+;?)',
 +                ':data-cid="[^"]*":',         		# drop image cid attributes
+            ),
 +                '(position:[^!";]+;?)',
+            array('', '', '', '', '<html', '$4', '$2 $3', '', ''),
             ],
             ['', '', '', '', '', '<html', '$4', '$2 $3', '', ''],
             $html);
