@@ -365,18 +365,50 @@ class osTicket {
         return db_input($this->get_var($index, $vars), $quote);
     }
 
+    /**
+    * Determines and returns the PATH_INFO for the current request.
+    *
+    * This function attempts to retrieve PATH_INFO from various server variables
+    * or derive it from the REQUEST_URI if not explicitly available.
+    * 
+    * Steps:
+    * 1. Check if PATH_INFO is directly available in the $_SERVER superglobal.
+    * 2. Check if ORIG_PATH_INFO (alternative variable) is available.
+    * 3. Extract the PATH_INFO from REQUEST_URI by removing query strings
+    *    and matching it against SCRIPT_NAME or its directory.
+    * 4. Return null if no PATH_INFO can be determined.
+    *
+    * @return string|null The derived PATH_INFO or null if unavailable.
+    */
     static function get_path_info() {
-        if(isset($_SERVER['PATH_INFO']))
-            return htmlentities($_SERVER['PATH_INFO']);
+       // Check if PATH_INFO is directly set in the server variables
+       if (!empty($_SERVER['PATH_INFO'])) {
+           return $_SERVER['PATH_INFO'];
+       }
 
-        if(isset($_SERVER['ORIG_PATH_INFO']))
-            return htmlentities($_SERVER['ORIG_PATH_INFO']);
+       // Check if ORIG_PATH_INFO is set (used in some server configurations)
+       if (!empty($_SERVER['ORIG_PATH_INFO'])) {
+           return $_SERVER['ORIG_PATH_INFO'];
+       }
 
-        //TODO: conruct possible path info.
+       // Attempt to derive PATH_INFO from REQUEST_URI
+       $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-        return null;
-    }
+       // Check if SCRIPT_NAME is a prefix of REQUEST_URI
+       if (strpos($request_uri, $_SERVER['SCRIPT_NAME']) === 0) {
+           return substr($request_uri, strlen($_SERVER['SCRIPT_NAME']));
+       }
 
+       // Check if the script's directory is a prefix of REQUEST_URI
+       $script_dir = dirname($_SERVER['SCRIPT_NAME']);
+       if (strpos($request_uri, $script_dir) === 0) {
+           return substr($request_uri, strlen($script_dir));
+       }
+
+       // Return null if no PATH_INFO can be determined
+       return null;
+   }
+	
     /**
      * Fetch the current version(s) of osTicket softwares via DNS. The
      * constants of MAJOR_VERSION, THIS_VERSION, and GIT_VERSION will be
