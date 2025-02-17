@@ -199,6 +199,6 @@ class Explode extends AbstractValidator implements ValidatorPluginManagerAwareIn
             }
         }
 
-        return ! $this->abstractOptions['messages'];
+        return $this->abstractOptions['messages'] === [];
     }
 }

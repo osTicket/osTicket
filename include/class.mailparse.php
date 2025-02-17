@@ -242,8 +242,13 @@ class Mail_Parse {
 
 
     function getFromAddressList(){
-        return self::parseAddressList($this->getHeaderEntry('from'),
-                $this->charset);
+        if (!($header = $this->struct->headers['from']))
+            return null;
+
+        if (is_string($header) && (strpos($header, '<') !== false) && (strpos($header, '>') === false))
+            $header = $header.'>';
+
+        return Mail_Parse::parseAddressList($header, $this->charset);
     }
 
     function getDeliveredToAddressList() {
@@ -312,10 +317,10 @@ class Mail_Parse {
             return false;
 
         $info = self::splitHeaders($body);
-        if (!isset($info['Action']))
+        if (!isset($info['action']))
             return false;
 
-        return strcasecmp($info['Action'], 'failed') === 0;
+        return strcasecmp($info['action'], 'failed') === 0;
     }
 
     function getDeliveryStatusMessage() {

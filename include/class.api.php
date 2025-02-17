@@ -387,8 +387,8 @@ class ApiXmlDataParser extends XmlDataParser {
     function fixup($current) {
         global $cfg;
 
-		if($current['ticket'])
-			$current = $current['ticket'];
+        if (isset($current['ticket']))
+            $current = $current['ticket'];
 
         if (!is_array($current))
             return $current;

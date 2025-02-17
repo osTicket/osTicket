@@ -21,7 +21,7 @@
         "rss": "https://github.com/laminas/laminas-servicemanager/releases.atom"
     },
     "require": {
-        "php": "~8.1.0 || ~8.2.0",
+        "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
         "laminas/laminas-stdlib": "^3.17",
         "psr/container": "^1.0"
     },
@@ -31,10 +31,9 @@
         "laminas/laminas-code": "^4.10.0",
         "laminas/laminas-coding-standard": "~2.5.0",
         "laminas/laminas-container-config-test": "^0.8",
-        "laminas/laminas-dependency-plugin": "^2.2",
         "mikey179/vfsstream": "^1.6.11",
         "phpbench/phpbench": "^1.2.9",
-        "phpunit/phpunit": "^10.0.17",
+        "phpunit/phpunit": "^10.4",
         "psalm/plugin-phpunit": "^0.18.4",
         "vimeo/psalm": "^5.8.0"
     },
@@ -77,8 +76,7 @@
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "composer/package-versions-deprecated": true,
-            "laminas/laminas-dependency-plugin": true
+            "composer/package-versions-deprecated": true
         },
         "platform": {
             "php": "8.1.99"

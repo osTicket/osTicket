@@ -380,7 +380,7 @@ class Imap
     /**
      * escape one or more literals i.e. for sendRequest
      *
-     * @param  string|array $string the literal/-s
+     * @param  string $string the literal/-s
      * @return string|array escape literals, literals with newline ar returned
      *                      as array('{size}', 'string');
      */

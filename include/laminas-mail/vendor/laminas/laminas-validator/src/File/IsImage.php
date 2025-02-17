@@ -17,7 +17,7 @@ class IsImage extends MimeType
     public const NOT_DETECTED = 'fileIsImageNotDetected';
     public const NOT_READABLE = 'fileIsImageNotReadable';
 
-    /** @var array Error message templates */
+    /** @inheritDoc */
     protected $messageTemplates = [
         self::FALSE_TYPE   => "File is no image, '%type%' detected",
         self::NOT_DETECTED => 'The mimetype could not be detected from the file',

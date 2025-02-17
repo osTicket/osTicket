@@ -113,10 +113,6 @@ class Http {
         if (false !== strpos($user_agent,'msie')
                 && false !== strpos($user_agent,'win'))
             return 'filename='.rawurlencode($filename);
-        elseif (false !== strpos($user_agent, 'safari')
-                && false === strpos($user_agent, 'chrome'))
-            // Safari and Safari only can handle the filename as is
-            return 'filename='.str_replace(',', '', $filename);
         else
             // Use RFC5987
             return "filename*=UTF-8''".rawurlencode($filename);

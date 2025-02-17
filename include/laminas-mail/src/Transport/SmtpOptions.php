@@ -11,6 +11,9 @@ use function is_object;
 use function is_string;
 use function sprintf;
 
+/**
+ * @extends AbstractOptions<string>
+ */
 class SmtpOptions extends AbstractOptions
 {
     /** @var string Local client hostname */

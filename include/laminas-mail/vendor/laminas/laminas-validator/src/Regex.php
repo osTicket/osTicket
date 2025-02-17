@@ -34,14 +34,14 @@ class Regex extends AbstractValidator
     /**
      * Regular expression pattern
      *
-     * @var string
+     * @var non-empty-string
      */
     protected $pattern;
 
     /**
      * Sets validator options
      *
-     * @param  string|array|Traversable $pattern
+     * @param  non-empty-string|array|Traversable $pattern
      * @throws Exception\InvalidArgumentException On missing 'pattern' parameter.
      */
     public function __construct($pattern)
@@ -60,7 +60,7 @@ class Regex extends AbstractValidator
             throw new Exception\InvalidArgumentException('Invalid options provided to constructor');
         }
 
-        if (! array_key_exists('pattern', $pattern)) {
+        if (! array_key_exists('pattern', $pattern) || ! is_string($pattern['pattern']) || $pattern['pattern'] === '') {
             throw new Exception\InvalidArgumentException("Missing option 'pattern'");
         }
 
@@ -72,7 +72,7 @@ class Regex extends AbstractValidator
     /**
      * Returns the pattern option
      *
-     * @return string
+     * @return non-empty-string|null
      */
     public function getPattern()
     {
@@ -82,7 +82,7 @@ class Regex extends AbstractValidator
     /**
      * Sets the pattern option
      *
-     * @param  string $pattern
+     * @param non-empty-string $pattern
      * @throws Exception\InvalidArgumentException If there is a fatal error in pattern matching.
      * @return $this Provides a fluent interface
      */
@@ -107,7 +107,7 @@ class Regex extends AbstractValidator
     /**
      * Returns true if and only if $value matches against the pattern option
      *
-     * @param  string $value
+     * @param  mixed $value
      * @return bool
      */
     public function isValid($value)
@@ -120,7 +120,7 @@ class Regex extends AbstractValidator
         $this->setValue($value);
 
         ErrorHandler::start();
-        $status = preg_match($this->pattern, $value);
+        $status = preg_match($this->pattern, (string) $value);
         ErrorHandler::stop();
         if (false === $status) {
             $this->error(self::ERROROUS);

@@ -926,13 +926,20 @@ class EmailAccount extends VerySimpleModel {
     }
 
     private function updateOAuth2AuthCredentials($provider, $vars, &$errors) {
+        $err = sprintf('%s_auth_bk', $this->getType());
         if (!$vars['access_token']) {
-            $errors['access_token'] = __('Access Token Required');
+            $errors[$err] = __('Access Token Required');
         } elseif (!$vars['resource_owner_email']
                 || !Validator::is_email($vars['resource_owner_email'])) {
-            $errors['resource_owner_email'] =
-                __('Resource Owner Required');
-
+            $errors[$err] = __('Resource Owner Required');
+        } elseif ($this->isStrict()
+            // When in Strict mode Account Email must match resource owner's
+            // email. Strict mode can be disabled for a global admin to
+            // authorized onbehalf of other user accounts or shared mailboxes.
+            && strcasecmp($this->getEmail()->getEmail(), $vars['resource_owner_email'])) {
+            $errors[$err] = sprintf(__('Strict Mode: Expecting Authorization for %s not %s'),
+                        $this->getEmail()->getEmail(),
+                        $vars['resource_owner_email']);
         } elseif (!$errors) {
             // Encrypt Access Token
             $vars['access_token'] = Crypto::encrypt(
@@ -1350,7 +1357,7 @@ class SmtpAccount extends EmailAccount {
         // matching.
         if ($vars['smtp_active'] == 1
                 && ($vars['smtp_auth_bk'] === 'mailbox')
-                && (strpos($vars['auth_bk'], 'oauth2') === 0)
+                && (strpos($vars['mailbox_auth_bk'], 'oauth2') === 0)
                 && !$this->checkStrictMatching())
             $_errors['smtp_auth_bk'] = sprintf('%s and %s', __('Resource Owner'), __('Email Mismatch'));
 

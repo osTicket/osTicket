@@ -269,7 +269,7 @@ var scp_prep = function() {
 
     /* Typeahead tickets lookup */
     var last_req;
-    $('input.basic-search').typeahead({
+    $('input.basic-search:not([id])').typeahead({
         source: function (typeahead, query) {
             if (last_req) last_req.abort();
             var $el = this.$element;

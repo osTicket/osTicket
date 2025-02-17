@@ -6,6 +6,8 @@ use Laminas\Validator\Exception;
 
 /**
  * Confirms a record does not exist in a table.
+ *
+ * @deprecated This class will be removed in version 3.0 of this component. There is no replacement.
  */
 class NoRecordExists extends AbstractDb
 {

@@ -26,7 +26,6 @@ class Test {
     );
 
     function __construct() {
-        assert_options(ASSERT_CALLBACK, array($this, 'fail'));
         error_reporting(E_ALL & ~E_WARNING);
     }
 

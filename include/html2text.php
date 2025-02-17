@@ -1020,14 +1020,16 @@ function mb_wordwrap($string, $width=75, $break="\n", $cut=false) {
   return rtrim(preg_replace($search, $replace, $string), $break);
 }
 
-// Thanks http://www.php.net/manual/en/ref.mbstring.php#90611
-function mb_str_pad($input, $pad_length, $pad_string=" ",
-        $pad_style=STR_PAD_RIGHT) {
-    $match = array();
-    $marks = preg_match_all('/\p{M}/u', $input, $match);
-    return str_pad($input,
-        strlen($input)-mb_strwidth($input)+$marks+$pad_length, $pad_string,
-        $pad_style);
+if (!function_exists('mb_str_pad')) {
+    // Thanks http://www.php.net/manual/en/ref.mbstring.php#90611
+    function mb_str_pad($input, $pad_length, $pad_string=" ",
+            $pad_style=STR_PAD_RIGHT) {
+        $match = array();
+        $marks = preg_match_all('/\p{M}/u', $input, $match);
+        return str_pad($input,
+            strlen($input)-mb_strwidth($input)+$marks+$pad_length, $pad_string,
+            $pad_style);
+    }
 }
 
 // Enable use of html2text from command line

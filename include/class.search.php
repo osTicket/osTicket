@@ -371,8 +371,11 @@ class MysqlSearchBackend extends SearchBackend {
         #elseif (count(explode(' ', $query)) == 1)
         #    $mode = ' WITH QUERY EXPANSION';
 
-        // Strip colon (:num) to avoid possible params injection
-        $query = preg_replace('/:(\d+)/i', '$1', $query);
+        // Sanitize query to avoid possible SQL injection via parameter markers
+        // This regex matches one or more colons followed by one or more digits,
+        // and then replaces the match with only the digits (i.e. stripping the colon(s)).
+        $query = preg_replace('/:+(\d+)/', '$1', $query);
+
         // escape query and using it as search
         $search = 'MATCH (Z1.title, Z1.content) AGAINST ('.db_input($query).$mode.')';
 
@@ -471,7 +474,7 @@ class MysqlSearchBackend extends SearchBackend {
      * not indexed in the _search table and add it to the index.
      */
     function IndexOldStuff() {
-        $class = get_class();
+        $class = get_class($this);
         $auto_create = function($db_error) use ($class) {
 
             if ($db_error != 1146)
@@ -905,7 +908,10 @@ class SavedQueue extends CustomQueue {
         $query = $this->getQuery();
         if ($agent)
             $query = $agent->applyVisibility($query);
-        $query->limit(false)->offset(false)->order_by(false);
+        $query->filter(Q::any([
+                'ticket_pid__isnull' => true,
+                'flags__hasbit' => Ticket::FLAG_LINKED
+            ]))->limit(false)->offset(false)->order_by(false);
         try {
             return $query->count();
         } catch (Exception $e) {

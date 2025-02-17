@@ -33,7 +33,7 @@ class OrganizationManager extends Module {
                     $this->fail("Unable to open input file [{$options['file']}]");
 
                 //Read the header (if any)
-                if (($data = fgetcsv($this->stream, 1000, ","))) {
+                if (($data = fgetcsv($this->stream, 1000, ",", "\"", ""))) {
                     if (strcasecmp($data[0], 'name'))
                         fseek($this->stream, 0); // We don't have an header!
                     else;
@@ -41,7 +41,7 @@ class OrganizationManager extends Module {
                     // for now we're assuming one column of Name
                 }
 
-                while (($data = fgetcsv($this->stream, 1000, ",")) !== FALSE) {
+                while (($data = fgetcsv($this->stream, 1000, ",", "\"", "")) !== FALSE) {
                     if (!$data[0])
                         $this->stderr->write('Invalid data format: Name
                                 required');
@@ -55,10 +55,10 @@ class OrganizationManager extends Module {
                 if (!($this->stream = fopen($stream, 'c')))
                     $this->fail("Unable to open output file [{$options['file']}]");
 
-                fputcsv($this->stream, array('Name'));
+                fputcsv($this->stream, array('Name'), ",", "\"", "");
                 foreach (Organization::objects() as $org)
                     fputcsv($this->stream,
-                            array((string) $org->getName()));
+                            array((string) $org->getName()), ",", "\"", "");
                 break;
             default:
                 $this->stderr->write('Unknown action!');

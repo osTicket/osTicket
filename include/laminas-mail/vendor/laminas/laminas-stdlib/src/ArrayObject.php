@@ -333,27 +333,27 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
     /**
      * Sets the value at the specified key to value
      *
-     * @param TKey $key
+     * @param TKey $offset
      * @param TValue $value
      * @return void
      */
     #[ReturnTypeWillChange]
-    public function offsetSet(mixed $key, mixed $value)
+    public function offsetSet(mixed $offset, mixed $value)
     {
-        $this->storage[$key] = $value;
+        $this->storage[$offset] = $value;
     }
 
     /**
      * Unsets the value at the specified key
      *
-     * @param TKey $key
+     * @param TKey $offset
      * @return void
      */
     #[ReturnTypeWillChange]
-    public function offsetUnset(mixed $key)
+    public function offsetUnset(mixed $offset)
     {
-        if ($this->offsetExists($key)) {
-            unset($this->storage[$key]);
+        if ($this->offsetExists($offset)) {
+            unset($this->storage[$offset]);
         }
     }
 

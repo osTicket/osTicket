@@ -23,6 +23,8 @@ use function is_array;
 
 /**
  * Class for Database record validation
+ *
+ * @deprecated This class will be removed in version 3.0 of this component. There is no replacement.
  */
 abstract class AbstractDb extends AbstractValidator implements AdapterAwareInterface
 {

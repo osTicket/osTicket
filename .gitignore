@@ -8,6 +8,8 @@ setup/cli/modules/importer
 .vagrant
 ._.DS_Store
 Vagrantfile
+# VS Code workspace files
+*.code-workspace
 
 # Staging directory used for packaging script
 stage

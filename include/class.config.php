@@ -195,7 +195,9 @@ extends VerySimpleModel {
             ))->delete();
     }
 
-    static function getConfigsByNamespace(?string $namespace=null, $key, $value=false) {
+
+    static function getConfigsByNamespace(?string $namespace, $key, $value=false) {
+      
         $filter = array();
 
          $filter['key'] = $key;

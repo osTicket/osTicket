@@ -76,10 +76,10 @@ class UserManager extends Module {
             if (!($this->stream = fopen($stream, 'c')))
                 $this->fail("Unable to open output file [{$options['file']}]");
 
-            fputcsv($this->stream, array('Name', 'Email'));
+            fputcsv($this->stream, array('Name', 'Email'), ",", "\"", "");
             foreach (User::objects() as $user)
                 fputcsv($this->stream,
-                        array((string) $user->getName(), $user->getEmail()));
+                        array((string) $user->getName(), $user->getEmail()), ",", "\"", "");
             break;
 
         case 'activate':

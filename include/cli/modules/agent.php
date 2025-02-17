@@ -91,14 +91,14 @@ class AgentManager extends Module {
             if (!($this->stream = fopen($stream, 'c')))
                 $this->fail("Unable to open output file [{$options['file']}]");
 
-            fputcsv($this->stream, array('First Name', 'Last Name', 'Email', 'UserName'));
+            fputcsv($this->stream, array('First Name', 'Last Name', 'Email', 'UserName'), ",", "\"", "");
             foreach ($this->getAgents($options) as $agent)
                 fputcsv($this->stream, array(
                     $agent->getFirstName(),
                     $agent->getLastName(),
                     $agent->getEmail(),
                     $agent->getUserName(),
-                ));
+                ), ",", "\"", "");
             break;
 
         case 'list':

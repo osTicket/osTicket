@@ -84,7 +84,7 @@ if ($avatar->isChangeable()) { ?>
         <tr>
           <td><?php echo __('Mobile Number');?>:</td>
           <td>
-            <input type="tel" size="18" name="mobile" class="auto phone"
+            <input type="tel" size="18" name="mobile" class="auto mobile"
               value="<?php echo Format::htmlchars($staff->mobile); ?>" />
             <div class="error"><?php echo $errors['mobile']; ?></div>
           </td>

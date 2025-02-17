@@ -505,7 +505,7 @@ class Code128 extends AbstractAdapter
         }
 
         $value = $strWrapper->substr($value, 1, null);
-        while ($strWrapper->strpos($value, 'Š') || ($value !== '')) {
+        while ($strWrapper->strpos((string) $value, 'Š') !== false || ((string) $value !== '')) {
             $char = $strWrapper->substr($value, 0, 1);
             if ($read === 'C') {
                 $char = $strWrapper->substr($value, 0, 2);

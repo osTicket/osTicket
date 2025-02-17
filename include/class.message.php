@@ -183,7 +183,7 @@ abstract class BaseMessageStorage implements MessageStorageBackend {
         return $messages;
     }
 
-    function getIterator() {
+    function getIterator(): Traversable {
         $this->used = true;
         $messages = $this->load();
         if ($this->queued) {

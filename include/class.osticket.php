@@ -320,7 +320,8 @@ class osTicket {
             .',title='.db_input(Format::sanitize($title, true))
             .',log_type='.db_input($loglevel[$level])
             .',log='.db_input(Format::sanitize($message, false))
-            .',ip_address='.db_input($_SERVER['REMOTE_ADDR']);
+            .',ip_address='.db_input($_SERVER['REMOTE_ADDR'])
+            .',logger=""';
 
         db_query($sql, false);
 

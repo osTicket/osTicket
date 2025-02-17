@@ -106,7 +106,7 @@ namespace osTicket\Mail {
             $part = new MimePart($text);
             $part->type = Mime::TYPE_TEXT;
             $part->charset = $this->charset;
-            $part->encoding = $encoding ?: Mime::ENCODING_BASE64;
+            $part->encoding = $encoding;
             $this->addMimeContent($part);
         }
 
@@ -515,7 +515,7 @@ namespace osTicket\Mail {
          *
          */
         public function getRawEmail(int $i) {
-            return $this->getRawHeader($i) . $this->getRawContent($i);
+            return trim($this->getRawHeader($i)) . "\r\n\r\n" . $this->getRawContent($i);
         }
 
         /*

@@ -322,7 +322,7 @@ class RolePermission {
     }
 
     function getInfo() {
-        return $this->perms;
+        return $this->perms ?: [];
     }
 
     function merge($perms) {

@@ -335,9 +335,10 @@ class Format {
                   ':<(a|span) (name|style)="(mso-bookmark\:)?_MailEndCompose">(.+)?<\/(a|span)>:', # Drop _MailEndCompose
                   ':<div dir=(3D)?"ltr">(.*?)<\/div>(.*):is', # drop Gmail "ltr" attributes
                   ':data-cid="[^"]*":',         # drop image cid attributes
-                  '(position:[^!";]+;?)',
+                  '(position: ?(-webkit-)?(static|relative|fixed|absolute|sticky|initial|inherit);?)', # Position styling
+                  ':[\x{2002}-\x{200B}]+:u',    # unicode spaces
             ),
-            array('', '', '', '', '<html', '$4', '$2 $3', '', ''),
+            array('', '', '', '', '<html', '$4', '$2 $3', '', '', ' '),
             $html);
 
         // HtmLawed specific config only
@@ -484,7 +485,7 @@ class Format {
         $exclude = !$cfg->allowExternalImages();
         $local = false;
 
-        $input = preg_replace_callback('/<img ([^>]*)(src="([^"]+)")([^>]*)\/?>/',
+        $input = preg_replace_callback('/<img ([^>]*?)(src="([^"]+)")([^>]*)\/?>/',
             function($match) use ($local, $allowed, $exclude, $display) {
                 if (strpos($match[3], 'cid:') !== false)
                     $local = true;
@@ -536,7 +537,8 @@ class Format {
                 '/[\x{23E0}-\x{23EF}]/u',   # More Buttons
                 '/[\x{2310}-\x{231F}]/u',   # Hourglass/Watch
                 '/[\x{1000B6}]/u',          # Private Use Area (Plane 16)
-                '/[\x{2322}-\x{232F}]/u'    # Keyboard
+                '/[\x{2322}-\x{232F}]/u',   # Keyboard
+                '/[\x{00B0}|\x{00A9}]/u'    # Degrees/Copyright
             ), '', $text);
     }
 

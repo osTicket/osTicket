@@ -323,7 +323,7 @@ class UsersAjaxAPI extends AjaxController {
         elseif (!$bk || !$id)
             Http::response(422, 'Backend and user id required');
         elseif (!($backend = AuthenticationBackend::getSearchDirectoryBackend($bk))
-                || !($user_info = $backend->lookup($id)))
+                || !($user_info = $backend->lookup(html_entity_decode($id))))
             Http::response(404, 'User not found');
 
         $form = UserForm::getUserForm()->getForm($user_info);

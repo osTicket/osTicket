@@ -313,7 +313,7 @@ class EmailAddress extends AbstractValidator
             $host = [$host];
         }
 
-        if (empty($host)) {
+        if (! is_array($host) || $host === []) {
             return false;
         }
 
@@ -437,9 +437,9 @@ class EmailAddress extends AbstractValidator
             }
         }
 
-        if (! $result) {
+        if ($result === false) {
             $this->error(self::INVALID_MX_RECORD);
-            return $result;
+            return false;
         }
 
         if (! $this->options['useDeepMxCheck']) {
@@ -454,7 +454,7 @@ class EmailAddress extends AbstractValidator
                 $reserved = false;
             }
 
-            if (! is_string($hostname) || ! trim($hostname)) {
+            if (trim($hostname) === '') {
                 continue;
             }
 
@@ -568,7 +568,7 @@ class EmailAddress extends AbstractValidator
         $local = $this->validateLocalPart();
 
         // If both parts valid, return true
-        return ($local && $length) && (! $this->options['useDomainCheck'] || $hostname);
+        return ($local && $length) && (! $this->options['useDomainCheck'] || $hostname !== false);
     }
 
     /**
@@ -581,9 +581,13 @@ class EmailAddress extends AbstractValidator
     {
         if (extension_loaded('intl')) {
             if (defined('INTL_IDNA_VARIANT_UTS46')) {
-                return idn_to_ascii($email, 0, INTL_IDNA_VARIANT_UTS46) ?: $email;
+                $value = idn_to_ascii($email, 0, INTL_IDNA_VARIANT_UTS46);
+
+                return $value !== false ? $value : $email;
             }
-            return idn_to_ascii($email) ?: $email;
+            $value = idn_to_ascii($email);
+
+            return $value !== false ? $value : $email;
         }
         return $email;
     }
@@ -608,9 +612,13 @@ class EmailAddress extends AbstractValidator
             // But not when the source string is long enough.
             // Thus we default to source string ourselves.
             if (defined('INTL_IDNA_VARIANT_UTS46')) {
-                return idn_to_utf8($email, 0, INTL_IDNA_VARIANT_UTS46) ?: $email;
+                $value = idn_to_utf8($email, 0, INTL_IDNA_VARIANT_UTS46);
+
+                return $value !== false ? $value : $email;
             }
-            return idn_to_utf8($email) ?: $email;
+            $value = idn_to_utf8($email);
+
+            return $value !== false ? $value : $email;
         }
         return $email;
     }

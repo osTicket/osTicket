@@ -914,7 +914,7 @@ class DynamicFormField extends VerySimpleModel {
                 /* `variable` is used for automation. Internally it's called `name` */
                 ), "name");
         }
-        if ($this->get('name') && !preg_match('/^(?!\d)([[:alnum:]]|_|-)+$/u', $this->get('name')))
+        if ($this->get('name') && !preg_match('/^(?!\d)([[:alnum:]]|_)+$/u', $this->get('name')))
             $this->addError(__(
                 'Invalid character in variable name. Please use letters and numbers only.'
             ), 'name');
@@ -1355,7 +1355,7 @@ class DynamicFormEntry extends VerySimpleModel {
                     //use getChanges if getClean returns an empty array
                     $fieldClean = $field->getClean() ?: $field->getChanges();
                     if (is_array($fieldClean) && $fieldClean[0])
-                        $fieldClean = json_decode($fieldClean[0], true);
+                        $fieldClean = is_string($fieldClean[0]) ? json_decode($fieldClean[0], true) : $fieldClean[0];
                 } else
                     $fieldClean = $field->getClean();
 
@@ -1593,7 +1593,7 @@ class SelectionField extends FormField {
         $selection = array();
 
         if ($value && !is_array($value))
-            $value = array($value);
+            $value = JsonDataParser::parse($value) ?: array($value);
 
         if ($value && is_array($value)) {
             foreach ($value as $k=>$v) {
@@ -1633,6 +1633,7 @@ class SelectionField extends FormField {
             $values = array();
             $choices = $this->getChoices();
             foreach (explode(',', $value) as $V) {
+                $V = trim($V);
                 if (isset($choices[$V]))
                     $values[$V] = $choices[$V];
             }

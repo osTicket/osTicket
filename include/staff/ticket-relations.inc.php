@@ -19,7 +19,7 @@ if (count($children ?: array()) != 0 || $ticket->isChild()) { ?>
                  <th width="200"><?php echo __('Create Date'); ?></th>
              </tr>
          </thead>
-         <tbody class="tasks">
+         <tbody class="relations">
          <?php
          if ($children) {
              foreach($children as $child) {

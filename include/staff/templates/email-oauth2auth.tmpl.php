@@ -156,12 +156,28 @@ if (isset($errors['err'])) {
                         40); ?></td>
             </tr>
             <tr>
-                <td><?php echo __('Resource Owner'); ?>:</td>
-                <td><?php echo $token->getResourceOwner(); ?></td>
+                <td><?php echo __('Resource Owner Id'); ?>:</td>
+                <td><?php echo $token->getResourceOwnerId(); ?></td>
+            </tr>
+            <tr>
+                <td><?php echo __('Resource Owner Email'); ?>:</td>
+                <td><?php echo $token->getResourceOwnerEmail(); ?></td>
             </tr>
             <tr>
                 <td><?php echo __('Config Signature'); ?>:</td>
                 <td><?php echo  $token->getConfigSignature(); ?></td>
+            </tr>
+          </tbody>
+          <thead>
+            <tr>
+                <th colspan="2">
+                    <em><?php echo __('Token Scopes'); ?></em>
+                </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+                <td colspan=2><?php echo str_replace(' ', '<br />', $token->getScope()); ?></td>
             </tr>
         </tbody>
         </table>

@@ -34,7 +34,7 @@ class ValidatorPluginManagerFactory implements FactoryInterface
      */
     public function __invoke(ContainerInterface $container, $name, ?array $options = null)
     {
-        $pluginManager = new ValidatorPluginManager($container, $options ?: []);
+        $pluginManager = new ValidatorPluginManager($container, $options ?? []);
 
         // If this is in a laminas-mvc application, the ServiceListener will inject
         // merged configuration during bootstrap.
@@ -69,7 +69,7 @@ class ValidatorPluginManagerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $container, $name = null, $requestedName = null)
     {
-        return $this($container, $requestedName ?: ValidatorPluginManager::class, $this->creationOptions);
+        return $this($container, $requestedName ?? ValidatorPluginManager::class, $this->creationOptions);
     }
 
     /**

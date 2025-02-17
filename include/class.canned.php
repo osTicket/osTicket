@@ -311,6 +311,12 @@ extends VerySimpleModel {
 
         return true;
     }
+
+    function staffCanAccess($staff) {
+        if (!$staff instanceof Staff)
+            return false;
+        return (!$this->dept || (($role = $staff->getRole($this->dept)) && $role->hasPerm(Canned::PERM_MANAGE)));
+    }
 }
 RolePermission::register( /* @trans */ 'Knowledgebase', Canned::getPermissions());
 

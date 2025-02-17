@@ -89,7 +89,7 @@ use const E_USER_DEPRECATED;
  *     initializers?: InitializersConfiguration,
  *     invokables?: array<string,string>,
  *     lazy_services?: LazyServicesConfiguration,
- *     services?: array<string,object|array>,
+ *     services?: array<string,object|array<mixed>>,
  *     shared?:array<string,bool>,
  *     shared_by_default?:bool,
  *     ...

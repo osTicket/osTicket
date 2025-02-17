@@ -27,9 +27,8 @@ class osTicketSession {
         // session name/ssid
         if ($name && strcmp($this->name, $name))
             $this->name = $name;
-        // Session ttl cannot exceed php.ini maxlifetime setting
         $maxlife =  ini_get('session.gc_maxlifetime');
-        $this->ttl = min($ttl ?: ($maxlife ?: SESSION_TTL), $maxlife);
+        $this->ttl = $ttl ?: ($maxlife ?: SESSION_TTL);
         // Set osTicket specific session name/sessid
         session_name($this->name);
         // Set Default cookie Params before we start the session
@@ -250,13 +249,19 @@ class osTicketSession {
     }
 
     static function renewCookie($baseTime=false, $window=false) {
+        global $ost;
+
         $ttl = $window ?: SESSION_TTL;
         $expire = ($baseTime ?: time()) + $ttl;
-        setcookie(session_name(), session_id(), $expire,
-            ini_get('session.cookie_path'),
-            ini_get('session.cookie_domain'),
-            ini_get('session.cookie_secure'),
-            ini_get('session.cookie_httponly'));
+        $opts = [
+            'expires' => $expire,
+            'path' => ini_get('session.cookie_path'),
+            'domain' => ini_get('session.cookie_domain'),
+            'secure' => ini_get('session.cookie_secure'),
+            'httponly' => ini_get('session.cookie_httponly'),
+            'samesite' => !empty($ost->getConfig()->getAllowIframes()) ? 'None' : 'Strict'
+        ];
+        setcookie(session_name(), session_id(), $opts);
         // Trigger expire update - neeed for secondary handlers that only
         // log new sessions
          self::expire(session_id(), $ttl);

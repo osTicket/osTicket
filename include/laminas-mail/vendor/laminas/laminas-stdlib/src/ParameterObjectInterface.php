@@ -4,28 +4,33 @@ declare(strict_types=1);
 
 namespace Laminas\Stdlib;
 
+/**
+ * @template TKey of string
+ * @template TValue
+ */
 interface ParameterObjectInterface
 {
     /**
-     * @param string $key
+     * @param TKey $key
+     * @param TValue|null $value
      * @return void
      */
     public function __set($key, mixed $value);
 
     /**
-     * @param string $key
-     * @return mixed
+     * @param TKey $key
+     * @return TValue
      */
     public function __get($key);
 
     /**
-     * @param string $key
+     * @param TKey $key
      * @return bool
      */
     public function __isset($key);
 
     /**
-     * @param string $key
+     * @param TKey $key
      * @return void
      */
     public function __unset($key);

@@ -81,7 +81,6 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info, true);
                     $emails = Email::objects()->values_flat('email_id',
                             'email', 'name', 'smtp__active')
                     ->order_by('name');
-                    print $emails;
                     foreach ($emails as $row) {
                         list($id,$email,$name,$smtp) = $row;
                         $selected = ($info['email_id'] && $id == $info['email_id']) ? 'selected="selected"' : '';

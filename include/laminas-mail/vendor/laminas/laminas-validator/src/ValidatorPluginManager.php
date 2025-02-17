@@ -2,6 +2,7 @@
 
 namespace Laminas\Validator;
 
+use Laminas\I18n\Translator\TranslatorInterface;
 use Laminas\I18n\Validator as I18nValidator;
 use Laminas\ServiceManager\AbstractPluginManager;
 use Laminas\ServiceManager\Exception\InvalidServiceException;
@@ -147,6 +148,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         'Int'                    => I18nValidator\IsInt::class,
         'ip'                     => Ip::class,
         'Ip'                     => Ip::class,
+        'IsArray'                => IsArray::class,
         'isbn'                   => Isbn::class,
         'Isbn'                   => Isbn::class,
         'isCountable'            => IsCountable::class,
@@ -378,6 +380,7 @@ class ValidatorPluginManager extends AbstractPluginManager
         InArray::class                   => InvokableFactory::class,
         I18nValidator\IsInt::class       => InvokableFactory::class,
         Ip::class                        => InvokableFactory::class,
+        IsArray::class                   => InvokableFactory::class,
         Isbn::class                      => InvokableFactory::class,
         IsCountable::class               => InvokableFactory::class,
         IsInstanceOf::class              => InvokableFactory::class,
@@ -582,15 +585,27 @@ class ValidatorPluginManager extends AbstractPluginManager
             $validator = $first;
         }
 
+        if (! $validator instanceof Translator\TranslatorAwareInterface) {
+            return;
+        }
+
         // V2 means we pull it from the parent container
         if ($container === $this && method_exists($container, 'getServiceLocator') && $container->getServiceLocator()) {
             $container = $container->getServiceLocator();
         }
 
-        if ($validator instanceof Translator\TranslatorAwareInterface) {
-            if ($container && $container->has('MvcTranslator')) {
-                $validator->setTranslator($container->get('MvcTranslator'));
-            }
+        if (! $container instanceof ContainerInterface) {
+            return;
+        }
+
+        if ($container->has('MvcTranslator')) {
+            $validator->setTranslator($container->get('MvcTranslator'));
+
+            return;
+        }
+
+        if ($container->has(TranslatorInterface::class)) {
+            $validator->setTranslator($container->get(Translator\TranslatorInterface::class));
         }
     }
 

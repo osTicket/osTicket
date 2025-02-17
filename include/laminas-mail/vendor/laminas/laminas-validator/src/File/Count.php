@@ -245,7 +245,7 @@ class Count extends AbstractValidator
     /**
      * Throws an error of the given type
      *
-     * @param  string $file
+     * @param  string|null|array $file
      * @param  string $errorType
      * @return false
      */

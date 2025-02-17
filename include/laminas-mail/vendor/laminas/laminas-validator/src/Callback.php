@@ -9,6 +9,19 @@ use function array_merge;
 use function call_user_func_array;
 use function is_callable;
 
+/**
+ * @psalm-type OptionsProperty = array{
+ *     callback: callable|null,
+ *     callbackOptions: array<array-key, mixed>,
+ *     throwExceptions: bool,
+ * }
+ * @psalm-type OptionsArgument = array{
+ *     callback: callable,
+ *     callbackOptions?: array<array-key, mixed>,
+ *     throwExceptions?: bool,
+ *     ...<string, mixed>
+ * }
+ */
 class Callback extends AbstractValidator
 {
     /**
@@ -34,18 +47,15 @@ class Callback extends AbstractValidator
     /**
      * Default options to set for the validator
      *
-     * @var mixed
+     * @var OptionsProperty
      */
     protected $options = [
         'callback'        => null, // Callback in a call_user_func format, string || array
         'callbackOptions' => [], // Options for the callback
+        'throwExceptions' => false, // Whether to throw exceptions raised within the callback or not
     ];
 
-    /**
-     * Constructor
-     *
-     * @param array|callable $options
-     */
+    /** @param OptionsArgument|callable $options */
     public function __construct($options = null)
     {
         if (is_callable($options)) {
@@ -58,7 +68,7 @@ class Callback extends AbstractValidator
     /**
      * Returns the set callback
      *
-     * @return mixed
+     * @return callable|null
      */
     public function getCallback()
     {
@@ -68,7 +78,7 @@ class Callback extends AbstractValidator
     /**
      * Sets the callback
      *
-     * @param  string|array|callable $callback
+     * @param callable $callback
      * @return $this Provides a fluent interface
      * @throws InvalidArgumentException
      */
@@ -85,7 +95,7 @@ class Callback extends AbstractValidator
     /**
      * Returns the set options for the callback
      *
-     * @return mixed
+     * @return array<array-key, mixed>
      */
     public function getCallbackOptions()
     {
@@ -95,6 +105,7 @@ class Callback extends AbstractValidator
     /**
      * Sets options for the callback
      *
+     * @param array<array-key, mixed> $options
      * @return $this Provides a fluent interface
      */
     public function setCallbackOptions(mixed $options)
@@ -118,7 +129,7 @@ class Callback extends AbstractValidator
 
         $options  = $this->getCallbackOptions();
         $callback = $this->getCallback();
-        if (empty($callback)) {
+        if (! is_callable($callback)) {
             throw new InvalidArgumentException('No callback given');
         }
 
@@ -139,8 +150,16 @@ class Callback extends AbstractValidator
                 $this->error(self::INVALID_VALUE);
                 return false;
             }
-        } catch (Exception) {
+        } catch (Exception $exception) {
+            /**
+             * Intentionally excluding catchable \Error as they are indicative of a bug and should not be suppressed
+             */
             $this->error(self::INVALID_CALLBACK);
+
+            if ($this->options['throwExceptions'] === true) {
+                throw $exception;
+            }
+
             return false;
         }
 

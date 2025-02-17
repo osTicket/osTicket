@@ -1,19 +1,13 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-validator for the canonical source repository
- * @copyright https://github.com/laminas/laminas-validator/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-validator/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
-use Laminas\Http\Client;
 use Laminas\Validator\Hostname;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-define('IANA_URL', 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt');
-define('LAMINAS_HOSTNAME_VALIDATOR_FILE', __DIR__.'/../src/Hostname.php');
-
+const IANA_URL                        = 'https://data.iana.org/TLD/tlds-alpha-by-domain.txt';
+const LAMINAS_HOSTNAME_VALIDATOR_FILE = __DIR__ . '/../src/Hostname.php';
 
 if (! file_exists(LAMINAS_HOSTNAME_VALIDATOR_FILE) || ! is_readable(LAMINAS_HOSTNAME_VALIDATOR_FILE)) {
     printf("Error: cannot read file '%s'%s", LAMINAS_HOSTNAME_VALIDATOR_FILE, PHP_EOL);
@@ -26,34 +20,15 @@ if (! is_writable(LAMINAS_HOSTNAME_VALIDATOR_FILE)) {
 }
 
 /** @psalm-var list<string> $newFileContent */
-$newFileContent   = [];    // new file content
-$insertDone       = false; // becomes 'true' when we find start of $validTlds declaration
-$insertFinish     = false; // becomes 'true' when we find end of $validTlds declaration
-$checkOnly        = isset($argv[1]) ? $argv[1] === '--check-only' : false;
-$response         = getOfficialTLDs();
-$ianaVersion      = getVersionFromString('Version', strtok($response->getBody(), "\n"));
-$validatorVersion = getVersionFromString('IanaVersion', file_get_contents(LAMINAS_HOSTNAME_VALIDATOR_FILE));
+$newFileContent = [];    // new file content
+$insertDone     = false; // becomes 'true' when we find start of $validTlds declaration
+$insertFinish   = false; // becomes 'true' when we find end of $validTlds declaration
+$checkOnly      = isset($argv[1]) ? $argv[1] === '--check-only' : false;
+$response       = getOfficialTLDs();
 
-if ($checkOnly && $ianaVersion > $validatorVersion) {
-    printf(
-        'TLDs must be updated, please run `php bin/update_hostname_validator.php` and push your changes%s',
-        PHP_EOL
-    );
-    exit(1);
-}
+$currentFileContent = file(LAMINAS_HOSTNAME_VALIDATOR_FILE);
 
-if ($checkOnly) {
-    printf('TLDs are up-to-date%s', PHP_EOL);
-    exit(0);
-}
-
-foreach (file(LAMINAS_HOSTNAME_VALIDATOR_FILE) as $line) {
-    // Replace old version number with new one
-    if (preg_match('/\*\s+IanaVersion\s+\d+/', $line, $matches)) {
-        $newFileContent[] = sprintf("     * IanaVersion %s\n", $ianaVersion);
-        continue;
-    }
-
+foreach ($currentFileContent as $line) {
     if ($insertDone === $insertFinish) {
         // Outside of $validTlds definition; keep line as-is
         $newFileContent[] = $line;
@@ -75,7 +50,7 @@ foreach (file(LAMINAS_HOSTNAME_VALIDATOR_FILE) as $line) {
 
     // Detect where the $validTlds declaration begins
     if (preg_match('/^\s+protected\s+\$validTlds\s+=\s+\[\s*$/', $line)) {
-        $newFileContent = array_merge($newFileContent, getNewValidTlds($response->getBody()));
+        $newFileContent = array_merge($newFileContent, getNewValidTlds($response));
         $insertDone     = true;
     }
 }
@@ -85,8 +60,21 @@ if (! $insertDone) {
     exit(1);
 }
 
-if (!$insertFinish) {
+if (! $insertFinish) {
     printf('Error: cannot find end of $validTlds declaration%s', PHP_EOL);
+    exit(1);
+}
+
+if ($currentFileContent === $newFileContent) {
+    printf('Nothing to do. Validator has no TLD changes.%s', PHP_EOL);
+    exit(0);
+}
+
+if ($checkOnly) {
+    printf(
+        'TLDs must be updated, please run `php bin/update_hostname_validator.php` and push your changes%s',
+        PHP_EOL
+    );
     exit(1);
 }
 
@@ -100,59 +88,34 @@ exit(0);
 
 /**
  * Get Official TLDs
- *
- * @return \Laminas\Http\Response
- * @throws Exception
  */
-function getOfficialTLDs()
+function getOfficialTLDs(): string
 {
-    $client = new Client();
-    $client->setOptions([
-        'adapter' => 'Laminas\Http\Client\Adapter\Curl',
-    ]);
-    $client->setUri(IANA_URL);
-    $client->setMethod('GET');
+    try {
+        return file_get_contents(IANA_URL);
+    } catch (Throwable $e) {
+        printf(
+            'Downloading the IANA TLD list failed: %s',
+            $e->getMessage(),
+        );
 
-    $response = $client->send();
-    if (! $response->isSuccess()) {
-        throw new \Exception(sprintf("Error: cannot get '%s'%s", IANA_URL, PHP_EOL));
+        exit(1);
     }
-    return $response;
-}
-
-/**
- * Extract the first match of a string like
- * "Version 2015072300" from the given string
- *
- * @param string $prefix
- * @param string $string
- * @return string
- * @throws Exception
- */
-function getVersionFromString($prefix, $string)
-{
-    $matches = [];
-    if (! preg_match(sprintf('/%s\s+((\d+)?)/', $prefix), $string, $matches)) {
-        throw new Exception('Error: cannot get last update date');
-    }
-
-    return $matches[1];
 }
 
 /**
  * Extract new Valid TLDs from a string containing one per line.
  *
- * @param string $string
  * @return list<string>
  */
-function getNewValidTlds($string)
+function getNewValidTlds(string $string): array
 {
     $decodePunycode = getPunycodeDecoder();
 
     // Get new TLDs from the list previously fetched
     $newValidTlds = [];
     foreach (preg_grep('/^[^#]/', preg_split("#\r?\n#", $string)) as $line) {
-        $newValidTlds []= sprintf(
+        $newValidTlds [] = sprintf(
             "%s'%s',\n",
             str_repeat(' ', 8),
             $decodePunycode(strtolower($line))
@@ -183,7 +146,7 @@ function getPunycodeDecoder()
     }
 
     $hostnameValidator = new Hostname();
-    $reflection        = new ReflectionClass(get_class($hostnameValidator));
+    $reflection        = new ReflectionClass($hostnameValidator::class);
     $decodePunyCode    = $reflection->getMethod('decodePunycode');
 
     return function ($encode) use ($hostnameValidator, $decodePunyCode) {

@@ -251,7 +251,7 @@ class Internationalization {
 
     static function isLanguageInstalled($code) {
         $langs = self::availableLanguages();
-        return isset($langs[strtolower($code)]);
+        return isset($langs[strtolower((string) $code)]);
     }
 
     static function isLanguageEnabled($code) {

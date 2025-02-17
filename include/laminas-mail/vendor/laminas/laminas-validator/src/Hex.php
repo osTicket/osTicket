@@ -24,7 +24,7 @@ class Hex extends AbstractValidator
     /**
      * Returns true if and only if $value contains only hexadecimal digit characters
      *
-     * @param  string $value
+     * @param  mixed $value
      * @return bool
      */
     public function isValid($value)

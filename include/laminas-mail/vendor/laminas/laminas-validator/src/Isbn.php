@@ -91,7 +91,7 @@ class Isbn extends AbstractValidator
     /**
      * Returns true if and only if $value is a valid ISBN.
      *
-     * @param  string $value
+     * @param  mixed $value
      * @return bool
      */
     public function isValid($value)
@@ -101,7 +101,8 @@ class Isbn extends AbstractValidator
             return false;
         }
 
-        $value = (string) $value;
+        $value         = (string) $value;
+        $originalValue = $value;
         $this->setValue($value);
 
         switch ($this->detectFormat()) {
@@ -122,7 +123,7 @@ class Isbn extends AbstractValidator
         $checksum = $isbn->getChecksum($value);
 
         // validate
-        if (substr($this->getValue(), -1) !== (string) $checksum) {
+        if (substr($originalValue, -1) !== (string) $checksum) {
             $this->error(self::NO_ISBN);
             return false;
         }

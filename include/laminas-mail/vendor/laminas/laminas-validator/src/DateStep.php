@@ -472,7 +472,7 @@ class DateStep extends Date
             $minSteps               = floor($minSteps / $requiredStepIterations);
         }
 
-        return [(int) $minSteps, $minSteps ? (int) $requiredStepIterations : 0];
+        return [(int) $minSteps, $minSteps !== 0 ? (int) $requiredStepIterations : 0];
     }
 
     /**

@@ -114,8 +114,8 @@ class Csrf extends AbstractValidator
     /**
      * Does the provided token match the one generated?
      *
-     * @param  string $value
-     * @param  mixed $context
+     * @param mixed $value
+     * @param mixed $context
      * @return bool
      */
     public function isValid($value, $context = null)
@@ -132,7 +132,7 @@ class Csrf extends AbstractValidator
         $tokenFromValue = $this->getTokenFromHash($value);
         $tokenFromHash  = $this->getTokenFromHash($hash);
 
-        if (! $tokenFromValue || ! $tokenFromHash || ($tokenFromValue !== $tokenFromHash)) {
+        if ($tokenFromValue === null || $tokenFromHash === null || ($tokenFromValue !== $tokenFromHash)) {
             $this->error(self::NOT_SAME);
             return false;
         }
@@ -334,11 +334,11 @@ class Csrf extends AbstractValidator
          *
          * @todo remove, here for BC
          */
-        if (! $tokenId && isset($session->hash)) {
+        if ($tokenId === null && isset($session->hash)) {
             return $session->hash;
         }
 
-        if ($tokenId && isset($session->tokenList[$tokenId])) {
+        if ($tokenId !== null && isset($session->tokenList[$tokenId])) {
             return $this->formatHash($session->tokenList[$tokenId], $tokenId);
         }
 

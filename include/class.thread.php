@@ -1665,6 +1665,7 @@ implements TemplateVariable {
 
         $entry = new static(array(
             'created' => SqlFunction::NOW(),
+            'updated' => SqlFunction::NOW(),
             'type' => $vars['type'],
             'thread_id' => $vars['threadId'],
             'title' => Format::strip_emoticons(Format::sanitize($vars['title'], true)),
@@ -2201,8 +2202,8 @@ class ThreadEvent extends VerySimpleModel {
 
         $inst = self::create(array(
             'thread_type' => ObjectModel::OBJECT_TYPE_TICKET,
-            'staff_id' => $staff,
-            'team_id' => $ticket->getTeamId(),
+            'staff_id' => $staff ?: 0,
+            'team_id' => $ticket->getTeamId() ?: 0,
             'dept_id' => $ticket->getDeptId(),
             'topic_id' => $ticket->getTopicId(),
         ), $user);
@@ -2212,8 +2213,8 @@ class ThreadEvent extends VerySimpleModel {
     static function forTask($task, $state, $user=false) {
         $inst = self::create(array(
             'thread_type' => ObjectModel::OBJECT_TYPE_TASK,
-            'staff_id' => $task->getStaffId(),
-            'team_id' => $task->getTeamId(),
+            'staff_id' => $task->getStaffId() ?: 0,
+            'team_id' => $task->getTeamId() ?: 0,
             'dept_id' => $task->getDeptId(),
         ), $user);
         return $inst;

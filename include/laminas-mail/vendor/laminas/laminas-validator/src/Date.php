@@ -96,7 +96,7 @@ class Date extends AbstractValidator
      */
     public function setFormat($format = self::FORMAT_DEFAULT)
     {
-        $this->format = empty($format) ? self::FORMAT_DEFAULT : $format;
+        $this->format = $format === null || $format === '' ? self::FORMAT_DEFAULT : $format;
         return $this;
     }
 

@@ -22,13 +22,13 @@ easy to setup and use. The best part is, it's completely free.
 Requirements
 ------------
   * HTTP server running Microsoft® IIS or Apache
-  * PHP version 8.1 - 8.2 (8.2 recommended)
+  * PHP version 8.2 - 8.4 (8.4 recommended)
   * mysqli extension for PHP
   * MySQL database version 5.5 (or greater)
 
 ### Recommendations
-  * fileinfo, gd, gettext, imap, intl, json, mbstring, Zend OPcache, phar,
-    xml, xml-dom, and zip extensions for PHP
+  * ctype, fileinfo, gd, gettext, iconv, imap, intl, json, mbstring,
+    Zend OPcache, phar, xml, xml-dom, and zip extensions for PHP
   * APCu module enabled and configured for PHP
 
 Deployment
