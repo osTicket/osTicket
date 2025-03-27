@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: osticker_db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: oIC8tvgjCtGXEH
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticket
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 4
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8383:80"
+    container_name: osticket
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticket
+      MYSQL_DATABASE: osticket
+    volumes:
+      - /var/lib/osticket/include/plugins:/var/www/html/include/plugins
+      - /var/lib/osticket/upload:/var/www/html/upload
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
