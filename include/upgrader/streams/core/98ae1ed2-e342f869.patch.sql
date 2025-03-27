@@ -112,7 +112,7 @@ ALTER TABLE `%TABLE_PREFIX%email_template`
     ADD `notes` TEXT NULL AFTER `name`;
 
 UPDATE `%TABLE_PREFIX%email_template`  SET  `note_alert_subj` = 'New Internal Note Alert',
-       `note_alert_body` = '%staff,\r\n\r\nInternal note appended to ticket #%ticket\r\n\r\n----------------------\r\nName: %name\r\n\r\n%note\r\n-------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\nYour friendly,\r\n\r\nCustomer Support System - powered by osTicket.';
+       `note_alert_body` = '%staff,\r\n\r\nInternal note appended to ticket #%ticket\r\n\r\n----------------------\r\nName: %name\r\n\r\n%note\r\n-------------------\r\n\r\nTo view/respond to the ticket, please login to the support ticket system.\r\n\r\nYour friendly,\r\n\r\nCustomer Support System - powered by shambel.';
 
 -- Update path and variables on email templates
 UPDATE `%TABLE_PREFIX%email_template`
