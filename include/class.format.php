@@ -538,7 +538,7 @@ class Format {
                 '/[\x{2310}-\x{231F}]/u',   # Hourglass/Watch
                 '/[\x{1000B6}]/u',          # Private Use Area (Plane 16)
                 '/[\x{2322}-\x{232F}]/u',   # Keyboard
-                '/[\x{00B0}|\x{00A9}]/u'    # Degrees/Copyright
+                '/\x{00B0}|\x{00BA}/u'      # Degree Symbol
             ), '', $text);
     }
 
