@@ -210,6 +210,17 @@ class TicketApiController extends ApiController {
             return $thread->getObject();
         }
 
+        else {
+            $counter = ThreadEntryEmailInfo::objects()
+                ->filter(array('mid' => $data['mid']))
+                ->count();
+
+            if ($counter > 0) {
+                // Reporting success so the email is not processed again.
+                return true;
+            }
+        }
+
         // All emails which do not appear to be part of an existing thread
         // will always create new "Tickets". All other objects will need to
         // be created via the web interface or the API
