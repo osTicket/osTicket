@@ -351,34 +351,56 @@ class Mail_Parse {
         return null;
     }
 
-    function getBody(){
-        global $cfg;
+// We want to avoid joining the body of attached html e-mails. We check for attachments and don't recurse into rfc822 ones
+// This fixed the case where when someone forwards an e-mail with an html attachment, it includes the attachment's body in the ticket
+    
+function getBody(){
+   global $cfg;
+   // When struct is not set then it might mean decode error - return
+   // empty body
+   if (!$this->struct)
+       return new TextThreadEntryBody('');
 
-        // When struct is not set then it might mean decode error - return
-        // empty body
-        if (!$this->struct)
-            return new TextThreadEntryBody('');
+   // Check if this email has message/rfc822 attachments anywhere in the structure
+   $hasForwardedEmail = $this->hasMessageRfc822Attachment();
+   $recurseIntoRfc822 = !$hasForwardedEmail;
 
-        if ($cfg && $cfg->isRichTextEnabled()) {
-            if ($html=$this->getPart($this->struct,'text/html'))
-                $body = new HtmlThreadEntryBody($html);
-            elseif ($text=$this->getPart($this->struct,'text/plain'))
-                $body = new TextThreadEntryBody($text);
-        }
-        elseif ($text=$this->getPart($this->struct,'text/plain'))
-            $body = new TextThreadEntryBody($text);
-        elseif ($html=$this->getPart($this->struct,'text/html'))
-            $body = new TextThreadEntryBody(
-                    Format::html2text(Format::safe_html($html),
-                        100, false));
+   if ($cfg && $cfg->isRichTextEnabled()) {
+       if ($html=$this->getPart($this->struct,'text/html', -1, $recurseIntoRfc822))
+           $body = new HtmlThreadEntryBody($html);
+       elseif ($text=$this->getPart($this->struct,'text/plain', -1, $recurseIntoRfc822))
+           $body = new TextThreadEntryBody($text);
+   }
+   elseif ($text=$this->getPart($this->struct,'text/plain', -1, $recurseIntoRfc822))
+       $body = new TextThreadEntryBody($text);
+   elseif ($html=$this->getPart($this->struct,'text/html', -1, $recurseIntoRfc822))
+       $body = new TextThreadEntryBody(
+               Format::html2text(Format::safe_html($html),
+                   100, false));
 
-        if (!isset($body))
-            $body = new TextThreadEntryBody('');
-        elseif ($cfg && $cfg->stripQuotedReply())
-            $body->stripQuotedReply($cfg->getReplySeparator());
+   if (!isset($body))
+       $body = new TextThreadEntryBody('');
+   elseif ($cfg && $cfg->stripQuotedReply())
+       $body->stripQuotedReply($cfg->getReplySeparator());
+   return $body;
+}
 
-        return $body;
+private function hasMessageRfc822Attachment() {
+    $attachments = $this->getAttachments();
+
+    if (!$attachments) {
+        return false;
     }
+
+    foreach ($attachments as $attachment) {
+        if (isset($attachment['type']) && $attachment['type'] === 'message/rfc822') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
     /**
      * Fetch all the parts of the message for a specific MIME type. The
