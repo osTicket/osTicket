@@ -174,7 +174,7 @@
             .attr({'aria-valuemin':0,'aria-valuemax':100})
             .hide())
           .append($('<input type="hidden"/>').attr('name', this.options.name)
-            .val(file.id))
+            .val(''+file.id+','+file.name))
       if (this.options.deletable) {
         filenode.prepend($('<span><i class="icon-trash"></i></span>')
           .addClass('trash pull-right')
