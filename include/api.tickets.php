@@ -142,18 +142,23 @@ class TicketApiController extends ApiController {
         $order = isset($_GET['order']) && $_GET['order'] == 'asc' ? 'ASC' : 'DESC';
 
         $tickets = Ticket::objects()
-            ->order_by(array(sprintf('ticket.created %s', $order)))
+            ->order_by($order == 'ASC' ? 'created' : '-created')
             ->limit(100);
 
         $results = array();
         foreach ($tickets as $ticket) {
-            $results[] = array(
-                'id' => $ticket->getId(),
-                'number' => $ticket->getNumber(),
-                'subject' => $ticket->getSubject(),
-                'created' => $ticket->getCreateDate(),
-                'status' => $ticket->getStatus(),
-            );
+            try {
+                $results[] = array(
+                    'id' => $ticket->getId(),
+                    'number' => $ticket->getNumber(),
+                    'subject' => $ticket->getSubject(),
+                    'created' => $ticket->getCreateDate(),
+                    'status' => $ticket->getStatus(),
+                );
+            } catch (Exception $e) {
+                // Continue if individual ticket fails
+                continue;
+            }
         }
 
         Http::response(200, Format::json_encode($results));
