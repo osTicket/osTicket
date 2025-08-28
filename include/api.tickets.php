@@ -283,6 +283,60 @@ class TicketApiController extends ApiController {
         exit;
     }
 
+    function attachmentUrl($id, $format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        // Find attachment safely
+        $attachment = Attachment::lookup($id);
+        if (!$attachment) {
+            Http::response(404, Format::json_encode(array('error' => 'Attachment not found')));
+            exit;
+        }
+
+        // Generate authorized URL with temporary key
+        $expires = time() + (24 * 3600); // Valid for 24 hours
+        $signature = hash_hmac('sha256',
+            $attachment->getId() . '|' . $expires,
+            $key->getKey()
+        );
+
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        $auth_url = sprintf(
+            '%s://%s/api/file.php?id=%d&expires=%d&signature=%s&disposition=inline',
+            $protocol,
+            $host,
+            $attachment->getId(),
+            $expires,
+            $signature
+        );
+
+        $result = array(
+            'attachment_id' => $attachment->getId(),
+            'filename' => $attachment->getName() ?: 'Attachment',
+            'size' => 0,
+            'type' => 'unknown',
+            'url' => $auth_url,
+            'expires' => date('Y-m-d H:i:s', $expires),
+            'expires_timestamp' => $expires
+        );
+
+        // Get file info safely
+        try {
+            if ($attachment->getFile()) {
+                $result['size'] = $attachment->getFile()->getSize() ?: 0;
+                $result['type'] = $attachment->getFile()->getType() ?: 'unknown';
+            }
+        } catch (Exception $e) {
+            // Continue with defaults if file info fails
+        }
+
+        Http::response(200, Format::json_encode($result));
+        exit;
+    }
+
     /* private helper functions */
 
     function createTicket($data, $source = 'API') {
