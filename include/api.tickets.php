@@ -140,8 +140,38 @@ class TicketApiController extends ApiController {
         global $ost;
 
         $order = isset($_GET['order']) && $_GET['order'] == 'asc' ? 'ASC' : 'DESC';
-
-        $tickets = Ticket::objects()
+        
+        // Build query with optional status filtering
+        $query = Ticket::objects();
+        
+        // Status filtering options:
+        // ?status=open / ?status=closed / ?status=1,2,3 / ?state=open
+        if (isset($_GET['status'])) {
+            $status = $_GET['status'];
+            if (is_numeric($status)) {
+                // Filter by status ID
+                $query = $query->filter(array('status_id' => (int) $status));
+            } elseif (strtolower($status) === 'open') {
+                // Filter by open state
+                $query = $query->filter(array('status__state' => 'open'));
+            } elseif (strtolower($status) === 'closed') {
+                // Filter by closed state  
+                $query = $query->filter(array('status__state' => 'closed'));
+            } else {
+                // Filter by status name (case insensitive)
+                $query = $query->filter(array('status__name__icontains' => $status));
+            }
+        }
+        
+        // Alternative state filtering: ?state=open
+        if (isset($_GET['state'])) {
+            $state = strtolower($_GET['state']);
+            if (in_array($state, ['open', 'closed'])) {
+                $query = $query->filter(array('status__state' => $state));
+            }
+        }
+        
+        $tickets = $query
             ->order_by($order == 'ASC' ? 'created' : '-created')
             ->limit(100);
 
