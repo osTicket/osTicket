@@ -171,9 +171,19 @@ class TicketApiController extends ApiController {
             }
         }
         
+        // Pagination parameters
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $per_page = isset($_GET['per_page']) ? min(200, max(1, (int) $_GET['per_page'])) : 100;
+        $offset = ($page - 1) * $per_page;
+        
+        // Get total count BEFORE applying limit/offset
+        $total_count = $query->count();
+        
+        // Apply pagination
         $tickets = $query
             ->order_by($order == 'ASC' ? 'created' : '-created')
-            ->limit(100);
+            ->limit($per_page)
+            ->offset($offset);
 
         $results = array();
         foreach ($tickets as $ticket) {
@@ -191,7 +201,27 @@ class TicketApiController extends ApiController {
             }
         }
 
-        Http::response(200, Format::json_encode($results));
+        // Calculate pagination metadata
+        $total_pages = ceil($total_count / $per_page);
+        $has_next = $page < $total_pages;
+        $has_previous = $page > 1;
+        
+        // Build paginated response
+        $response = array(
+            'tickets' => $results,
+            'pagination' => array(
+                'current_page' => $page,
+                'per_page' => $per_page,
+                'total' => $total_count,
+                'total_pages' => $total_pages,
+                'has_next' => $has_next,
+                'has_previous' => $has_previous,
+                'showing_from' => $offset + 1,
+                'showing_to' => min($offset + $per_page, $total_count)
+            )
+        );
+
+        Http::response(200, Format::json_encode($response));
         exit;
     }
 
