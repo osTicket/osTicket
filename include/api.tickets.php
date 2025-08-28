@@ -126,6 +126,175 @@ class TicketApiController extends ApiController {
 
     }
 
+    function list($format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        global $ost;
+
+        $order = isset($_GET['order']) && $_GET['order'] == 'asc' ? 'ASC' : 'DESC';
+        
+        $tickets = Ticket::objects()
+            ->order_by(array(sprintf('ticket.created %s', $order)))
+            ->limit(100);  // Beperk tot 100 tickets voor performance
+
+        $results = array();
+        foreach ($tickets as $ticket) {
+            $results[] = array(
+                'id' => $ticket->getId(),
+                'number' => $ticket->getNumber(),
+                'subject' => $ticket->getSubject(),
+                'created' => $ticket->getCreateDate(),
+                'status' => $ticket->getStatus(),
+            );
+        }
+
+        return $this->response(200, $results, $format);
+    }
+
+    function details($id, $format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        $ticket = Ticket::lookup($id);
+        if (!$ticket)
+            return $this->response(404, array('error' => 'Ticket not found'), $format);
+
+        $result = array(
+            'id' => $ticket->getId(),
+            'number' => $ticket->getNumber(),
+            'subject' => $ticket->getSubject(),
+            'created' => $ticket->getCreateDate(),
+            'status' => $ticket->getStatus(),
+            'thread' => array(),
+        );
+
+        foreach ($ticket->getThread()->getEntries() as $entry) {
+            // Bepaal auteur informatie
+            $author = array();
+            if ($entry->getStaff()) {
+                $author = array(
+                    'type' => 'staff',
+                    'id' => $entry->getStaffId(),
+                    'name' => $entry->getStaff()->getName(),
+                    'email' => $entry->getStaff()->getEmail()
+                );
+            } elseif ($entry->getUser()) {
+                $author = array(
+                    'type' => 'user', 
+                    'id' => $entry->getUserId(),
+                    'name' => $entry->getUser()->getName(),
+                    'email' => $entry->getUser()->getEmail()
+                );
+            } else {
+                $author = array(
+                    'type' => 'guest',
+                    'name' => $entry->getPoster(),
+                    'email' => null
+                );
+            }
+
+            // Bepaal entry eigenschappen
+            $isInternal = ($entry->getType() == 'N'); // Note = interne note (wit/grijs)
+            $isResponse = ($entry->getType() == 'R'); // Response = medewerker antwoord (oranje) 
+            $isMessage = ($entry->getType() == 'M');  // Message = klant bericht (blauw)
+            $isSystem = ($entry->flags & ThreadEntry::FLAG_SYSTEM);
+            $isEdited = ($entry->flags & ThreadEntry::FLAG_EDITED);
+            
+            // Haal bijlagen op
+            $attachments = array();
+            foreach ($entry->getAttachments() as $attachment) {
+                $attachments[] = array(
+                    'id' => $attachment->getId(),
+                    'name' => $attachment->getName(), 
+                    'size' => $attachment->getFile()->getSize(),
+                    'type' => $attachment->getFile()->getType(),
+                    'is_inline' => (bool) $attachment->inline
+                );
+            }
+
+            // Bepaal het weergave type voor frontend
+            $displayType = 'unknown';
+            if ($isSystem) {
+                $displayType = 'system'; // Systeem meldingen zoals "Created by..."
+            } elseif ($isInternal) {
+                $displayType = 'internal_note'; // Interne notities (wit/grijs)
+            } elseif ($isResponse) {
+                $displayType = 'staff_response'; // Medewerker antwoord naar klant (oranje)
+            } elseif ($isMessage) {
+                $displayType = 'customer_message'; // Klant bericht (blauw)
+            }
+
+            $result['thread'][] = array(
+                'id' => $entry->getId(),
+                'type' => $entry->getType(), // M/R/N
+                'type_name' => $entry->getTypeName(), // message/response/note
+                'display_type' => $displayType, // Voor frontend styling
+                'title' => $entry->getTitle(),
+                'body' => $entry->getBody()->getClean(), // Schone tekst zonder HTML  
+                'body_html' => $entry->getBody()->toHtml(), // HTML versie met opmaak
+                'created' => $entry->getCreateDate(),
+                'updated' => $entry->getUpdateDate(),
+                'source' => $entry->getSource(),
+                'poster' => $entry->getPoster(),
+                'author' => $author,
+                'is_internal' => $isInternal,
+                'is_system' => $isSystem,
+                'is_edited' => $isEdited,
+                'is_response' => $isResponse,
+                'is_message' => $isMessage,
+                'attachments' => $attachments,
+                'attachment_count' => count($attachments)
+            );
+        }
+
+        return $this->response(200, $result, $format);
+    }
+
+    function attachmentUrl($id, $format) {
+        if (!($key = $this->requireApiKey()))
+            return $this->exerr(401, __('API key not authorized'));
+
+        // Zoek bijlage
+        $attachment = Attachment::lookup($id);
+        if (!$attachment)
+            return $this->response(404, array('error' => 'Attachment not found'), $format);
+
+        // Genereer geautoriseerde URL met tijdelijke key
+        $expires = time() + (24 * 3600); // 24 uur geldig
+        $signature = hash_hmac('sha256', 
+            $attachment->getId() . '|' . $expires, 
+            $key->getKey()
+        );
+
+        $auth_url = sprintf(
+            '%s/api/file.php?id=%d&expires=%d&signature=%s&disposition=inline',
+            rtrim($_SERVER['HTTP_HOST'] ? 'https://' . $_SERVER['HTTP_HOST'] : '', '/'),
+            $attachment->getId(),
+            $expires, 
+            $signature
+        );
+
+        $result = array(
+            'attachment_id' => $attachment->getId(),
+            'filename' => $attachment->getName(),
+            'size' => $attachment->getFile()->getSize(),
+            'type' => $attachment->getFile()->getType(),
+            'url' => $auth_url,
+            'expires' => date('Y-m-d H:i:s', $expires),
+            'expires_timestamp' => $expires
+        );
+
+        return $this->response(200, $result, $format);
+    }
+
+    private function response($code, $result, $format='json') {
+        Http::response($code, $format == 'json'
+            ? Format::json_encode($result)
+            : Format::xml($result));
+        exit;
+    }
+
     /* private helper functions */
 
     function createTicket($data, $source = 'API') {
