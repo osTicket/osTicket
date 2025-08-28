@@ -25,8 +25,8 @@ class TicketApiController extends ApiController {
         # Fetch dynamic form field names for the given help topic and add
         # the names to the supported request structure
         if (isset($data['topicId'])
-                && ($topic = Topic::lookup($data['topicId']))
-                && ($forms = $topic->getForms())) {
+            && ($topic = Topic::lookup($data['topicId']))
+            && ($forms = $topic->getForms())) {
             foreach ($forms as $form)
                 foreach ($form->getDynamicFields() as $field)
                     $supported[] = $field->get('name');
@@ -43,15 +43,22 @@ class TicketApiController extends ApiController {
             foreach ($form->getFields() as $field)
                 $supported[] = $field->get('name');
 
-        if(!strcasecmp($format, 'email')) {
-            $supported = array_merge($supported, array('header', 'mid',
-                'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name',
-                'in-reply-to', 'references', 'thread-type', 'system_emails',
-                'mailflags' => array('bounce', 'auto-reply', 'spam', 'viral'),
-                'recipients' => array('*' => array('name', 'email', 'source'))
-                ));
-
-            $supported['attachments']['*'][] = 'cid';
+        switch ($format) {
+            case 'email':
+                $supported = array_merge($supported, [
+                    'header', 'mid', 'emailId', 'to-email-id', 'ticketId', 'reply-to',
+                    'reply-to-name', 'in-reply-to', 'references', 'thread-type', 'system_emails',
+                    'mailflags' => ['bounce', 'auto-reply', 'spam', 'viral'],
+                    'recipients' => ['*' => ['name', 'email', 'source']]
+                ]);
+                $supported['attachments']['*'][] = 'cid';
+                break;
+            case 'json':
+            case 'xml':
+                $supported = array_merge($supported, [
+                    'duedate', 'slaId', 'staffId'
+                ]);
+                break;
         }
 
         return $supported;
@@ -133,10 +140,10 @@ class TicketApiController extends ApiController {
         global $ost;
 
         $order = isset($_GET['order']) && $_GET['order'] == 'asc' ? 'ASC' : 'DESC';
-        
+
         $tickets = Ticket::objects()
             ->order_by(array(sprintf('ticket.created %s', $order)))
-            ->limit(100);  // Beperk tot 100 tickets voor performance
+            ->limit(100);
 
         $results = array();
         foreach ($tickets as $ticket) {
@@ -149,7 +156,8 @@ class TicketApiController extends ApiController {
             );
         }
 
-        return $this->response(200, $results, $format);
+        Http::response(200, Format::json_encode($results));
+        exit;
     }
 
     function details($id, $format) {
@@ -157,8 +165,10 @@ class TicketApiController extends ApiController {
             return $this->exerr(401, __('API key not authorized'));
 
         $ticket = Ticket::lookup($id);
-        if (!$ticket)
-            return $this->response(404, array('error' => 'Ticket not found'), $format);
+        if (!$ticket) {
+            Http::response(404, Format::json_encode(array('error' => 'Ticket not found')));
+            exit;
+        }
 
         $result = array(
             'id' => $ticket->getId(),
@@ -169,129 +179,107 @@ class TicketApiController extends ApiController {
             'thread' => array(),
         );
 
+        // Thread entries with author information
         foreach ($ticket->getThread()->getEntries() as $entry) {
-            // Bepaal auteur informatie
-            $author = array();
-            if ($entry->getStaff()) {
-                $author = array(
-                    'type' => 'staff',
-                    'id' => $entry->getStaffId(),
-                    'name' => $entry->getStaff()->getName(),
-                    'email' => $entry->getStaff()->getEmail()
-                );
-            } elseif ($entry->getUser()) {
-                $author = array(
-                    'type' => 'user', 
-                    'id' => $entry->getUserId(),
-                    'name' => $entry->getUser()->getName(),
-                    'email' => $entry->getUser()->getEmail()
-                );
-            } else {
-                $author = array(
-                    'type' => 'guest',
-                    'name' => $entry->getPoster(),
-                    'email' => null
-                );
+            // Safe author information
+            $author = array('type' => 'unknown', 'name' => 'Unknown');
+
+            try {
+                if ($entry->getStaff()) {
+                    $staff = $entry->getStaff();
+                    $author = array(
+                        'type' => 'staff',
+                        'name' => $staff->getName() ?: 'Staff'
+                    );
+                } elseif ($entry->getUser()) {
+                    $user = $entry->getUser();
+                    $author = array(
+                        'type' => 'user',
+                        'name' => $user->getName() ?: 'User'
+                    );
+                } elseif ($entry->getPoster()) {
+                    $author = array(
+                        'type' => 'guest',
+                        'name' => $entry->getPoster()
+                    );
+                }
+            } catch (Exception $e) {
+                // If something goes wrong, use default author
             }
 
-            // Bepaal entry eigenschappen
-            $isInternal = ($entry->getType() == 'N'); // Note = interne note (wit/grijs)
-            $isResponse = ($entry->getType() == 'R'); // Response = medewerker antwoord (oranje) 
-            $isMessage = ($entry->getType() == 'M');  // Message = klant bericht (blauw)
-            $isSystem = ($entry->flags & ThreadEntry::FLAG_SYSTEM);
-            $isEdited = ($entry->flags & ThreadEntry::FLAG_EDITED);
+            // Determine entry properties safely
+            $isInternal = ($entry->getType() == 'N'); // Note = internal note
+            $isResponse = ($entry->getType() == 'R'); // Response = staff response
+            $isMessage = ($entry->getType() == 'M');  // Message = customer message
+            $isSystem = !in_array($entry->getType(), ['M', 'R', 'N']); // System entry
             
-            // Haal bijlagen op
+            // Get attachments safely
             $attachments = array();
-            foreach ($entry->getAttachments() as $attachment) {
-                $attachments[] = array(
-                    'id' => $attachment->getId(),
-                    'name' => $attachment->getName(), 
-                    'size' => $attachment->getFile()->getSize(),
-                    'type' => $attachment->getFile()->getType(),
-                    'is_inline' => (bool) $attachment->inline
-                );
+            try {
+                foreach ($entry->getAttachments() as $attachment) {
+                    if ($attachment && $attachment->getFile()) {
+                        $attachments[] = array(
+                            'id' => $attachment->getId(),
+                            'name' => $attachment->getName() ?: 'Attachment',
+                            'size' => $attachment->getFile()->getSize() ?: 0,
+                            'type' => $attachment->getFile()->getType() ?: 'unknown',
+                            'is_inline' => (bool) $attachment->inline
+                        );
+                    }
+                }
+            } catch (Exception $e) {
+                // If attachments fail, continue with empty array
             }
-
-            // Bepaal het weergave type voor frontend
+            
+            // Determine display type for frontend
             $displayType = 'unknown';
             if ($isSystem) {
-                $displayType = 'system'; // Systeem meldingen zoals "Created by..."
+                $displayType = 'system'; // System messages
             } elseif ($isInternal) {
-                $displayType = 'internal_note'; // Interne notities (wit/grijs)
+                $displayType = 'internal_note'; // Internal notes
             } elseif ($isResponse) {
-                $displayType = 'staff_response'; // Medewerker antwoord naar klant (oranje)
+                $displayType = 'staff_response'; // Staff response to customer
             } elseif ($isMessage) {
-                $displayType = 'customer_message'; // Klant bericht (blauw)
+                $displayType = 'customer_message'; // Customer message
             }
-
+            
+            // Get body content safely
+            $bodyText = '';
+            $bodyHtml = '';
+            try {
+                $body = $entry->getBody();
+                if ($body) {
+                    $bodyText = method_exists($body, 'getClean') ? $body->getClean() : (string) $body;
+                    $bodyHtml = method_exists($body, 'toHtml') ? $body->toHtml() : (string) $body;
+                }
+            } catch (Exception $e) {
+                $bodyText = (string) $entry->getBody();
+                $bodyHtml = (string) $entry->getBody();
+            }
+            
             $result['thread'][] = array(
                 'id' => $entry->getId(),
                 'type' => $entry->getType(), // M/R/N
-                'type_name' => $entry->getTypeName(), // message/response/note
-                'display_type' => $displayType, // Voor frontend styling
-                'title' => $entry->getTitle(),
-                'body' => $entry->getBody()->getClean(), // Schone tekst zonder HTML  
-                'body_html' => $entry->getBody()->toHtml(), // HTML versie met opmaak
+                'type_name' => method_exists($entry, 'getTypeName') ? $entry->getTypeName() : $entry->getType(),
+                'display_type' => $displayType, // For frontend styling
+                'title' => method_exists($entry, 'getTitle') ? $entry->getTitle() : '',
+                'body' => $bodyText, // Clean text without HTML
+                'body_html' => $bodyHtml, // HTML version with formatting
                 'created' => $entry->getCreateDate(),
-                'updated' => $entry->getUpdateDate(),
-                'source' => $entry->getSource(),
-                'poster' => $entry->getPoster(),
-                'author' => $author,
+                'updated' => method_exists($entry, 'getUpdateDate') ? $entry->getUpdateDate() : null,
+                'source' => method_exists($entry, 'getSource') ? $entry->getSource() : null,
+                'poster' => $entry->getPoster() ?: null,
                 'is_internal' => $isInternal,
                 'is_system' => $isSystem,
-                'is_edited' => $isEdited,
+                'is_edited' => method_exists($entry, 'isEdited') ? $entry->isEdited() : false,
                 'is_response' => $isResponse,
                 'is_message' => $isMessage,
                 'attachments' => $attachments,
-                'attachment_count' => count($attachments)
+                'author' => $author
             );
         }
 
-        return $this->response(200, $result, $format);
-    }
-
-    function attachmentUrl($id, $format) {
-        if (!($key = $this->requireApiKey()))
-            return $this->exerr(401, __('API key not authorized'));
-
-        // Zoek bijlage
-        $attachment = Attachment::lookup($id);
-        if (!$attachment)
-            return $this->response(404, array('error' => 'Attachment not found'), $format);
-
-        // Genereer geautoriseerde URL met tijdelijke key
-        $expires = time() + (24 * 3600); // 24 uur geldig
-        $signature = hash_hmac('sha256', 
-            $attachment->getId() . '|' . $expires, 
-            $key->getKey()
-        );
-
-        $auth_url = sprintf(
-            '%s/api/file.php?id=%d&expires=%d&signature=%s&disposition=inline',
-            rtrim($_SERVER['HTTP_HOST'] ? 'https://' . $_SERVER['HTTP_HOST'] : '', '/'),
-            $attachment->getId(),
-            $expires, 
-            $signature
-        );
-
-        $result = array(
-            'attachment_id' => $attachment->getId(),
-            'filename' => $attachment->getName(),
-            'size' => $attachment->getFile()->getSize(),
-            'type' => $attachment->getFile()->getType(),
-            'url' => $auth_url,
-            'expires' => date('Y-m-d H:i:s', $expires),
-            'expires_timestamp' => $expires
-        );
-
-        return $this->response(200, $result, $format);
-    }
-
-    private function response($code, $result, $format='json') {
-        Http::response($code, $format == 'json'
-            ? Format::json_encode($result)
-            : Format::xml($result));
+        Http::response(200, Format::json_encode($result));
         exit;
     }
 
@@ -309,7 +297,7 @@ class TicketApiController extends ApiController {
         // Create the ticket with the data (attempt to anyway)
         $errors = array();
         if (($ticket = Ticket::create($data, $errors, $data['source'],
-                        $autorespond, $alert)) &&  !$errors)
+                $autorespond, $alert)) &&  !$errors)
             return $ticket;
 
         // Ticket create failed Bigly - got errors?
@@ -321,7 +309,7 @@ class TicketApiController extends ApiController {
             if (isset($errors['errno']) && $errors['errno'] == 403) {
                 $title = _S('Ticket denied');
                 $error = sprintf("%s: %s\n\n%s",
-                        $title, $data['email'], $errors['err']);
+                    $title, $data['email'], $errors['err']);
             } else {
                 // unpack the errors
                 $error = Format::array_implode("\n", "\n", $errors);
@@ -332,7 +320,7 @@ class TicketApiController extends ApiController {
         }
 
         $error = sprintf('%s :%s',
-                _S('Unable to create new ticket'), $error);
+            _S('Unable to create new ticket'), $error);
         return $this->exerr($errors['errno'] ?: 500, $error, $title);
     }
 
@@ -434,8 +422,8 @@ class PipeApiController extends TicketApiController {
     static function process($sapi=null) {
         $pipe = new PipeApiController($sapi);
         if (($ticket=$pipe->processEmail()))
-           return $pipe->response(201,
-                   is_object($ticket) ? $ticket->getNumber() : $ticket);
+            return $pipe->response(201,
+                is_object($ticket) ? $ticket->getNumber() : $ticket);
 
         return $pipe->exerr(416, __('Request failed - retry again!'));
     }
@@ -455,5 +443,3 @@ class TicketApiError extends Exception {
 
 class TicketDenied extends Exception {}
 class EmailParseError extends Exception {}
-
-?>
