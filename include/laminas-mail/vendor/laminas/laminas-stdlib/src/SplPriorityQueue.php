@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Laminas\Stdlib;
 
-use ReturnTypeWillChange;
 use Serializable;
 use UnexpectedValueException;
 
@@ -38,18 +37,17 @@ class SplPriorityQueue extends \SplPriorityQueue implements Serializable
      * Utilizes {@var $serial} to ensure that values of equal priority are
      * emitted in the same order in which they are inserted.
      *
-     * @param  TValue    $value
+     * @param  TValue    $datum
      * @param  TPriority $priority
      * @return void
      */
-    #[ReturnTypeWillChange] // Inherited return type should be bool
-    public function insert($value, $priority)
+    public function insert($datum, $priority)
     {
         if (! is_array($priority)) {
             $priority = [$priority, $this->serial--];
         }
 
-        parent::insert($value, $priority);
+        parent::insert($datum, $priority);
     }
 
     /**

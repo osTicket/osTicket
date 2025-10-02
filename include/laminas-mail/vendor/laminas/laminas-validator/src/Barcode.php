@@ -2,16 +2,14 @@
 
 namespace Laminas\Validator;
 
-use Laminas\Stdlib\ArrayUtils;
-use Laminas\Validator\Barcode\AdapterInterface;
-use Laminas\Validator\Exception\InvalidArgumentException;
 use Traversable;
 
-use function assert;
+use function array_key_exists;
 use function class_exists;
 use function get_debug_type;
 use function is_array;
 use function is_string;
+use function property_exists;
 use function sprintf;
 use function strtolower;
 use function substr;
@@ -40,14 +38,8 @@ class Barcode extends AbstractValidator
     protected $messageVariables = [
         'length' => ['options' => 'length'],
     ];
-    /**
-     * @var array{
-     *     adapter: null|AdapterInterface,
-     *     options: null|array<string, mixed>,
-     *     length: null|int|array,
-     *     useChecksum: null|bool,
-     * }
-     */
+
+    /** @var array<string, mixed> */
     protected $options = [
         'adapter'     => null, // Barcode adapter Laminas\Validator\Barcode\AbstractAdapter
         'options'     => null, // Options for this adapter
@@ -58,28 +50,24 @@ class Barcode extends AbstractValidator
     /**
      * Constructor for barcodes
      *
-     * @param iterable<string, mixed>|null|string|AdapterInterface $options Options to use
+     * @param array|string $options Options to use
      */
     public function __construct($options = null)
     {
-        if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
-        }
-
         if ($options === null) {
             $options = [];
         }
 
-        if (is_string($options) || $options instanceof AdapterInterface) {
+        if (is_array($options)) {
+            if (array_key_exists('options', $options)) {
+                $options['options'] = ['options' => $options['options']];
+            }
+        } elseif ($options instanceof Traversable) {
+            if (property_exists($options, 'options')) {
+                $options['options'] = ['options' => $options['options']];
+            }
+        } else {
             $options = ['adapter' => $options];
-        }
-
-        if (! is_array($options)) {
-            throw new InvalidArgumentException(sprintf(
-                'Options should be an array, a string representing the name of an adapter, or an adapter instance. '
-                . 'Received "%s"',
-                get_debug_type($options),
-            ));
         }
 
         parent::__construct($options);
@@ -88,7 +76,7 @@ class Barcode extends AbstractValidator
     /**
      * Returns the set adapter
      *
-     * @return AdapterInterface
+     * @return Barcode\AbstractAdapter
      */
     public function getAdapter()
     {
@@ -96,18 +84,16 @@ class Barcode extends AbstractValidator
             $this->setAdapter('Ean13');
         }
 
-        assert($this->options['adapter'] instanceof Barcode\AdapterInterface);
-
         return $this->options['adapter'];
     }
 
     /**
      * Sets a new barcode adapter
      *
-     * @param  string|AdapterInterface $adapter Barcode adapter to use
+     * @param  string|Barcode\AbstractAdapter $adapter Barcode adapter to use
      * @param  array  $options Options for this adapter
      * @return $this
-     * @throws InvalidArgumentException
+     * @throws Exception\InvalidArgumentException
      */
     public function setAdapter($adapter, $options = null)
     {
@@ -116,14 +102,14 @@ class Barcode extends AbstractValidator
             $adapter = 'Laminas\\Validator\\Barcode\\' . $adapter;
 
             if (! class_exists($adapter)) {
-                throw new InvalidArgumentException('Barcode adapter matching "' . $adapter . '" not found');
+                throw new Exception\InvalidArgumentException('Barcode adapter matching "' . $adapter . '" not found');
             }
 
             $adapter = new $adapter($options);
         }
 
         if (! $adapter instanceof Barcode\AdapterInterface) {
-            throw new InvalidArgumentException(
+            throw new Exception\InvalidArgumentException(
                 sprintf(
                     'Adapter %s does not implement Laminas\\Validator\\Barcode\\AdapterInterface',
                     get_debug_type($adapter)
@@ -139,7 +125,7 @@ class Barcode extends AbstractValidator
     /**
      * Returns the checksum option
      *
-     * @return string|null
+     * @return string
      */
     public function getChecksum()
     {
@@ -150,7 +136,7 @@ class Barcode extends AbstractValidator
      * Sets if checksum should be validated, if no value is given the actual setting is returned
      *
      * @param null|bool $checksum
-     * @return AdapterInterface|bool
+     * @return Barcode\AbstractAdapter|bool
      */
     public function useChecksum($checksum = null)
     {

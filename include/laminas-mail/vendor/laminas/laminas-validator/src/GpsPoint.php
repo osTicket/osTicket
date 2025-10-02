@@ -3,7 +3,6 @@
 namespace Laminas\Validator;
 
 use function explode;
-use function is_numeric;
 use function preg_match;
 use function preg_match_all;
 use function preg_replace;
@@ -16,10 +15,11 @@ final class GpsPoint extends AbstractValidator
     public const CONVERT_ERROR         = 'gpsPointConvertError';
     public const INCOMPLETE_COORDINATE = 'gpsPointIncompleteCoordinate';
 
-    protected array $messageTemplates = [
-        self::OUT_OF_BOUNDS         => '%value% is out of Bounds.',
-        self::CONVERT_ERROR         => '%value% can not converted into a Decimal Degree Value.',
-        self::INCOMPLETE_COORDINATE => '%value% did not provided a complete Coordinate',
+    /** @var array */
+    protected $messageTemplates = [
+        'gpsPointOutOfBounds'          => '%value% is out of Bounds.',
+        'gpsPointConvertError'         => '%value% can not converted into a Decimal Degree Value.',
+        'gpsPointIncompleteCoordinate' => '%value% did not provided a complete Coordinate',
     ];
 
     /**
@@ -29,9 +29,11 @@ final class GpsPoint extends AbstractValidator
      * getMessages() will return an array of messages that explain why the
      * validation failed.
      *
+     * @param  mixed $value
+     * @return bool
      * @throws Exception\RuntimeException If validation of $value is impossible.
      */
-    public function isValid(mixed $value): bool
+    public function isValid($value)
     {
         if (! str_contains($value, ',')) {
             $this->error(self::INCOMPLETE_COORDINATE, $value);
@@ -40,10 +42,17 @@ final class GpsPoint extends AbstractValidator
 
         [$lat, $long] = explode(',', $value);
 
-        return $this->isValidCoordinate($lat, 90.0000) && $this->isValidCoordinate($long, 180.000);
+        if ($this->isValidCoordinate($lat, 90.0000) && $this->isValidCoordinate($long, 180.000)) {
+            return true;
+        }
+
+        return false;
     }
 
-    private function isValidCoordinate(string $value, float $maxBoundary): bool
+    /**
+     * @param string $value
+     */
+    private function isValidCoordinate($value, float $maxBoundary): bool
     {
         $this->value = $value;
 
@@ -54,23 +63,19 @@ final class GpsPoint extends AbstractValidator
             $value = $this->removeDegreeSign($value);
         }
 
-        if ($value === false) {
+        if ($value === false || $value === null) {
             $this->error(self::CONVERT_ERROR);
             return false;
         }
 
-        $castedValue = (float) $value;
-        if (! is_numeric($value) && $castedValue === 0.0) {
-            $this->error(self::CONVERT_ERROR);
-            return false;
+        $doubleLatitude = (double) $value;
+
+        if ($doubleLatitude <= $maxBoundary && $doubleLatitude >= $maxBoundary * -1) {
+            return true;
         }
 
-        if (! $this->isValueInbound($castedValue, $maxBoundary)) {
-            $this->error(self::OUT_OF_BOUNDS);
-            return false;
-        }
-
-        return true;
+        $this->error(self::OUT_OF_BOUNDS);
+        return false;
     }
 
     /**
@@ -81,7 +86,11 @@ final class GpsPoint extends AbstractValidator
         return preg_match('/([°\'"]+[NESW])/', $value) > 0;
     }
 
-    private function convertValue(string $value): false|float
+    /**
+     * @param string $value
+     * @return false|float
+     */
+    private function convertValue($value)
     {
         $matches = [];
         $result  = preg_match_all('/(\d{1,3})°(\d{1,2})\'(\d{1,2}[\.\d]{0,6})"[NESW]/i', $value, $matches);
@@ -90,23 +99,24 @@ final class GpsPoint extends AbstractValidator
             return false;
         }
 
-        return $matches[1][0] + $matches[2][0] / 60 + ((float) $matches[3][0]) / 3600;
+        return $matches[1][0] + $matches[2][0] / 60 + ((double) $matches[3][0]) / 3600;
     }
 
-    private function removeWhiteSpace(string $value): string
+    /**
+     * @param string $value
+     * @return string
+     */
+    private function removeWhiteSpace($value)
     {
         return preg_replace('/\s/', '', $value);
     }
 
-    private function removeDegreeSign(string $value): string
+    /**
+     * @param string $value
+     * @return string
+     */
+    private function removeDegreeSign($value)
     {
         return str_replace('°', '', $value);
-    }
-
-    private function isValueInbound(float $value, float $boundary): bool
-    {
-        $max = $boundary;
-        $min = -1 * $boundary;
-        return $min <= $value && $value <= $max;
     }
 }

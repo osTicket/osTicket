@@ -1598,7 +1598,7 @@ abstract class QueueColumnAnnotation {
     }
 
     function getClassName() {
-        return @$this->config['c'] ?: get_class($this);
+        return @$this->config['c'] ?: get_class();
     }
 
     static function getAnnotations($root) {
@@ -1845,7 +1845,7 @@ extends QueueColumnAnnotation {
     function getDecoration($row, $text) {
         $flags = $row['flags'];
         $linked = ($flags & Ticket::FLAG_LINKED) != 0;
-        if ($linked)
+        if ($linked && $_REQUEST['a'] == 'search')
             return '<i class="icon-link"></i>';
     }
 

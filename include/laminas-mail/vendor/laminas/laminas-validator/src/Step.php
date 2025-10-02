@@ -35,7 +35,7 @@ class Step extends AbstractValidator
     /**
      * Set default options for this instance
      *
-     * @param iterable<string, mixed> $options
+     * @param array $options
      */
     public function __construct($options = [])
     {
@@ -163,15 +163,12 @@ class Step extends AbstractValidator
     }
 
     /**
-     * @param float $float
+     * @param  float $float
+     * @return int
      */
-    private function getPrecision($float): int
+    private function getPrecision($float)
     {
-        $position = strpos((string) $float, '.');
-        $segment  = $position === false
-            ? null
-            : substr((string) $float, $position + 1);
-
-        return $segment !== null ? strlen($segment) : 0;
+        $segment = substr($float, strpos($float, '.') + 1);
+        return $segment ? strlen($segment) : 0;
     }
 }

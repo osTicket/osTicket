@@ -2,25 +2,23 @@
 
 namespace Laminas\Mail\Protocol\Smtp\Auth;
 
-use Laminas\Mail\Exception\InvalidArgumentException;
+use Laminas\Crypt\Hmac;
 use Laminas\Mail\Protocol\Smtp;
 
 use function array_replace_recursive;
 use function base64_decode;
 use function base64_encode;
-use function hash_hmac;
 use function is_array;
-use function is_string;
 
 /**
  * Performs CRAM-MD5 authentication
  */
 class Crammd5 extends Smtp
 {
-    /** @var non-empty-string|null */
+    /** @var string */
     protected $username;
 
-    /** @var non-empty-string|null */
+    /** @var string */
     protected $password;
 
     /**
@@ -34,18 +32,23 @@ class Crammd5 extends Smtp
     public function __construct($host = '127.0.0.1', $port = null, $config = null)
     {
         // Did we receive a configuration array?
-        $config     = $config ?? [];
         $origConfig = $config;
         if (is_array($host)) {
             // Merge config array with principal array, if provided
-            $config = array_replace_recursive($host, $config);
+            if (is_array($config)) {
+                $config = array_replace_recursive($host, $config);
+            } else {
+                $config = $host;
+            }
         }
 
-        if (isset($config['username'])) {
-            $this->setUsername($config['username']);
-        }
-        if (isset($config['password'])) {
-            $this->setPassword($config['password']);
+        if (is_array($config)) {
+            if (isset($config['username'])) {
+                $this->setUsername($config['username']);
+            }
+            if (isset($config['password'])) {
+                $this->setPassword($config['password']);
+            }
         }
 
         // Call parent with original arguments
@@ -72,7 +75,7 @@ class Crammd5 extends Smtp
     /**
      * Set value for username
      *
-     * @param  non-empty-string $username
+     * @param  string $username
      * @return Crammd5
      */
     public function setUsername($username)
@@ -84,7 +87,7 @@ class Crammd5 extends Smtp
     /**
      * Get username
      *
-     * @return non-empty-string|null
+     * @return string
      */
     public function getUsername()
     {
@@ -94,7 +97,7 @@ class Crammd5 extends Smtp
     /**
      * Set value for password
      *
-     * @param non-empty-string $password
+     * @param  string $password
      * @return Crammd5
      */
     public function setPassword($password)
@@ -106,7 +109,7 @@ class Crammd5 extends Smtp
     /**
      * Get password
      *
-     * @return non-empty-string|null
+     * @return string
      */
     public function getPassword()
     {
@@ -116,21 +119,13 @@ class Crammd5 extends Smtp
     /**
      * Prepare CRAM-MD5 response to server's ticket
      *
-     * @param non-empty-string $key Challenge key (usually password)
-     * @param non-empty-string $data  Challenge data
+     * @param  string $key   Challenge key (usually password)
+     * @param  string $data  Challenge data
      * @param  int    $block Length of blocks (deprecated; unused)
      * @return string
      */
-    protected function hmacMd5($key, $data, /** @deprecated  */ $block = 64)
+    protected function hmacMd5($key, $data, $block = 64)
     {
-        if (! is_string($key) || $key === '') {
-            throw new InvalidArgumentException('CramMD5 authentication requires a non-empty password');
-        }
-
-        if (! is_string($data) || $data === '') {
-            throw new InvalidArgumentException('CramMD5 authentication requires a non-empty challenge');
-        }
-
-        return hash_hmac('md5', $data, $key, false);
+        return Hmac::compute($key, 'md5', $data);
     }
 }

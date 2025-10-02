@@ -16,9 +16,6 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function time;
 
-/**
- * @extends AbstractOptions<string|callable>
- */
 class FileOptions extends AbstractOptions
 {
     /** @var string Path to stored mail files */

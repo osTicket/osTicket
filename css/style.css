@@ -1,0 +1,39 @@
+.home-btn{
+    width: 49%;
+}
+.ticket-input{
+    width: 700px;
+
+}
+.status-img{
+    width: 80%;
+}
+.home-img{
+    width: 75%;
+}
+.signIn-image{
+    width: 60%;
+}
+@media screen and (min-width: 1070px) {
+}
+
+@media screen and (max-width: 1070px) and (min-width: 992px) {
+  
+ 
+}
+@media screen and (max-width: 992px) and (min-width: 768px) {
+ 
+  
+}
+@media screen and (max-width: 758px) and (min-width: 575px) {
+    .home-btn{
+        width: 100%;
+    }
+   
+}
+
+@media screen and (max-width: 575px) {
+    .home-btn{
+        width: 100%;
+    }
+}

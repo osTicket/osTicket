@@ -8,7 +8,6 @@ use Laminas\Validator\Exception\InvalidArgumentException;
 use Traversable;
 
 use function array_shift;
-use function assert;
 use function class_exists;
 use function func_get_args;
 use function is_a;
@@ -28,7 +27,7 @@ class Uri extends AbstractValidator
         self::NOT_URI => 'The input does not appear to be a valid Uri',
     ];
 
-    /** @var UriHandler|null|class-string<UriHandler> */
+    /** @var UriHandler */
     protected $uriHandler;
 
     /** @var bool */
@@ -85,13 +84,11 @@ class Uri extends AbstractValidator
             // Instantiate string Uri handler that references a class
             $this->uriHandler = new $this->uriHandler();
         }
-        assert($this->uriHandler !== null && ! is_string($this->uriHandler));
-
         return $this->uriHandler;
     }
 
     /**
-     * @param  UriHandler|class-string<UriHandler> $uriHandler
+     * @param  UriHandler|string $uriHandler
      * @throws InvalidArgumentException
      * @return $this
      */

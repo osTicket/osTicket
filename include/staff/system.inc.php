@@ -9,17 +9,9 @@ $extensions = array(
             'name' => 'gdlib',
             'desc' => __('Used for image manipulation and PDF printing')
             ),
-        'iconv' => array(
-            'name' => 'iconv',
-            'desc' => __('Useful for email processing')
-            ),
         'imap' => array(
             'name' => 'imap',
-            'desc' => __('Useful for email processing')
-            ),
-        'ctype' => array(
-            'name' => 'ctype',
-            'desc' => __('Required for email fetching')
+            'desc' => __('Used for email fetching')
             ),
         'xml' => array(
             'name' => 'xml',

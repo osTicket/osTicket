@@ -117,7 +117,6 @@ a, .link {
   margin-bottom: 1px;
 }
 a:hover, .link:hover {
-    border-bottom: 1px dotted #0072bc;
     margin-bottom: 0;
     cursor: pointer;
 }
@@ -605,7 +604,7 @@ label.required, span.required {
 #clientLogin div textarea {
   width: auto;
   border: 1px solid #aaa;
-  background: #fff;
+  background: #D4EECF;
   display: block;
 }
 #ticketForm div input[type=file],
@@ -690,7 +689,6 @@ label.required, span.required {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-  background: url('../images/lock.png?1319655200') 95% 50% no-repeat #f6f6f6;
 }
 .rtl #clientLogin {
     background-position: 5% 50%;

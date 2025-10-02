@@ -35,15 +35,11 @@ abstract class ArrayUtils
 {
     /**
      * Compatibility Flag for ArrayUtils::filter
-     *
-     * @deprecated
      */
     public const ARRAY_FILTER_USE_BOTH = 1;
 
     /**
      * Compatibility Flag for ArrayUtils::filter
-     *
-     * @deprecated
      */
     public const ARRAY_FILTER_USE_KEY = 2;
 
@@ -192,15 +188,13 @@ abstract class ArrayUtils
      * non-strict check is implemented. if $strict = -1, the default in_array
      * non-strict behaviour is used.
      *
-     * @deprecated This method will be removed in version 4.0 of this component
-     *
      * @param array $haystack
      * @param int|bool $strict
      * @return bool
      */
     public static function inArray(mixed $needle, array $haystack, $strict = false)
     {
-        if ((bool) $strict === false) {
+        if (! $strict) {
             if (is_int($needle) || is_float($needle)) {
                 $needle = (string) $needle;
             }

@@ -25,14 +25,12 @@ class ConfigProvider
     {
         return [
             'aliases'   => [
-                Translator\TranslatorInterface::class => Translator\Translator::class,
-                'ValidatorManager'                    => ValidatorPluginManager::class,
+                'ValidatorManager' => ValidatorPluginManager::class,
 
                 // Legacy Zend Framework aliases
                 'Zend\Validator\ValidatorPluginManager' => ValidatorPluginManager::class,
             ],
             'factories' => [
-                Translator\Translator::class  => Translator\TranslatorFactory::class,
                 ValidatorPluginManager::class => ValidatorPluginManagerFactory::class,
             ],
         ];

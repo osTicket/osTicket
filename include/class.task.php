@@ -350,21 +350,23 @@ class Task extends TaskModel implements RestrictedAccess, Threadable {
     }
 
     function getLastRespondent() {
+
         if (!isset($this->lastrespondent)) {
             $this->lastrespondent = Staff::objects()
                 ->filter(array(
-                'staff_id' => $this->getThread()->entries
+                'staff_id' => static::objects()
                     ->filter(array(
-                        'type' => 'R',
-                        'staff_id__gt' => 0
+                        'thread__entries__type' => 'R',
+                        'thread__entries__staff_id__gt' => 0
                     ))
-                    ->values_flat('staff_id')
-                    ->order_by('-id')
-                    ->limit('1')
+                    ->values_flat('thread__entries__staff_id')
+                    ->order_by('-thread__entries__id')
+                    ->limit('1,1')
                 ))
                 ->first()
                 ?: false;
         }
+
         return $this->lastrespondent;
     }
 

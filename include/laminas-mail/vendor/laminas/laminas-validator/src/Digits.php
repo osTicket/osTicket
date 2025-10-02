@@ -17,7 +17,7 @@ class Digits extends AbstractValidator
     /**
      * Digits filter used for validation
      *
-     * @var DigitsFilter|null
+     * @var DigitsFilter
      */
     protected static $filter;
 
@@ -35,7 +35,7 @@ class Digits extends AbstractValidator
     /**
      * Returns true if and only if $value only contains digit characters
      *
-     * @param  mixed $value
+     * @param  string $value
      * @return bool
      */
     public function isValid($value)

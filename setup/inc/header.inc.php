@@ -17,8 +17,10 @@ if (osTicket::is_ie())
 <head>
     <title><?php echo $wizard['title']; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="css/wizard.css">
-    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/wizard.css?0375576"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/flags.css?0375576"/>
 </head>
 <body>
     <div id="wizard">

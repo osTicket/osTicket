@@ -20,11 +20,6 @@ require_once INCLUDE_DIR.'class.ajax.php';
 class ContentAjaxAPI extends AjaxController {
 
     function syslog($id) {
-        global $thisstaff;
-
-        // Ensure there is a Staff and that they are an Administrator
-        if (!$thisstaff || !$thisstaff->isAdmin())
-            Http::response(403, 'Access Denied');
 
         if($id && ($log=Log::lookup($id))) {
             $content=sprintf('<div
@@ -147,8 +142,8 @@ class ContentAjaxAPI extends AjaxController {
     function manageContent($id, $lang=false) {
         global $thisstaff, $cfg;
 
-        if (!$thisstaff || !$thisstaff->isAdmin())
-            Http::response(403, 'Access Denied');
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
 
         $content = Page::lookup($id, $lang);
 
@@ -173,8 +168,8 @@ class ContentAjaxAPI extends AjaxController {
     function manageNamedContent($type, $lang=false) {
         global $thisstaff, $cfg;
 
-        if (!$thisstaff || !$thisstaff->isAdmin())
-            Http::response(403, 'Access Denied');
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
 
         $langs = $cfg->getSecondaryLanguages();
 
@@ -187,8 +182,8 @@ class ContentAjaxAPI extends AjaxController {
     function updateContent($id) {
         global $thisstaff;
 
-        if (!$thisstaff || !$thisstaff->isAdmin())
-            Http::response(403, 'Access Denied');
+        if (!$thisstaff)
+            Http::response(403, 'Login Required');
         elseif (!($content = Page::lookup($id)))
             Http::response(404, 'No such content');
 

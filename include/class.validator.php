@@ -367,8 +367,7 @@ class Validator {
         $aclbk = $cfg->getACLBackend();
         switch($backend) {
             case 'client':
-                if (in_array($aclbk, array(0,3))
-                        || ($aclbk == 2 && StaffAuthenticationBackend::getUser()))
+                if (in_array($aclbk, array(0,3)))
                     return true;
                 break;
             case 'staff':

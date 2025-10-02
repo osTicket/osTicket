@@ -43,22 +43,15 @@ class TicketApiController extends ApiController {
             foreach ($form->getFields() as $field)
                 $supported[] = $field->get('name');
 
-        switch ($format) {
-            case 'email':
-                $supported = array_merge($supported, [
-                    'header', 'mid', 'emailId', 'to-email-id', 'ticketId', 'reply-to',
-                    'reply-to-name', 'in-reply-to', 'references', 'thread-type', 'system_emails',
-                    'mailflags' => ['bounce', 'auto-reply', 'spam', 'viral'],
-                    'recipients' => ['*' => ['name', 'email', 'source']]
-                ]);
-                $supported['attachments']['*'][] = 'cid';
-                break;
-            case 'json':
-            case 'xml':
-                $supported = array_merge($supported, [
-                    'duedate', 'slaId', 'staffId'
-                ]);
-                break;
+        if(!strcasecmp($format, 'email')) {
+            $supported = array_merge($supported, array('header', 'mid',
+                'emailId', 'to-email-id', 'ticketId', 'reply-to', 'reply-to-name',
+                'in-reply-to', 'references', 'thread-type', 'system_emails',
+                'mailflags' => array('bounce', 'auto-reply', 'spam', 'viral'),
+                'recipients' => array('*' => array('name', 'email', 'source'))
+                ));
+
+            $supported['attachments']['*'][] = 'cid';
         }
 
         return $supported;

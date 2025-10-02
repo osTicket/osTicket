@@ -1049,15 +1049,13 @@ class ScheduleEntry extends VerySimpleModel {
     }
 
     static function getDays() {
-        return self::$days;
-    }
+        static $translated = false;
+        if (!$translated) {
+            foreach (static::$days as $k=>$v)
+                static::$days[$k] = __($v);
+        }
 
-    static function getTranslatedDays() {
-        static $translated = null;
-        if (!isset($translated))
-            $translated = array_map(function ($d) { return __($d); }, static::getDays());
-
-        return $translated;
+        return static::$days;
     }
 
     static function getWeeks() {
@@ -1178,7 +1176,7 @@ extends AbstractForm {
                     'default' => "",
                     'layout' => new GridFluidCell(6),
                     'label' => __('Day of the Week'),
-                    'choices' => ScheduleEntry::getTranslatedDays() + array(
+                    'choices' => ScheduleEntry::getDays() + array(
                         'weekdays' => sprintf('%s (%s)',
                             __('Weekdays'), __('Mon-Fri')),
                         'weekends' => sprintf('%s (%s)',
@@ -1214,7 +1212,7 @@ extends AbstractForm {
                     'default' => "",
                     'layout' => new GridFluidCell(6),
                     'label' => __('Day'),
-                    'choices' => ScheduleEntry::getTranslatedDays(),
+                    'choices' => ScheduleEntry::getDays(),
                     'validator-error' => __('Selection required'),
                     'visibility' => new VisibilityConstraint(
                         new Q(array('monthly__neq'=>'day')),
@@ -1243,7 +1241,7 @@ extends AbstractForm {
                     'default' => '',
                     'layout' => new GridFluidCell(4),
                     'label' => __('Day'),
-                    'choices' => ScheduleEntry::getTranslatedDays(),
+                    'choices' => ScheduleEntry::getDays(),
                     'validator-error' => __('Selection required'),
                     'configuration'=>array('prompt'=>__('Day')),
                     'visibility' => new VisibilityConstraint(

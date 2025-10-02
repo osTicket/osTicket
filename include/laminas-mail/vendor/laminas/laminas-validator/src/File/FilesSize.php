@@ -162,7 +162,7 @@ class FilesSize extends Size
     /**
      * Throws an error of the given type
      *
-     * @param  string|null|array $file
+     * @param  string $file
      * @param  string $errorType
      * @return false
      */

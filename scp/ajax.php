@@ -25,8 +25,8 @@ define('AJAX_REQUEST', 1);
 require('staff.inc.php');
 
 //Clean house...don't let the world see your crap.
-ini_set('display_errors','0'); //Disable error display
-ini_set('display_startup_errors','0');
+ini_set('display_errors', '0'); // Set by installer
+ini_set('display_startup_errors', '0'); // Set by installer
 
 //TODO: disable direct access via the browser? i,e All request must have REFER?
 if(!defined('INCLUDE_DIR'))	Http::response(500, 'Server configuration error');
@@ -244,7 +244,7 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/collaborators/(?P<manage>\d+)$', 'showCollaborators'),
         url_post('^(?P<tid>\d+)/collaborators$', 'updateCollaborators'),
         url_get('^(?P<tid>\d+)/add-collaborator/(?P<type>\w+)/(?P<uid>\d+)$', 'addCollaborator'),
-        url_get('^(?P<tid>\d+)/add-collaborator/(?P<type>\w+)/auth:(?P<bk>[\w.]+):(?P<id>.+)$', 'addRemoteCollaborator'),
+        url_get('^(?P<tid>\d+)/add-collaborator/(?P<type>\w+)/auth:(?P<bk>\w+):(?P<id>.+)$', 'addRemoteCollaborator'),
         url('^(?P<tid>\d+)/add-collaborator/(?P<type>\w+)$', 'addCollaborator'),
         url_get('^(?P<tid>\d+)/collaborators/(?P<cid>\d+)/view$', 'viewCollaborator'),
         url_post('^(?P<tid>\d+)/collaborators/(?P<cid>\d+)$', 'updateCollaborator')

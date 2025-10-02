@@ -23,7 +23,6 @@ namespace osTicket\OAuth2 {
         protected $expires;
         protected $refreshToken;
         protected $resourceOwnerId;
-        protected $scope;
         // osTicket specific
         protected $resourceOwnerEmail;
         protected $configSignature;
@@ -50,9 +49,6 @@ namespace osTicket\OAuth2 {
 
             if (!empty($options['resource_owner_email']))
                 $this->resourceOwnerEmail = $options['resource_owner_email'];
-
-            if (!empty($options['scope']))
-                $this->scope = $options['scope'];
         }
 
         public function getToken() {
@@ -81,10 +77,6 @@ namespace osTicket\OAuth2 {
 
         public function getResourceOwner() {
             return $this->getResourceOwnerEmail();
-        }
-
-        public function getScope() {
-            return $this->scope;
         }
 
         public function getConfigSignature() {

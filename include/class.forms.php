@@ -1789,10 +1789,6 @@ class BooleanField extends FormField {
         return ($value) ? __('Yes') : __('No');
     }
 
-    function asVar($value, $id=false) {
-        return $this->toString($value);
-    }
-
     function getClean($validate=true) {
         if (!isset($this->_clean)) {
             $this->_clean = (isset($this->value))
@@ -3336,7 +3332,7 @@ class DepartmentField extends ChoiceField {
 
     function getValue() {
          if (($value = parent::getValue()) && ($id=$this->getClean()))
-            return is_array($value) ? $value[$id] : $value;
+            return $value[$id];
      }
 
     function to_php($value, $id=false) {
@@ -6182,7 +6178,7 @@ class TransferForm extends Form {
             break;
         default:
             throw new Exception(sprintf(__('%s: Unknown template style %s'),
-                        get_class($this), $options['template']));
+                        get_class(), $options['template']));
         }
 
         $form = $this;

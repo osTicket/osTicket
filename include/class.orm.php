@@ -233,16 +233,16 @@ class ModelMeta implements ArrayAccess {
         return $root;
     }
 
-    function offsetGet($field): mixed {
+    function offsetGet($field) {
         return $this->meta[$field];
     }
-    function offsetSet($field, $what): void {
+    function offsetSet($field, $what) {
         $this->meta[$field] = $what;
     }
-    function offsetExists($field): bool {
+    function offsetExists($field) {
         return isset($this->meta[$field]);
     }
-    function offsetUnset($field): void {
+    function offsetUnset($field) {
         throw new Exception('Model MetaData is immutable');
     }
 
@@ -1368,7 +1368,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
         return $list[0];
     }
 
-    function count(): int {
+    function count() {
         // Defer to the iterator if fetching already started
         if (isset($this->_iterator)) {
             return $this->_iterator->count();
@@ -1562,7 +1562,7 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     // IteratorAggregate interface
-    function getIterator($iterator=false): Traversable {
+    function getIterator($iterator=false) {
         if (!isset($this->_iterator)) {
             $class = $iterator ?: $this->getIteratorClass();
             $it = new $class($this);
@@ -1593,16 +1593,16 @@ class QuerySet implements IteratorAggregate, ArrayAccess, Serializable, Countabl
     }
 
     // ArrayAccess interface
-    function offsetExists($offset): bool {
+    function offsetExists($offset) {
         return $this->getIterator()->offsetExists($offset);
     }
-    function offsetGet($offset): mixed {
+    function offsetGet($offset) {
         return $this->getIterator()->offsetGet($offset);
     }
-    function offsetUnset($a): void {
+    function offsetUnset($a) {
         throw new Exception(__('QuerySet is read-only'));
     }
-    function offsetSet($a, $b): void {
+    function offsetSet($a, $b) {
         throw new Exception(__('QuerySet is read-only'));
     }
 
@@ -1735,27 +1735,27 @@ implements ArrayAccess {
         $this->inner->rewind();
     }
 
-    function getIterator(): Traversable {
+    function getIterator() {
         $this->asArray();
         return new ArrayIterator($this->storage);
     }
 
-    function offsetExists($offset): bool {
+    function offsetExists($offset) {
         $this->fillTo($offset+1);
         return count($this->storage) > $offset;
     }
-    function offsetGet($offset): mixed {
+    function offsetGet($offset) {
         $this->fillTo($offset+1);
         return $this->storage[$offset];
     }
-    function offsetUnset($a): void {
+    function offsetUnset($a) {
         throw new Exception(__('QuerySet is read-only'));
     }
-    function offsetSet($a, $b): void {
+    function offsetSet($a, $b) {
         throw new Exception(__('QuerySet is read-only'));
     }
 
-    function count($mode=COUNT_NORMAL): int {
+    function count($mode=COUNT_NORMAL) {
         $this->asArray();
         return count($this->storage);
     }
@@ -1999,7 +1999,7 @@ implements IteratorAggregate {
         return $model;
     }
 
-    function getIterator(): Traversable {
+    function getIterator() {
         $func = ($this->map) ? 'getRow' : 'getArray';
         $func = array($this->resource, $func);
         $cache = true;
@@ -2028,27 +2028,27 @@ implements Iterator {
         $this->callback = $callback;
     }
 
-    function rewind(): void {
+    function rewind() {
         $this->eoi = false;
         $this->next();
     }
 
-    function key(): mixed {
+    function key() {
         return $this->key;
     }
 
-    function valid(): bool {
+    function valid() {
         if (!isset($this->eoi))
             $this->rewind();
         return !$this->eoi;
     }
 
-    function current(): mixed {
+    function current() {
         if ($this->eoi) return false;
         return $this->current;
     }
 
-    function next(): void {
+    function next() {
         try {
             $cbk = $this->callback;
             $this->current = $cbk();
@@ -2073,7 +2073,7 @@ implements IteratorAggregate {
         $this->queryset = $queryset;
     }
 
-    function getIterator(): Traversable {
+    function getIterator() {
         $this->resource = $this->queryset->getQuery();
         return new CallbackSimpleIterator(function() {
             global $StopIteration;
@@ -2096,7 +2096,7 @@ implements IteratorAggregate {
         $this->queryset = $queryset;
     }
 
-    function getIterator(): Traversable {
+    function getIterator() {
         $this->resource = $this->queryset->getQuery();
         return new CallbackSimpleIterator(function() {
             global $StopIteration;
@@ -2171,7 +2171,7 @@ extends ModelResultSet {
      * Slight edit to the standard iteration method which will skip deleted
      * items.
      */
-    function getIterator(): Traversable {
+    function getIterator() {
         return new CallbackFilterIterator(parent::getIterator(),
             function($i) { return !$i->__deleted__; }
         );
@@ -2244,11 +2244,11 @@ extends ModelResultSet {
         return clone $this->queryset;
     }
 
-    function offsetUnset($a): void {
+    function offsetUnset($a) {
         $this->fillTo($a);
         $this->storage[$a]->delete();
     }
-    function offsetSet($a, $b): void {
+    function offsetSet($a, $b) {
         $this->fillTo($a);
         if ($obj = $this->storage[$a])
             $obj->delete();
@@ -2871,7 +2871,7 @@ class MySqlCompiler extends SqlCompiler {
         $table = ($rmeta['view'])
             // XXX: Support parameters from the nested query
             ? $rmodel::getSqlAddParams($this)
-            : $this->quote($rmeta['table'], true);
+            : $this->quote($rmeta['table']);
         $base = "{$join}{$table} {$alias}";
         return array($base, $constraints);
     }

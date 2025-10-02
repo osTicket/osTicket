@@ -94,9 +94,11 @@ class Config implements ConfigInterface
      * @psalm-param ServiceManagerConfigurationType $a
      * @psalm-param ServiceManagerConfigurationType $b
      * @psalm-return ServiceManagerConfigurationType
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function merge(array $a, array $b)
     {
+        /** @psalm-suppress MixedReturnTypeCoercion */
         return ArrayUtils::merge($a, $b);
     }
 }

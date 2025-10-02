@@ -53,10 +53,10 @@ class i18n_Compiler extends Module {
         profile in your home folder or in your environment. See AWS
         configuration  docs for more information";
 
-    static $project_id = '25755';
-    static $crowdin_api_url = 'http://i18n.osticket.com/api/v2/projects/{project_id}/{command}';
+    static $project = 'osticket-official';
+    static $crowdin_api_url = 'http://i18n.osticket.com/api/project/{project}/{command}';
 
-    function _http_get($url, $headers=[], $fields=[]) {
+    function _http_get($url) {
         $this->stdout->write(">>> Downloading $url\n");
         #curl post
         $ch = curl_init();
@@ -65,15 +65,6 @@ class i18n_Compiler extends Module {
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        $headers[] = 'Cache-Control: no-cache';
-        // Set POST data
-        if (!empty($fields)) {
-            $headers[] = 'Content-Type: application/json';
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-        }
-        // Set headers
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $result=curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -81,18 +72,18 @@ class i18n_Compiler extends Module {
         return array($code, $result);
     }
 
-    function _request($command, $args=array(), $fields=[]) {
-        $url = str_replace(array('{command}', '{project_id}'),
-            array($command, self::$project_id),
+    function _request($command, $args=array()) {
+
+        $url = str_replace(array('{command}', '{project}'),
+            array($command, self::$project),
             self::$crowdin_api_url);
 
-        // Set Personal Access Token for every request
-        $headers = ['Authorization: Bearer '.$this->key];
-        // Build URL with arguments
-        if (!empty($args))
-            $url .= '?' . Http::build_query($args);
+        $args += array('key' => $this->key);
+        if ($branch = $this->getOption('branch', false))
+            $args += array('branch' => $branch);
+        $url .= '?' . Http::build_query($args);
 
-        return $this->_http_get($url, $headers, $fields);
+        return $this->_http_get($url);
     }
 
     function run($args, $options) {
@@ -137,23 +128,20 @@ class i18n_Compiler extends Module {
 
     function _list() {
         error_reporting(E_ALL);
-        // Get languages progress
-        list($code, $body) = $this->_request('languages/progress', ['limit' => 300]);
-        // Fail if not successful
-        if ($code !== 200)
-            $this->fail("Request failed ({$code}): ".JsonDataParser::parse($body)['error']['message']."\n");
+        list($code, $body) = $this->_request('status');
+        $d = new DOMDocument();
+        $d->loadXML($body);
 
-        // Parse response to get data
-        $langs = JsonDataParser::parse($body)['data'];
-        foreach ($langs as $lang) {
+        $xp = new DOMXpath($d);
+        foreach ($xp->query('//language') as $c) {
             $name = $code = '';
-            foreach ($lang['data']['language'] as $n=>$v) {
-                switch (strtolower($n)) {
+            foreach ($c->childNodes as $n) {
+                switch (strtolower($n->nodeName)) {
                 case 'name':
-                    $name = $v;
+                    $name = $n->textContent;
                     break;
-                case 'id':
-                    $code = $v;
+                case 'code':
+                    $code = $n->textContent;
                     break;
                 }
             }
@@ -164,34 +152,8 @@ class i18n_Compiler extends Module {
     }
 
     function _build($lang, $options) {
-        // Set target language
-        $fields = ['targetLanguageIds' => [$lang]];
-        // Set branch ID from branch name
-        if ($branch = $this->getOption('branch', false))
-            $fields['branchId'] = $this->getBranchId($branch);
-        // List available builds for language
-        list($code, $result) = $this->_request("translations/builds", [], $fields);
-        // Parse response and return build ID
-        // Fail if no build ID as it's required
-        if ($code !== 201 || !($build_id = JsonDataParser::parse($result)['data']['id']))
-            $this->fail("No builds available for target language");
-        $progress = 0;
-        while ($progress<100) {
-            sleep(2);
-            list ($c, $r) = $this->_request("translations/builds/{$build_id}");
-            if ($c !== 200)
-                $this->fail("No builds available for target language");
-            $progress = (int) JsonDataParser::parse($r)['data']['progress'];
-        }
-        // Request the download information
-        list($code, $body) = $this->_request("translations/builds/{$build_id}/download");
-        // Parse response and return download URL - fail if none
-        if (!($url = JsonDataParser::parse($body)['data']['url']))
-            $this->fail('Selected build not available for target language');
-        // Download using the URL in the response
-        list($code, $zip) = $this->_http_get($url);
+        list($code, $zip) = $this->_request("download/$lang.zip");
 
-        // Fail if not successful
         if ($code !== 200)
             $this->fail('Language is not available'."\n");
 
@@ -219,6 +181,10 @@ class i18n_Compiler extends Module {
             $branch = trim($options['branch'], '/') . '/';
         for ($i=0; $i<$zip->numFiles; $i++) {
             $info = $zip->statIndex($i);
+            if ($branch && strpos($info['name'], $branch) !== 0) {
+                // Skip files not part of the named branch
+                continue;
+            }
             $contents = $zip->getFromIndex($i);
             if (!$contents)
                 continue;
@@ -770,13 +736,6 @@ class i18n_Compiler extends Module {
             }
         }
         return $strings;
-    }
-
-    function getBranchId($branch) {
-        list($code, $result) = $this->_request("branches", ['name' => (string) $branch]);
-        if ($code !== 200)
-            $this->fail('Branch not available');
-        return (int) JsonDataParser::parse($result)['data'][0]['data']['id'];
     }
 }
 

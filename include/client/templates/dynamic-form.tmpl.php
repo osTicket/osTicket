@@ -8,7 +8,7 @@ $isCreate = (isset($options['mode']) && $options['mode'] == 'create');
 ?>
     <tr><td colspan="2"><hr />
     <div class="form-header" style="margin-bottom:0.5em">
-    <h3><?php echo Format::htmlchars($form->getTitle()); ?></h3>
+    <h2 class="alg-text-h2"><?php echo Format::htmlchars($form->getTitle()); ?></h2>
     <div><?php echo Format::display($form->getInstructions()); ?></div>
     </div>
     </td></tr>
@@ -34,12 +34,18 @@ $isCreate = (isset($options['mode']) && $options['mode'] == 'create');
         <tr>
             <td colspan="2" style="padding-top:10px;">
             <?php if (!$field->isBlockLevel()) { ?>
-                <label for="<?php echo $field->getFormName(); ?>"><span class="<?php
+                <label class="text-start alg-text-p"" for="<?php echo $field->getFormName(); ?>"><span class="<?php
                     if ($field->isRequiredForUsers()) echo 'required'; ?>">
                 <?php echo Format::htmlchars($field->getLocal('label')); ?>
             <?php if ($field->isRequiredForUsers() &&
                     ($field->isEditableToUsers() || $isCreate)) { ?>
                 <span class="error">*</span>
+
+               
+
+
+
+
             <?php }
             ?></span><?php
                 if ($field->get('hint')) { ?>

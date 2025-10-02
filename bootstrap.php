@@ -22,13 +22,15 @@ class Bootstrap {
 
         #Error reporting...Good idea to ENABLE error reporting to a file. i.e display_errors should be set to false
         $error_reporting = E_ALL & ~E_NOTICE & ~E_WARNING;
+        if (defined('E_STRICT')) # 5.4.0
+            $error_reporting &= ~E_STRICT;
         if (defined('E_DEPRECATED')) # 5.3.0
             $error_reporting &= ~(E_DEPRECATED | E_USER_DEPRECATED);
         error_reporting($error_reporting); //Respect whatever is set in php.ini (sysadmin knows better??)
 
         #Don't display errors
-        ini_set('display_errors', 1);
-        ini_set('display_startup_errors', 1);
+        ini_set('display_errors', '0'); // Set by installer
+        ini_set('display_startup_errors', '0'); // Set by installer
 
         //Default timezone
         if (!ini_get('date.timezone')) {
@@ -212,16 +214,15 @@ class Bootstrap {
         $hosts = explode(',', DBHOST);
         foreach ($hosts as $host) {
             $ferror  = null;
-            try {
-                if (!db_connect($host, DBUSER, DBPASS, $options))
-                    $ferror = sprintf('Unable to connect to the database — %s', db_connect_error());
-                elseif (!db_select_database(DBNAME))
-                    $ferror = sprintf('Unknown or invalid database: %s', DBNAME);
-            } catch (mysqli_sql_exception $e) {
-                $ferror = sprintf('Database error — %s', $e->getMessage());
-            }
-            // break if no error
-            if (!$ferror) break;
+            if (!db_connect($host, DBUSER, DBPASS, $options)) {
+                $ferror = sprintf('Unable to connect to the database — %s',
+                        db_connect_error());
+            }elseif(!db_select_database(DBNAME)) {
+                $ferror = sprintf('Unknown or invalid database: %s',
+                        DBNAME);
+           }
+           // break if no error
+           if (!$ferror) break;
         }
 
         if ($ferror) //Fatal error
@@ -340,7 +341,7 @@ class Bootstrap {
     static function croak($message) {
         $msg = $message."\n\n".THISPAGE;
         osTicket\Mail\Mailer::sendmail(ADMIN_EMAIL, 'osTicket Fatal Error', $msg,
-            sprintf('"osTicket Alerts" <%s>', ADMIN_EMAIL));
+            sprintf('"osTicket Alerts"<%s>', ADMIN_EMAIL));
         //Display generic error to the user
         Http::response(500, "<b>Fatal Error:</b> Contact system administrator.");
     }
@@ -352,7 +353,7 @@ $here = ($h = realpath($here)) ? $h : $here;
 define('ROOT_DIR',str_replace('\\', '/', $here.'/'));
 unset($here); unset($h);
 
-define('INCLUDE_DIR',ROOT_DIR.'include/'); //Change this if include is moved outside the web path.
+define('INCLUDE_DIR', ROOT_DIR . 'include/'); // Set by installer
 define('PEAR_DIR',INCLUDE_DIR.'pear/');
 define('SETUP_DIR',ROOT_DIR.'setup/');
 
@@ -366,9 +367,9 @@ define('CLI_DIR', INCLUDE_DIR.'cli/');
 /*############## Do NOT monkey with anything else beyond this point UNLESS you really know what you are doing ##############*/
 
 #Current version && schema signature (Changes from version to version)
-define('GIT_VERSION','$git');
+define('GIT_VERSION', '0375576'); // Set by installer
 define('MAJOR_VERSION', '1.18');
-define('THIS_VERSION', MAJOR_VERSION.'-git'); //Shown on admin panel
+define('THIS_VERSION', 'v1.18.1'); // Set by installer
 //Path separator
 if(!defined('PATH_SEPARATOR')){
     if(strpos($_ENV['OS'],'Win')!==false || !strcasecmp(substr(PHP_OS, 0, 3),'WIN'))

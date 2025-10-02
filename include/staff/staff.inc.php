@@ -104,7 +104,7 @@ $extras = new ArrayObject();
         <tr>
           <td><?php echo __('Mobile Number');?>:</td>
           <td>
-            <input type="tel" size="18" name="mobile" class="auto mobile"
+            <input type="tel" size="18" name="mobile" class="auto phone"
               value="<?php echo Format::htmlchars($staff->mobile); ?>" />
             <div class="error"><?php echo $errors['mobile']; ?></div>
           </td>

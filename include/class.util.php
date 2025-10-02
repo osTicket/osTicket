@@ -98,12 +98,12 @@ implements IteratorAggregate, Countable {
     }
 
     // IteratorAggregate
-    function getIterator(): Traversable {
+    function getIterator() {
         return new ArrayIterator($this->storage);
     }
 
     // Countable
-    function count($mode=COUNT_NORMAL): int {
+    function count($mode=COUNT_NORMAL) {
         return count($this->storage, $mode);
     }
 
@@ -195,7 +195,7 @@ implements ArrayAccess, Serializable {
     }
 
     // ArrayAccess
-    function offsetGet($offset): mixed {
+    function offsetGet($offset) {
         if (!is_int($offset))
             throw new InvalidArgumentException('List indices should be integers');
         elseif ($offset < 0)
@@ -204,11 +204,10 @@ implements ArrayAccess, Serializable {
             throw new OutOfBoundsException('List index out of range');
         return $this->storage[$offset];
     }
-    function offsetSet($offset, $value): void {
-        if ($offset === null) {
-            $this->storage[] = $value;
-            return;
-        } elseif (!is_int($offset))
+    function offsetSet($offset, $value) {
+        if ($offset === null)
+            return $this->storage[] = $value;
+        elseif (!is_int($offset))
             throw new InvalidArgumentException('List indices should be integers');
         elseif ($offset < 0)
             $offset += count($this->storage);
@@ -218,14 +217,14 @@ implements ArrayAccess, Serializable {
 
         $this->storage[$offset] = $value;
     }
-    function offsetExists($offset): bool {
+    function offsetExists($offset) {
         if (!is_int($offset))
             throw new InvalidArgumentException('List indices should be integers');
         elseif ($offset < 0)
             $offset += count($this->storage);
         return isset($this->storage[$offset]);
     }
-    function offsetUnset($offset): void {
+    function offsetUnset($offset) {
         if (!is_int($offset))
             throw new InvalidArgumentException('List indices should be integers');
         elseif ($offset < 0)

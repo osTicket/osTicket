@@ -31,30 +31,29 @@ interface AdapterInterface
     /**
      * Returns the allowed barcode length
      *
-     * @return int|string|array|null
+     * @return int|array
      */
     public function getLength();
 
     /**
      * Returns the allowed characters
      *
-     * @return int|string|array|null
+     * @return int|string|array
      */
     public function getCharacters();
 
     /**
      * Returns if barcode uses a checksum
      *
-     * @return string|null
+     * @return bool|int|string
      */
     public function getChecksum();
 
     /**
      * Sets the checksum validation, if no value is given, the actual setting is returned
      *
-     * @param  bool|null $check
-     * @return $this|bool
-     * @psalm-return ($check is null ? bool : static)
+     * @param  bool $check
+     * @return AbstractAdapter|bool
      */
     public function useChecksum($check = null);
 }

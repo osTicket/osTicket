@@ -7,7 +7,6 @@ namespace Laminas\Stdlib;
 use Traversable;
 
 use function array_shift;
-use function get_object_vars;
 use function is_array;
 use function is_callable;
 use function method_exists;
@@ -17,10 +16,6 @@ use function str_replace;
 use function strtolower;
 use function ucwords;
 
-/**
- * @template TValue
- * @implements ParameterObjectInterface<string, TValue>
- */
 abstract class AbstractOptions implements ParameterObjectInterface
 {
     // phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore,WebimpressCodingStandard.NamingConventions.ValidVariableName.NotCamelCapsProperty
@@ -38,7 +33,7 @@ abstract class AbstractOptions implements ParameterObjectInterface
     /**
      * Constructor
      *
-     * @param  iterable<string, TValue>|AbstractOptions<TValue>|null $options
+     * @param  array|Traversable|null $options
      */
     public function __construct($options = null)
     {
@@ -50,7 +45,7 @@ abstract class AbstractOptions implements ParameterObjectInterface
     /**
      * Set one or more configuration properties
      *
-     * @param  iterable<string, TValue>|AbstractOptions<TValue> $options
+     * @param  array|Traversable|AbstractOptions $options
      * @throws Exception\InvalidArgumentException
      * @return AbstractOptions Provides fluent interface
      */
@@ -82,20 +77,19 @@ abstract class AbstractOptions implements ParameterObjectInterface
     /**
      * Cast to array
      *
-     * @return array<string, TValue>
+     * @return array
      */
     public function toArray()
     {
         $array = [];
 
+        /** @param string[] $letters */
         $transform = static function (array $letters): string {
-            /** @var list<string> $letters */
             $letter = array_shift($letters);
             return '_' . strtolower($letter);
         };
 
-        /** @psalm-var TValue $value */
-        foreach (get_object_vars($this) as $key => $value) {
+        foreach ($this as $key => $value) {
             if ($key === '__strictMode__') {
                 continue;
             }
@@ -112,7 +106,7 @@ abstract class AbstractOptions implements ParameterObjectInterface
      * @see ParameterObject::__set()
      *
      * @param string $key
-     * @param TValue|null $value
+     * @param mixed $value
      * @throws Exception\BadMethodCallException
      * @return void
      */
@@ -143,7 +137,7 @@ abstract class AbstractOptions implements ParameterObjectInterface
      *
      * @param string $key
      * @throws Exception\BadMethodCallException
-     * @return TValue
+     * @return mixed
      */
     public function __get($key)
     {

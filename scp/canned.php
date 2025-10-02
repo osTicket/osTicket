@@ -37,10 +37,6 @@ if(!$thisstaff
 $canned=null;
 if($_REQUEST['id'] && !($canned=Canned::lookup($_REQUEST['id'])))
     $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('Canned Response'));
-if ($canned && !$canned->staffCanAccess($thisstaff)) {
-    header('Location: canned.php');
-    exit;
-}
 
 $canned_form = new SimpleForm(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
