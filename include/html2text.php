@@ -91,9 +91,10 @@ function identify_node($node, $parent=null) {
     if ($node instanceof DOMText)
         return $node;
     if ($node instanceof DOMDocument)
-        return identify_node($node->childNodes->item(1), $parent);
+        return identify_node($node->documentElement, $parent);
     if ($node instanceof DOMDocumentType
-            || $node instanceof DOMComment)
+            || $node instanceof DOMComment
+            || $node == null)
         // ignore
         return "";
 
