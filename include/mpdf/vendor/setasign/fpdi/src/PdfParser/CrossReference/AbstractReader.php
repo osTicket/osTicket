@@ -4,7 +4,7 @@
  * This file is part of FPDI
  *
  * @package   setasign\Fpdi
- * @copyright Copyright (c) 2020 Setasign GmbH & Co. KG (https://www.setasign.com)
+ * @copyright Copyright (c) 2024 Setasign GmbH & Co. KG (https://www.setasign.com)
  * @license   http://opensource.org/licenses/mit-license The MIT License
  */
 
@@ -35,7 +35,6 @@ abstract class AbstractReader
      *
      * @param PdfParser $parser
      * @throws CrossReferenceException
-     * @throws PdfTypeException
      */
     public function __construct(PdfParser $parser)
     {
@@ -57,7 +56,6 @@ abstract class AbstractReader
      * Read the trailer dictionary.
      *
      * @throws CrossReferenceException
-     * @throws PdfTypeException
      */
     protected function readTrailer()
     {

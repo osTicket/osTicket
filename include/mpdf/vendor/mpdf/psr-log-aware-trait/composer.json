@@ -1,0 +1,24 @@
+{
+    "name": "mpdf/psr-log-aware-trait",
+    "description": "Trait to allow support of different psr/log versions.",
+    "type": "library",
+    "require": {
+        "psr/log": "^3.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mpdf\\PsrLogAwareTrait\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mark Dorison",
+            "email": "mark@chromatichq.com"
+        },
+        {
+            "name": "Kristofer Widholm",
+            "email": "kristofer@chromatichq.com"
+        }
+    ]
+}

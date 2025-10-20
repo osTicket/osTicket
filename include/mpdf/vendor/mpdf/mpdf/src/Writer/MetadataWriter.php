@@ -6,6 +6,7 @@ use Mpdf\Strict;
 use Mpdf\Form;
 use Mpdf\Mpdf;
 use Mpdf\Pdf\Protection;
+use Mpdf\PsrLogAwareTrait\PsrLogAwareTrait;
 use Mpdf\Utils\PdfDate;
 
 use Psr\Log\LoggerInterface;
@@ -14,6 +15,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 {
 
 	use Strict;
+	use PsrLogAwareTrait;
 
 	/**
 	 * @var \Mpdf\Mpdf
@@ -35,11 +37,6 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 	 */
 	private $protection;
 
-	/**
-	 * @var \Psr\Log\LoggerInterface
-	 */
-	private $logger;
-
 	public function __construct(Mpdf $mpdf, BaseWriter $writer, Form $form, Protection $protection, LoggerInterface $logger)
 	{
 		$this->mpdf = $mpdf;
@@ -53,20 +50,21 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 	{
 		$this->writer->object();
 		$this->mpdf->MetadataRoot = $this->mpdf->n;
-		$Producer = 'mPDF' . ($this->mpdf->exposeVersion ? (' ' . Mpdf::VERSION) : '');
+
 		$z = date('O'); // +0200
 		$offset = substr($z, 0, 3) . ':' . substr($z, 3, 2);
-		$CreationDate = date('Y-m-d\TH:i:s') . $offset; // 2006-03-10T10:47:26-05:00 2006-06-19T09:05:17Z
-		$uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0x0fff) | 0x4000, random_int(0, 0x3fff) | 0x8000, random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0xffff));
 
+		$CreationDate = date('Y-m-d\TH:i:s') . $offset; // 2006-03-10T10:47:26-05:00 2006-06-19T09:05:17Z
+
+		$uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0x0fff) | 0x4000, random_int(0, 0x3fff) | 0x8000, random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0xffff));
 
 		$m = '<?xpacket begin="' . chr(239) . chr(187) . chr(191) . '" id="W5M0MpCehiHzreSzNTczkc9d"?>' . "\n"; // begin = FEFF BOM
 		$m .= ' <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="3.1-701">' . "\n";
 		$m .= '  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">' . "\n";
 		$m .= '   <rdf:Description rdf:about="uuid:' . $uuid . '" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">' . "\n";
-		$m .= '    <pdf:Producer>' . $Producer . '</pdf:Producer>' . "\n";
+		$m .= '    <pdf:Producer>' . htmlspecialchars($this->getProducerString(), ENT_QUOTES | ENT_XML1) . '</pdf:Producer>' . "\n";
 		if (!empty($this->mpdf->keywords)) {
-			$m .= '    <pdf:Keywords>' . $this->mpdf->keywords . '</pdf:Keywords>' . "\n";
+			$m .= '    <pdf:Keywords>' . htmlspecialchars($this->mpdf->keywords, ENT_QUOTES | ENT_XML1) . '</pdf:Keywords>' . "\n";
 		}
 		$m .= '   </rdf:Description>' . "\n";
 
@@ -75,7 +73,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 		$m .= '    <xmp:ModifyDate>' . $CreationDate . '</xmp:ModifyDate>' . "\n";
 		$m .= '    <xmp:MetadataDate>' . $CreationDate . '</xmp:MetadataDate>' . "\n";
 		if (!empty($this->mpdf->creator)) {
-			$m .= '    <xmp:CreatorTool>' . $this->mpdf->creator . '</xmp:CreatorTool>' . "\n";
+			$m .= '    <xmp:CreatorTool>' . htmlspecialchars($this->mpdf->creator, ENT_QUOTES | ENT_XML1) . '</xmp:CreatorTool>' . "\n";
 		}
 		$m .= '   </rdf:Description>' . "\n";
 
@@ -85,28 +83,28 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 		if (!empty($this->mpdf->title)) {
 			$m .= '    <dc:title>
 	 <rdf:Alt>
-	  <rdf:li xml:lang="x-default">' . $this->mpdf->title . '</rdf:li>
+	  <rdf:li xml:lang="x-default">' . htmlspecialchars($this->mpdf->title, ENT_QUOTES | ENT_XML1) . '</rdf:li>
 	 </rdf:Alt>
 	</dc:title>' . "\n";
 		}
 		if (!empty($this->mpdf->keywords)) {
 			$m .= '    <dc:subject>
 	 <rdf:Bag>
-	  <rdf:li>' . $this->mpdf->keywords . '</rdf:li>
+	  <rdf:li>' . htmlspecialchars($this->mpdf->keywords, ENT_QUOTES | ENT_XML1) . '</rdf:li>
 	 </rdf:Bag>
 	</dc:subject>' . "\n";
 		}
 		if (!empty($this->mpdf->subject)) {
 			$m .= '    <dc:description>
 	 <rdf:Alt>
-	  <rdf:li xml:lang="x-default">' . $this->mpdf->subject . '</rdf:li>
+	  <rdf:li xml:lang="x-default">' . htmlspecialchars($this->mpdf->subject, ENT_QUOTES | ENT_XML1) . '</rdf:li>
 	 </rdf:Alt>
 	</dc:description>' . "\n";
 		}
 		if (!empty($this->mpdf->author)) {
 			$m .= '    <dc:creator>
 	 <rdf:Seq>
-	  <rdf:li>' . $this->mpdf->author . '</rdf:li>
+	  <rdf:li>' . htmlspecialchars($this->mpdf->author, ENT_QUOTES | ENT_XML1) . '</rdf:li>
 	 </rdf:Seq>
 	</dc:creator>' . "\n";
 		}
@@ -150,7 +148,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 
 	public function writeInfo() // _putinfo
 	{
-		$this->writer->write('/Producer ' . $this->writer->utf16BigEndianTextString('mPDF' . ($this->mpdf->exposeVersion ? (' ' . $this->getVersionString()) : '')));
+		$this->writer->write('/Producer ' . $this->writer->utf16BigEndianTextString($this->getProducerString()));
 
 		if (!empty($this->mpdf->title)) {
 			$this->writer->write('/Title ' . $this->writer->utf16BigEndianTextString($this->mpdf->title));
@@ -302,7 +300,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 			if ($file['mime']) {
 				$this->writer->write('/Subtype /' . $this->writer->escapeSlashes($file['mime']));
 			}
-			$this->writer->write('/Length '.strlen($filestream));
+			$this->writer->write('/Length ' . strlen($filestream));
 			$this->writer->write('/Filter /FlateDecode');
 			if (isset($file['path'])) {
 				$this->writer->write('/Params <</ModDate '.$this->writer->string('D:' . PdfDate::format(filemtime($file['path']))).' >>');
@@ -331,6 +329,12 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 	{
 		$this->writer->write('/Type /Catalog');
 		$this->writer->write('/Pages 1 0 R');
+
+		if (is_string($this->mpdf->currentLang)) {
+			$this->writer->write(sprintf('/Lang (%s)', $this->mpdf->currentLang));
+		} elseif (is_string($this->mpdf->default_lang)) {
+			$this->writer->write(sprintf('/Lang (%s)', $this->mpdf->default_lang));
+		}
 
 		if ($this->mpdf->ZoomMode === 'fullpage') {
 			$this->writer->write('/OpenAction [3 0 R /Fit]');
@@ -802,11 +806,6 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 		}
 	}
 
-	public function setLogger(LoggerInterface $logger)
-	{
-		$this->logger = $logger;
-	}
-
 	private function getVersionString()
 	{
 		$return = Mpdf::VERSION;
@@ -824,6 +823,11 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 		}
 
 		return $return;
+	}
+
+	private function getProducerString()
+	{
+		return 'mPDF' . ($this->mpdf->exposeVersion ? (' ' . $this->getVersionString()) : '');
 	}
 
 }

@@ -18,11 +18,15 @@ Requirements
 PHP versions and extensions
 ---------------------------
 
-- `mPDF >=7.0` is supported on `PHP ^5.6 || ~7.0.0 || ~7.1.0 || ~7.2.0`
+- `PHP >=5.6 <7.3.0` is supported for `mPDF >= 7.0`
 - `PHP 7.3` is supported since `mPDF v7.1.7`
 - `PHP 7.4` is supported since `mPDF v8.0.4`
 - `PHP 8.0` is supported since `mPDF v8.0.10`
 - `PHP 8.1` is supported as of `mPDF v8.0.13`
+- `PHP 8.2` is supported as of `mPDF v8.1.3`
+- `PHP 8.3` is supported as of `mPDF v8.2.1`
+- `PHP 8.4` is supported as of `mPDF v8.2.5`
+- `PHP 8.5` is supported as of `mPDF v8.2.6`
 
 PHP `mbstring` and `gd` extensions have to be loaded.
 

@@ -3,7 +3,6 @@ FPDI - Free PDF Document Importer
 
 [![Latest Stable Version](https://poser.pugx.org/setasign/fpdi/v/stable.svg)](https://packagist.org/packages/setasign/fpdi)
 [![Total Downloads](https://poser.pugx.org/setasign/fpdi/downloads.svg)](https://packagist.org/packages/setasign/fpdi)
-[![Latest Unstable Version](https://poser.pugx.org/setasign/fpdi/v/unstable.svg)](https://packagist.org/packages/setasign/fpdi)
 [![License](https://poser.pugx.org/setasign/fpdi/license.svg)](https://packagist.org/packages/setasign/fpdi)
 
 :heavy_exclamation_mark: This document refers to FPDI 2. Version 1 is deprecated and development is discontinued. :heavy_exclamation_mark: 
@@ -27,7 +26,7 @@ To use FPDI with FPDF include following in your composer.json file:
 {
     "require": {
         "setasign/fpdf": "1.8.*",
-        "setasign/fpdi": "^2.0"
+        "setasign/fpdi": "^2.5"
     }
 }
 ```
@@ -37,8 +36,8 @@ If you want to use TCPDF, you have to update your composer.json to:
 ```json
 {
     "require": {
-        "tecnickcom/tcpdf": "6.3.*",
-        "setasign/fpdi": "^2.0"
+        "tecnickcom/tcpdf": "6.6.*",
+        "setasign/fpdi": "^2.5"
     }
 }
 ```
@@ -48,7 +47,7 @@ If you want to use tFPDF, you have to update your composer.json to:
 ```json
 {
     "require": {
-        "setasign/tfpdf": "1.31.*",
+        "setasign/tfpdf": "1.33.*",
         "setasign/fpdi": "^2.3"
     }
 }
