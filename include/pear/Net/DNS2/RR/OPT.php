@@ -120,7 +120,7 @@ class Net_DNS2_RR_OPT extends Net_DNS2_RR
      * @access public
      *
      */
-    public function __construct(Net_DNS2_Packet &$packet = null, array $rr = null)
+    public function __construct(?Net_DNS2_Packet &$packet = null, ?array $rr = null)
     {
         //
         // this is for when we're manually building an OPT RR object; we aren't

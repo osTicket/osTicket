@@ -87,7 +87,7 @@ class Net_DNS2_Updater extends Net_DNS2
      * @access public
      *
      */
-    public function __construct($zone, array $options = null)
+    public function __construct($zone, ?array $options = null)
     {
         parent::__construct($options);
 

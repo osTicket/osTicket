@@ -254,7 +254,7 @@ class Net_DNS2
      * @access public
      *
      */
-    public function __construct(array $options = null)
+    public function __construct(?array $options = null)
     {
         //
         // check for the sockets extension

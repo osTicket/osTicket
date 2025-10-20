@@ -424,7 +424,7 @@ class Format {
         return htmlspecialchars_decode($var, $flags);
     }
 
-    static function http_query_string(string $query, array $filter = null) {
+    static function http_query_string(string $query, ?array $filter = null) {
         $args = [];
         parse_str($query, $args);
         if ($filter && is_array($filter))

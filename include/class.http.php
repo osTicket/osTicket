@@ -181,14 +181,14 @@ class Http {
     }
 
     // Parse path from given url or the current url
-    static function url_path(string $url = null, bool $htmlentities = true) {
+    static function url_path(?string $url = null, bool $htmlentities = true) {
         $path = parse_url($url ?: self::url(), PHP_URL_PATH);
         return ($htmlentities && $path)
             ? htmlentities($path) : $path;
     }
 
     // Parse query string from current url
-    static function query_string(string $url = null) {
+    static function query_string(?string $url = null) {
         return parse_url($url ?: self::url(), PHP_URL_QUERY);
     }
 
