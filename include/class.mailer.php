@@ -27,7 +27,7 @@ class Mailer {
     var $options = array();
     var $eol="\n";
 
-    function __construct(\Email $email=null, array $options=array()) {
+    function __construct(?\Email $email=null, array $options=array()) {
         global $cfg;
 
         // Get all possible outgoing emails accounts (SMTP) to try

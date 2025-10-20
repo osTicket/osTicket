@@ -331,7 +331,7 @@ class DatabaseSessionRecord extends VerySimpleModel
         return $this->session_id;
     }
 
-    public function setData(string $data = null) {
+    public function setData(?string $data = null) {
         $this->session_data = $data;
         return $this;
     }
@@ -650,7 +650,7 @@ implements osTicket\Session\SessionRecordInterface {
         return $this->data->data;
     }
 
-    public function setData(string $data = null) {
+    public function setData(?string $data = null) {
         $this->data->data = $data;
     }
 
