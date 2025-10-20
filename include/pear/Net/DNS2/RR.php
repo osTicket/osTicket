@@ -178,7 +178,7 @@ abstract class Net_DNS2_RR
      * @access public
      *
      */
-    public function __construct(Net_DNS2_Packet &$packet = null, array $rr = null)
+    public function __construct(?Net_DNS2_Packet &$packet = null, ?array $rr = null)
     {
         if ( (!is_null($packet)) && (!is_null($rr)) ) {
 
