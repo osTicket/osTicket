@@ -139,12 +139,14 @@ foreach ($groups as $g=>$desc) {
     </tr></tbody>
     <tbody>
 <?php
-    foreach ($data['data'] as $i => $row) {
+foreach ($data['data'] as $i => $row) {
     echo '<tr>';
     foreach ($row as $j => $td) {
         if ($j === 0) {
             // Determine link based on report type
             $link = '#';
+            $label = Format::htmlchars($td);
+
             switch (strtolower($g)) {
                 case 'department':
                 case 'departments':
@@ -158,12 +160,12 @@ foreach ($groups as $g=>$desc) {
                 case 'agent':
                 case 'agents':
                 case 'staff':
-                    $link = 'staff.php';
+                    $link = 'staff_tickets.php?staff_id=' . urlencode($row['staff_id']);
                     break;
             }
 
             echo '<th class="flush-left">';
-            echo '<a href="' . $link . '" style="color:#0073aa; text-decoration:none;">' . Format::htmlchars($td) . '</a>';
+            echo '<a href="' . $link . '" style="color:#0073aa; text-decoration:none;">' . $label . '</a>';
             echo '</th>';
         } else {
             echo '<td>' . Format::htmlchars($td) . '</td>';
@@ -171,6 +173,7 @@ foreach ($groups as $g=>$desc) {
     }
     echo '</tr>';
 }
+
 
     $first = false; ?>
     </tbody></table>
