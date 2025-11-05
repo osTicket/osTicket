@@ -141,9 +141,12 @@ foreach ($groups as $g=>$desc) {
 <?php
 foreach ($data['data'] as $i => $row) {
     echo '<tr>';
+
+    // Try to get staff ID from dataset
+    $staff_id = isset($row['staff_id']) ? (int)$row['staff_id'] : 1;
+
     foreach ($row as $j => $td) {
         if ($j === 0) {
-            // Determine link based on report type
             $link = '#';
             $label = Format::htmlchars($td);
 
@@ -152,15 +155,18 @@ foreach ($data['data'] as $i => $row) {
                 case 'departments':
                     $link = 'dept.php';
                     break;
+
                 case 'help topic':
                 case 'helptopic':
                 case 'help topics':
                     $link = 'helptopics.php';
                     break;
+
                 case 'agent':
                 case 'agents':
                 case 'staff':
-                    $link = 'staff_tickets.php?staff_id=' . urlencode($row['staff_id']);
+                    
+                        $link = 'staff_tickets.php?staff_id=' . $staff_id;
                     break;
             }
 
@@ -171,6 +177,7 @@ foreach ($data['data'] as $i => $row) {
             echo '<td>' . Format::htmlchars($td) . '</td>';
         }
     }
+
     echo '</tr>';
 }
 
