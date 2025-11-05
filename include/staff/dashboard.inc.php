@@ -139,21 +139,39 @@ foreach ($groups as $g=>$desc) {
     </tr></tbody>
     <tbody>
 <?php
-    foreach ($data['data'] as $i=>$row) {
-        echo '<tr>';
-        foreach ($row as $j=>$td) {
-            if ($j === 0) { ?>
-                <th class="flush-left"><?php echo Format::htmlchars($td); ?></th>
-<?php       }
-            else { ?>
-                <td><?php echo Format::htmlchars($td);
-                if ($td) { // TODO Add head map
-                }
-                echo '</td>';
+    foreach ($data['data'] as $i => $row) {
+    echo '<tr>';
+    foreach ($row as $j => $td) {
+        if ($j === 0) {
+            // Determine link based on report type
+            $link = '#';
+            switch (strtolower($g)) {
+                case 'department':
+                case 'departments':
+                    $link = 'dept.php';
+                    break;
+                case 'help topic':
+                case 'helptopic':
+                case 'help topics':
+                    $link = 'helptopics.php';
+                    break;
+                case 'agent':
+                case 'agents':
+                case 'staff':
+                    $link = 'staff.php';
+                    break;
             }
+
+            echo '<th class="flush-left">';
+            echo '<a href="' . $link . '" style="color:#0073aa; text-decoration:none;">' . Format::htmlchars($td) . '</a>';
+            echo '</th>';
+        } else {
+            echo '<td>' . Format::htmlchars($td) . '</td>';
         }
-        echo '</tr>';
     }
+    echo '</tr>';
+}
+
     $first = false; ?>
     </tbody></table>
     <div style="margin-top: 5px"><button type="submit" class="link button" name="export"
