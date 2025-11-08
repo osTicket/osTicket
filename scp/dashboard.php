@@ -18,7 +18,7 @@ require('staff.inc.php');
 require_once INCLUDE_DIR . 'class.report.php';
 
 if ($_POST['export']) {
-    $report = new OverviewReport($_POST['start'], $_POST['period']);
+$report = new OverviewReport($_POST['start'], $_POST['period']);
     switch (true) {
     case ($data = $report->getTabularData($_POST['export'])):
         $ts = date('Ymd');

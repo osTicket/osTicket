@@ -252,10 +252,9 @@ class OverviewReport {
                 'first' => $row['staff__firstname'], 'last' => $row['staff__lastname'])); };
             $pk = 'staff_id';
             $staff = Staff::getStaffMembers();
-            $stats = $stats
-                ->values('staff_id', 'staff__firstname', 'staff__lastname')
-                ->filter(array('staff_id__in' => array_keys($staff)))
-                ->distinct('staff_id');
+               $stats = $stats
+        ->values('staff_id', 'staff__firstname', 'staff__lastname')
+        ->filter(array('staff_id__gt'=>0));
             $times = $times->values('staff_id')->distinct('staff_id');
             $depts = $thisstaff->getManagedDepartments();
             if ($thisstaff->hasPerm(ReportModel::PERM_AGENTS))
