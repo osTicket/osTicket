@@ -5,7 +5,7 @@ if ($instance) {
     $action = 'update-instance';
     $submit_text = __('Save Changes');
 } else {
-    $title = __('Add New Intance');
+    $title = __('Add New Instance');
     $action = 'add-instance';
     $submit_text = __('Add Instance');
 }
