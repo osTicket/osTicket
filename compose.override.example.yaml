@@ -4,7 +4,6 @@ services:
     volumes:
       - .:/var/www/html
 
-
   # Catching of outgoing emails
   mailhog:
     image: mailhog/mailhog:latest
@@ -18,3 +17,6 @@ services:
       - mailhog_data:/mailhog/data
     networks:
       - osticket
+
+volumes:
+  mailhog_data:

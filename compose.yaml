@@ -50,5 +50,4 @@ services:
       - mysql_data:/var/lib/mysql
 
 volumes:
-  mailhog_data:
   mysql_data:
