@@ -1,0 +1,20 @@
+# copy to compose.override.yaml and update as you wish for native using
+services:
+  app:
+    volumes:
+      - .:/var/www/html
+
+
+  # Catching of outgoing emails
+  mailhog:
+    image: mailhog/mailhog:latest
+    environment:
+      - MH_STORAGE=maildir
+      - MH_MAILDIR_PATH=/mailhog/data
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_WEB_PORT:-8025}:8025"
+    volumes:
+      - mailhog_data:/mailhog/data
+    networks:
+      - osticket
