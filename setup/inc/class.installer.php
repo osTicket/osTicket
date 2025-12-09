@@ -288,7 +288,7 @@ class Installer extends SetupWizard {
 
         //Rewrite the config file - MUST be done last to allow for installer recovery.
         $configFile = strtr($configFile, array(
-            "define('OSTINSTALLED',FALSE);" => "define('OSTINSTALLED',TRUE);",
+            'define(\'OSTINSTALLED\', (bool) ($_SERVER[\'OSTINSTALLED\'] ?? $_ENV[\'OSTINSTALLED\'] ?? FALSE));' => 'define(\'OSTINSTALLED\', (bool) ($_SERVER[\'OSTINSTALLED\'] ?? $_ENV[\'OSTINSTALLED\'] ?? FALSE));',
             '%ADMIN-EMAIL' => $vars['admin_email'],
             '%CONFIG-DBHOST' => $vars['dbhost'],
             '%CONFIG-DBNAME' => $vars['dbname'],

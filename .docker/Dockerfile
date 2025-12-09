@@ -106,6 +106,12 @@ COPY --from=plugins-build /tmp/osticket-plugins/ /var/www/html/include/plugins/
 COPY . /var/www/html
 COPY include/ost-sampleconfig.php include/ost-config.php
 
+ARG OSTINSTALLED=0
+RUN set -eux; \
+    if [ 1 = $OSTINSTALLED ]; then \
+       rm -r ./setup; \
+    fi
+
 # Set proper permissions (will be set on mounted volume at runtime)
 # Note: We keep root user for proper file permissions in container
 

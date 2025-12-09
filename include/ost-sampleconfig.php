@@ -21,7 +21,7 @@ if(!strcasecmp(basename($_SERVER['SCRIPT_NAME']),basename(__FILE__)) || !defined
     die('kwaheri rafiki!');
 
 #Install flag
-define('OSTINSTALLED',FALSE);
+define('OSTINSTALLED', (bool) ($_SERVER['OSTINSTALLED'] ?? $_ENV['OSTINSTALLED'] ?? FALSE));
 if(OSTINSTALLED!=TRUE){
     if(!file_exists(ROOT_DIR.'setup/install.php')) die('Error: Contact system admin.'); //Something is really wrong!
     //Invoke the installer.

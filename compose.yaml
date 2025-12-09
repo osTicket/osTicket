@@ -9,6 +9,7 @@ services:
       args:
         INSTALL_SYS_PLUGINS: ${INSTALL_SYS_PLUGINS:-audit,auth-2fa,auth-cas,auth-ldap,auth-oauth2,auth-passthru,storage-fs,storage-s3}
         OSTICKET_USER_IDENTIFIER_TOKEN: ${OSTICKET_USER_IDENTIFIER_TOKEN:-}
+        OSTINSTALLED: ${OSTINSTALLED:-0}
     depends_on:
       mysql:
         condition: service_healthy
