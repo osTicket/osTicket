@@ -584,6 +584,9 @@ extends Cell {
 require_once(INCLUDE_DIR . "class.json.php");
 
 class FormField {
+    /**
+     * @var bool|class-string<Widget>
+     */
     static $widget = false;
 
     var $ht = array(
@@ -1376,6 +1379,10 @@ class FormField {
         $this->_config[$prop] = $value;
     }
 
+    /**
+     * @param bool|class-string<Widget> $widgetClass
+     * @return Widget
+     */
     function getWidget($widgetClass=false) {
         if (!static::$widget)
             throw new Exception(__('Widget not defined for this field'));
@@ -4358,9 +4365,18 @@ class InlineFormWidget extends Widget {
     }
 }
 
+/**
+ * @property FormField $field
+ * @property string $id
+ * @property string $name
+ * @property mixed $value
+ */
 class Widget {
     static $media = null;
 
+    /**
+     * @param FormField $field
+     */
     function __construct($field) {
         $this->field = $field;
         $this->name = $field->getFormName();
