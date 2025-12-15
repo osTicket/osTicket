@@ -36,6 +36,10 @@ require_once(INCLUDE_DIR.'class.collaborator.php');
 require_once(INCLUDE_DIR.'class.task.php');
 require_once(INCLUDE_DIR.'class.faq.php');
 
+/**
+ * @property Thread|null $thread;
+ * @property Thread|null $child_thread
+ */
 class Ticket extends VerySimpleModel
 implements RestrictedAccess, Threadable, Searchable {
     static $meta = array(
