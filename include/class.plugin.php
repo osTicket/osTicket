@@ -360,6 +360,44 @@ class PluginManager {
         return $p->getImpl() ?: $p;
     }
 
+    /**
+     * Find alternative installation path for a plugin
+     *
+     * Checks if the plugin exists in filesystem with different installation type
+     * (phar vs directory) than what's stored in database.
+     *
+     * @param Plugin $plugin Plugin instance
+     * @return array{path: string, is_phar: bool, version: string, info: array<string,mixed> }|null
+     */
+    static function findAlternativePath($plugin): ?array {
+        $installPath = $plugin->getInstallPath();
+        if (!$installPath) {
+            return null;
+        }
+
+        $stemPath = INCLUDE_DIR . 'plugins/' . preg_replace('/\.phar$/i', '', basename($installPath));
+        $fullPaths = [
+                INCLUDE_DIR . $installPath => (substr($installPath, -5) === '.phar'),
+                $stemPath => false,
+                $stemPath.'.phar' => true,
+        ];
+
+        foreach ($fullPaths as $fullPath => $isPhar) {
+            if ($isPhar ? file_exists($fullPath) : (is_dir($fullPath) || file_exists($fullPath))) {
+                $info = static::getInfoForPath($fullPath, $isPhar);
+                if ($info) {
+                    return [
+                            'install_path' => str_replace(INCLUDE_DIR, '', $fullPath),
+                            'isphar' => (int)$isPhar,
+                            'version' => $info['version'] ?? '',
+                            'info' => $info,
+                    ];
+                }
+            }
+        }
+
+        return null;
+    }
 
     /**
      * install
