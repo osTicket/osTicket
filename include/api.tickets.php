@@ -221,7 +221,7 @@ class TicketApiController extends ApiController {
             )
         );
 
-        Http::response(200, Format::json_encode($response));
+        Http::response(200, Format::json_encode($response), 'application/json');
         exit;
     }
 
@@ -231,7 +231,7 @@ class TicketApiController extends ApiController {
 
         $ticket = Ticket::lookup($id);
         if (!$ticket) {
-            Http::response(404, Format::json_encode(array('error' => 'Ticket not found')));
+            Http::response(404, Format::json_encode(array('error' => 'Ticket not found')), 'application/json');
             exit;
         }
 
@@ -344,7 +344,7 @@ class TicketApiController extends ApiController {
             );
         }
 
-        Http::response(200, Format::json_encode($result));
+        Http::response(200, Format::json_encode($result), 'application/json');
         exit;
     }
 
@@ -355,7 +355,7 @@ class TicketApiController extends ApiController {
         // Find attachment safely
         $attachment = Attachment::lookup($id);
         if (!$attachment) {
-            Http::response(404, Format::json_encode(array('error' => 'Attachment not found')));
+            Http::response(404, Format::json_encode(array('error' => 'Attachment not found')), 'application/json');
             exit;
         }
 
@@ -398,7 +398,7 @@ class TicketApiController extends ApiController {
             // Continue with defaults if file info fails
         }
 
-        Http::response(200, Format::json_encode($result));
+        Http::response(200, Format::json_encode($result), 'application/json');
         exit;
     }
 
