@@ -2,6 +2,7 @@
 
 include_once INCLUDE_DIR.'class.api.php';
 include_once INCLUDE_DIR.'class.ticket.php';
+include_once INCLUDE_DIR.'class.json.php';
 
 class TicketApiController extends ApiController {
 
@@ -109,6 +110,39 @@ class TicketApiController extends ApiController {
         return true;
     }
 
+    /**
+     * Serialize ticket status for JSON API response
+     * Decodes properties field to prevent double JSON encoding
+     */
+    private function serializeStatus($status) {
+        if (!$status) {
+            return null;
+        }
+        
+        $statusData = array(
+            'id' => $status->getId(),
+            'name' => $status->getName(),
+            'state' => $status->getState(),
+        );
+        
+        // Get additional fields from database fields
+        $ht = $status->getDbFields();
+        if (isset($ht['mode'])) $statusData['mode'] = $ht['mode'];
+        if (isset($ht['flags'])) $statusData['flags'] = $ht['flags'];
+        if (isset($ht['sort'])) $statusData['sort'] = $ht['sort'];
+        if (isset($ht['created'])) $statusData['created'] = $ht['created'];
+        if (isset($ht['updated'])) $statusData['updated'] = $ht['updated'];
+        
+        // Decode properties if it's a JSON string to prevent double encoding
+        if (isset($ht['properties']) && is_string($ht['properties'])) {
+            $decoded = JsonDataParser::decode($ht['properties'], true);
+            $statusData['properties'] = $decoded ?: $ht['properties'];
+        } elseif (isset($ht['properties'])) {
+            $statusData['properties'] = $ht['properties'];
+        }
+        
+        return $statusData;
+    }
 
     function create($format) {
 
@@ -193,7 +227,7 @@ class TicketApiController extends ApiController {
                     'number' => $ticket->getNumber(),
                     'subject' => $ticket->getSubject(),
                     'created' => $ticket->getCreateDate(),
-                    'status' => $ticket->getStatus(),
+                    'status' => $this->serializeStatus($ticket->getStatus()),
                 );
             } catch (Exception $e) {
                 // Continue if individual ticket fails
@@ -240,7 +274,7 @@ class TicketApiController extends ApiController {
             'number' => $ticket->getNumber(),
             'subject' => $ticket->getSubject(),
             'created' => $ticket->getCreateDate(),
-            'status' => $ticket->getStatus(),
+            'status' => $this->serializeStatus($ticket->getStatus()),
             'thread' => array(),
         );
 
