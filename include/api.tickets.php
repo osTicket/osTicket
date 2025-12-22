@@ -275,6 +275,10 @@ class TicketApiController extends ApiController {
             'subject' => $ticket->getSubject(),
             'created' => $ticket->getCreateDate(),
             'status' => $this->serializeStatus($ticket->getStatus()),
+            'department' => array(
+                'id' => $ticket->getDeptId(),
+                'name' => $ticket->getDept()->getName()
+            ),
             'thread' => array(),
         );
 
