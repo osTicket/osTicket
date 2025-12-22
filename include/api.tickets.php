@@ -269,6 +269,21 @@ class TicketApiController extends ApiController {
             exit;
         }
 
+        // Get user information safely
+        $userInfo = null;
+        try {
+            $owner = $ticket->getOwner();
+            if ($owner) {
+                $userInfo = array(
+                    'id' => $ticket->getUserId(),
+                    'name' => $owner->getName() ?: null,
+                    'email' => $owner->getEmail() ? (string)$owner->getEmail() : null,
+                );
+            }
+        } catch (Exception $e) {
+            // If user info fails, continue without it
+        }
+
         $result = array(
             'id' => $ticket->getId(),
             'number' => $ticket->getNumber(),
@@ -279,6 +294,7 @@ class TicketApiController extends ApiController {
                 'id' => $ticket->getDeptId(),
                 'name' => $ticket->getDept()->getName()
             ),
+            'user' => $userInfo,
             'thread' => array(),
         );
 
