@@ -21,6 +21,7 @@ Retrieve a paginated list of tickets with optional filtering and sorting.
 | `order` | string | desc | Sort order: `asc` or `desc` |
 | `status` | string | - | Filter by status: `open`, `closed`, status ID, or partial name |
 | `state` | string | - | Alternative filter: `open` or `closed` |
+| `updated_since` | string | - | Filter tickets updated since this date (ISO 8601, Unix timestamp, or other formats). When used, results are automatically sorted by `updated` (most recent first) |
 
 ### Examples
 ```bash
@@ -38,6 +39,12 @@ GET /api/tickets.json?status=Wacht
 
 # Closed tickets, oldest first
 GET /api/tickets.json?status=closed&order=asc
+
+# Filter tickets updated since a specific date
+GET /api/tickets.json?updated_since=2024-01-01T00:00:00Z
+
+# Filter updated tickets with status filter
+GET /api/tickets.json?updated_since=2024-01-01&status=open
 ```
 
 ### Response Format
@@ -49,6 +56,7 @@ GET /api/tickets.json?status=closed&order=asc
       "number": "658972", 
       "subject": "FW: Herinnering: Inbreuk op copyright...",
       "created": "2025-08-28 15:46:04",
+      "updated": "2025-08-29 10:30:15",
       "status": {
         "id": 1,
         "name": "Open",
@@ -76,6 +84,14 @@ GET /api/tickets.json?status=closed&order=asc
   }
 }
 ```
+
+### Response Fields
+- **`id`**: Internal ticket database ID
+- **`number`**: Human-readable ticket number
+- **`subject`**: Ticket subject line
+- **`created`**: Ticket creation date/time
+- **`updated`**: Last update date/time (follows osTicket UI logic: updated on user messages, status changes, field updates). **Note:** Can be `null` for older tickets without update history
+- **`status`**: Complete status object with state and properties
 
 ---
 
