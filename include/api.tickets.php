@@ -205,6 +205,27 @@ class TicketApiController extends ApiController {
             }
         }
         
+        // Filter by updated_since: ?updated_since=2024-01-01T00:00:00Z
+        $use_updated_sort = false;
+        if (isset($_GET['updated_since'])) {
+            global $cfg;
+            $updated_since = $_GET['updated_since'];
+            $datetime = Format::parseDateTime($updated_since);
+            
+            if (!$datetime) {
+                // Invalid date format - return 400 error
+                return $this->exerr(400, sprintf(__('Invalid date format for updated_since: %s'), $updated_since));
+            }
+            
+            // Convert to database timezone
+            $dbtz = new DateTimeZone($cfg->getDbTimezone());
+            $datetime->setTimezone($dbtz);
+            // Filter tickets with lastupdate >= updated_since
+            $query = $query->filter(array('lastupdate__gte' => $datetime->format('Y-m-d H:i:s')));
+            // When filtering by updated_since, sort by lastupdate instead of created
+            $use_updated_sort = true;
+        }
+        
         // Pagination parameters
         $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $per_page = isset($_GET['per_page']) ? min(200, max(1, (int) $_GET['per_page'])) : 100;
@@ -213,9 +234,10 @@ class TicketApiController extends ApiController {
         // Get total count BEFORE applying limit/offset
         $total_count = $query->count();
         
-        // Apply pagination
+        // Apply pagination with appropriate sorting
+        $sort_field = $use_updated_sort ? 'lastupdate' : 'created';
         $tickets = $query
-            ->order_by($order == 'ASC' ? 'created' : '-created')
+            ->order_by($order == 'ASC' ? $sort_field : '-' . $sort_field)
             ->limit($per_page)
             ->offset($offset);
 
@@ -227,6 +249,7 @@ class TicketApiController extends ApiController {
                     'number' => $ticket->getNumber(),
                     'subject' => $ticket->getSubject(),
                     'created' => $ticket->getCreateDate(),
+                    'updated' => $ticket->getEffectiveDate(),
                     'status' => $this->serializeStatus($ticket->getStatus()),
                 );
             } catch (Exception $e) {
