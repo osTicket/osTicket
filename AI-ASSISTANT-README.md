@@ -1,122 +1,193 @@
 # osTicket AI Assistant Integration
+## Microsoft 365 Copilot with Azure AD Authentication
 
 ## Overview
 
-The AI Assistant is a powerful feature that helps support staff analyze tickets and receive AI-generated insights based on ticket thread history. This feature integrates GitHub Copilot API to provide context-aware responses to staff questions about tickets.
+The AI Assistant is a powerful feature that helps support staff analyze tickets and receive AI-generated insights based on ticket thread history. This feature integrates **Microsoft 365 Copilot API** with **Azure AD (Entra ID) OAuth authentication** to provide context-aware responses to staff questions about tickets.
 
 ## Features
 
 - **Staff-Only Access**: AI assistant is only visible and accessible to staff members
 - **Context-Aware Responses**: AI analyzes full ticket thread history including all messages, authors, and timestamps
+- **Secure Azure AD OAuth**: Uses OAuth 2.0 client credentials flow for authentication
+- **Automatic Token Management**: OAuth tokens are cached and automatically refreshed
 - **Rate Limiting**: Prevents abuse with configurable rate limits per staff member
 - **Interaction Logging**: All AI interactions are logged for auditing and review
-- **Secure Configuration**: API keys stored securely in the database
+- **Secure Configuration**: Credentials stored securely in the database
 - **User-Friendly Interface**: Collapsible panel with example questions and easy-to-use controls
 - **Copy & Clear Functions**: Easy response management
 
+## Prerequisites
+
+Before installation, you need:
+
+1. **Microsoft 365 Copilot License** or Azure OpenAI Service
+2. **Azure AD (Entra ID) Subscription** with admin access
+3. **osTicket 1.17.x or 1.18.x** installed
+4. **MySQL/MariaDB** database access
+5. **PHP with curl extension** enabled
+6. **HTTPS access** from server to Azure endpoints
+
 ## Installation
 
-### Step 1: Database Setup
+### Step 1: Azure AD App Registration
 
-Run the SQL migration to create the AI log table and default configuration:
+#### 1.1 Create App Registration
+
+1. Go to [Azure Portal](https://portal.azure.com)
+2. Navigate to **"Azure Active Directory"** (or "Microsoft Entra ID")
+3. Click **"App registrations"** → **"New registration"**
+4. Configure your app:
+   - **Name**: `osTicket AI Assistant`
+   - **Supported account types**: `Accounts in this organizational directory only (Single tenant)`
+   - **Redirect URI**: Leave empty (this is a service-to-service app)
+5. Click **"Register"**
+
+#### 1.2 Note Your Credentials
+
+From the app **Overview** page, copy:
+- **Application (client) ID** - You'll need this
+- **Directory (tenant) ID** - You'll need this
+
+#### 1.3 Create Client Secret
+
+1. In your app, go to **"Certificates & secrets"**
+2. Click **"Client secrets"** → **"New client secret"**
+3. Add a description (e.g., "osTicket AI Assistant Secret")
+4. Set expiration (recommendation: 24 months)
+5. Click **"Add"**
+6. **IMPORTANT**: Copy the secret **VALUE** immediately (you can't see it again!)
+
+#### 1.4 Configure API Permissions
+
+1. In your app, go to **"API permissions"**
+2. Click **"Add a permission"**
+3. Select **"Microsoft Graph"** or **"Microsoft 365 Copilot"** (if available)
+4. Choose **"Application permissions"** (not Delegated)
+5. Add these permissions:
+   - `Chat.ReadWrite.All` or similar for AI services
+   - Or specific Microsoft 365 Copilot permissions
+6. Click **"Grant admin consent"** for your organization
+
+### Step 2: Database Setup
+
+Run the SQL migration to create the AI log table and configuration:
 
 ```bash
+cd /path/to/osticket
 mysql -u your_username -p your_database < setup/sql/ai-assistant-install.sql
 ```
 
-**Important**: If your osTicket installation uses a different table prefix than `ost_`, edit the SQL file first and replace `ost_` with your prefix.
+**Important**: If your osTicket uses a different table prefix than `ost_`, edit the SQL file first and replace `ost_` with your prefix.
 
-### Step 2: Verify File Installation
+### Step 3: Configure Credentials
 
-All necessary files should already be in place:
+#### Option A: Using Configuration SQL File (Recommended)
 
-**Backend Files:**
-- `/include/class.ai.assistant.php` - Main AI assistant class
-- `/include/ajax.ai.php` - AJAX API endpoint handler
-- `/include/staff/templates/ai-assistant.tmpl.php` - UI template
+```bash
+# Copy the example configuration
+cp ai-assistant-config.example.sql ai-assistant-config.sql
 
-**Frontend Files:**
-- `/js/ai-assistant.js` - JavaScript functionality
-- `/css/ai-assistant.css` - Styling
+# Edit with your values
+nano ai-assistant-config.sql
+```
 
-**Configuration Files:**
-- `/setup/sql/ai-assistant-install.sql` - Database installation
-- `/setup/sql/ai-assistant-uninstall.sql` - Database uninstallation
+Replace these placeholders:
+- `YOUR_TENANT_ID_HERE` → Your Directory (tenant) ID
+- `YOUR_CLIENT_ID_HERE` → Your Application (client) ID
+- `YOUR_CLIENT_SECRET_HERE` → Your Client Secret VALUE
 
-### Step 3: Clear Cache
+Then apply:
 
-Clear osTicket cache to ensure new files are loaded:
+```bash
+mysql -u your_username -p your_database < ai-assistant-config.sql
+```
+
+#### Option B: Direct SQL Commands
+
+```sql
+-- Enable AI Assistant
+UPDATE ost_config SET value = '1'
+WHERE namespace = 'ai.assistant' AND key = 'enabled';
+
+-- Set Tenant ID
+UPDATE ost_config SET value = 'your-tenant-id-here'
+WHERE namespace = 'ai.assistant' AND key = 'tenant_id';
+
+-- Set Client ID
+UPDATE ost_config SET value = 'your-client-id-here'
+WHERE namespace = 'ai.assistant' AND key = 'client_id';
+
+-- Set Client Secret
+UPDATE ost_config SET value = 'your-client-secret-here'
+WHERE namespace = 'ai.assistant' AND key = 'client_secret';
+```
+
+### Step 4: Clear Cache
 
 ```bash
 rm -rf /path/to/osticket/data/cache/*
 ```
 
-## Configuration
+### Step 5: Test the Installation
 
-### 1. Get GitHub Copilot API Key
+1. Log in to osTicket staff panel
+2. Open any ticket with thread history
+3. Look for the **AI Assistant** panel (purple header with lightbulb icon)
+4. Click to expand the panel
+5. Ask a test question (e.g., "Summarize this ticket")
+6. Verify you receive an AI-generated response
 
-To use the AI Assistant, you need a GitHub Copilot API key:
+## Configuration Options
 
-1. Sign up for [GitHub Copilot Business](https://github.com/features/copilot)
-2. Generate an API key from your GitHub account settings
-3. Keep the API key secure - you'll need it for configuration
+All configuration is stored in the `ost_config` table with namespace `ai.assistant`:
 
-### 2. Configure AI Assistant
+| Setting | Description | Default | Required |
+|---------|-------------|---------|----------|
+| `enabled` | Enable/disable AI Assistant | `0` | Yes |
+| `tenant_id` | Azure AD Tenant (Directory) ID | Empty | Yes |
+| `client_id` | Azure AD Application (Client) ID | Empty | Yes |
+| `client_secret` | Azure AD Client Secret Value | Empty | Yes |
+| `model` | AI model to use | `gpt-4` | No |
+| `temperature` | Response creativity (0.0-1.0) | `0.7` | No |
+| `max_tokens` | Maximum response length | `1000` | No |
+| `rate_limit` | Requests per staff per hour | `10` | No |
+| `token_cache` | Cached OAuth token (auto-managed) | Empty | No |
+| `token_expires` | Token expiration time (auto-managed) | `0` | No |
 
-The AI Assistant can be configured directly in the database using the `ost_config` table:
+### Adjusting Settings
 
 ```sql
--- Enable AI Assistant
-UPDATE ost_config SET value = '1' WHERE namespace = 'ai.assistant' AND key = 'enabled';
+-- Change AI model
+UPDATE ost_config SET value = 'gpt-4-turbo'
+WHERE namespace = 'ai.assistant' AND key = 'model';
 
--- Set API Key (replace YOUR_API_KEY with your actual key)
-UPDATE ost_config SET value = 'YOUR_API_KEY' WHERE namespace = 'ai.assistant' AND key = 'api_key';
+-- Adjust temperature (0.0 = focused, 1.0 = creative)
+UPDATE ost_config SET value = '0.3'
+WHERE namespace = 'ai.assistant' AND key = 'temperature';
 
--- Optional: Adjust model (default: gpt-4)
-UPDATE ost_config SET value = 'gpt-4' WHERE namespace = 'ai.assistant' AND key = 'model';
+-- Set response length
+UPDATE ost_config SET value = '2000'
+WHERE namespace = 'ai.assistant' AND key = 'max_tokens';
 
--- Optional: Adjust temperature (0.0-1.0, default: 0.7)
-UPDATE ost_config SET value = '0.7' WHERE namespace = 'ai.assistant' AND key = 'temperature';
-
--- Optional: Adjust max tokens (default: 1000)
-UPDATE ost_config SET value = '1000' WHERE namespace = 'ai.assistant' AND key = 'max_tokens';
-
--- Optional: Adjust rate limit (requests per hour, default: 10)
-UPDATE ost_config SET value = '10' WHERE namespace = 'ai.assistant' AND key = 'rate_limit';
+-- Increase rate limit
+UPDATE ost_config SET value = '20'
+WHERE namespace = 'ai.assistant' AND key = 'rate_limit';
 ```
 
-### Configuration Options Explained
-
-| Setting | Description | Default | Valid Values |
-|---------|-------------|---------|--------------|
-| `enabled` | Enable/disable AI Assistant | `0` (disabled) | `0` or `1` |
-| `api_key` | GitHub Copilot API key | Empty | Your API key string |
-| `model` | AI model to use | `gpt-4` | `gpt-4`, `gpt-3.5-turbo` |
-| `temperature` | Response creativity (higher = more creative) | `0.7` | `0.0` to `1.0` |
-| `max_tokens` | Maximum response length | `1000` | `1` to `4000` |
-| `rate_limit` | Max requests per staff member per hour | `10` | Any positive integer |
-
-### 3. Environment Variables (Optional)
-
-For enhanced security, you can store the API key in environment variables instead:
-
-1. Edit your `.env` file or web server configuration
-2. Add: `GITHUB_COPILOT_API_KEY=your_api_key_here`
-3. Modify `/include/class.ai.assistant.php` to read from environment variable if preferred
-
-## Usage
+## Usage Guide
 
 ### For Staff Members
 
-Once configured, staff members will see the AI Assistant panel in the ticket view:
-
 1. **Open any ticket** - The AI Assistant panel appears below the ticket thread
-2. **Click the panel header** to expand/collapse it
-3. **Type your question** or click an example question button
-4. **Click "Ask AI Assistant"** to submit
-5. **View the response** - AI analyzes the ticket and provides insights
-6. **Copy response** - Use the Copy button to copy the response to clipboard
-7. **Clear response** - Use the Clear button to remove the response
+2. **Expand the panel** - Click the purple header
+3. **Ask your question**:
+   - Type in the text box, or
+   - Click an example question button
+4. **Submit** - Click "Ask AI Assistant" or press Ctrl+Enter
+5. **Review response** - AI analyzes ticket and provides insights
+6. **Copy response** - Use Copy button to copy to clipboard
+7. **View history** - Click "Conversation History" to see past interactions
 
 ### Example Questions
 
@@ -125,65 +196,63 @@ Once configured, staff members will see the AI Assistant panel in the ticket vie
 - "What are the next recommended steps?"
 - "Summarize this ticket conversation."
 - "What is the customer's sentiment?"
-- "Are there any recurring patterns in this thread?"
+- "Has this issue been resolved?"
+- "What information is still needed?"
 
 ### Keyboard Shortcuts
 
-- **Ctrl+Enter** or **Cmd+Enter** - Submit question (when focused on question input)
+- **Ctrl+Enter** or **Cmd+Enter** - Submit question (when focused in text field)
 
-### Conversation History
+## Security & Authentication
 
-Click "Conversation History" to view past AI interactions for this ticket. This helps maintain context and avoid asking duplicate questions.
+### OAuth 2.0 Flow
 
-## Security Features
+The AI Assistant uses **OAuth 2.0 Client Credentials** flow:
+
+1. When a staff member asks a question, the system checks for a cached token
+2. If token is missing or expired, requests new token from Azure AD
+3. Token is cached securely in database with expiration time
+4. Token is automatically refreshed when needed (5-minute buffer before expiration)
+5. All API requests use Bearer token authentication
+
+### Security Features
+
+- **Azure AD Authentication**: Enterprise-grade OAuth 2.0
+- **Token Caching**: Reduces authentication overhead
+- **Automatic Token Refresh**: Seamless token management
+- **Staff-Only Access**: Not visible to clients/end-users
+- **Permission Checking**: Staff must have ticket access
+- **Rate Limiting**: Prevents abuse and controls costs
+- **Input Sanitization**: All inputs are sanitized and validated
+- **HTTPS Required**: All communication encrypted
+- **Audit Logging**: All interactions logged with timestamps
 
 ### Access Control
 
-- **Staff-Only**: AI Assistant is not visible to clients/end-users
-- **Permission Checking**: Staff must have permission to view the ticket
-- **Session Validation**: All requests validate active staff session
+- Staff must be authenticated
+- Staff must have permission to view the specific ticket
+- Rate limits apply per staff member
+- All requests validate active session
 
-### Rate Limiting
+## Monitoring & Auditing
 
-- Configurable requests per hour per staff member
-- Prevents abuse and controls API costs
-- Returns clear error message when limit is reached
-
-### Input Sanitization
-
-- All user inputs are sanitized and validated
-- HTML tags stripped from questions
-- SQL injection prevention
-- XSS protection
-
-### API Security
-
-- API keys stored in database (not in code)
-- HTTPS required for API communication
-- Request timeout to prevent hanging connections
-- Error messages don't expose sensitive information
-
-## Logging & Auditing
-
-All AI interactions are logged in the `ost_ai_log` table:
+### View AI Usage
 
 ```sql
--- View recent AI interactions
+-- Recent interactions
 SELECT
     al.*,
     t.number as ticket_number,
-    s.firstname,
-    s.lastname
+    CONCAT(s.firstname, ' ', s.lastname) as staff_name
 FROM ost_ai_log al
 JOIN ost_ticket t ON t.ticket_id = al.ticket_id
 JOIN ost_staff s ON s.staff_id = al.staff_id
 ORDER BY al.created DESC
 LIMIT 50;
 
--- View AI usage by staff member
+-- Usage by staff member
 SELECT
-    s.firstname,
-    s.lastname,
+    CONCAT(s.firstname, ' ', s.lastname) as staff_name,
     COUNT(*) as total_requests,
     MAX(al.created) as last_request
 FROM ost_ai_log al
@@ -191,96 +260,243 @@ JOIN ost_staff s ON s.staff_id = al.staff_id
 GROUP BY al.staff_id
 ORDER BY total_requests DESC;
 
--- View AI usage by date
+-- Daily usage statistics
 SELECT
     DATE(created) as date,
-    COUNT(*) as requests
+    COUNT(*) as requests,
+    COUNT(DISTINCT staff_id) as unique_staff,
+    COUNT(DISTINCT ticket_id) as unique_tickets
 FROM ost_ai_log
+WHERE created >= DATE_SUB(NOW(), INTERVAL 30 DAY)
 GROUP BY DATE(created)
 ORDER BY date DESC;
+
+-- Rate limit check (current hour)
+SELECT
+    CONCAT(s.firstname, ' ', s.lastname) as staff_name,
+    COUNT(*) as requests_this_hour,
+    (SELECT value FROM ost_config WHERE namespace='ai.assistant' AND key='rate_limit') as rate_limit
+FROM ost_ai_log al
+JOIN ost_staff s ON s.staff_id = al.staff_id
+WHERE al.created >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+GROUP BY al.staff_id
+ORDER BY requests_this_hour DESC;
 ```
 
 ## Troubleshooting
 
 ### AI Assistant Panel Not Showing
 
-1. Verify database migration ran successfully
-2. Check that files are in correct locations
-3. Clear browser cache and osTicket cache
+**Symptoms**: Panel doesn't appear in ticket view
+
+**Solutions**:
+1. Clear browser cache (Ctrl+Shift+R)
+2. Verify database migration ran successfully:
+   ```sql
+   SHOW TABLES LIKE '%ai_log';
+   SELECT * FROM ost_config WHERE namespace='ai.assistant';
+   ```
+3. Check PHP error logs for errors
 4. Verify staff has permission to view tickets
-5. Check browser console for JavaScript errors
+5. Clear osTicket cache: `rm -rf data/cache/*`
 
 ### "AI Assistant is not enabled" Error
 
-1. Verify `enabled` is set to `1` in configuration
-2. Verify API key is set in configuration
-3. Check database connection
-4. Review PHP error logs
+**Symptoms**: Error message when opening panel
+
+**Solutions**:
+1. Verify `enabled` is set to `1`:
+   ```sql
+   SELECT * FROM ost_config WHERE namespace='ai.assistant' AND key='enabled';
+   ```
+2. Verify all Azure AD credentials are configured:
+   ```sql
+   SELECT key, IF(value='', 'EMPTY', 'SET') as status
+   FROM ost_config
+   WHERE namespace='ai.assistant' AND key IN ('tenant_id', 'client_id', 'client_secret');
+   ```
+3. Check that values don't have extra spaces or quotes
+
+### OAuth Authentication Errors
+
+**Symptoms**: "Failed to authenticate" or "OAuth token request failed"
+
+**Solutions**:
+1. **Verify Azure AD credentials are correct**:
+   - Check tenant_id matches Directory ID in Azure Portal
+   - Check client_id matches Application ID in Azure Portal
+   - Verify client_secret is the VALUE, not the Secret ID
+   - Ensure client secret hasn't expired
+
+2. **Check API permissions**:
+   - Go to Azure Portal → Your app → API permissions
+   - Verify permissions are granted
+   - Click "Grant admin consent" if not done
+
+3. **Test OAuth manually** with curl:
+   ```bash
+   curl -X POST \
+     https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token \
+     -d "client_id=YOUR_CLIENT_ID" \
+     -d "client_secret=YOUR_CLIENT_SECRET" \
+     -d "scope=https://api.business.microsoft.com/.default" \
+     -d "grant_type=client_credentials"
+   ```
+
+4. **Check firewall**:
+   - Ensure server can reach `login.microsoftonline.com`
+   - Verify outbound HTTPS (port 443) is allowed
+
+5. **Clear token cache**:
+   ```sql
+   UPDATE ost_config SET value='' WHERE namespace='ai.assistant' AND key='token_cache';
+   UPDATE ost_config SET value='0' WHERE namespace='ai.assistant' AND key='token_expires';
+   ```
 
 ### "Rate Limit Reached" Error
 
-1. Wait for the rate limit window to reset (1 hour)
-2. Increase rate limit in configuration if needed
-3. Check `ost_ai_log` table for request timestamps
+**Symptoms**: Staff member sees rate limit message
+
+**Solutions**:
+1. Wait for rate limit window to reset (1 hour from first request)
+2. Check current usage:
+   ```sql
+   SELECT staff_id, COUNT(*) as requests
+   FROM ost_ai_log
+   WHERE created >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+   GROUP BY staff_id;
+   ```
+3. Increase rate limit if needed:
+   ```sql
+   UPDATE ost_config SET value='20'
+   WHERE namespace='ai.assistant' AND key='rate_limit';
+   ```
 
 ### API Connection Errors
 
-1. Verify API key is correct
-2. Check internet connectivity from server
-3. Verify firewall allows outbound HTTPS to api.githubcopilot.com
-4. Check SSL certificate validity
-5. Review PHP curl settings
+**Symptoms**: "API Connection Error" or timeout
+
+**Solutions**:
+1. Verify server has internet connectivity
+2. Test API endpoint accessibility:
+   ```bash
+   curl -I https://api.business.microsoft.com
+   ```
+3. Check PHP curl is enabled:
+   ```bash
+   php -m | grep curl
+   ```
+4. Verify SSL certificates are up to date
+5. Check PHP timeout settings in php.ini
+6. Review web server error logs
 
 ### Empty or Invalid Responses
 
-1. Check API credit/quota
-2. Verify model name is correct
-3. Try reducing max_tokens if responses are cut off
-4. Check ticket has sufficient thread content
-5. Review API error messages in logs
+**Symptoms**: Response is empty or doesn't make sense
 
-## API Cost Management
+**Solutions**:
+1. Verify ticket has sufficient thread content
+2. Check token hasn't expired (auto-refreshes, but verify):
+   ```sql
+   SELECT key, value FROM ost_config
+   WHERE namespace='ai.assistant' AND key IN ('token_cache', 'token_expires');
+   ```
+3. Try reducing `max_tokens` if responses are cut off
+4. Adjust `temperature` for more focused responses (lower = more focused)
+5. Check API quota/billing in Azure Portal
 
-### Estimating Costs
+## Cost Management
 
-GitHub Copilot API charges based on:
-- Number of requests
-- Tokens used (input + output)
+### Understanding Costs
 
-Average ticket analysis:
-- Input: ~500-1500 tokens (ticket thread)
-- Output: ~200-800 tokens (response)
+Microsoft 365 Copilot API charges based on:
+- **Token usage**: Input tokens (ticket context) + output tokens (response)
+- **Model selected**: GPT-4 is more expensive than GPT-3.5-turbo
+- **Request volume**: More requests = higher costs
+
+**Average ticket analysis**:
+- Input: ~500-1500 tokens (depends on thread length)
+- Output: ~200-800 tokens (depends on max_tokens setting)
+- Total per request: ~700-2300 tokens
 
 ### Cost Control Strategies
 
-1. **Adjust Rate Limits**: Lower rate limits reduce usage
+1. **Adjust Rate Limits**: Lower limits reduce usage
+   ```sql
+   UPDATE ost_config SET value='5'
+   WHERE namespace='ai.assistant' AND key='rate_limit';
+   ```
+
 2. **Optimize max_tokens**: Set appropriate response length
-3. **Use Smaller Model**: Consider gpt-3.5-turbo for lower costs
+   ```sql
+   UPDATE ost_config SET value='500'
+   WHERE namespace='ai.assistant' AND key='max_tokens';
+   ```
+
+3. **Use Smaller Model**: GPT-3.5-turbo is faster and cheaper
+   ```sql
+   UPDATE ost_config SET value='gpt-3.5-turbo'
+   WHERE namespace='ai.assistant' AND key='model';
+   ```
+
 4. **Monitor Usage**: Review logs regularly
-5. **Staff Training**: Educate staff on effective question patterns
+   ```sql
+   -- Monthly token estimate
+   SELECT
+       MONTH(created) as month,
+       COUNT(*) * 1500 as estimated_tokens_used
+   FROM ost_ai_log
+   GROUP BY MONTH(created);
+   ```
+
+5. **Staff Training**: Educate staff on effective question patterns to reduce unnecessary requests
+
+### Setting Azure Spending Limits
+
+1. Go to Azure Portal → Cost Management
+2. Set up budgets and alerts
+3. Configure spending caps if available
+4. Monitor daily costs
 
 ## Privacy & Compliance
 
 ### Data Handling
 
-- Ticket thread content is sent to GitHub Copilot API
-- AI responses are stored in your database
-- No data is shared outside GitHub Copilot API and your server
+- Ticket thread content is sent to Microsoft 365 Copilot API
+- AI responses are stored in your osTicket database
+- OAuth tokens are cached temporarily in database
+- No data is shared outside Microsoft's infrastructure and your server
 
 ### Compliance Considerations
 
-- **GDPR**: Consider data processing agreements with GitHub
-- **HIPAA**: Consult with compliance team before using with healthcare data
-- **PCI-DSS**: Do not use with tickets containing payment card data
-- **Internal Policies**: Review with security/compliance teams
+#### GDPR (EU)
+- Ticket data may contain personal information
+- Review Microsoft's Data Processing Agreement
+- Ensure you have legal basis for processing
+- Update privacy policy to mention AI usage
 
-### Disclaimers
+#### HIPAA (Healthcare)
+- **DO NOT** use with tickets containing Protected Health Information (PHI)
+- Microsoft 365 Copilot may not be HIPAA-compliant for all features
+- Consult with compliance team before deployment
 
-Add appropriate disclaimers to your staff training:
-- AI responses are suggestions, not definitive answers
-- Staff should verify AI insights before taking action
-- Sensitive data in tickets will be sent to external API
-- AI may occasionally produce incorrect information
+#### PCI-DSS (Payment Cards)
+- **DO NOT** use with tickets containing payment card data
+- Ensure PCI data is not included in ticket threads
+- Filter sensitive data before enabling AI Assistant
+
+#### SOC 2 / ISO 27001
+- Review Microsoft's security certifications
+- Ensure your usage aligns with your security policies
+- Implement appropriate access controls
+
+### Best Practices
+
+1. **Staff Training**: Train staff on data sensitivity
+2. **Privacy Policy**: Update to mention AI assistance
+3. **Data Minimization**: Only use on necessary tickets
+4. **Access Logs**: Regularly review AI usage logs
+5. **Disclaimers**: Add disclaimers about AI usage
 
 ## Uninstallation
 
@@ -296,49 +512,105 @@ rm /path/to/osticket/include/ajax.ai.php
 rm /path/to/osticket/include/staff/templates/ai-assistant.tmpl.php
 rm /path/to/osticket/js/ai-assistant.js
 rm /path/to/osticket/css/ai-assistant.css
+rm /path/to/osticket/setup/sql/ai-assistant-*.sql
+rm /path/to/osticket/ai-assistant-config.example.sql
+rm /path/to/osticket/AI-ASSISTANT-*.md
 
-# 3. Remove AJAX route registration
-# Edit scp/ajax.php and remove AI assistant routes (lines added during installation)
+# 3. Revert code changes
+# Edit scp/ajax.php and remove AI assistant routes (search for "ajax.ai.php")
+# Edit include/staff/header.inc.php and remove CSS/JS includes (search for "ai-assistant")
+# Edit include/staff/ticket-view.inc.php and remove template include (search for "ai-assistant")
+# Edit bootstrap.php and remove AI_LOG_TABLE constant
 
-# 4. Remove includes from header
-# Edit include/staff/header.inc.php and remove CSS/JS includes
-
-# 5. Remove integration from ticket view
-# Edit include/staff/ticket-view.inc.php and remove AI assistant template include
-
-# 6. Clear cache
+# 4. Clear cache
 rm -rf /path/to/osticket/data/cache/*
 ```
 
-## Support & Contributions
+### Delete Azure AD App Registration
+
+1. Go to Azure Portal → Azure Active Directory
+2. Navigate to App registrations
+3. Find "osTicket AI Assistant"
+4. Click Delete
+5. Confirm deletion
+
+## Advanced Topics
+
+### Custom Prompts
+
+To customize the system prompt sent to AI, edit `/include/class.ai.assistant.php`:
+
+```php
+// Around line 270
+$messages = array(
+    array(
+        'role' => 'system',
+        'content' => 'Your custom system prompt here...'
+    ),
+    // ...
+);
+```
+
+### Integration with Other Services
+
+The AI Assistant can be extended to integrate with:
+- Knowledge bases (fetch relevant articles)
+- CRM systems (include customer history)
+- Sentiment analysis tools
+- Translation services
+
+## Support & Contributing
 
 ### Getting Help
 
-- Check this README for common issues
-- Review PHP error logs
-- Check JavaScript console for errors
-- Test API key with curl commands
+1. Check this README for common issues
+2. Review PHP error logs: `/var/log/php/error.log`
+3. Check browser console: F12 → Console tab
+4. Test OAuth with curl commands above
+5. Verify Azure AD app configuration
+
+### Reporting Issues
+
+When reporting issues, include:
+- osTicket version
+- PHP version
+- MySQL version
+- Browser and version
+- Error messages from logs
+- Steps to reproduce
 
 ### Contributing
 
 Suggestions for improvements:
-- Additional AI models support
-- Admin panel for configuration
+- Admin panel for configuration (GUI instead of SQL)
+- Support for other AI providers (Azure OpenAI, OpenAI direct)
 - Enhanced analytics dashboard
 - Multi-language support
 - Custom prompt templates
+- Ticket categorization suggestions
+- Auto-response drafting
+
+## Reference Links
+
+- [Microsoft 365 Copilot API Documentation](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/api/ai-services/chat/overview)
+- [Azure AD App Registration Guide](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
+- [OAuth 2.0 Client Credentials Flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow)
+- [osTicket Documentation](https://docs.osticket.com/)
 
 ## License
 
 This AI Assistant integration follows the osTicket license:
 Released under the GNU General Public License WITHOUT ANY WARRANTY.
+See LICENSE.TXT for details.
 
 ## Credits
 
-Developed as an enhancement to osTicket for improved staff productivity and customer support quality.
+Developed as an enhancement to osTicket for improved staff productivity and customer support quality using Microsoft 365 Copilot AI services.
 
 ---
 
-**Version**: 1.0.0
+**Version**: 2.0.0 (Microsoft 365 Copilot)
 **Last Updated**: 2024-01-16
 **Compatible with**: osTicket 1.17.x and 1.18.x
+**API Provider**: Microsoft 365 Copilot / Azure OpenAI
+**Authentication**: Azure AD (Entra ID) OAuth 2.0
