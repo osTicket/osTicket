@@ -106,20 +106,6 @@ $ticket_id = $ticket->getId();
             </div>
         </div>
 
-        <!-- History section (optional) -->
-        <div class="ai-history-section" style="display: none;" id="ai-history-section">
-            <div class="ai-history-header" onclick="toggleAIHistory()">
-                <h4>
-                    <i class="icon-time"></i>
-                    <?php echo __('Conversation History'); ?>
-                </h4>
-                <i class="icon-chevron-down" id="ai-history-toggle-icon"></i>
-            </div>
-            <div id="ai-history-content" class="ai-history-content" style="display: none;">
-                <!-- History will be loaded here -->
-            </div>
-        </div>
-
         <!-- Disclaimer -->
         <div class="ai-disclaimer">
             <small>

@@ -83,19 +83,46 @@ class AIAssistant {
     }
 
     /**
-     * Check rate limit for staff member
+     * Check rate limit for staff member (session-based)
      */
     function checkRateLimit($staff) {
         $limit = $this->config->get('rate_limit', 10);
 
-        // Get count of requests in last hour
-        $sql = 'SELECT COUNT(*) FROM '.AI_LOG_TABLE.' '
-             . 'WHERE staff_id='.db_input($staff->getId()).' '
-             . 'AND created >= DATE_SUB(NOW(), INTERVAL 1 HOUR)';
+        // Use session-based rate limiting
+        if (!isset($_SESSION['ai_requests'])) {
+            $_SESSION['ai_requests'] = array();
+        }
 
-        $count = db_result(db_query($sql));
+        $staff_id = $staff->getId();
+        $current_time = time();
+        $one_hour_ago = $current_time - 3600;
 
-        return $count < $limit;
+        // Clean up old requests
+        if (isset($_SESSION['ai_requests'][$staff_id])) {
+            $_SESSION['ai_requests'][$staff_id] = array_filter(
+                $_SESSION['ai_requests'][$staff_id],
+                function($timestamp) use ($one_hour_ago) {
+                    return $timestamp > $one_hour_ago;
+                }
+            );
+        } else {
+            $_SESSION['ai_requests'][$staff_id] = array();
+        }
+
+        // Check if under limit
+        $request_count = count($_SESSION['ai_requests'][$staff_id]);
+        return $request_count < $limit;
+    }
+
+    /**
+     * Record a request for rate limiting
+     */
+    private function recordRequest($staff) {
+        $staff_id = $staff->getId();
+        if (!isset($_SESSION['ai_requests'][$staff_id])) {
+            $_SESSION['ai_requests'][$staff_id] = array();
+        }
+        $_SESSION['ai_requests'][$staff_id][] = time();
     }
 
     /**
@@ -288,9 +315,9 @@ class AIAssistant {
         // Make API call
         $response = $this->callAPI($accessToken, $payload);
 
-        // Log the interaction
+        // Record request for rate limiting
         if ($response) {
-            $this->logInteraction($ticket_id, $question, $response);
+            $this->recordRequest($this->staff);
         }
 
         return $response;
@@ -305,7 +332,7 @@ class AIAssistant {
         $headers = array(
             'Content-Type: application/json',
             'Authorization: Bearer ' . $accessToken,
-            'User-Agent: osTicket-AI-Assistant/1.0'
+            'User-Agent: osTicket-AI-Assistant/2.0'
         );
 
         curl_setopt($ch, CURLOPT_POST, true);
@@ -353,41 +380,6 @@ class AIAssistant {
     }
 
     /**
-     * Log AI interaction
-     */
-    private function logInteraction($ticket_id, $question, $response) {
-        $sql = 'INSERT INTO '.AI_LOG_TABLE.' SET '
-             . 'ticket_id='.db_input($ticket_id).', '
-             . 'staff_id='.db_input($this->staff->getId()).', '
-             . 'question='.db_input($question).', '
-             . 'response='.db_input($response).', '
-             . 'created=NOW()';
-
-        return db_query($sql);
-    }
-
-    /**
-     * Get AI interaction history for a ticket
-     */
-    function getTicketHistory($ticket_id, $limit=10) {
-        $sql = 'SELECT ai.*, s.firstname, s.lastname '
-             . 'FROM '.AI_LOG_TABLE.' ai '
-             . 'LEFT JOIN '.STAFF_TABLE.' s ON s.staff_id = ai.staff_id '
-             . 'WHERE ai.ticket_id='.db_input($ticket_id).' '
-             . 'ORDER BY ai.created DESC '
-             . 'LIMIT '.db_input($limit);
-
-        $history = array();
-        if ($res = db_query($sql)) {
-            while ($row = db_fetch_array($res)) {
-                $history[] = $row;
-            }
-        }
-
-        return $history;
-    }
-
-    /**
      * Test Azure AD connection
      */
     function testConnection() {
@@ -414,6 +406,31 @@ class AIAssistant {
     }
 
     /**
+     * Get remaining requests in current hour for staff
+     */
+    function getRemainingRequests($staff=null) {
+        if (!$staff)
+            $staff = $this->staff;
+
+        $limit = $this->config->get('rate_limit', 10);
+        $staff_id = $staff->getId();
+
+        if (!isset($_SESSION['ai_requests'][$staff_id])) {
+            return $limit;
+        }
+
+        $one_hour_ago = time() - 3600;
+        $recent_requests = array_filter(
+            $_SESSION['ai_requests'][$staff_id],
+            function($timestamp) use ($one_hour_ago) {
+                return $timestamp > $one_hour_ago;
+            }
+        );
+
+        return $limit - count($recent_requests);
+    }
+
+    /**
      * Get last error
      */
     function getErrors() {
@@ -423,22 +440,4 @@ class AIAssistant {
     function getLastError() {
         return end($this->errors);
     }
-}
-
-/**
- * AI Log Model for tracking interactions
- */
-class AILog extends VerySimpleModel {
-    static $meta = array(
-        'table' => AI_LOG_TABLE,
-        'pk' => array('id'),
-        'joins' => array(
-            'ticket' => array(
-                'constraint' => array('ticket_id' => 'Ticket.ticket_id'),
-            ),
-            'staff' => array(
-                'constraint' => array('staff_id' => 'Staff.staff_id'),
-            ),
-        ),
-    );
 }

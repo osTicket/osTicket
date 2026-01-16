@@ -251,7 +251,6 @@ $dispatcher = patterns('',
     )),
     url('^/ai/', patterns('ajax.ai.php:AIAjaxAPI',
         url_post('^tickets/(?P<ticket_id>\d+)/ask$', 'ask'),
-        url_get('^tickets/(?P<ticket_id>\d+)/history$', 'getHistory'),
         url_get('^status$', 'getStatus')
     )),
     url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',

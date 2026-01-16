@@ -65,23 +65,6 @@ var AIAssistant = (function() {
     }
 
     /**
-     * Toggle AI history section
-     */
-    function toggleHistory() {
-        var content = document.getElementById('ai-history-content');
-        var icon = document.getElementById('ai-history-toggle-icon');
-
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            icon.className = 'icon-chevron-up';
-            loadHistory();
-        } else {
-            content.style.display = 'none';
-            icon.className = 'icon-chevron-down';
-        }
-    }
-
-    /**
      * Set question from example button
      */
     function setQuestion(button) {
@@ -138,56 +121,6 @@ var AIAssistant = (function() {
     }
 
     /**
-     * Load AI history
-     */
-    function loadHistory() {
-        $.ajax({
-            url: 'ajax.php/ai/tickets/' + ticketId + '/history',
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success && response.history) {
-                    displayHistory(response.history);
-                }
-            },
-            error: function() {
-                document.getElementById('ai-history-content').innerHTML =
-                    '<p class="error">Failed to load history.</p>';
-            }
-        });
-    }
-
-    /**
-     * Display history
-     */
-    function displayHistory(history) {
-        var container = document.getElementById('ai-history-content');
-
-        if (!history || history.length === 0) {
-            container.innerHTML = '<p class="ai-no-history">No conversation history yet.</p>';
-            return;
-        }
-
-        var html = '<div class="ai-history-items">';
-        history.forEach(function(item) {
-            var timestamp = item.created || '';
-            var staffName = (item.firstname || '') + ' ' + (item.lastname || '');
-
-            html += '<div class="ai-history-item">';
-            html += '<div class="ai-history-meta">';
-            html += '<strong>' + escapeHtml(staffName) + '</strong> - ';
-            html += '<span class="ai-history-time">' + escapeHtml(timestamp) + '</span>';
-            html += '</div>';
-            html += '<div class="ai-history-question"><strong>Q:</strong> ' + escapeHtml(item.question) + '</div>';
-            html += '<div class="ai-history-response"><strong>A:</strong> ' + escapeHtml(item.response) + '</div>';
-            html += '</div>';
-        });
-        html += '</div>';
-
-        container.innerHTML = html;
-    }
-
-    /**
      * Show AI response
      */
     function showResponse(response, timestamp) {
@@ -199,12 +132,6 @@ var AIAssistant = (function() {
         responseTimestamp.textContent = 'Generated at ' + (timestamp || new Date().toLocaleString());
 
         responseSection.style.display = 'block';
-
-        // Show history section
-        var historySection = document.getElementById('ai-history-section');
-        if (historySection) {
-            historySection.style.display = 'block';
-        }
     }
 
     /**
@@ -345,7 +272,6 @@ var AIAssistant = (function() {
     return {
         init: init,
         togglePanel: togglePanel,
-        toggleHistory: toggleHistory,
         setQuestion: setQuestion,
         ask: ask,
         clearResponse: clearResponse,
@@ -360,10 +286,6 @@ function initAIAssistant() {
 
 function toggleAIAssistant() {
     AIAssistant.togglePanel();
-}
-
-function toggleAIHistory() {
-    AIAssistant.toggleHistory();
 }
 
 function setAIQuestion(button) {

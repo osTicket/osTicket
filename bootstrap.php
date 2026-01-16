@@ -169,7 +169,6 @@ class Bootstrap {
 
         define('API_KEY_TABLE',$prefix.'api_key');
         define('TIMEZONE_TABLE',$prefix.'timezone');
-        define('AI_LOG_TABLE',$prefix.'ai_log');
     }
 
     static function loadConfig() {

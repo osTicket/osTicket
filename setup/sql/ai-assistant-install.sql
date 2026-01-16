@@ -3,34 +3,15 @@
 -- Microsoft 365 Copilot with Azure AD Authentication
 -- ==========================================
 --
--- This script creates tables and configuration for AI Assistant
+-- This script creates configuration for AI Assistant
 -- that uses Microsoft 365 Copilot API with Azure AD OAuth
+--
+-- NO DATABASE TABLES CREATED - Configuration only
 --
 -- Usage:
 -- mysql -u username -p database_name < ai-assistant-install.sql
 --
--- IMPORTANT: Replace 'ost_' with your table prefix if different
---
 -- ==========================================
-
--- Create AI Log Table
-CREATE TABLE IF NOT EXISTS `ost_ai_log` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `ticket_id` int(11) unsigned NOT NULL,
-  `staff_id` int(11) unsigned NOT NULL,
-  `question` text NOT NULL,
-  `response` text NOT NULL,
-  `created` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `ticket_id` (`ticket_id`),
-  KEY `staff_id` (`staff_id`),
-  KEY `created` (`created`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Add foreign key constraints (optional, comment out if you don't want constraints)
-ALTER TABLE `ost_ai_log`
-  ADD CONSTRAINT `ai_log_ibfk_1` FOREIGN KEY (`ticket_id`) REFERENCES `ost_ticket` (`ticket_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `ai_log_ibfk_2` FOREIGN KEY (`staff_id`) REFERENCES `ost_staff` (`staff_id`) ON DELETE CASCADE;
 
 -- Insert default configuration settings for Microsoft 365 Copilot
 INSERT IGNORE INTO `ost_config` (`namespace`, `key`, `value`, `updated`) VALUES
@@ -48,7 +29,7 @@ INSERT IGNORE INTO `ost_config` (`namespace`, `key`, `value`, `updated`) VALUES
 ('ai.assistant', 'temperature', '0.7', NOW()),
 ('ai.assistant', 'max_tokens', '1000', NOW()),
 
--- Rate Limiting
+-- Rate Limiting (session-based, no database)
 ('ai.assistant', 'rate_limit', '10', NOW()),   -- Requests per hour per staff member
 
 -- OAuth Token Cache (managed automatically)
@@ -57,6 +38,11 @@ INSERT IGNORE INTO `ost_config` (`namespace`, `key`, `value`, `updated`) VALUES
 
 -- ==========================================
 -- Installation Complete
+--
+-- NOTE: This installation does NOT create any database tables.
+--       - Rate limiting uses PHP sessions (not database)
+--       - No interaction logging to database
+--       - All data is session-based and configuration-based
 --
 -- NEXT STEPS:
 -- 1. Register an app in Azure Portal (portal.azure.com)

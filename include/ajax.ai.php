@@ -89,37 +89,6 @@ class AIAjaxAPI extends AjaxController {
     }
 
     /**
-     * Get AI interaction history for a ticket
-     * GET /tickets/{id}/ai/history
-     */
-    function getHistory($ticket_id) {
-        global $thisstaff;
-
-        if (!$thisstaff) {
-            return $this->exerr(401, __('Authentication required'));
-        }
-
-        // Lookup ticket
-        if (!($ticket = Ticket::lookup($ticket_id))) {
-            return $this->exerr(404, __('Ticket not found'));
-        }
-
-        // Check staff permission
-        if (!$ticket->checkStaffPerm($thisstaff)) {
-            return $this->exerr(403, __('Access denied'));
-        }
-
-        // Get history
-        $ai = new AIAssistant($thisstaff);
-        $history = $ai->getTicketHistory($ticket_id);
-
-        return $this->json_encode(array(
-            'success' => true,
-            'history' => $history
-        ));
-    }
-
-    /**
      * Check if AI assistant is available
      * GET /ai/status
      */
