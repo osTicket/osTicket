@@ -249,6 +249,11 @@ $dispatcher = patterns('',
         url_get('^(?P<tid>\d+)/collaborators/(?P<cid>\d+)/view$', 'viewCollaborator'),
         url_post('^(?P<tid>\d+)/collaborators/(?P<cid>\d+)$', 'updateCollaborator')
     )),
+    url('^/ai/', patterns('ajax.ai.php:AIAjaxAPI',
+        url_post('^tickets/(?P<ticket_id>\d+)/ask$', 'ask'),
+        url_get('^tickets/(?P<ticket_id>\d+)/history$', 'getHistory'),
+        url_get('^status$', 'getStatus')
+    )),
     url('^/draft/', patterns('ajax.draft.php:DraftAjaxAPI',
         url_post('^(?P<id>\d+)$', 'updateDraft'),
         url_delete('^(?P<id>\d+)$', 'deleteDraft'),

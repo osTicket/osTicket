@@ -1085,6 +1085,12 @@ $tcount = $ticket->getThreadEntries($types) ? $ticket->getThreadEntries($types)-
 ?>
 <div class="clear"></div>
 <?php
+// Include AI Assistant Panel
+if ($thisstaff && $ticket) {
+    include(STAFFINC_DIR.'templates/ai-assistant.tmpl.php');
+}
+?>
+<?php
 if ($errors['err'] && isset($_POST['a'])) {
     // Reflect errors back to the tab.
     $errors[$_POST['a']] = $errors['err'];

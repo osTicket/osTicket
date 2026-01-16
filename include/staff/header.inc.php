@@ -52,6 +52,8 @@ if (osTicket::is_ie())
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/select2.min.css?0375576"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/rtl.css?0375576"/>
     <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH ?>scp/css/translatable.css?0375576"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo ROOT_PATH; ?>css/ai-assistant.css?0375576"/>
+    <script type="text/javascript" src="<?php echo ROOT_PATH; ?>js/ai-assistant.js?0375576"></script>
 <!--osta-->
     <?php
     if($ost && ($headers=$ost->getExtraHeaders())) {
